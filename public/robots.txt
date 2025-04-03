@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and auth routes
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /onboarding/
+
+# Sitemap
+Sitemap: https://my.revoa.app/sitemap.xml

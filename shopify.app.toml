@@ -1,0 +1,53 @@
+# Configuration for Shopify CLI 3.0+
+name = "Revoa"
+client_id = "21f747d6719351a523236f5481e5a60c"
+application_url = "https://members.revoa.app"
+embedded = false
+
+[access_scopes]
+# This section defines the access scopes the app needs
+scopes = [
+  "read_products",
+  "write_products",
+  "read_orders",
+  "write_orders",
+  "read_customers",
+  "write_customers",
+  "read_inventory",
+  "write_inventory",
+  "read_reports",
+  "read_fulfillments",
+  "write_fulfillments",
+  "read_shipping",
+  "write_shipping",
+  "read_analytics",
+  "read_themes",
+  "write_themes",
+  "read_content",
+  "write_content",
+  "read_recurring_payments",
+  "write_recurring_payments",
+  "read_price_rules",
+  "write_price_rules"
+]
+
+
+[auth]
+redirect_urls = [
+  "https://members.revoa.app/auth/callback",
+  "http://localhost:5173/auth/callback"
+]
+
+[webhooks]
+api_version = "2025-01"
+compliance_url = "https://api.revoa.app/webhooks/shopify"
+
+[pos]
+embedded = false
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "revoatest.myshopify.com"
+
+[extension_directories]
+extensions = "extensions/*"

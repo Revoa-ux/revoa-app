@@ -1,0 +1,122 @@
+# Netlify configuration file
+
+[build]
+  # Build command and output directory
+  command = "npm run build"
+  publish = "dist"
+  environment = { NODE_VERSION = "20.12.0" }
+
+  # Environment variables for build
+  [build.environment]
+    VITE_APP_URL = "https://members.revoa.app"
+    VITE_API_URL = "https://api.revoa.app"
+    VITE_SUPABASE_URL = "https://iipaykvimkbbnoobtpzz.supabase.co"
+    VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA"
+
+# Force HTTPS for all requests
+[[redirects]]
+  from = "http://*"
+  to = "https://:splat"
+  status = 301
+  force = true
+
+# Handle Shopify callback route
+[[redirects]]
+  from = "/auth/callback"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Authentication routes
+[[redirects]]
+  from = "/sign-in"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/sign-up"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/auth/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/onboarding/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Handle all other routes for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Headers to set
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "ALLOW-FROM https://*.myshopify.com https://*.shopify.com"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com;
+      style-src 'self' 'unsafe-inline' https://rsms.me;
+      img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com;
+      font-src 'self' https://rsms.me;
+      connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app;
+      frame-src 'self' https://*.myshopify.com https://*.shopify.com;
+      frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com;
+      media-src 'self' https://*.supabase.co;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';"""
+
+    # Cache Control for static assets
+    Cache-Control = """
+      public,
+      max-age=31536000,
+      must-revalidate"""
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = """
+      public,
+      max-age=31536000,
+      immutable"""
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = """
+      public,
+      max-age=31536000,
+      immutable"""
+
+[[headers]]
+  for = "/*.woff2"
+  [headers.values]
+    Cache-Control = """
+      public,
+      max-age=31536000,
+      immutable"""
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = """
+      public,
+      max-age=31536000,
+      immutable"""

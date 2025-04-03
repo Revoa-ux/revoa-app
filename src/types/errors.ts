@@ -1,0 +1,1 @@
+{/* Full updated errors.ts file content from above */}
