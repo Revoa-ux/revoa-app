@@ -1,11 +1,14 @@
 import type { Handler } from "@netlify/functions";
+import { createClient } from '@supabase/supabase-js';
 import fetch from "node-fetch";
+import crypto from "crypto";
 
 const client_id = process.env.VITE_SHOPIFY_CLIENT_ID as string;
 const client_secret = process.env.VITE_SHOPIFY_CLIENT_SECRET as string;
+const supabaseUrl = process.env.VITE_SUPABASE_URL as string;
+const supabaseServiceKey = process.env.VITE_SUPABASE_SERVICE_KEY as string;
 
-// Simulated `genState` (you should replace this with secure logic)
-const genState = "someSavedStateValue";
+const supabase = createClient(supabaseUrl, supabaseServiceKey || '');
 
 export const handler: Handler = async (event, _context) => {
   const params = event.queryStringParameters;
@@ -14,9 +17,6 @@ export const handler: Handler = async (event, _context) => {
   const shop = params?.shop;
   const hmac = params?.hmac;
   const state = params?.state;
-  const timestamp = params?.timestamp;
-
-  console.debug("OAuth Callback Params:", { code, shop, hmac, state, timestamp });
 
   if (!code || !shop || !state || !hmac) {
     return {
@@ -24,22 +24,46 @@ export const handler: Handler = async (event, _context) => {
       body: JSON.stringify("Missing required query parameters."),
     };
   }
+  
+  try {    
 
-  console.log(`Client Id: ${client_id}`);
-  console.log(`Client Secret: ${client_secret}`);
+    // Now fetch from the oauth_sessions table
+    const { data: oauthSession, error: oauthError } = await supabase
+      .from("oauth_sessions")
+      .select("*")
+      .eq("state", state)
+      .single();
 
-  // TODO: verify the state variable with the one previously generated
-  // if (!genState || state !== genState) {
-  //   console.log("Failed to authenticate: state mismatch");
-  //   return {
-  //     statusCode: 403,
-  //     body: JSON.stringify("Invalid state parameter."),
-  //   };
-  // }
+    //Verify the state variable with the one previously generated
+    if (oauthError || !oauthSession) {
+      console.log("Failed to authenticate: OAuth state mismatch");
+      return {
+        statusCode: 401,
+        body: JSON.stringify("Failed to authenticate: OAuth state mismatch."),
+      };
+    }
 
-  // TODO: verify the HMAC
+    console.log(`OAuth session: ${oauthSession.shop_domain} ${oauthSession.user_id}`);
 
-  try {
+    // Verify the shop
+    if (!oauthSession?.shop_domain || oauthSession.shop_domain !== shop) {
+      console.log("Failed to authenticate: shop mismatch");
+      return {
+        statusCode: 401,
+        body: JSON.stringify("Failed to authenticate: shop mismatch."),
+      };
+    }
+
+    //Verify the HMAC
+    const validHmac = verifyShopifyHmac(params, client_secret);
+    if (!validHmac) {
+      console.log("Failed to authenticate: invalid HMAC");
+      return {
+        statusCode: 401,
+        body: JSON.stringify("Failed to authenticate: invalid HMAC."),
+      };
+    }
+
     const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
       method: "POST",
       headers: {
@@ -58,18 +82,39 @@ export const handler: Handler = async (event, _context) => {
       return {
         statusCode: 500,
         headers: {
-          'Content-Type': 'text/html',
+          "Content-Type": "text/html",
         },
         body: errorText,
       };
     }
 
-    const tokenData = await response.json();
+    const { access_token, scope } = await response.json();
+    console.log(`Token: ${access_token}`)
 
-    // TODO: DO NOT log token data like this in production 
-    console.log("Token Data:", tokenData);
+    // Save tokenData.access_token securely for future API calls
+    const { error: installError } = await supabase
+      .from("shopify_installations")
+      .upsert({
+        user_id: oauthSession.user_id,
+        store_url: shop,
+        access_token,
+        scopes: scope.split(","),
+        status: "installed",
+        installed_at: new Date().toISOString(),
+        last_auth_at: new Date().toISOString(),
+        metadata: {
+          install_count: 1,
+          last_install: new Date().toISOString(),
+        },
+      });
 
-    // TODO: Save tokenData.access_token securely for future API calls
+    if (installError) {
+      console.error("Error saving Shopify installation:", installError);
+      return {
+        statusCode: 500,
+        body: JSON.stringify("Failed to save Shopify installation."),
+      };
+    }
 
     return {
       statusCode: 200,
@@ -79,7 +124,37 @@ export const handler: Handler = async (event, _context) => {
     console.error("Error during token exchange:", err);
     return {
       statusCode: 500,
-      body: JSON.stringify("Internal server error"),
+      body: JSON.stringify(`Internal server error: ${err}`),
     };
   }
+};
+
+const verifyShopifyHmac = (
+  queryParams: any,
+  shopifyApiSecret: string
+): boolean => {
+  const { hmac, signature, ...rest } = queryParams;
+
+  if (!hmac) {
+    console.warn("Missing HMAC from query parameters");
+    return false;
+  }
+
+  // Step 1: Sort the parameters alphabetically
+  const sortedParams = Object.keys(rest)
+    .sort()
+    .map((key) => `${key}=${encodeURIComponent(rest[key])}`)
+    .join("&");
+
+  // Step 2: Create a hash using the secret
+  const generatedHash = crypto
+    .createHmac("sha256", shopifyApiSecret)
+    .update(sortedParams)
+    .digest("hex");
+
+  // Step 3: Timing-safe comparison
+  return crypto.timingSafeEqual(
+    Buffer.from(generatedHash, "utf-8"),
+    Buffer.from(hmac, "utf-8")
+  );
 };
