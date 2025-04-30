@@ -62,7 +62,7 @@ export const handler: Handler = async (event, _context) => {
         statusCode: 401,
         body: JSON.stringify("Failed to authenticate: invalid HMAC."),
       };
-    }
+    }    
 
     const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
       method: "POST",
@@ -88,25 +88,36 @@ export const handler: Handler = async (event, _context) => {
       };
     }
 
-    const { access_token, scope } = await response.json();
-    console.log(`Token: ${access_token}`)
+    const { access_token, scope } = await response.json();    
 
     // Save tokenData.access_token securely for future API calls
+    // Delete any existing record with matching user_id and store_url
+    const { error: deleteError } = await supabase
+    .from("shopify_installations")
+    .delete()
+    .eq("user_id", oauthSession.user_id)
+    .eq("store_url", shop);
+
+    if (deleteError) {
+    console.error("Error deleting existing installation:", deleteError);    
+    }
+
+    // Now insert the new installation record
     const { error: installError } = await supabase
-      .from("shopify_installations")
-      .upsert({
-        user_id: oauthSession.user_id,
-        store_url: shop,
-        access_token,
-        scopes: scope.split(","),
-        status: "installed",
-        installed_at: new Date().toISOString(),
-        last_auth_at: new Date().toISOString(),
-        metadata: {
-          install_count: 1,
-          last_install: new Date().toISOString(),
-        },
-      });
+    .from("shopify_installations")
+    .insert({
+      user_id: oauthSession.user_id,
+      store_url: shop,
+      access_token,
+      scopes: scope.split(","),
+      status: "installed",
+      installed_at: new Date().toISOString(),
+      last_auth_at: new Date().toISOString(),
+      metadata: {
+        install_count: 1,
+        last_install: new Date().toISOString(),
+      },
+    });
 
     if (installError) {
       console.error("Error saving Shopify installation:", installError);
@@ -114,7 +125,7 @@ export const handler: Handler = async (event, _context) => {
         statusCode: 500,
         body: JSON.stringify("Failed to save Shopify installation."),
       };
-    }
+    }                
 
     return {
       statusCode: 200,
