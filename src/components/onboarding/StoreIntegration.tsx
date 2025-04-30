@@ -89,10 +89,28 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       const checkTabClosed = setInterval(() => {
         if (authWindow.closed) {
           clearInterval(checkTabClosed);
-          setIsLoading(false);
-          setError('Authentication window was closed. Please try again.');
-
-        }
+          setIsLoading(false);          
+          
+          // Check the access token has been received
+          supabase
+          .from("shopify_installations")
+          .select("access_token")
+          .eq("user_id", session.user.id)
+          .eq("store_url", validDomain)
+          .eq("status", "installed")
+          .single()
+          .then(({ data: installation, error }) => {
+            if (error || !installation || !installation.access_token) {
+              setError("Authentication failed or installation not found.");
+            } else {
+              onStoreConnected(true);
+            }
+          })
+          .catch((err) => {
+            console.error("Unexpected error fetching installation:", err);
+            setError("Something went wrong checking the installation.");
+          });
+            }
       }, 1000);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
