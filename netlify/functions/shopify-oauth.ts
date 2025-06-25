@@ -1,7 +1,9 @@
 import type { Handler } from "@netlify/functions";
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import fetch from "node-fetch";
-import crypto from "crypto";
+import crypto, { UUID } from "crypto";
+import { stat } from "fs";
+import { errorMonitor } from "events";
 
 const client_id = process.env.VITE_SHOPIFY_CLIENT_ID as string;
 const client_secret = process.env.VITE_SHOPIFY_CLIENT_SECRET as string;
@@ -36,7 +38,9 @@ export const handler: Handler = async (event, _context) => {
 
     //Verify the state variable with the one previously generated
     if (oauthError || !oauthSession) {
-      console.log("Failed to authenticate: OAuth state mismatch");
+      const errorText = "Failed to authenticate: OAuth state mismatch";
+      console.log(errorText);
+      await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
         body: JSON.stringify("Failed to authenticate: OAuth state mismatch."),
@@ -47,7 +51,9 @@ export const handler: Handler = async (event, _context) => {
 
     // Verify the shop
     if (!oauthSession?.shop_domain || oauthSession.shop_domain !== shop) {
-      console.log("Failed to authenticate: shop mismatch");
+      const errorText = "Failed to authenticate: shop mismatch";
+      console.log(errorText);
+      await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
         body: JSON.stringify("Failed to authenticate: shop mismatch."),
@@ -57,7 +63,9 @@ export const handler: Handler = async (event, _context) => {
     //Verify the HMAC
     const validHmac = verifyShopifyHmac(params, client_secret);
     if (!validHmac) {
-      console.log("Failed to authenticate: invalid HMAC");
+      const errorText = "Failed to authenticate: invalid HMAC";
+      console.log(errorText);
+      await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
         body: JSON.stringify("Failed to authenticate: invalid HMAC."),
@@ -77,8 +85,10 @@ export const handler: Handler = async (event, _context) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Failed to get access token:", errorText);
+      const errorStr = await response.text();      
+      const errorText = `Failed to get access token: ${errorStr ?? 'Unknown error'}`;
+      console.error(errorText);
+      await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 500,
         headers: {
@@ -98,8 +108,10 @@ export const handler: Handler = async (event, _context) => {
     .eq("user_id", oauthSession.user_id)
     .eq("store_url", shop);
 
-    if (deleteError) {
-    console.error("Error deleting existing installation:", deleteError);    
+    if (deleteError) { 
+      const errorText = `Error deleting existing installation: ${deleteError ?? 'Unknown error'}`;
+      console.error(errorText);
+      await updateErrorByState(supabase, state, errorText);
     }
 
     // Now insert the new installation record
@@ -120,19 +132,24 @@ export const handler: Handler = async (event, _context) => {
     });
 
     if (installError) {
-      console.error("Error saving Shopify installation:", installError);
+      const errorText = `Error saving Shopify installation: ${installError ?? 'Unknown error'}`;
+      console.error(errorText);
+      await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 500,
         body: JSON.stringify("Failed to save Shopify installation."),
       };
     }                
 
+    await updateErrorByState(supabase, state, "");
     return {
       statusCode: 200,
       body: JSON.stringify("App successfully installed!"),
     };
-  } catch (err: any) {
-    console.error("Error during token exchange:", err);
+  } catch (err: any) {    
+      const errorText = `Error during token exchange: ${err ?? 'Unknown error'}`;
+      console.error(errorText);
+      await updateErrorByState(supabase, state, errorText);
     return {
       statusCode: 500,
       body: JSON.stringify(`Internal server error: ${err}`),
@@ -169,3 +186,20 @@ const verifyShopifyHmac = (
     Buffer.from(hmac, "utf-8")
   );
 };
+
+export async function updateErrorByState(
+  supabase: SupabaseClient,
+  state: string,
+  errorText: string | null
+): Promise<string> {
+  const { error: saveError } = await supabase
+    .from("oauth_sessions")
+    .update({ error: errorText })
+    .eq("state", state); // update by state instead of id
+
+  if (saveError) {
+    console.error(`Failed to upsert for state "${state}":`, saveError);
+    return saveError.message;
+  }
+  return "";
+}

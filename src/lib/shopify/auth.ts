@@ -86,6 +86,7 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
         shop_domain: normalizedDomain,
         user_id: session.user.id,
         expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes expiry
+        error: "Session Started...",
         metadata: {
           created_at: new Date().toISOString(),
           user_agent: navigator.userAgent

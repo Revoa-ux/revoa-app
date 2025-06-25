@@ -7,7 +7,7 @@ export const SHOPIFY_CONFIG = {
   // URLs
   APP_URL: import.meta.env.VITE_APP_URL || 'https://members.revoa.app',
   API_URL: import.meta.env.VITE_API_URL || 'https://api.revoa.app',
-  REDIRECT_URI: `${window.location.origin}/.netlify/functions/shopify-oauth`,
+  REDIRECT_URI: `http://localhost:8888/.netlify/functions/shopify-oauth`,
   
   // Required scopes for all app features
   SCOPES: [

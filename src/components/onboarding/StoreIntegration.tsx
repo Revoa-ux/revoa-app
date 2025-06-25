@@ -93,18 +93,41 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           
           // Check the access token has been received
           supabase
-          .from("shopify_installations")
-          .select("access_token")
+          .from("oauth_sessions")
+          .select("*")
           .eq("user_id", session.user.id)
-          .eq("store_url", validDomain)
-          .eq("status", "installed")
+          .eq("shop_domain", validDomain)
           .single()
-          .then(({ data: installation, error }) => {
-            if (error || !installation || !installation.access_token) {
-              setError("Authentication failed or installation not found.");
-            } else {
-              onStoreConnected(true);
+          .then(({ data: oauthSession, error }) => {
+            if (error) {
+              setError(`Authentication failed or installation not found, message: ${error}`);
+              return;
             }
+            if(!oauthSession){
+              setError(`No oauth session table found for user and store url`);
+              return;            
+            }
+            if(oauthSession.error){
+              setError(`Authentication failed or installation not found, message: ${oauthSession.error}`);
+              return;
+            }            
+
+            // Clean up after completion 
+            supabase
+            .from("oauth_sessions")
+            .delete()
+            .eq("id", oauthSession.id)
+            .then(({ error: deleteError }) => {
+              if (deleteError) {
+                console.error("Failed to delete session:", deleteError);
+                return;
+              } else {
+                console.log("Session deleted successfully.");
+              }
+            });
+
+            onStoreConnected(true);
+            
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
