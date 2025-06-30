@@ -86,11 +86,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       }
 
       // Check if window was closed before completing auth
-      const checkTabClosed = setInterval(() => {
-        if (authWindow.closed) {
-          clearInterval(checkTabClosed);
-          setIsLoading(false);          
-          
+      const checkTabClosed = setInterval(() => {                         
+         
           // Check the access token has been received
           supabase
           .from("oauth_sessions")
@@ -100,40 +97,58 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           .single()
           .then(({ data: oauthSession, error }) => {
             if (error) {
-              setError(`Authentication failed or installation not found, message: ${error}`);
-              return;
+              setError(`Authentication failed or installation not found, message: ${error}`);              
+              // Clean up after completion 
+              CleanOauthSession();  
+              authWindow.close();       
+              return;   
             }
             if(!oauthSession){
               setError(`No oauth session table found for user and store url`);
-              return;            
+              // Clean up after completion 
+              CleanOauthSession();  
+              authWindow.close();     
+              return;    
             }
             if(oauthSession.error){
+              if("Session Started..." == oauthSession.error)
+                return;
+
               setError(`Authentication failed or installation not found, message: ${oauthSession.error}`);
-              return;
+              // Clean up after completion 
+              CleanOauthSession();  
+              authWindow.close();      
+              return;      
             }            
 
             // Clean up after completion 
-            supabase
-            .from("oauth_sessions")
-            .delete()
-            .eq("id", oauthSession.id)
-            .then(({ error: deleteError }) => {
-              if (deleteError) {
-                console.error("Failed to delete session:", deleteError);
-                return;
-              } else {
-                console.log("Session deleted successfully.");
-              }
-            });
+            CleanOauthSession();              
+            onStoreConnected(true);            
+            authWindow.close();
 
-            onStoreConnected(true);
-            
+            function CleanOauthSession() {
+              supabase
+                .from("oauth_sessions")
+                .delete()
+                .eq("id", oauthSession.id)
+                .then(({ error: deleteError }) => {
+                  if (deleteError) {
+                    console.error("Failed to delete session:", deleteError);
+                    return;
+                  } else {
+                    console.log("Session deleted successfully.");
+                  }
+                });
+
+              clearInterval(checkTabClosed);
+              setIsLoading(false);              
+            }
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
             setError("Something went wrong checking the installation.");
           });
-            }
+        
       }, 1000);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
