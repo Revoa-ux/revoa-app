@@ -1,14 +1,14 @@
 // Application configuration
 export const config = {
   app: {
-    url: import.meta.env.VITE_APP_URL || 'https://fancy-chaja-8af20a.netlify.app',
+    url: import.meta.env.VITE_APP_URL || 'https://members.revoa.app',
     environment: import.meta.env.MODE,
     isDevelopment: import.meta.env.DEV,
     isProduction: import.meta.env.PROD
   },
   supabase: {
     url: import.meta.env.VITE_SUPABASE_URL || 'https://iipaykvimkbbnoobtpzz.supabase.co',
-    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
     serviceKey: import.meta.env.VITE_SUPABASE_SERVICE_KEY
   },
   auth: {

@@ -5,7 +5,7 @@ export const SHOPIFY_CONFIG = {
   CLIENT_SECRET: import.meta.env.VITE_SHOPIFY_CLIENT_SECRET,
   
   // URLs
-  APP_URL: import.meta.env.VITE_APP_URL || 'https://fancy-chaja-8af20a.netlify.app',
+  APP_URL: import.meta.env.VITE_APP_URL || 'https://members.revoa.app',
   API_URL: import.meta.env.VITE_API_URL || 'https://api.revoa.app',
   REDIRECT_URI: `http://localhost:8888/.netlify/functions/shopify-oauth`,
   
