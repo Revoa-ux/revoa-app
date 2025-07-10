@@ -4,8 +4,6 @@ import {
   Home,
   ArrowRightLeft,
   Wallet,
-  FileText,
-  Clock,
   Settings,
   Headphones,
   Sun,
@@ -17,7 +15,6 @@ import {
   BarChart3,
   CreditCard,
   Mail,
-  X,
   Package
 } from 'lucide-react';
 import { cn } from '../lib/utils';
