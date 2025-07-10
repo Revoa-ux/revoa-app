@@ -8,11 +8,15 @@
 
   # Environment variables for build
   [build.environment]
-    VITE_APP_URL = "https://members.revoa.app"
+ NODE_VERSION = "20.12.0"
     VITE_API_URL = "https://api.revoa.app"
+    VITE_APP_URL = "https://members.revoa.app"
+    VITE_SHOPIFY_CLIENT_ID = "21f747d6719351a523236f5481e5a60c"
+    VITE_SHOPIFY_CLIENT_SECRET = "8b8630af8cead966607dddb7ab5abee0"
+    VITE_SHOPIFY_WEBHOOK_SECRET = "9d51dc1df2ae63d003b24e8dbfbaaf5dd0203e6a3c5c162a3a11a8d12ade6ac0"
+    VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    VITE_SUPABASE_SERVICE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
     VITE_SUPABASE_URL = "https://iipaykvimkbbnoobtpzz.supabase.co"
-    VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA"
-    environment = { NODE_VERSION = "20.12.0" }
 
 # Force HTTPS for all requests
 [[redirects]]
