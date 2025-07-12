@@ -1,9 +1,7 @@
 import type { Handler } from "@netlify/functions";
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import fetch from "node-fetch";
-import crypto, { UUID } from "crypto";
-import { stat } from "fs";
-import { errorMonitor } from "events";
+import crypto from "crypto";
 
 const client_id = process.env.VITE_SHOPIFY_CLIENT_ID as string;
 const client_secret = process.env.VITE_SHOPIFY_CLIENT_SECRET as string;
@@ -12,7 +10,7 @@ const supabaseServiceKey = process.env.VITE_SUPABASE_SERVICE_KEY as string;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey || '');
 
-export const handler: Handler = async (event, _context) => {
+export const handler: Handler = async (event) => {
   const params = event.queryStringParameters;
 
   const code = params?.code;
@@ -146,19 +144,19 @@ export const handler: Handler = async (event, _context) => {
       statusCode: 200,
       body: JSON.stringify("App successfully installed!"),
     };
-  } catch (err: any) {    
-      const errorText = `Error during token exchange: ${err ?? 'Unknown error'}`;
+  } catch (err: unknown) {    
+      const errorText = `Error during token exchange: ${String(err) ?? 'Unknown error'}`;
       console.error(errorText);
       await updateErrorByState(supabase, state, errorText);
     return {
       statusCode: 500,
-      body: JSON.stringify(`Internal server error: ${err}`),
+      body: JSON.stringify(`Internal server error: ${String(err)}`),
     };
   }
 };
 
 const verifyShopifyHmac = (
-  queryParams: any,
+  queryParams: Record<string, string | undefined>,
   shopifyApiSecret: string
 ): boolean => {
   const { hmac, signature, ...rest } = queryParams;
