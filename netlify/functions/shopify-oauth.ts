@@ -159,7 +159,7 @@ const verifyShopifyHmac = (
   queryParams: Record<string, string | undefined>,
   shopifyApiSecret: string
 ): boolean => {
-  const { hmac, signature, ...rest } = queryParams;
+  const { hmac, ...rest } = queryParams;
 
   if (!hmac) {
     console.warn("Missing HMAC from query parameters");

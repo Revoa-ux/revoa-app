@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Calendar as CalendarIcon, ChevronDown, X } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Calendar from './Calendar';

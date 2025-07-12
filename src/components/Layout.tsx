@@ -36,7 +36,6 @@ const navigation = [
 
 export default function Layout() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { signOut } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {

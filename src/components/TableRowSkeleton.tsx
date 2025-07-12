@@ -1,10 +1,6 @@
 import React from 'react';
 
-interface TableRowSkeletonProps {
-  index: number;
-}
-
-const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
+const TableRowSkeleton: React.FC = () => (
   <tr className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
     <td className="px-4 py-4" style={{ width: '250px' }}>
       <div className="flex items-center space-x-3 animate-pulse">
