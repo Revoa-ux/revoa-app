@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Calendar as CalendarIcon, ChevronDown, X } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Calendar from './Calendar';
 
