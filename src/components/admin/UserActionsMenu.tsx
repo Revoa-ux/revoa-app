@@ -5,15 +5,6 @@ import {
   Key,
   Power,
   UserMinus,
-  Clock,
-  Store,
-  FileText,
-  Receipt,
-  MessageSquare,
-  RefreshCw,
-  Download,
-  Shield,
-  ExternalLink,
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
