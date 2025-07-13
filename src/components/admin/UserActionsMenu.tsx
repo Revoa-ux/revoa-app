@@ -12,7 +12,6 @@ import { useClickOutside } from '@/lib/useClickOutside';
 
 interface UserActionsMenuProps {
   userId: string;
-  userEmail: string;
   isActive?: boolean;
   onViewProfile: (userId: string) => void;
   onResetPassword: (userId: string) => void;
@@ -22,7 +21,6 @@ interface UserActionsMenuProps {
 
 export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   userId,
-  userEmail,
   isActive = true,
   onViewProfile,
   onResetPassword,

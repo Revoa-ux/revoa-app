@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Search, Check, UserPlus, Loader2, Users, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAdmin } from '@/contexts/AdminContext';
-import { UserProfile } from '@/types/admin';
 
 interface UserAssignmentModalProps {
   onClose: () => void;
@@ -15,11 +13,10 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
   onAssign,
   selectedUsers = []
 }) => {
-  const { adminUser } = useAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<string | null>(null);
-  const [admins, setAdmins] = useState([
+  const [admins] = useState([
     {
       id: '1',
       name: 'Sarah Wilson',
