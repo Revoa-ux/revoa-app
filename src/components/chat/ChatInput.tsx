@@ -48,7 +48,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
         // Read Excel file
         const data = await file.arrayBuffer();
-        const workbook = read(data); // eslint-disable-line @typescript-eslint/no-unused-vars
+        const workbook = read(data);
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = utils.sheet_to_json(worksheet);
 
@@ -176,7 +176,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           onClose={() => setShowScheduleModal(false)}
           onSchedule={(scheduledTime) => {
             setShowScheduleModal(false);
-            setMessage(''); // eslint-disable-line @typescript-eslint/no-unused-vars
+            setMessage('');
           }}
         />
       )}
