@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import { useAdmin } from '../contexts/AdminContext';
 import { PageTitle } from '../components/PageTitle';
 import { cn } from '../lib/utils';
@@ -23,7 +22,7 @@ const Auth = () => {
   }>({});
   
   const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
-  const { isAdmin, checkAdminStatus } = useAdmin();
+  const { checkAdminStatus } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
 
