@@ -1,612 +1,465 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Package,
-  Search,
-  Filter,
-  ChevronDown,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Check,
-  X,
-  Clock,
-  ShoppingCart,
-  DollarSign,
-  ArrowUpRight,
-  ArrowDownRight
-} from 'lucide-react';
-import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
-import TableRowSkeleton from '../components/TableRowSkeleton';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { useAuth } from '../contexts/AuthContext';
+import { useAdmin } from '../contexts/AdminContext';
+import { PageTitle } from '../components/PageTitle';
+import { cn } from '../lib/utils';
 
-interface DateRange {
-  startDate: Date;
-  endDate: Date;
-}
+type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
 
-interface Product {
-  id: string;
-  name: string;
-  image: string;
-  sku: string;
-  inStock: number;
-  unfulfilled: number;
-  fulfilled: number;
-  avgFulfillTime: number;
-  avgDeliveryTime: number;
-  totalSold: number;
-  profitMargin: number;
-  costPerItem: number;
-  shippingCost: number;
-  salePrice: number;
-}
+const Auth = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mode, setMode] = useState<AuthMode>('signin');
+  const [validationErrors, setValidationErrors] = useState<{
+    email?: string;
+    password?: string; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    confirmPassword?: string;
+  }>({});
+  
+  const { signIn, signUp, resetPassword, user, isAuthenticated, hasCompletedOnboarding } = useAuth();
+  const { isAdmin, checkAdminStatus } = useAdmin();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-type FilterOption = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock' | 'unfulfilled';
-type SortDirection = 'asc' | 'desc';
-
-interface Column {
-  id: keyof Product;
-  label: string;
-  width: string;
-  sortable?: boolean;
-  fixed?: boolean;
-  render?: (value: any, product: Product) => React.ReactNode;
-}
-
-interface InventoryMetrics {
-  inventoryStatus: {
-    totalInStock: number;
-    totalFulfilled: number;
-    totalUnfulfilled: number;
-    inStockChange: number;
-  };
-  orderMetrics: {
-    totalOrders: number;
-    totalUnitsSold: number;
-    avgUnitsPerOrder: number;
-    ordersChange: number;
-  };
-  timeMetrics: {
-    avgFulfillmentTime: number;
-    avgDeliveryTime: number;
-    avgDoorToDoorTime: number;
-    fulfillmentChange: number;
-  };
-  financialMetrics: {
-    totalRevenue: number;
-    avgProfitMarginAmount: number;
-    avgProfitMarginPercent: number;
-    revenueChange: number;
-  };
-}
-
-export default function Inventory() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
-  const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
-  });
-  const [filterOption, setFilterOption] = useState<FilterOption>('all');
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [sortConfig, setSortConfig] = useState<{
-    field: keyof Product | null;
-    direction: SortDirection;
-  }>({
-    field: null,
-    direction: 'asc'
-  });
-
-  const [metrics, setMetrics] = useState<InventoryMetrics>({
-    inventoryStatus: {
-      totalInStock: 15234,
-      totalFulfilled: 8456,
-      totalUnfulfilled: 342,
-      inStockChange: 12.5
-    },
-    orderMetrics: {
-      totalOrders: 2845,
-      totalUnitsSold: 9876,
-      avgUnitsPerOrder: 3.47,
-      ordersChange: 8.2
-    },
-    timeMetrics: {
-      avgFulfillmentTime: 24,
-      avgDeliveryTime: 3.5,
-      avgDoorToDoorTime: 4.2,
-      fulfillmentChange: -15.3
-    },
-    financialMetrics: {
-      totalRevenue: 456789,
-      avgProfitMarginAmount: 34.50,
-      avgProfitMarginPercent: 28.4,
-      revenueChange: 18.7
+  useEffect(() => {
+    // If this is an admin route, do not handle redirects
+    if (location.pathname.startsWith('/admin')) {
+      return;
     }
-  });
 
-  const columns: Column[] = [
-    {
-      id: 'name',
-      label: 'Product',
-      width: '30%',
-      fixed: true,
-      sortable: true,
-      render: (value, product) => (
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
-            {product.image ? (
-              <img src={product.image} alt={value} className="w-full h-full object-cover" />
+    // Handle regular auth flow
+    if (isAuthenticated) {
+      if (!hasCompletedOnboarding) {
+        navigate('/onboarding/store', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+      return;
+    }
+
+    // Set initial mode based on URL
+    if (location.pathname.includes('sign-up')) {
+      setMode('signup');
+    } else if (location.pathname.includes('sign-in')) {
+      setMode('signin');
+    }
+
+    // Handle password reset mode
+    const params = new URLSearchParams(location.search);
+    if (params.get('mode') === 'reset-password') {
+      setMode('forgot-password');
+    }
+  }, [isAuthenticated, hasCompletedOnboarding, navigate, location]);
+  
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+  
+  const validatePassword = (password: string) => {
+    return password.length >= 8;
+  };
+  
+  const validateForm = () => {
+    const errors: {
+      email?: string;
+      password?: string;
+      confirmPassword?: string;
+    } = {};
+    
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (mode !== 'forgot-password') {
+      if (!password) {
+        errors.password = 'Password is required';
+      } else if (!validatePassword(password)) {
+        errors.password = 'Password must be at least 8 characters';
+      }
+      
+      if (mode === 'signup') {
+        if (!confirmPassword) {
+          errors.confirmPassword = 'Please confirm your password';
+        } else if (password !== confirmPassword) {
+          errors.confirmPassword = 'Passwords do not match';
+        }
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    setValidationErrors({});
+    
+    try {
+      if (mode === 'signin') {
+        const { error } = await signIn(email, password);
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            setValidationErrors({
+              email: 'Invalid email or password',
+              password: 'Invalid email or password'
+            });
+            return;
+          }
+          throw error;
+        }
+
+        // If email is from revoa.app domain, check admin status
+        if (email.endsWith('@revoa.app')) {
+          await checkAdminStatus();
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          // Regular user flow
+          if (!hasCompletedOnboarding) {
+            navigate('/onboarding/store', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
+        }
+      } else if (mode === 'signup') {
+        const { error, data } = await signUp(email, password);
+        if (error) {
+          if (error.message.includes('already registered')) {
+            setValidationErrors({
+              email: 'This email is already registered'
+            });
+            return;
+          }
+          throw error;
+        }
+        
+        if (data) {
+          if (email.endsWith('@revoa.app')) {
+            await checkAdminStatus();
+            navigate('/admin/dashboard', { replace: true });
+          } else {
+            navigate('/onboarding/store', { replace: true });
+          }
+        }
+      } else if (mode === 'forgot-password') {
+        const { error } = await resetPassword(email);
+        if (error) {
+          if (error.message.includes('not found')) {
+            setValidationErrors({
+              email: 'No account found with this email'
+            });
+            return;
+          }
+          throw error;
+        }
+        setMode('reset-success');
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast.error('Failed to sign in. Please check your credentials and try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleModeChange = (newMode: AuthMode) => {
+    setMode(newMode);
+    setValidationErrors({});
+    
+    if (newMode === 'signin') {
+      navigate('/sign-in', { replace: true });
+    } else if (newMode === 'signup') {
+      navigate('/sign-up', { replace: true });
+    }
+  };
+  
+  return (
+    <>
+      <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        {/* Grid Background */}
+        <div 
+          className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
+          style={{ 
+            maskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)',
+            WebkitMaskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)'
+          }}
+        />
+
+        <div className="w-full max-w-[420px] space-y-8 relative">
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-32 h-8 relative">
+                <img 
+                  src="https://jfwmnaaujzuwrqqhgmuf.supabase.co/storage/v1/object/public/REVOA%20(Public)//REVOA%20LOGO.png" 
+                  alt="Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+            <h2 className="text-3xl font-medium text-gray-900">
+              {mode === 'signin' && 'Sign in to your account'}
+              {mode === 'signup' && 'Create your account'}
+              {mode === 'forgot-password' && 'Reset your password'}
+              {mode === 'reset-success' && 'Check your email'}
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              {mode === 'signin' && (
+                <>
+                  Don't have an account?{' '}
+                  <button
+                    onClick={() => handleModeChange('signup')}
+                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                  >
+                    Sign up
+                  </button>
+                </>
+              )}
+              {mode === 'signup' && (
+                <>
+                  Already have an account?{' '}
+                  <button
+                    onClick={() => handleModeChange('signin')}
+                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                  >
+                    Sign in
+                  </button>
+                </>
+              )}
+              {mode === 'forgot-password' && (
+                <>
+                  Remember your password?{' '}
+                  <button
+                    onClick={() => handleModeChange('signin')}
+                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                  >
+                    Sign in
+                  </button>
+                </>
+              )}
+              {mode === 'reset-success' && 'We sent you an email with a link to reset your password.'}
+            </p>
+          </div>
+
+          <div className="bg-white/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+            {mode !== 'reset-success' ? (
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email address
+                  </label>
+                  <div className="mt-1 relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setValidationErrors(prev => ({ ...prev, email: undefined }));
+                      }}
+                      className={cn(
+                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                        validationErrors.email ? "border-red-300" : "border-gray-300"
+                      )}
+                      placeholder="you@example.com"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  {validationErrors.email && (
+                    <p className="mt-2 text-sm text-red-600">{validationErrors.email}</p>
+                  )}
+                </div>
+
+                {mode !== 'forgot-password' && (
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <div className="mt-1 relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Lock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete={mode === 'signin' ? "current-password" : "new-password"}
+                        value={password}
+                        onChange={(e) => {
+                          setPassword(e.target.value);
+                          setValidationErrors(prev => ({ ...prev, password: undefined }));
+                        }}
+                        className={cn(
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                          validationErrors.password ? "border-red-300" : "border-gray-300"
+                        )}
+                        placeholder="••••••••"
+                        disabled={isLoading}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                    {validationErrors.password && (
+                      <p className="mt-2 text-sm text-red-600">{validationErrors.password}</p>
+                    )}
+                  </div>
+                )}
+
+                {mode === 'signup' && (
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                      Confirm Password
+                    </label>
+                    <div className="mt-1 relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Lock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
+                        }}
+                        className={cn(
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                          validationErrors.confirmPassword ? "border-red-300" : "border-gray-300"
+                        )}
+                        placeholder="••••••••"
+                        disabled={isLoading}
+                      />
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <Eye className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    </div>
+                    {validationErrors.confirmPassword && (
+                      <p className="mt-2 text-sm text-red-600">{validationErrors.confirmPassword}</p>
+                    )}
+                  </div>
+                )}
+
+                {mode === 'signin' && (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <input
+                        id="remember-me"
+                        name="remember-me"
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
+                        disabled={isLoading}
+                      />
+                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                        Remember me
+                      </label>
+                    </div>
+
+                    <div className="text-sm">
+                      <button
+                        type="button"
+                        onClick={() => setMode('forgot-password')}
+                        className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                        disabled={isLoading}
+                      >
+                        Forgot your password?
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      {mode === 'signin' && 'Sign in'}
+                      {mode === 'signup' && 'Sign up'}
+                      {mode === 'forgot-password' && 'Reset password'}
+                    </>
+                  )}
+                </button>
+              </form>
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="w-5 h-5 text-gray-400" />
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                  <ArrowRight className="h-6 w-6 text-green-600" />
+                </div>
+                <p className="text-sm text-gray-600 mb-6">
+                  We've sent a password reset link to <strong>{email}</strong>. Please check your email and follow the instructions to reset your password.
+                </p>
+                <button
+                  onClick={() => handleModeChange('signin')}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Back to sign in
+                </button>
               </div>
             )}
           </div>
-          <div className="min-w-0">
-            <div className="text-[13px] font-medium text-gray-900 dark:text-white truncate">{value}</div>
-            <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{product.sku}</div>
-          </div>
-        </div>
-      )
-    },
-    { id: 'inStock', label: 'In Stock', width: '10%', sortable: true },
-    { id: 'unfulfilled', label: 'Unfulfilled', width: '10%', sortable: true },
-    { id: 'fulfilled', label: 'Fulfilled', width: '10%', sortable: true },
-    { id: 'avgFulfillTime', label: 'Avg. Fulfill Time', width: '12.5%', sortable: true },
-    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '12.5%', sortable: true },
-    { id: 'totalSold', label: 'Total Sold', width: '10%', sortable: true },
-    {
-      id: 'profitMargin',
-      label: 'Profit Margin',
-      width: '5%',
-      sortable: true,
-      render: (value) => (
-        <div className={`font-medium ${value >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-          {value.toFixed(2)}%
-        </div>
-      )
-    }
-  ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
-          id: `prod-${i}`,
-          name: `Product ${i + 1}`,
-          image: '',
-          sku: `SKU-${1000 + i}`,
-          inStock: Math.floor(Math.random() * 1000),
-          unfulfilled: Math.floor(Math.random() * 100),
-          fulfilled: Math.floor(Math.random() * 500),
-          avgFulfillTime: Math.random() * 5,
-          avgDeliveryTime: Math.random() * 10,
-          totalSold: Math.floor(Math.random() * 2000),
-          profitMargin: (Math.random() * 40) - 10,
-          costPerItem: Math.random() * 100,
-          shippingCost: Math.random() * 20,
-          salePrice: Math.random() * 200
-        }));
-
-        setProducts(mockProducts);
-        setError(null);
-      } catch (error) {
-        setError('Failed to fetch inventory data');
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [selectedTime]);
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      // Metrics are already set in state
-    };
-
-    fetchMetrics();
-  }, [selectedTime]);
-
-  const handleSort = (field: keyof Product) => {
-    setSortConfig(prevConfig => ({
-      field,
-      direction: prevConfig.field === field && prevConfig.direction === 'asc' ? 'desc' : 'asc'
-    }));
-  };
-
-  const getFilteredAndSortedProducts = React.useMemo(() => {
-    let filtered = products;
-
-    if (searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    switch (filterOption) {
-      case 'in_stock':
-        filtered = filtered.filter(product => product.inStock > 100);
-        break;
-      case 'low_stock':
-        filtered = filtered.filter(product => product.inStock <= 100 && product.inStock > 0);
-        break;
-      case 'out_of_stock':
-        filtered = filtered.filter(product => product.inStock === 0);
-        break;
-      case 'unfulfilled':
-        filtered = filtered.filter(product => product.unfulfilled > 0);
-        break;
-    }
-
-    if (sortConfig.field) {
-      filtered = [...filtered].sort((a, b) => {
-        const aValue = a[sortConfig.field!];
-        const bValue = b[sortConfig.field!];
-
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'asc'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
-        }
-
-        return sortConfig.direction === 'asc'
-          ? (aValue as number) - (bValue as number)
-          : (bValue as number) - (aValue as number);
-      });
-    }
-
-    return filtered;
-  }, [products, searchTerm, filterOption, sortConfig]);
-
-  const getSortIcon = (columnId: keyof Product) => {
-    if (sortConfig.field !== columnId) {
-      return <ArrowUpDown className="w-4 h-4 text-gray-300 dark:text-gray-600" />;
-    }
-    return sortConfig.direction === 'asc' 
-      ? <ArrowUp className="w-4 h-4 text-gray-900 dark:text-white" />
-      : <ArrowDown className="w-4 h-4 text-gray-900 dark:text-white" />;
-  };
-
-  const handleTimeChange = (time: TimeOption) => {
-    setLoading(true);
-    setSelectedTime(time);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
-
-  const handleDateRangeChange = (range: DateRange) => {
-    setDateRange(range);
-  };
-
-  const handleApplyDateRange = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
-
-  const renderChangeIndicator = (change: number) => {
-    const isPositive = change > 0;
-    const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
-    return (
-      <div className={`flex items-center text-sm ${isPositive ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-        <Icon className="w-4 h-4 mr-1" />
-        {Math.abs(change)}%
-      </div>
-    );
-  };
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-7rem)]">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 font-medium mb-2">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-[1050px] mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Inventory Management
-        </h1>
-        <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {loading ? 'Updating inventory data...' : 'Real-time inventory tracking'}
+          <p className="text-xs text-center text-gray-500">
+            By signing up, you agree to our{' '}
+            <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+              Privacy Policy
+            </a>
           </p>
         </div>
       </div>
-
-      <div className="relative mb-6">
-        <div className="overflow-x-auto hide-scrollbar">
-          <div className="inline-flex gap-4 pb-4 px-0.5">
-            {/* Inventory Status Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  {renderChangeIndicator(metrics.inventoryStatus.inStockChange)}
-                </div>
-                <div>
-                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Items in Stock</h3>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {metrics.inventoryStatus.totalInStock.toLocaleString()}
-                  </p>
-                </div>
-                <div className="mt-auto space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Fulfilled</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.inventoryStatus.totalFulfilled.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Unfulfilled</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.inventoryStatus.totalUnfulfilled.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <ShoppingCart className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  {renderChangeIndicator(metrics.orderMetrics.ordersChange)}
-                </div>
-                <div>
-                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {metrics.orderMetrics.totalOrders.toLocaleString()}
-                  </p>
-                </div>
-                <div className="mt-auto space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Units Sold</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.orderMetrics.totalUnitsSold.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Avg Units/Order</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.orderMetrics.avgUnitsPerOrder.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Time Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  {renderChangeIndicator(metrics.timeMetrics.fulfillmentChange)}
-                </div>
-                <div>
-                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Fulfillment Time</h3>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {metrics.timeMetrics.avgFulfillmentTime.toFixed(1)}h
-                  </p>
-                </div>
-                <div className="mt-auto space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Delivery Time</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.timeMetrics.avgDeliveryTime.toFixed(1)}d
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Door-to-Door</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.timeMetrics.avgDoorToDoorTime.toFixed(1)}d
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Financial Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  {renderChangeIndicator(metrics.financialMetrics.revenueChange)}
-                </div>
-                <div>
-                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Sold</h3>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${metrics.financialMetrics.totalRevenue.toLocaleString()}
-                  </p>
-                </div>
-                <div className="mt-auto space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Avg Margin</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      ${metrics.financialMetrics.avgProfitMarginAmount.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Margin %</span>
-                    <span className="text-xs font-bold text-gray-900 dark:text-white">
-                      {metrics.financialMetrics.avgProfitMarginPercent.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Product Inventory</h2>
-          <div className="flex items-center space-x-4">
-            <div className="w-[280px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search products"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                  >
-                    <X className="w-4 h-4 text-gray-400" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div className="w-[280px]">
-              <button
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full flex items-center justify-between h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div className="flex items-center space-x-2">
-                  <Filter className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              </button>
-
-              {showFilterDropdown && (
-                <div className="absolute mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setFilterOption(option);
-                        setShowFilterDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
-                    >
-                      <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
-                      {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex-none">
-              <AdReportsTimeSelector
-                selectedTime={selectedTime}
-                onTimeChange={handleTimeChange}
-                dateRange={dateRange}
-                onDateRangeChange={handleDateRangeChange}
-                onApply={handleApplyDateRange}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="relative overflow-x-auto">
-            <table className="w-full whitespace-nowrap">
-              <thead className="bg-white dark:bg-gray-800">
-                <tr>
-                  {columns.map((column) => (
-                    <th
-                      key={column.id}
-                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
-                        column.fixed ? 'sticky left-0 z-20' : ''
-                      }`}
-                      style={{ width: column.width }}
-                    >
-                      {column.sortable ? (
-                        <button
-                          className="group inline-flex items-center space-x-1"
-                          onClick={() => handleSort(column.id)}
-                        >
-                          <span>{column.label}</span>
-                          <span className="text-gray-400 group-hover:text-gray-500">
-                            {getSortIcon(column.id)}
-                          </span>
-                        </button>
-                      ) : (
-                        column.label
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loading ? (
-                  Array.from({ length: 10 }).map((_, index) => (
-                    <TableRowSkeleton key={index} index={index} />
-                  ))
-                ) : (
-                  getFilteredAndSortedProducts.map((product, index) => (
-                    <tr
-                      key={product.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
-                    >
-                      {columns.map((column) => (
-                        <td
-                          key={column.id}
-                          className={`px-4 py-4 text-sm ${
-                            column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-800' : ''
-                          }`}
-                          style={{ width: column.width }}
-                        >
-                          {column.render
-                            ? column.render(product[column.id], product)
-                            : typeof product[column.id] === 'number'
-                            ? column.id.includes('Time')
-                              ? `${product[column.id].toFixed(1)} days`
-                              : product[column.id].toLocaleString()
-                            : product[column.id]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
-}
+};
+
+export default Auth;
