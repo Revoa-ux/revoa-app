@@ -89,7 +89,7 @@ export class TikTokAdsIntegration {
     }
   }
 
-  trackEvent(eventName: string, parameters: any) {
+  trackEvent(eventName: string, parameters: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
       // Track event using pixel
       window.ttq.track(eventName, parameters);

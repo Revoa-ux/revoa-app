@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { ChevronRight, ExternalLink } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';

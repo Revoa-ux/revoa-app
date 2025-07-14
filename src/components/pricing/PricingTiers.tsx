@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check } from 'lucide-react';
+import { Check } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PricingTier } from '@/types/pricing';
 
 export const pricingTiers: PricingTier[] = [

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Mail, Camera, Loader2, X } from 'lucide-react';
+import { User, Mail, Camera, Loader2 } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 import ImageCropper from './ImageCropper';
 

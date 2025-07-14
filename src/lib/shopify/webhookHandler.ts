@@ -3,7 +3,7 @@ import { supabase } from '../supabase';
 // Server-side webhook handler
 export const handleWebhookEvent = async (
   topic: string,
-  data: any,
+  data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   shopifyDomain: string
 ) => {
   try {
@@ -46,7 +46,7 @@ export const handleWebhookEvent = async (
   }
 };
 
-const handleProductWebhook = async (data: any, shopifyDomain: string) => {
+const handleProductWebhook = async (data: any, shopifyDomain: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   const { id, variants, status } = data;
   
   // Update product in database
@@ -72,7 +72,7 @@ const handleProductWebhook = async (data: any, shopifyDomain: string) => {
   }
 };
 
-const handleOrderWebhook = async (data: any, shopifyDomain: string) => {
+const handleOrderWebhook = async (data: any, shopifyDomain: string) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   const { id, financial_status, fulfillment_status, total_price, customer } = data;
   
   // Update order in database

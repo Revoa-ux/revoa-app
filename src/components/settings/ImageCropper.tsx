@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Check, Loader2 } from 'lucide-react';
+import { X, Check, Loader2 } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface ImageCropperProps {
   imageUrl: string;
@@ -12,7 +12,7 @@ const ImageCropper: React.FC<ImageCropperProps> = ({
   imageUrl,
   onCrop,
   onCancel,
-  aspectRatio = 1
+  aspectRatio = 1 // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 

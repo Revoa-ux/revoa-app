@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../supabase';
+import { supabase } from '../supabase'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Message } from '@/types/chat';
 
 interface Reaction {

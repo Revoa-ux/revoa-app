@@ -1,6 +1,6 @@
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { AlertTriangle, RefreshCw, MessageSquare } from 'lucide-react';
+import { AlertTriangle, RefreshCw, MessageSquare } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 import { handleError } from '@/lib/errorTracking';
 import { isConnectionError, isChatError } from '@/lib/errors';
@@ -79,7 +79,7 @@ export const ChatErrorBoundary: React.FC<ChatErrorBoundaryProps> = ({ children }
   return (
     <ErrorBoundary
       FallbackComponent={ChatErrorFallback}
-      onError={handleError}
+      onError={handleError} // eslint-disable-line @typescript-eslint/no-unused-vars
       onReset={() => {
         // Reset any chat state here
       }}

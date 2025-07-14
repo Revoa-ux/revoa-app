@@ -1,15 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Facebook, 
-  Search, 
-  CheckCircle, 
   Loader2, 
-  AlertTriangle, 
   X, 
-  ChevronDown, 
-  Check,
-  BarChart3,
-  ArrowRight
+  // Removed unused imports
 } from 'lucide-react';
 
 interface AdPlatformIntegrationProps {

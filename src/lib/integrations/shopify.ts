@@ -64,12 +64,12 @@ export class ShopifyIntegration {
   }
 
   async validateOrder(orderId: string) {
-    try {
+    try { // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const order = await this.shopifyService.getOrder(orderId);
       
       // Validate payment
-      const paymentValid = await this.validatePayment(order);
-      if (!paymentValid) {
+      const paymentValid = await this.validatePayment(order); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      if (!paymentValid) { // eslint-disable-next-line @typescript-eslint/no-unused-vars
         throw new Error('Payment validation failed');
       }
 

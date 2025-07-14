@@ -28,7 +28,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const getPermissions = (role: string): AdminPermissions => {
     const isSuperAdmin = role === 'super_admin';

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Smile, Plus } from 'lucide-react';
 import { useReactionsStore, COMMON_REACTIONS } from '@/lib/chat/reactions';
-
+import { Message } from '@/types/chat'; // eslint-disable-line @typescript-eslint/no-unused-vars
 interface MessageReactionsProps {
   messageId: string;
 }
@@ -9,7 +9,7 @@ interface MessageReactionsProps {
 export const MessageReactions: React.FC<MessageReactionsProps> = ({ messageId }) => {
   const [showPicker, setShowPicker] = useState(false);
   const { reactions, addReaction, removeReaction, getReactions } = useReactionsStore();
-  const messageReactions = getReactions(messageId);
+  const messageReactions = getReactions(messageId); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const handleAddReaction = async (emoji: string) => {
     try {

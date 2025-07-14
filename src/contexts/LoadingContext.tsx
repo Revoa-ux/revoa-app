@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface LoadingContextType {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;

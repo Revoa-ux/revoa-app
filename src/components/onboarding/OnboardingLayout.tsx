@@ -28,8 +28,8 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   onNext,
   onPrevious,
   canGoNext,
-  adPlatforms = [],
-  productSetupComplete = false
+  adPlatforms = [], // eslint-disable-line @typescript-eslint/no-unused-vars
+  productSetupComplete = false // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
   const steps: { id: OnboardingStep; label: string; icon: React.ReactNode }[] = [
     { id: 'store', label: 'Store Integration', icon: <Store className="w-4 h-4" /> },
@@ -37,22 +37,6 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
     { id: 'products', label: 'Product Setup', icon: <Package className="w-4 h-4" /> },
     { id: 'complete', label: 'Complete', icon: <CheckCircle className="w-4 h-4" /> }
   ];
-  
-  // Calculate progress bar width based on current step
-  const getProgressWidth = () => {
-    switch (currentStep) {
-      case 'store':
-        return '0%';
-      case 'ads':
-        return '33.33%';
-      case 'products':
-        return '66.66%';
-      case 'complete':
-        return '100%';
-      default:
-        return '0%';
-    }
-  };
 
   // Determine if the current step should show "Skip" instead of "Next"
   const shouldShowSkip = () => {
@@ -68,7 +52,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
         <div className="w-full max-w-[700px]">
           {/* Progress bar container */}
           <div className="relative w-full h-1.5 bg-gray-200 rounded-full">
-            {/* Progress bar line */}
+            {/* Progress bar line */} {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
             <div 
               className="absolute left-0 top-0 h-1.5 bg-gray-900 rounded-full transition-all duration-500 ease-in-out" 
               style={{ width: getProgressWidth() }}

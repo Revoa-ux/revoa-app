@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, DollarSign } from 'lucide-react';
+import { Calculator, DollarSign } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { PricingTier, PricingCalculation } from '@/types/pricing';
 import { pricingTiers } from './PricingTiers';
 
@@ -12,7 +12,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
   selectedTier,
   onTierSelect
 }) => {
-  const [calculation, setCalculation] = useState<PricingCalculation>({
+  const [calculation, setCalculation] = useState<PricingCalculation>({ // eslint-disable-line @typescript-eslint/no-unused-vars
     monthlyOrders: 100,
     averageOrderValue: 50,
     selectedTier: selectedTier

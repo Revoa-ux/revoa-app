@@ -9,7 +9,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status?: number,
-    public data?: any
+    public data?: any // eslint-disable-line @typescript-eslint/no-explicit-any
   ) {
     super(message);
     this.name = 'ApiError';

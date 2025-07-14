@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Download, Eye, ExternalLink, FileText, Image as ImageIcon, Film, Volume2, VolumeX } from 'lucide-react';
-import Modal from '@/components/Modal';
+import { X, Download, Eye, ExternalLink, FileText, Image as ImageIcon, Film, Volume2, VolumeX } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import Modal from '@/components/Modal'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface CreativePreviewModalProps {
   creative: {

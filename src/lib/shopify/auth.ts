@@ -156,8 +156,8 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
       throw new Error('No authenticated user found');
     }
 
-    let client_id = SHOPIFY_CONFIG.CLIENT_ID;
-    let client_secret = SHOPIFY_CONFIG.CLIENT_SECRET;
+    const client_id = SHOPIFY_CONFIG.CLIENT_ID;
+    const client_secret = SHOPIFY_CONFIG.CLIENT_SECRET;
     // Exchange code for access token
     const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
         method: 'POST',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Link as LinkIcon } from 'lucide-react';
+import { Plus, Link as LinkIcon } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 import { Quote } from '@/types/quotes';
 

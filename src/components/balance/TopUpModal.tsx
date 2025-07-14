@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, CreditCard, Building2, Banknote, AlertTriangle, Loader2, Copy, ExternalLink, Check } from 'lucide-react';
+import { X, CreditCard, Building2, Banknote, AlertTriangle, Loader2, Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 
@@ -22,7 +22,6 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const [showAddCard, setShowAddCard] = useState(false);
   const [verificationInProgress, setVerificationInProgress] = useState(false);
   const [savedPaymentMethods, setSavedPaymentMethods] = useState<PaymentMethod[]>([]);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -134,7 +133,6 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
       setError('Failed to add payment method. Please try again.');
     } finally {
       setVerificationInProgress(false);
-      setShowAddCard(false);
     }
   };
 

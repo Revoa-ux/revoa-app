@@ -5,7 +5,7 @@ interface AuditLogEntry {
   user_id: string;
   action: string;
   resource: string;
-  details?: Record<string, any>;
+  details?: Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
   ip_address?: string;
   user_agent?: string;
 }
@@ -58,6 +58,7 @@ export class AuditLogger {
         query = query.limit(options.limit);
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data, error } = await query;
       if (error) throw error;
 

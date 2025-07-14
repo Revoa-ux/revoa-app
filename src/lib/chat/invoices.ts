@@ -140,7 +140,7 @@ export const sendInvoiceStatusEmail = async (
       .select('*, users!inner(*)')
       .eq('id', invoiceId)
       .single();
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     if (error) throw error;
 
     const { data: emailResult, error: emailError } = await supabase

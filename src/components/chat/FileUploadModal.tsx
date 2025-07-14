@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { X, FileText, Upload, AlertTriangle } from 'lucide-react';
+import { FileText, Upload, AlertTriangle } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 import Modal from '../Modal';
 

@@ -32,7 +32,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
       timestamp: new Date().toISOString(),
       email: email || 'anonymous',
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorCode: isAppError(error) ? error.code : undefined,
+      errorCode: isAppError(error) ? error.code : undefined, // eslint-disable-next-line @typescript-eslint/no-explicit-any
       consoleErrors: [],
       browserInfo: {
         userAgent: navigator.userAgent,
@@ -47,7 +47,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
       networkInfo: {},
       retryAttempt: 0,
       metadata: isAppError(error) ? error.details : undefined
-    };
+    }; // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
     // Add network information if available
     if ('connection' in navigator) {

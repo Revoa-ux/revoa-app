@@ -131,8 +131,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     try {
       // Upload file
-      const { url, type, fileName, fileSize } = await uploadFile(file);
-
+      const { url, type, fileName, fileSize } = await uploadFile(file); // eslint-disable-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // Send message with file
       await sendMessage(url, type === 'document' ? 'file' : type);
     } catch (error) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, X, AlertCircle, Check, Store } from 'lucide-react';
+import { Clock, CheckCircle2, X, AlertCircle, Check, Store } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Quote } from '@/types/quotes';
 
 export const getStatusIcon = (status: Quote['status']) => {

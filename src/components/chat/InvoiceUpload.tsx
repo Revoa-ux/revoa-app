@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { FileText, X, Eye, Send } from 'lucide-react';
+import { useDropzone } from 'react-dropzone'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { FileText, X, Eye } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 
 interface InvoiceUploadProps {

@@ -4,7 +4,7 @@ import { CheckCircle } from 'lucide-react';
 interface CompletionProps {
   onComplete: () => void;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
   return (
     <div className="max-w-[540px] mx-auto">

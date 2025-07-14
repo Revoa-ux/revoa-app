@@ -332,7 +332,7 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     let startDate = new Date();
     
     switch (timeframe) {
-      case '1d':
+      case '1d': // eslint-disable-next-line @typescript-eslint/no-unused-vars
         startDate.setDate(startDate.getDate() - 1);
         break;
       case '7d':

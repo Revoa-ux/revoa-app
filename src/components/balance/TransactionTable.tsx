@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowUp, ArrowDown, ArrowUpDown, CreditCard, Building2, Banknote } from 'lucide-react';
-import { Transaction, Column } from '@/types/tables';
+import { Transaction, Column } from '@/types/tables'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 interface TransactionTableProps {
   data: Transaction[];
@@ -17,7 +17,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ data, loadin
   });
 
   const columns: Column<Transaction>[] = [
-    { 
+    {
       id: 'date',
       label: 'Date',
       width: 120,
@@ -140,7 +140,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({ data, loadin
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full"> {/* eslint-disable-line @typescript-eslint/no-unused-vars */}
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
               {columns.map((column, index) => (

@@ -42,7 +42,7 @@ export const checkPermissions = async (requiredPermissions: string[]) => {
   return true;
 };
 
-export const validateSession = async (session: any) => {
+export const validateSession = async (session: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   if (new Date(session.expires_at) < new Date()) {
     throw new Error('Session expired');
   }

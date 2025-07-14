@@ -58,20 +58,20 @@ describe('CallbackHandler Component', () => {
   });
 
   it('should redirect to /onboarding/ads after successful authentication', async () => {
-    const mockHandleCallback = vi.mocked(require('@/lib/shopify/auth').handleCallback);
+    const mockHandleCallback = vi.mocked(require('@/lib/shopify/auth').handleCallback); // eslint-disable-line @typescript-eslint/no-var-requires
     mockHandleCallback.mockResolvedValueOnce({});
 
     render(
       <BrowserRouter>
         <CallbackHandler />
       </BrowserRouter>
-    );
+    ); // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
     await waitFor(() => {
       expect(mockHandleCallback).toHaveBeenCalledWith(
         expect.any(URLSearchParams)
       );
-      expect(vi.mocked(require('sonner').toast.success)).toHaveBeenCalledWith('Successfully connected to Shopify');
+      expect(vi.mocked(require('sonner').toast.success)).toHaveBeenCalledWith('Successfully connected to Shopify'); // eslint-disable-line @typescript-eslint/no-var-requires
     });
   });
 
@@ -86,8 +86,8 @@ describe('CallbackHandler Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Connection Failed/i)).toBeInTheDocument();
-      expect(vi.mocked(require('sonner').toast.error)).toHaveBeenCalledWith(
+      expect(screen.getByText(/Connection Failed/i)).toBeInTheDocument(); // eslint-disable-next-line @typescript-eslint/no-var-requires
+      expect(vi.mocked(require('sonner').toast.error)).toHaveBeenCalledWith( // eslint-disable-next-line @typescript-eslint/no-var-requires
         'Failed to connect to Shopify store',
         { description: 'Failed to connect' }
       );

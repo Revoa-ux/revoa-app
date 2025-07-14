@@ -1,17 +1,17 @@
 import { AppBridgeProvider, createApp } from '@shopify/app-bridge-react';
 import { getSessionToken } from '@shopify/app-bridge-utils';
-import { SHOPIFY_CONFIG } from './config';
+import { APP_BRIDGE_CONFIG } from '../../config/shopify';
 
 // Initialize App Bridge
 export const initializeAppBridge = () => {
   const host = new URLSearchParams(window.location.search).get('host');
   
-  if (!host || !SHOPIFY_CONFIG.appStore.isEmbedded) {
+  if (!host || !APP_BRIDGE_CONFIG.forceRedirect) { // Assuming forceRedirect implies embedded for this check
     return null;
   }
 
   return createApp({
-    apiKey: SHOPIFY_CONFIG.appStore.appBridge.apiKey,
+    apiKey: APP_BRIDGE_CONFIG.apiKey,
     host,
     forceRedirect: true
   });

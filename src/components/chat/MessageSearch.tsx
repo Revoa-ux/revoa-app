@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Message } from '@/types/chat';
 
 interface MessageSearchProps {

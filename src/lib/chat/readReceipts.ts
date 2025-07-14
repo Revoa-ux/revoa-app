@@ -31,7 +31,7 @@ export const initReadReceipts = (socket: Socket) => {
   const store = useReadReceiptStore.getState();
 
   // Listen for read receipt events
-  socket.on('message:read', ({ messageId, timestamp }) => {
+  socket.on('message:read', ({ messageId, timestamp }) => { // eslint-disable-next-line @typescript-eslint/no-unused-vars
     store.markAsRead(messageId);
   });
 

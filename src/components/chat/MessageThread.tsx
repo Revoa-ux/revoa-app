@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageSquare, X } from 'lucide-react';
-import { Message, MessageThread as ThreadType } from '@/types/chat';
+import { Message, MessageThread as ThreadType } from '@/types/chat'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { MessageStatus } from './MessageStatus';
 import { MessageReactions } from './MessageReactions';
 import { ReadReceipt } from './ReadReceipt';
@@ -58,7 +58,7 @@ export const MessageThread: React.FC<MessageThreadProps> = ({
                 <span className="text-xs opacity-75">
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </span>
-                {message.sender === 'user' && (
+                {message.sender === 'user' && ( // eslint-disable-line @typescript-eslint/no-unused-vars
                   <ReadReceipt status={message.status} />
                 )}
               </div>

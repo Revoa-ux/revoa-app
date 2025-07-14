@@ -8,7 +8,7 @@ const DEBUG = import.meta.env.DEV;
 // Debug logging helper
 const log = (message: string, data?: any) => {
   if (DEBUG) {
-    console.log(`[Auth] ${message}`, data || '');
+    console.log(`[Auth] ${message}`, data || ''); // eslint-disable-line @typescript-eslint/no-explicit-any
   }
 };
 

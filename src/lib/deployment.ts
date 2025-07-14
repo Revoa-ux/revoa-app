@@ -34,7 +34,7 @@ export const getDeploymentStatus = async ({ id }: { id: string }): Promise<Deplo
 export const deployToNetlify = async (options: {
   buildCommand: string;
   outputDirectory: string;
-  siteName?: string;
+  siteName?: string; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 }): Promise<{ deploy_id: string }> => {
   // This is a mock implementation
   // In a real application, this would make an API call to Netlify to start a deployment

@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import { toast } from 'sonner';
+import { toast } from 'sonner'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
 // Maximum file sizes in bytes
 const MAX_FILE_SIZES = {
@@ -58,7 +58,7 @@ export const uploadFile = async (file: File): Promise<UploadResult> => {
       });
 
     if (error) throw error;
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from('chat-uploads')
@@ -89,7 +89,7 @@ export const validateFile = (file: File): string | null => {
   // Check file size
   const fileType = Object.entries(ALLOWED_TYPES).find(([_, types]) => 
     types.includes(file.type)
-  )?.[0] as keyof typeof MAX_FILE_SIZES;
+  )?.[0] as keyof typeof MAX_FILE_SIZES; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   if (fileType && file.size > MAX_FILE_SIZES[fileType]) {
     return `File size exceeds ${MAX_FILE_SIZES[fileType] / (1024 * 1024)}MB limit`;

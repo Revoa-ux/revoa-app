@@ -1,7 +1,7 @@
 // Client-side webhook handling
 export const handleWebhook = async (
   topic: string,
-  data: any,
+  data: any, // eslint-disable-line @typescript-eslint/no-explicit-any
   hmac: string
 ) => {
   try {
@@ -83,22 +83,22 @@ export const registerWebhooks = async (topics: string[]): Promise<void> => {
 };
 
 // Individual webhook handlers
-const handleProductCreate = async (data: any) => {
+const handleProductCreate = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   console.log('Product created:', data);
   // Implement product creation handling
 };
 
-const handleProductUpdate = async (data: any) => {
+const handleProductUpdate = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   console.log('Product updated:', data);
   // Implement product update handling
 };
 
-const handleProductDelete = async (data: any) => {
+const handleProductDelete = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   console.log('Product deleted:', data);
   // Implement product deletion handling
 };
 
-const handleOrderCreate = async (data: any) => {
+const handleOrderCreate = async (data: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
   console.log('Order created:', data);
   // Implement order creation handling
 };

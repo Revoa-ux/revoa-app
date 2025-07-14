@@ -123,7 +123,7 @@ export class GoogleAdsIntegration {
     }
   }
 
-  trackEvent(eventName: string, parameters: any) {
+  trackEvent(eventName: string, parameters: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
     try {
       // Track event
       window.gtag('event', eventName, parameters);

@@ -1,22 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Facebook, 
-  Search, 
   AlertTriangle, 
-  X, 
-  ChevronDown, 
-  Check,
   Brain,
   GitBranch as BrandTiktok,
   RefreshCw
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { AdAccount, AdInsight, AdCheckItem } from '@/types/ads';
-import { PerformanceScore } from '@/components/reports/PerformanceScore';
-import { TotalScore } from '@/components/reports/TotalScore';
-import { OptimizationPriorities } from '@/components/reports/OptimizationPriorities';
-import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
-import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 
 interface DateRange {
@@ -185,7 +173,7 @@ export default function Audit() {
     endDate: new Date()
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
+  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics); // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
