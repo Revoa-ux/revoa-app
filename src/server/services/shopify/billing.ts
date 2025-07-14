@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { PricingTier } from '@/types/pricing';
-import { pricingTiers } from '@/components/pricing/PricingTiers';
+import { pricingTiers } from '@/constants/pricingTiers';
 
 export class ShopifyBillingService {
   private supabase: SupabaseClient;

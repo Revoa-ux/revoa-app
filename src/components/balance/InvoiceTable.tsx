@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowUp, ArrowDown, ArrowUpDown, ExternalLink, FileText } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowUpDown, FileText } from 'lucide-react';
 import { Invoice, Column } from '@/types/tables';
 
 interface InvoiceTableProps {
   data: Invoice[];
-  loading?: boolean;
 }
 
-export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data, loading }) => {
+export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
   const [sortConfig, setSortConfig] = useState<{
     field: keyof Invoice | null;
     direction: 'asc' | 'desc';

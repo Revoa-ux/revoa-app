@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { PricingTiers, pricingTiers } from '@/components/pricing/PricingTiers';
+import { PricingTiers } from '@/components/pricing/PricingTiers';
 import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 import { PricingTier } from '@/types/pricing';
+import { pricingTiers } from '@/constants/pricingTiers';
 
 export default function Pricing() {
   const [selectedTier, setSelectedTier] = useState<PricingTier['id']>('momentum');

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { createSupabaseClient } from '../db/client';
 import { ShopifyService } from '../services/shopify';
-import { pricingTiers } from '@/components/pricing/PricingTiers';
+import { pricingTiers } from '@/constants/pricingTiers';
 
 const supabase = createSupabaseClient();
 
