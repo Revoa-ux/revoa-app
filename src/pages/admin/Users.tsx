@@ -90,7 +90,7 @@ export default function Users() {
   });
 
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const filterDropdownRef = useRef<HTMLDivElement>(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
@@ -383,11 +383,11 @@ export default function Users() {
       {showAssignModal && (
         <UserAssignmentModal
           onClose={() => setShowAssignModal(false)}
-          onAssign={async (userId, adminId) => { // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          onAssign={async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             toast.success('User assigned successfully');
           }}
-          selectedUsers={selectedUsers} // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          selectedUsers={selectedUsers}
         />
       )}
     </div>

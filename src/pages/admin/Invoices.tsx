@@ -47,8 +47,8 @@ const AssignInvoiceModal: React.FC<AssignInvoiceModalProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState(''); // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false); // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [users, setUsers] = useState<User[]>([ // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    { id: '1', name: 'John Doe', email: 'john@example.com', storeUrl: 'store-1.myshopify.com' }, // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [users, setUsers] = useState<User[]>([
+    { id: '1', name: 'John Doe', email: 'john@example.com', storeUrl: 'store-1.myshopify.com' },
     { id: '2', name: 'Jane Smith', email: 'jane@example.com', storeUrl: 'store-2.myshopify.com' }
   ]);
 

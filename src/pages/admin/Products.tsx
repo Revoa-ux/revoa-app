@@ -9,7 +9,7 @@ import {
   Image as ImageIcon,
   DollarSign,
   Truck
-} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+} from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -491,7 +491,7 @@ export default function AdminProducts() {
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(false); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isLoading, setIsLoading] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<string[]>(['Electronics', 'Fashion', 'Home', 'Beauty']);
   
   const categoryDropdownRef = useRef<HTMLDivElement>(null);

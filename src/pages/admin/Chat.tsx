@@ -397,7 +397,7 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    onSendInvoice={handleSendInvoice}
                   /> 
                 </div>
 
