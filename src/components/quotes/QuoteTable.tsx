@@ -22,7 +22,6 @@ const Auth = () => {
   
   const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
   const navigate = useNavigate();
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {

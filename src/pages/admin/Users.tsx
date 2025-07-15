@@ -90,7 +90,6 @@ export default function Users() {
   });
 
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));

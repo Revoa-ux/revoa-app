@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { PageTitle } from '../components/PageTitle';
+import { PageTitle } from '../../components/PageTitle';
 import { cn } from '../lib/utils';
 
 type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
