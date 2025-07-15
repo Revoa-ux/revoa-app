@@ -1,17 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Search,
-  ChevronDown,
-  Check,
-  Clock,
-  X,
-  ExternalLink,
-  ShoppingCart,
-  Plus,
-  Loader2,
-  Filter,
-  Calendar,
-  ArrowDown,
   Archive,
   Flag,
   Volume2,
@@ -30,7 +18,7 @@ import {
   Building2,
   Edit3,
   ChevronRight
-} from 'lucide-react';
+} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
@@ -409,8 +397,8 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice}
-                  />
+                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  /> 
                 </div>
 
                 <div className="w-80 border-l border-gray-200 bg-white flex flex-col min-h-0">

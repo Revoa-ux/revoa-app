@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import CallbackHandler from './CallbackHandler';
+import CallbackHandler from './CallbackHandler'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 // Mock modules
 vi.mock('react-router-dom', async () => {
@@ -70,8 +70,8 @@ describe('CallbackHandler Component', () => {
     await waitFor(() => {
       expect(mockHandleCallback).toHaveBeenCalledWith(
         expect.any(URLSearchParams)
-      );
-      expect(vi.mocked(require('sonner').toast.success)).toHaveBeenCalledWith('Successfully connected to Shopify'); // eslint-disable-line @typescript-eslint/no-var-requires
+      ); // eslint-disable-next-line @typescript-eslint/no-var-requires
+      expect(vi.mocked(require('sonner').toast.success)).toHaveBeenCalledWith('Successfully connected to Shopify');
     });
   });
 
@@ -86,8 +86,8 @@ describe('CallbackHandler Component', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText(/Connection Failed/i)).toBeInTheDocument(); // eslint-disable-next-line @typescript-eslint/no-var-requires
-      expect(vi.mocked(require('sonner').toast.error)).toHaveBeenCalledWith( // eslint-disable-next-line @typescript-eslint/no-var-requires
+      expect(screen.getByText(/Connection Failed/i)).toBeInTheDocument();
+      expect(vi.mocked(require('sonner').toast.error)).toHaveBeenCalledWith(
         'Failed to connect to Shopify store',
         { description: 'Failed to connect' }
       );

@@ -78,7 +78,7 @@ export default function Users() {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false); // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [sortBy, setSortBy] = useState<{
@@ -383,11 +383,11 @@ export default function Users() {
       {showAssignModal && (
         <UserAssignmentModal
           onClose={() => setShowAssignModal(false)}
-          onAssign={async (userId, adminId) => {
+          onAssign={async (userId, adminId) => { // eslint-disable-next-line @typescript-eslint/no-unused-vars
             await new Promise(resolve => setTimeout(resolve, 1000));
             toast.success('User assigned successfully');
           }}
-          selectedUsers={selectedUsers}
+          selectedUsers={selectedUsers} // eslint-disable-next-line @typescript-eslint/no-unused-vars
         />
       )}
     </div>

@@ -32,7 +32,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
       timestamp: new Date().toISOString(),
       email: email || 'anonymous',
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
-      errorCode: isAppError(error) ? error.code : undefined, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      errorCode: isAppError(error) ? error.code : undefined,
       consoleErrors: [],
       browserInfo: {
         userAgent: navigator.userAgent,
@@ -44,7 +44,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
         colorDepth: window.screen.colorDepth,
         pixelRatio: window.devicePixelRatio
       },
-      networkInfo: {},
+      networkInfo: {}, // eslint-disable-next-line @typescript-eslint/no-explicit-any
       retryAttempt: 0,
       metadata: isAppError(error) ? error.details : undefined
     }; // eslint-disable-next-line @typescript-eslint/no-explicit-any

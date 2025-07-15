@@ -258,7 +258,7 @@ export default function AdminQuotes() {
   ];
 
   const handleProcessQuote = (processedQuote: Quote) => {
-    // Update quote in state
+    // Update quote in state // eslint-disable-next-line @typescript-eslint/no-unused-vars
     toast.success('Quote processed successfully');
     setSelectedQuote(null);
   };

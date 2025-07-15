@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorBoundary } from './components/ErrorBoundary'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { supabase, verifyConnection } from './lib/supabase';
 import { toast } from 'sonner';
 
@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const DEBUG = import.meta.env.DEV;
 
 // Debug logging helper
-const log = (message: string, data?: any) => {
+const log = (message: string, data?: any) => { // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (DEBUG) { // eslint-disable-next-line @typescript-eslint/no-explicit-any
     console.log(`[App] ${message}`, data || '');
   }

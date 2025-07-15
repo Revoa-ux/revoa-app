@@ -90,7 +90,7 @@ export const validateCallback = (params: URLSearchParams): boolean => {
 };
 
 // Validate webhook HMAC
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports
 export const validateWebhookHmac = (hmac: string, body: string, secret: string): boolean => {
   const crypto = require('crypto');
   const calculated = crypto

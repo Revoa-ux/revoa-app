@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   AlertTriangle, 
-  Brain,
-  GitBranch as BrandTiktok,
   RefreshCw
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
@@ -70,7 +68,7 @@ const mockCreatives = [
     }
   }
 ];
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',

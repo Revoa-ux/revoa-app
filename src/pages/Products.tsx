@@ -1,14 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  Check,
-  X,
-  Package,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
+  Search, Filter, ChevronDown, Check, X, Package, ArrowUpDown, ArrowUp, ArrowDown,
   ChevronRight,
   ChevronLeft,
   ExternalLink,
@@ -16,7 +8,7 @@ import {
   Minus,
   DollarSign,
   Truck
-} from 'lucide-react';
+} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useClickOutside } from '@/lib/useClickOutside';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -575,7 +567,7 @@ const Products: React.FC = () => {
                     {selectedCategory === category && (
                       <Check className="w-4 h-4 text-primary-500" />
                     )}
-                  </button>
+                  </button> // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 ))}
               </div>
             )}

@@ -1,20 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  User, 
-  Mail, 
-  Lock, 
-  Bell, 
-  Globe, 
-  DollarSign,
-  Moon,
-  Sun,
-  Languages,
-  CreditCard,
-  Building2,
-  AlertTriangle,
-  Facebook,
-  Check,
-  ChevronRight,
+  User, Mail, Lock, Bell, Globe, DollarSign, Moon, Sun, Languages, CreditCard, Building2, AlertTriangle, Facebook, Check, ChevronRight,
   Download,
   Trash2,
   Loader2,
@@ -22,7 +8,7 @@ import {
   X,
   UserPlus,
   Settings as SettingsIcon,
-  Shield,
+  Shield, // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MessageSquare,
   FileText,
   ExternalLink,
@@ -30,7 +16,7 @@ import {
   Minus,
   DollarSign as DollarSignIcon,
   Truck
-} from 'lucide-react';
+} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';

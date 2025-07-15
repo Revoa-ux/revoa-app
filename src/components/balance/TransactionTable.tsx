@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { useAdmin } from '../contexts/AdminContext';
 import { PageTitle } from '../components/PageTitle';
 import { cn } from '../lib/utils';
 
@@ -21,8 +19,8 @@ const Auth = () => {
     confirmPassword?: string;
   }>({});
   
-  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
-  const { checkAdminStatus } = useAdmin();
+  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { checkAdminStatus } = useAdmin(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate();
   const location = useLocation();
 

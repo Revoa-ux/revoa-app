@@ -1,6 +1,6 @@
 import React from 'react';
-import { CreditCard, Banknote, Trash2, Star, AlertTriangle } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
-import { toast } from 'sonner'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { CreditCard, Banknote, Trash2, Star, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { PaymentMethod, deletePaymentMethod, setDefaultPaymentMethod } from '@/lib/payments';
 
 interface PaymentMethodListProps {

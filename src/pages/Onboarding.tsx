@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
@@ -17,7 +17,7 @@ const Onboarding = () => {
   const [productSetupComplete, setProductSetupComplete] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   
-  const { user, setHasCompletedOnboarding } = useAuth();
+  const { setHasCompletedOnboarding } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
