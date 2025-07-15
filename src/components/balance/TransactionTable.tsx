@@ -15,7 +15,7 @@ const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
-    password?: string; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    password?: string;
     confirmPassword?: string;
   }>({});
   
