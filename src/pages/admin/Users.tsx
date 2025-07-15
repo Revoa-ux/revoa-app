@@ -89,7 +89,6 @@ export default function Users() {
     direction: 'desc'
   });
 
-  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
