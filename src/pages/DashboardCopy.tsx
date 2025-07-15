@@ -376,7 +376,7 @@ export default function DashboardCopy() {
     return new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(date);
   };
 
-  const dataPointLabels = { // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dataPointLabels = {
     value1: selectedCard ? cardsData.find(c => c.id === selectedCard)?.title : '',
     value2: selectedCard ? cardsData.find(c => c.id === selectedCard)?.dataPoint1.label : '',
     value3: selectedCard ? cardsData.find(c => c.id === selectedCard)?.dataPoint2.label : ''

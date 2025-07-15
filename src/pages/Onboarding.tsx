@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useAuth } from '../contexts/AuthContext';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';

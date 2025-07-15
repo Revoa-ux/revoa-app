@@ -28,6 +28,12 @@ interface BankDetails {
   swiftCode: string;
 }
 
+interface AutoTopUpConfig {
+  enabled: boolean;
+  threshold: number;
+  amount: number;
+}
+
 export default function Balance() {
   const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
@@ -49,7 +55,7 @@ export default function Balance() {
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
   useClickOutside(typeDropdownRef, () => setShowTypeDropdown(false));
 
-  const [invoices, setInvoices] = useState<Invoice[]>([ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [invoices, setInvoices] = useState<Invoice[]>([
     {
       id: '1',
       date: '2024-03-15',
@@ -84,7 +90,7 @@ export default function Balance() {
     }
   ]);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [transactions, setTransactions] = useState<Transaction[]>([
     {
       id: '1',
       date: '2024-03-15',
@@ -140,9 +146,9 @@ export default function Balance() {
     swiftCode: "CMFGUS33"
   };
 
-  const currentBalance = 24892; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const projectedExpenses = 29475; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const suggestedBalance = 126322.50; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const currentBalance = 24892;
+  const projectedExpenses = 29475;
+  const suggestedBalance = 126322.50;
   const suggestedTopUp = suggestedBalance - currentBalance;
 
   const cogsProjectionData = {
