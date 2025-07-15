@@ -68,6 +68,15 @@ const mockCreatives = [
     }
   }
 ];
+
+type AdAccount = {
+  id: string;
+  platform: 'facebook' | 'tiktok';
+  accountId: string;
+  accountName: string;
+  status: 'active' | 'inactive';
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockAdAccounts: AdAccount[] = [
   {
@@ -171,7 +180,7 @@ export default function Audit() {
     endDate: new Date()
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
