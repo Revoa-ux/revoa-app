@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
 import { cn } from '../lib/utils';

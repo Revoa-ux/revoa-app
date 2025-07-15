@@ -20,7 +20,7 @@ const Auth = () => {
     confirmPassword?: string;
   }>({});
   
-  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
   const navigate = useNavigate();
   const navigate = useNavigate();
   const location = useLocation();

@@ -60,10 +60,10 @@ export interface PaymentMethod {
 // Get payment methods
 export const getPaymentMethods = async (customerId: string) => { // eslint-disable-line @typescript-eslint/no-unused-vars
   // For development, return mock data
-  return { // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return {
     methods: MOCK_PAYMENT_METHODS,
     defaultMethodId: 'pm_mock_1'
-  }; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  };
 };
 
 // Delete payment method

@@ -12,7 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any; data: any }>;
   signOut: () => Promise<void>;
-  updatePassword: (password: string) => Promise<{ error: any }>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  updatePassword: (password: string) => Promise<{ error: any }>;
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;

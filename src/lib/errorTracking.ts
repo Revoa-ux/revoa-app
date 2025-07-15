@@ -47,7 +47,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
       networkInfo: {}, // eslint-disable-next-line @typescript-eslint/no-explicit-any
       retryAttempt: 0,
       metadata: isAppError(error) ? error.details : undefined
-    }; // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    };
 
     // Add network information if available
     if ('connection' in navigator) {

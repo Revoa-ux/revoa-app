@@ -17,8 +17,8 @@ interface OnboardingLayoutProps {
   onNext: () => void;
   onPrevious: () => void;
   canGoNext: boolean;
-  adPlatforms?: string[]; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  productSetupComplete?: boolean; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  adPlatforms?: string[];
+  productSetupComplete?: boolean;
 }
 
 const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
@@ -28,8 +28,8 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   onNext,
   onPrevious,
   canGoNext,
-  adPlatforms = [], // eslint-disable-line @typescript-eslint/no-unused-vars
-  productSetupComplete = false // eslint-disable-line @typescript-eslint/no-unused-vars
+  adPlatforms = [],
+  productSetupComplete = false
 }) => {
   const steps: { id: OnboardingStep; label: string; icon: React.ReactNode }[] = [
     { id: 'store', label: 'Store Integration', icon: <Store className="w-4 h-4" /> },

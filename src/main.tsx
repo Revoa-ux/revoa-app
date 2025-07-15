@@ -12,8 +12,8 @@ import { toast } from 'sonner';
 const DEBUG = import.meta.env.DEV;
 
 // Debug logging helper
-const log = (message: string, data?: any) => { // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (DEBUG) { // eslint-disable-next-line @typescript-eslint/no-explicit-any
+const log = (message: string, data?: any) => {
+  if (DEBUG) {
     console.log(`[App] ${message}`, data || '');
   }
 };

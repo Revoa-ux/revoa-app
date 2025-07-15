@@ -102,7 +102,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       setShowDatePicker(true); // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } else {
       // Update date range based on selection
-      const now = new Date(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const now = new Date();
       const startDate = new Date();
       const endDate = new Date();
 

@@ -321,7 +321,7 @@ const getDefaultMetrics = (): ShopifyMetrics => {
 export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCalculatorMetrics> => {
   try {
     // Check if we have a Shopify connection first
-    const auth = await getShopifyAccessToken(); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const auth = await getShopifyAccessToken();
     if (!auth) {
       // Return default metrics if no Shopify connection
       return getDefaultCalculatorMetrics();
@@ -332,7 +332,7 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     const startDate = new Date();
     
     switch (timeframe) {
-      case '1d': // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      case '1d':
         startDate.setDate(startDate.getDate() - 1);
         break;
       case '7d':
