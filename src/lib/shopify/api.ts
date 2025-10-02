@@ -162,40 +162,40 @@ export const getShopifyAccessToken = async (): Promise<{ accessToken: string; sh
   }
 }
 
-// Fetch data from Shopify Admin API
+// Fetch data from Shopify Admin API via Edge Function proxy
 export const fetchFromShopify = async <T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  const auth = await getShopifyAccessToken();
+  console.log('[Shopify API] Fetching via proxy:', endpoint);
 
-  if (!auth) {
-    throw new Error('No Shopify access token available. Please connect your Shopify store first.');
+  // Get current session
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    throw new Error('Not authenticated');
   }
 
-  const { accessToken, shop } = auth;
-
-  const url = `https://${shop}/admin/api/${SHOPIFY_CONFIG.API_VERSION}${endpoint}`;
-
-  console.log('[Shopify API] Fetching:', endpoint);
+  // Build the edge function URL with endpoint as query param
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const url = `${supabaseUrl}/functions/v1/shopify-proxy?endpoint=${encodeURIComponent(endpoint)}`;
 
   const response = await fetch(url, {
-    ...options,
+    method: options.method || 'GET',
     headers: {
+      'Authorization': `Bearer ${session.access_token}`,
       'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': accessToken,
       ...options.headers,
     },
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('[Shopify API] Error response:', {
+    console.error('[Shopify API] Proxy error:', {
       status: response.status,
       statusText: response.statusText,
       body: errorText
     });
-    throw new Error(`Shopify API error (${response.status}): ${errorText}`);
+    throw new Error(`Shopify API proxy error (${response.status}): ${errorText}`);
   }
 
   const data = await response.json();
