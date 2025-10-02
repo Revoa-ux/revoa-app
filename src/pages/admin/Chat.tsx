@@ -1,24 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Archive,
-  Flag,
-  Volume2,
-  VolumeX,
-  Trash2,
-  Download,
-  MessageSquare,
-  User,
-  DollarSign,
-  Package,
-  FileText,
-  Tag,
-  SortAsc,
-  Mail,
-  Phone,
-  Building2,
-  Edit3,
-  ChevronRight
-} from 'lucide-react';  
+import { Archive, Flag, Volume2, VolumeX, Trash2, Download, MessageSquare, User, DollarSign, Package, FileText, Tag, Import as SortAsc, Mail, Phone, Building2, CreditCard as Edit3, ChevronRight } from 'lucide-react';  
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
