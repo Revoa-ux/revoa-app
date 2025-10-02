@@ -8,12 +8,6 @@ const corsHeaders = {
 
 const SHOPIFY_API_VERSION = '2025-01';
 
-interface ShopifyInstallation {
-  shop: string;
-  access_token: string;
-  user_id: string;
-}
-
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -27,6 +21,7 @@ Deno.serve(async (req: Request) => {
     // Get the authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('[Shopify Proxy] Missing authorization header');
       throw new Error('Missing authorization header');
     }
 
@@ -34,8 +29,14 @@ Deno.serve(async (req: Request) => {
     const token = authHeader.replace('Bearer ', '');
 
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[Shopify Proxy] Missing Supabase environment variables');
+      throw new Error('Server configuration error');
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey, {
       global: {
         headers: { Authorization: authHeader },
@@ -44,13 +45,19 @@ Deno.serve(async (req: Request) => {
 
     // Get the authenticated user
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) {
-      throw new Error('Unauthorized');
+    if (userError) {
+      console.error('[Shopify Proxy] User auth error:', JSON.stringify(userError));
+      throw new Error(`Unauthorized: ${userError.message}`);
+    }
+    if (!user) {
+      console.error('[Shopify Proxy] No user found');
+      throw new Error('Unauthorized: No user found');
     }
 
     console.log('[Shopify Proxy] Request from user:', user.id);
 
     // Get user's Shopify installation
+    console.log('[Shopify Proxy] Fetching installation for user:', user.id);
     const { data: installation, error: installError } = await supabase
       .from('shopify_installations')
       .select('shop, access_token')
@@ -59,11 +66,12 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (installError) {
-      console.error('[Shopify Proxy] Error fetching installation:', installError);
-      throw new Error('Failed to fetch Shopify installation');
+      console.error('[Shopify Proxy] Error fetching installation:', JSON.stringify(installError));
+      throw new Error(`Failed to fetch Shopify installation: ${installError.message}`);
     }
 
     if (!installation) {
+      console.log('[Shopify Proxy] No installation found for user:', user.id);
       return new Response(
         JSON.stringify({ error: 'No Shopify store connected' }),
         {
@@ -73,10 +81,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    console.log('[Shopify Proxy] Found installation for shop:', installation.shop);
+
     // Get the endpoint from query params
     const url = new URL(req.url);
     const endpoint = url.searchParams.get('endpoint');
     if (!endpoint) {
+      console.error('[Shopify Proxy] Missing endpoint parameter');
       throw new Error('Missing endpoint parameter');
     }
 
@@ -84,6 +95,8 @@ Deno.serve(async (req: Request) => {
 
     // Make request to Shopify
     const shopifyUrl = `https://${installation.shop}/admin/api/${SHOPIFY_API_VERSION}${endpoint}`;
+    console.log('[Shopify Proxy] Shopify URL:', shopifyUrl);
+    
     const shopifyResponse = await fetch(shopifyUrl, {
       method: req.method,
       headers: {
@@ -103,16 +116,19 @@ Deno.serve(async (req: Request) => {
     }
 
     const data = await shopifyResponse.json();
-    console.log('[Shopify Proxy] Success:', endpoint);
+    console.log('[Shopify Proxy] Success:', endpoint, 'returned', Object.keys(data).length, 'keys');
 
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('[Shopify Proxy] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('[Shopify Proxy] Error:', errorMessage);
+    console.error('[Shopify Proxy] Stack:', errorStack);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
