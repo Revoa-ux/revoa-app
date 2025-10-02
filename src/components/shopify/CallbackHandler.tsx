@@ -33,11 +33,23 @@ const CallbackHandler: React.FC = () => {
 
         // If in popup, send message to parent and close
         if (window.opener) {
-          window.opener.postMessage({ type: 'shopify:success', shop }, '*');
-          // Small delay to ensure message is received before closing
+          try {
+            // Send success message
+            window.opener.postMessage({ type: 'shopify:success', shop }, '*');
+            console.log('Sent success message to parent window');
+
+            // Also try to trigger a reload on the parent
+            if (window.opener.location) {
+              window.opener.location.reload();
+            }
+          } catch (error) {
+            console.error('Error communicating with parent window:', error);
+          }
+
+          // Close popup after delay
           setTimeout(() => {
             window.close();
-          }, 500);
+          }, 1000);
         } else {
           // Navigate to next step
           navigate('/onboarding/ads', { replace: true });

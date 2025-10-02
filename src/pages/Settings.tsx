@@ -213,8 +213,27 @@ const SettingsPage = () => {
       setShopifyConnecting(true);
       await initiateShopifyOAuth(user.id);
 
-      // Set timeout to reset connecting state if no response after 2 minutes
+      // Poll database every 2 seconds to check if connection succeeded
+      const pollInterval = setInterval(async () => {
+        const { data } = await supabase
+          .from('shopify_installations')
+          .select('store_url, status')
+          .eq('user_id', user.id)
+          .eq('status', 'installed')
+          .maybeSingle();
+
+        if (data) {
+          clearInterval(pollInterval);
+          setShopifyConnecting(false);
+          setIntegrationStatus(prev => ({ ...prev, shopify: true }));
+          setShopifyStore(data.store_url);
+          toast.success('Shopify store connected successfully');
+        }
+      }, 2000);
+
+      // Stop polling after 2 minutes
       setTimeout(() => {
+        clearInterval(pollInterval);
         setShopifyConnecting(false);
       }, 120000);
     } catch (error) {
