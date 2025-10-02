@@ -44,7 +44,14 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
     if (currentStep === 'products' && !productSetupComplete) return true;
     return false;
   };
-  
+
+  // Calculate progress bar width based on current step
+  const getProgressWidth = () => {
+    const stepIndex = steps.findIndex(s => s.id === currentStep);
+    const percentage = (stepIndex / (steps.length - 1)) * 100;
+    return `${percentage}%`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Progress bar and step indicators */}
