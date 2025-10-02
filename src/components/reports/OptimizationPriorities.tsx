@@ -84,4 +84,5 @@ const OptimizationPriorities: React.FC<OptimizationPrioritiesProps> = ({ priorit
   );
 };
 
+export { OptimizationPriorities };
 export default OptimizationPriorities;

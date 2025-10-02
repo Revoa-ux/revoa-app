@@ -69,4 +69,5 @@ const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({ creatives = [] }) =
   );
 };
 
+export { CreativeAnalysis };
 export default CreativeAnalysis;

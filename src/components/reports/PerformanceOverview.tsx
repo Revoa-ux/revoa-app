@@ -34,4 +34,5 @@ const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics }) =>
   );
 };
 
+export { PerformanceOverview };
 export default PerformanceOverview;

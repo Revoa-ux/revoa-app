@@ -78,7 +78,7 @@ export default function Users() {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false);  
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [sortBy, setSortBy] = useState<{
@@ -89,6 +89,8 @@ export default function Users() {
     direction: 'desc'
   });
 
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
@@ -381,7 +383,7 @@ export default function Users() {
       {showAssignModal && (
         <UserAssignmentModal
           onClose={() => setShowAssignModal(false)}
-          onAssign={async () => {
+          onAssign={async (userId, adminId) => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             toast.success('User assigned successfully');
           }}

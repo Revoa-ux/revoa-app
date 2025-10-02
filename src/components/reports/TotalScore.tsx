@@ -53,4 +53,5 @@ const TotalScore: React.FC<TotalScoreProps> = ({ score, label = "Total Score" })
   );
 };
 
+export { TotalScore };
 export default TotalScore;

@@ -1,463 +1,286 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { PageTitle } from '../../components/PageTitle';
-import { cn } from '../../lib/utils';
+import React, { useState } from 'react';
+import { 
+  UserPlus, 
+  Mail, 
+  Check, 
+  X, 
+  ChevronDown,
+  BarChart3,
+  Clock,
+  Users,
+  DollarSign,
+  Loader2,
+  ArrowUpRight,
+  ArrowDownRight,
+  AlertTriangle
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { useAdmin } from '@/contexts/AdminContext';
 
-type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
-
-const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [mode, setMode] = useState<AuthMode>('signin');
-  const [validationErrors, setValidationErrors] = useState<{
-    email?: string;
-   password?: string;
-    confirmPassword?: string;
-  }>({});
-  
-  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
-  const { checkAdminStatus } = useAdmin();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    // If this is an admin route, do not handle redirects
-    if (location.pathname.startsWith('/admin')) {
-      return;
-    }
-
-    // Handle regular auth flow
-    if (isAuthenticated) {
-      if (!hasCompletedOnboarding) {
-        navigate('/onboarding/store', { replace: true });
-      } else {
-        navigate('/', { replace: true });
-      }
-      return;
-    }
-
-    // Set initial mode based on URL
-    if (location.pathname.includes('sign-up')) {
-      setMode('signup');
-    } else if (location.pathname.includes('sign-in')) {
-      setMode('signin');
-    }
-
-    // Handle password reset mode
-    const params = new URLSearchParams(location.search);
-    if (params.get('mode') === 'reset-password') {
-      setMode('forgot-password');
-    }
-  }, [isAuthenticated, hasCompletedOnboarding, navigate, location]);
-  
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'super_admin';
+  assignedUsers: number;
+  avgResponseTime: string;
+  totalTransactions: number;
+  lastActive: string;
+  performance: {
+    score: number;
+    change: number;
   };
-  
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
-  };
-  
-  const validateForm = () => {
-    const errors: {
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-    } = {};
-    
-    if (!email) {
-      errors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
-      errors.email = 'Please enter a valid email address';
+}
+
+const mockAdmins: AdminUser[] = [
+  {
+    id: '1',
+    name: 'Sarah Wilson',
+    email: 'sarah@revoa.app',
+    role: 'admin',
+    assignedUsers: 156,
+    avgResponseTime: '1h 45m',
+    totalTransactions: 450000,
+    lastActive: '2024-03-20T15:30:00Z',
+    performance: {
+      score: 94,
+      change: 5.2
     }
-    
-    if (mode !== 'forgot-password') {
-      if (!password) {
-        errors.password = 'Password is required';
-      } else if (!validatePassword(password)) {
-        errors.password = 'Password must be at least 8 characters';
-      }
-      
-      if (mode === 'signup') {
-        if (!confirmPassword) {
-          errors.confirmPassword = 'Please confirm your password';
-        } else if (password !== confirmPassword) {
-          errors.confirmPassword = 'Passwords do not match';
-        }
-      }
+  },
+  {
+    id: '2',
+    name: 'Michael Chen',
+    email: 'michael@revoa.app',
+    role: 'admin',
+    assignedUsers: 98,
+    avgResponseTime: '2h 10m',
+    totalTransactions: 320000,
+    lastActive: '2024-03-21T09:15:00Z',
+    performance: {
+      score: 88,
+      change: -2.1
     }
-    
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+  }
+];
+
+export default function AdminManage() {
+  const { isSuperAdmin } = useAdmin();
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
+
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
+    if (!inviteEmail.endsWith('@revoa.app')) {
+      toast.error('Only @revoa.app email addresses are allowed');
       return;
     }
-    
-    setIsLoading(true);
-    setValidationErrors({});
-    
+
+    setIsInviting(true);
     try {
-      if (mode === 'signin') {
-        const { error } = await signIn(email, password);
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            setValidationErrors({
-              email: 'Invalid email or password',
-              password: 'Invalid email or password'
-            });
-            return;
-          }
-          throw error;
-        }
-
-        // If email is from revoa.app domain, check admin status
-        if (email.endsWith('@revoa.app')) {
-          await checkAdminStatus();
-          navigate('/admin/dashboard', { replace: true });
-        } else {
-          // Regular user flow
-          if (!hasCompletedOnboarding) {
-            navigate('/onboarding/store', { replace: true });
-          } else {
-            navigate('/', { replace: true });
-          }
-        }
-      } else if (mode === 'signup') {
-        const { error, data } = await signUp(email, password);
-        if (error) {
-          if (error.message.includes('already registered')) {
-            setValidationErrors({
-              email: 'This email is already registered'
-            });
-            return;
-          }
-          throw error;
-        }
-        
-        if (data) {
-          if (email.endsWith('@revoa.app')) {
-            await checkAdminStatus();
-            navigate('/admin/dashboard', { replace: true });
-          } else {
-            navigate('/onboarding/store', { replace: true });
-          }
-        }
-      } else if (mode === 'forgot-password') {
-        const { error } = await resetPassword(email);
-        if (error) {
-          if (error.message.includes('not found')) {
-            setValidationErrors({
-              email: 'No account found with this email'
-            });
-            return;
-          }
-          throw error;
-        }
-        setMode('reset-success');
-      }
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Invitation sent successfully');
+      setShowInviteModal(false);
+      setInviteEmail('');
     } catch (error) {
-      console.error('Auth error:', error);
-      toast.error('Failed to sign in. Please check your credentials and try again.');
+      toast.error('Failed to send invitation');
     } finally {
-      setIsLoading(false);
+      setIsInviting(false);
     }
-  };
-  
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
-  const handleModeChange = (newMode: AuthMode) => {
-    setMode(newMode);
-    setValidationErrors({});
-    
-    if (newMode === 'signin') {
-      navigate('/sign-in', { replace: true });
-    } else if (newMode === 'signup') {
-      navigate('/sign-up', { replace: true });
-    }
+  const renderChangeIndicator = (change: number) => {
+    const Icon = change >= 0 ? ArrowUpRight : ArrowDownRight;
+    return (
+      <div className={`flex items-center text-sm ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+        <Icon className="w-4 h-4 mr-1" />
+        {Math.abs(change)}%
+      </div>
+    );
   };
-  
+
   return (
-    <>
-      <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        {/* Grid Background */}
-        <div 
-          className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
-          style={{ 
-            maskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)',
-            WebkitMaskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)'
-          }}
-        />
-
-        <div className="w-full max-w-[420px] space-y-8 relative">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-32 h-8 relative">
-                <img 
-                  src="https://jfwmnaaujzuwrqqhgmuf.supabase.co/storage/v1/object/public/REVOA%20(Public)//REVOA%20LOGO.png" 
-                  alt="Logo" 
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
-            <h2 className="text-3xl font-medium text-gray-900">
-              {mode === 'signin' && 'Sign in to your account'}
-              {mode === 'signup' && 'Create your account'}
-              {mode === 'forgot-password' && 'Reset your password'}
-              {mode === 'reset-success' && 'Check your email'}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              {mode === 'signin' && (
-                <>
-                  Don't have an account?{' '}
-                  <button
-                    onClick={() => handleModeChange('signup')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
-                  >
-                    Sign up
-                  </button>
-                </>
-              )}
-              {mode === 'signup' && (
-                <>
-                  Already have an account?{' '}
-                  <button
-                    onClick={() => handleModeChange('signin')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
-                  >
-                    Sign in
-                  </button>
-                </>
-              )}
-              {mode === 'forgot-password' && (
-                <>
-                  Remember your password?{' '}
-                  <button
-                    onClick={() => handleModeChange('signin')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
-                  >
-                    Sign in
-                  </button>
-                </>
-              )}
-              {mode === 'reset-success' && 'We sent you an email with a link to reset your password.'}
-            </p>
-          </div>
-
-          <div className="bg-white/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
-            {mode !== 'reset-success' ? (
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email address
-                  </label>
-                  <div className="mt-1 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setValidationErrors(prev => ({ ...prev, email: undefined }));
-                      }}
-                      className={cn(
-                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                        validationErrors.email ? "border-red-300" : "border-gray-300"
-                      )}
-                      placeholder="you@example.com"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  {validationErrors.email && (
-                    <p className="mt-2 text-sm text-red-600">{validationErrors.email}</p>
-                  )}
-                </div>
-
-                {mode !== 'forgot-password' && (
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                      Password
-                    </label>
-                    <div className="mt-1 relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete={mode === 'signin' ? "current-password" : "new-password"}
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          setValidationErrors(prev => ({ ...prev, password: undefined }));
-                        }}
-                        className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                          validationErrors.password ? "border-red-300" : "border-gray-300"
-                        )}
-                        placeholder="••••••••"
-                        disabled={isLoading}
-                      />
-                      <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <Eye className="h-5 w-5 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
-                    {validationErrors.password && (
-                      <p className="mt-2 text-sm text-red-600">{validationErrors.password}</p>
-                    )}
-                  </div>
-                )}
-
-                {mode === 'signup' && (
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                      Confirm Password
-                    </label>
-                    <div className="mt-1 relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-400" />
-                      </div>
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value);
-                          setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
-                        }}
-                        className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                          validationErrors.confirmPassword ? "border-red-300" : "border-gray-300"
-                        )}
-                        placeholder="••••••••"
-                        disabled={isLoading}
-                      />
-                      <button
-                        type="button"
-                        onClick={togglePasswordVisibility}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-gray-400" />
-                        ) : (
-                          <Eye className="h-5 w-5 text-gray-400" />
-                        )}
-                      </button>
-                    </div>
-                    {validationErrors.confirmPassword && (
-                      <p className="mt-2 text-sm text-red-600">{validationErrors.confirmPassword}</p>
-                    )}
-                  </div>
-                )}
-
-                {mode === 'signin' && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
-                        disabled={isLoading}
-                      />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                        Remember me
-                      </label>
-                    </div>
-
-                    <div className="text-sm">
-                      <button
-                        type="button"
-                        onClick={() => setMode('forgot-password')}
-                        className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
-                        disabled={isLoading}
-                      >
-                        Forgot your password?
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <>
-                      {mode === 'signin' && 'Sign in'}
-                      {mode === 'signup' && 'Sign up'}
-                      {mode === 'forgot-password' && 'Reset password'}
-                    </>
-                  )}
-                </button>
-              </form>
-            ) : (
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                  <ArrowRight className="h-6 w-6 text-green-600" />
-                </div>
-                <p className="text-sm text-gray-600 mb-6">
-                  We've sent a password reset link to <strong>{email}</strong>. Please check your email and follow the instructions to reset your password.
-                </p>
-                <button
-                  onClick={() => handleModeChange('signin')}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  Back to sign in
-                </button>
-              </div>
-            )}
-          </div>
-
-          <p className="text-xs text-center text-gray-500">
-            By signing up, you agree to our{' '}
-            <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-              Privacy Policy
-            </a>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
+          Manage Admins
+        </h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+          <p className="text-sm text-gray-500">
+            Manage admin team members and monitor performance
           </p>
         </div>
       </div>
-    </>
-  );
-};
 
-export default Auth;
+      {/* Overview Cards */}
+      <div className="grid grid-cols-4 gap-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Users className="w-4 h-4 text-gray-600" />
+            </div>
+            {renderChangeIndicator(12.5)}
+          </div>
+          <h3 className="text-xs text-gray-500">Total Admins</h3>
+          <p className="text-2xl font-bold text-gray-900 mt-1">
+            {mockAdmins.length}
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Clock className="w-4 h-4 text-gray-600" />
+            </div>
+            {renderChangeIndicator(-8.3)}
+          </div>
+          <h3 className="text-xs text-gray-500">Avg Response Time</h3>
+          <p className="text-2xl font-bold text-gray-900 mt-1">1h 58m</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <BarChart3 className="w-4 h-4 text-gray-600" />
+            </div>
+            {renderChangeIndicator(15.7)}
+          </div>
+          <h3 className="text-xs text-gray-500">Avg Performance</h3>
+          <p className="text-2xl font-bold text-gray-900 mt-1">91%</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl border border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="w-4 h-4 text-gray-600" />
+            </div>
+            {renderChangeIndicator(23.4)}
+          </div>
+          <h3 className="text-xs text-gray-500">Total Volume</h3>
+          <p className="text-2xl font-bold text-gray-900 mt-1">
+            ${((mockAdmins.reduce((sum, admin) => sum + admin.totalTransactions, 0)) / 1000).toFixed(1)}k
+          </p>
+        </div>
+      </div>
+
+      {/* Admin List */}
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-medium text-gray-900">Team Members</h2>
+            <button
+              onClick={() => setShowInviteModal(true)}
+              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Invite Admin
+            </button>
+          </div>
+        </div>
+
+        <div className="divide-y divide-gray-200">
+          {mockAdmins.map((admin) => (
+            <div key={admin.id} className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                    <span className="text-sm font-medium text-gray-600">
+                      {admin.name.charAt(0)}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900">{admin.name}</h4>
+                    <p className="text-sm text-gray-500">{admin.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-8">
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{admin.assignedUsers}</p>
+                    <p className="text-xs text-gray-500">Users</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{admin.avgResponseTime}</p>
+                    <p className="text-xs text-gray-500">Avg Response</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900">{admin.performance.score}%</p>
+                    <p className="text-xs text-gray-500">Performance</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Invite Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900">Invite Admin</h3>
+                <button 
+                  onClick={() => setShowInviteModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleInvite} className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <input
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    placeholder="admin@revoa.app"
+                    className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  Only @revoa.app email addresses are allowed
+                </p>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowInviteModal(false)}
+                  className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isInviting || !inviteEmail.endsWith('@revoa.app')}
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center"
+                >
+                  {isInviting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Send Invite
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

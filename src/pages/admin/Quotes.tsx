@@ -173,7 +173,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         min="0"
                         step="0.01"
                         value={variant.costPerItem}
-                        onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) || 0 })}
+                        onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) })}
                         className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
                       />
                     </div>
@@ -187,7 +187,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         min="0"
                         step="0.01"
                         value={variant.shippingCost}
-                        onChange={(e) => updateVariant(index, { shippingCost: parseFloat(e.target.value) || 0 })}
+                        onChange={(e) => updateVariant(index, { shippingCost: parseFloat(e.target.value) })}
                         className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
                       />
                     </div>
@@ -258,7 +258,7 @@ export default function AdminQuotes() {
   ];
 
   const handleProcessQuote = (processedQuote: Quote) => {
-    // Update quote in state // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Update quote in state
     toast.success('Quote processed successfully');
     setSelectedQuote(null);
   };

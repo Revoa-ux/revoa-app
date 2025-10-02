@@ -26,4 +26,5 @@ const PerformanceScore: React.FC<PerformanceScoreProps> = ({ score }) => {
   );
 };
 
+export { PerformanceScore };
 export default PerformanceScore;

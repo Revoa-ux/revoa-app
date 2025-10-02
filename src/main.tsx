@@ -4,8 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import './index.css';
-import { ErrorBoundary } from './components/ErrorBoundary'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { supabase, verifyConnection } from './lib/supabase';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { toast } from 'sonner';
 
 // Debug flag
@@ -18,20 +17,10 @@ const log = (message: string, data?: any) => {
   }
 };
 
-// Initialize app with connection check
-const initializeApp = async () => {
+// Initialize app
+const initializeApp = () => {
   try {
     log('Initializing application...');
-
-    // First verify database connection
-    const { connected, error } = await verifyConnection();
-    if (!error) {
-      log('Database connection successful');
-    }
-    
-    if (!connected) {
-      throw new Error(error || 'Failed to connect to database');
-    }
 
     // Initialize app
     const root = document.getElementById('root');
@@ -56,7 +45,7 @@ const initializeApp = async () => {
     log('Application rendered successfully');
   } catch (error) {
     log('Failed to initialize app:', error);
-    
+
     // Show error UI
     const root = document.getElementById('root');
     if (root) {
@@ -83,7 +72,7 @@ const initializeApp = async () => {
               color: #6b7280;
               margin-bottom: 16px;
             ">${error instanceof Error ? error.message : 'An unexpected error occurred'}</p>
-            <button 
+            <button
               onclick="window.location.reload()"
               style="
                 background: #1f2937;

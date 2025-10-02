@@ -1,6 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { 
-  Search, Filter, ChevronDown, Check, X, Package, ArrowUpDown, ArrowUp, ArrowDown,
+  Search, 
+  Filter, 
+  ChevronDown, 
+  Check,
+  X,
+  Package,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
   ChevronRight,
   ChevronLeft,
   ExternalLink,
