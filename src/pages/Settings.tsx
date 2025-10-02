@@ -101,6 +101,24 @@ const SettingsPage = () => {
 
     fetchShopifyStatus();
   }, [user?.id]);
+
+  // Listen for OAuth callback messages
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'shopify:success') {
+        setShopifyConnecting(false);
+        setIntegrationStatus(prev => ({ ...prev, shopify: true }));
+        setShopifyStore(event.data.shop);
+        toast.success('Shopify store connected successfully');
+      } else if (event.data?.type === 'shopify:error') {
+        setShopifyConnecting(false);
+        toast.error(event.data.error || 'Failed to connect Shopify');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -176,6 +194,11 @@ const SettingsPage = () => {
     try {
       setShopifyConnecting(true);
       await initiateShopifyOAuth(user.id);
+
+      // Set timeout to reset connecting state if no response after 2 minutes
+      setTimeout(() => {
+        setShopifyConnecting(false);
+      }, 120000);
     } catch (error) {
       console.error('Error connecting Shopify:', error);
       toast.error('Failed to connect Shopify');
