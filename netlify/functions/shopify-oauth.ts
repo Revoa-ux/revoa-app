@@ -302,14 +302,20 @@ export const handler: Handler = async (event) => {
     <p>Your Shopify store has been connected. This window will close automatically.</p>
   </div>
   <script>
-    // Notify parent window and close
+    // Always try to notify parent window
     if (window.opener) {
       window.opener.postMessage({ type: 'shopify:success', shop: '${shop}' }, '*');
-      setTimeout(() => window.close(), 2000);
-    } else {
-      // If not in a popup, redirect to the app
-      setTimeout(() => window.location.href = '${process.env.VITE_APP_URL || 'https://members.revoa.app'}/onboarding/ads', 2000);
     }
+
+    // Always try to close the window after a short delay
+    setTimeout(() => {
+      window.close();
+
+      // If window.close() didn't work (some browsers block it), show a message
+      setTimeout(() => {
+        document.body.innerHTML = '<div class="container"><div class="success-icon"><svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="white" stroke-width="3" fill="none"></polyline></svg></div><h1>Installation Complete!</h1><p>Please close this window and return to the main application.</p></div>';
+      }, 100);
+    }, 1500);
   </script>
 </body>
 </html>
