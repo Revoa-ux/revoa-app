@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
     console.log('[Shopify Proxy] Fetching installation for user:', user.id);
     const { data: installation, error: installError } = await supabase
       .from('shopify_installations')
-      .select('shop, access_token')
+      .select('store_url, access_token')
       .eq('user_id', user.id)
       .eq('status', 'installed')
       .maybeSingle();
@@ -81,7 +81,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('[Shopify Proxy] Found installation for shop:', installation.shop);
+    console.log('[Shopify Proxy] Found installation for shop:', installation.store_url);
 
     // Get the endpoint from query params
     const url = new URL(req.url);
@@ -94,7 +94,7 @@ Deno.serve(async (req: Request) => {
     console.log('[Shopify Proxy] Fetching:', endpoint);
 
     // Make request to Shopify
-    const shopifyUrl = `https://${installation.shop}/admin/api/${SHOPIFY_API_VERSION}${endpoint}`;
+    const shopifyUrl = `https://${installation.store_url}/admin/api/${SHOPIFY_API_VERSION}${endpoint}`;
     console.log('[Shopify Proxy] Shopify URL:', shopifyUrl);
     
     const shopifyResponse = await fetch(shopifyUrl, {
