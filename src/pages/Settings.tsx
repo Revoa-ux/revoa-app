@@ -105,12 +105,30 @@ const SettingsPage = () => {
   // Listen for OAuth callback messages
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
+      console.log('Received message:', event.data);
+
       if (event.data?.type === 'shopify:success') {
+        console.log('Shopify connection successful');
         setShopifyConnecting(false);
         setIntegrationStatus(prev => ({ ...prev, shopify: true }));
         setShopifyStore(event.data.shop);
         toast.success('Shopify store connected successfully');
+
+        // Refetch status to ensure we have latest data
+        if (user?.id) {
+          const { data } = await supabase
+            .from('shopify_installations')
+            .select('store_url, status')
+            .eq('user_id', user.id)
+            .eq('status', 'installed')
+            .maybeSingle();
+
+          if (data) {
+            setShopifyStore(data.store_url);
+          }
+        }
       } else if (event.data?.type === 'shopify:error') {
+        console.log('Shopify connection error:', event.data.error);
         setShopifyConnecting(false);
         toast.error(event.data.error || 'Failed to connect Shopify');
       }
@@ -118,7 +136,7 @@ const SettingsPage = () => {
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [user?.id]);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
