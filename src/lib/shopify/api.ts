@@ -215,16 +215,11 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       return getDefaultMetrics();
     }
 
-    // Use count endpoints instead of fetching full data (doesn't require protected customer data access)
+    // Use count endpoints that DON'T require protected customer data access
     console.log('[Shopify API] Fetching order count...');
     const ordersCountResponse = await fetchFromShopify<{ count: number }>('/orders/count.json?status=any');
     const totalOrders = ordersCountResponse.count;
     console.log('[Shopify API] Total orders:', totalOrders);
-
-    console.log('[Shopify API] Fetching customer count...');
-    const customersCountResponse = await fetchFromShopify<{ count: number }>('/customers/count.json');
-    const totalCustomers = customersCountResponse.count;
-    console.log('[Shopify API] Total customers:', totalCustomers);
 
     console.log('[Shopify API] Fetching product count...');
     const productsCountResponse = await fetchFromShopify<{ count: number }>('/products/count.json');
@@ -244,8 +239,9 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       }, 0);
     }, 0);
 
-    // Estimated metrics based on counts (using industry averages)
-    // These are approximations until the app gets protected data access
+    // Estimated metrics based on order count (using industry averages)
+    // Note: Customer count estimated from orders (typically 0.7-0.8 ratio)
+    const totalCustomers = Math.round(totalOrders * 0.75); // Estimate customers as 75% of orders
     const averageOrderValue = 75; // Industry average
     const totalRevenue = totalOrders * averageOrderValue;
     const profitMargin = 30;
