@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, Facebook, BrandTiktok, Brain, ChevronDown,
+import { AlertTriangle, Facebook, Brain, ChevronDown,
   RefreshCw
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
@@ -81,7 +81,7 @@ type AdAccount = {
   status: 'active' | 'inactive';
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',

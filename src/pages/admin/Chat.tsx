@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, Check, ,C  Search,
-  Filter,
+import {
+  Search,
   ChevronDown,
   Check,
+  Filter,
   User,
   Loader2,
   MessageSquare,
@@ -12,8 +13,22 @@ import { Search, ChevronDown, Check, ,C  Search,
   Archive,
   Flag,
   Trash2,
-  Download
-lock, X, ExternalLink, ShoppingCart, Plus, Loader2, Filter, Calendar, ArrowDown, Archive, Flag, Volume2, VolumeX, Trash2, Download, MessageSquare, User, DollarSign, Package, FileText, Tag, Import as SortAsc, Mail, Phone, Building2, CreditCard as Edit3, ChevronRight } from 'lucide-react'/useClickOutside';
+  Download,
+  X,
+  ExternalLink,
+  ShoppingCart,
+  Calendar,
+  ArrowDown,
+  DollarSign,
+  Package,
+  FileText,
+  Tag,
+  Mail,
+  Phone,
+  Building2,
+  ChevronRight
+} from 'lucide-react';
+import { useClickOutside } from '@/lib/useClickOutside';
 import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { TagModal } from '@/components/admin/TagModal';
@@ -387,7 +402,7 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    onSendInvoice={handleSendInvoice}
                   />
                 </div>
 

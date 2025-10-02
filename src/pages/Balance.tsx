@@ -17,7 +17,7 @@ import { TopUpModal } from '../components/balance/TopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
 import { BankTransferModal } from '../components/balance/BankTransferModal';
 import { AddPaymentMethodModal } from '@/components/payments/AddPaymentMethodModal';
-import { PaymentMethod, getPaymentMethods } from '@/lib/stripe'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { PaymentMethod, getPaymentMethods } from '@/lib/stripe';  
 import { InvoiceTable } from '@/components/balance/InvoiceTable';
 import { TransactionTable } from '@/components/balance/TransactionTable';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -65,10 +65,10 @@ export default function Balance() {
   const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);
   const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
   const [selectedPaymentType, setSelectedPaymentType] = useState<'card' | 'paypal' | null>(null);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]); // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true); // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [searchTerm, setSearchTerm] = useState(''); // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all'); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);  
+  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);  
+  const [searchTerm, setSearchTerm] = useState('');  
+  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');  
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [transactionTypeFilter, setTransactionTypeFilter] = useState<'all' | 'payment' | 'refund' | 'adjustment' | 'top_up'>('all');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
@@ -80,7 +80,7 @@ export default function Balance() {
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
   useClickOutside(typeDropdownRef, () => setShowTypeDropdown(false));
 
-  const [invoices, setInvoices] = useState<Invoice[]>([ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [invoices, setInvoices] = useState<Invoice[]>([  
     {
       id: '1',
       date: '2024-03-15',
@@ -115,7 +115,7 @@ export default function Balance() {
     }
   ]);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [transactions, setTransactions] = useState<Transaction[]>([  
     {
       id: '1',
       date: '2024-03-15',
@@ -172,7 +172,7 @@ export default function Balance() {
   };
 
   const currentBalance = 24892; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const projectedExpenses = 29475; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const projectedExpenses = 29475;  
   const suggestedBalance = 126322.50; // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const suggestedTopUp = suggestedBalance - currentBalance;
 
