@@ -1,23 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  Bell, 
-  Users,
-  MessageSquare,
-  BarChart3,
-  UserPlus,
-  Clock,
-  Calendar,
-  ChevronDown,
-  Check,
-  Mail,
-  FileText,
-  Settings as SettingsIcon
+  Bell, Users, MessageSquare, BarChart3, UserPlus, Clock, Calendar, ChevronDown, Check, Mail, FileText, Settings as SettingsIcon
 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAdmin } from '@/contexts/AdminContext';
+import { toast } from 'react-hot-toast';
 
 export default function AdminSettings() {
-  const { isAdmin } = useAdmin();
   const [settings, setSettings] = useState({
     notifications: {
       newUsers: true,
