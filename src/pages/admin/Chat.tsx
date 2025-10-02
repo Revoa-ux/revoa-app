@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  SortAsc,
-  Mail,
-  Phone,
-  Building2,
-  Edit3,
-  ChevronRight,
-  Search,
+import { Import as SortAsc, Mail, Phone, Building2, Credi,t  Search,
   Filter,
   ChevronDown,
   Check,
@@ -20,10 +13,7 @@ import {
   Flag,
   Trash2,
   Download
-} from 'lucide-react';  
-import { toast } from 'sonner';
-import Modal from '@/components/Modal';
-import { Message } from '@/types/chat';
+Card as Edit3, ChevronRight, Search, Filter, ChevronDown, Check, User, Loader2, MessageSquare, Plus, VolumeX, Volume2, Archive, Flag, Trash2, Download } from 'lucide-react'e } from '@/types/chat';
 import { mockMessages } from '@/data/mockMessages';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { FileUploadModal } from '@/components/chat/FileUploadModal';
@@ -399,7 +389,7 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice}  
+                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   />
                 </div>
 
