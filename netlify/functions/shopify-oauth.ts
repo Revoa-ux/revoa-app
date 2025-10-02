@@ -233,7 +233,35 @@ export const handler: Handler = async (event) => {
         headers: { 'Content-Type': 'text/html' },
         body: getErrorHTML('Installation Failed', 'Could not save your Shopify installation. Please try again.'),
       };
-    }                
+    }
+
+    // Register webhooks
+    try {
+      const webhookUrl = `https://members.revoa.app/.netlify/functions/shopify-webhook`;
+      const webhookResponse = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          webhook: {
+            topic: 'app/uninstalled',
+            address: webhookUrl,
+            format: 'json',
+          },
+        }),
+      });
+
+      if (!webhookResponse.ok) {
+        const errorText = await webhookResponse.text();
+        console.error('[OAuth] Failed to register webhook:', errorText);
+      } else {
+        console.log('[OAuth] Successfully registered app/uninstalled webhook');
+      }
+    } catch (webhookError) {
+      console.error('[OAuth] Error registering webhook:', webhookError);
+    }
 
     await updateErrorByState(supabase, state, "");
 
