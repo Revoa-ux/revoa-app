@@ -10,6 +10,99 @@ const supabaseServiceKey = process.env.VITE_SUPABASE_SERVICE_KEY as string;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey || '');
 
+function getErrorHTML(title: string, message: string): string {
+  const appUrl = process.env.VITE_APP_URL || 'https://members.revoa.app';
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f9fafb;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 400px;
+    }
+    .error-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .x-mark {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+      stroke-width: 3;
+      fill: none;
+    }
+    h1 {
+      color: #111827;
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+    }
+    p {
+      color: #6b7280;
+      margin: 0 0 1.5rem;
+    }
+    button {
+      background: #111827;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-icon">
+      <svg class="x-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </div>
+    <h1>${title}</h1>
+    <p>${message}</p>
+    <button onclick="handleClose()">Close Window</button>
+  </div>
+  <script>
+    function handleClose() {
+      if (window.opener) {
+        window.opener.postMessage({ type: 'shopify:error', error: '${message}' }, '*');
+        setTimeout(() => window.close(), 500);
+      } else {
+        window.location.href = '${appUrl}/onboarding/store';
+      }
+    }
+    // Auto-close after 5 seconds
+    setTimeout(handleClose, 5000);
+  </script>
+</body>
+</html>
+  `;
+}
+
 export const handler: Handler = async (event) => {
   const params = event.queryStringParameters;
 
@@ -21,7 +114,8 @@ export const handler: Handler = async (event) => {
   if (!code || !shop || !state || !hmac) {
     return {
       statusCode: 400,
-      body: JSON.stringify("Missing required query parameters."),
+      headers: { 'Content-Type': 'text/html' },
+      body: getErrorHTML('Missing required parameters', 'Please try connecting your store again.'),
     };
   }
   
@@ -41,7 +135,8 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
-        body: JSON.stringify("Failed to authenticate: OAuth state mismatch."),
+        headers: { 'Content-Type': 'text/html' },
+        body: getErrorHTML('Authentication Failed', 'OAuth state mismatch. Please try again.'),
       };
     }
 
@@ -54,7 +149,8 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
-        body: JSON.stringify("Failed to authenticate: shop mismatch."),
+        headers: { 'Content-Type': 'text/html' },
+        body: getErrorHTML('Authentication Failed', 'Shop mismatch. Please try again.'),
       };
     }
 
@@ -66,7 +162,8 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 401,
-        body: JSON.stringify("Failed to authenticate: invalid HMAC."),
+        headers: { 'Content-Type': 'text/html' },
+        body: getErrorHTML('Authentication Failed', 'Invalid HMAC. Please try again.'),
       };
     }    
 
@@ -89,10 +186,8 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 500,
-        headers: {
-          "Content-Type": "text/html",
-        },
-        body: errorText,
+        headers: { 'Content-Type': 'text/html' },
+        body: getErrorHTML('Token Exchange Failed', errorStr || 'Could not get access token from Shopify.'),
       };
     }
 
@@ -135,14 +230,90 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
       return {
         statusCode: 500,
-        body: JSON.stringify("Failed to save Shopify installation."),
+        headers: { 'Content-Type': 'text/html' },
+        body: getErrorHTML('Installation Failed', 'Could not save your Shopify installation. Please try again.'),
       };
     }                
 
     await updateErrorByState(supabase, state, "");
+
+    // Return HTML that closes the popup and notifies the parent window
     return {
       statusCode: 200,
-      body: JSON.stringify("App successfully installed!"),
+      headers: {
+        'Content-Type': 'text/html',
+      },
+      body: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Installation Complete</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f9fafb;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: #10b981;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .checkmark {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+      stroke-width: 3;
+      fill: none;
+    }
+    h1 {
+      color: #111827;
+      font-size: 1.5rem;
+      margin: 0 0 0.5rem;
+    }
+    p {
+      color: #6b7280;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="success-icon">
+      <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h1>Installation Complete!</h1>
+    <p>Your Shopify store has been connected. This window will close automatically.</p>
+  </div>
+  <script>
+    // Notify parent window and close
+    if (window.opener) {
+      window.opener.postMessage({ type: 'shopify:success', shop: '${shop}' }, '*');
+      setTimeout(() => window.close(), 2000);
+    } else {
+      // If not in a popup, redirect to the app
+      setTimeout(() => window.location.href = '${process.env.VITE_APP_URL || 'https://members.revoa.app'}/onboarding/ads', 2000);
+    }
+  </script>
+</body>
+</html>
+      `,
     };
   } catch (err: unknown) {    
       const errorText = `Error during token exchange: ${String(err) ?? 'Unknown error'}`;
@@ -150,7 +321,8 @@ export const handler: Handler = async (event) => {
       await updateErrorByState(supabase, state, errorText);
     return {
       statusCode: 500,
-      body: JSON.stringify(`Internal server error: ${String(err)}`),
+      headers: { 'Content-Type': 'text/html' },
+      body: getErrorHTML('Installation Error', 'Something went wrong. Please try again.'),
     };
   }
 };
