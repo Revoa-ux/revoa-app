@@ -48,18 +48,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
 
       if (session?.user) {
+        console.log('[AuthContext] Checking onboarding status for user:', session.user.id);
         // Check onboarding status
         supabase
           .from('user_profiles')
           .select('onboarding_completed')
           .eq('user_id', session.user.id)
-          .single()
+          .maybeSingle()
           .then(({ data: profile, error }) => {
             if (error) {
-              console.error('Error fetching user profile:', error);
+              console.error('[AuthContext] Error fetching user profile:', error);
+              setHasCompletedOnboarding(false);
               return;
             }
-            setHasCompletedOnboarding(profile?.onboarding_completed || false);
+            console.log('[AuthContext] User profile:', profile);
+            const completed = profile?.onboarding_completed || false;
+            console.log('[AuthContext] Onboarding completed:', completed);
+            setHasCompletedOnboarding(completed);
           });
       }
 
@@ -75,14 +80,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
 
         if (session?.user) {
+          console.log('[AuthContext] SIGNED_IN - Checking onboarding status for user:', session.user.id);
           // Check onboarding status
           supabase
             .from('user_profiles')
             .select('onboarding_completed')
             .eq('user_id', session.user.id)
-            .single()
-            .then(({ data: profile }) => {
-              setHasCompletedOnboarding(profile?.onboarding_completed || false);
+            .maybeSingle()
+            .then(({ data: profile, error }) => {
+              if (error) {
+                console.error('[AuthContext] Error on SIGNED_IN:', error);
+                setHasCompletedOnboarding(false);
+                return;
+              }
+              console.log('[AuthContext] SIGNED_IN profile:', profile);
+              const completed = profile?.onboarding_completed || false;
+              console.log('[AuthContext] SIGNED_IN onboarding completed:', completed);
+              setHasCompletedOnboarding(completed);
             });
         }
       } else if (event === 'SIGNED_OUT') {
