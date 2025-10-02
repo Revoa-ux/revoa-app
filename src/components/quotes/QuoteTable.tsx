@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
-import { PageTitle } from '../components/PageTitle';
-import { cn } from '../lib/utils';
+import { PageTitle } from '../../components/PageTitle';
+import { cn } from '../../lib/utils';
 
 type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
 
@@ -16,7 +16,7 @@ const Auth = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [validationErrors, setValidationErrors] = useState<{
     email?: string;
-    password?: string; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    password?: string;  
     confirmPassword?: string;
   }>({});
   

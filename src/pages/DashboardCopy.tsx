@@ -21,7 +21,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getDashboardMetrics, ShopifyMetrics } from '../lib/shopify/api';
 import { DashboardSkeleton } from '../components/PageSkeletons';
-import { toast } from 'sonner'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { toast } from 'sonner';  
 
 type CardType = 
   | 'profit' 
@@ -59,7 +59,7 @@ export default function DashboardCopy() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<CardType>('profit');
-  const [viewType, setViewType] = useState<ViewType>('card'); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [viewType, setViewType] = useState<ViewType>('card');  
   const [shopifyMetrics, setShopifyMetrics] = useState<ShopifyMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
   

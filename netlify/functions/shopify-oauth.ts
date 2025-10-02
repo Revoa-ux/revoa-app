@@ -169,7 +169,7 @@ const verifyShopifyHmac = (
   // Step 1: Sort the parameters alphabetically
   const sortedParams = Object.keys(rest)
     .sort()
-    .map((key) => `${key}=${encodeURIComponent(rest[key])}`)
+    .map((key) => `${key}=${encodeURIComponent(rest[key] || '')}`)
     .join("&");
 
   // Step 2: Create a hash using the secret

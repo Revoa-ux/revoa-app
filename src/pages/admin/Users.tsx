@@ -78,7 +78,7 @@ export default function Users() {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAssignModal, setShowAssignModal] = useState(false); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [showAssignModal, setShowAssignModal] = useState(false);  
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [sortBy, setSortBy] = useState<{

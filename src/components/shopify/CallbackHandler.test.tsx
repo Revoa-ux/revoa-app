@@ -65,7 +65,7 @@ describe('CallbackHandler Component', () => {
       <BrowserRouter>
         <CallbackHandler />
       </BrowserRouter>
-    ); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    );  
 
     await waitFor(() => {
       expect(mockHandleCallback).toHaveBeenCalledWith(

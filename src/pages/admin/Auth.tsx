@@ -8,8 +8,8 @@
 -import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react'; // eslint-disable-line @typescript-eslint/no-unused-vars
 -import { useAdmin } from '../contexts/AdminContext';
 +import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
- import { PageTitle } from '../components/PageTitle';
- import { cn } from '../lib/utils';
+ import { PageTitle } from '../../components/PageTitle';
+ import { cn } from '../../lib/utils';
  
 @@ -17,8 +15,8 @@
      confirmPassword?: string;

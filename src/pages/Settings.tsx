@@ -16,7 +16,7 @@ import {
   Minus,
   DollarSign as DollarSignIcon,
   Truck
-} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+} from 'lucide-react';  
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';

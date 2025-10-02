@@ -18,7 +18,7 @@ import {
   Building2,
   Edit3,
   ChevronRight
-} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+} from 'lucide-react';  
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';

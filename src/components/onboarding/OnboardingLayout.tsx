@@ -52,7 +52,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
         <div className="w-full max-w-[700px]">
           {/* Progress bar container */}
           <div className="relative w-full h-1.5 bg-gray-200 rounded-full">
-            {/* Progress bar line */} {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+            {/* Progress bar line */} { }
             <div
               className="absolute left-0 top-0 h-1.5 bg-gray-900 rounded-full transition-all duration-500 ease-in-out" 
               style={{ width: getProgressWidth() }}
@@ -66,7 +66,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                 const isCompleted = 
                   (step.id === 'store' && ['ads', 'products', 'complete'].includes(currentStep)) ||
                   (step.id === 'ads' && ['products', 'complete'].includes(currentStep)) ||
-                  (step.id === 'products' && currentStep === 'complete') || // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  (step.id === 'products' && currentStep === 'complete') ||  
                   (step.id === 'complete' && currentStep === 'complete');
                 
                 return (

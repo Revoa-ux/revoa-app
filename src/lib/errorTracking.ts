@@ -44,7 +44,7 @@ export const reportError = async (error: unknown, email?: string): Promise<void>
         colorDepth: window.screen.colorDepth,
         pixelRatio: window.devicePixelRatio
       },
-      networkInfo: {}, // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      networkInfo: {},  
       retryAttempt: 0,
       metadata: isAppError(error) ? error.details : undefined
     };
