@@ -282,7 +282,7 @@ const Auth = () => {
                         setValidationErrors(prev => ({ ...prev, email: undefined }));
                       }}
                       className={cn(
-                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
                         validationErrors.email ? "border-red-300" : "border-gray-300"
                       )}
                       placeholder="you@example.com"
@@ -314,7 +314,7 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, password: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
                           validationErrors.password ? "border-red-300" : "border-gray-300"
                         )}
                         placeholder="••••••••"
@@ -358,7 +358,7 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
                           validationErrors.confirmPassword ? "border-red-300" : "border-gray-300"
                         )}
                         placeholder="••••••••"
