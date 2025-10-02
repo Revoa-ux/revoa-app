@@ -54,7 +54,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     try {
       // Verify we have a valid session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
+      if (sessionError || !session?.user) {
         throw new Error('Please sign in to connect your store');
       }
 
@@ -127,21 +127,23 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             authWindow.close();
 
             function CleanOauthSession() {
-              supabase
-                .from("oauth_sessions")
-                .delete()
-                .eq("id", oauthSession.id)
-                .then(({ error: deleteError }) => {
-                  if (deleteError) {
-                    console.error("Failed to delete session:", deleteError);
-                    return;
-                  } else {
-                    console.log("Session deleted successfully.");
-                  }
-                });
+              if (oauthSession?.id) {
+                supabase
+                  .from("oauth_sessions")
+                  .delete()
+                  .eq("id", oauthSession.id)
+                  .then(({ error: deleteError }) => {
+                    if (deleteError) {
+                      console.error("Failed to delete session:", deleteError);
+                      return;
+                    } else {
+                      console.log("Session deleted successfully.");
+                    }
+                  });
+              }
 
               clearInterval(checkTabClosed);
-              setIsLoading(false);              
+              setIsLoading(false);
             }
           })
           .catch((err) => {
