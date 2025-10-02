@@ -1,41 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Search,
+import { Search, ChevronDown, Check, ,C  Search,
+  Filter,
   ChevronDown,
   Check,
-  Clock,
-  X,
-  ExternalLink,
-  ShoppingCart,
-  Plus,
+  User,
   Loader2,
-  Filter,
-  Calendar,
-  ArrowDown,
+  MessageSquare,
+  Plus,
+  VolumeX,
+  Volume2,
   Archive,
   Flag,
-  Volume2,
-  VolumeX,
   Trash2,
-  Download,
-  MessageSquare,
-  User,
-  DollarSign,
-  Package,
-  FileText,
-  Tag,
-  SortAsc,
-  Mail,
-  Phone,
-  Building2,
-  Edit3,
-  ChevronRight
-} from 'lucide-react';
-import { toast } from 'sonner';
-import Modal from '@/components/Modal';
-import { Message } from '@/types/chat';
-import { mockMessages } from '@/data/mockMessages';
-import { useClickOutside } from '@/lib/useClickOutside';
+  Download
+lock, X, ExternalLink, ShoppingCart, Plus, Loader2, Filter, Calendar, ArrowDown, Archive, Flag, Volume2, VolumeX, Trash2, Download, MessageSquare, User, DollarSign, Package, FileText, Tag, Import as SortAsc, Mail, Phone, Building2, CreditCard as Edit3, ChevronRight } from 'lucide-react'/useClickOutside';
 import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { TagModal } from '@/components/admin/TagModal';
@@ -342,7 +320,7 @@ export default function AdminChat() {
                     <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
                       <User className="w-5 h-5 text-gray-500" />
                     </div>
-                    {user.unreadMessages > 0 && (
+                    {user.unreadMessages && user.unreadMessages > 0 && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
                         <span className="text-xs text-white font-medium">{user.unreadMessages}</span>
                       </div>
@@ -409,7 +387,7 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice}
+                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   />
                 </div>
 
