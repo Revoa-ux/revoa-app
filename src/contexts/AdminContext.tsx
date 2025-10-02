@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { AdminUser, AdminPermissions } from '../types/admin';
 
@@ -62,9 +61,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .from('user_profiles')
         .select('*')
         .eq('user_id', session.user.id)
-        .single();
+        .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error fetching user profile:', profileError);
+        throw profileError;
+      }
 
       if (!profile?.is_admin || !profile?.admin_role) {
         setAdminUser(null);
@@ -90,7 +92,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error('Error checking admin status:', error);
       const message = error instanceof Error ? error.message : 'Failed to check admin status';
       setError(message);
-      toast.error(message);
+      // Don't show toast for missing profile - user might not be admin
+      setAdminUser(null);
     } finally {
       setLoading(false);
     }
