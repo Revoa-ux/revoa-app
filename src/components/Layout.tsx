@@ -21,6 +21,7 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
+import { getShopifyAccessToken } from '../lib/shopify/api';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -38,6 +39,7 @@ export default function Layout() {
   const location = useLocation();
   const { signOut } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check local storage first, then system preference
     const stored = localStorage.getItem('color-theme');
@@ -46,7 +48,7 @@ export default function Layout() {
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
-  
+
   // Apply dark mode class to html element
   useEffect(() => {
     const html = document.documentElement;
@@ -58,6 +60,25 @@ export default function Layout() {
       localStorage.setItem('color-theme', 'light');
     }
   }, [isDarkMode]);
+
+  // Fetch Shopify store name
+  useEffect(() => {
+    const fetchShopifyStore = async () => {
+      try {
+        const auth = await getShopifyAccessToken();
+        if (auth?.shop) {
+          // Remove .myshopify.com and format nicely
+          const storeName = auth.shop.replace('.myshopify.com', '');
+          setShopifyStore(storeName);
+          console.log('[Layout] Shopify store loaded:', storeName);
+        }
+      } catch (error) {
+        console.error('[Layout] Error fetching Shopify store:', error);
+      }
+    };
+
+    fetchShopifyStore();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -95,11 +116,19 @@ export default function Layout() {
             <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 dark:from-gray-600 dark:to-gray-800 flex items-center justify-center overflow-hidden">
-                  <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ux" alt="Avatar" className="w-full h-full" />
+                  <img
+                    src={shopifyStore ? `https://api.dicebear.com/7.x/bottts/svg?seed=${shopifyStore}` : "https://api.dicebear.com/7.x/bottts/svg?seed=ux"}
+                    alt="Avatar"
+                    className="w-full h-full"
+                  />
                 </div>
                 <div className="text-left">
-                  <div className="text-base font-medium text-gray-900 dark:text-white">YourShop</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">92841a-12</div>
+                  <div className="text-base font-medium text-gray-900 dark:text-white">
+                    {shopifyStore || 'YourShop'}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {shopifyStore ? 'Shopify Connected' : 'No store connected'}
+                  </div>
                 </div>
               </div>
             </button>
