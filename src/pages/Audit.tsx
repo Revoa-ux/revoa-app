@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  AlertTriangle, 
+import { AlertTriangle, Facebook, BrandTiktok, Brain, ChevronDown,
   RefreshCw
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
+import PerformanceOverview from '@/components/reports/PerformanceOverview';
+import PerformanceScore from '@/components/reports/PerformanceScore';
+import OptimizationPriorities from '@/components/reports/OptimizationPriorities';
+import TotalScore from '@/components/reports/TotalScore';
+import CreativeAnalysis from '@/components/reports/CreativeAnalysis';
 
 interface DateRange {
   startDate: Date;
@@ -77,7 +81,7 @@ type AdAccount = {
   status: 'active' | 'inactive';
 };
 
- 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',
