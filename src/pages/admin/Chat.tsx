@@ -20,7 +20,7 @@ import {
   Flag,
   Trash2,
   Download
-} from 'lucide-react'; // eslint-disable-next-line @typescript-eslint/no-unused-vars
+} from 'lucide-react';  
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
@@ -399,7 +399,7 @@ export default function AdminChat() {
                   <ChatInput
                     onSendMessage={handleSendMessage}
                     onSendFile={handleSendFile}
-                    onSendInvoice={handleSendInvoice} // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    onSendInvoice={handleSendInvoice}  
                   />
                 </div>
 

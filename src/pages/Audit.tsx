@@ -81,7 +81,7 @@ type AdAccount = {
   status: 'active' | 'inactive';
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',
