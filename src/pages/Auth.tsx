@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
 import { cn } from '../lib/utils';
+import { useAuth } from '../contexts/AuthContext';
+import { useAdmin } from '../contexts/AdminContext';
 
 type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
 
