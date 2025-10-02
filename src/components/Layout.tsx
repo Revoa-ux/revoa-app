@@ -65,19 +65,29 @@ export default function Layout() {
   useEffect(() => {
     const fetchShopifyStore = async () => {
       try {
+        console.log('[Layout] Starting to fetch Shopify store...');
         const auth = await getShopifyAccessToken();
+        console.log('[Layout] getShopifyAccessToken returned:', auth);
+
         if (auth?.shop) {
           // Remove .myshopify.com and format nicely
           const storeName = auth.shop.replace('.myshopify.com', '');
           setShopifyStore(storeName);
           console.log('[Layout] Shopify store loaded:', storeName);
+        } else {
+          console.warn('[Layout] No shop found in auth response');
         }
       } catch (error) {
         console.error('[Layout] Error fetching Shopify store:', error);
       }
     };
 
-    fetchShopifyStore();
+    // Add a small delay to ensure auth is ready
+    const timer = setTimeout(() => {
+      fetchShopifyStore();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const handleLogout = async () => {

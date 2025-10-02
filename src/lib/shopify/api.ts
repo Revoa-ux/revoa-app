@@ -104,7 +104,13 @@ export interface ShopifyCalculatorMetrics {
 // Get Shopify access token from Supabase
 export const getShopifyAccessToken = async (): Promise<{ accessToken: string; shop: string } | null> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    console.log('[Shopify API] Getting session...');
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      console.error('[Shopify API] Session error:', sessionError);
+      return null;
+    }
 
     if (!session?.user) {
       console.warn('[Shopify API] No authenticated user found');
@@ -112,6 +118,7 @@ export const getShopifyAccessToken = async (): Promise<{ accessToken: string; sh
     }
 
     console.log('[Shopify API] Fetching installation for user:', session.user.id);
+    console.log('[Shopify API] User email:', session.user.email);
 
     // Use .maybeSingle() instead of .single() to avoid the error when no rows are returned
     const { data: installation, error } = await supabase
@@ -128,6 +135,18 @@ export const getShopifyAccessToken = async (): Promise<{ accessToken: string; sh
 
     if (!installation) {
       console.warn('[Shopify API] No Shopify installation found for user. Please connect your Shopify store.');
+      console.log('[Shopify API] Query was: user_id =', session.user.id, ', status = installed');
+
+      // Debug: Let's see what's actually in the table
+      const { data: allInstalls, error: debugError } = await supabase
+        .from('shopify_installations')
+        .select('user_id, store_url, status')
+        .limit(10);
+
+      if (!debugError && allInstalls) {
+        console.log('[Shopify API] All installations in DB:', allInstalls);
+      }
+
       return null;
     }
 
