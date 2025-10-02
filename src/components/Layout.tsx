@@ -80,7 +80,12 @@ export default function Layout() {
               <img
                 src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                 alt="Logo"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain dark:hidden"
+              />
+              <img
+                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+                alt="Logo"
+                className="w-full h-full object-contain hidden dark:block"
               />
             </div>
           </div>
@@ -89,8 +94,8 @@ export default function Layout() {
           <div className="px-4 py-4">
             <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
               <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-black flex items-center justify-center">
-                  <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ux" alt="Avatar" className="w-6 h-6" />
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 dark:from-gray-600 dark:to-gray-800 flex items-center justify-center overflow-hidden">
+                  <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ux" alt="Avatar" className="w-full h-full" />
                 </div>
                 <div className="text-left">
                   <div className="text-base font-medium text-gray-900 dark:text-white">YourShop</div>
