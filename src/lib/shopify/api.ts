@@ -215,13 +215,8 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       // Return default metrics if no Shopify connection
       return getDefaultMetrics();
     }
-    
-    // Fetch customers
-    console.log('[Shopify API] Fetching customers...');
-    const customersResponse = await fetchFromShopify<{ customers: ShopifyCustomer[] }>('/customers.json?limit=250');
-    console.log('[Shopify API] Found', customersResponse.customers.length, 'customers');
 
-    // Fetch orders
+    // Fetch orders - We can get most data from orders without needing read_customers scope
     console.log('[Shopify API] Fetching orders...');
     const ordersResponse = await fetchFromShopify<{ orders: ShopifyOrder[] }>('/orders.json?status=any&limit=250');
     console.log('[Shopify API] Found', ordersResponse.orders.length, 'orders');
@@ -231,86 +226,89 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     const productsResponse = await fetchFromShopify<{ products: ShopifyProduct[] }>('/products.json?limit=250');
     console.log('[Shopify API] Found', productsResponse.products.length, 'products');
 
-    // Calculate metrics
-    const customers = customersResponse.customers;
+    // Calculate metrics from orders
     const orders = ordersResponse.orders;
     const products = productsResponse.products;
 
-    // Total customers
-    const totalCustomers = customers.length;
-    
+    // Get unique customers from orders (doesn't require read_customers scope)
+    const uniqueCustomerEmails = new Set(
+      orders.map(order => order.customer?.email).filter(Boolean)
+    );
+    const totalCustomers = uniqueCustomerEmails.size;
+
     // Total orders
     const totalOrders = orders.length;
-    
+
     // Total revenue
     const totalRevenue = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-    
+
     // Average order value
     const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    
-    // New customers today
+
+    // New customers today (first-time buyers today)
     const today = new Date().toISOString().split('T')[0];
-    const newCustomersToday = customers.filter(customer => 
-      customer.created_at.startsWith(today)
-    ).length;
-    
+    const todayOrders = orders.filter(order => order.created_at.startsWith(today));
+    const newCustomersToday = new Set(
+      todayOrders.map(order => order.customer?.email).filter(Boolean)
+    ).size;
+
     // Active customers (ordered in last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const thirtyDaysAgoStr = thirtyDaysAgo.toISOString();
-    
+
     const activeCustomers = new Set(
       orders
         .filter(order => new Date(order.created_at) >= new Date(thirtyDaysAgoStr))
-        .map(order => order.customer?.id)
+        .map(order => order.customer?.email)
         .filter(Boolean)
     ).size;
-    
+
     // Monthly recurring revenue (simplified calculation)
-    const lastThirtyDaysOrders = orders.filter(order => 
+    const lastThirtyDaysOrders = orders.filter(order =>
       new Date(order.created_at) >= new Date(thirtyDaysAgoStr)
     );
-    const monthlyRecurringRevenue = lastThirtyDaysOrders.reduce((sum, order) => 
+    const monthlyRecurringRevenue = lastThirtyDaysOrders.reduce((sum, order) =>
       sum + parseFloat(order.total_price), 0
     );
-    
+
     // Annual recurring revenue (simplified)
     const annualRecurringRevenue = monthlyRecurringRevenue * 12;
-    
+
     // Total products
     const totalProducts = products.length;
-    
+
     // Inventory value (simplified)
     const inventoryValue = products.reduce((sum, product) => {
       return sum + product.variants.reduce((variantSum, variant) => {
         return variantSum + (parseFloat(variant.price) * variant.inventory_quantity);
       }, 0);
     }, 0);
-    
+
     // Profit margin (simplified - assuming 30% margin)
     const profitMargin = 30;
-    
+
     // Cost of goods sold (simplified)
     const costOfGoodsSold = totalRevenue * (1 - profitMargin / 100);
-    
+
     // Shipping costs (simplified)
-    const shippingCosts = orders.reduce((sum, order) => 
+    const shippingCosts = orders.reduce((sum, order) =>
       sum + parseFloat(order.total_shipping_price || '0'), 0
     );
-    
+
     // Transaction fees (simplified - assuming 2.9% + $0.30 per transaction)
-    const transactionFees = orders.reduce((sum, order) => 
+    const transactionFees = orders.reduce((sum, order) =>
       sum + (parseFloat(order.total_price) * 0.029 + 0.30), 0
     );
-    
+
     // Refunds (simplified)
     const refunds = orders
       .filter(order => order.financial_status === 'refunded')
       .reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-    
+
     // Chargebacks (simplified)
     const chargebacks = 0; // This data is not directly available from the API
-    
+
     const metrics = {
       totalCustomers,
       totalOrders,
