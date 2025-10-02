@@ -228,20 +228,20 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
 export const validateStoreUrl = (url: string): { success: boolean; error?: string; data?: string } => {
   try {
     console.debug('Validating store URL:', url);
-    
+
     // Basic validation
     if (!url.trim()) {
       return { success: false, error: 'Store URL is required' };
     }
-    
+
     // Remove protocol if present
     let domain = url.replace(/^https?:\/\//, '').replace(/^www\./, '');
-    
+
     // Add myshopify.com if not present and doesn't contain it
     if (!domain.includes('myshopify.com')) {
       domain = `${domain}.myshopify.com`;
     }
-    
+
     // Validate domain format
     const validDomainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.myshopify\.com$/;
     if (!validDomainPattern.test(domain)) {
@@ -254,4 +254,32 @@ export const validateStoreUrl = (url: string): { success: boolean; error?: strin
     console.error('Store URL validation error:', error);
     return { success: false, error: 'Please enter a valid Shopify store URL' };
   }
+};
+
+// Initiate Shopify OAuth flow - prompts user for shop domain
+export const initiateShopifyOAuth = async (userId: string): Promise<void> => {
+  const shopDomain = window.prompt('Enter your Shopify store URL (e.g., mystore.myshopify.com):');
+
+  if (!shopDomain) {
+    throw new Error('Store URL is required');
+  }
+
+  const validation = validateStoreUrl(shopDomain);
+  if (!validation.success) {
+    throw new Error(validation.error || 'Invalid store URL');
+  }
+
+  const authUrl = await getShopifyAuthUrl(validation.data!);
+
+  // Open OAuth in new window
+  const width = 600;
+  const height = 700;
+  const left = window.screen.width / 2 - width / 2;
+  const top = window.screen.height / 2 - height / 2;
+
+  window.open(
+    authUrl,
+    'shopify-oauth',
+    `width=${width},height=${height},left=${left},top=${top}`
+  );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import {
   User, Mail, Lock, Bell, Globe, DollarSign, Moon, Sun, Languages, CreditCard, Building2, AlertTriangle, Facebook, Check, ChevronRight,
   Download,
   Trash2,
@@ -16,12 +16,14 @@ import {
   Minus,
   DollarSign as DollarSignIcon,
   Truck
-} from 'lucide-react';  
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';
 import { useClickOutside } from '@/lib/useClickOutside';
 import ProfileForm from '@/components/settings/ProfileForm';
+import { supabase } from '@/lib/supabase';
+import { initiateShopifyOAuth } from '@/lib/shopify/auth';
 
 interface UserProfile {
   firstName: string;
@@ -52,6 +54,8 @@ interface IntegrationStatus {
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [shopifyConnecting, setShopifyConnecting] = useState(false);
+  const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile>({
     firstName: 'John',
     lastName: 'Doe',
@@ -69,13 +73,34 @@ const SettingsPage = () => {
       marketing: false
     }
   });
-  
+
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
     shopify: false,
     facebook: false,
     google: false,
     tiktok: false
   });
+
+  // Fetch Shopify connection status
+  useEffect(() => {
+    const fetchShopifyStatus = async () => {
+      if (!user?.id) return;
+
+      const { data, error } = await supabase
+        .from('shopify_installations')
+        .select('store_url, status')
+        .eq('user_id', user.id)
+        .eq('status', 'installed')
+        .maybeSingle();
+
+      if (!error && data) {
+        setIntegrationStatus(prev => ({ ...prev, shopify: true }));
+        setShopifyStore(data.store_url);
+      }
+    };
+
+    fetchShopifyStatus();
+  }, [user?.id]);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -142,16 +167,62 @@ const SettingsPage = () => {
     }
   };
 
+  const handleConnectShopify = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to connect Shopify');
+      return;
+    }
+
+    try {
+      setShopifyConnecting(true);
+      await initiateShopifyOAuth(user.id);
+    } catch (error) {
+      console.error('Error connecting Shopify:', error);
+      toast.error('Failed to connect Shopify');
+      setShopifyConnecting(false);
+    }
+  };
+
+  const handleDisconnectShopify = async () => {
+    if (!user?.id) return;
+
+    try {
+      setShopifyConnecting(true);
+
+      const { error } = await supabase
+        .from('shopify_installations')
+        .update({ status: 'uninstalled', uninstalled_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('status', 'installed');
+
+      if (error) throw error;
+
+      setIntegrationStatus(prev => ({ ...prev, shopify: false }));
+      setShopifyStore(null);
+      toast.success('Shopify store disconnected');
+    } catch (error) {
+      console.error('Error disconnecting Shopify:', error);
+      toast.error('Failed to disconnect Shopify');
+    } finally {
+      setShopifyConnecting(false);
+    }
+  };
+
   const handleConnectPlatform = async (platform: keyof IntegrationStatus) => {
+    if (platform === 'shopify') {
+      await handleConnectShopify();
+      return;
+    }
+
     try {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setIntegrationStatus(prev => ({
         ...prev,
         [platform]: true
       }));
-      
+
       toast.success(`${platform.charAt(0).toUpperCase() + platform.slice(1)} connected successfully`);
     } catch (error) {
       toast.error(`Failed to connect ${platform}`);
@@ -460,7 +531,7 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                      <img 
+                      <img
                         src="https://jfwmnaaujzuwrqqhgmuf.supabase.co/storage/v1/object/public/REVOA%20(Public)//shopify%20(1).svg"
                         alt="Shopify"
                         className="w-6 h-6"
@@ -468,21 +539,52 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
+                      {shopifyStore && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{shopifyStore}</p>
+                      )}
                     </div>
                   </div>
                   {integrationStatus.shopify ? (
-                    <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                      <span className="text-sm">Connected</span>
-                      <Check className="w-4 h-4" />
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
+                        <span className="text-sm">Connected</span>
+                        <Check className="w-4 h-4" />
+                      </div>
+                      <button
+                        onClick={handleDisconnectShopify}
+                        disabled={shopifyConnecting}
+                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {shopifyConnecting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Disconnecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            <span>Disconnect</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleConnectPlatform('shopify')}
-                      disabled={isLoading}
+                      disabled={shopifyConnecting}
                       className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
                     >
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
+                      {shopifyConnecting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
