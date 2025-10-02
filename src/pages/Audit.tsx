@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertTriangle, Facebook, BrandTiktok, Brain, ChevronDown,
-  RefreshCw
-} from 'lucide-react';
-import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
+import { Alimporte{rAlertTriangle, Facebook, BrandTiktok, Brain, ChevronDown,
+  tTriangle, Facebook, GitBranch as BrandTiktok, Brain, ChevronDown, RefreshCw } from 'lucide-react'eports/AdReportsTimeSelector';
 import PerformanceOverview from '@/components/reports/PerformanceOverview';
 import PerformanceScore from '@/components/reports/PerformanceScore';
 import OptimizationPriorities from '@/components/reports/OptimizationPriorities';
@@ -81,7 +79,7 @@ type AdAccount = {
   status: 'active' | 'inactive';
 };
 
- 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',
