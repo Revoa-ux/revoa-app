@@ -126,7 +126,7 @@ export const handler: Handler = async (event) => {
       .from("oauth_sessions")
       .select("*")
       .eq("state", state)
-      .single();
+      .maybeSingle();
 
     //Verify the state variable with the one previously generated
     if (oauthError || !oauthSession) {

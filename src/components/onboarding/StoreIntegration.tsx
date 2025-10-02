@@ -94,14 +94,14 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           .select("*")
           .eq("user_id", session.user.id)
           .eq("shop_domain", validDomain)
-          .single()
+          .maybeSingle()
           .then(({ data: oauthSession, error }) => {
             if (error) {
-              setError(`Authentication failed or installation not found, message: ${error}`);              
-              // Clean up after completion 
-              CleanOauthSession();  
-              authWindow.close();       
-              return;   
+              setError(`Authentication failed or installation not found, message: ${error}`);
+              // Clean up after completion
+              CleanOauthSession();
+              authWindow.close();
+              return;
             }
             if(!oauthSession){
               setError(`No oauth session table found for user and store url`);

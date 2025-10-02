@@ -44,7 +44,7 @@ const AdminAuth = () => {
         .from('user_profiles')
         .select('is_admin, admin_role')
         .eq('email', email)
-        .single();
+        .maybeSingle();
 
       if (!profile?.is_admin) {
         throw new Error('Unauthorized access');
