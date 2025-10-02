@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { LockIcon, ShoppingBag } from "lucide-react";
+import { Lock as LockIcon, ShoppingBag } from "lucide-react";
 
 interface ShopifyFormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -59,14 +59,14 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
               props.onBlur?.(e);
             }}
             className={cn(
-              "flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm placeholder:text-muted-foreground",
+              "flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm placeholder:text-muted-foreground text-gray-900",
               "ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shopify-green/30 focus-visible:border-shopify-green",
+              "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:border-primary-500",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "transition-all duration-200 shadow-sm",
               error
-                ? "border-red-300 focus-visible:ring-red-500/40 focus-visible:border-red-500"
-                : "border-input hover:border-gray-300",
+                ? "border-red-300 focus-visible:ring-1 focus-visible:ring-red-500 focus-visible:border-red-500"
+                : "border-gray-300 hover:border-gray-400",
               className
             )}
           />
