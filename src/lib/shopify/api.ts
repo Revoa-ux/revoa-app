@@ -105,36 +105,40 @@ export interface ShopifyCalculatorMetrics {
 export const getShopifyAccessToken = async (): Promise<{ accessToken: string; shop: string } | null> => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    
+
     if (!session?.user) {
-      console.error('No authenticated user found');
+      console.warn('[Shopify API] No authenticated user found');
       return null;
     }
+
+    console.log('[Shopify API] Fetching installation for user:', session.user.id);
 
     // Use .maybeSingle() instead of .single() to avoid the error when no rows are returned
     const { data: installation, error } = await supabase
       .from('shopify_installations')
-      .select('store_url, access_token')
+      .select('store_url, access_token, status')
       .eq('user_id', session.user.id)
       .eq('status', 'installed')
       .maybeSingle();
 
     if (error) {
-      console.error('Error fetching Shopify installation:', error);
+      console.error('[Shopify API] Error fetching Shopify installation:', error);
       return null;
     }
 
     if (!installation) {
-      console.log('No Shopify installation found for user');
+      console.warn('[Shopify API] No Shopify installation found for user. Please connect your Shopify store.');
       return null;
     }
+
+    console.log('[Shopify API] Found installation for store:', installation.store_url);
 
     return {
       accessToken: installation.access_token,
       shop: installation.store_url
     };
   } catch (error) {
-    console.error('Error getting Shopify access token:', error);
+    console.error('[Shopify API] Error getting Shopify access token:', error);
     return null;
   }
 }
@@ -145,15 +149,17 @@ export const fetchFromShopify = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   const auth = await getShopifyAccessToken();
-  
+
   if (!auth) {
-    throw new Error('No Shopify access token available');
+    throw new Error('No Shopify access token available. Please connect your Shopify store first.');
   }
 
   const { accessToken, shop } = auth;
-  
+
   const url = `https://${shop}/admin/api/${SHOPIFY_CONFIG.API_VERSION}${endpoint}`;
-  
+
+  console.log('[Shopify API] Fetching:', endpoint);
+
   const response = await fetch(url, {
     ...options,
     headers: {
@@ -165,30 +171,46 @@ export const fetchFromShopify = async <T>(
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('[Shopify API] Error response:', {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText
+    });
     throw new Error(`Shopify API error (${response.status}): ${errorText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('[Shopify API] Success:', endpoint, 'returned', Object.keys(data).length, 'keys');
+  return data;
 };
 
 // Get dashboard metrics
 export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
   try {
+    console.log('[Shopify API] Starting to fetch dashboard metrics...');
+
     // Check if we have a Shopify connection first
     const auth = await getShopifyAccessToken();
     if (!auth) {
+      console.warn('[Shopify API] No Shopify connection found, returning default metrics');
       // Return default metrics if no Shopify connection
       return getDefaultMetrics();
     }
     
     // Fetch customers
+    console.log('[Shopify API] Fetching customers...');
     const customersResponse = await fetchFromShopify<{ customers: ShopifyCustomer[] }>('/customers.json?limit=250');
-    
+    console.log('[Shopify API] Found', customersResponse.customers.length, 'customers');
+
     // Fetch orders
+    console.log('[Shopify API] Fetching orders...');
     const ordersResponse = await fetchFromShopify<{ orders: ShopifyOrder[] }>('/orders.json?status=any&limit=250');
-    
+    console.log('[Shopify API] Found', ordersResponse.orders.length, 'orders');
+
     // Fetch products
+    console.log('[Shopify API] Fetching products...');
     const productsResponse = await fetchFromShopify<{ products: ShopifyProduct[] }>('/products.json?limit=250');
+    console.log('[Shopify API] Found', productsResponse.products.length, 'products');
 
     // Calculate metrics
     const customers = customersResponse.customers;
@@ -270,7 +292,7 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     // Chargebacks (simplified)
     const chargebacks = 0; // This data is not directly available from the API
     
-    return {
+    const metrics = {
       totalCustomers,
       totalOrders,
       totalRevenue,
@@ -288,8 +310,20 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       refunds,
       chargebacks
     };
+
+    console.log('[Shopify API] Metrics calculated:', {
+      totalCustomers,
+      totalOrders,
+      totalRevenue: totalRevenue.toFixed(2),
+      averageOrderValue: averageOrderValue.toFixed(2)
+    });
+
+    return metrics;
   } catch (error) {
-    console.error('Error fetching Shopify metrics:', error);
+    console.error('[Shopify API] Error fetching Shopify metrics:', error);
+    if (error instanceof Error) {
+      console.error('[Shopify API] Error details:', error.message, error.stack);
+    }
     // Return default metrics on error
     return getDefaultMetrics();
   }
@@ -468,4 +502,54 @@ const getDefaultCalculatorMetrics = (): ShopifyCalculatorMetrics => {
     grossMarginPercent: 0,
     profitMarginPercent: 0
   };
+};
+
+// Debug utility to check Shopify connection status
+export const checkShopifyConnection = async (): Promise<{
+  isConnected: boolean;
+  storeUrl?: string;
+  hasAccessToken?: boolean;
+  error?: string;
+}> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.user) {
+      return {
+        isConnected: false,
+        error: 'No authenticated user'
+      };
+    }
+
+    const { data: installation, error } = await supabase
+      .from('shopify_installations')
+      .select('store_url, access_token, status, installed_at')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+
+    if (error) {
+      return {
+        isConnected: false,
+        error: error.message
+      };
+    }
+
+    if (!installation) {
+      return {
+        isConnected: false,
+        error: 'No Shopify installation found'
+      };
+    }
+
+    return {
+      isConnected: installation.status === 'installed',
+      storeUrl: installation.store_url,
+      hasAccessToken: !!installation.access_token,
+    };
+  } catch (error) {
+    return {
+      isConnected: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 };

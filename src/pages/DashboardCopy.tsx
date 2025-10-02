@@ -95,13 +95,30 @@ export default function DashboardCopy() {
 
   const fetchShopifyData = async () => {
     try {
+      console.log('[Dashboard] Starting data fetch...');
       setIsLoading(true);
       setError(null);
-      
+
       const metrics = await getDashboardMetrics();
+      console.log('[Dashboard] Received metrics:', metrics);
       setShopifyMetrics(metrics);
+
+      // Check if we got real data or defaults
+      if (metrics.totalOrders === 0 && metrics.totalRevenue === 0) {
+        console.warn('[Dashboard] Received default/empty metrics. Store may not be connected or has no data.');
+        toast.info('No store data found', {
+          description: 'Connect your Shopify store or add some orders to see metrics'
+        });
+      } else {
+        console.log('[Dashboard] Successfully loaded store data:', {
+          orders: metrics.totalOrders,
+          revenue: metrics.totalRevenue,
+          customers: metrics.totalCustomers
+        });
+        toast.success('Store data loaded successfully');
+      }
     } catch (error) {
-      console.error('Error fetching Shopify data:', error);
+      console.error('[Dashboard] Error fetching Shopify data:', error);
       setError('Failed to fetch data from your Shopify store');
       toast.error('Failed to fetch data from your Shopify store', {
         description: error instanceof Error ? error.message : 'Please check your connection'
@@ -457,11 +474,25 @@ export default function DashboardCopy() {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Hi {userFirstName}, welcome to Revoa👋
         </h1>
-        <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {isLoading ? 'Updating dashboard...' : 'Last updated: ' + new Date().toLocaleTimeString()}
-          </p>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${
+              shopifyMetrics && (shopifyMetrics.totalOrders > 0 || shopifyMetrics.totalRevenue > 0)
+                ? 'bg-green-500'
+                : 'bg-gray-400'
+            }`}></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {shopifyMetrics && (shopifyMetrics.totalOrders > 0 || shopifyMetrics.totalRevenue > 0)
+                ? 'Shopify Connected'
+                : 'No Shopify data'}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Clock className="w-3.5 h-3.5 text-gray-400" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? 'Updating...' : 'Updated ' + new Date().toLocaleTimeString()}
+            </p>
+          </div>
         </div>
       </div>
 
