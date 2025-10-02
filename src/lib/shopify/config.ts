@@ -10,13 +10,13 @@ export const SHOPIFY_CONFIG = {
   REDIRECT_URI: import.meta.env.VITE_SHOPIFY_REDIRECT_URI || 'https://members.revoa.app/.netlify/functions/shopify-oauth',
   
   // Required scopes for all app features
+  // Note: Removed read_customers/write_customers as they require Shopify approval
+  // We can get order metrics without accessing protected customer data
   SCOPES: [
     'read_products',
     'write_products',
     'read_orders',
     'write_orders',
-    'read_customers',
-    'write_customers',
     'read_inventory',
     'write_inventory',
     'read_reports',
@@ -24,13 +24,7 @@ export const SHOPIFY_CONFIG = {
     'write_fulfillments',
     'read_shipping',
     'write_shipping',
-    'read_analytics',
-    'read_themes',
-    'write_themes',
-    'read_content',
-    'write_content',
-    'read_price_rules',
-    'write_price_rules'
+    'read_analytics'
   ].join(','),
 
   // API version - using latest stable version
