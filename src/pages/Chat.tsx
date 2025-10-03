@@ -330,7 +330,11 @@ const Chat = () => {
                 <button
                   onClick={handleSend}
                   disabled={!newMessage.trim()}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                  className={`p-1.5 rounded-lg transition-all disabled:opacity-50 ${
+                    newMessage.trim()
+                      ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 shadow-sm'
+                      : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                  }`}
                 >
                   <Send className="w-5 h-5" />
                 </button>
