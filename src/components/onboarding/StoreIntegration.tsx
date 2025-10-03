@@ -15,11 +15,9 @@ interface StoreIntegrationProps {
 const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected }) => {
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
-    setError('');
   };
 
   // Set up message listener for the popup window
@@ -44,7 +42,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     e.preventDefault();
     
     if (!shopUrl.trim()) {
-      setError('Please enter your Shopify store URL');
+      toast.error('Please enter your Shopify store URL');
       return;
     }
 
@@ -60,7 +58,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
       const validation = validateStoreUrl(shopUrl);
       if (!validation.success) {
-        setError(validation.error);
+        toast.error(validation.error);
         setIsLoading(false);
         return;
       }
@@ -97,28 +95,28 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           .maybeSingle()
           .then(({ data: oauthSession, error }) => {
             if (error) {
-              setError(`Authentication failed or installation not found, message: ${error}`);
+              toast.error('Connection failed. Please try again.');
               // Clean up after completion
               CleanOauthSession();
               authWindow.close();
               return;
             }
             if(!oauthSession){
-              setError(`No oauth session table found for user and store url`);
-              // Clean up after completion 
-              CleanOauthSession();  
-              authWindow.close();     
-              return;    
+              toast.error('Connection failed. Please try again.');
+              // Clean up after completion
+              CleanOauthSession();
+              authWindow.close();
+              return;
             }
             if(oauthSession.error){
               if("Session Started..." == oauthSession.error)
                 return;
 
-              setError(`Authentication failed or installation not found, message: ${oauthSession.error}`);
-              // Clean up after completion 
-              CleanOauthSession();  
-              authWindow.close();      
-              return;      
+              toast.error('Connection failed. Please try again.');
+              // Clean up after completion
+              CleanOauthSession();
+              authWindow.close();
+              return;
             }            
 
             // Clean up after completion 
@@ -148,13 +146,14 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
-            setError("Something went wrong checking the installation.");
+            toast.error('Connection failed. Please try again.');
+            clearInterval(checkTabClosed);
+            setIsLoading(false);
           });
         
       }, 1000);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
-      setError(error instanceof Error ? error.message : 'Failed to connect to Shopify store');
       toast.error(error instanceof Error ? error.message : 'Failed to connect to Shopify store');
       setIsLoading(false);
     }
@@ -188,7 +187,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   <ShopifyFormInput
                     value={shopUrl}
                     onChange={handleShopChange}
-                    error={error}
                     disabled={isLoading}
                     placeholder="your-store.myshopify.com"
                     className="pr-12"
@@ -207,26 +205,26 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="border border-gray-200 bg-white rounded-lg p-4">
                 <div className="flex items-start space-x-3">
-                  <HelpCircle className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-gray-600">
-                    <p className="font-semibold text-gray-900 mb-2">Having trouble?</p>
-                    <ul className="space-y-1.5">
+                  <HelpCircle className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-gray-900 mb-2.5">Having trouble connecting?</p>
+                    <ul className="space-y-2 text-gray-600">
                       <li className="flex items-start">
-                        <span className="text-gray-400 mr-2">•</span>
+                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                         <span>Make sure your browser allows popups</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-gray-400 mr-2">•</span>
+                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                         <span>Make sure you are not logged into a different store in a separate tab</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-gray-400 mr-2">•</span>
+                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                         <span>Must be on a paid and active Shopify plan</span>
                       </li>
                       <li className="flex items-start">
-                        <span className="text-gray-400 mr-2">•</span>
+                        <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                         <span>Must be an admin of the Shopify store</span>
                       </li>
                     </ul>
