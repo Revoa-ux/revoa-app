@@ -167,7 +167,7 @@ export const fetchFromShopify = async <T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  console.log('[Shopify API] Fetching via proxy:', endpoint);
+  console.log('[Shopify API] Fetching via proxy:', endpoint, 'method:', options.method || 'GET');
 
   // Get current session
   const { data: { session } } = await supabase.auth.getSession();
@@ -186,6 +186,7 @@ export const fetchFromShopify = async <T>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+    body: options.body,
   });
 
   if (!response.ok) {
@@ -465,6 +466,34 @@ const getDefaultCalculatorMetrics = (): ShopifyCalculatorMetrics => {
     grossMarginPercent: 0,
     profitMarginPercent: 0
   };
+};
+
+// Create a product in Shopify
+export const createShopifyProduct = async (productData: {
+  title: string;
+  body_html?: string;
+  vendor?: string;
+  product_type?: string;
+  variants?: Array<{
+    price: string;
+    compare_at_price?: string;
+    sku?: string;
+    inventory_quantity?: number;
+  }>;
+  images?: Array<{
+    src: string;
+  }>;
+}): Promise<ShopifyProduct> => {
+  console.log('[Shopify API] Creating product:', productData.title);
+
+  // Use the proxy endpoint to create the product
+  const response = await fetchFromShopify<{ product: ShopifyProduct }>('/products.json', {
+    method: 'POST',
+    body: JSON.stringify({ product: productData }),
+  });
+
+  console.log('[Shopify API] Product created successfully:', response.product.id);
+  return response.product;
 };
 
 // Debug utility to check Shopify connection status

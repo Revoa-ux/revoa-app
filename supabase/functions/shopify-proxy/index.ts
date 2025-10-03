@@ -91,18 +91,26 @@ Deno.serve(async (req: Request) => {
       throw new Error('Missing endpoint parameter');
     }
 
-    console.log('[Shopify Proxy] Fetching:', endpoint);
+    console.log('[Shopify Proxy] Fetching:', endpoint, 'with method:', req.method);
+
+    // Get request body if present
+    let body: string | undefined;
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      body = await req.text();
+      console.log('[Shopify Proxy] Request body:', body);
+    }
 
     // Make request to Shopify
     const shopifyUrl = `https://${installation.store_url}/admin/api/${SHOPIFY_API_VERSION}${endpoint}`;
     console.log('[Shopify Proxy] Shopify URL:', shopifyUrl);
-    
+
     const shopifyResponse = await fetch(shopifyUrl, {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
         'X-Shopify-Access-Token': installation.access_token,
       },
+      body: body,
     });
 
     if (!shopifyResponse.ok) {

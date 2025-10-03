@@ -3,6 +3,7 @@ import { X, Store, Loader2, Package, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
+import { createShopifyProduct } from '@/lib/shopify/api';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { Quote } from '@/types/quotes';
 import { supabase } from '@/lib/supabase';
@@ -206,16 +207,41 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
     setIsSyncing(true);
     try {
-      // TODO: Implement actual Shopify product creation API call
-      // For now, simulate the sync
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Prepare product data for Shopify
+      const variants = quote.variants?.map(variant => ({
+        price: variant.costPerItem.toFixed(2),
+        inventory_quantity: variant.quantity,
+        sku: `${quote.id}-${variant.quantity}`,
+      })) || [{
+        price: '0.00',
+        inventory_quantity: 1,
+      }];
+
+      const productData = {
+        title: quote.productName,
+        body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+        vendor: 'Revoa',
+        product_type: 'Imported Product',
+        variants: variants,
+      };
+
+      console.log('[Shopify Sync] Creating product:', productData);
+
+      // Create the product in Shopify
+      const createdProduct = await createShopifyProduct(productData);
+
+      console.log('[Shopify Sync] Product created:', createdProduct);
 
       onConnect(quote.id);
-      toast.success('Product successfully added to Shopify');
+      toast.success(`Product "${quote.productName}" successfully added to Shopify`);
       onClose();
     } catch (error) {
       console.error('Error syncing product:', error);
-      toast.error('Failed to add product to Shopify');
+      toast.error(
+        error instanceof Error
+          ? `Failed to add product: ${error.message}`
+          : 'Failed to add product to Shopify'
+      );
     } finally {
       setIsSyncing(false);
     }
