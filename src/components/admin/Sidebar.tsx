@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
+import { toast } from 'sonner';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: Home },

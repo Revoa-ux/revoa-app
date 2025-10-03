@@ -12,9 +12,9 @@ import Audit from './pages/Audit';
 import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
 import Auth from './pages/Auth';
+import AdminChat from './pages/admin/Chat';
 // import AdminDashboard from './pages/admin/Dashboard';
 // import AdminUsers from './pages/admin/Users';
-// import AdminChat from './pages/admin/Chat';
 // import AdminQuotes from './pages/admin/Quotes';
 // import AdminProducts from './pages/admin/Products';
 // import AdminInvoices from './pages/admin/Invoices';
@@ -68,23 +68,24 @@ function App() {
           <LoadingProvider>
             <PageTitle />
             <Routes>
-            {/* Admin routes - temporarily disabled */}
-            {/* <Route path="/admin" element={
+            {/* Admin routes */}
+            <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
             }>
+              <Route path="chat" element={<AdminChat />} />
+              {/* Other admin routes - temporarily disabled
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
-              <Route path="chat" element={<AdminChat />} />
               <Route path="quotes" element={<AdminQuotes />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
-              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
-            </Route> */}
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} /> */}
+            </Route>
 
             {/* Regular auth routes */}
             <Route path="/auth" element={<Auth />} />
