@@ -69,7 +69,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               </button>
             )}
 
-            {quote.status === 'quote_pending' && onAcceptQuote && (
+            {quote.status === 'quoted' && quote.variants && quote.variants.length > 0 && onAcceptQuote && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();

@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Search,
+  Filter,
+  ChevronDown,
   Check,
   X,
   ExternalLink,
@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Modal from '@/components/Modal';
+import { getAllQuotes, updateQuoteWithPricing } from '@/lib/quotes';
 
 interface Quote {
   id: string;
@@ -228,49 +229,57 @@ export default function AdminQuotes() {
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
-  
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
 
-  const mockQuotes: Quote[] = [
-    {
-      id: 'QT-2024-001',
-      productUrl: 'https://www.aliexpress.com/item/123456789.html',
-      platform: 'aliexpress',
-      productName: 'Wireless Earbuds Pro Max',
-      requestDate: '2024-03-15',
-      status: 'quote_pending'
-    },
-    {
-      id: 'QT-2024-002',
-      productUrl: 'https://www.amazon.com/dp/B0123456789',
-      platform: 'amazon',
-      productName: 'Smart Home Security Camera',
-      requestDate: '2024-03-14',
-      status: 'quoted',
-      variants: [
-        { quantity: 2, costPerItem: 45.99, shippingCost: 8.99, totalCost: 100.97 },
-        { quantity: 4, costPerItem: 42.99, shippingCost: 12.99, totalCost: 184.95 },
-        { quantity: 8, costPerItem: 39.99, shippingCost: 15.99, totalCost: 335.91 }
-      ],
-      expiresIn: 5
-    }
-  ];
+  // Load quotes on mount
+  useEffect(() => {
+    loadQuotes();
+  }, []);
 
-  const handleProcessQuote = (processedQuote: Quote) => {
-    console.log('Processing quote:', processedQuote);
-    // Update quote in state
-    toast.success('Quote processed successfully');
-    setSelectedQuote(null);
+  const loadQuotes = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllQuotes();
+      setQuotes(data);
+    } catch (error) {
+      console.error('Error loading quotes:', error);
+      toast.error('Failed to load quotes');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const filteredQuotes = mockQuotes.filter(quote => {
-    const matchesSearch = 
+  const handleProcessQuote = async (processedQuote: Quote) => {
+    try {
+      if (!processedQuote.variants || processedQuote.variants.length === 0) {
+        toast.error('Please add at least one pricing option');
+        return;
+      }
+
+      await updateQuoteWithPricing(processedQuote.id, processedQuote.variants, 7);
+
+      // Reload quotes to get updated data
+      await loadQuotes();
+
+      toast.success('Quote processed successfully');
+      setSelectedQuote(null);
+    } catch (error) {
+      console.error('Error processing quote:', error);
+      toast.error('Failed to process quote');
+    }
+  };
+
+  const filteredQuotes = quotes.filter(quote => {
+    const matchesSearch =
       quote.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 

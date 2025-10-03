@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Quote } from '@/types/quotes';
 import { QuoteForm } from '@/components/quotes/QuoteForm';
 import { QuoteFilters } from '@/components/quotes/QuoteFilters';
 import { QuoteTable } from '@/components/quotes/QuoteTable';
 import { ShopifyConnectModal } from '@/components/quotes/ShopifyConnectModal';
 import { toast } from 'sonner';
+import {
+  createQuoteRequest,
+  getUserQuotes,
+  acceptQuote,
+  updateShopifySync
+} from '@/lib/quotes';
 
 const mockQuotes: Quote[] = [
   {
@@ -120,22 +126,46 @@ const mockQuotes: Quote[] = [
 export default function ProductQuotes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
-  const [quotes, setQuotes] = useState<Quote[]>(mockQuotes);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [expandedQuotes, setExpandedQuotes] = useState<string[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleSubmitQuote = (newQuote: Omit<Quote, 'id' | 'requestDate' | 'status'>) => {
-    const quote: Quote = {
-      ...newQuote,
-      id: `QT-2024-${String(quotes.length + 1).padStart(3, '0')}`,
-      requestDate: new Date().toISOString().split('T')[0],
-      status: 'quote_pending'
-    };
-    setQuotes([quote, ...quotes]);
-    setShowQuoteForm(false);
-    toast.success('Quote request submitted successfully');
+  // Load quotes on mount
+  useEffect(() => {
+    loadQuotes();
+  }, []);
+
+  const loadQuotes = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getUserQuotes();
+      setQuotes(data);
+    } catch (error) {
+      console.error('Error loading quotes:', error);
+      toast.error('Failed to load quotes');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmitQuote = async (newQuote: Omit<Quote, 'id' | 'requestDate' | 'status'>) => {
+    try {
+      const quote = await createQuoteRequest({
+        productUrl: newQuote.productUrl,
+        productName: newQuote.productName,
+        platform: newQuote.platform,
+      });
+
+      setQuotes([quote, ...quotes]);
+      setShowQuoteForm(false);
+      toast.success('Quote request submitted successfully');
+    } catch (error) {
+      console.error('Error submitting quote:', error);
+      toast.error('Failed to submit quote request');
+    }
   };
 
   const toggleQuoteExpansion = (quoteId: string) => {
@@ -146,29 +176,38 @@ export default function ProductQuotes() {
     );
   };
 
-  const handleAcceptQuote = (quote: Quote) => {
+  const handleAcceptQuote = async (quote: Quote) => {
     if (quote.status !== 'quoted') return;
 
-    setQuotes(prev => prev.map(q => 
-      q.id === quote.id ? { ...q, status: 'accepted' } : q
-    ));
+    try {
+      const updatedQuote = await acceptQuote(quote.id);
+      setQuotes(prev => prev.map(q =>
+        q.id === quote.id ? updatedQuote : q
+      ));
 
-    setSelectedQuote(quote);
-    setShowShopifyModal(true);
+      setSelectedQuote(updatedQuote);
+      setShowShopifyModal(true);
+    } catch (error) {
+      console.error('Error accepting quote:', error);
+      toast.error('Failed to accept quote');
+    }
   };
 
-  const handleShopifyConnect = (quoteId: string) => {
-    setQuotes(prev => prev.map(q => 
-      q.id === quoteId ? {
-        ...q,
-        shopifyConnected: true,
-        shopifyProductId: `gid://shopify/Product/${Math.floor(Math.random() * 1000000)}`,
-        shopifyStatus: 'synced'
-      } : q
-    ));
-    
-    toast.success('Product successfully synced with Shopify');
-    setShowShopifyModal(false);
+  const handleShopifyConnect = async (quoteId: string) => {
+    try {
+      // The shopify product ID will be set by the ShopifyConnectModal after creating the product
+      // For now, we'll update the status
+      const updatedQuote = await updateShopifySync(quoteId, 'pending');
+      setQuotes(prev => prev.map(q =>
+        q.id === quoteId ? updatedQuote : q
+      ));
+
+      toast.success('Product successfully synced with Shopify');
+      setShowShopifyModal(false);
+    } catch (error) {
+      console.error('Error syncing with Shopify:', error);
+      toast.error('Failed to sync with Shopify');
+    }
   };
 
   const filteredQuotes = quotes.filter(quote => {
