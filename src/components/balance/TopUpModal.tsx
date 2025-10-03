@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, CreditCard, Building2, Banknote, AlertTriangle, Loader2, Copy, ExternalLink } from 'lucide-react';
+import { X, CreditCard, Building2, Banknote, AlertTriangle, Loader2, Copy, ExternalLink, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 
@@ -22,6 +22,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
+  const [, setShowAddCard] = useState(false);
   const [verificationInProgress, setVerificationInProgress] = useState(false);
   const [savedPaymentMethods, setSavedPaymentMethods] = useState<PaymentMethod[]>([]);
   const [showBankDetails, setShowBankDetails] = useState(false);
@@ -117,7 +118,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
           brand: 'Visa'
         };
         setSavedPaymentMethods(prev => [...prev, newCard]);
-        setTimeout(() => setSelectedMethod('credit_card'), 100);
+        setSelectedMethod('credit_card');
         toast.success('Credit card added successfully');
       } else {
         const paypal: PaymentMethod = {
@@ -126,15 +127,14 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
           status: 'verified'
         };
         setSavedPaymentMethods(prev => [...prev, paypal]);
-        setTimeout(() => setSelectedMethod('paypal'), 100);
+        setSelectedMethod('paypal');
         toast.success('PayPal account connected successfully');
       }
     } catch (error) {
-      console.error('Error adding payment method:', error);
       setError('Failed to add payment method. Please try again.');
-      toast.error('Failed to add payment method');
     } finally {
       setVerificationInProgress(false);
+      setShowAddCard(false);
     }
   };
 
@@ -148,7 +148,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
         onClick={() => setSelectedMethod(method.type)}
         className={`w-full p-4 rounded-lg border transition-colors text-left ${
           isSelected
-            ? 'border-blue-500 bg-blue-50'
+            ? 'border-primary-500 bg-primary-50'
             : 'border-gray-200 hover:border-gray-300'
         }`}
       >
@@ -219,7 +219,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                       step="0.01"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter amount (min. $50)"
                     />
                   </div>
@@ -240,12 +240,18 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                         type="button"
                         onClick={() => handleAddPaymentMethod('credit_card')}
                         disabled={verificationInProgress}
-                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left"
+                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="flex items-center space-x-3">
-                          <CreditCard className="w-5 h-5 text-gray-400" />
+                          {verificationInProgress ? (
+                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                          ) : (
+                            <CreditCard className="w-5 h-5 text-gray-400" />
+                          )}
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Add Credit Card</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {verificationInProgress ? 'Adding...' : 'Add Credit Card'}
+                            </p>
                             <p className="text-xs text-gray-500">Instant processing</p>
                           </div>
                         </div>
@@ -257,12 +263,18 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                         type="button"
                         onClick={() => handleAddPaymentMethod('paypal')}
                         disabled={verificationInProgress}
-                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left"
+                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="flex items-center space-x-3">
-                          <Banknote className="w-5 h-5 text-gray-400" />
+                          {verificationInProgress ? (
+                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                          ) : (
+                            <Banknote className="w-5 h-5 text-gray-400" />
+                          )}
                           <div>
-                            <p className="text-sm font-medium text-gray-900">Connect PayPal</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {verificationInProgress ? 'Connecting...' : 'Connect PayPal'}
+                            </p>
                             <p className="text-xs text-gray-500">2.9% + $0.30 fee</p>
                           </div>
                         </div>
@@ -277,7 +289,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                       }}
                       className={`w-full p-4 rounded-lg border transition-colors text-left ${
                         selectedMethod === 'bank_transfer'
-                          ? 'border-blue-500 bg-blue-50'
+                          ? 'border-primary-500 bg-primary-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -371,7 +383,7 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                         href="https://wise.com"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block w-full px-4 py-3 text-sm text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors text-center"
+                        className="block w-full px-4 py-3 text-sm text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors text-center"
                       >
                         Open Wise
                         <ExternalLink className="w-4 h-4 ml-2 inline-block" />
