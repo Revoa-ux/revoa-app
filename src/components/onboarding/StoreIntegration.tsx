@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store, HelpCircle } from 'lucide-react';
+import { HelpCircle, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import GlassCard from '@/components/GlassCard';
@@ -15,6 +15,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -26,6 +27,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       if (event.data.type === 'shopify:success') {
         onStoreConnected(true);
         setIsLoading(false);
+        setHasError(false);
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
@@ -33,6 +35,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         toast.success('Successfully connected to Shopify');
       } else if (event.data.type === 'shopify:error') {
         setIsLoading(false);
+        setHasError(true);
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
@@ -61,6 +64,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     setIsLoading(true);
 
     try {
+      setHasError(false);
+
       // Verify we have a valid session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session?.user) {
@@ -71,6 +76,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       if (!validation.success) {
         toast.error(validation.error);
         setIsLoading(false);
+        setHasError(true);
         return;
       }
 
@@ -176,6 +182,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       console.error('Error connecting to Shopify:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to connect to Shopify store');
       setIsLoading(false);
+      setHasError(true);
     }
   };
 
@@ -203,24 +210,27 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL
                 </label>
-                <ShopifyFormInput
-                  value={shopUrl}
-                  onChange={handleShopChange}
-                  disabled={isLoading}
-                  placeholder="your-store.myshopify.com"
-                />
+                <div className="relative">
+                  <ShopifyFormInput
+                    value={shopUrl}
+                    onChange={handleShopChange}
+                    disabled={isLoading}
+                    placeholder="your-store.myshopify.com"
+                    className="pr-10"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!shopUrl.trim()}
+                    className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Connect store"
+                  >
+                    <Link2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading || !shopUrl.trim()}
-                className="w-full flex items-center justify-center gap-2 h-12 px-6 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg font-medium transition-all duration-200 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 disabled:opacity-50"
-              >
-                <Store className="w-5 h-5" />
-                <span>Connect Store</span>
-              </button>
-
-              <div className="border border-gray-200 bg-white rounded-lg p-4">
+              {hasError && (
+                <div className="border border-gray-200 bg-white rounded-lg p-4">
                 <div className="flex items-start space-x-3">
                   <HelpCircle className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
@@ -246,6 +256,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </div>
                 </div>
               </div>
+              )}
             </form>
           </GlassCard>
         </div>

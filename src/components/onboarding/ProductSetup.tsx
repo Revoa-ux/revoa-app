@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 interface ProductSetupProps {
   onComplete: (completed: boolean) => void;
+  onFinish: () => void;
   storeConnected: boolean;
 }
 
@@ -16,7 +17,7 @@ interface Product {
   selected: boolean;
 }
 
-const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, storeConnected }) => {
+const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, storeConnected }) => {
   const [option, setOption] = useState<'import' | 'new' | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -236,21 +237,32 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, storeConnected 
                         </div>
                       )}
                       
-                      <div className="mt-5 flex justify-between items-center">
-                        <div className="text-sm text-gray-500">
-                          {selectedCount} of {products.length} products selected
+                      <div className="mt-5 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-500">
+                            {selectedCount} of {products.length} products selected
+                          </div>
+                          <button
+                            onClick={handleImportSelected}
+                            disabled={selectedCount === 0}
+                            className={`px-4 py-2 rounded-md text-sm font-medium ${
+                              selectedCount > 0
+                                ? 'bg-gray-900 text-white hover:bg-gray-800'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            Import Selected Products
+                          </button>
                         </div>
-                        <button
-                          onClick={handleImportSelected}
-                          disabled={selectedCount === 0}
-                          className={`px-4 py-2 rounded-md text-sm font-medium ${
-                            selectedCount > 0
-                              ? 'bg-primary-600 text-white hover:bg-primary-700'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          }`}
-                        >
-                          Import Selected Products
-                        </button>
+                        {selectedCount > 0 && (
+                          <button
+                            onClick={onFinish}
+                            className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2"
+                          >
+                            <Check className="w-4 h-4" />
+                            <span>Finish Setup</span>
+                          </button>
+                        )}
                       </div>
                     </>
                   )}
@@ -305,7 +317,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, storeConnected 
                     </p>
                   </div>
 
-                  <div className="mt-4">
+                  <div className="mt-4 space-y-3">
                     <a
                       href="https://revoa.app/form"
                       target="_blank"
@@ -316,6 +328,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, storeConnected 
                       <span>Open Form</span>
                       <ArrowUpRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </a>
+                    <button
+                      onClick={onFinish}
+                      className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>Finish Setup</span>
+                    </button>
                   </div>
                 </div>
               </div>
