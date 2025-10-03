@@ -6,14 +6,23 @@ import { useClickOutside } from '@/lib/useClickOutside';
 
 interface CompletionProps {
   onComplete: () => void;
+  onFormValidityChange?: (isValid: boolean) => void;
 }
 
-const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
+const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChange }) => {
   const [formData, setFormData] = useState({
     name: '',
     store_type: '',
     wants_growth_assistance: false
   });
+
+  // Check if form is valid
+  const isFormValid = formData.name.trim() !== '' && formData.store_type !== '';
+
+  // Notify parent of form validity changes
+  React.useEffect(() => {
+    onFormValidityChange?.(isFormValid);
+  }, [isFormValid, onFormValidityChange]);
   const [isLoading, setIsLoading] = useState(false);
   const [showStoreTypeDropdown, setShowStoreTypeDropdown] = useState(false);
   const storeTypeDropdownRef = useRef<HTMLDivElement>(null);

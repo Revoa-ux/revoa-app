@@ -16,6 +16,7 @@ const Onboarding = () => {
   const [adPlatforms, setAdPlatforms] = useState<string[]>([]);
   const [productSetupComplete, setProductSetupComplete] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [completionFormValid, setCompletionFormValid] = useState(false);
   
   const { setHasCompletedOnboarding } = useAuth();
   const navigate = useNavigate();
@@ -105,6 +106,10 @@ const Onboarding = () => {
     setProductSetupComplete(completed);
   }, []);
 
+  const handleCompletionFormValidityChange = useCallback((isValid: boolean) => {
+    setCompletionFormValid(isValid);
+  }, []);
+
   // If onboarding completion is in progress, show loading state
   if (isCompleting) {
     return (
@@ -127,7 +132,7 @@ const Onboarding = () => {
         (currentStep === 'store' && storeConnected) ||
         currentStep === 'ads' || // Allow proceeding without connecting ad platforms
         currentStep === 'products' || // Allow proceeding without setting up products
-        currentStep === 'complete' // Completion step is always ready
+        (currentStep === 'complete' && completionFormValid) // Can only finish when form is valid
       }
       adPlatforms={adPlatforms}
       productSetupComplete={productSetupComplete}
@@ -164,6 +169,7 @@ const Onboarding = () => {
           element={
             <Completion
               onComplete={handleCompleteOnboarding}
+              onFormValidityChange={handleCompletionFormValidityChange}
             />
           }
         />
