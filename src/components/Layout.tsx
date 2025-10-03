@@ -106,10 +106,10 @@ export default function Layout() {
       <div className="w-[280px] fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="py-8 px-6">
+          <div className="py-8 px-4">
             <div className="w-32 h-8 relative">
               <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
                 alt="Logo"
                 className="w-full h-full object-contain dark:hidden"
               />
