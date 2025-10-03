@@ -23,6 +23,8 @@ export interface Chat {
 
 export const chatService = {
   async getOrCreateChat(userId: string, adminId: string): Promise<Chat | null> {
+    console.log('getOrCreateChat called with userId:', userId, 'adminId:', adminId);
+
     const { data: existingChat, error: fetchError } = await supabase
       .from('chats')
       .select(`
@@ -40,8 +42,11 @@ export const chatService = {
     }
 
     if (existingChat) {
+      console.log('Found existing chat:', existingChat.id);
       return existingChat;
     }
+
+    console.log('No existing chat found, creating new one...');
 
     const { data: newChat, error: createError } = await supabase
       .from('chats')
@@ -61,21 +66,28 @@ export const chatService = {
       return null;
     }
 
+    console.log('Chat created successfully:', newChat.id);
     return newChat;
   },
 
   async getUserChat(userId: string): Promise<Chat | null> {
     // First check if user has an assigned admin
-    let { data: assignment } = await supabase
+    const { data: assignment, error: assignmentError } = await supabase
       .from('user_assignments')
       .select('admin_id')
       .eq('user_id', userId)
       .maybeSingle();
 
+    if (assignmentError) {
+      console.error('Error fetching assignment:', assignmentError);
+    }
+
     // If no assignment, try to auto-assign a default admin
     if (!assignment?.admin_id) {
+      console.log('No admin assigned, attempting auto-assignment...');
+
       // Get the first available admin (preferably super_admin)
-      const { data: adminProfile } = await supabase
+      const { data: adminProfile, error: adminError } = await supabase
         .from('user_profiles')
         .select('user_id')
         .eq('is_admin', true)
@@ -83,7 +95,14 @@ export const chatService = {
         .limit(1)
         .maybeSingle();
 
+      if (adminError) {
+        console.error('Error fetching admin profile:', adminError);
+        return null;
+      }
+
       if (adminProfile?.user_id) {
+        console.log('Found admin:', adminProfile.user_id, 'Creating assignment...');
+
         // Create the assignment
         const { error: assignError } = await supabase
           .from('user_assignments')
@@ -92,9 +111,16 @@ export const chatService = {
             admin_id: adminProfile.user_id
           });
 
-        if (!assignError) {
-          assignment = { admin_id: adminProfile.user_id };
+        if (assignError) {
+          console.error('Error creating assignment:', assignError);
+          return null;
         }
+
+        console.log('Assignment created successfully');
+        assignment = { admin_id: adminProfile.user_id } as any;
+      } else {
+        console.error('No admin profile found');
+        return null;
       }
     }
 
@@ -103,6 +129,7 @@ export const chatService = {
       return null;
     }
 
+    console.log('Getting or creating chat with admin:', assignment.admin_id);
     return this.getOrCreateChat(userId, assignment.admin_id);
   },
 
