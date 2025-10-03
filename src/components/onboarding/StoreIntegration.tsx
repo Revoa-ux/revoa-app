@@ -184,13 +184,28 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL
                 </label>
-                <ShopifyFormInput
-                  value={shopUrl}
-                  onChange={handleShopChange}
-                  error={error}
-                  disabled={isLoading}
-                  placeholder="your-store.myshopify.com"
-                />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <ShopifyFormInput
+                      value={shopUrl}
+                      onChange={handleShopChange}
+                      error={error}
+                      disabled={isLoading}
+                      placeholder="your-store.myshopify.com"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isLoading || !shopUrl.trim()}
+                    className="w-12 h-12 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex-shrink-0"
+                  >
+                    {isLoading ? (
+                      <div className="h-5 w-5 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                    ) : (
+                      <ArrowRight className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg">
@@ -219,13 +234,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </div>
                 </div>
               </div>
-
-              <ShopifyConnectButton
-                loading={isLoading}
-                disabled={!shopUrl.trim()}
-              >
-                Connect Store
-              </ShopifyConnectButton>
             </form>
           </GlassCard>
         </div>
