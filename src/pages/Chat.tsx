@@ -18,15 +18,21 @@ import {
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
-import { mockMessages } from '@/data/mockMessages';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { useAuth } from '@/contexts/AuthContext';
+import { chatService, Chat as ChatType } from '@/lib/chatService';
 import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 
 const Chat = () => {
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const { user } = useAuth();
+  const [chat, setChat] = useState<ChatType | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [adminName, setAdminName] = useState('Revoa Fulfillment Team');
+  const [adminAvatar, setAdminAvatar] = useState('https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png');
+  const [isLoading, setIsLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -55,6 +61,42 @@ const Chat = () => {
   useClickOutside(moreMenuRef, () => setShowMoreMenu(false));
 
   useEffect(() => {
+    if (!user) return;
+
+    const loadChat = async () => {
+      setIsLoading(true);
+      const userChat = await chatService.getUserChat(user.id);
+      if (userChat) {
+        setChat(userChat);
+        if (userChat.admin_profile) {
+          setAdminName(userChat.admin_profile.name || 'Revoa Fulfillment Team');
+        }
+        const msgs = await chatService.getChatMessages(userChat.id);
+        setMessages(msgs);
+        await chatService.markMessagesAsRead(userChat.id, false);
+      }
+      setIsLoading(false);
+    };
+
+    loadChat();
+  }, [user]);
+
+  useEffect(() => {
+    if (!chat) return;
+
+    const channel = chatService.subscribeToMessages(chat.id, (newMessage) => {
+      setMessages(prev => [...prev, newMessage]);
+      if (newMessage.sender === 'team') {
+        setIsTyping(false);
+      }
+    });
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [chat]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
@@ -80,56 +122,79 @@ const Chat = () => {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!newMessage.trim() && attachments.length === 0) return;
-
-    const newMessages: Message[] = [];
-
-    if (newMessage.trim()) {
-      newMessages.push({
-        id: Date.now().toString(),
-        content: newMessage.trim(),
-        type: 'text',
-        sender: 'user',
-        timestamp: new Date(),
-        status: 'sending',
-        statusTimeline: {
-          sent: new Date()
-        }
-      });
+    if (!chat) {
+      toast.error('Chat not initialized');
+      return;
     }
 
-    setMessages([...messages, ...newMessages]);
+    const messageText = newMessage.trim();
     setNewMessage('');
     if (textareaRef.current) {
-      textareaRef.current.style.height = '24px'; // Reset to initial height
+      textareaRef.current.style.height = '24px';
+    }
+
+    const tempMessage: Message = {
+      id: Date.now().toString(),
+      content: messageText,
+      type: 'text',
+      sender: 'user',
+      timestamp: new Date(),
+      status: 'sending',
+      statusTimeline: {
+        sent: new Date()
+      }
+    };
+
+    setMessages([...messages, tempMessage]);
+
+    const savedMessage = await chatService.sendMessage(
+      chat.id,
+      messageText,
+      'text',
+      'user'
+    );
+
+    if (savedMessage) {
+      setMessages(prev => prev.map(msg =>
+        msg.id === tempMessage.id ? savedMessage : msg
+      ));
+    } else {
+      toast.error('Failed to send message');
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id));
     }
   };
 
   const handleFileUpload = async (file: File) => {
+    if (!chat) {
+      toast.error('Chat not initialized');
+      return;
+    }
+
     try {
-      // Create a file message
       const fileUrl = URL.createObjectURL(file);
       const fileType = file.type.startsWith('image/') ? 'image' : 'file';
 
-      const newFileMessage: Message = {
-        id: Date.now().toString(),
-        content: file.name,
-        type: fileType,
-        sender: 'user',
-        timestamp: new Date(),
-        status: 'sent',
-        statusTimeline: {
-          sent: new Date()
-        },
-        fileUrl,
-        fileName: file.name,
-        fileSize: file.size
-      };
+      const savedMessage = await chatService.sendMessage(
+        chat.id,
+        file.name,
+        fileType as 'image' | 'file',
+        'user',
+        {
+          fileUrl,
+          fileName: file.name,
+          fileSize: file.size
+        }
+      );
 
-      setMessages([...messages, newFileMessage]);
-      setShowUploadModal(false);
-      toast.success('File sent successfully');
+      if (savedMessage) {
+        setMessages(prev => [...prev, savedMessage]);
+        setShowUploadModal(false);
+        toast.success('File sent successfully');
+      } else {
+        toast.error('Failed to send file');
+      }
     } catch (error) {
       console.error('Error uploading file:', error);
       toast.error('Failed to send file');
@@ -172,13 +237,13 @@ const Chat = () => {
           <div className="flex items-center space-x-4">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
               <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                alt="Revoa Team"
+                src={adminAvatar}
+                alt={adminName}
                 className="w-full h-full object-contain"
               />
             </div>
             <div>
-              <h2 className="text-base font-medium text-gray-900 dark:text-white">Revoa Fulfillment Team</h2>
+              <h2 className="text-base font-medium text-gray-900 dark:text-white">{adminName}</h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">Online</p>
             </div>
           </div>
@@ -269,7 +334,23 @@ const Chat = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {messages.map((message) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Loading chat...</p>
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-sm text-gray-600 dark:text-gray-400">No messages yet</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Start a conversation with your assigned admin</p>
+              </div>
+            </div>
+          ) : null}
+          {!isLoading && messages.map((message) => (
             <div
               key={message.id}
               ref={el => messageRefs.current[message.id] = el}
