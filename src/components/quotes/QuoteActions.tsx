@@ -18,7 +18,10 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
   return (
     <div className="relative">
       <button
-        onClick={() => setShowMenu(!showMenu)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowMenu(!showMenu);
+        }}
         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
