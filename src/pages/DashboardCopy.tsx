@@ -21,7 +21,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getDashboardMetrics, ShopifyMetrics } from '../lib/shopify/api';
 import { DashboardSkeleton } from '../components/PageSkeletons';
-import { toast } from 'sonner';  
+import { toast } from 'sonner';
+import { supabase } from '../lib/supabase';  
 
 type CardType = 
   | 'profit' 
@@ -62,8 +63,7 @@ export default function DashboardCopy() {
   const [viewType, setViewType] = useState<ViewType>('card');  
   const [shopifyMetrics, setShopifyMetrics] = useState<ShopifyMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
-  const userFirstName = "John";
+  const [userName, setUserName] = useState<string>('');
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -131,6 +131,32 @@ export default function DashboardCopy() {
   useEffect(() => {
     fetchShopifyData();
   }, [timeframe, selectedTime]);
+
+  // Fetch user name from profile
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('name')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (profile?.name) {
+            // Get just the first name
+            const firstName = profile.name.split(' ')[0];
+            setUserName(firstName);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+      }
+    };
+
+    fetchUserName();
+  }, []);
 
   // Generate card data based on Shopify metrics
   const cardsData: CardData[] = [
@@ -472,7 +498,7 @@ export default function DashboardCopy() {
     <div className="max-w-[1050px] mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Hi {userFirstName}, welcome to Revoa👋
+          Hi {userName || 'there'}, welcome to Revoa👋
         </h1>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">

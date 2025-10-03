@@ -6,7 +6,8 @@ import {
   Package,
   ArrowLeft,
   ArrowRight,
-  Check
+  Check,
+  Sparkles
 } from 'lucide-react';
 
 interface OnboardingLayoutProps {
@@ -31,9 +32,10 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   productSetupComplete = false
 }) => {
   const steps: { id: OnboardingStep; label: string; icon: React.ReactNode }[] = [
-    { id: 'store', label: 'Store Integration', icon: <Store className="w-4 h-4" /> },
-    { id: 'ads', label: 'Ad Platforms', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'products', label: 'Product Setup', icon: <Package className="w-4 h-4" /> }
+    { id: 'store', label: 'Store', icon: <Store className="w-4 h-4" /> },
+    { id: 'ads', label: 'Ads', icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'products', label: 'Products', icon: <Package className="w-4 h-4" /> },
+    { id: 'complete', label: 'Complete', icon: <Sparkles className="w-4 h-4" /> }
   ];
 
   // Determine if the current step should show "Skip" instead of "Next"
@@ -62,8 +64,9 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
               {steps.map((step, index) => {
                 const isActive = currentStep === step.id;
                 const isCompleted =
-                  (step.id === 'store' && ['ads', 'products'].includes(currentStep)) ||
-                  (step.id === 'ads' && ['products'].includes(currentStep));
+                  (step.id === 'store' && ['ads', 'products', 'complete'].includes(currentStep)) ||
+                  (step.id === 'ads' && ['products', 'complete'].includes(currentStep)) ||
+                  (step.id === 'products' && ['complete'].includes(currentStep));
 
                 return (
                   <div
@@ -147,7 +150,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              {shouldShowSkip() ? 'Skip' : 'Next'}
+              {currentStep === 'complete' ? 'Finish' : (shouldShowSkip() ? 'Skip' : 'Next')}
               <ArrowRight className="w-4 h-4 ml-2 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
           </div>

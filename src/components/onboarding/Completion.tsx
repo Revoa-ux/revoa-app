@@ -1,80 +1,157 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { PageTitle } from '../PageTitle';
+import { Sparkles } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
-const Completion = () => {
+interface CompletionProps {
+  onComplete: () => void;
+}
+
+const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    store_type: '',
+    wants_growth_assistance: false
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { user } = useAuth();
 
-  const handleComplete = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (!formData.store_type) {
+      toast.error('Please select your store type');
+      return;
+    }
+
     setIsLoading(true);
+
     try {
-      // Mark onboarding as completed
-      // This would typically involve updating user profile
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      navigate('/', { replace: true });
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error('User not found');
+      }
+
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          name: formData.name.trim(),
+          store_type: formData.store_type,
+          wants_growth_assistance: formData.wants_growth_assistance,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      onComplete();
     } catch (error) {
-      console.error('Failed to complete onboarding:', error);
-    } finally {
+      console.error('Error saving profile:', error);
+      toast.error('Failed to save your information. Please try again.');
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <PageTitle title="Onboarding Complete" />
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              Welcome to REVOA!
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Your account has been successfully set up. You're ready to start managing your business.
-            </p>
+    <div className="max-w-[540px] mx-auto">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div className="text-center mb-8">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-rose-50 to-pink-50 mb-4">
+            <Sparkles className="w-8 h-8 text-rose-500" />
+          </div>
+          <h2 className="text-3xl font-medium text-gray-900 mb-2">One Last Thing</h2>
+          <p className="text-sm text-gray-600">
+            Help us personalize your experience
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              What's your name?
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="John Doe"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+              disabled={isLoading}
+            />
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">What's Next?</h3>
-            <ul className="space-y-3 text-sm text-gray-600">
-              <li className="flex items-start">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                Connect your Shopify store
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                Set up your product catalog
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-                Start receiving customer inquiries
-              </li>
-            </ul>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              What type of store do you run?
+            </label>
+            <div className="space-y-3">
+              {[
+                { value: 'general', label: 'General Store', description: 'Multiple product categories' },
+                { value: 'niche', label: 'Niche Store', description: 'Focused on a specific category' },
+                { value: 'single_product', label: 'Single Product', description: 'One hero product' }
+              ].map((option) => (
+                <label
+                  key={option.value}
+                  className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    formData.store_type === option.value
+                      ? 'border-rose-500 bg-rose-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="store_type"
+                    value={option.value}
+                    checked={formData.store_type === option.value}
+                    onChange={(e) => setFormData({ ...formData, store_type: e.target.value })}
+                    className="mt-1 text-rose-500 focus:ring-rose-500"
+                    disabled={isLoading}
+                  />
+                  <div className="ml-3">
+                    <div className="font-medium text-gray-900">{option.label}</div>
+                    <div className="text-sm text-gray-500">{option.description}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-lg p-5 border border-rose-100">
+            <label className="flex items-start cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.wants_growth_assistance}
+                onChange={(e) => setFormData({ ...formData, wants_growth_assistance: e.target.checked })}
+                className="mt-1 text-rose-500 focus:ring-rose-500 rounded"
+                disabled={isLoading}
+              />
+              <div className="ml-3">
+                <div className="font-medium text-gray-900 mb-1">
+                  Get Help from Our Growth Team
+                </div>
+                <div className="text-sm text-gray-600">
+                  Have our expert Shopify growth team personally reach out to see if we can help scale your store
+                </div>
+              </div>
+            </label>
           </div>
 
           <button
-            onClick={handleComplete}
+            type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-6 py-3 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <>
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
+            {isLoading ? 'Saving...' : 'Complete Setup'}
           </button>
-        </div>
+        </form>
       </div>
-    </>
+    </div>
   );
 };
 

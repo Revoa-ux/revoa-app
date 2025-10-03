@@ -4,13 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
+import Completion from '../components/onboarding/Completion';
 import OnboardingLayout from '../components/onboarding/OnboardingLayout';
 
-export type OnboardingStep = 'store' | 'ads' | 'products';
+export type OnboardingStep = 'store' | 'ads' | 'products' | 'complete';
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('store');
-  const [progress, setProgress] = useState(25);
+  const [progress, setProgress] = useState(0);
   const [storeConnected, setStoreConnected] = useState(false);
   const [adPlatforms, setAdPlatforms] = useState<string[]>([]);
   const [productSetupComplete, setProductSetupComplete] = useState(false);
@@ -29,10 +30,14 @@ const Onboarding = () => {
         break;
       case 'ads':
         setCurrentStep('ads');
-        setProgress(50);
+        setProgress(33);
         break;
       case 'products':
         setCurrentStep('products');
+        setProgress(66);
+        break;
+      case 'complete':
+        setCurrentStep('complete');
         setProgress(100);
         break;
       default:
@@ -66,6 +71,9 @@ const Onboarding = () => {
         navigate('/onboarding/products');
         break;
       case 'products':
+        navigate('/onboarding/complete');
+        break;
+      case 'complete':
         handleCompleteOnboarding();
         break;
     }
@@ -78,6 +86,9 @@ const Onboarding = () => {
         break;
       case 'products':
         navigate('/onboarding/ads');
+        break;
+      case 'complete':
+        navigate('/onboarding/products');
         break;
     }
   };
@@ -115,7 +126,8 @@ const Onboarding = () => {
       canGoNext={
         (currentStep === 'store' && storeConnected) ||
         currentStep === 'ads' || // Allow proceeding without connecting ad platforms
-        currentStep === 'products' // Allow proceeding without setting up products
+        currentStep === 'products' || // Allow proceeding without setting up products
+        currentStep === 'complete' // Completion step is always ready
       }
       adPlatforms={adPlatforms}
       productSetupComplete={productSetupComplete}
@@ -142,8 +154,16 @@ const Onboarding = () => {
           element={
             <ProductSetup
               onComplete={handleProductSetupComplete}
-              onFinish={handleCompleteOnboarding}
+              onFinish={() => navigate('/onboarding/complete')}
               storeConnected={storeConnected}
+            />
+          }
+        />
+        <Route
+          path="complete"
+          element={
+            <Completion
+              onComplete={handleCompleteOnboarding}
             />
           }
         />
