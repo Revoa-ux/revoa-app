@@ -170,9 +170,9 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               className="w-full h-full object-contain"
             />
           </div>
-          <h2 className="text-3xl font-medium text-gray-900">Connect Your Store</h2>
-          <p className="text-gray-600 max-w-md mx-auto mb-6">
-            Enter your .myshopify.com URL below to connect your store. You can find this URL by logging into your Shopify dashboard and finding the Domains page in your Settings.
+          <h2 className="text-3xl font-medium text-gray-900 mb-2">Connect Your Store</h2>
+          <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+            Enter your .myshopify.com URL below. You can find your URL in Settings {'->'} Domains.
           </p>
         </div>
         
