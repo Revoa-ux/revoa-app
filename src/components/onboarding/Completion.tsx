@@ -153,7 +153,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
                 },
                 {
                   value: false,
-                  label: "I'm good for now",
+                  label: "No, I don't want help from the 7-8 figure experts on Revoa's team",
                   description: "I'll explore the platform on my own"
                 }
               ].map((option) => (
