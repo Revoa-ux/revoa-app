@@ -2,19 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, CreditCard, Building2, Banknote, AlertTriangle, Loader2, Copy, ExternalLink, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { PaymentMethod, getPaymentMethods } from '@/lib/payments';
+import AddPaymentMethodModal from '@/components/payments/AddPaymentMethodModal';
 
 interface TopUpModalProps {
   onClose: () => void;
   onTopUp: (amount: number, method: string) => Promise<void>;
-}
-
-interface PaymentMethod {
-  id: string;
-  type: 'credit_card' | 'paypal';
-  status: 'verified' | 'pending' | 'failed';
-  last4?: string;
-  expiryDate?: string;
-  brand?: string;
 }
 
 export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
@@ -22,10 +15,11 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const [, setShowAddCard] = useState(false);
-  const [verificationInProgress, setVerificationInProgress] = useState(false);
   const [savedPaymentMethods, setSavedPaymentMethods] = useState<PaymentMethod[]>([]);
   const [showBankDetails, setShowBankDetails] = useState(false);
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+  const [addPaymentMethodType, setAddPaymentMethodType] = useState<'card' | 'paypal' | null>(null);
+  const [loadingMethods, setLoadingMethods] = useState(false);
   
   const modalRef = useRef<HTMLDivElement>(null);
   
@@ -38,6 +32,23 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  // Load payment methods
+  useEffect(() => {
+    loadPaymentMethods();
+  }, []);
+
+  const loadPaymentMethods = async () => {
+    try {
+      setLoadingMethods(true);
+      const data = await getPaymentMethods('customer_id');
+      setSavedPaymentMethods(data.methods.filter(m => m.type === 'card' || m.type === 'paypal'));
+    } catch (error) {
+      console.error('Failed to load payment methods:', error);
+    } finally {
+      setLoadingMethods(false);
+    }
+  };
 
   const bankDetails = {
     accountHolder: "Hangzhou Jiaming Yichang Technology",
@@ -100,52 +111,25 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
     return savedPaymentMethods.some(method => method.status === 'verified');
   };
 
-  const handleAddPaymentMethod = async (type: 'credit_card' | 'paypal') => {
-    setVerificationInProgress(true);
-    setError('');
+  const handleAddPaymentMethod = (type: 'card' | 'paypal') => {
+    setAddPaymentMethodType(type);
+    setShowAddPaymentModal(true);
+  };
 
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      if (type === 'credit_card') {
-        const newCard: PaymentMethod = {
-          id: `card-${Date.now()}`,
-          type: 'credit_card',
-          status: 'verified',
-          last4: '4242',
-          expiryDate: '12/25',
-          brand: 'Visa'
-        };
-        setSavedPaymentMethods(prev => [...prev, newCard]);
-        setSelectedMethod('credit_card');
-        toast.success('Credit card added successfully');
-      } else {
-        const paypal: PaymentMethod = {
-          id: `paypal-${Date.now()}`,
-          type: 'paypal',
-          status: 'verified'
-        };
-        setSavedPaymentMethods(prev => [...prev, paypal]);
-        setSelectedMethod('paypal');
-        toast.success('PayPal account connected successfully');
-      }
-    } catch (error) {
-      setError('Failed to add payment method. Please try again.');
-    } finally {
-      setVerificationInProgress(false);
-      setShowAddCard(false);
-    }
+  const handlePaymentMethodAdded = () => {
+    loadPaymentMethods();
+    setShowAddPaymentModal(false);
+    setAddPaymentMethodType(null);
   };
 
   const renderPaymentMethodButton = (method: PaymentMethod) => {
-    const isSelected = selectedMethod === method.type;
+    const isSelected = selectedMethod === method.id;
 
     return (
       <button
         key={method.id}
         type="button"
-        onClick={() => setSelectedMethod(method.type)}
+        onClick={() => setSelectedMethod(method.id)}
         className={`w-full p-4 rounded-lg border transition-colors text-left ${
           isSelected
             ? 'border-primary-500 bg-primary-50'
@@ -154,21 +138,21 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {method.type === 'credit_card' ? (
+            {method.type === 'card' ? (
               <CreditCard className="w-5 h-5 text-gray-400" />
             ) : (
               <Banknote className="w-5 h-5 text-gray-400" />
             )}
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {method.type === 'credit_card' 
-                  ? `${method.brand} ****${method.last4}`
+                {method.type === 'card'
+                  ? `${method.nickname || method.brand} ****${method.last4}`
                   : 'PayPal Account'}
               </p>
               <p className="text-xs text-gray-500">
-                {method.type === 'credit_card'
-                  ? `Expires ${method.expiryDate}`
-                  : 'Connected'}
+                {method.type === 'card'
+                  ? `Expires ${method.expiryMonth}/${method.expiryYear}`
+                  : method.email || 'Connected'}
               </p>
             </div>
           </div>
@@ -232,26 +216,24 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Payment Method
                   </label>
-                  <div className="space-y-3">
-                    {savedPaymentMethods.map(renderPaymentMethodButton)}
+                  {loadingMethods ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {savedPaymentMethods.map(renderPaymentMethodButton)}
 
-                    {!savedPaymentMethods.some(m => m.type === 'credit_card') && (
+                    {!savedPaymentMethods.some(m => m.type === 'card') && (
                       <button
                         type="button"
-                        onClick={() => handleAddPaymentMethod('credit_card')}
-                        disabled={verificationInProgress}
-                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleAddPaymentMethod('card')}
+                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left"
                       >
                         <div className="flex items-center space-x-3">
-                          {verificationInProgress ? (
-                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                          ) : (
-                            <CreditCard className="w-5 h-5 text-gray-400" />
-                          )}
+                          <CreditCard className="w-5 h-5 text-gray-400" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {verificationInProgress ? 'Adding...' : 'Add Credit Card'}
-                            </p>
+                            <p className="text-sm font-medium text-gray-900">Add Credit Card</p>
                             <p className="text-xs text-gray-500">Instant processing</p>
                           </div>
                         </div>
@@ -262,19 +244,12 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                       <button
                         type="button"
                         onClick={() => handleAddPaymentMethod('paypal')}
-                        disabled={verificationInProgress}
-                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full p-4 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors text-left"
                       >
                         <div className="flex items-center space-x-3">
-                          {verificationInProgress ? (
-                            <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                          ) : (
-                            <Banknote className="w-5 h-5 text-gray-400" />
-                          )}
+                          <Banknote className="w-5 h-5 text-gray-400" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {verificationInProgress ? 'Connecting...' : 'Connect PayPal'}
-                            </p>
+                            <p className="text-sm font-medium text-gray-900">Connect PayPal</p>
                             <p className="text-xs text-gray-500">2.9% + $0.30 fee</p>
                           </div>
                         </div>
@@ -301,7 +276,8 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
                         </div>
                       </div>
                     </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
 
                 {selectedMethod === 'bank_transfer' && showBankDetails && (
@@ -429,6 +405,17 @@ export const TopUpModal: React.FC<TopUpModalProps> = ({ onClose, onTopUp }) => {
           </div>
         </div>
       </div>
+
+      {showAddPaymentModal && (
+        <AddPaymentMethodModal
+          onClose={() => {
+            setShowAddPaymentModal(false);
+            setAddPaymentMethodType(null);
+          }}
+          onSuccess={handlePaymentMethodAdded}
+          initialMethod={addPaymentMethodType}
+        />
+      )}
     </div>
   );
 };
