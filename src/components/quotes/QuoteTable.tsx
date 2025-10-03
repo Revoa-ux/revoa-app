@@ -20,7 +20,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   onConnectShopify
 }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -91,7 +91,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                       ? `$${quote.variants[0].totalCost.toFixed(2)}`
                       : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm relative">
                     <div className="flex justify-end">
                       <QuoteActions
                         quote={quote}
