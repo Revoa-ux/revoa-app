@@ -29,6 +29,7 @@ import Products from './pages/Products';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
 
 // Protected route component
@@ -61,11 +62,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AdminProvider>
-        <LoadingProvider>
-          <PageTitle />
-          <Routes>
+    <ThemeProvider>
+      <AuthProvider>
+        <AdminProvider>
+          <LoadingProvider>
+            <PageTitle />
+            <Routes>
             {/* Admin routes */}
             <Route path="/admin" element={
               <ProtectedRoute>
@@ -122,11 +124,12 @@ function App() {
               <Route path="pricing" element={<Pricing />} />
               <Route path="*" element={<DashboardCopy />} />
             </Route>
-          </Routes>
-          <Toaster position="top-right" />
-        </LoadingProvider>
-      </AdminProvider>
-    </AuthProvider>
+            </Routes>
+            <Toaster position="top-right" />
+          </LoadingProvider>
+        </AdminProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

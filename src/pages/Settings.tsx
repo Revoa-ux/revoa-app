@@ -18,6 +18,7 @@ import {
   Truck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -53,6 +54,7 @@ interface IntegrationStatus {
 
 const SettingsPage = () => {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [shopifyConnecting, setShopifyConnecting] = useState(false);
   const [shopifyStore, setShopifyStore] = useState<string | null>(null);
@@ -441,7 +443,7 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      {profile.theme === 'dark' ? (
+                      {theme === 'dark' ? (
                         <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                       ) : (
                         <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -450,7 +452,7 @@ const SettingsPage = () => {
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Theme</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {profile.theme.charAt(0).toUpperCase() + profile.theme.slice(1)} mode
+                        {theme.charAt(0).toUpperCase() + theme.slice(1)} mode
                       </p>
                     </div>
                   </div>
@@ -459,23 +461,24 @@ const SettingsPage = () => {
                       onClick={() => setShowThemeDropdown(!showThemeDropdown)}
                       className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
                     >
-                      <span>{profile.theme.charAt(0).toUpperCase() + profile.theme.slice(1)}</span>
+                      <span>{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
-                    
+
                     {showThemeDropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['light', 'dark', 'system'].map((theme) => (
+                        {['light', 'dark', 'system'].map((themeOption) => (
                           <button
-                            key={theme}
+                            key={themeOption}
                             onClick={() => {
-                              handleProfileUpdate({ theme: theme as UserProfile['theme'] });
+                              setTheme(themeOption as 'light' | 'dark' | 'system');
                               setShowThemeDropdown(false);
+                              toast.success(`Theme changed to ${themeOption}`);
                             }}
                             className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                           >
-                            <span>{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
-                            {profile.theme === theme && <Check className="w-4 h-4 text-primary-500" />}
+                            <span>{themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}</span>
+                            {theme === themeOption && <Check className="w-4 h-4 text-primary-500" />}
                           </button>
                         ))}
                       </div>
