@@ -169,25 +169,19 @@ const AdminChat = () => {
   };
 
   const handleFileUpload = async (file: File) => {
-    if (!selectedChat) {
+    if (!selectedChat || !user) {
       toast.error('No chat selected');
       return;
     }
 
     try {
-      const fileUrl = URL.createObjectURL(file);
-      const fileType = file.type.startsWith('image/') ? 'image' : 'file';
+      toast.info('Uploading file...');
 
-      const savedMessage = await chatService.sendMessage(
+      const savedMessage = await chatService.sendFileMessage(
         selectedChat.id,
-        file.name,
-        fileType as 'image' | 'file',
+        file,
         'team',
-        {
-          fileUrl,
-          fileName: file.name,
-          fileSize: file.size
-        }
+        user.id
       );
 
       if (savedMessage) {

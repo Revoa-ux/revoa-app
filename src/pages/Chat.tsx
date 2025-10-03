@@ -175,25 +175,19 @@ const Chat = () => {
   };
 
   const handleFileUpload = async (file: File) => {
-    if (!chat) {
+    if (!chat || !user) {
       toast.error('Chat not initialized');
       return;
     }
 
     try {
-      const fileUrl = URL.createObjectURL(file);
-      const fileType = file.type.startsWith('image/') ? 'image' : 'file';
+      toast.info('Uploading file...');
 
-      const savedMessage = await chatService.sendMessage(
+      const savedMessage = await chatService.sendFileMessage(
         chat.id,
-        file.name,
-        fileType as 'image' | 'file',
+        file,
         'user',
-        {
-          fileUrl,
-          fileName: file.name,
-          fileSize: file.size
-        }
+        user.id
       );
 
       if (savedMessage) {

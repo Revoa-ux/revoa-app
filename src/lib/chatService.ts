@@ -1,6 +1,34 @@
 import { supabase } from './supabase';
 import { Message } from '@/types/chat';
 
+async function uploadChatFile(file: File, userId: string): Promise<string | null> {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-files')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('chat-files')
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  } catch (error) {
+    console.error('Error in uploadChatFile:', error);
+    return null;
+  }
+}
+
 export interface Chat {
   id: string;
   user_id: string;
@@ -263,6 +291,33 @@ export const chatService = {
       fileSize: data.metadata?.fileSize,
       metadata: data.metadata
     };
+  },
+
+  async sendFileMessage(
+    chatId: string,
+    file: File,
+    sender: 'user' | 'team',
+    userId: string
+  ): Promise<Message | null> {
+    const fileUrl = await uploadChatFile(file, userId);
+
+    if (!fileUrl) {
+      return null;
+    }
+
+    const fileType = file.type.startsWith('image/') ? 'image' : 'file';
+
+    return this.sendMessage(
+      chatId,
+      file.name,
+      fileType as 'image' | 'file',
+      sender,
+      {
+        fileUrl,
+        fileName: file.name,
+        fileSize: file.size
+      }
+    );
   },
 
   async markMessagesAsRead(chatId: string, isAdmin: boolean): Promise<void> {
