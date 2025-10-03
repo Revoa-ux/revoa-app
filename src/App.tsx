@@ -12,14 +12,14 @@ import Audit from './pages/Audit';
 import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
 import Auth from './pages/Auth';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminUsers from './pages/admin/Users';
-import AdminChat from './pages/admin/Chat';
-import AdminQuotes from './pages/admin/Quotes';
-import AdminProducts from './pages/admin/Products';
-import AdminInvoices from './pages/admin/Invoices';
-import AdminSettings from './pages/admin/Settings';
-import AdminManage from './pages/admin/Manage';
+// import AdminDashboard from './pages/admin/Dashboard';
+// import AdminUsers from './pages/admin/Users';
+// import AdminChat from './pages/admin/Chat';
+// import AdminQuotes from './pages/admin/Quotes';
+// import AdminProducts from './pages/admin/Products';
+// import AdminInvoices from './pages/admin/Invoices';
+// import AdminSettings from './pages/admin/Settings';
+// import AdminManage from './pages/admin/Manage';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -68,8 +68,8 @@ function App() {
           <LoadingProvider>
             <PageTitle />
             <Routes>
-            {/* Admin routes */}
-            <Route path="/admin" element={
+            {/* Admin routes - temporarily disabled */}
+            {/* <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
@@ -84,7 +84,7 @@ function App() {
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
-            </Route>
+            </Route> */}
 
             {/* Regular auth routes */}
             <Route path="/auth" element={<Auth />} />

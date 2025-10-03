@@ -12,7 +12,7 @@ export interface Message {
   };
   fileUrl?: string;
   fileName?: string;
-  fileSize?: string;
+  fileSize?: number;
   title?: string;
   description?: string;
   metadata?: {

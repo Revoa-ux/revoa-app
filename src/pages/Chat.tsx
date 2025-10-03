@@ -11,7 +11,9 @@ import {
   MoreVertical,
   Paperclip,
   Smile,
-  Send
+  Send,
+  FileText,
+  Image as ImageIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -105,7 +107,33 @@ const Chat = () => {
   };
 
   const handleFileUpload = async (file: File) => {
-    toast.success('File sent successfully');
+    try {
+      // Create a file message
+      const fileUrl = URL.createObjectURL(file);
+      const fileType = file.type.startsWith('image/') ? 'image' : 'file';
+
+      const newFileMessage: Message = {
+        id: Date.now().toString(),
+        content: file.name,
+        type: fileType,
+        sender: 'user',
+        timestamp: new Date(),
+        status: 'sent',
+        statusTimeline: {
+          sent: new Date()
+        },
+        fileUrl,
+        fileName: file.name,
+        fileSize: file.size
+      };
+
+      setMessages([...messages, newFileMessage]);
+      setShowUploadModal(false);
+      toast.success('File sent successfully');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to send file');
+    }
   };
 
   const handleSearchMessages = (query: string) => {
@@ -252,7 +280,43 @@ const Chat = () => {
                   ? 'message-bubble-user text-white'
                   : 'message-bubble-team text-gray-900 dark:text-white'
               } rounded-lg px-4 py-2`}>
-                <p className="text-sm">{message.content}</p>
+                {message.type === 'image' && message.fileUrl ? (
+                  <div className="space-y-2">
+                    <img
+                      src={message.fileUrl}
+                      alt={message.fileName || 'Uploaded image'}
+                      className="max-w-full rounded-lg max-h-64 object-cover"
+                    />
+                    <p className="text-sm">{message.fileName}</p>
+                  </div>
+                ) : message.type === 'file' && message.fileUrl ? (
+                  <a
+                    href={message.fileUrl}
+                    download={message.fileName}
+                    className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                  >
+                    <div className={`p-2 rounded-lg ${
+                      message.sender === 'user'
+                        ? 'bg-white/20'
+                        : 'bg-gray-100 dark:bg-gray-700'
+                    }`}>
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{message.fileName}</p>
+                      {message.fileSize && (
+                        <p className={`text-xs ${
+                          message.sender === 'user' ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'
+                        }`}>
+                          {(message.fileSize / 1024).toFixed(1)} KB
+                        </p>
+                      )}
+                    </div>
+                    <Download className="w-4 h-4 flex-shrink-0" />
+                  </a>
+                ) : (
+                  <p className="text-sm">{message.content}</p>
+                )}
                 <div className={`text-xs mt-1 ${
                   message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
                 }`}>
