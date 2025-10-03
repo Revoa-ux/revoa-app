@@ -1,26 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Search,
-  ChevronDown,
-  Check,
-  Plus,
-  Loader2,
-  Filter,
-  Archive,
-  Flag,
-  Volume2,
-  VolumeX,
-  Trash2,
-  Download,
-  MessageSquare,
-  User,
-  DollarSign,
-  Mail,
-  Phone,
-  Building2,
-  Edit3,
-  ChevronRight
-} from 'lucide-react';
+import { Search, ChevronDown, Check, Plus, Loader2, Filter, Archive, Flag, Volume2, VolumeX, Trash2, Download, MessageSquare, User, DollarSign, Mail, Phone, Building2, CreditCard as Edit3, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Message } from '@/types/chat';
 import { mockMessages } from '@/data/mockMessages';
