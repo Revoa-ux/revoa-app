@@ -133,10 +133,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
       if (error) throw error;
-      
+
       setHasCompletedOnboarding(completed);
-      toast.success('Onboarding status updated');
-      
+
       if (completed) {
         navigate('/', { replace: true });
       }
