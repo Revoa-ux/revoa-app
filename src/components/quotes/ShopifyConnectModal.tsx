@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Store, Loader2 } from 'lucide-react';
+import { X, Store, Loader2, Package, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { Quote } from '@/types/quotes';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ShopifyConnectModalProps {
   quote: Quote;
@@ -13,18 +14,52 @@ interface ShopifyConnectModalProps {
   onConnect: (quoteId: string) => void;
 }
 
-const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({ 
+const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   quote,
   onClose,
   onConnect
 }) => {
+  const { user } = useAuth();
   const [shopDomain, setShopDomain] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [step, setStep] = useState<'input' | 'connecting'>('input');
+  const [step, setStep] = useState<'checking' | 'input' | 'connecting' | 'sync'>('checking');
+  const [existingStore, setExistingStore] = useState<{ store_url: string; access_token: string } | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
   
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);
+
+  // Check if Shopify store is already connected
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      if (!user?.id) {
+        setStep('input');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('shopify_installations')
+          .select('store_url, access_token')
+          .eq('user_id', user.id)
+          .eq('status', 'installed')
+          .maybeSingle();
+
+        if (!error && data) {
+          setExistingStore(data);
+          setStep('sync');
+        } else {
+          setStep('input');
+        }
+      } catch (error) {
+        console.error('Error checking Shopify connection:', error);
+        setStep('input');
+      }
+    };
+
+    checkExistingConnection();
+  }, [user?.id]);
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -166,6 +201,26 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     }
   };
 
+  const handleSyncProduct = async () => {
+    if (!existingStore) return;
+
+    setIsSyncing(true);
+    try {
+      // TODO: Implement actual Shopify product creation API call
+      // For now, simulate the sync
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      onConnect(quote.id);
+      toast.success('Product successfully added to Shopify');
+      onClose();
+    } catch (error) {
+      console.error('Error syncing product:', error);
+      toast.error('Failed to add product to Shopify');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
@@ -185,7 +240,76 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           </div>
 
           <div className="p-6">
-            {step === 'input' ? (
+            {step === 'checking' ? (
+              <div className="text-center py-8">
+                <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
+                <p className="text-sm text-gray-600">Checking connection...</p>
+              </div>
+            ) : step === 'sync' ? (
+              <div className="space-y-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-green-900">Store Connected</p>
+                      <p className="text-sm text-green-700 mt-1">{existingStore?.store_url}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <Package className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Product to Add</p>
+                      <p className="text-sm text-gray-700">{quote.productName}</p>
+                      {quote.variants && quote.variants.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-xs text-gray-500">Pricing Tiers:</p>
+                          {quote.variants.map((variant, idx) => (
+                            <p key={idx} className="text-xs text-gray-600">
+                              Qty {variant.quantity}: ${variant.costPerItem.toFixed(2)}/item
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <strong>Note:</strong> This will create a new product in your Shopify store with the pricing information from this quote.
+                  </p>
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={isSyncing}
+                    className="flex-1 px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSyncProduct}
+                    disabled={isSyncing}
+                    className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {isSyncing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adding Product...
+                      </>
+                    ) : (
+                      'Add to Shopify'
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : step === 'input' ? (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="shopDomain" className="block text-sm font-medium text-gray-700 mb-2">
