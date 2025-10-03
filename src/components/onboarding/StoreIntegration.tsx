@@ -32,7 +32,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
-        toast.success('Successfully connected to Shopify');
       } else if (event.data.type === 'shopify:error') {
         setIsLoading(false);
         setHasError(true);
@@ -166,7 +165,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             }
 
             // Success! Connection completed
-            toast.success('Successfully connected to Shopify');
             cleanOauthSession(oauthSession);
             onStoreConnected(true);
             if (authWindow && !authWindow.closed) {
