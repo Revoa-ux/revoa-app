@@ -25,13 +25,10 @@ export const chatService = {
   async getOrCreateChat(userId: string, adminId: string): Promise<Chat | null> {
     console.log('getOrCreateChat called with userId:', userId, 'adminId:', adminId);
 
+    // First try to find existing chat
     const { data: existingChat, error: fetchError } = await supabase
       .from('chats')
-      .select(`
-        *,
-        user_profile:user_profiles!chats_user_id_fkey(name, email),
-        admin_profile:user_profiles!chats_admin_id_fkey(name, email)
-      `)
+      .select('*')
       .eq('user_id', userId)
       .eq('admin_id', adminId)
       .maybeSingle();
@@ -41,33 +38,50 @@ export const chatService = {
       return null;
     }
 
-    if (existingChat) {
-      console.log('Found existing chat:', existingChat.id);
-      return existingChat;
+    let chat = existingChat;
+
+    if (!chat) {
+      console.log('No existing chat found, creating new one...');
+
+      const { data: newChat, error: createError } = await supabase
+        .from('chats')
+        .insert({
+          user_id: userId,
+          admin_id: adminId,
+        })
+        .select('*')
+        .single();
+
+      if (createError) {
+        console.error('Error creating chat:', createError);
+        return null;
+      }
+
+      console.log('Chat created successfully:', newChat.id);
+      chat = newChat;
+    } else {
+      console.log('Found existing chat:', chat.id);
     }
 
-    console.log('No existing chat found, creating new one...');
+    // Fetch user profile
+    const { data: userProfile } = await supabase
+      .from('user_profiles')
+      .select('name, email')
+      .eq('user_id', userId)
+      .maybeSingle();
 
-    const { data: newChat, error: createError } = await supabase
-      .from('chats')
-      .insert({
-        user_id: userId,
-        admin_id: adminId,
-      })
-      .select(`
-        *,
-        user_profile:user_profiles!chats_user_id_fkey(name, email),
-        admin_profile:user_profiles!chats_admin_id_fkey(name, email)
-      `)
-      .single();
+    // Fetch admin profile
+    const { data: adminProfile } = await supabase
+      .from('user_profiles')
+      .select('name, email')
+      .eq('user_id', adminId)
+      .maybeSingle();
 
-    if (createError) {
-      console.error('Error creating chat:', createError);
-      return null;
-    }
-
-    console.log('Chat created successfully:', newChat.id);
-    return newChat;
+    return {
+      ...chat,
+      user_profile: userProfile || null,
+      admin_profile: adminProfile || null,
+    } as Chat;
   },
 
   async getUserChat(userId: string): Promise<Chat | null> {
@@ -134,13 +148,9 @@ export const chatService = {
   },
 
   async getAdminChats(adminId: string): Promise<Chat[]> {
-    const { data, error } = await supabase
+    const { data: chats, error } = await supabase
       .from('chats')
-      .select(`
-        *,
-        user_profile:user_profiles!chats_user_id_fkey(name, email),
-        admin_profile:user_profiles!chats_admin_id_fkey(name, email)
-      `)
+      .select('*')
       .eq('admin_id', adminId)
       .order('last_message_at', { ascending: false });
 
@@ -149,7 +159,34 @@ export const chatService = {
       return [];
     }
 
-    return data || [];
+    if (!chats || chats.length === 0) {
+      return [];
+    }
+
+    // Fetch all user profiles for these chats
+    const userIds = chats.map(c => c.user_id);
+    const { data: userProfiles } = await supabase
+      .from('user_profiles')
+      .select('user_id, name, email')
+      .in('user_id', userIds);
+
+    // Fetch admin profile
+    const { data: adminProfile } = await supabase
+      .from('user_profiles')
+      .select('user_id, name, email')
+      .eq('user_id', adminId)
+      .maybeSingle();
+
+    // Map profiles to chats
+    const userProfileMap = new Map(
+      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email }])
+    );
+
+    return chats.map(chat => ({
+      ...chat,
+      user_profile: userProfileMap.get(chat.user_id) || null,
+      admin_profile: adminProfile ? { name: adminProfile.name, email: adminProfile.email } : null,
+    }));
   },
 
   async getChatMessages(chatId: string): Promise<Message[]> {
