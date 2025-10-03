@@ -139,11 +139,11 @@ export default function DashboardCopy() {
       title: 'Profit',
       icon: <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
       mainValue: shopifyMetrics ? `$${(shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold).toFixed(2)}` : '$0.00',
-      change: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(1)}%` : '0%',
+      change: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(2)}%` : '0%',
       changeType: 'positive',
       dataPoint1: { 
         label: 'Profit Margin', 
-        value: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(1)}%` : '0%' 
+        value: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(2)}%` : '0%' 
       },
       dataPoint2: { 
         label: 'Expenses', 
@@ -169,11 +169,11 @@ export default function DashboardCopy() {
       changeType: 'positive',
       dataPoint1: { 
         label: 'MRR', 
-        value: shopifyMetrics ? `$${(shopifyMetrics.monthlyRecurringRevenue / 1000).toFixed(1)}k` : '$0.0k' 
+        value: shopifyMetrics ? `$${(shopifyMetrics.monthlyRecurringRevenue / 1000).toFixed(2)}k` : '$0.00k' 
       },
       dataPoint2: { 
         label: 'ARR', 
-        value: shopifyMetrics ? `$${(shopifyMetrics.annualRecurringRevenue / 1000).toFixed(1)}k` : '$0.0k' 
+        value: shopifyMetrics ? `$${(shopifyMetrics.annualRecurringRevenue / 1000).toFixed(2)}k` : '$0.00k' 
       },
       chartData: [
         { date: '2024-03-01', value1: 4500, value2: 3200, value3: 1300 },
@@ -199,7 +199,7 @@ export default function DashboardCopy() {
       },
       dataPoint2: { 
         label: 'Active', 
-        value: shopifyMetrics ? `${((shopifyMetrics.activeCustomers / shopifyMetrics.totalCustomers) * 100).toFixed(1)}%` : '0%' 
+        value: shopifyMetrics ? `${((shopifyMetrics.activeCustomers / shopifyMetrics.totalCustomers) * 100).toFixed(2)}%` : '0%' 
       },
       chartData: [
         { date: '2024-03-01', value1: 90, value2: 280, value3: 2.8 },
@@ -659,7 +659,7 @@ export default function DashboardCopy() {
                         tick={{ fontSize: 12, fill: '#6B7280' }}
                         tickFormatter={(value) => {
                           if (value >= 1000) {
-                            return `${(value / 1000).toFixed(0)}k`;
+                            return `${(value / 1000).toFixed(2)}k`;
                           }
                           return value.toString();
                         }}
