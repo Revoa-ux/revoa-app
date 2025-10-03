@@ -73,7 +73,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                     <div
                       className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 ${
                         isActive || isCompleted
-                          ? 'bg-gray-900 text-white'
+                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-lg'
                           : 'bg-white border-2 border-gray-300 text-gray-400'
                       }`}
                     >
@@ -100,9 +100,11 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
               <div className="relative w-full h-0.5 bg-gray-200 rounded-full">
                 {/* Animated gradient progress bar */}
                 <div
-                  className="absolute left-0 top-0 h-0.5 bg-gray-900 rounded-full transition-all duration-500 ease-in-out"
+                  className="absolute left-0 top-0 h-0.5 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
                   style={{ width: getProgressWidth() }}
-                />
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,#E11D48_0%,#EC4899_50%,#E8795A_100%)] animate-gradient" />
+                </div>
               </div>
             </div>
           </div>
@@ -141,7 +143,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
               disabled={!canGoNext}
               className={`group flex items-center px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
                 canGoNext
-                  ? 'bg-gray-900 text-white hover:bg-gray-800'
+                  ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90 shadow-md'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >

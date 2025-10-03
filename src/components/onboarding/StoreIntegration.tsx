@@ -55,17 +55,16 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!shopUrl.trim()) {
       toast.error('Please enter your Shopify store URL');
       return;
     }
 
     setIsLoading(true);
+    setHasError(false);
 
     try {
-      setHasError(false);
-
       // Verify we have a valid session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session?.user) {
@@ -83,13 +82,13 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       const validDomain = validation.data;
       // Get auth URL and open in new window
       const authUrl = await getShopifyAuthUrl(validDomain);
-      
+
       // Open auth in new window
       const width = 800;
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
-      
+
       const authWindow = window.open(
         authUrl,
         'shopify-auth',
@@ -106,10 +105,30 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       }
 
       // Check if window was closed before completing auth
-      const intervalId = setInterval(() => {                         
-         
-          // Check the access token has been received
-          supabase
+      const intervalId = setInterval(() => {
+        // Helper function to clean up session and interval
+        const cleanOauthSession = (oauthSession: any) => {
+          if (oauthSession?.id) {
+            supabase
+              .from("oauth_sessions")
+              .delete()
+              .eq("id", oauthSession.id)
+              .then(({ error: deleteError }) => {
+                if (deleteError) {
+                  console.error("Failed to delete session:", deleteError);
+                } else {
+                  console.log("Session deleted successfully.");
+                }
+              });
+          }
+
+          clearInterval(intervalId);
+          setCheckInterval(null);
+          setIsLoading(false);
+        };
+
+        // Check the access token has been received
+        supabase
           .from("oauth_sessions")
           .select("*")
           .eq("user_id", session.user.id)
@@ -118,53 +137,40 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           .then(({ data: oauthSession, error }) => {
             if (error) {
               toast.error('Connection failed. Please try again.');
-              // Clean up after completion
-              CleanOauthSession();
-              authWindow.close();
+              cleanOauthSession(null);
+              setHasError(true);
+              if (authWindow && !authWindow.closed) {
+                authWindow.close();
+              }
               return;
             }
-            if(!oauthSession){
-              toast.error('Connection failed. Please try again.');
-              // Clean up after completion
-              CleanOauthSession();
-              authWindow.close();
+
+            if (!oauthSession) {
+              // Still waiting for session to be created
               return;
             }
-            if(oauthSession.error){
-              if("Session Started..." == oauthSession.error)
+
+            if (oauthSession.error) {
+              if (oauthSession.error === "Session Started...") {
+                // Session is being created, keep polling
                 return;
-
-              toast.error('Connection failed. Please try again.');
-              // Clean up after completion
-              CleanOauthSession();
-              authWindow.close();
-              return;
-            }            
-
-            // Clean up after completion 
-            CleanOauthSession();              
-            onStoreConnected(true);            
-            authWindow.close();
-
-            function CleanOauthSession() {
-              if (oauthSession?.id) {
-                supabase
-                  .from("oauth_sessions")
-                  .delete()
-                  .eq("id", oauthSession.id)
-                  .then(({ error: deleteError }) => {
-                    if (deleteError) {
-                      console.error("Failed to delete session:", deleteError);
-                      return;
-                    } else {
-                      console.log("Session deleted successfully.");
-                    }
-                  });
               }
 
-              clearInterval(intervalId);
-              setCheckInterval(null);
-              setIsLoading(false);
+              toast.error('Connection failed. Please try again.');
+              cleanOauthSession(oauthSession);
+              setHasError(true);
+              if (authWindow && !authWindow.closed) {
+                authWindow.close();
+              }
+              return;
+            }
+
+            // Success! Connection completed
+            toast.success('Successfully connected to Shopify');
+            cleanOauthSession(oauthSession);
+            onStoreConnected(true);
+            if (authWindow && !authWindow.closed) {
+              authWindow.close();
             }
           })
           .catch((err) => {
@@ -173,8 +179,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             clearInterval(intervalId);
             setCheckInterval(null);
             setIsLoading(false);
+            setHasError(true);
           });
-
       }, 1000);
 
       setCheckInterval(intervalId);
@@ -202,7 +208,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             Enter your .myshopify.com URL below. You can find your URL in Settings {'>'} Domains on Shopify.
           </p>
         </div>
-        
+
         <div className="max-w-md mx-auto">
           <GlassCard>
             <form onSubmit={handleConnect} className="space-y-6">
@@ -216,12 +222,12 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                     onChange={handleShopChange}
                     disabled={isLoading}
                     placeholder="your-store.myshopify.com"
-                    className="pr-10"
+                    className="pr-12"
                   />
                   <button
                     type="submit"
                     disabled={!shopUrl.trim()}
-                    className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="absolute right-0 top-0 h-full px-4 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     aria-label="Connect store"
                   >
                     <Link2 className="w-5 h-5" />
