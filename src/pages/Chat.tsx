@@ -6,7 +6,12 @@ import {
   VolumeX,
   Trash2,
   Download,
-  MessageSquare
+  MessageSquare,
+  Search,
+  MoreVertical,
+  Paperclip,
+  Smile,
+  Send
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
