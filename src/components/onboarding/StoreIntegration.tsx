@@ -39,7 +39,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
-        toast.error(event.data.error || 'Failed to connect to Shopify');
       }
     };
 
@@ -56,7 +55,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     e.preventDefault();
 
     if (!shopUrl.trim()) {
-      toast.error('Please enter your Shopify store URL');
       return;
     }
 
@@ -72,7 +70,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
       const validation = validateStoreUrl(shopUrl);
       if (!validation.success) {
-        toast.error(validation.error);
         setIsLoading(false);
         setHasError(true);
         return;
@@ -135,7 +132,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           .maybeSingle()
           .then(({ data: oauthSession, error }) => {
             if (error) {
-              toast.error('Connection failed. Please try again.');
               cleanOauthSession(null);
               setHasError(true);
               if (authWindow && !authWindow.closed) {
@@ -155,7 +151,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 return;
               }
 
-              toast.error('Connection failed. Please try again.');
               cleanOauthSession(oauthSession);
               setHasError(true);
               if (authWindow && !authWindow.closed) {
@@ -173,7 +168,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
-            toast.error('Connection failed. Please try again.');
             clearInterval(intervalId);
             setCheckInterval(null);
             setIsLoading(false);
@@ -184,7 +178,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       setCheckInterval(intervalId);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to connect to Shopify store');
       setIsLoading(false);
       setHasError(true);
     }

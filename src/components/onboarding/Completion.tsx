@@ -43,17 +43,14 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
-      toast.error('Please enter your name');
       return;
     }
 
     if (!formData.store_type) {
-      toast.error('Please select your store type');
       return;
     }
 
     if (formData.wants_growth_assistance === null) {
-      toast.error('Please select whether you want help scaling your store');
       return;
     }
 
@@ -81,7 +78,6 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
       onComplete();
     } catch (error) {
       console.error('Error saving profile:', error);
-      toast.error('Failed to save your information. Please try again.');
       setIsLoading(false);
     }
   };

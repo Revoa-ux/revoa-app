@@ -116,9 +116,6 @@ export default function DashboardCopy() {
     } catch (error) {
       console.error('[Dashboard] Error fetching Shopify data:', error);
       setError('Failed to fetch data from your Shopify store');
-      toast.error('Failed to fetch data from your Shopify store', {
-        description: error instanceof Error ? error.message : 'Please check your connection'
-      });
     } finally {
       setIsLoading(false);
     }

@@ -74,15 +74,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
   
   const handleImportSelected = () => {
     if (selectedCount === 0) {
-      toast.error('Please select at least one product');
       return;
     }
-    
+
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       onComplete(true);
-      toast.success(`${selectedCount} products imported successfully`);
     }, 1500);
   };
   
