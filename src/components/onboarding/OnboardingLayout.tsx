@@ -55,47 +55,52 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Progress bar and step indicators */}
-      <div className="w-full flex justify-center mt-8 mb-8 px-4">
+      <div className="w-full flex justify-center mt-8 mb-12 px-4">
         <div className="w-full max-w-[700px]">
-          {/* Progress bar container */}
-          <div className="relative w-full h-1.5 bg-gray-200 rounded-full">
-            {/* Progress bar line */} { }
-            <div
-              className="absolute left-0 top-0 h-1.5 bg-gray-900 rounded-full transition-all duration-500 ease-in-out" 
-              style={{ width: getProgressWidth() }}
-            />
-            
+          {/* Step indicators container */}
+          <div className="relative">
+            {/* Progress bar positioned behind step icons */}
+            <div className="absolute left-0 right-0 top-4 flex items-center">
+              <div className="relative w-full h-1 bg-gray-200 rounded-full">
+                {/* Animated gradient progress bar */}
+                <div
+                  className="absolute left-0 top-0 h-1 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
+                  style={{ width: getProgressWidth() }}
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,#E11D48_0%,#EC4899_50%,#E8795A_100%)] animate-gradient" />
+                </div>
+              </div>
+            </div>
+
             {/* Step indicators */}
-            <div className="absolute -top-2 left-0 right-0 flex justify-between">
+            <div className="relative flex justify-between">
               {steps.map((step, index) => {
-                const position = index * (100 / (steps.length - 1));
                 const isActive = currentStep === step.id;
-                const isCompleted = 
+                const isCompleted =
                   (step.id === 'store' && ['ads', 'products', 'complete'].includes(currentStep)) ||
                   (step.id === 'ads' && ['products', 'complete'].includes(currentStep)) ||
-                  (step.id === 'products' && currentStep === 'complete') ||  
+                  (step.id === 'products' && currentStep === 'complete') ||
                   (step.id === 'complete' && currentStep === 'complete');
-                
+
                 return (
-                  <div 
+                  <div
                     key={step.id}
-                    className="absolute flex flex-col items-center transform -translate-x-1/2"
-                    style={{ left: `${position}%` }}
+                    className="flex flex-col items-center z-10"
                   >
-                    <div 
-                      className={`flex items-center justify-center w-8 h-8 rounded-full mb-1.5 transition-colors ${
+                    <div
+                      className={`flex items-center justify-center w-8 h-8 rounded-full mb-2 transition-all duration-300 ${
                         isActive || isCompleted
-                          ? 'bg-gray-900 text-white'
-                          : 'bg-gray-200 text-gray-400'
+                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-lg shadow-rose-500/30'
+                          : 'bg-white border-2 border-gray-200 text-gray-400'
                       }`}
                     >
-                      {isCompleted ? (
-                        <Check className="w-3.5 h-3.5" />
+                      {isCompleted && !isActive ? (
+                        <Check className="w-4 h-4" />
                       ) : (
                         step.icon
                       )}
                     </div>
-                    <span 
+                    <span
                       className={`text-xs font-medium whitespace-nowrap transition-colors ${
                         isActive || isCompleted ? 'text-gray-900' : 'text-gray-500'
                       }`}

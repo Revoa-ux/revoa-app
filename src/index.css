@@ -258,3 +258,21 @@ body.modal-open {
 .page-title {
   @apply text-4xl font-bold text-gray-900 dark:text-dark-primary leading-tight;
 }
+
+/* Gradient animation for progress bar */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
