@@ -65,13 +65,41 @@ export const chatService = {
   },
 
   async getUserChat(userId: string): Promise<Chat | null> {
-    const { data: assignment } = await supabase
+    // First check if user has an assigned admin
+    let { data: assignment } = await supabase
       .from('user_assignments')
       .select('admin_id')
       .eq('user_id', userId)
       .maybeSingle();
 
+    // If no assignment, try to auto-assign a default admin
     if (!assignment?.admin_id) {
+      // Get the first available admin (preferably super_admin)
+      const { data: adminProfile } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .eq('is_admin', true)
+        .order('admin_role', { ascending: false }) // super_admin before admin
+        .limit(1)
+        .maybeSingle();
+
+      if (adminProfile?.user_id) {
+        // Create the assignment
+        const { error: assignError } = await supabase
+          .from('user_assignments')
+          .insert({
+            user_id: userId,
+            admin_id: adminProfile.user_id
+          });
+
+        if (!assignError) {
+          assignment = { admin_id: adminProfile.user_id };
+        }
+      }
+    }
+
+    if (!assignment?.admin_id) {
+      console.error('No admin available for assignment');
       return null;
     }
 

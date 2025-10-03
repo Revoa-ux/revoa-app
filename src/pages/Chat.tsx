@@ -65,17 +65,25 @@ const Chat = () => {
 
     const loadChat = async () => {
       setIsLoading(true);
-      const userChat = await chatService.getUserChat(user.id);
-      if (userChat) {
-        setChat(userChat);
-        if (userChat.admin_profile) {
-          setAdminName(userChat.admin_profile.name || 'Revoa Fulfillment Team');
+      try {
+        const userChat = await chatService.getUserChat(user.id);
+        if (userChat) {
+          setChat(userChat);
+          if (userChat.admin_profile) {
+            setAdminName(userChat.admin_profile.name || 'Revoa Fulfillment Team');
+          }
+          const msgs = await chatService.getChatMessages(userChat.id);
+          setMessages(msgs);
+          await chatService.markMessagesAsRead(userChat.id, false);
+        } else {
+          toast.error('Unable to initialize chat. Please contact support.');
         }
-        const msgs = await chatService.getChatMessages(userChat.id);
-        setMessages(msgs);
-        await chatService.markMessagesAsRead(userChat.id, false);
+      } catch (error) {
+        console.error('Error loading chat:', error);
+        toast.error('Failed to load chat');
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     loadChat();
