@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Plus } from 'lucide-react';
-import type { Quote, QuoteVariant } from '../../types/quotes';
+import { X } from 'lucide-react';
+import type { Quote } from '../../types/quotes';
 
 interface QuoteFormProps {
   onSubmit: (quote: Omit<Quote, 'id' | 'requestDate' | 'status'>) => void;
@@ -14,37 +14,13 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
   const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | 'other'>(
     initialData?.platform || 'aliexpress'
   );
-  const [variants, setVariants] = useState<QuoteVariant[]>(
-    initialData?.variants || [{ quantity: 0, costPerItem: 0, shippingCost: 0, totalCost: 0 }]
-  );
-
-  const handleAddVariant = () => {
-    setVariants([...variants, { quantity: 0, costPerItem: 0, shippingCost: 0, totalCost: 0 }]);
-  };
-
-  const handleRemoveVariant = (index: number) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
-
-  const handleVariantChange = (index: number, field: keyof QuoteVariant, value: number) => {
-    const newVariants = [...variants];
-    newVariants[index] = { ...newVariants[index], [field]: value };
-
-    if (field !== 'totalCost') {
-      newVariants[index].totalCost =
-        (newVariants[index].costPerItem * newVariants[index].quantity) + newVariants[index].shippingCost;
-    }
-
-    setVariants(newVariants);
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({
       productUrl,
       productName,
-      platform,
-      variants
+      platform
     });
   };
 
@@ -98,87 +74,6 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               <option value="amazon">Amazon</option>
               <option value="other">Other</option>
             </select>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Variants
-              </label>
-              <button
-                type="button"
-                onClick={handleAddVariant}
-                className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
-              >
-                <Plus className="w-4 h-4" />
-                Add Variant
-              </button>
-            </div>
-
-            {variants.map((variant, index) => (
-              <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 space-y-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Variant {index + 1}</span>
-                  {variants.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveVariant(index)}
-                      className="text-red-600 hover:text-red-700 text-sm"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Quantity</label>
-                    <input
-                      type="number"
-                      value={variant.quantity}
-                      onChange={(e) => handleVariantChange(index, 'quantity', Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                      min="0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Cost Per Item</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={variant.costPerItem}
-                      onChange={(e) => handleVariantChange(index, 'costPerItem', Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                      min="0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Shipping Cost</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={variant.shippingCost}
-                      onChange={(e) => handleVariantChange(index, 'shippingCost', Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                      min="0"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Total Cost</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={variant.totalCost}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white text-sm"
-                      readOnly
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
 
           <div className="flex gap-3 pt-4">
