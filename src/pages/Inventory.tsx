@@ -1,271 +1,612 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Search, Filter, Upload, Download, Plus, CreditCard as Edit2, Trash2 } from 'lucide-react';
-import { PageTitle } from '../components/PageTitle';
-import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Package,
+  Search,
+  Filter,
+  ChevronDown,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  X,
+  Clock,
+  ShoppingCart,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react';
+import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
+import TableRowSkeleton from '../components/TableRowSkeleton';
 
-interface InventoryItem {
-  id: string;
-  sku: string;
-  name: string;
-  quantity: number;
-  cost: number;
-  selling_price: number;
-  category: string;
-  supplier: string;
-  last_updated: string;
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
 }
 
-const Inventory = () => {
-  const [items, setItems] = useState<InventoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showAddModal, setShowAddModal] = useState(false);
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  sku: string;
+  inStock: number;
+  unfulfilled: number;
+  fulfilled: number;
+  avgFulfillTime: number;
+  avgDeliveryTime: number;
+  totalSold: number;
+  profitMargin: number;
+  costPerItem: number;
+  shippingCost: number;
+  salePrice: number;
+}
 
-  const categories = ['all', 'electronics', 'clothing', 'accessories', 'home', 'beauty', 'other'];
+type FilterOption = 'all' | 'in_stock' | 'low_stock' | 'out_of_stock' | 'unfulfilled';
+type SortDirection = 'asc' | 'desc';
 
-  useEffect(() => {
-    loadInventory();
-  }, []);
+interface Column {
+  id: keyof Product;
+  label: string;
+  width: string;
+  sortable?: boolean;
+  fixed?: boolean;
+  render?: (value: any, product: Product) => React.ReactNode;
+}
 
-  const loadInventory = async () => {
-    setIsLoading(true);
-    // For now, using mock data - will connect to database when ready
-    const mockData: InventoryItem[] = [
-      {
-        id: '1',
-        sku: 'ELEC-001',
-        name: 'Wireless Headphones',
-        quantity: 45,
-        cost: 25.00,
-        selling_price: 79.99,
-        category: 'electronics',
-        supplier: 'TechSupply Co',
-        last_updated: new Date().toISOString()
-      },
-      {
-        id: '2',
-        sku: 'CLOTH-002',
-        name: 'Cotton T-Shirt',
-        quantity: 120,
-        cost: 8.50,
-        selling_price: 24.99,
-        category: 'clothing',
-        supplier: 'Fashion Wholesale',
-        last_updated: new Date().toISOString()
-      },
-      {
-        id: '3',
-        sku: 'ACC-003',
-        name: 'Leather Wallet',
-        quantity: 30,
-        cost: 12.00,
-        selling_price: 39.99,
-        category: 'accessories',
-        supplier: 'Accessories Plus',
-        last_updated: new Date().toISOString()
-      }
-    ];
-    setItems(mockData);
-    setIsLoading(false);
+interface InventoryMetrics {
+  inventoryStatus: {
+    totalInStock: number;
+    totalFulfilled: number;
+    totalUnfulfilled: number;
+    inStockChange: number;
   };
+  orderMetrics: {
+    totalOrders: number;
+    totalUnitsSold: number;
+    avgUnitsPerOrder: number;
+    ordersChange: number;
+  };
+  timeMetrics: {
+    avgFulfillmentTime: number;
+    avgDeliveryTime: number;
+    avgDoorToDoorTime: number;
+    fulfillmentChange: number;
+  };
+  financialMetrics: {
+    totalRevenue: number;
+    avgProfitMarginAmount: number;
+    avgProfitMarginPercent: number;
+    revenueChange: number;
+  };
+}
 
-  const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.sku.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+export default function Inventory() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+    endDate: new Date()
+  });
+  const [filterOption, setFilterOption] = useState<FilterOption>('all');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{
+    field: keyof Product | null;
+    direction: SortDirection;
+  }>({
+    field: null,
+    direction: 'asc'
   });
 
-  const totalValue = items.reduce((sum, item) => sum + (item.quantity * item.cost), 0);
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockItems = items.filter(item => item.quantity < 20).length;
+  const [metrics, setMetrics] = useState<InventoryMetrics>({
+    inventoryStatus: {
+      totalInStock: 15234,
+      totalFulfilled: 8456,
+      totalUnfulfilled: 342,
+      inStockChange: 12.5
+    },
+    orderMetrics: {
+      totalOrders: 2845,
+      totalUnitsSold: 9876,
+      avgUnitsPerOrder: 3.47,
+      ordersChange: 8.2
+    },
+    timeMetrics: {
+      avgFulfillmentTime: 24,
+      avgDeliveryTime: 3.5,
+      avgDoorToDoorTime: 4.2,
+      fulfillmentChange: -15.3
+    },
+    financialMetrics: {
+      totalRevenue: 456789,
+      avgProfitMarginAmount: 34.50,
+      avgProfitMarginPercent: 28.4,
+      revenueChange: 18.7
+    }
+  });
 
-  return (
-    <>
-      <PageTitle
-        title="Inventory Management"
-        description="Track and manage your product inventory"
-      />
-
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Total Items</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{totalItems}</p>
+  const columns: Column[] = [
+    {
+      id: 'name',
+      label: 'Product',
+      width: '30%',
+      fixed: true,
+      sortable: true,
+      render: (value, product) => (
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 flex-shrink-0">
+            {product.image ? (
+              <img src={product.image} alt={value} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Package className="w-5 h-5 text-gray-400" />
               </div>
-              <div className="bg-blue-50 rounded-full p-3">
-                <Package className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
+            )}
           </div>
-
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Total Value</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">${totalValue.toFixed(2)}</p>
-              </div>
-              <div className="bg-green-50 rounded-full p-3">
-                <Package className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Product Lines</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{items.length}</p>
-              </div>
-              <div className="bg-orange-50 rounded-full p-3">
-                <Package className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Low Stock</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{lowStockItems}</p>
-              </div>
-              <div className="bg-red-50 rounded-full p-3">
-                <Package className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
+          <div className="min-w-0">
+            <div className="text-[13px] font-medium text-gray-900 dark:text-white truncate">{value}</div>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{product.sku}</div>
           </div>
         </div>
-
-        {/* Controls */}
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search by name or SKU..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </option>
-                ))}
-              </select>
-
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <Upload className="w-4 h-4" />
-                Import
-              </button>
-
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <Download className="w-4 h-4" />
-                Export
-              </button>
-
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                Add Item
-              </button>
-            </div>
-          </div>
+      )
+    },
+    { id: 'inStock', label: 'In Stock', width: '10%', sortable: true },
+    { id: 'unfulfilled', label: 'Unfulfilled', width: '10%', sortable: true },
+    { id: 'fulfilled', label: 'Fulfilled', width: '10%', sortable: true },
+    { id: 'avgFulfillTime', label: 'Avg. Fulfill Time', width: '12.5%', sortable: true },
+    { id: 'avgDeliveryTime', label: 'Avg. Delivery Time', width: '12.5%', sortable: true },
+    { id: 'totalSold', label: 'Total Sold', width: '10%', sortable: true },
+    {
+      id: 'profitMargin',
+      label: 'Profit Margin',
+      width: '5%',
+      sortable: true,
+      render: (value) => (
+        <div className={`font-medium ${value >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+          {value.toFixed(2)}%
         </div>
+      )
+    }
+  ];
 
-        {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <Package className="w-12 h-12 mb-4 text-gray-400" />
-              <p className="text-lg font-medium">No items found</p>
-              <p className="text-sm">Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {item.sku}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {item.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        <span className="px-2 py-1 rounded-full text-xs bg-gray-100">
-                          {item.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span className={item.quantity < 20 ? 'text-red-600 font-medium' : ''}>
-                          {item.quantity}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${item.cost.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${item.selling_price.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {item.supplier}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex items-center gap-2">
-                          <button className="p-1 hover:bg-gray-100 rounded transition-colors">
-                            <Edit2 className="w-4 h-4 text-gray-600" />
-                          </button>
-                          <button className="p-1 hover:bg-red-50 rounded transition-colors">
-                            <Trash2 className="w-4 h-4 text-red-600" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
+          id: `prod-${i}`,
+          name: `Product ${i + 1}`,
+          image: '',
+          sku: `SKU-${1000 + i}`,
+          inStock: Math.floor(Math.random() * 1000),
+          unfulfilled: Math.floor(Math.random() * 100),
+          fulfilled: Math.floor(Math.random() * 500),
+          avgFulfillTime: Math.random() * 5,
+          avgDeliveryTime: Math.random() * 10,
+          totalSold: Math.floor(Math.random() * 2000),
+          profitMargin: (Math.random() * 40) - 10,
+          costPerItem: Math.random() * 100,
+          shippingCost: Math.random() * 20,
+          salePrice: Math.random() * 200
+        }));
+
+        setProducts(mockProducts);
+        setError(null);
+      } catch (error) {
+        setError('Failed to fetch inventory data');
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedTime]);
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      // Metrics are already set in state
+    };
+
+    fetchMetrics();
+  }, [selectedTime]);
+
+  const handleSort = (field: keyof Product) => {
+    setSortConfig(prevConfig => ({
+      field,
+      direction: prevConfig.field === field && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const getFilteredAndSortedProducts = React.useMemo(() => {
+    let filtered = products;
+
+    if (searchTerm) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    switch (filterOption) {
+      case 'in_stock':
+        filtered = filtered.filter(product => product.inStock > 100);
+        break;
+      case 'low_stock':
+        filtered = filtered.filter(product => product.inStock <= 100 && product.inStock > 0);
+        break;
+      case 'out_of_stock':
+        filtered = filtered.filter(product => product.inStock === 0);
+        break;
+      case 'unfulfilled':
+        filtered = filtered.filter(product => product.unfulfilled > 0);
+        break;
+    }
+
+    if (sortConfig.field) {
+      filtered = [...filtered].sort((a, b) => {
+        const aValue = a[sortConfig.field!];
+        const bValue = b[sortConfig.field!];
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'asc'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+
+        return sortConfig.direction === 'asc'
+          ? (aValue as number) - (bValue as number)
+          : (bValue as number) - (aValue as number);
+      });
+    }
+
+    return filtered;
+  }, [products, searchTerm, filterOption, sortConfig]);
+
+  const getSortIcon = (columnId: keyof Product) => {
+    if (sortConfig.field !== columnId) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-300 dark:text-gray-600" />;
+    }
+    return sortConfig.direction === 'asc' 
+      ? <ArrowUp className="w-4 h-4 text-gray-900 dark:text-white" />
+      : <ArrowDown className="w-4 h-4 text-gray-900 dark:text-white" />;
+  };
+
+  const handleTimeChange = (time: TimeOption) => {
+    setLoading(true);
+    setSelectedTime(time);
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleDateRangeChange = (range: DateRange) => {
+    setDateRange(range);
+  };
+
+  const handleApplyDateRange = () => {
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
+
+  const renderChangeIndicator = (change: number) => {
+    const isPositive = change > 0;
+    const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
+    return (
+      <div className={`flex items-center text-sm ${isPositive ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+        <Icon className="w-4 h-4 mr-1" />
+        {Math.abs(change)}%
+      </div>
+    );
+  };
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-7rem)]">
+        <div className="text-center">
+          <p className="text-red-600 dark:text-red-400 font-medium mb-2">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          >
+            Try again
+          </button>
         </div>
       </div>
-    </>
-  );
-};
+    );
+  }
 
-export default Inventory;
+  return (
+    <div className="max-w-[1050px] mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+          Inventory Management
+        </h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {loading ? 'Updating inventory data...' : 'Real-time inventory tracking'}
+          </p>
+        </div>
+      </div>
+
+      <div className="relative mb-6">
+        <div className="overflow-x-auto hide-scrollbar">
+          <div className="inline-flex gap-4 pb-4 px-0.5">
+            {/* Inventory Status Card */}
+            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  {renderChangeIndicator(metrics.inventoryStatus.inStockChange)}
+                </div>
+                <div>
+                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Items in Stock</h3>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {metrics.inventoryStatus.totalInStock.toLocaleString()}
+                  </p>
+                </div>
+                <div className="mt-auto space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Fulfilled</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.inventoryStatus.totalFulfilled.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Unfulfilled</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.inventoryStatus.totalUnfulfilled.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Metrics Card */}
+            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <ShoppingCart className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  {renderChangeIndicator(metrics.orderMetrics.ordersChange)}
+                </div>
+                <div>
+                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {metrics.orderMetrics.totalOrders.toLocaleString()}
+                  </p>
+                </div>
+                <div className="mt-auto space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Units Sold</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.orderMetrics.totalUnitsSold.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Avg Units/Order</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.orderMetrics.avgUnitsPerOrder.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Time Metrics Card */}
+            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  {renderChangeIndicator(metrics.timeMetrics.fulfillmentChange)}
+                </div>
+                <div>
+                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Fulfillment Time</h3>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {metrics.timeMetrics.avgFulfillmentTime.toFixed(1)}h
+                  </p>
+                </div>
+                <div className="mt-auto space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Delivery Time</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.timeMetrics.avgDeliveryTime.toFixed(1)}d
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Door-to-Door</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.timeMetrics.avgDoorToDoorTime.toFixed(1)}d
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Metrics Card */}
+            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  {renderChangeIndicator(metrics.financialMetrics.revenueChange)}
+                </div>
+                <div>
+                  <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Sold</h3>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    ${metrics.financialMetrics.totalRevenue.toLocaleString()}
+                  </p>
+                </div>
+                <div className="mt-auto space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Avg Margin</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      ${metrics.financialMetrics.avgProfitMarginAmount.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Margin %</span>
+                    <span className="text-xs font-bold text-gray-900 dark:text-white">
+                      {metrics.financialMetrics.avgProfitMarginPercent.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Product Inventory</h2>
+          <div className="flex items-center space-x-4">
+            <div className="w-[280px]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-gray-400" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="w-[280px]">
+              <button
+                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                className="w-full flex items-center justify-between h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                  </span>
+                </div>
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              </button>
+
+              {showFilterDropdown && (
+                <div className="absolute mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => {
+                        setFilterOption(option);
+                        setShowFilterDropdown(false);
+                      }}
+                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                    >
+                      <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                      {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex-none">
+              <AdReportsTimeSelector
+                selectedTime={selectedTime}
+                onTimeChange={handleTimeChange}
+                dateRange={dateRange}
+                onDateRangeChange={handleDateRangeChange}
+                onApply={handleApplyDateRange}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="relative overflow-x-auto">
+            <table className="w-full whitespace-nowrap">
+              <thead className="bg-white dark:bg-gray-800">
+                <tr>
+                  {columns.map((column) => (
+                    <th
+                      key={column.id}
+                      className={`sticky top-0 px-4 py-3.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${
+                        column.fixed ? 'sticky left-0 z-20' : ''
+                      }`}
+                      style={{ width: column.width }}
+                    >
+                      {column.sortable ? (
+                        <button
+                          className="group inline-flex items-center space-x-1"
+                          onClick={() => handleSort(column.id)}
+                        >
+                          <span>{column.label}</span>
+                          <span className="text-gray-400 group-hover:text-gray-500">
+                            {getSortIcon(column.id)}
+                          </span>
+                        </button>
+                      ) : (
+                        column.label
+                      )}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {loading ? (
+                  Array.from({ length: 10 }).map((_, index) => (
+                    <TableRowSkeleton key={index} index={index} />
+                  ))
+                ) : (
+                  getFilteredAndSortedProducts.map((product, index) => (
+                    <tr
+                      key={product.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 bg-white dark:bg-gray-800"
+                    >
+                      {columns.map((column) => (
+                        <td
+                          key={column.id}
+                          className={`px-4 py-4 text-sm ${
+                            column.fixed ? 'sticky left-0 z-10 bg-white dark:bg-gray-800' : ''
+                          }`}
+                          style={{ width: column.width }}
+                        >
+                          {column.render
+                            ? column.render(product[column.id], product)
+                            : typeof product[column.id] === 'number'
+                            ? column.id.includes('Time')
+                              ? `${product[column.id].toFixed(1)} days`
+                              : product[column.id].toLocaleString()
+                            : product[column.id]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
