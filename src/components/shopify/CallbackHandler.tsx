@@ -84,7 +84,7 @@ const CallbackHandler: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-red-100 mx-auto mb-4 flex items-center justify-center">
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
-            <h2 className="text-2xl font-medium text-gray-900 mb-2">Connection Failed</h2>
+            <h2 className="text-3xl font-medium text-gray-900 mb-2">Connection Failed</h2>
             <p className="text-sm text-gray-600 mb-6">{errorMessage}</p>
             <button
               onClick={() => window.location.reload()}
@@ -104,7 +104,7 @@ const CallbackHandler: React.FC = () => {
         {status === 'loading' ? (
           <>
             <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-            <h2 className="text-2xl font-medium text-gray-900 mb-2">
+            <h2 className="text-3xl font-medium text-gray-900 mb-2">
               Connecting to Shopify
             </h2>
             <p className="text-sm text-gray-600">Please wait while we complete the setup...</p>
@@ -112,10 +112,10 @@ const CallbackHandler: React.FC = () => {
         ) : status === 'success' ? (
           <div className="space-y-6">
             <div>
-              <div className="w-12 h-12 rounded-full bg-green-100 mx-auto mb-4 flex items-center justify-center">
-                <Check className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] mx-auto mb-4 flex items-center justify-center">
+                <Check className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-medium text-gray-900 mb-2">Connection Successful</h2>
+              <h2 className="text-3xl font-medium text-gray-900 mb-2">Connection Successful</h2>
               <p className="text-sm text-gray-600">Your Shopify store has been connected.</p>
             </div>
           </div>
