@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store, HelpCircle, ArrowRight } from 'lucide-react';
+import { Store, HelpCircle, Link2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import ShopifyConnectButton from '@/components/ShopifyConnectButton';
@@ -184,25 +184,24 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL
                 </label>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <ShopifyFormInput
-                      value={shopUrl}
-                      onChange={handleShopChange}
-                      error={error}
-                      disabled={isLoading}
-                      placeholder="your-store.myshopify.com"
-                    />
-                  </div>
+                <div className="relative">
+                  <ShopifyFormInput
+                    value={shopUrl}
+                    onChange={handleShopChange}
+                    error={error}
+                    disabled={isLoading}
+                    placeholder="your-store.myshopify.com"
+                    className="pr-12"
+                  />
                   <button
                     type="submit"
                     disabled={isLoading || !shopUrl.trim()}
-                    className="w-10 h-10 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-md hover:scale-[1.02] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 flex-shrink-0"
+                    className="absolute right-0 top-0 w-10 h-10 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-md hover:opacity-90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60"
                   >
                     {isLoading ? (
-                      <div className="h-4 w-4 rounded-full border-2 border-white/20 border-t-white animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <ArrowRight className="w-4 h-4" />
+                      <Link2 className="w-4 h-4" />
                     )}
                   </button>
                 </div>
