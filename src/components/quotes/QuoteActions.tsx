@@ -1,24 +1,17 @@
 import React from 'react';
-import { MoreVertical, Eye, Download, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag } from 'lucide-react';
+import { Quote } from '@/types/quotes';
 
 interface QuoteActionsProps {
-  quoteId: string;
-  status: string;
-  onView?: (id: string) => void;
-  onDownload?: (id: string) => void;
-  onAccept?: (id: string) => void;
-  onReject?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  quote: Quote;
+  onAcceptQuote?: (quote: Quote) => void;
+  onConnectShopify?: (quote: Quote) => void;
 }
 
 export const QuoteActions: React.FC<QuoteActionsProps> = ({
-  quoteId,
-  status,
-  onView,
-  onDownload,
-  onAccept,
-  onReject,
-  onDelete
+  quote,
+  onAcceptQuote,
+  onConnectShopify
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
 
@@ -38,34 +31,46 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             onClick={() => setShowMenu(false)}
           />
           <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
-            {onView && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(quote.productUrl, '_blank');
+                setShowMenu(false);
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              View Product
+            </button>
+
+            {quote.status === 'accepted' && quote.variants && (
               <button
-                onClick={() => {
-                  onView(quoteId);
-                  setShowMenu(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
-              >
-                <Eye className="w-4 h-4" />
-                View Details
-              </button>
-            )}
-            {onDownload && (
-              <button
-                onClick={() => {
-                  onDownload(quoteId);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Generate CSV or download quote
+                  const csvContent = `Quantity,Cost Per Item,Shipping,Total\n${
+                    quote.variants.map(v => `${v.quantity},$${v.costPerItem},$${v.shippingCost},$${v.totalCost}`).join('\n')
+                  }`;
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `quote-${quote.id}.csv`;
+                  a.click();
                   setShowMenu(false);
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                Download
+                Download Quote
               </button>
             )}
-            {status === 'quoted' && onAccept && (
+
+            {quote.status === 'quote_pending' && onAcceptQuote && (
               <button
-                onClick={() => {
-                  onAccept(quoteId);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAcceptQuote(quote);
                   setShowMenu(false);
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
@@ -74,30 +79,35 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
                 Accept Quote
               </button>
             )}
-            {status === 'quoted' && onReject && (
+
+            {quote.status === 'accepted' && !quote.shopifyConnected && onConnectShopify && (
               <button
-                onClick={() => {
-                  onReject(quoteId);
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onConnectShopify(quote);
                   setShowMenu(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
               >
-                <XCircle className="w-4 h-4" />
-                Reject Quote
+                <ShoppingBag className="w-4 h-4" />
+                Add to Shopify
               </button>
             )}
-            {onDelete && (
-              <button
-                onClick={() => {
-                  onDelete(quoteId);
-                  setShowMenu(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
-              >
-                <Trash2 className="w-4 h-4" />
-                Delete
-              </button>
-            )}
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to delete this quote?')) {
+                  // Handle delete
+                  console.log('Delete quote:', quote.id);
+                }
+                setShowMenu(false);
+              }}
+              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Quote
+            </button>
           </div>
         </>
       )}
