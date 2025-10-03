@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Sparkles, ArrowRight, ChevronDown, Check } from 'lucide-react';
+import { ArrowRight, ChevronDown, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -77,9 +77,6 @@ const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
     <div className="max-w-[540px] mx-auto">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         <div className="text-center mb-8">
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-br from-rose-50 to-pink-50 mb-4">
-            <Sparkles className="w-8 h-8 text-rose-500" />
-          </div>
           <h2 className="text-3xl font-medium text-gray-900 mb-2">One Last Thing</h2>
           <p className="text-sm text-gray-600">
             Help us personalize your experience
@@ -192,7 +189,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
           >
             {isLoading ? 'Saving...' : (
               <>
-                Complete Setup
+                Finish
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

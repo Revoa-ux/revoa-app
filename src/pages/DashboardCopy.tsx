@@ -106,16 +106,12 @@ export default function DashboardCopy() {
       // Check if we got real data or defaults
       if (metrics.totalOrders === 0 && metrics.totalRevenue === 0) {
         console.warn('[Dashboard] Received default/empty metrics. Store may not be connected or has no data.');
-        toast.info('No store data found', {
-          description: 'Connect your Shopify store or add some orders to see metrics'
-        });
       } else {
         console.log('[Dashboard] Successfully loaded store data:', {
           orders: metrics.totalOrders,
           revenue: metrics.totalRevenue,
           customers: metrics.totalCustomers
         });
-        toast.success('Store data loaded successfully');
       }
     } catch (error) {
       console.error('[Dashboard] Error fetching Shopify data:', error);
