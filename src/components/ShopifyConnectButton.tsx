@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRight as ArrowRightIcon } from "lucide-react";
 
 interface ShopifyConnectButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -14,10 +14,10 @@ const ShopifyConnectButton = React.forwardRef<
   return (
     <button
       className={cn(
-        "relative flex h-11 w-full items-center justify-center rounded-md text-sm font-medium transition-all",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-shopify-green/30 focus-visible:border-shopify-green",
-        "bg-shopify-green text-white shadow-sm hover:bg-shopify-green/90 active:bg-shopify-green/95",
-        "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-shopify-green",
+        "relative flex h-12 w-full items-center justify-center rounded-lg text-sm font-medium transition-all",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500/30",
+        "bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-sm hover:scale-[1.02]",
+        "disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100",
         "overflow-hidden group",
         className
       )}

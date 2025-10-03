@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Store } from 'lucide-react';
+import { Store, HelpCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import ShopifyConnectButton from '@/components/ShopifyConnectButton';
@@ -173,7 +173,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           </div>
           <h2 className="text-3xl font-medium text-gray-900">Connect Your Store</h2>
           <p className="text-gray-600 max-w-md mx-auto mb-6">
-            Connect your Shopify store to import your products, orders, and customers
+            Enter your .myshopify.com URL below to connect your store. You can find this URL by logging into your Shopify dashboard and finding the Domains page in your Settings.
           </p>
         </div>
         
@@ -195,13 +195,26 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-start space-x-3">
-                  <Store className="w-5 h-5 text-gray-400 mt-0.5" />
+                  <HelpCircle className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm text-gray-600">
-                    <p className="font-medium text-gray-900 mb-1">Store Requirements</p>
-                    <ul className="space-y-1">
-                      <li>• Must be on a paid Shopify plan</li>
-                      <li>• Admin access is required</li>
-                      <li>• Store must be active and not frozen</li>
+                    <p className="font-semibold text-gray-900 mb-2">Having trouble?</p>
+                    <ul className="space-y-1.5">
+                      <li className="flex items-start">
+                        <span className="text-gray-400 mr-2">•</span>
+                        <span>Make sure your browser allows popups</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-gray-400 mr-2">•</span>
+                        <span>Make sure you are not logged into a different store in a separate tab</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-gray-400 mr-2">•</span>
+                        <span>Must be on a paid and active Shopify plan</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-gray-400 mr-2">•</span>
+                        <span>Must be an admin of the Shopify store</span>
+                      </li>
                     </ul>
                   </div>
                 </div>
