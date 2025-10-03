@@ -32,9 +32,9 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   productSetupComplete = false
 }) => {
   const steps: { id: OnboardingStep; label: string; icon: React.ReactNode }[] = [
-    { id: 'store', label: 'Add Shop', icon: <Store className="w-4 h-4" /> },
-    { id: 'ads', label: 'Connect Ads', icon: <BarChart3 className="w-4 h-4" /> },
-    { id: 'products', label: 'Setup Products', icon: <Package className="w-4 h-4" /> },
+    { id: 'store', label: 'Store Integration', icon: <Store className="w-4 h-4" /> },
+    { id: 'ads', label: 'Ad Platforms', icon: <BarChart3 className="w-4 h-4" /> },
+    { id: 'products', label: 'Product Setup', icon: <Package className="w-4 h-4" /> },
     { id: 'complete', label: 'Complete', icon: <CheckCircle className="w-4 h-4" /> }
   ];
 

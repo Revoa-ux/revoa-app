@@ -194,10 +194,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   <button
                     type="submit"
                     disabled={isLoading || !shopUrl.trim()}
-                    className="absolute right-0 top-0 w-10 h-10 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-md hover:opacity-90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60 overflow-hidden"
+                    className="absolute right-0 top-0 w-10 h-10 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-md hover:opacity-90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60"
                   >
                     {isLoading ? (
-                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <Link2 className="w-4 h-4" />
                     )}
