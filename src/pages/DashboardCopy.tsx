@@ -328,7 +328,7 @@ export default function DashboardCopy() {
       id: 'fulfill',
       title: 'Orders to Fulfill',
       icon: <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-      mainValue: shopifyMetrics ? shopifyMetrics.totalOrders - (shopifyMetrics.totalOrders * 0.85) : 0,
+      mainValue: shopifyMetrics ? (shopifyMetrics.totalOrders - (shopifyMetrics.totalOrders * 0.85)).toFixed(2) : '0.00',
       change: '79.4%',
       changeType: 'positive',
       dataPoint1: { 
@@ -446,7 +446,7 @@ export default function DashboardCopy() {
   const renderChangeIndicator = (change: string, changeType: 'positive' | 'negative' | 'critical') => {
     if (changeType === 'critical') {
       return (
-        <div className="flex items-center text-red-500 dark:text-red-400 font-medium">
+        <div className="flex items-center text-sm text-red-500 dark:text-red-400">
           <AlertTriangle className="w-4 h-4 mr-1" />
           {change}
         </div>
