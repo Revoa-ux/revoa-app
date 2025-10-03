@@ -130,10 +130,10 @@ export default function Layout() {
                 </div>
                 <div className="text-left">
                   <div className="text-base font-medium text-gray-900 dark:text-white">
-                    {shopifyStore || 'YourShop'}
+                    {shopifyStore || 'Your Store'}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {shopifyStore ? 'Shopify Connected' : 'No store connected'}
+                    {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
                   </div>
                 </div>
               </div>
