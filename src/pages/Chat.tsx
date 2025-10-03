@@ -394,13 +394,21 @@ const Chat = () => {
                 <button
                   onClick={handleSend}
                   disabled={!newMessage.trim()}
-                  className={`p-1.5 rounded-lg transition-all disabled:opacity-50 ${
-                    newMessage.trim()
-                      ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                  }`}
+                  className="p-2 rounded-lg transition-all disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center"
                 >
-                  <Send className="w-5 h-5" />
+                  {newMessage.trim() ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="sendGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="rgb(239, 68, 68)" />
+                          <stop offset="100%" stopColor="rgb(219, 39, 119)" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="url(#sendGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  ) : (
+                    <Send className="w-5 h-5 text-gray-400" />
+                  )}
                 </button>
               </div>
             </div>
