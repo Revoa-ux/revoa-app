@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Store, HelpCircle, Link2, Loader2 } from 'lucide-react';
+import { Store, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
-import ShopifyConnectButton from '@/components/ShopifyConnectButton';
 import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
@@ -15,6 +14,7 @@ interface StoreIntegrationProps {
 const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected }) => {
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -26,17 +26,29 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       if (event.data.type === 'shopify:success') {
         onStoreConnected(true);
         setIsLoading(false);
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          setCheckInterval(null);
+        }
         toast.success('Successfully connected to Shopify');
       } else if (event.data.type === 'shopify:error') {
-        setError(event.data.error || 'Failed to connect to Shopify');
         setIsLoading(false);
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          setCheckInterval(null);
+        }
         toast.error(event.data.error || 'Failed to connect to Shopify');
       }
     };
 
     window.addEventListener('message', messageHandler);
-    return () => window.removeEventListener('message', messageHandler);
-  }, [onStoreConnected]);
+    return () => {
+      window.removeEventListener('message', messageHandler);
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+    };
+  }, [onStoreConnected, checkInterval]);
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +59,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
     }
 
     setIsLoading(true);
-    setError('');
 
     try {
       // Verify we have a valid session first
@@ -83,8 +94,13 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         throw new Error('Please allow pop-ups for this site to connect your Shopify store');
       }
 
+      // Clear any existing interval
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+
       // Check if window was closed before completing auth
-      const checkTabClosed = setInterval(() => {                         
+      const intervalId = setInterval(() => {                         
          
           // Check the access token has been received
           supabase
@@ -140,18 +156,22 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   });
               }
 
-              clearInterval(checkTabClosed);
+              clearInterval(intervalId);
+              setCheckInterval(null);
               setIsLoading(false);
             }
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
             toast.error('Connection failed. Please try again.');
-            clearInterval(checkTabClosed);
+            clearInterval(intervalId);
+            setCheckInterval(null);
             setIsLoading(false);
           });
-        
+
       }, 1000);
+
+      setCheckInterval(intervalId);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to connect to Shopify store');
@@ -183,27 +203,22 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL
                 </label>
-                <div className="relative">
-                  <ShopifyFormInput
-                    value={shopUrl}
-                    onChange={handleShopChange}
-                    disabled={isLoading}
-                    placeholder="your-store.myshopify.com"
-                    className="pr-12"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isLoading || !shopUrl.trim()}
-                    className="absolute right-0 top-0 w-10 h-10 flex items-center justify-center bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-md hover:opacity-90 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Link2 className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
+                <ShopifyFormInput
+                  value={shopUrl}
+                  onChange={handleShopChange}
+                  disabled={isLoading}
+                  placeholder="your-store.myshopify.com"
+                />
               </div>
+
+              <button
+                type="submit"
+                disabled={isLoading || !shopUrl.trim()}
+                className="w-full flex items-center justify-center gap-2 h-12 px-6 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg font-medium transition-all duration-200 hover:scale-[1.02] disabled:cursor-not-allowed disabled:hover:scale-100 disabled:opacity-50"
+              >
+                <Store className="w-5 h-5" />
+                <span>Connect Store</span>
+              </button>
 
               <div className="border border-gray-200 bg-white rounded-lg p-4">
                 <div className="flex items-start space-x-3">
