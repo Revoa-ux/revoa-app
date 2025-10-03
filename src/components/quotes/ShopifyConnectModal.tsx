@@ -208,22 +208,52 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     setIsSyncing(true);
     try {
       // Prepare product data for Shopify
-      const variants = quote.variants?.map(variant => ({
-        price: variant.costPerItem.toFixed(2),
-        inventory_quantity: variant.quantity,
-        sku: `${quote.id}-${variant.quantity}`,
-      })) || [{
-        price: '0.00',
-        inventory_quantity: 1,
-      }];
+      // When there are multiple quote variants, we need to create a product with variant options
+      let productData: any;
 
-      const productData = {
-        title: quote.productName,
-        body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
-        vendor: 'Revoa',
-        product_type: 'Imported Product',
-        variants: variants,
-      };
+      if (quote.variants && quote.variants.length > 1) {
+        // Multiple pricing tiers - create variants with "Quantity" option
+        productData = {
+          title: quote.productName,
+          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          vendor: 'Revoa',
+          product_type: 'Imported Product',
+          options: [
+            {
+              name: 'Quantity',
+              values: quote.variants.map(v => `${v.quantity} pack`)
+            }
+          ],
+          variants: quote.variants.map(variant => ({
+            option1: `${variant.quantity} pack`,
+            price: variant.costPerItem.toFixed(2),
+            inventory_quantity: 100, // Default inventory
+            sku: `${quote.id}-${variant.quantity}`,
+          }))
+        };
+      } else if (quote.variants && quote.variants.length === 1) {
+        // Single variant - use default
+        const variant = quote.variants[0];
+        productData = {
+          title: quote.productName,
+          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          vendor: 'Revoa',
+          product_type: 'Imported Product',
+          variants: [{
+            price: variant.costPerItem.toFixed(2),
+            inventory_quantity: 100,
+            sku: `${quote.id}-${variant.quantity}`,
+          }]
+        };
+      } else {
+        // No variants from quote
+        productData = {
+          title: quote.productName,
+          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          vendor: 'Revoa',
+          product_type: 'Imported Product',
+        };
+      }
 
       console.log('[Shopify Sync] Creating product:', productData);
 
