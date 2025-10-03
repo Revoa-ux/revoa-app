@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -73,7 +73,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              What's your name?
+              What should we call you?
             </label>
             <input
               type="text"
@@ -145,9 +145,14 @@ const Completion: React.FC<CompletionProps> = ({ onComplete }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full px-6 py-3 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-6 py-3 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading ? 'Saving...' : 'Complete Setup'}
+            {isLoading ? 'Saving...' : (
+              <>
+                Complete Setup
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
       </div>
