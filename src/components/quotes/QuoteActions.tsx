@@ -14,14 +14,29 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
   onConnectShopify
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const [openUpward, setOpenUpward] = React.useState(false);
+
+  const handleToggleMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!showMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Open upward if there's less than 300px below but more space above
+      setOpenUpward(spaceBelow < 300 && spaceAbove > spaceBelow);
+    }
+
+    setShowMenu(!showMenu);
+  };
 
   return (
     <div className="relative">
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setShowMenu(!showMenu);
-        }}
+        ref={buttonRef}
+        onClick={handleToggleMenu}
         className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
         <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -33,7 +48,9 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             className="fixed inset-0 z-10"
             onClick={() => setShowMenu(false)}
           />
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
+          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20 ${
+            openUpward ? 'bottom-full mb-2' : 'mt-2'
+          }`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
