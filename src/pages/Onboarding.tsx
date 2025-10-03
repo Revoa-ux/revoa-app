@@ -75,7 +75,10 @@ const Onboarding = () => {
         navigate('/onboarding/complete');
         break;
       case 'complete':
-        handleCompleteOnboarding();
+        // Trigger the completion form submission
+        if ((window as any).__completionSubmitHandler) {
+          (window as any).__completionSubmitHandler();
+        }
         break;
     }
   };
@@ -170,6 +173,7 @@ const Onboarding = () => {
             <Completion
               onComplete={handleCompleteOnboarding}
               onFormValidityChange={handleCompletionFormValidityChange}
+              onSubmit={() => {}}
             />
           }
         />

@@ -7,17 +7,18 @@ import { useClickOutside } from '@/lib/useClickOutside';
 interface CompletionProps {
   onComplete: () => void;
   onFormValidityChange?: (isValid: boolean) => void;
+  onSubmit?: () => void;
 }
 
-const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChange }) => {
+const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChange, onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
     store_type: '',
-    wants_growth_assistance: false
+    wants_growth_assistance: null as boolean | null
   });
 
   // Check if form is valid
-  const isFormValid = formData.name.trim() !== '' && formData.store_type !== '';
+  const isFormValid = formData.name.trim() !== '' && formData.store_type !== '' && formData.wants_growth_assistance !== null;
 
   // Notify parent of form validity changes
   React.useEffect(() => {
@@ -40,9 +41,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     return type ? type.label : 'Select store type';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!formData.name.trim()) {
       toast.error('Please enter your name');
       return;
@@ -50,6 +49,11 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
     if (!formData.store_type) {
       toast.error('Please select your store type');
+      return;
+    }
+
+    if (formData.wants_growth_assistance === null) {
+      toast.error('Please select whether you want help scaling your store');
       return;
     }
 
@@ -82,17 +86,25 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     }
   };
 
+  // Expose handleSubmit to parent via onSubmit prop
+  React.useEffect(() => {
+    if (onSubmit) {
+      // Store the submit handler reference
+      (window as any).__completionSubmitHandler = handleSubmit;
+    }
+  }, [handleSubmit, onSubmit]);
+
   return (
     <div className="max-w-[540px] mx-auto">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-medium text-gray-900 mb-2">One Last Thing</h2>
+          <h2 className="text-3xl font-medium text-gray-900 mb-2">One Last Thing!</h2>
           <p className="text-sm text-gray-600">
             Help us personalize your experience
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               What should we call you?
@@ -181,6 +193,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     onChange={() => setFormData({ ...formData, wants_growth_assistance: option.value })}
                     className="mt-1 text-rose-500 focus:ring-rose-500"
                     disabled={isLoading}
+                    required
                   />
                   <div className="ml-3">
                     <div className="font-medium text-gray-900">{option.label}</div>
@@ -191,19 +204,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full px-6 py-3 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? 'Saving...' : (
-              <>
-                Finish
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );
