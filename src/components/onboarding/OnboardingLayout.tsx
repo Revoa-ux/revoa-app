@@ -59,21 +59,8 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
         <div className="w-full max-w-[700px]">
           {/* Step indicators container */}
           <div className="relative">
-            {/* Progress bar positioned behind step icons */}
-            <div className="absolute left-0 right-0 top-4 flex items-center">
-              <div className="relative w-full h-1 bg-gray-200 rounded-full">
-                {/* Animated gradient progress bar */}
-                <div
-                  className="absolute left-0 top-0 h-1 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
-                  style={{ width: getProgressWidth() }}
-                >
-                  <div className="absolute inset-0 bg-[linear-gradient(90deg,#E11D48_0%,#EC4899_50%,#E8795A_100%)] animate-gradient" />
-                </div>
-              </div>
-            </div>
-
             {/* Step indicators */}
-            <div className="relative flex justify-between">
+            <div className="relative flex justify-between items-start">
               {steps.map((step, index) => {
                 const isActive = currentStep === step.id;
                 const isCompleted =
@@ -85,13 +72,13 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                 return (
                   <div
                     key={step.id}
-                    className="flex flex-col items-center z-10"
+                    className="flex flex-col items-center z-10 relative"
                   >
                     <div
-                      className={`flex items-center justify-center w-8 h-8 rounded-full mb-2 transition-all duration-300 ${
+                      className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 ${
                         isActive || isCompleted
-                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-lg shadow-rose-500/30'
-                          : 'bg-white border-2 border-gray-200 text-gray-400'
+                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white'
+                          : 'bg-white border-2 border-gray-300 text-gray-400'
                       }`}
                     >
                       {isCompleted && !isActive ? (
@@ -110,6 +97,19 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                   </div>
                 );
               })}
+            </div>
+
+            {/* Progress bar line positioned absolutely behind icons */}
+            <div className="absolute left-0 right-0 top-5 -z-10 flex items-center px-5">
+              <div className="relative w-full h-0.5 bg-gray-200 rounded-full">
+                {/* Animated gradient progress bar */}
+                <div
+                  className="absolute left-0 top-0 h-0.5 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
+                  style={{ width: getProgressWidth() }}
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(90deg,#E11D48_0%,#EC4899_50%,#E8795A_100%)] animate-gradient" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
