@@ -17,8 +17,15 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Auto-add https:// if protocol is missing
+    let finalUrl = productUrl.trim();
+    if (finalUrl && !finalUrl.match(/^https?:\/\//i)) {
+      finalUrl = `https://${finalUrl}`;
+    }
+
     onSubmit({
-      productUrl,
+      productUrl: finalUrl,
       productName,
       platform
     });
@@ -40,10 +47,11 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               Product URL
             </label>
             <input
-              type="url"
+              type="text"
               value={productUrl}
               onChange={(e) => setProductUrl(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="example.com/product or https://example.com/product"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
