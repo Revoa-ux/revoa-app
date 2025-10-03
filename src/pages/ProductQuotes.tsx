@@ -124,9 +124,18 @@ export default function ProductQuotes() {
   const [expandedQuotes, setExpandedQuotes] = useState<string[]>([]);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
 
-  const handleSubmitQuote = (newQuote: Quote) => {
-    setQuotes([newQuote, ...quotes]);
+  const handleSubmitQuote = (newQuote: Omit<Quote, 'id' | 'requestDate' | 'status'>) => {
+    const quote: Quote = {
+      ...newQuote,
+      id: `QT-2024-${String(quotes.length + 1).padStart(3, '0')}`,
+      requestDate: new Date().toISOString().split('T')[0],
+      status: 'quote_pending'
+    };
+    setQuotes([quote, ...quotes]);
+    setShowQuoteForm(false);
+    toast.success('Quote request submitted successfully');
   };
 
   const toggleQuoteExpansion = (quoteId: string) => {
@@ -188,8 +197,27 @@ export default function ProductQuotes() {
         </div>
       </div>
 
-      {/* Quote Form */}
-      <QuoteForm onSubmit={handleSubmitQuote} />
+      {/* New Quote Button */}
+      <button
+        onClick={() => setShowQuoteForm(true)}
+        className="w-full px-6 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary-500 dark:hover:border-primary-500 transition-colors text-left"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">
+              Request New Quote
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Get competitive pricing for your products
+            </p>
+          </div>
+          <div className="text-primary-500">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+        </div>
+      </button>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -214,6 +242,14 @@ export default function ProductQuotes() {
           }}
         />
       </div>
+
+      {/* Quote Form Modal */}
+      {showQuoteForm && (
+        <QuoteForm
+          onSubmit={handleSubmitQuote}
+          onCancel={() => setShowQuoteForm(false)}
+        />
+      )}
 
       {/* Shopify Connect Modal */}
       {showShopifyModal && selectedQuote && (
