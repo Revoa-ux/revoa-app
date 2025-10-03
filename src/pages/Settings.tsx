@@ -595,7 +595,7 @@ const SettingsPage = () => {
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
                       <img
-                        src="https://jfwmnaaujzuwrqqhgmuf.supabase.co/storage/v1/object/public/REVOA%20(Public)//shopify%20(1).svg"
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify%20(1).svg"
                         alt="Shopify"
                         className="w-6 h-6"
                       />

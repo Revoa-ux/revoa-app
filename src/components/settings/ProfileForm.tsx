@@ -93,10 +93,10 @@ const ProfileForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Profile Information</h3>
-          <p className="mt-1 text-sm text-gray-600">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Profile Information</h3>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Update your personal information and contact details.
           </p>
         </div>
@@ -104,12 +104,12 @@ const ProfileForm = () => {
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 First Name
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
@@ -117,8 +117,8 @@ const ProfileForm = () => {
                   value={profileData.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                   className={cn(
-                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                    validationErrors.firstName ? "border-red-300" : "border-gray-300"
+                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
+                    validationErrors.firstName ? "border-red-300" : "border-gray-300 dark:border-gray-600"
                   )}
                   placeholder="John"
                 />
@@ -129,12 +129,12 @@ const ProfileForm = () => {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Last Name
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
@@ -142,8 +142,8 @@ const ProfileForm = () => {
                   value={profileData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
                   className={cn(
-                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                    validationErrors.lastName ? "border-red-300" : "border-gray-300"
+                    "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
+                    validationErrors.lastName ? "border-red-300" : "border-gray-300 dark:border-gray-600"
                   )}
                   placeholder="Doe"
                 />
@@ -155,12 +155,12 @@ const ProfileForm = () => {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Email Address
             </label>
             <div className="mt-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               </div>
               <input
                 type="email"
@@ -168,8 +168,8 @@ const ProfileForm = () => {
                 value={profileData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 className={cn(
-                  "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm",
-                  validationErrors.email ? "border-red-300" : "border-gray-300"
+                  "block w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white",
+                  validationErrors.email ? "border-red-300" : "border-gray-300 dark:border-gray-600"
                 )}
                 placeholder="john@example.com"
               />
@@ -180,38 +180,38 @@ const ProfileForm = () => {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Phone Number
             </label>
             <div className="mt-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Phone className="h-5 w-5 text-gray-400" />
+                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               </div>
               <input
                 type="tel"
                 id="phone"
                 value={profileData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="+1 (555) 123-4567"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="company" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="company" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Company
             </label>
             <div className="mt-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Building className="h-5 w-5 text-gray-400" />
+                <Building className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               </div>
               <input
                 type="text"
                 id="company"
                 value={profileData.company}
                 onChange={(e) => handleInputChange('company', e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 placeholder="Acme Inc."
               />
             </div>
