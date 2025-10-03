@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 
@@ -15,7 +16,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
-  const [openUpward, setOpenUpward] = React.useState(false);
+  const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0, openUpward: false });
 
   const handleToggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -24,33 +25,32 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
       const rect = buttonRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       const spaceAbove = rect.top;
+      const openUpward = spaceBelow < 300 && spaceAbove > spaceBelow;
 
-      // Open upward if there's less than 300px below but more space above
-      setOpenUpward(spaceBelow < 300 && spaceAbove > spaceBelow);
+      setMenuPosition({
+        top: openUpward ? rect.top - 8 : rect.bottom + 8,
+        left: rect.right - 192, // 192px = w-48
+        openUpward
+      });
     }
 
     setShowMenu(!showMenu);
   };
 
-  return (
-    <div className="relative">
-      <button
-        ref={buttonRef}
-        onClick={handleToggleMenu}
-        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+  const menuContent = showMenu && (
+    <>
+      <div
+        className="fixed inset-0 z-10"
+        onClick={() => setShowMenu(false)}
+      />
+      <div
+        className="fixed w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20"
+        style={{
+          top: menuPosition.openUpward ? 'auto' : `${menuPosition.top}px`,
+          bottom: menuPosition.openUpward ? `${window.innerHeight - menuPosition.top}px` : 'auto',
+          left: `${menuPosition.left}px`,
+        }}
       >
-        <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-      </button>
-
-      {showMenu && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setShowMenu(false)}
-          />
-          <div className={`absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20 ${
-            openUpward ? 'bottom-full mb-2' : 'mt-2'
-          }`}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -130,7 +130,18 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             </button>
           </div>
         </>
-      )}
-    </div>
+  );
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        onClick={handleToggleMenu}
+        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+      >
+        <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+      </button>
+      {menuContent && createPortal(menuContent, document.body)}
+    </>
   );
 };

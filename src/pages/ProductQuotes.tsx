@@ -270,18 +270,16 @@ export default function ProductQuotes() {
         </div>
 
         {/* Quotes Table */}
-        <div className="pb-48">
-          <QuoteTable
-            quotes={filteredQuotes}
-            expandedQuotes={expandedQuotes}
-            onToggleExpand={toggleQuoteExpansion}
-            onAcceptQuote={handleAcceptQuote}
-            onConnectShopify={(quote) => {
-              setSelectedQuote(quote);
-              setShowShopifyModal(true);
-            }}
-          />
-        </div>
+        <QuoteTable
+          quotes={filteredQuotes}
+          expandedQuotes={expandedQuotes}
+          onToggleExpand={toggleQuoteExpansion}
+          onAcceptQuote={handleAcceptQuote}
+          onConnectShopify={(quote) => {
+            setSelectedQuote(quote);
+            setShowShopifyModal(true);
+          }}
+        />
       </div>
 
       {/* Quote Form Modal */}
