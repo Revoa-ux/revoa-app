@@ -123,13 +123,13 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
               isClickable ? 'cursor-pointer' : ''
             } ${
               isSelected || isActive
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+                ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700'
             }`}
           >
             {isActive && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
                   Current Tier
                 </span>
               </div>
@@ -154,19 +154,22 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
                   </div>
                 </>
               ) : (
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  {tier.percentageFee}%
-                  <div className="text-sm font-normal text-gray-600 dark:text-gray-400 mt-1">
-                    of revenue only
+                <>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                    $0
+                    <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/month</span>
                   </div>
-                </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    + {tier.percentageFee}% revenue fee
+                  </div>
+                </>
               )}
             </div>
 
             <ul className="space-y-2">
               {tier.features.map((feature, index) => (
                 <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
-                  <span className="text-blue-500 mr-2">✓</span>
+                  <span className="text-red-500 mr-2">✓</span>
                   {feature}
                 </li>
               ))}

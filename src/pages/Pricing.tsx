@@ -8,7 +8,7 @@ export default function Pricing() {
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Revenue-based pricing that scales with you</h1>
         <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">Pay a percentage of your revenue. As you grow, your rate automatically decreases.</p>
         </div>
       </div>
