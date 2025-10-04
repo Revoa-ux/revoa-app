@@ -70,51 +70,7 @@ export const PricingCalculator: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
-          <div className="text-sm text-green-700 dark:text-green-400 mb-1">You Keep</div>
-          <div className="text-3xl font-bold text-green-700 dark:text-green-400">
-            ${(monthlyRevenue - pricing.totalFee).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-          </div>
-          <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-            {monthlyRevenue > 0 ? ((monthlyRevenue - pricing.totalFee) / monthlyRevenue * 100).toFixed(2) : '0.00'}% of revenue
-          </div>
-        </div>
-
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Pricing Breakdown</div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Monthly Revenue:</span>
-              <span className="font-semibold text-gray-900 dark:text-white">
-                ${monthlyRevenue.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Base Fee:</span>
-              <span className="font-semibold text-gray-900 dark:text-white">
-                ${pricing.baseFee.toFixed(0)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">
-                Variable ({pricing.tier.percentageFee}%):
-              </span>
-              <span className="font-semibold text-gray-900 dark:text-white">
-                ${pricing.variableFee.toFixed(0)}
-              </span>
-            </div>
-            <div className="border-t border-gray-300 dark:border-gray-600 pt-2 flex justify-between">
-              <span className="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
-              <span className="font-bold text-red-600 dark:text-red-400">
-                ${pricing.totalFee.toFixed(0)}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div className="flex items-start">
           <span className="text-2xl mr-3">💡</span>
           <div>
