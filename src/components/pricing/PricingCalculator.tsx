@@ -28,34 +28,105 @@ export const PricingCalculator: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Revenue</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Your Tier</div>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            ${monthlyRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-        </div>
-        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Fees</div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            ${pricing.totalFee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {pricing.tier.name}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            ({pricing.effectiveFeePercentage.toFixed(2)}% effective rate)
+            {pricing.tier.revenueRange}
           </div>
         </div>
+
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Base Fee</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${pricing.baseFee.toFixed(0)}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            per month
+          </div>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Variable Fee</div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            ${pricing.variableFee.toFixed(0)}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {pricing.tier.percentageFee}% of revenue
+          </div>
+        </div>
+
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-6">
-          <div className="text-sm text-red-600 dark:text-red-400 mb-1">You Keep</div>
+          <div className="text-sm text-red-600 dark:text-red-400 mb-1">Total Monthly Cost</div>
           <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-            ${(monthlyRevenue - pricing.totalFee).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${pricing.totalFee.toFixed(0)}
+          </div>
+          <div className="text-xs text-red-500 dark:text-red-400 mt-1">
+            {pricing.effectiveFeePercentage.toFixed(2)}% effective rate
           </div>
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-blue-800 dark:text-blue-200">
-          Based on ${monthlyRevenue.toLocaleString()} monthly revenue, you're in the <strong>{pricing.tier.name}</strong> tier
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
+          <div className="text-sm text-green-700 dark:text-green-400 mb-1">You Keep</div>
+          <div className="text-3xl font-bold text-green-700 dark:text-green-400">
+            ${(monthlyRevenue - pricing.totalFee).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </div>
+          <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+            {monthlyRevenue > 0 ? ((monthlyRevenue - pricing.totalFee) / monthlyRevenue * 100).toFixed(2) : '0.00'}% of revenue
+          </div>
+        </div>
+
+        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-6">
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Pricing Breakdown</div>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Monthly Revenue:</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                ${monthlyRevenue.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">Base Fee:</span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                ${pricing.baseFee.toFixed(0)}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-400">
+                Variable ({pricing.tier.percentageFee}%):
+              </span>
+              <span className="font-semibold text-gray-900 dark:text-white">
+                ${pricing.variableFee.toFixed(0)}
+              </span>
+            </div>
+            <div className="border-t border-gray-300 dark:border-gray-600 pt-2 flex justify-between">
+              <span className="text-gray-900 dark:text-white font-semibold">Total Cost:</span>
+              <span className="font-bold text-red-600 dark:text-red-400">
+                ${pricing.totalFee.toFixed(0)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="flex items-start">
+          <span className="text-2xl mr-3">💡</span>
+          <div>
+            <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+              Revenue-Based Pricing
+            </p>
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              Your pricing automatically adjusts based on your monthly revenue. As you grow, the percentage decreases,
+              ensuring you always get the best value. No contracts, no surprises.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
