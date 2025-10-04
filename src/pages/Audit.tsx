@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { AlertTriangle, Facebook, Brain, ChevronDown,
-  RefreshCw, Music2
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Facebook, 
+  Search, 
+  AlertTriangle, 
+  X, 
+  ChevronDown, 
+  Check,
+  Brain,
+  GitBranch as BrandTiktok,
+  RefreshCw
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { AdAccount, AdInsight, AdCheckItem } from '@/types/ads';
+import { PerformanceScore } from '@/components/reports/PerformanceScore';
+import { TotalScore } from '@/components/reports/TotalScore';
+import { OptimizationPriorities } from '@/components/reports/OptimizationPriorities';
+import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
+import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
-import PerformanceOverview from '@/components/reports/PerformanceOverview';
-import PerformanceScore from '@/components/reports/PerformanceScore';
-import OptimizationPriorities from '@/components/reports/OptimizationPriorities';
-import TotalScore from '@/components/reports/TotalScore';
-import CreativeAnalysis from '@/components/reports/CreativeAnalysis';
 
 interface DateRange {
   startDate: Date;
@@ -73,15 +83,6 @@ const mockCreatives = [
   }
 ];
 
-type AdAccount = {
-  id: string;
-  platform: 'facebook' | 'tiktok';
-  accountId: string;
-  accountName: string;
-  status: 'active' | 'inactive';
-};
-
- 
 const mockAdAccounts: AdAccount[] = [
   {
     id: '1',
@@ -184,6 +185,7 @@ export default function Audit() {
     endDate: new Date()
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
@@ -294,7 +296,7 @@ export default function Audit() {
                   onClick={() => handleConnectPlatform('tiktok')}
                   className="px-4 py-2 text-sm text-white bg-black rounded-lg hover:bg-black/90 transition-colors flex items-center whitespace-nowrap"
                 >
-                  <Music2 className="w-4 h-4 mr-2" />
+                  <BrandTiktok className="w-4 h-4 mr-2" />
                   Connect TikTok
                 </button>
               )}
@@ -306,7 +308,7 @@ export default function Audit() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <PerformanceOverview metrics={mockPerformanceMetrics} />
+            <PerformanceOverview metrics={performanceData} />
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">

@@ -99,10 +99,9 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
 
   const handleTimeSelect = (time: TimeOption) => {
     if (time === 'custom') {
-      setShowDatePicker(true);  
+      setShowDatePicker(true);
     } else {
       // Update date range based on selection
-      const now = new Date();
       const startDate = new Date();
       const endDate = new Date();
 
