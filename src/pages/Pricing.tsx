@@ -1,31 +1,22 @@
-import React, { useState } from 'react';
-import { PricingTiers, pricingTiers } from '@/components/pricing/PricingTiers';
+import React from 'react';
+import { PricingTiers } from '@/components/pricing/PricingTiers';
 import { PricingCalculator } from '@/components/pricing/PricingCalculator';
-import { PricingTier } from '@/types/pricing';
 
 export default function Pricing() {
-  const [selectedTier, setSelectedTier] = useState<PricingTier['id']>('momentum');
-
   return (
     <div className="max-w-[1000px] mx-auto space-y-12">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Simple, transparent pricing</h1>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Revenue-based pricing that scales with you</h1>
         <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Choose the plan that best fits your business needs</p>
+          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Pay a percentage of your revenue. As you grow, your rate automatically decreases.</p>
         </div>
       </div>
 
-      <PricingTiers
-        selectedTier={selectedTier}
-        onTierSelect={setSelectedTier}
-      />
+      <PricingTiers />
 
       <div>
-        <PricingCalculator
-          selectedTier={selectedTier}
-          onTierSelect={setSelectedTier}
-        />
+        <PricingCalculator />
       </div>
 
       <div>
@@ -35,46 +26,46 @@ export default function Pricing() {
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                How does automatic tier adjustment work?
+                How does revenue-based pricing work?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Your pricing tier automatically adjusts based on your 30-day order volume. You'll always get the best rate for your volume without needing to manually change plans.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                What's included in the transaction fee?
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                The transaction fee is a percentage of your order value that covers payment processing, fraud prevention, and secure transaction handling. It scales with your tier level.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                Is there a monthly subscription fee?
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                No, there's no base monthly fee. You only pay for what you use through per-order fees and transaction fees. This makes our pricing completely usage-based and scalable.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                How is my tier determined?
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Your tier is determined by your rolling 30-day order volume. For example, if you process 300 orders in 30 days, you'll automatically qualify for the Momentum tier pricing.
+                You pay a small monthly base fee plus a percentage of your monthly revenue. As your revenue grows, you automatically move to a higher tier with a lower percentage rate, ensuring you always get the best value.
               </p>
             </div>
 
             <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                When do tier changes take effect?
+                When do I move to a different tier?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Tier changes happen automatically and take effect immediately. If your order volume increases or decreases, your pricing adjusts in real-time to match your current tier.
+                Tiers adjust automatically based on your monthly revenue. Once you cross a tier threshold, your pricing updates immediately for the next billing cycle. No manual upgrades needed.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                What counts as revenue?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Revenue is calculated as the total sales value from products managed through our platform. This is tracked automatically from your connected store or manual entries.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Is there a startup discount?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Yes! The Startup tier has no base fee - you only pay 3.5% of revenue up to $5k/month. Perfect for new businesses just getting started.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Can I downgrade if my revenue decreases?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Absolutely. Your tier automatically adjusts based on your actual revenue. If your revenue decreases, you'll move to a lower tier with reduced fees.
               </p>
             </div>
 
@@ -83,7 +74,7 @@ export default function Pricing() {
                 Are there any long-term commitments?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                No, our pricing is completely flexible with no long-term commitments. You can scale up or down based on your business needs, and you'll only pay for what you use.
+                No contracts or commitments. Pay month-to-month and cancel anytime. Our pricing is designed to grow with your business, not lock you in.
               </p>
             </div>
           </div>

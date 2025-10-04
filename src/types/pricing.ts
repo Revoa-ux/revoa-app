@@ -1,18 +1,18 @@
 export interface PricingTier {
   id: 'startup' | 'momentum' | 'scale' | 'enterprise';
   name: string;
-  orderRange: string;
-  perOrderFee: number;
-  transactionFee: number;
+  revenueRange: string;
+  revenueMin: number;
+  revenueMax: number;
+  baseFee: number;
+  percentageFee: number;
   features: string[];
 }
 
 export interface PricingCalculation {
-  orders: number;
-  avgOrderValue: number;
-  totalOrderValue: number;
-  perOrderFees: number;
-  transactionFees: number;
-  totalFees: number;
+  monthlyRevenue: number;
+  baseFee: number;
+  variableFee: number;
+  totalFee: number;
   effectiveFeePercentage: number;
 }

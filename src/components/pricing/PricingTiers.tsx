@@ -5,80 +5,175 @@ export const pricingTiers: PricingTier[] = [
   {
     id: 'startup',
     name: 'Startup',
-    orderRange: '1-100 orders/month',
-    perOrderFee: 2.00,
-    transactionFee: 3.5,
-    features: ['Basic support', 'Standard processing', 'Email notifications']
+    revenueRange: '$0-$5k/month',
+    revenueMin: 0,
+    revenueMax: 5000,
+    baseFee: 0,
+    percentageFee: 3.5,
+    features: [
+      'No base fee',
+      'Pay only 3.5% of revenue',
+      'Email support',
+      'Basic analytics',
+      'Product quoting'
+    ]
   },
   {
     id: 'momentum',
     name: 'Momentum',
-    orderRange: '101-500 orders/month',
-    perOrderFee: 1.50,
-    transactionFee: 3.0,
-    features: ['Priority support', 'Fast processing', 'SMS notifications', 'Analytics dashboard']
+    revenueRange: '$5k-$25k/month',
+    revenueMin: 5000,
+    revenueMax: 25000,
+    baseFee: 99,
+    percentageFee: 1.5,
+    features: [
+      '$99/month base fee',
+      'Only 1.5% of revenue',
+      'Priority support',
+      'Advanced analytics',
+      'API access',
+      'Custom integrations'
+    ]
   },
   {
     id: 'scale',
     name: 'Scale',
-    orderRange: '501-2000 orders/month',
-    perOrderFee: 1.00,
-    transactionFee: 2.5,
-    features: ['Dedicated support', 'Express processing', 'Advanced analytics', 'API access']
+    revenueRange: '$25k-$75k/month',
+    revenueMin: 25000,
+    revenueMax: 75000,
+    baseFee: 299,
+    percentageFee: 0.75,
+    features: [
+      '$299/month base fee',
+      'Only 0.75% of revenue',
+      'Dedicated account manager',
+      'Custom reporting',
+      'Volume discounts',
+      'Onboarding assistance'
+    ]
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    orderRange: '2000+ orders/month',
-    perOrderFee: 0.75,
-    transactionFee: 2.0,
-    features: ['24/7 support', 'Custom integration', 'White-label options', 'Custom SLA']
+    revenueRange: '$75k+/month',
+    revenueMin: 75000,
+    revenueMax: Infinity,
+    baseFee: 599,
+    percentageFee: 0.5,
+    features: [
+      '$599/month base fee',
+      'Only 0.5% of revenue',
+      '24/7 premium support',
+      'Custom SLA',
+      'White-label options',
+      'Dedicated infrastructure'
+    ]
   }
 ];
 
+export const getTierForRevenue = (monthlyRevenue: number): PricingTier => {
+  return pricingTiers.find(
+    tier => monthlyRevenue >= tier.revenueMin && monthlyRevenue < tier.revenueMax
+  ) || pricingTiers[pricingTiers.length - 1];
+};
+
+export const calculatePricing = (monthlyRevenue: number): {
+  tier: PricingTier;
+  baseFee: number;
+  variableFee: number;
+  totalFee: number;
+  effectiveFeePercentage: number;
+} => {
+  const tier = getTierForRevenue(monthlyRevenue);
+  const baseFee = tier.baseFee;
+  const variableFee = monthlyRevenue * (tier.percentageFee / 100);
+  const totalFee = baseFee + variableFee;
+  const effectiveFeePercentage = monthlyRevenue > 0 ? (totalFee / monthlyRevenue) * 100 : 0;
+
+  return {
+    tier,
+    baseFee,
+    variableFee,
+    totalFee,
+    effectiveFeePercentage
+  };
+};
+
 interface PricingTiersProps {
-  selectedTier: PricingTier['id'];
-  onTierSelect: (tier: PricingTier['id']) => void;
+  selectedTier?: PricingTier['id'];
+  onTierSelect?: (tier: PricingTier['id']) => void;
+  currentRevenue?: number;
 }
 
-export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTierSelect }) => {
+export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTierSelect, currentRevenue }) => {
+  const activeTier = currentRevenue !== undefined ? getTierForRevenue(currentRevenue) : null;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {pricingTiers.map((tier) => (
-        <div
-          key={tier.id}
-          onClick={() => onTierSelect(tier.id)}
-          className={`relative p-6 rounded-xl border-2 transition-all cursor-pointer ${
-            selectedTier === tier.id
-              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-              : 'border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700'
-          }`}
-        >
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-            {tier.name}
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            {tier.orderRange}
-          </p>
-          <div className="mb-4">
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">
-              ${tier.perOrderFee}
-              <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/order</span>
+      {pricingTiers.map((tier) => {
+        const isSelected = selectedTier === tier.id;
+        const isActive = activeTier?.id === tier.id;
+        const isClickable = onTierSelect !== undefined;
+
+        return (
+          <div
+            key={tier.id}
+            onClick={() => isClickable && onTierSelect?.(tier.id)}
+            className={`relative p-6 rounded-xl border-2 transition-all ${
+              isClickable ? 'cursor-pointer' : ''
+            } ${
+              isSelected || isActive
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+            }`}
+          >
+            {isActive && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  Current Tier
+                </span>
+              </div>
+            )}
+
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {tier.name}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              {tier.revenueRange}
+            </p>
+
+            <div className="mb-4">
+              {tier.baseFee > 0 ? (
+                <>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                    ${tier.baseFee}
+                    <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/mo</span>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    + {tier.percentageFee}% of revenue
+                  </div>
+                </>
+              ) : (
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {tier.percentageFee}%
+                  <div className="text-sm font-normal text-gray-600 dark:text-gray-400 mt-1">
+                    of revenue only
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              + {tier.transactionFee}% transaction fee
-            </div>
+
+            <ul className="space-y-2">
+              {tier.features.map((feature, index) => (
+                <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+                  <span className="text-blue-500 mr-2">✓</span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="space-y-2">
-            {tier.features.map((feature, index) => (
-              <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
-                <span className="text-primary-500 mr-2">✓</span>
-                {feature}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
