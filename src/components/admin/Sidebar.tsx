@@ -20,7 +20,7 @@ const navigation = [
   { name: 'User Management', href: '/admin/users', icon: Users },
   { name: 'Quote Requests', href: '/admin/quotes', icon: FileText },
   { name: 'Conversations', href: '/admin/chat', icon: MessageSquare },
-  { name: 'Product Portal', href: '/admin/products', icon: Package },
+  { name: 'Product Approvals', href: '/admin/products', icon: Package, superAdminOnly: true },
   { name: 'Bulk Invoices', href: '/admin/invoices', icon: FileText },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true },
   { name: 'Settings', href: '/admin/settings', icon: Settings }

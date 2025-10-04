@@ -13,6 +13,7 @@ import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
 import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
+import AdminProductApprovals from './pages/admin/ProductApprovals';
 // import AdminDashboard from './pages/admin/Dashboard';
 // import AdminUsers from './pages/admin/Users';
 // import AdminQuotes from './pages/admin/Quotes';
@@ -75,6 +76,7 @@ function App() {
               </ProtectedRoute>
             }>
               <Route path="chat" element={<AdminChat />} />
+              <Route path="products" element={<AdminProductApprovals />} />
               {/* Other admin routes - temporarily disabled
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
