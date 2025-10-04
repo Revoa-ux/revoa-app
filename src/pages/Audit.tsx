@@ -213,7 +213,8 @@ export default function Audit() {
 
   const getTimePeriodText = (time: TimeOption): string => {
     switch (time) {
-      case '24h': return 'Last 24 hours';
+      case 'today': return 'Today';
+      case 'yesterday': return 'Yesterday';
       case '7d': return 'Last 7 days';
       case '14d': return 'Last 14 days';
       case '30d': return 'Last 30 days';
