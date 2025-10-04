@@ -7,8 +7,10 @@ This API allows automated bulk import of products from AI agents or other system
 ## Endpoint
 
 ```
-POST /functions/v1/import-products
+POST https://0ec90b57d6e95fcbda19832f.supabase.co/functions/v1/import-products
 ```
+
+**Full URL:** `https://0ec90b57d6e95fcbda19832f.supabase.co/functions/v1/import-products`
 
 ## Authentication
 
@@ -130,7 +132,7 @@ Content-Type: application/json
 ### cURL Example
 
 ```bash
-curl -X POST 'https://your-project.supabase.co/functions/v1/import-products' \\
+curl -X POST 'https://0ec90b57d6e95fcbda19832f.supabase.co/functions/v1/import-products' \\
   -H 'Authorization: Bearer YOUR_JWT_TOKEN' \\
   -H 'Content-Type: application/json' \\
   -d '{
@@ -217,7 +219,7 @@ curl -X POST 'https://your-project.supabase.co/functions/v1/import-products' \\
 import requests
 import json
 
-SUPABASE_URL = "https://your-project.supabase.co"
+SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co"
 JWT_TOKEN = "your_jwt_token_here"
 
 headers = {
@@ -268,7 +270,7 @@ print(json.dumps(response.json(), indent=2))
 ### JavaScript/Node.js Example
 
 ```javascript
-const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_URL = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
 const JWT_TOKEN = 'your_jwt_token_here';
 
 const payload = {

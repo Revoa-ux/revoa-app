@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { 
+import React, { useState, useRef, useEffect } from 'react';
+import {
   Search, Filter, ChevronDown, Check, X, Package, ArrowUpDown, ArrowUp, ArrowDown,
   ChevronRight,
   ChevronLeft,
@@ -7,11 +7,13 @@ import {
   Plus,
   Minus,
   DollarSign,
-  Truck
+  Truck,
+  Loader2
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
+import { supabase } from '@/lib/supabase';
 
 type SortField = 'sales' | 'createdAt' | 'cost' | 'recommendedPrice' | 'margin';
 type SortDirection = 'asc' | 'desc';
@@ -54,9 +56,11 @@ interface Product {
 interface ProductDetailsModalProps {
   product: Product;
   onClose: () => void;
+  onAddToShopify: (product: Product) => void;
+  importing: boolean;
 }
 
-const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose }) => {
+const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onClose, onAddToShopify, importing }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVariantGroup, setSelectedVariantGroup] = useState<string | null>(
     product.variantGroups?.[0]?.name || null
@@ -248,13 +252,23 @@ const ProductDetailsModal: React.FC<ProductDetailsModalProps> = ({ product, onCl
             <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => {
-                  toast.success('Product added to store');
+                  onAddToShopify(product);
                   onClose();
                 }}
-                className="w-full px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-800 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors flex items-center justify-center"
+                disabled={importing}
+                className="w-full px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-800 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Add to Store
-                <ExternalLink className="w-4 h-4 ml-2" />
+                {importing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding to Store...
+                  </>
+                ) : (
+                  <>
+                    Add to Store
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -450,12 +464,129 @@ const Products: React.FC = () => {
     direction: 'desc'
   });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [importing, setImporting] = useState(false);
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
-  
+
   useClickOutside(categoryDropdownRef, () => setShowCategoryDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          images:product_images(*),
+          media:product_media(*),
+          creatives:product_creatives(*),
+          variants:product_variants(*)
+        `)
+        .eq('approval_status', 'approved')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const transformedProducts = (data || []).map(product => ({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        description: product.description,
+        image: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+        images: product.images?.map((img: any) => img.url) || [],
+        cost: product.supplier_price || 0,
+        recommendedPrice: product.recommended_retail_price || 0,
+        stock: 0,
+        sales: 0,
+        createdAt: product.created_at,
+        variantGroups: product.variants?.length > 0 ? [{
+          name: 'Variants',
+          variants: product.variants.map((v: any) => ({
+            id: v.id,
+            name: v.name,
+            sku: v.sku,
+            cost: v.item_cost,
+            recommendedPrice: v.recommended_price,
+            stock: 0
+          }))
+        }] : undefined
+      }));
+
+      setProducts(transformedProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
+      setProducts(mockProducts);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddToShopify = async (product: Product) => {
+    try {
+      setImporting(true);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to add products');
+        return;
+      }
+
+      const shopifyProduct = {
+        product: {
+          title: product.name,
+          body_html: product.description || '',
+          vendor: 'Revoa',
+          product_type: product.category,
+          variants: product.variantGroups?.[0]?.variants.map(v => ({
+            title: v.name,
+            price: v.recommendedPrice.toString(),
+            sku: v.sku,
+            inventory_management: 'shopify',
+            inventory_quantity: v.stock
+          })) || [{
+            title: 'Default',
+            price: product.recommendedPrice.toString(),
+            inventory_management: 'shopify',
+            inventory_quantity: product.stock
+          }],
+          images: product.images?.map(url => ({ src: url })) || []
+        }
+      };
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy?endpoint=/products.json`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(shopifyProduct)
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to add product to Shopify');
+      }
+
+      toast.success('Product added to your Shopify store!');
+    } catch (error) {
+      console.error('Error adding to Shopify:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add product');
+    } finally {
+      setImporting(false);
+    }
+  };
 
   const categories = ['All Categories', 'Electronics', 'Fashion', 'Home', 'Beauty'];
 
@@ -491,7 +622,9 @@ const Products: React.FC = () => {
     });
   };
 
-  const filteredProducts = mockProducts.filter(product => {
+  const displayProducts = products.length > 0 ? products : mockProducts;
+
+  const filteredProducts = displayProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All Categories' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -616,8 +749,18 @@ const Products: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {sortedProducts.map((product) => (
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+        </div>
+      ) : sortedProducts.length === 0 ? (
+        <div className="text-center py-12">
+          <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-gray-400">No products found</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {sortedProducts.map((product) => (
           <div
             key={product.id}
             className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200"
@@ -662,16 +805,7 @@ const Products: React.FC = () => {
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {sortedProducts.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-            <Package className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No products found</h3>
-          <p className="text-gray-500 dark:text-gray-400">Try adjusting your filters or search term</p>
+          ))}
         </div>
       )}
 
@@ -679,6 +813,8 @@ const Products: React.FC = () => {
         <ProductDetailsModal
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
+          onAddToShopify={handleAddToShopify}
+          importing={importing}
         />
       )}
     </div>
