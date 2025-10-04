@@ -27,7 +27,7 @@ export const pricingTiers: PricingTier[] = [
     features: [
       'Priority support',
       'Lower revenue share',
-      'Access to exclusive community'
+      'Access to our exclusive community'
     ]
   },
   {
@@ -39,7 +39,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 299,
     percentageFee: 0.75,
     features: [
-      'Even lower revenue share',
       'Dedicated 7-8 figure ecommerce coach',
       'Access to our CRO and Ad Specialists'
     ]
