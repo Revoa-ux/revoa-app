@@ -11,9 +11,10 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 0,
     percentageFee: 3.5,
     features: [
+      '3.5% of revenue',
       'Email support',
-      'Basic analytics',
-      'Product quoting'
+      'No subscription fee',
+      'All features'
     ]
   },
   {
@@ -26,9 +27,8 @@ export const pricingTiers: PricingTier[] = [
     percentageFee: 1.5,
     features: [
       'Priority support',
-      'Advanced analytics',
-      'API access',
-      'Custom integrations'
+      'Lower revenue share',
+      'Access to exclusive community'
     ]
   },
   {
@@ -40,10 +40,9 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 299,
     percentageFee: 0.75,
     features: [
-      'Dedicated account manager',
-      'Custom reporting',
-      'Volume discounts',
-      'Onboarding assistance'
+      'Even lower revenue share',
+      'Dedicated 7-8 figure ecommerce coach',
+      'Access to our CRO and Ad Specialists'
     ]
   },
   {
@@ -55,10 +54,9 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 599,
     percentageFee: 0.5,
     features: [
-      '24/7 premium support',
-      'Custom SLA',
-      'White-label options',
-      'Dedicated infrastructure'
+      'Custom packaging',
+      'Store inventory in our warehouse for free',
+      'Advanced supply-chain logistics'
     ]
   }
 ];
