@@ -11,7 +11,7 @@ import {
   Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { TopUpModal } from '../components/balance/TopUpModal';
+import { StripeTopUpModal } from '../components/balance/StripeTopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
 import { BankTransferModal } from '../components/balance/BankTransferModal';  
 import { InvoiceTable } from '@/components/balance/InvoiceTable';
@@ -51,7 +51,7 @@ interface Transaction {
 
 export default function Balance() {
   const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
-  const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [showStripeTopUpModal, setShowStripeTopUpModal] = useState(false);
   const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);  
   const [searchTerm, setSearchTerm] = useState('');  
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');  
@@ -180,18 +180,6 @@ export default function Balance() {
     }
   };
 
-  const handleTopUp = async (amount: number, method: string) => {
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast.success('Balance topped up successfully', {
-        description: `Added $${amount.toLocaleString()} via ${method.replace('_', ' ')}`
-      });
-    } catch (error) {
-      toast.error('Failed to top up balance');
-      throw error;
-    }
-  };
 
   const handleAutoTopUpSave = async (config: { enabled: boolean; threshold: number; amount: number }) => {
     try {
@@ -208,8 +196,8 @@ export default function Balance() {
     }
   };
 
-  const handlePaymentMethodClick = () => {
-    setShowTopUpModal(true);
+  const handleStripeClick = () => {
+    setShowStripeTopUpModal(true);
   };
 
   const filteredInvoices = invoices.filter(invoice => {
@@ -278,7 +266,7 @@ export default function Balance() {
           </div>
           <div className="flex space-x-3">
             <button
-              onClick={() => setShowTopUpModal(true)}
+              onClick={() => setShowStripeTopUpModal(true)}
               className="flex-1 px-4 py-2 text-white rounded-lg transition-colors flex items-center justify-center bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -309,7 +297,7 @@ export default function Balance() {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Add funds to your balance using Stripe or bank transfer</p>
         <div className="grid grid-cols-2 gap-4">
           <button
-            onClick={handlePaymentMethodClick}
+            onClick={handleStripeClick}
             className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
           >
             <div className="flex flex-col items-center text-center space-y-3">
@@ -518,10 +506,9 @@ export default function Balance() {
         <TransactionTable data={filteredTransactions} />
       </div>
 
-      {showTopUpModal && (
-        <TopUpModal
-          onClose={() => setShowTopUpModal(false)}
-          onTopUp={handleTopUp}
+      {showStripeTopUpModal && (
+        <StripeTopUpModal
+          onClose={() => setShowStripeTopUpModal(false)}
         />
       )}
 
