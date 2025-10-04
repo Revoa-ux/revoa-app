@@ -27,8 +27,9 @@ interface Column {
   render?: (value: any, item: any) => React.ReactNode;
 }
 
-export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({ 
-  creatives = []
+export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
+  creatives = [],
+  searchTerm = ''
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
