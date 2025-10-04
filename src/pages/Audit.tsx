@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { AlertTriangle, Facebook, Brain, ChevronDown,
-  RefreshCw
+  RefreshCw, Music2
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import PerformanceOverview from '@/components/reports/PerformanceOverview';
@@ -184,7 +184,6 @@ export default function Audit() {
     endDate: new Date()
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
@@ -295,7 +294,7 @@ export default function Audit() {
                   onClick={() => handleConnectPlatform('tiktok')}
                   className="px-4 py-2 text-sm text-white bg-black rounded-lg hover:bg-black/90 transition-colors flex items-center whitespace-nowrap"
                 >
-                  <BrandTiktok className="w-4 h-4 mr-2" />
+                  <Music2 className="w-4 h-4 mr-2" />
                   Connect TikTok
                 </button>
               )}
@@ -307,7 +306,7 @@ export default function Audit() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <PerformanceOverview metrics={performanceData} />
+            <PerformanceOverview metrics={mockPerformanceMetrics} />
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
