@@ -11,7 +11,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 0,
     percentageFee: 3.5,
     features: [
-      '3.5% of revenue',
       'Email support',
       'No subscription fee',
       'All features'
@@ -150,7 +149,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
                     <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/month</span>
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    + {tier.percentageFee}% revenue fee
+                    + {tier.percentageFee}% of revenue
                   </div>
                 </>
               )}
