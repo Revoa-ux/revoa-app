@@ -52,8 +52,8 @@ export const PricingCalculator: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-        <p className="text-sm text-red-800 dark:text-red-200">
+      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
           Based on ${monthlyRevenue.toLocaleString()} monthly revenue, you're in the <strong>{pricing.tier.name}</strong> tier
         </p>
       </div>

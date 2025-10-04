@@ -11,8 +11,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 0,
     percentageFee: 3.5,
     features: [
-      'No base fee',
-      'Pay only 3.5% of revenue',
       'Email support',
       'Basic analytics',
       'Product quoting'
@@ -27,8 +25,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 99,
     percentageFee: 1.5,
     features: [
-      '$99/month base fee',
-      'Only 1.5% of revenue',
       'Priority support',
       'Advanced analytics',
       'API access',
@@ -44,8 +40,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 299,
     percentageFee: 0.75,
     features: [
-      '$299/month base fee',
-      'Only 0.75% of revenue',
       'Dedicated account manager',
       'Custom reporting',
       'Volume discounts',
@@ -61,8 +55,6 @@ export const pricingTiers: PricingTier[] = [
     baseFee: 599,
     percentageFee: 0.5,
     features: [
-      '$599/month base fee',
-      'Only 0.5% of revenue',
       '24/7 premium support',
       'Custom SLA',
       'White-label options',
