@@ -81,7 +81,7 @@ export const stripeConnectService = {
         .insert({
           name: supplier.name,
           email: supplier.email,
-          commission_rate: supplier.commission_rate || 3.00,
+          commission_rate: supplier.commission_rate || 2.00,
         })
         .select()
         .single();

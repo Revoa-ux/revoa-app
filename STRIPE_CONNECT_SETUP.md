@@ -1,15 +1,22 @@
 # Stripe Connect Setup Guide
 
-This guide will help you set up Stripe Connect for your marketplace platform with automatic 3% commission.
+This guide will help you set up Stripe Connect for your marketplace platform with automatic 2% commission.
 
 ## Overview
 
 Your marketplace uses **Stripe Connect** to process payments. Here's how it works:
 
 - **Supplier** receives payments directly to their Stripe account
-- **Platform** (you) automatically collects 3% commission on each transaction
+- **Platform** (you) automatically collects 2% commission on each transaction
 - **Supplier** is responsible for sales tax (they are the merchant of record)
-- **You** are only liable for taxes on your 3% service fee
+- **You** are only liable for taxes on your 2% service fee
+
+## Why 2%?
+
+The 2% commission is calculated to account for the supplier's business model:
+- Supplier marks up products by 10% (that's their profit margin)
+- Platform takes 2% of the total transaction
+- This leaves the supplier with ~8% net profit after covering their expenses
 
 ## Prerequisites
 
@@ -63,7 +70,7 @@ STRIPE_PUBLISHABLE_KEY=pk_test_...
 4. Fill in the supplier details:
    - Business Name
    - Email Address
-   - Commission Rate (default: 3%)
+   - Commission Rate (default: 2%)
 5. Click **Create Supplier**
 
 ## Step 5: Connect Supplier to Stripe
@@ -96,26 +103,28 @@ Products will automatically be linked to your first supplier. If you need to cha
 
 1. Payment Intent is created with:
    - **Total Amount**: $100 (example)
-   - **Platform Fee**: $3 (3% of $100)
-   - **Supplier Amount**: $97 (remaining after fee)
+   - **Platform Fee**: $2 (2% of $100)
+   - **Supplier Amount**: $98 (remaining after fee)
 
 2. Stripe processes the payment:
    - Customer is charged $100
-   - $97 goes to supplier's Stripe account
-   - $3 goes to your platform's Stripe account
+   - $98 goes to supplier's Stripe account
+   - $2 goes to your platform's Stripe account
 
 3. Transaction is recorded in your database with all details
 
 ### For Suppliers:
 
-- Receives 97% of each transaction
+- Receives 98% of each transaction
+- Marks up products by ~10% to cover costs and profit
+- Net profit: ~8% after platform fee
 - Stripe handles payouts to their bank account
 - Responsible for their own sales tax obligations
 - Can view their earnings in Stripe Dashboard
 
 ### For You (Platform):
 
-- Automatically receives 3% of each transaction
+- Automatically receives 2% of each transaction
 - No liability for product sales tax
 - Can view all transactions in admin dashboard
 - Minimal payment processing responsibility
@@ -126,7 +135,7 @@ Products will automatically be linked to your first supplier. If you need to cha
 
 - **Supplier** is the merchant of record
 - **Supplier** handles all sales tax collection and remittance
-- **You** only need to handle taxes on your 3% service fee (if applicable)
+- **You** only need to handle taxes on your 2% service fee (if applicable)
 - This varies by state/location - consult a tax professional
 
 ## Testing
@@ -208,8 +217,9 @@ Before processing real payments:
 
 Your marketplace is now set up to:
 - ✅ Process payments securely through Stripe
-- ✅ Automatically collect 3% commission
-- ✅ Transfer 97% to suppliers
+- ✅ Automatically collect 2% commission
+- ✅ Transfer 98% to suppliers
+- ✅ Account for supplier's 10% markup and expenses
 - ✅ Minimize sales tax liability
 - ✅ Track all transactions
 - ✅ Provide supplier payment transparency

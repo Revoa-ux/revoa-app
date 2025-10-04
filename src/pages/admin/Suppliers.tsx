@@ -331,10 +331,10 @@ export default function Suppliers() {
                 step="0.01"
                 min="0"
                 max="100"
-                defaultValue="3.00"
+                defaultValue="2.00"
                 required
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="3.00"
+                placeholder="2.00"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 The percentage you'll earn from each transaction with this supplier

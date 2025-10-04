@@ -221,7 +221,7 @@ export function CheckoutModal({ isOpen, onClose, product }: CheckoutModalProps) 
 
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3">
             <p className="text-xs text-blue-800 dark:text-blue-400">
-              <strong>Note:</strong> Payment goes directly to the supplier. We automatically collect a 3% platform fee. The supplier is responsible for all sales tax obligations.
+              <strong>Note:</strong> Payment goes directly to the supplier. We automatically collect a 2% platform fee. The supplier is responsible for all sales tax obligations.
             </p>
           </div>
 
