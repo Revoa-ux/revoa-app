@@ -2,22 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus,
   Bell,
-  Clock,
   ChevronDown,
   Check,
   Search,
   Filter,
   X,
   CreditCard,
-  Building2,
-  Banknote
+  Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { TopUpModal } from '../components/balance/TopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
-import { BankTransferModal } from '../components/balance/BankTransferModal';
-import { AddPaymentMethodModal } from '@/components/payments/AddPaymentMethodModal';
-import { PaymentMethod, getPaymentMethods } from '@/lib/stripe';  
+import { BankTransferModal } from '../components/balance/BankTransferModal';  
 import { InvoiceTable } from '@/components/balance/InvoiceTable';
 import { TransactionTable } from '@/components/balance/TransactionTable';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -29,12 +25,6 @@ interface BankDetails {
   routingNumber: string;
   bankName: string;
   swiftCode: string;
-}
-
-interface AutoTopUpConfig {
-  enabled: boolean;
-  threshold: number;
-  amount: number;
 }
 
 interface Invoice {
@@ -62,11 +52,7 @@ interface Transaction {
 export default function Balance() {
   const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
-  const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);
-  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<'card' | 'paypal' | null>(null);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);  
-  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(true);  
+  const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);  
   const [searchTerm, setSearchTerm] = useState('');  
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');  
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
@@ -194,22 +180,6 @@ export default function Balance() {
     }
   };
 
-  useEffect(() => {
-    loadPaymentMethods();
-  }, []);
-
-  const loadPaymentMethods = async () => {
-    try {
-      setLoadingPaymentMethods(true);
-      const data = await getPaymentMethods('customer_id');
-      setPaymentMethods(data.methods);
-    } catch (error) {
-      console.error('Error fetching payment methods:', error);
-    } finally {
-      setLoadingPaymentMethods(false);
-    }
-  };
-
   const handleTopUp = async (amount: number, method: string) => {
     try {
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -238,9 +208,8 @@ export default function Balance() {
     }
   };
 
-  const handlePaymentMethodClick = (type: 'credit_card' | 'paypal') => {
-    setSelectedPaymentType(type === 'credit_card' ? 'card' : 'paypal');
-    setShowAddPaymentModal(true);
+  const handlePaymentMethodClick = () => {
+    setShowTopUpModal(true);
   };
 
   const filteredInvoices = invoices.filter(invoice => {
@@ -337,95 +306,37 @@ export default function Balance() {
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Payment Methods</h2>
-        <div className="grid grid-cols-4 gap-4">
-          <button 
-            onClick={() => {
-              setSelectedPaymentType(null);
-              setShowAddPaymentModal(true);
-            }}
-            className="p-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 transition-colors group focus:outline-none"
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Add funds to your balance using Stripe or bank transfer</p>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            onClick={handlePaymentMethodClick}
+            className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
           >
-            <div className="flex flex-col h-[88px] justify-between">
-              <div className="flex items-center justify-between w-full">
-                <Plus className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                <CreditCard className="w-6 h-6 text-gray-900 dark:text-white" />
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Add New</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Connect payment method</p>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Pay with Stripe</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Cards, Apple Pay, Google Pay</p>
               </div>
             </div>
           </button>
 
-          {loadingPaymentMethods ? (
-            <div className="col-span-3 flex items-center justify-center">
-              <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                <Clock className="w-5 h-5 animate-spin" />
-                <span>Loading payment methods...</span>
+          <button
+            onClick={() => setExpandedPaymentMethod('bank')}
+            className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
+          >
+            <div className="flex flex-col items-center text-center space-y-3">
+              <div className="p-3 bg-white dark:bg-gray-600 rounded-lg">
+                <Building2 className="w-6 h-6 text-gray-900 dark:text-white" />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Via Wise (1-3 business days)</p>
               </div>
             </div>
-          ) : (
-            <>
-              <button 
-                onClick={() => handlePaymentMethodClick('credit_card')}
-                className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
-              >
-                <div className="flex flex-col h-[88px] justify-between">
-                  <div className="flex items-center justify-between w-full">
-                    <CreditCard className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                    {paymentMethods.some(m => m.type === 'card') && (
-                      <Check className="w-4 h-4 text-primary-500" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">Credit Card</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {paymentMethods.some(m => m.type === 'card')
-                        ? `${paymentMethods.find(m => m.type === 'card')?.brand} ****${paymentMethods.find(m => m.type === 'card')?.last4}`
-                        : 'Add a credit card'}
-                    </p>
-                  </div>
-                </div>
-              </button>
-
-              <button 
-                onClick={() => setExpandedPaymentMethod('bank')}
-                className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
-              >
-                <div className="flex flex-col h-[88px] justify-between">
-                  <div className="flex items-center justify-between w-full">
-                    <Building2 className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                    <Check className="w-4 h-4 text-primary-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">Bank Transfer</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Wise link</p>
-                  </div>
-                </div>
-              </button>
-
-              <button 
-                onClick={() => handlePaymentMethodClick('paypal')}
-                className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors group focus:outline-none"
-              >
-                <div className="flex flex-col h-[88px] justify-between">
-                  <div className="flex items-center justify-between w-full">
-                    <Banknote className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                    {paymentMethods.some(m => m.type === 'paypal') && (
-                      <Check className="w-4 h-4 text-primary-500" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">PayPal</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {paymentMethods.some(m => m.type === 'paypal')
-                        ? paymentMethods.find(m => m.type === 'paypal')?.billingDetails?.email
-                        : '2.9% + $0.30 fee'}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </>
-          )}
+          </button>
         </div>
       </div>
 
@@ -625,15 +536,6 @@ export default function Balance() {
         <BankTransferModal
           onClose={() => setExpandedPaymentMethod(null)}
           bankDetails={bankDetails}
-        />
-      )}
-
-      {showAddPaymentModal && (
-        <AddPaymentMethodModal
-          onClose={() => {
-            setShowAddPaymentModal(false);
-            setSelectedPaymentType(null);
-          }}
         />
       )}
     </div>
