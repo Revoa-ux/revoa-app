@@ -11,6 +11,7 @@ import {
   Building2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useSearchParams } from 'react-router-dom';
 import { StripeTopUpModal } from '../components/balance/StripeTopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
 import { BankTransferModal } from '../components/balance/BankTransferModal';  
@@ -50,6 +51,7 @@ interface Transaction {
 }
 
 export default function Balance() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [expandedPaymentMethod, setExpandedPaymentMethod] = useState<string | null>(null);
   const [showStripeTopUpModal, setShowStripeTopUpModal] = useState(false);
   const [showAutoTopUpModal, setShowAutoTopUpModal] = useState(false);  
@@ -65,6 +67,23 @@ export default function Balance() {
   
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
   useClickOutside(typeDropdownRef, () => setShowTypeDropdown(false));
+
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+
+    if (success === 'true') {
+      toast.success('Payment successful!', {
+        description: 'Your balance has been topped up.'
+      });
+      setSearchParams({});
+    } else if (canceled === 'true') {
+      toast.error('Payment canceled', {
+        description: 'Your payment was canceled. No charges were made.'
+      });
+      setSearchParams({});
+    }
+  }, [searchParams, setSearchParams]);
 
   const [invoices, setInvoices] = useState<Invoice[]>([  
     {

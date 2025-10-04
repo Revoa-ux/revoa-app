@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, CreditCard, AlertTriangle, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { supabase } from '@/lib/supabase';
 
 interface StripeTopUpModalProps {
   onClose: () => void;
@@ -45,13 +45,39 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
 
     try {
       setLoading(true);
-      toast.info('Redirecting to Stripe Checkout...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // TODO: Replace with actual Stripe Checkout URL generation
-      window.location.href = `https://checkout.stripe.com/pay/cs_test_example?amount=${numAmount}`;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setError('Please log in to continue');
+        setLoading(false);
+        return;
+      }
+
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout-session`;
+
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ amount: numAmount }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      if (!data.url) {
+        throw new Error('No checkout URL received');
+      }
+
+      window.location.href = data.url;
     } catch (error) {
-      setError('Failed to initiate payment. Please try again.');
+      console.error('Error creating checkout session:', error);
+      setError(error instanceof Error ? error.message : 'Failed to initiate payment. Please try again.');
       setLoading(false);
     }
   };
