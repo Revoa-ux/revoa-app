@@ -323,15 +323,15 @@ export default function Audit() {
             <h2 className="text-lg font-medium text-gray-900 dark:text-white">Account Overview</h2>
           </div>
           <PerformanceScore scores={mockScores} />
-
-          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <OptimizationPriorities priorities={mockPriorities} />
-          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <TotalScore {...mockTotalScore} />
         </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <OptimizationPriorities priorities={mockPriorities} />
       </div>
     </div>
   );
