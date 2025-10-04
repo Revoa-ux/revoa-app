@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Facebook, 
-  Search, 
-  AlertTriangle, 
-  X, 
-  ChevronDown, 
+import {
+  Facebook,
+  Search,
+  AlertTriangle,
+  X,
+  ChevronDown,
   Check,
-  Brain,
   GitBranch as BrandTiktok,
   RefreshCw
 } from 'lucide-react';
@@ -306,64 +305,33 @@ export default function Audit() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <PerformanceOverview metrics={performanceData} />
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <div className="mb-6">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Account Overview</h2>
-            </div>
-            <PerformanceScore scores={mockScores} />
-            
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <OptimizationPriorities priorities={mockPriorities} />
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <TotalScore {...mockTotalScore} />
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-between group">
-                <div className="flex items-center">
-                  <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                  <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">Run AI Analysis</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              </button>
-              <button className="w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-between group">
-                <div className="flex items-center">
-                  <Brain className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                  <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">View Full Report</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              </button>
-              <button className="w-full px-4 py-3 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors flex items-center justify-between group">
-                <div className="flex items-center">
-                  <AlertTriangle className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400" />
-                  <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">View Issues</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <PerformanceOverview metrics={performanceData} />
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <CreativeAnalysis 
-          creatives={mockCreatives} 
+        <CreativeAnalysis
+          creatives={mockCreatives}
           selectedTime={selectedTime}
-          onTimeChange={handleTimeChange} 
+          onTimeChange={handleTimeChange}
         />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Account Overview</h2>
+          </div>
+          <PerformanceScore scores={mockScores} />
+
+          <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <OptimizationPriorities priorities={mockPriorities} />
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <TotalScore {...mockTotalScore} />
+        </div>
       </div>
     </div>
   );
