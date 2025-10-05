@@ -4,7 +4,7 @@ import AdminSidebar from './Sidebar';
 
 export default function AdminLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebar />
       <div className="flex-1 pl-[280px]">
         <div className="max-w-[1050px] mx-auto p-6">

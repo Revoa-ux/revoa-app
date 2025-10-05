@@ -75,18 +75,18 @@ function App() {
                 <AdminLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/admin/chat" replace />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
-              <Route path="*" element={<Navigate to="/admin/chat" replace />} />
               {/* Other admin routes - temporarily disabled
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
+              <Route path="products" element={<AdminProducts />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
-              */}
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} /> */}
             </Route>
 
             {/* Regular auth routes */}
