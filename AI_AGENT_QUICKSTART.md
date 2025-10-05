@@ -1,295 +1,245 @@
-# AI Agent Quick Start - ZERO MANUAL STEPS
+# AI Agent Quick Start - READY TO USE!
 
-## 📦 Asset Hosting: TWO OPTIONS
+## What's Ready
 
-### Option A: Upload to Supabase (Recommended)
-Upload local files to Supabase Storage bucket `product-assets` using the `upload_image()` function. It returns the public URL automatically.
+I've created a complete Python import script that's ready for your AI agent to use. Everything is configured and ready to go!
 
-### Option B: Use External URLs
-If you already have images/videos hosted elsewhere (e.g., your own CDN), just use those URLs directly in the product data.
+## Files Created
 
-**No other setup needed - both options work out of the box!**
+1. **`ai_agent_import.py`** - The import script (fully configured)
+2. **`FOR_AI_AGENT.md`** - Instructions for your AI agent
+3. **`SUMMARY_FOR_YOU.md`** - Quick reference for you
 
----
+## Before You Start
 
-## 🤖 Option 1: Fully Automated (Recommended)
+### Check if tyler@revoa.app Exists
 
-Just copy this ENTIRE message and paste to your AI agent:
+**Option 1: Check in Supabase Dashboard**
+1. Go to https://supabase.com/dashboard
+2. Select your project (0ec90b57d6e95fcbda19832f)
+3. Go to Authentication → Users
+4. Search for `tyler@revoa.app`
 
----
-
-I need you to import products to my Revoa app. You'll need to log in first to get the auth token.
-
-**Asset Hosting:** All images/GIFs/videos are uploaded to the Supabase Storage bucket `product-assets`. Use the `upload_image()` function below to upload any local files. The function returns the public URL to use in product data.
-
-**Login to get token automatically:**
-
-```python
-import requests
-import json
-
-# Step 1: Login to get auth token
-def login_and_get_token(email, password):
-    """Login and return auth token"""
-    url = "https://0ec90b57d6e95fcbda19832f.supabase.co/auth/v1/token?grant_type=password"
-    headers = {
-        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw",
-        "Content-Type": "application/json"
-    }
-    payload = {"email": email, "password": password}
-    response = requests.post(url, headers=headers, json=payload)
-    data = response.json()
-    return data["access_token"]
-
-# Your admin credentials
-ADMIN_EMAIL = "your-email@example.com"  # REPLACE THIS
-ADMIN_PASSWORD = "your-password"  # REPLACE THIS
-
-# Get token automatically
-ADMIN_TOKEN = login_and_get_token(ADMIN_EMAIL, ADMIN_PASSWORD)
-print(f"✓ Logged in successfully!")
-
-# Now use the token for all operations
-SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co"
-ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw"
-
-# Upload image/video to Supabase Storage
-def upload_image(file_path, filename):
-    """Upload a file and return its public URL"""
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        headers = {
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "apikey": ANON_KEY
-        }
-        response = requests.post(
-            f"{SUPABASE_URL}/storage/v1/object/product-assets/{filename}",
-            files=files,
-            headers=headers
-        )
-        result = response.json()
-        if response.status_code == 200:
-            # Return the public URL
-            public_url = f"{SUPABASE_URL}/storage/v1/object/public/product-assets/{filename}"
-            print(f"✓ Uploaded: {public_url}")
-            return public_url
-        else:
-            print(f"✗ Upload failed: {result}")
-            return None
-
-# Import products function
-def import_products(products_data):
-    headers = {
-        "Authorization": f"Bearer {ADMIN_TOKEN}",
-        "apikey": ANON_KEY,
-        "Content-Type": "application/json"
-    }
-    payload = {"source": "ai_agent", "products": products_data}
-    response = requests.post(
-        f"{SUPABASE_URL}/functions/v1/import-products",
-        headers=headers,
-        json=payload
-    )
-    return response.json()
-
-# EXAMPLE WORKFLOW: Upload images then import product
-
-# Step 1: Upload local images/videos to get URLs
-main_image_url = upload_image("earbuds-main.jpg", "earbuds-main.jpg")
-video_url = upload_image("earbuds-demo.mp4", "earbuds-demo.mp4")
-
-# Step 2: Create product with the uploaded URLs
-product = {
-    "name": "Premium Wireless Earbuds",
-    "description": "High-quality wireless earbuds with noise cancellation",
-    "category": "Electronics",
-    "supplier_price": 45.00,
-    "recommended_retail_price": 89.99,
-    "images": [
-        {
-            "url": main_image_url,  # Use uploaded URL
-            "type": "main",
-            "display_order": 0
-        }
-    ],
-    "creatives": [
-        {
-            "type": "reel",
-            "url": video_url,  # Use uploaded URL
-            "platform": "tiktok",
-            "is_inspiration": True,
-            "description": "Product demo video"
-        }
-    ]
-}
-
-# Step 3: Import the product
-result = import_products([product])
-print(json.dumps(result, indent=2))
-```
-
-**Just replace these 2 lines with your admin credentials:**
-- `ADMIN_EMAIL = "your-email@example.com"`
-- `ADMIN_PASSWORD = "your-password"`
-
-Everything else is automatic!
-
----
-
-## 🔑 Option 2: Manual Token (if you prefer)
-
-### Step 1: Get Your Token (10 seconds)
-
+**Option 2: Try to Login**
 1. Go to https://members.revoa.app
-2. Log in with admin account
-3. Click **Settings** in sidebar
-4. Scroll to **Developer** section
-5. Click eye icon → Click copy icon
+2. Try logging in with:
+   - Email: tyler@revoa.app
+   - Password: RevoaAI17
 
-### Step 2: Use This Code
+### If tyler@revoa.app Doesn't Exist
 
+**Create it via Supabase Dashboard:**
+
+1. Go to your Supabase Dashboard
+2. Authentication → Users → Add User
+3. Fill in:
+   - Email: `tyler@revoa.app`
+   - Password: `RevoaAI17`
+   - Auto-confirm email: ✅ (check this)
+4. Click "Create User"
+
+**Then set admin permissions:**
+
+1. Go to Table Editor → `user_profiles`
+2. Find the row where `user_id` matches tyler's UUID
+3. Set these columns:
+   - `is_admin`: `true`
+   - `admin_role`: `super_admin` (or `admin`)
+4. Click Save
+
+### If No user_profiles Row Exists
+
+If there's no row in user_profiles for tyler:
+
+1. Get tyler's user UUID from auth.users
+2. In Table Editor → user_profiles → Insert Row
+3. Fill in:
+   - `user_id`: [tyler's UUID from auth.users]
+   - `email`: `tyler@revoa.app`
+   - `is_admin`: `true`
+   - `admin_role`: `super_admin`
+4. Click Insert
+
+## How to Use
+
+### Option A: Run It Yourself (Local Machine)
+
+```bash
+# Make sure you have Python 3 and requests library
+pip install requests
+
+# Run the script
+python ai_agent_import.py
+```
+
+Expected output:
+```
+============================================================
+🤖 Revoa AI Agent - Product Import Tool
+============================================================
+🔐 Logging in as tyler@revoa.app...
+✅ Login successful!
+
+📦 Importing 3 products...
+
+✅ Import completed!
+   Total: 3
+   Successful: 3
+   Failed: 0
+
+📋 Product IDs created:
+   - abc123-def456-...
+   - xyz789-uvw012-...
+   - mno345-pqr678-...
+
+🎉 Success! Products are now pending approval.
+📍 Review at: https://members.revoa.app/admin/products
+```
+
+### Option B: Give to AI Agent
+
+**Copy this message and send to your AI agent:**
+
+---
+
+Hi! I have a Python script ready for you to import products into my Revoa platform.
+
+**What you need to do:**
+
+1. The script file is `ai_agent_import.py` (I'll share the contents below)
+2. Run it in your Python environment
+3. Report back the results
+
+**Requirements:**
+- Python 3.7+
+- `requests` library (install with `pip install requests`)
+
+**The script is fully configured with:**
+- Admin credentials: tyler@revoa.app / RevoaAI17
+- 3 pilot products pre-loaded
+- Automatic login and import
+
+Just run: `python ai_agent_import.py`
+
+**Script contents:**
 ```python
-import requests
-import json
-
-SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co"
-ADMIN_TOKEN = "PASTE_YOUR_TOKEN_HERE"  # Replace with copied token
-ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw"
-
-def upload_image(file_path, filename):
-    with open(file_path, 'rb') as f:
-        files = {'file': f}
-        headers = {
-            "Authorization": f"Bearer {ADMIN_TOKEN}",
-            "apikey": ANON_KEY
-        }
-        response = requests.post(
-            f"{SUPABASE_URL}/storage/v1/object/product-assets/{filename}",
-            files=files,
-            headers=headers
-        )
-    return response.json()
-
-def import_products(products_data):
-    headers = {
-        "Authorization": f"Bearer {ADMIN_TOKEN}",
-        "apikey": ANON_KEY,
-        "Content-Type": "application/json"
-    }
-    payload = {"source": "ai_agent", "products": products_data}
-    response = requests.post(
-        f"{SUPABASE_URL}/functions/v1/import-products",
-        headers=headers,
-        json=payload
-    )
-    return response.json()
+[Copy the contents of ai_agent_import.py here]
 ```
 
----
+After you run it, report back:
+- ✅ How many products imported successfully
+- ❌ Any errors that occurred
+- 📋 The product IDs created
 
-## 📦 Product Structure
-
-**MINIMAL (required only):**
-```json
-{
-  "name": "Product Name",
-  "category": "Electronics",
-  "supplier_price": 45.00,
-  "recommended_retail_price": 89.99
-}
-```
-
-**FULL (all fields):**
-```json
-{
-  "name": "Product Name",
-  "description": "Description here",
-  "category": "Electronics",
-  "supplier_price": 45.00,
-  "recommended_retail_price": 89.99,
-  "external_id": "unique-id",
-  "images": [
-    {
-      "url": "https://example.com/image.jpg",
-      "type": "main",
-      "display_order": 0,
-      "alt_text": "Alt text"
-    }
-  ],
-  "media": [
-    {
-      "url": "https://example.com/video.mp4",
-      "thumbnail_url": "https://example.com/thumb.jpg",
-      "type": "video",
-      "description": "Video description",
-      "duration_seconds": 30
-    }
-  ],
-  "creatives": [
-    {
-      "type": "reel",
-      "url": "https://example.com/tiktok.mp4",
-      "thumbnail_url": "https://example.com/thumb.jpg",
-      "platform": "tiktok",
-      "headline": "Headline text",
-      "description": "Description",
-      "ad_copy": "Ad copy text",
-      "cta_text": "Shop Now",
-      "is_inspiration": true,
-      "performance_score": 0.85
-    }
-  ],
-  "variants": [
-    {
-      "name": "Black",
-      "sku": "SKU-001",
-      "item_cost": 45.00,
-      "shipping_cost": 5.00,
-      "recommended_price": 89.99,
-      "images": ["https://example.com/black.jpg"]
-    }
-  ]
-}
-```
+Once imported, I'll review and approve them in the admin panel!
 
 ---
 
-## 🎯 Important Rules
+## After Import
 
-- Products require super admin approval before users see them
-- Use `external_id` to prevent duplicate imports
-- All image/video URLs must be publicly accessible
-- Set `is_inspiration: true` for inspiration content
-- Set `is_inspiration: false` for ready-to-use ads
+1. **Check Admin Panel**
+   - Go to https://members.revoa.app/admin/products
+   - You should see 3 products with "pending" status
+
+2. **Review Products**
+   - Solar Step Lights ($9.80 → $29.40)
+   - Draft Stopper ($6.50 → $19.50)
+   - Resistance Bands ($11.00 → $33.00)
+
+3. **Approve Them**
+   - Click on each product
+   - Review the details
+   - Click "Approve" (green checkmark)
+
+4. **Verify in Catalog**
+   - Go to https://members.revoa.app/products
+   - Products should now be visible to all users
+
+## What the AI Agent Does Next
+
+After this pilot succeeds, the AI agent can:
+
+1. **Upload Real Assets**
+   - Download images from Instagram reels
+   - Upload to Supabase Storage: `product-assets` bucket
+   - Update products with real image URLs
+
+2. **Verify Pricing**
+   - Check Amazon and AliExpress for actual costs
+   - Update supplier_price and recommended_retail_price
+   - Add source URLs to metadata
+
+3. **Create Marketing Content**
+   - Generate text-free demo GIFs (1-5 seconds each)
+   - Write ad copy variations
+   - Create headline options
+
+4. **Scale Up**
+   - Import batches of 5-10 products
+   - Use the same script, just modify the products array
+   - Keep using external_id to prevent duplicates
+
+## Troubleshooting
+
+### Login Fails (400/401 error)
+
+**Problem:** tyler@revoa.app doesn't exist or password is wrong
+
+**Solution:**
+1. Go to Supabase Dashboard → Authentication → Users
+2. Check if user exists
+3. If not, create it (see "Before You Start" section above)
+4. Make sure password is exactly: `RevoaAI17` (capital R, capital A, capital I)
+
+### Login Succeeds But Import Fails (403 error)
+
+**Problem:** User exists but doesn't have admin permissions
+
+**Solution:**
+1. Go to Supabase Dashboard → Table Editor → user_profiles
+2. Find tyler@revoa.app's row
+3. Set `is_admin` to `true`
+4. Set `admin_role` to `super_admin`
+
+### Products Don't Appear
+
+**Problem:** Products are in "pending" status
+
+**Solution:**
+1. Go to https://members.revoa.app/admin/products
+2. Click the "Pending" filter button (should be selected by default)
+3. Products should be there
+4. If not, check the import script output for errors
+
+### Network/Connection Errors
+
+**Problem:** Can't reach Supabase endpoint
+
+**Solution:**
+- Make sure you have internet connection
+- Try running from a different network
+- Check if Supabase is down: https://status.supabase.com/
+
+## Need Help?
+
+If you get stuck:
+1. Check the error message carefully
+2. Verify tyler@revoa.app exists and has admin permissions
+3. Make sure the password is exactly `RevoaAI17`
+4. Try running the script again (it's safe to re-run)
+
+## Success Checklist
+
+- [ ] tyler@revoa.app exists in Supabase Auth
+- [ ] User has is_admin: true in user_profiles
+- [ ] Script runs without errors
+- [ ] 3 products appear in admin panel
+- [ ] Products are in "pending" status
+- [ ] You can approve products
+- [ ] Approved products appear in /products catalog
+
+Once all checkboxes are complete, the AI agent can start scaling up imports!
 
 ---
 
-## 🔗 After Import
-
-**Approve products:** https://members.revoa.app/admin/products
-**View products:** https://members.revoa.app/products
-
----
-
-## 📚 Full Documentation
-
-See `PRODUCT_IMPORT_API.md` for complete reference.
-
----
-
-## ❓ Common Questions
-
-**Q: Where do I put images/videos?**
-A: Either upload to Supabase using `upload_image()` function, or use external URLs you already have.
-
-**Q: What file types are supported?**
-A: Images (JPG, PNG, GIF, WebP) and Videos (MP4, MOV, WebM) - any web-compatible format.
-
-**Q: Do I need to set up hosting?**
-A: No! The `product-assets` bucket is already configured and ready to use.
-
-**Q: Can I use images from other websites?**
-A: Yes, as long as the URLs are publicly accessible. But uploading to Supabase is more reliable.
-
-**Q: How do I organize files in the bucket?**
-A: Use folders in filenames like `"electronics/earbuds-main.jpg"` - the storage handles it automatically.
+**Ready to go?** Run the script or give it to your AI agent!
