@@ -2,20 +2,16 @@
 
 ## 🔑 Step 1: Get Your API Key/Token
 
-### Option A: Use JWT Token Directly (FASTEST - 30 seconds)
+### Option A: Copy from Settings Page (EASIEST - 10 seconds) ⭐
 
 1. Go to https://members.revoa.app
-2. Log in with your admin account:
-   - `ammazonrev3@gmail.com`
-   - `tyler.jtw@gmail.com`
-   - `ammazonrev2@gmail.com`
-3. Press **F12** to open DevTools
-4. Go to **Console** tab
-5. Run this command:
-   ```javascript
-   (await supabase.auth.getSession()).data.session.access_token
-   ```
-6. Copy the token (starts with `eyJ...`)
+2. Log in with your admin account
+3. Click **Settings** in the sidebar
+4. Scroll down to the **Developer** section
+5. Click the 👁️ (eye) icon to reveal your token
+6. Click the 📋 (copy) icon to copy it
+
+Done! That's it. Super simple.
 
 **Note:** JWT tokens expire after some time. For long-term use, see Option B.
 
