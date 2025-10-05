@@ -1,17 +1,64 @@
 # AI Agent Quick Start Guide
 
-## Import Endpoint
+## 🔑 Step 1: Get Your API Key/Token
+
+### Option A: Use JWT Token Directly (FASTEST - 30 seconds)
+
+1. Go to https://members.revoa.app
+2. Log in with your admin account:
+   - `ammazonrev3@gmail.com`
+   - `tyler.jtw@gmail.com`
+   - `ammazonrev2@gmail.com`
+3. Press **F12** to open DevTools
+4. Go to **Console** tab
+5. Run this command:
+   ```javascript
+   (await supabase.auth.getSession()).data.session.access_token
+   ```
+6. Copy the token (starts with `eyJ...`)
+
+**Note:** JWT tokens expire after some time. For long-term use, see Option B.
+
+### Option B: Generate Long-Lived API Key (RECOMMENDED)
+
+#### Step 1: Get Your Admin JWT (one time)
+Follow Option A above to get your JWT token.
+
+#### Step 2: Create API Key
+```bash
+curl -X POST \
+  'https://0ec90b57d6e95fcbda19832f.supabase.co/functions/v1/api-keys/create' \
+  -H 'Authorization: Bearer YOUR_ADMIN_JWT_FROM_STEP_1' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "AI Product Importer",
+    "expiresInDays": 365
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "apiKey": "rva_a1b2c3d4e5f6...",
+  "message": "IMPORTANT: Save this API key now!"
+}
+```
+
+⚠️ **SAVE THE API KEY!** You can't see it again.
+
+---
+
+## 📤 Step 2: Import Products
 
 **POST to this URL:**
 ```
 https://0ec90b57d6e95fcbda19832f.supabase.co/functions/v1/import-products
 ```
 
-## Authentication
-
-You need an admin JWT token. Include it in the Authorization header:
+**Include your token in the Authorization header:**
 ```
-Authorization: Bearer <YOUR_ADMIN_JWT_TOKEN>
+Authorization: Bearer <YOUR_TOKEN_OR_API_KEY>
 ```
 
 ## Minimal Example
