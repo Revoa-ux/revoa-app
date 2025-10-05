@@ -64,6 +64,7 @@ const SettingsPage = () => {
   const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     firstName: 'John',
     lastName: 'Doe',
@@ -89,16 +90,27 @@ const SettingsPage = () => {
     tiktok: false
   });
 
-  // Fetch admin token
+  // Check if user is admin and fetch token
   useEffect(() => {
-    const fetchToken = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.access_token) {
-        setAdminToken(data.session.access_token);
+    const checkAdminAndFetchToken = async () => {
+      if (!user?.id) return;
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profileData?.is_admin) {
+        setIsAdmin(true);
+        const { data } = await supabase.auth.getSession();
+        if (data?.session?.access_token) {
+          setAdminToken(data.session.access_token);
+        }
       }
     };
-    fetchToken();
-  }, []);
+    checkAdminAndFetchToken();
+  }, [user?.id]);
 
   // Fetch Shopify connection status
   useEffect(() => {
@@ -827,57 +839,59 @@ const SettingsPage = () => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Developer</h2>
-            </div>
+          {isAdmin && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-medium text-gray-900 dark:text-white">Developer</h2>
+              </div>
 
-            <div className="p-6">
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
-                  <div className="flex items-start space-x-3">
-                    <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-blue-900 dark:text-blue-100 mb-1">API Authentication Token</h3>
-                      <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
-                        Use this token to authenticate API requests for integrations and AI agents.
-                      </p>
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <Key className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-medium text-blue-900 dark:text-blue-100 mb-1">API Authentication Token</h3>
+                        <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                          Use this token to authenticate API requests for integrations and AI agents.
+                        </p>
 
-                      <div className="space-y-3">
-                        <div className="relative">
-                          <input
-                            type={showToken ? "text" : "password"}
-                            value={adminToken || "Loading..."}
-                            readOnly
-                            className="w-full px-3 py-2 pr-24 text-sm font-mono bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-700 rounded-lg text-gray-900 dark:text-gray-100"
-                          />
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
-                            <button
-                              onClick={() => setShowToken(!showToken)}
-                              className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                              title={showToken ? "Hide token" : "Show token"}
-                            >
-                              {showToken ? (
-                                <EyeOff className="w-4 h-4" />
-                              ) : (
-                                <Eye className="w-4 h-4" />
-                              )}
-                            </button>
-                            <button
-                              onClick={handleCopyToken}
-                              disabled={!adminToken}
-                              className="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors disabled:opacity-50"
-                              title="Copy token"
-                            >
-                              <Copy className="w-4 h-4" />
-                            </button>
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <input
+                              type={showToken ? "text" : "password"}
+                              value={adminToken || "Loading..."}
+                              readOnly
+                              className="w-full px-3 py-2 pr-24 text-sm font-mono bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-700 rounded-lg text-gray-900 dark:text-gray-100"
+                            />
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center space-x-1">
+                              <button
+                                onClick={() => setShowToken(!showToken)}
+                                className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                title={showToken ? "Hide token" : "Show token"}
+                              >
+                                {showToken ? (
+                                  <EyeOff className="w-4 h-4" />
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={handleCopyToken}
+                                disabled={!adminToken}
+                                className="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors disabled:opacity-50"
+                                title="Copy token"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
-                          <p>• Use in Authorization header: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">Bearer YOUR_TOKEN</code></p>
-                          <p>• For AI agent setup, see: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">AI_AGENT_QUICKSTART.md</code></p>
-                          <p>• This token expires periodically. Refresh this page to get a new one.</p>
+                          <div className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+                            <p>• Use in Authorization header: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">Bearer YOUR_TOKEN</code></p>
+                            <p>• For AI agent setup, see: <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">AI_AGENT_QUICKSTART.md</code></p>
+                            <p>• This token expires periodically. Refresh this page to get a new one.</p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -885,7 +899,7 @@ const SettingsPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
