@@ -1,5 +1,17 @@
 # AI Agent Quick Start - ZERO MANUAL STEPS
 
+## 📦 Asset Hosting: TWO OPTIONS
+
+### Option A: Upload to Supabase (Recommended)
+Upload local files to Supabase Storage bucket `product-assets` using the `upload_image()` function. It returns the public URL automatically.
+
+### Option B: Use External URLs
+If you already have images/videos hosted elsewhere (e.g., your own CDN), just use those URLs directly in the product data.
+
+**No other setup needed - both options work out of the box!**
+
+---
+
 ## 🤖 Option 1: Fully Automated (Recommended)
 
 Just copy this ENTIRE message and paste to your AI agent:
@@ -7,6 +19,8 @@ Just copy this ENTIRE message and paste to your AI agent:
 ---
 
 I need you to import products to my Revoa app. You'll need to log in first to get the auth token.
+
+**Asset Hosting:** All images/GIFs/videos are uploaded to the Supabase Storage bucket `product-assets`. Use the `upload_image()` function below to upload any local files. The function returns the public URL to use in product data.
 
 **Login to get token automatically:**
 
@@ -39,8 +53,9 @@ print(f"✓ Logged in successfully!")
 SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co"
 ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw"
 
-# Upload image function
+# Upload image/video to Supabase Storage
 def upload_image(file_path, filename):
+    """Upload a file and return its public URL"""
     with open(file_path, 'rb') as f:
         files = {'file': f}
         headers = {
@@ -52,7 +67,15 @@ def upload_image(file_path, filename):
             files=files,
             headers=headers
         )
-    return response.json()
+        result = response.json()
+        if response.status_code == 200:
+            # Return the public URL
+            public_url = f"{SUPABASE_URL}/storage/v1/object/public/product-assets/{filename}"
+            print(f"✓ Uploaded: {public_url}")
+            return public_url
+        else:
+            print(f"✗ Upload failed: {result}")
+            return None
 
 # Import products function
 def import_products(products_data):
@@ -69,24 +92,38 @@ def import_products(products_data):
     )
     return response.json()
 
-# Example: Import a product
+# EXAMPLE WORKFLOW: Upload images then import product
+
+# Step 1: Upload local images/videos to get URLs
+main_image_url = upload_image("earbuds-main.jpg", "earbuds-main.jpg")
+video_url = upload_image("earbuds-demo.mp4", "earbuds-demo.mp4")
+
+# Step 2: Create product with the uploaded URLs
 product = {
     "name": "Premium Wireless Earbuds",
-    "description": "High-quality wireless earbuds",
+    "description": "High-quality wireless earbuds with noise cancellation",
     "category": "Electronics",
     "supplier_price": 45.00,
     "recommended_retail_price": 89.99,
-    "images": [{"url": "https://example.com/image.jpg", "type": "main"}],
+    "images": [
+        {
+            "url": main_image_url,  # Use uploaded URL
+            "type": "main",
+            "display_order": 0
+        }
+    ],
     "creatives": [
         {
             "type": "reel",
-            "url": "https://example.com/video.mp4",
+            "url": video_url,  # Use uploaded URL
             "platform": "tiktok",
-            "is_inspiration": True
+            "is_inspiration": True,
+            "description": "Product demo video"
         }
     ]
 }
 
+# Step 3: Import the product
 result = import_products([product])
 print(json.dumps(result, indent=2))
 ```
@@ -237,3 +274,22 @@ def import_products(products_data):
 ## 📚 Full Documentation
 
 See `PRODUCT_IMPORT_API.md` for complete reference.
+
+---
+
+## ❓ Common Questions
+
+**Q: Where do I put images/videos?**
+A: Either upload to Supabase using `upload_image()` function, or use external URLs you already have.
+
+**Q: What file types are supported?**
+A: Images (JPG, PNG, GIF, WebP) and Videos (MP4, MOV, WebM) - any web-compatible format.
+
+**Q: Do I need to set up hosting?**
+A: No! The `product-assets` bucket is already configured and ready to use.
+
+**Q: Can I use images from other websites?**
+A: Yes, as long as the URLs are publicly accessible. But uploading to Supabase is more reliable.
+
+**Q: How do I organize files in the bucket?**
+A: Use folders in filenames like `"electronics/earbuds-main.jpg"` - the storage handles it automatically.
