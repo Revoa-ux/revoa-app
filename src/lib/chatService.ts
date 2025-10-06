@@ -114,15 +114,11 @@ export const chatService = {
 
   async getUserChat(userId: string): Promise<Chat | null> {
     // First check if user has an assigned admin
-    const { data: assignment, error: assignmentError } = await supabase
+    let { data: assignment } = await supabase
       .from('user_assignments')
       .select('admin_id')
       .eq('user_id', userId)
       .maybeSingle();
-
-    if (assignmentError) {
-      console.error('Error fetching assignment:', assignmentError);
-    }
 
     // If no assignment, try to auto-assign a default admin
     if (!assignment?.admin_id) {
