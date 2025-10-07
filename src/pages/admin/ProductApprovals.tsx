@@ -37,7 +37,7 @@ interface Product {
   creatives?: ProductCreative[];
   creator?: {
     email: string;
-    full_name: string;
+    name: string;
   };
 }
 
@@ -59,7 +59,7 @@ export default function ProductApprovals() {
         .from('products')
         .select(`
           *,
-          creator:created_by(email, full_name)
+          creator:created_by(email, name)
         `)
         .order('created_at', { ascending: false });
 
