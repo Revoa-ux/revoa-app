@@ -15,12 +15,11 @@ import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
 import AdminProductApprovals from './pages/admin/ProductApprovals';
 import AdminDashboard from './pages/admin/Dashboard';
-// import AdminUsers from './pages/admin/Users';
-// import AdminQuotes from './pages/admin/Quotes';
-// import AdminProducts from './pages/admin/Products';
-// import AdminInvoices from './pages/admin/Invoices';
-// import AdminSettings from './pages/admin/Settings';
-// import AdminManage from './pages/admin/Manage';
+import AdminUsers from './pages/admin/Users';
+import AdminQuotes from './pages/admin/Quotes';
+import AdminInvoices from './pages/admin/Invoices';
+import AdminSettings from './pages/admin/Settings';
+import AdminManage from './pages/admin/Admins';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -105,14 +104,13 @@ function App() {
             }>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="chat" element={<AdminChat />} />
-              <Route path="products" element={<AdminProductApprovals />} />
-              {/* Other admin routes - temporarily disabled
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
+              <Route path="chat" element={<AdminChat />} />
+              <Route path="products" element={<AdminProductApprovals />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="admins" element={<AdminManage />} /> */}
+              <Route path="admins" element={<AdminManage />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Route>
 
