@@ -32,6 +32,7 @@ const CATEGORIES = [
 
 export default function ProductImport() {
   const [loading, setLoading] = useState(false);
+  const [bulkImporting, setBulkImporting] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -43,6 +44,43 @@ export default function ProductImport() {
     gifs: [],
     instagram_urls: ['']
   });
+
+  const handleBulkImport = async () => {
+    setBulkImporting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            source: 'yaml',
+            mode: 'upsert',
+            yaml_path: 'products/pilot.yml'
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Bulk import failed');
+      }
+
+      const result = await response.json();
+      toast.success(`Bulk import complete! ${result.successful} products imported successfully.`);
+    } catch (error) {
+      console.error('Bulk import error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to run bulk import');
+    } finally {
+      setBulkImporting(false);
+    }
+  };
 
   const handleFileChange = (field: keyof ProductFormData, files: FileList | null) => {
     if (!files) return;
@@ -209,8 +247,29 @@ export default function ProductImport() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Import Products</h1>
-          <p className="text-gray-600">Add new products with images, GIFs, and Instagram inspiration</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Import Products</h1>
+              <p className="text-gray-600">Add new products with images, GIFs, and Instagram inspiration</p>
+            </div>
+            <button
+              onClick={handleBulkImport}
+              disabled={bulkImporting}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {bulkImporting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Importing from YAML...
+                </>
+              ) : (
+                <>
+                  <Package className="w-5 h-5" />
+                  Bulk Import from YAML
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-8">
