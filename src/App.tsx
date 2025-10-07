@@ -14,7 +14,7 @@ import SettingsPage from './pages/Settings';
 import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
 import AdminProductApprovals from './pages/admin/ProductApprovals';
-// import AdminDashboard from './pages/admin/Dashboard';
+import AdminDashboard from './pages/admin/Dashboard';
 // import AdminUsers from './pages/admin/Users';
 // import AdminQuotes from './pages/admin/Quotes';
 // import AdminProducts from './pages/admin/Products';
@@ -75,11 +75,11 @@ function App() {
                 <AdminLayout />
               </ProtectedRoute>
             }>
+              <Route index element={<Navigate to="/admin/dashboard" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
               {/* Other admin routes - temporarily disabled
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
               <Route path="products" element={<AdminProducts />} />

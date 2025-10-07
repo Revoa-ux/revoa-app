@@ -43,7 +43,7 @@ const Auth = () => {
     if (isAuthenticated) {
       // If user is admin, redirect to admin panel
       if (isAdmin) {
-        navigate('/admin/products', { replace: true });
+        navigate('/admin/dashboard', { replace: true });
         return;
       }
 
