@@ -176,7 +176,7 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Product Approvals
         </h1>
         <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
@@ -192,7 +192,7 @@ export default function ProductApprovals() {
             onClick={() => setFilter(status)}
             className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
               filter === status
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg shadow-red-500/30'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
             }`}
           >
