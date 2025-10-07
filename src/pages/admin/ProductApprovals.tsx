@@ -330,6 +330,7 @@ export default function ProductApprovals() {
             setCurrentImageIndex(0);
           }}
           title={showFullPreview ? "Full Product Page Preview" : "Product Details"}
+          maxWidth={showFullPreview ? "max-w-7xl" : "max-w-4xl"}
         >
           {!showFullPreview ? (
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
