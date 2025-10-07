@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { useAdmin } from '@/contexts/AdminContext';
 
 export default function AdminSettings() {
-  const { } = useAdmin();
+  useAdmin();
   const [settings, setSettings] = useState({
     notifications: {
       newUsers: true,

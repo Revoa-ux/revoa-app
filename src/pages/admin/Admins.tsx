@@ -61,7 +61,7 @@ const mockAdmins: AdminUser[] = [
 ];
 
 export default function AdminManage() {
-  const { } = useAdmin();
+  useAdmin();
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);

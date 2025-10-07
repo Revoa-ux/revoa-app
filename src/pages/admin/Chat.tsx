@@ -483,7 +483,6 @@ const AdminChat = () => {
 
       {showUploadModal && (
         <FileUploadModal
-          isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onUpload={handleFileUpload}
         />
