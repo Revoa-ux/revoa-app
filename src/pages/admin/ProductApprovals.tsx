@@ -166,9 +166,16 @@ export default function ProductApprovals() {
       api: 'bg-cyan-100 text-cyan-800'
     };
 
+    const labels = {
+      ai_agent: 'AI Agent',
+      manual: 'Manual',
+      csv: 'CSV',
+      api: 'API'
+    };
+
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${styles[source as keyof typeof styles] || styles.manual}`}>
-        {source.replace('_', ' ').toUpperCase()}
+        {labels[source as keyof typeof labels] || source}
       </span>
     );
   };
@@ -230,7 +237,13 @@ export default function ProductApprovals() {
                     Category
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Pricing
+                    Price
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Cost
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Margin
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Source
@@ -248,7 +261,11 @@ export default function ProductApprovals() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={product.id}
+                    onClick={() => setSelectedProduct(product)}
+                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {product.images && product.images.length > 0 ? (
@@ -277,17 +294,16 @@ export default function ProductApprovals() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {product.category}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        <div className="font-semibold text-gray-900">
-                          ${product.recommended_retail_price?.toFixed(2) || 'N/A'}
-                        </div>
-                        {product.supplier_price && (
-                          <div className="text-xs text-gray-500">
-                            Cost: ${product.supplier_price.toFixed(2)}
-                          </div>
-                        )}
-                      </div>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      ${product.recommended_retail_price?.toFixed(2) || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      ${product.supplier_price?.toFixed(2) || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-green-600">
+                      {product.recommended_retail_price && product.supplier_price
+                        ? `$${(product.recommended_retail_price - product.supplier_price).toFixed(2)}`
+                        : 'N/A'}
                     </td>
                     <td className="px-6 py-4">
                       {getSourceBadge(product.source)}
@@ -301,7 +317,10 @@ export default function ProductApprovals() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => setSelectedProduct(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProduct(product);
+                          }}
                           className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
                           title="View details"
                         >
@@ -310,14 +329,20 @@ export default function ProductApprovals() {
                         {product.approval_status === 'pending' && (
                           <>
                             <button
-                              onClick={() => handleApprove(product.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleApprove(product.id);
+                              }}
                               className="p-2 text-green-600 hover:text-green-700 transition-colors rounded-lg hover:bg-green-50"
                               title="Approve"
                             >
                               <Check className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleReject(product.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReject(product.id);
+                              }}
                               className="p-2 text-red-600 hover:text-red-700 transition-colors rounded-lg hover:bg-red-50"
                               title="Reject"
                             >
@@ -345,14 +370,9 @@ export default function ProductApprovals() {
             {/* Header with Status */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200">
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {selectedProduct.name}
                 </h3>
-                {selectedProduct.external_id && (
-                  <p className="text-sm text-gray-500 font-mono">
-                    ID: {selectedProduct.external_id}
-                  </p>
-                )}
               </div>
               <div className="flex flex-col items-end gap-2">
                 {getStatusBadge(selectedProduct.approval_status)}
@@ -390,29 +410,7 @@ export default function ProductApprovals() {
               </div>
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                Category
-              </label>
-              <p className="text-sm text-gray-600">
-                {selectedProduct.category}
-              </p>
-            </div>
-
-            {/* Description */}
-            {selectedProduct.description && (
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Product Description
-                </label>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {selectedProduct.description}
-                </p>
-              </div>
-            )}
-
-            {/* Product Images */}
+            {/* Product Photos */}
             {selectedProduct.images && selectedProduct.images.length > 0 && (
               <div>
                 <label className="text-sm font-semibold text-gray-700 mb-3 block">
@@ -435,7 +433,38 @@ export default function ProductApprovals() {
               </div>
             )}
 
-            {/* Ad Creatives & Inspiration */}
+            {/* Description with GIFs */}
+            {selectedProduct.description && (
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                  Product Page Description
+                </label>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {selectedProduct.description}
+                  </p>
+
+                  {/* GIFs for product page */}
+                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
+                    <div className="mt-4 grid grid-cols-3 gap-3">
+                      {selectedProduct.creatives
+                        .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
+                        .map((gif, idx) => (
+                          <div key={idx} className="relative">
+                            <img
+                              src={gif.url}
+                              alt="Product GIF"
+                              className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Ad Creatives & Inspiration Videos/Reels */}
             {selectedProduct.creatives && selectedProduct.creatives.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
