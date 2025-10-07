@@ -176,7 +176,7 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
           Product Approvals
         </h1>
         <p className="text-gray-600 flex items-center gap-2">
@@ -362,23 +362,23 @@ export default function ProductApprovals() {
 
             {/* Pricing Info */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg p-4 border border-gray-200">
                 <label className="text-xs font-medium text-gray-500 uppercase">
-                  Retail Price
+                  Suggest Price
                 </label>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg p-4 border border-gray-200">
                 <label className="text-xs font-medium text-gray-500 uppercase">
-                  Supplier Cost
+                  AliExpress Cost
                 </label>
                 <p className="text-2xl font-bold text-gray-900 mt-1">
                   ${selectedProduct.supplier_price?.toFixed(2) || 'N/A'}
                 </p>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="rounded-lg p-4 border border-gray-200">
                 <label className="text-xs font-medium text-gray-500 uppercase">
                   Margin
                 </label>
@@ -475,30 +475,30 @@ export default function ProductApprovals() {
                   {selectedProduct.creatives.map((creative) => (
                     <div
                       key={creative.id}
-                      className="bg-white rounded-lg overflow-hidden border border-gray-200 group"
+                      className="rounded-lg overflow-hidden border border-gray-200 group"
                     >
                       {/* Creative Media */}
-                      <div className="relative aspect-[9/16] bg-black flex items-center justify-center overflow-hidden">
+                      <div className="relative aspect-[9/16] bg-black overflow-hidden">
                         {creative.url && (
                           <>
                             {creative.type === 'video' || creative.type === 'reel' ? (
                               <video
                                 src={creative.url}
                                 controls
-                                className="max-w-full max-h-full object-contain"
+                                className="w-full h-full object-cover"
                                 preload="metadata"
                               />
                             ) : creative.type === 'gif' ? (
                               <img
                                 src={creative.url}
                                 alt="GIF"
-                                className="max-w-full max-h-full object-contain"
+                                className="w-full h-full object-cover"
                               />
                             ) : (
                               <img
                                 src={creative.url}
                                 alt={creative.type}
-                                className="max-w-full max-h-full object-contain"
+                                className="w-full h-full object-cover"
                               />
                             )}
                           </>
@@ -566,7 +566,7 @@ export default function ProductApprovals() {
             </div>
 
             {/* Action Buttons - Always show for all statuses */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200 sticky bottom-0 bg-white pb-2">
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
               {selectedProduct.approval_status === 'pending' ? (
                 <>
                   <button

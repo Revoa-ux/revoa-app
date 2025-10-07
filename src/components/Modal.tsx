@@ -45,19 +45,19 @@ const Modal: React.FC<ModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
-          <div 
+          <div
             ref={modalRef}
-            className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full`}
+            className={`relative bg-white rounded-xl shadow-xl ${maxWidth} w-full`}
             role="dialog"
             aria-modal="true"
           >
             {title && (
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">{title}</h3>
-                  <button 
+                  <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+                  <button
                     onClick={onClose}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
                     <X className="w-5 h-5" />
                   </button>
