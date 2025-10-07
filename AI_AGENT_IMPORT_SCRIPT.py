@@ -11,16 +11,20 @@ IMPORTANT CHANGES FROM ORIGINAL:
 2. Removes date suffix from external_id to enable proper updates
 3. Fixed storage upload to use proper authentication
 4. Supports both creating new products and updating existing ones
+5. Uses urllib instead of requests (no external dependencies)
 
 Usage:
     python AI_AGENT_IMPORT_SCRIPT.py
 """
 
 import os
-import requests
 import json
 import sys
 from typing import List, Dict, Any
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from urllib.parse import urlencode
+import mimetypes
 
 # Configuration
 SUPABASE_URL = "https://0ec90b57d6e95fcbda19832f.supabase.co"
@@ -39,45 +43,55 @@ def login() -> str:
         "apikey": ANON_KEY,
         "Content-Type": "application/json"
     }
-    data = {
+    data = json.dumps({
         "email": ADMIN_EMAIL,
         "password": ADMIN_PASSWORD
-    }
+    }).encode('utf-8')
 
-    r = requests.post(url, headers=headers, json=data, timeout=TIMEOUT)
-    r.raise_for_status()
+    req = Request(url, data=data, headers=headers, method='POST')
 
-    token = r.json().get("access_token")
-    if not token:
-        raise RuntimeError("No access_token in login response")
-
-    return token
+    try:
+        with urlopen(req, timeout=TIMEOUT) as response:
+            result = json.loads(response.read().decode('utf-8'))
+            token = result.get("access_token")
+            if not token:
+                raise RuntimeError("No access_token in login response")
+            return token
+    except HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        raise RuntimeError(f"Login failed: {error_body}")
 
 
 def upload_file(token: str, local_path: str, bucket_path: str) -> str:
     """Upload a file to Supabase storage and return public URL."""
     url = f"{SUPABASE_URL}/storage/v1/object/product-assets/{bucket_path}"
+
+    # Read file
+    with open(local_path, "rb") as f:
+        file_data = f.read()
+
+    # Detect content type
+    content_type, _ = mimetypes.guess_type(local_path)
+    if not content_type:
+        content_type = "application/octet-stream"
+
     headers = {
         "Authorization": f"Bearer {token}",
-        "apikey": ANON_KEY
+        "apikey": ANON_KEY,
+        "Content-Type": content_type
     }
 
-    with open(local_path, "rb") as f:
-        files = {"file": (os.path.basename(local_path), f)}
-        r = requests.post(url, headers=headers, files=files, timeout=TIMEOUT)
+    req = Request(url, data=file_data, headers=headers, method='POST')
 
-    if r.status_code not in (200, 201):
-        # If file exists, try to get its public URL anyway
-        if "already exists" in r.text.lower():
+    try:
+        with urlopen(req, timeout=TIMEOUT) as response:
             return f"{SUPABASE_URL}/storage/v1/object/public/product-assets/{bucket_path}"
-
-        try:
-            detail = r.json()
-        except:
-            detail = r.text
-        raise RuntimeError(f"Upload failed for {local_path}: {detail}")
-
-    return f"{SUPABASE_URL}/storage/v1/object/public/product-assets/{bucket_path}"
+    except HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        # If file exists, return its public URL anyway
+        if "already exists" in error_body.lower():
+            return f"{SUPABASE_URL}/storage/v1/object/public/product-assets/{bucket_path}"
+        raise RuntimeError(f"Upload failed for {local_path}: {error_body}")
 
 
 def gather_files(folder: str) -> List[str]:
@@ -106,23 +120,24 @@ def import_products(token: str, products: List[Dict[str, Any]]) -> Dict[str, Any
         "apikey": ANON_KEY,
         "Content-Type": "application/json"
     }
-    payload = {
+    payload = json.dumps({
         "source": "ai_agent",
         "mode": "upsert",  # CRITICAL: Use upsert to update existing products
         "products": products
-    }
+    }).encode('utf-8')
 
-    r = requests.post(url, headers=headers, json=payload, timeout=TIMEOUT)
+    req = Request(url, data=payload, headers=headers, method='POST')
 
     try:
-        data = r.json()
-    except:
-        data = {"status": r.status_code, "text": r.text}
-
-    if r.status_code != 200:
+        with urlopen(req, timeout=TIMEOUT) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        try:
+            data = json.loads(error_body)
+        except:
+            data = {"status": e.code, "text": error_body}
         raise RuntimeError(f"Import failed: {json.dumps(data, indent=2)}")
-
-    return data
 
 
 def main():
@@ -180,8 +195,8 @@ def main():
         # Gather and upload files
         file_list = gather_files(folder)
         if not file_list:
-            print(f"   ⚠️  No files found, skipping\n")
-            continue
+            print(f"   ⚠️  No files found, using inspiration reels only\n")
+            # Still include product with just inspiration reels
 
         public_urls = []
         for rel_path in file_list:
