@@ -37,7 +37,7 @@ import { PageTitle } from './components/PageTitle';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
-  
+
   if (isLoading || adminLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     );
   }
-  
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
@@ -57,7 +57,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   if (window.location.pathname.startsWith('/admin') && !isAdmin) {
     return <Navigate to="/" replace />;
   }
-  
+
+  // If admin is trying to access regular user routes, redirect to admin dashboard
+  if (!window.location.pathname.startsWith('/admin') && !window.location.pathname.startsWith('/auth') && isAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -82,11 +87,10 @@ function App() {
               {/* Other admin routes - temporarily disabled
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
-              <Route path="products" element={<AdminProducts />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="admins" element={<AdminManage />} />
-              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} /> */}
+              <Route path="admins" element={<AdminManage />} /> */}
+              <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Route>
 
             {/* Regular auth routes */}
