@@ -380,6 +380,18 @@ export default function ProductApprovals() {
               </div>
             </div>
 
+            {/* Margin Info */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+              <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                Margin
+              </label>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
+                {selectedProduct.recommended_retail_price && selectedProduct.supplier_price
+                  ? `$${(selectedProduct.recommended_retail_price - selectedProduct.supplier_price).toFixed(2)} (${Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%)`
+                  : 'N/A'}
+              </p>
+            </div>
+
             {/* Category */}
             <div>
               <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
@@ -429,9 +441,14 @@ export default function ProductApprovals() {
             {selectedProduct.creatives && selectedProduct.creatives.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Ad Inspirations ({selectedProduct.creatives.length})
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Ad Inspirations
+                    </label>
+                    <span className="w-5 h-5 rounded-full bg-red-500 text-white text-xs font-semibold flex items-center justify-center">
+                      {selectedProduct.creatives.length}
+                    </span>
+                  </div>
                   <button
                     onClick={async () => {
                       try {
@@ -463,7 +480,7 @@ export default function ProductApprovals() {
                       className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
                     >
                       {/* Creative Media */}
-                      <div className="relative aspect-[9/16] bg-black flex items-center justify-center">
+                      <div className="relative aspect-[9/16] bg-black overflow-hidden">
                         {creative.url && (
                           <>
                             {creative.type === 'video' || creative.type === 'reel' ? (
@@ -509,7 +526,7 @@ export default function ProductApprovals() {
                       </div>
 
                       {/* Creative Details */}
-                      <div className="p-3 space-y-2">
+                      <div className="p-3 space-y-2 bg-gray-50 dark:bg-gray-800">
                         {creative.headline && (
                           <div>
                             <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2">
