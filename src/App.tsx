@@ -33,8 +33,8 @@ import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
 
-// Protected route component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+// Protected route component for admin routes
+const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
 
@@ -54,12 +54,35 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // If trying to access admin routes without admin privileges
-  if (window.location.pathname.startsWith('/admin') && !isAdmin) {
+  if (!isAdmin) {
     return <Navigate to="/" replace />;
   }
 
+  return <>{children}</>;
+};
+
+// Protected route component for user routes
+const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const { isAdmin, loading: adminLoading } = useAdmin();
+
+  if (isLoading || adminLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Loading your account...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
   // If admin is trying to access regular user routes, redirect to admin dashboard
-  if (!window.location.pathname.startsWith('/admin') && !window.location.pathname.startsWith('/auth') && isAdmin) {
+  if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
 
@@ -76,9 +99,9 @@ function App() {
             <Routes>
             {/* Admin routes */}
             <Route path="/admin" element={
-              <ProtectedRoute>
+              <AdminProtectedRoute>
                 <AdminLayout />
-              </ProtectedRoute>
+              </AdminProtectedRoute>
             }>
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
@@ -100,24 +123,24 @@ function App() {
             
             {/* Onboarding routes */}
             <Route path="/onboarding/*" element={
-              <ProtectedRoute>
+              <UserProtectedRoute>
                 <Onboarding />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             } />
             
             {/* Shopify routes */}
             <Route path="/shopify-setup" element={
-              <ProtectedRoute>
+              <UserProtectedRoute>
                 <ShopifySetup />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             } />
             <Route path="/auth/callback" element={<CallbackHandler />} />
             
             {/* Main app routes */}
             <Route path="/" element={
-              <ProtectedRoute>
+              <UserProtectedRoute>
                 <Layout />
-              </ProtectedRoute>
+              </UserProtectedRoute>
             }>
               <Route index element={<DashboardCopy />} />
               <Route path="products" element={<Products />} />
