@@ -176,7 +176,7 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Product Approvals
         </h1>
         <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
@@ -430,7 +430,7 @@ export default function ProductApprovals() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Ad Creatives & Inspiration ({selectedProduct.creatives.length})
+                    Ad Inspirations ({selectedProduct.creatives.length})
                   </label>
                   <button
                     onClick={async () => {
@@ -463,7 +463,7 @@ export default function ProductApprovals() {
                       className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
                     >
                       {/* Creative Media */}
-                      <div className="relative aspect-[9/16] bg-black">
+                      <div className="relative aspect-[9/16] bg-black flex items-center justify-center">
                         {creative.url && (
                           <>
                             {creative.type === 'video' || creative.type === 'reel' ? (
@@ -506,17 +506,6 @@ export default function ProductApprovals() {
                           <Download className="w-4 h-4" />
                         </button>
 
-                        {/* Type and Inspiration badges */}
-                        <div className="absolute top-2 left-2 flex gap-1.5">
-                          <span className="px-2 py-1 bg-black/70 text-white text-xs font-medium rounded">
-                            {creative.type.toUpperCase()}
-                          </span>
-                          {creative.is_inspiration && (
-                            <span className="px-2 py-1 bg-red-500/90 text-white text-xs font-medium rounded">
-                              Inspiration
-                            </span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Creative Details */}
@@ -567,34 +556,34 @@ export default function ProductApprovals() {
                 <>
                   <button
                     onClick={() => handleApprove(selectedProduct.id)}
-                    className="flex-1 px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-green-600 dark:text-green-500 border-2 border-green-600 dark:border-green-500 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                   >
-                    <Check className="w-5 h-5" />
-                    Approve Product
+                    <Check className="w-4 h-4" />
+                    Approve
                   </button>
                   <button
                     onClick={() => handleReject(selectedProduct.id)}
-                    className="flex-1 px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-red-600 dark:text-red-500 border-2 border-red-600 dark:border-red-500 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                   >
-                    <X className="w-5 h-5" />
-                    Reject Product
+                    <X className="w-4 h-4" />
+                    Reject
                   </button>
                 </>
               ) : selectedProduct.approval_status === 'approved' ? (
                 <button
                   onClick={() => handleReject(selectedProduct.id)}
-                  className="flex-1 px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-red-600 dark:text-red-500 border-2 border-red-600 dark:border-red-500 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                 >
-                  <X className="w-5 h-5" />
-                  Reject Product
+                  <X className="w-4 h-4" />
+                  Reject
                 </button>
               ) : (
                 <button
                   onClick={() => handleApprove(selectedProduct.id)}
-                  className="flex-1 px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-green-600 dark:text-green-500 border-2 border-green-600 dark:border-green-500 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                 >
-                  <Check className="w-5 h-5" />
-                  Approve Product
+                  <Check className="w-4 h-4" />
+                  Approve
                 </button>
               )}
             </div>
