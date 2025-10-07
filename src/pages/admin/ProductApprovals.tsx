@@ -324,9 +324,14 @@ export default function ProductApprovals() {
       {selectedProduct && (
         <Modal
           isOpen={true}
-          onClose={() => setSelectedProduct(null)}
-          title="Product Details"
+          onClose={() => {
+            setSelectedProduct(null);
+            setShowFullPreview(false);
+            setCurrentImageIndex(0);
+          }}
+          title={showFullPreview ? "Full Product Page Preview" : "Product Details"}
         >
+          {!showFullPreview ? (
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200">
@@ -599,10 +604,10 @@ export default function ProductApprovals() {
                     {/* Right: Product Info */}
                     <div className="space-y-3">
                       <div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-base font-bold text-gray-900 mb-2">
                           {selectedProduct.name}
                         </h2>
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="text-xl font-bold text-gray-900">
                           ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
                         </div>
                       </div>
@@ -672,17 +677,19 @@ export default function ProductApprovals() {
               )}
             </div>
           </div>
-        </Modal>
-      )}
-
-      {/* Full Preview Modal */}
-      {showFullPreview && selectedProduct && (
-        <Modal
-          isOpen={true}
-          onClose={() => setShowFullPreview(false)}
-          title="Full Product Page Preview"
-        >
+          ) : (
           <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            {/* Back Button */}
+            <button
+              onClick={() => {
+                setShowFullPreview(false);
+                setCurrentImageIndex(0);
+              }}
+              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-4"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Back to Product Details
+            </button>
             {/* Mock Browser Chrome */}
             <div className="bg-gray-100 px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -768,10 +775,10 @@ export default function ProductApprovals() {
                 {/* Right: Product Info */}
                 <div className="space-y-6">
                   <div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-3">
                       {selectedProduct.name}
                     </h1>
-                    <div className="text-4xl font-bold text-gray-900">
+                    <div className="text-3xl font-bold text-gray-900">
                       ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
                     </div>
                   </div>
@@ -830,6 +837,7 @@ export default function ProductApprovals() {
               )}
             </div>
           </div>
+          )}
         </Modal>
       )}
     </div>
