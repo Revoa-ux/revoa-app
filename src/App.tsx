@@ -15,6 +15,7 @@ import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
 import AdminProductApprovals from './pages/admin/ProductApprovals';
 import AdminProductImport from './pages/admin/ProductImport';
+import AdminAIImport from './pages/admin/AIImport';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminQuotes from './pages/admin/Quotes';
@@ -110,6 +111,7 @@ function App() {
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
               <Route path="product-import" element={<AdminProductImport />} />
+              <Route path="ai-import" element={<AdminAIImport />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
