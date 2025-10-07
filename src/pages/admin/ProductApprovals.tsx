@@ -397,8 +397,8 @@ export default function ProductApprovals() {
               <div className="rounded-lg p-4 border border-gray-200 relative overflow-hidden">
                 {/* Margin Percentage Badge */}
                 {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
-                  <div className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-emerald-500/90 to-green-500/90 backdrop-blur-sm rounded-full shadow-sm">
-                    <span className="text-sm font-bold text-white">
+                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/50 backdrop-blur-sm rounded-full shadow-sm">
+                    <span className="text-xs font-bold text-white">
                       {Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%
                     </span>
                   </div>
@@ -414,59 +414,127 @@ export default function ProductApprovals() {
               </div>
             </div>
 
-            {/* Product Photos */}
-            {selectedProduct.images && selectedProduct.images.length > 0 && (
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                  Product Photos ({selectedProduct.images.length})
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {selectedProduct.images.map((img) => (
-                    <div key={img.id} className="relative group">
-                      <img
-                        src={img.url}
-                        alt={img.type}
-                        className="w-full h-48 object-cover rounded-lg border border-gray-200"
-                      />
-                      <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
-                        {img.type}
-                      </div>
-                    </div>
-                  ))}
+            {/* Shopify Product Page Preview */}
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                Shopify Product Page Preview
+              </label>
+              <div className="rounded-xl border-2 border-gray-200 overflow-hidden bg-white shadow-sm">
+                {/* Mock Browser Chrome */}
+                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                  </div>
+                  <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500 font-mono">
+                    yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* Description with GIFs */}
-            {selectedProduct.description && (
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                  Product Page Description
-                </label>
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
-                    {selectedProduct.description}
-                  </p>
-
-                  {/* GIFs for product page */}
-                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
-                    <div className="mt-4 grid grid-cols-3 gap-3">
-                      {selectedProduct.creatives
-                        .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
-                        .map((gif, idx) => (
-                          <div key={idx} className="relative">
+                {/* Shopify Product Layout */}
+                <div className="p-6 bg-white max-h-[600px] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Left: Product Images */}
+                    <div className="space-y-3">
+                      {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                        <>
+                          {/* Main Image */}
+                          <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
                             <img
-                              src={gif.url}
-                              alt="Product GIF"
-                              className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                              src={selectedProduct.images[0].url}
+                              alt={selectedProduct.name}
+                              className="w-full aspect-square object-cover"
                             />
                           </div>
-                        ))}
+                          {/* Thumbnail Grid */}
+                          {selectedProduct.images.length > 1 && (
+                            <div className="grid grid-cols-4 gap-2">
+                              {selectedProduct.images.slice(0, 4).map((img) => (
+                                <div key={img.id} className="rounded border border-gray-200 overflow-hidden bg-gray-50">
+                                  <img
+                                    src={img.url}
+                                    alt={img.type}
+                                    className="w-full aspect-square object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 aspect-square flex items-center justify-center">
+                          <Package className="w-12 h-12 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right: Product Info */}
+                    <div className="space-y-4">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                          {selectedProduct.name}
+                        </h2>
+                        <div className="text-3xl font-bold text-gray-900">
+                          ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="prose prose-sm max-w-none">
+                        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-t border-gray-200 pt-4">
+                          {selectedProduct.description}
+                        </div>
+                      </div>
+
+                      {/* Mock Add to Cart Button */}
+                      <button className="w-full py-3 bg-black text-white font-semibold rounded-lg cursor-default">
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Product Description Section with GIFs */}
+                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
+                    <div className="mt-8 pt-8 border-t border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Product Features</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {selectedProduct.creatives
+                          .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
+                          .map((gif, idx) => (
+                            <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                              <img
+                                src={gif.url}
+                                alt="Product Feature"
+                                className="w-full aspect-square object-cover"
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ad Copy Section */}
+                  {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
+                    <div className="mt-8 pt-8 border-t border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Marketing Copy</h3>
+                      <div className="space-y-3">
+                        {selectedProduct.creatives
+                          .filter(c => c.ad_copy)
+                          .map((creative, idx) => (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <p className="text-sm text-gray-700 italic">"{creative.ad_copy}"</p>
+                              {creative.headline && (
+                                <p className="text-xs text-gray-500 mt-2 font-semibold">{creative.headline}</p>
+                              )}
+                            </div>
+                          ))}
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Ad Creatives & Inspiration Videos/Reels */}
             {selectedProduct.creatives && selectedProduct.creatives.length > 0 && (
@@ -476,7 +544,7 @@ export default function ProductApprovals() {
                     <label className="text-sm font-semibold text-gray-700">
                       Ad Inspirations
                     </label>
-                    <span className="w-5 h-5 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-red-500/50 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
                       {selectedProduct.creatives.length}
                     </span>
                   </div>
@@ -511,27 +579,27 @@ export default function ProductApprovals() {
                       className="rounded-lg overflow-hidden border border-gray-200 group"
                     >
                       {/* Creative Media */}
-                      <div className="relative aspect-[9/16] bg-black overflow-hidden">
+                      <div className="relative aspect-[9/16] bg-black">
                         {creative.url && (
                           <>
                             {creative.type === 'video' || creative.type === 'reel' ? (
                               <video
                                 src={creative.url}
                                 controls
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                                 preload="metadata"
                               />
                             ) : creative.type === 'gif' ? (
                               <img
                                 src={creative.url}
                                 alt="GIF"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             ) : (
                               <img
                                 src={creative.url}
                                 alt={creative.type}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-contain"
                               />
                             )}
                           </>
