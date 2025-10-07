@@ -339,63 +339,176 @@ export default function ProductApprovals() {
         <Modal
           isOpen={true}
           onClose={() => setSelectedProduct(null)}
-          title={selectedProduct.name}
+          title="Product Details"
         >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
-                <div className="mt-1">{getStatusBadge(selectedProduct.approval_status)}</div>
+          <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+            {/* Header with Status */}
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  {selectedProduct.name}
+                </h3>
+                {selectedProduct.external_id && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-mono">
+                    ID: {selectedProduct.external_id}
+                  </p>
+                )}
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Source</label>
-                <div className="mt-1">{getSourceBadge(selectedProduct.source)}</div>
+              <div className="flex flex-col items-end gap-2">
+                {getStatusBadge(selectedProduct.approval_status)}
+                {getSourceBadge(selectedProduct.source)}
               </div>
             </div>
 
+            {/* Pricing Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Retail Price
+                </label>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Supplier Cost
+                </label>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  ${selectedProduct.supplier_price?.toFixed(2) || 'N/A'}
+                </p>
+              </div>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                Category
+              </label>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {selectedProduct.category}
+              </p>
+            </div>
+
+            {/* Description */}
             {selectedProduct.description && (
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{selectedProduct.description}</p>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                  Product Description
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {selectedProduct.description}
+                </p>
               </div>
             )}
 
+            {/* Product Images */}
             {selectedProduct.images && selectedProduct.images.length > 0 && (
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Images ({selectedProduct.images.length})
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                  Product Photos ({selectedProduct.images.length})
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {selectedProduct.images.slice(0, 6).map((img) => (
-                    <img
-                      key={img.id}
-                      src={img.url}
-                      alt={img.type}
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedProduct.images.map((img) => (
+                    <div key={img.id} className="relative group">
+                      <img
+                        src={img.url}
+                        alt={img.type}
+                        className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                      />
+                      <div className="absolute top-2 right-2 px-2 py-1 bg-black/70 text-white text-xs rounded">
+                        {img.type}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
 
+            {/* Ad Creatives & Inspiration */}
             {selectedProduct.creatives && selectedProduct.creatives.length > 0 && (
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                  Creatives ({selectedProduct.creatives.length})
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                  Ad Creatives & Inspiration ({selectedProduct.creatives.length})
                 </label>
-                <div className="space-y-2">
-                  {selectedProduct.creatives.slice(0, 3).map((creative) => (
-                    <div key={creative.id} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          {creative.type.toUpperCase()}
-                        </span>
-                        {creative.is_inspiration && (
-                          <span className="text-xs text-blue-600 dark:text-blue-400">Inspiration</span>
-                        )}
+                <div className="space-y-3">
+                  {selectedProduct.creatives.map((creative) => (
+                    <div
+                      key={creative.id}
+                      className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium rounded">
+                            {creative.type.toUpperCase()}
+                          </span>
+                          {creative.is_inspiration && (
+                            <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs font-medium rounded">
+                              Inspiration Reel
+                            </span>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Creative Media */}
+                      {creative.url && (
+                        <div className="mb-3">
+                          {creative.type === 'video' || creative.type === 'reel' ? (
+                            <video
+                              src={creative.url}
+                              controls
+                              className="w-full h-64 rounded-lg bg-black"
+                            />
+                          ) : creative.type === 'gif' ? (
+                            <img
+                              src={creative.url}
+                              alt="GIF"
+                              className="w-full h-64 object-contain rounded-lg bg-gray-100 dark:bg-gray-900"
+                            />
+                          ) : (
+                            <img
+                              src={creative.url}
+                              alt={creative.type}
+                              className="w-full h-64 object-cover rounded-lg"
+                            />
+                          )}
+                        </div>
+                      )}
+
+                      {/* Headline */}
                       {creative.headline && (
-                        <p className="text-sm text-gray-900 dark:text-white font-medium">{creative.headline}</p>
+                        <div className="mb-2">
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                            Headline
+                          </label>
+                          <p className="text-sm text-gray-900 dark:text-white font-medium mt-1">
+                            {creative.headline}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      {creative.description && (
+                        <div className="mb-2">
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                            Description
+                          </label>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {creative.description}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Ad Copy */}
+                      {creative.ad_copy && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                            Ad Copy
+                          </label>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 italic">
+                            {creative.ad_copy}
+                          </p>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -403,24 +516,53 @@ export default function ProductApprovals() {
               </div>
             )}
 
-            {selectedProduct.approval_status === 'pending' && (
-              <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  onClick={() => handleApprove(selectedProduct.id)}
-                  className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <Check className="w-4 h-4" />
-                  Approve
-                </button>
+            {/* Created Info */}
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>Created: {new Date(selectedProduct.created_at).toLocaleString()}</span>
+                {selectedProduct.creator && (
+                  <span>By: {selectedProduct.creator.email}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons - Always show for all statuses */}
+            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-900 pb-2">
+              {selectedProduct.approval_status === 'pending' ? (
+                <>
+                  <button
+                    onClick={() => handleApprove(selectedProduct.id)}
+                    className="flex-1 px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  >
+                    <Check className="w-5 h-5" />
+                    Approve Product
+                  </button>
+                  <button
+                    onClick={() => handleReject(selectedProduct.id)}
+                    className="flex-1 px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  >
+                    <X className="w-5 h-5" />
+                    Reject Product
+                  </button>
+                </>
+              ) : selectedProduct.approval_status === 'approved' ? (
                 <button
                   onClick={() => handleReject(selectedProduct.id)}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-5 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                 >
-                  <X className="w-4 h-4" />
-                  Reject
+                  <X className="w-5 h-5" />
+                  Reject Product
                 </button>
-              </div>
-            )}
+              ) : (
+                <button
+                  onClick={() => handleApprove(selectedProduct.id)}
+                  className="flex-1 px-5 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                >
+                  <Check className="w-5 h-5" />
+                  Approve Product
+                </button>
+              )}
+            </div>
           </div>
         </Modal>
       )}
