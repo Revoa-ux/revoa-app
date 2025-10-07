@@ -24,7 +24,7 @@ const Auth = () => {
   }>({});
   
   const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
-  const { checkAdminStatus } = useAdmin();
+  const { checkAdminStatus, isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,8 +34,20 @@ const Auth = () => {
       return;
     }
 
+    // Wait for admin status to load
+    if (adminLoading) {
+      return;
+    }
+
     // Handle regular auth flow
     if (isAuthenticated) {
+      // If user is admin, redirect to admin panel
+      if (isAdmin) {
+        navigate('/admin/products', { replace: true });
+        return;
+      }
+
+      // Regular users go through onboarding
       if (!hasCompletedOnboarding) {
         navigate('/onboarding/store', { replace: true });
       } else {
@@ -56,7 +68,7 @@ const Auth = () => {
     if (params.get('mode') === 'reset-password') {
       setMode('forgot-password');
     }
-  }, [isAuthenticated, hasCompletedOnboarding, navigate, location]);
+  }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, navigate, location]);
   
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -124,18 +136,10 @@ const Auth = () => {
           throw error;
         }
 
-        // If email is from revoa.app domain, check admin status
-        if (email.endsWith('@revoa.app')) {
-          await checkAdminStatus();
-          navigate('/admin/dashboard', { replace: true });
-        } else {
-          // Regular user flow
-          if (!hasCompletedOnboarding) {
-            navigate('/onboarding/store', { replace: true });
-          } else {
-            navigate('/', { replace: true });
-          }
-        }
+        // Check admin status after login
+        await checkAdminStatus();
+
+        // Navigation will be handled by the useEffect above
       } else if (mode === 'signup') {
         const { error, data } = await signUp(email, password);
         if (error) {
@@ -149,12 +153,8 @@ const Auth = () => {
         }
         
         if (data) {
-          if (email.endsWith('@revoa.app')) {
-            await checkAdminStatus();
-            navigate('/admin/dashboard', { replace: true });
-          } else {
-            navigate('/onboarding/store', { replace: true });
-          }
+          await checkAdminStatus();
+          // Navigation will be handled by the useEffect above
         }
       } else if (mode === 'forgot-password') {
         const { error } = await resetPassword(email);

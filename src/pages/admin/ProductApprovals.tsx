@@ -367,25 +367,12 @@ export default function ProductApprovals() {
           title="Product Details"
         >
           <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-            {/* Header with Status and Margin Badge */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200 relative">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200">
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-gray-900">
                   {selectedProduct.name}
                 </h3>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                {/* Margin Percentage Badge */}
-                {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full shadow-sm">
-                    <span className="text-lg font-bold text-white">
-                      {Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%
-                    </span>
-                    <span className="text-xs font-medium text-white/90">margin</span>
-                  </div>
-                )}
-                {getStatusBadge(selectedProduct.approval_status)}
-                {getSourceBadge(selectedProduct.source)}
               </div>
             </div>
 
@@ -407,9 +394,17 @@ export default function ProductApprovals() {
                   ${selectedProduct.supplier_price?.toFixed(2) || 'N/A'}
                 </p>
               </div>
-              <div className="rounded-lg p-4 border border-gray-200">
+              <div className="rounded-lg p-4 border border-gray-200 relative overflow-hidden">
+                {/* Margin Percentage Badge */}
+                {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
+                  <div className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-emerald-500/90 to-green-500/90 backdrop-blur-sm rounded-full shadow-sm">
+                    <span className="text-sm font-bold text-white">
+                      {Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%
+                    </span>
+                  </div>
+                )}
                 <label className="text-xs font-medium text-gray-500 uppercase">
-                  Margin
+                  Profit Margin
                 </label>
                 <p className="text-2xl font-bold text-green-600 mt-1">
                   {selectedProduct.recommended_retail_price && selectedProduct.supplier_price
@@ -481,7 +476,7 @@ export default function ProductApprovals() {
                     <label className="text-sm font-semibold text-gray-700">
                       Ad Inspirations
                     </label>
-                    <span className="w-5 h-5 rounded-full bg-red-500 text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
                       {selectedProduct.creatives.length}
                     </span>
                   </div>
