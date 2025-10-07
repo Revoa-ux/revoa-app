@@ -397,7 +397,7 @@ export default function ProductApprovals() {
               <div className="rounded-lg p-4 border border-gray-200 relative overflow-hidden">
                 {/* Margin Percentage Badge */}
                 {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
-                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/50 backdrop-blur-sm rounded-full shadow-sm">
+                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/70 backdrop-blur-sm rounded-full shadow-sm">
                     <span className="text-xs font-bold text-white">
                       {Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%
                     </span>
@@ -414,128 +414,6 @@ export default function ProductApprovals() {
               </div>
             </div>
 
-            {/* Shopify Product Page Preview */}
-            <div>
-              <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                Shopify Product Page Preview
-              </label>
-              <div className="rounded-xl border-2 border-gray-200 overflow-hidden bg-white shadow-sm">
-                {/* Mock Browser Chrome */}
-                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
-                  </div>
-                  <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500 font-mono">
-                    yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
-                  </div>
-                </div>
-
-                {/* Shopify Product Layout */}
-                <div className="p-6 bg-white max-h-[600px] overflow-y-auto">
-                  <div className="grid grid-cols-2 gap-8">
-                    {/* Left: Product Images */}
-                    <div className="space-y-3">
-                      {selectedProduct.images && selectedProduct.images.length > 0 ? (
-                        <>
-                          {/* Main Image */}
-                          <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                            <img
-                              src={selectedProduct.images[0].url}
-                              alt={selectedProduct.name}
-                              className="w-full aspect-square object-cover"
-                            />
-                          </div>
-                          {/* Thumbnail Grid */}
-                          {selectedProduct.images.length > 1 && (
-                            <div className="grid grid-cols-4 gap-2">
-                              {selectedProduct.images.slice(0, 4).map((img) => (
-                                <div key={img.id} className="rounded border border-gray-200 overflow-hidden bg-gray-50">
-                                  <img
-                                    src={img.url}
-                                    alt={img.type}
-                                    className="w-full aspect-square object-cover"
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="rounded-lg border border-gray-200 bg-gray-50 aspect-square flex items-center justify-center">
-                          <Package className="w-12 h-12 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right: Product Info */}
-                    <div className="space-y-4">
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                          {selectedProduct.name}
-                        </h2>
-                        <div className="text-3xl font-bold text-gray-900">
-                          ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
-                        </div>
-                      </div>
-
-                      {/* Description */}
-                      <div className="prose prose-sm max-w-none">
-                        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-t border-gray-200 pt-4">
-                          {selectedProduct.description}
-                        </div>
-                      </div>
-
-                      {/* Mock Add to Cart Button */}
-                      <button className="w-full py-3 bg-black text-white font-semibold rounded-lg cursor-default">
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Product Description Section with GIFs */}
-                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
-                    <div className="mt-8 pt-8 border-t border-gray-200">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Product Features</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        {selectedProduct.creatives
-                          .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
-                          .map((gif, idx) => (
-                            <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                              <img
-                                src={gif.url}
-                                alt="Product Feature"
-                                className="w-full aspect-square object-cover"
-                              />
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ad Copy Section */}
-                  {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
-                    <div className="mt-8 pt-8 border-t border-gray-200">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Marketing Copy</h3>
-                      <div className="space-y-3">
-                        {selectedProduct.creatives
-                          .filter(c => c.ad_copy)
-                          .map((creative, idx) => (
-                            <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                              <p className="text-sm text-gray-700 italic">"{creative.ad_copy}"</p>
-                              {creative.headline && (
-                                <p className="text-xs text-gray-500 mt-2 font-semibold">{creative.headline}</p>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             {/* Ad Creatives & Inspiration Videos/Reels */}
             {selectedProduct.creatives && selectedProduct.creatives.length > 0 && (
               <div>
@@ -544,7 +422,7 @@ export default function ProductApprovals() {
                     <label className="text-sm font-semibold text-gray-700">
                       Ad Inspirations
                     </label>
-                    <span className="w-5 h-5 rounded-full bg-red-500/50 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-red-500/70 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
                       {selectedProduct.creatives.length}
                     </span>
                   </div>
@@ -655,6 +533,132 @@ export default function ProductApprovals() {
                 </div>
               </div>
             )}
+
+            {/* Product Page Preview */}
+            <div>
+              <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                Product Page Preview
+              </label>
+              <details className="rounded-xl border-2 border-gray-200 overflow-hidden bg-white shadow-sm">
+                <summary className="cursor-pointer bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors list-none flex items-center justify-between">
+                  <span>Click to expand full product page</span>
+                  <Eye className="w-4 h-4" />
+                </summary>
+                {/* Mock Browser Chrome */}
+                <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                  </div>
+                  <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500 font-mono">
+                    yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
+                  </div>
+                </div>
+
+                {/* Product Layout */}
+                <div className="p-6 bg-white max-h-[600px] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Left: Product Images */}
+                    <div className="space-y-3">
+                      {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                        <>
+                          {/* Main Image */}
+                          <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                            <img
+                              src={selectedProduct.images[0].url}
+                              alt={selectedProduct.name}
+                              className="w-full aspect-square object-cover"
+                            />
+                          </div>
+                          {/* Thumbnail Grid */}
+                          {selectedProduct.images.length > 1 && (
+                            <div className="grid grid-cols-4 gap-2">
+                              {selectedProduct.images.slice(0, 4).map((img) => (
+                                <div key={img.id} className="rounded border border-gray-200 overflow-hidden bg-gray-50">
+                                  <img
+                                    src={img.url}
+                                    alt={img.type}
+                                    className="w-full aspect-square object-cover"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="rounded-lg border border-gray-200 bg-gray-50 aspect-square flex items-center justify-center">
+                          <Package className="w-12 h-12 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right: Product Info */}
+                    <div className="space-y-4">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                          {selectedProduct.name}
+                        </h2>
+                        <div className="text-3xl font-bold text-gray-900">
+                          ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="prose prose-sm max-w-none">
+                        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-t border-gray-200 pt-4">
+                          {selectedProduct.description}
+                        </div>
+                      </div>
+
+                      {/* Mock Add to Cart Button */}
+                      <button className="w-full py-2.5 bg-gray-800 text-white text-sm font-medium rounded-lg cursor-default opacity-60">
+                        Add to Cart
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Product Description Section with GIFs */}
+                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
+                    <div className="mt-8 pt-8 border-t border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Product Features</h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {selectedProduct.creatives
+                          .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
+                          .map((gif, idx) => (
+                            <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                              <img
+                                src={gif.url}
+                                alt="Product Feature"
+                                className="w-full aspect-square object-cover"
+                              />
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ad Copy Section */}
+                  {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
+                    <div className="mt-8 pt-8 border-t border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Marketing Copy</h3>
+                      <div className="space-y-3">
+                        {selectedProduct.creatives
+                          .filter(c => c.ad_copy)
+                          .map((creative, idx) => (
+                            <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <p className="text-sm text-gray-700 italic">"{creative.ad_copy}"</p>
+                              {creative.headline && (
+                                <p className="text-xs text-gray-500 mt-2 font-semibold">{creative.headline}</p>
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </details>
+            </div>
 
             {/* Created Info */}
             <div className="pt-4 border-t border-gray-200">
