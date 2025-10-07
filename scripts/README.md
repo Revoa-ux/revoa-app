@@ -1,13 +1,30 @@
 # Revoa AI Agent Import Script
 
-Price-first product import workflow with Amazon Prime and AliExpress validation.
+Price-first product import workflow with **automated GIF creation** from video reels.
+
+## Features
+
+- ✅ **Price Validation**: Amazon Prime vs AliExpress (top 3, with shipping + min sales)
+- ✅ **Auto-GIF Generation**: Downloads reels, finds text-free 3-6s segments, creates GIFs ≤20MB
+- ✅ **Smart Cropping**: Square (1080x1080) or 4x6 tall (1080x1620) with center crop
+- ✅ **Size Budgeting**: Targets 24fps, reduces to 10fps if needed, then reduces resolution
+- ✅ **Copy Generation**: Auto-creates titles, descriptions, ad variants
+- ✅ **UPSERT Mode**: Updates existing products without duplicates
 
 ## Quick Start
 
 ### 1. Install Dependencies
 
+**System requirements:**
 ```bash
-pip install requests pyyaml
+# Install ffmpeg and yt-dlp
+sudo apt-get install ffmpeg
+pip install yt-dlp
+```
+
+**Python libraries:**
+```bash
+pip install requests pyyaml opencv-python-headless numpy
 ```
 
 ### 2. Set Environment Variables
@@ -24,6 +41,17 @@ REVOA_ADMIN_PASSWORD=your_admin_password
 Or use a token:
 ```
 REVOA_ADMIN_TOKEN=your_admin_token
+```
+
+**Optional GIF tuning variables:**
+```
+GIF_MAX_MB=20              # Max file size (Shopify limit)
+GIF_MIN_SEC=3.0            # Minimum clip duration
+GIF_MAX_SEC=6.0            # Maximum clip duration
+GIF_TARGET_FPS=24          # Target framerate (budgets down if needed)
+GIF_MIN_FPS=10             # Minimum framerate before reducing resolution
+GIF_ASPECT=square          # "square" (1080x1080) or "4x6" (1080x1620)
+GIF_VARIANTS=3             # Number of GIFs to generate per product
 ```
 
 ### 3. Create Product Manifests
@@ -49,9 +77,11 @@ products:
     ad_copy: "(fast & free shipping)"
 ```
 
-### 4. Add Assets
+### 4. Add Assets (Optional)
 
-Create folders matching `assets_dir`:
+**GIFs are now AUTO-GENERATED!** Just provide the `inspiration_reels` URL in your YAML.
+
+Optionally create folders matching `assets_dir` for additional assets:
 
 ```
 assets/
@@ -60,17 +90,17 @@ assets/
       main.jpg                 # 1080x1080, light grey background
       lifestyle-1.jpg          # Optional lifestyle shots
       lifestyle-2.jpg
-      ad-1.gif                 # Minimum 3 GIFs, NO TEXT
-      ad-2.gif
-      ad-3.gif
       demo.mp4                 # Optional demo video
 ```
 
-**GIF Requirements:**
-- Minimum 3 per product
-- 1-5 seconds, looping
-- NO text overlays or watermarks
-- High resolution, smooth motion
+**What happens automatically:**
+- System downloads the reel using `yt-dlp`
+- Uses OpenCV to scan every frame for text overlays
+- Finds 3-6 second segments with NO visible text
+- Crops to square (1080x1080) or 4x6 tall
+- Encodes with ffmpeg palettegen for high quality
+- Budgets FPS (24→10) then resolution to stay ≤20MB
+- Uploads 3 GIFs per product automatically
 
 ### 5. Run Import
 
@@ -80,7 +110,7 @@ python3 scripts/revoa_import.py
 
 ## How It Works
 
-### Price-First Workflow
+### Price-First + Auto-GIF Workflow
 
 1. **Pricing Validation** (NO assets uploaded yet)
    - Fetches Amazon price (Prime-only required)
@@ -88,13 +118,26 @@ python3 scripts/revoa_import.py
    - Enforces rule: `AE ≤ 50% of Amazon` OR `spread ≥ $20`
 
 2. **Asset Upload** (only if pricing passes)
-   - Uploads all images, GIFs, videos to Supabase storage
-   - Organizes by category/product
+   - Uploads any local images/videos from `assets_dir`
+   - **Auto-GIF Generation**:
+     - Downloads reel with `yt-dlp`
+     - Scans frames for text using OpenCV MSER + edge detection
+     - Finds 3-6s windows where 90%+ frames are text-free
+     - Crops to center square or 4x6 ratio
+     - Encodes with ffmpeg palettegen (high quality)
+     - Budgets: try 24fps → reduce to 10fps → reduce resolution
+     - Keeps every GIF ≤20MB (Shopify limit)
+     - Uploads 3 GIFs per product
 
-3. **Product Import** (UPSERT mode)
+3. **Copy Generation**
+   - Auto-creates 3 product titles (category-specific angles)
+   - Generates 3 description blocks (benefit-led)
+   - Creates ad copy variants (headlines, primary text, descriptions)
+
+4. **Product Import** (UPSERT mode)
    - Calculates RRP = 3× AliExpress total
    - Creates/updates product via Edge Function
-   - Includes price proof links in metadata
+   - Includes price proof links + auto-generated copy in metadata
 
 ### Pricing Rule Examples
 
