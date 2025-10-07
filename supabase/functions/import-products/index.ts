@@ -60,6 +60,7 @@ interface ProductInput {
 interface BulkImportRequest {
   products: ProductInput[];
   source: 'ai_agent' | 'manual' | 'csv' | 'api';
+  mode?: 'create' | 'upsert';
 }
 
 Deno.serve(async (req: Request) => {
@@ -121,7 +122,7 @@ Deno.serve(async (req: Request) => {
 
     if (req.method === 'POST') {
       const body: BulkImportRequest = await req.json();
-      const { products, source = 'api' } = body;
+      const { products, source = 'api', mode = 'create' } = body;
 
       if (!Array.isArray(products) || products.length === 0) {
         return new Response(
@@ -155,7 +156,10 @@ Deno.serve(async (req: Request) => {
       // Process each product
       for (const productInput of products) {
         try {
-          // Check for duplicate by external_id
+          let productId: string;
+          let isUpdate = false;
+
+          // Check for existing product by external_id
           if (productInput.external_id) {
             const { data: existing } = await supabase
               .from('products')
@@ -164,43 +168,79 @@ Deno.serve(async (req: Request) => {
               .maybeSingle();
 
             if (existing) {
-              results.failed++;
-              results.errors.push({
-                product: productInput.name,
-                error: `Duplicate external_id: ${productInput.external_id}`,
-              });
-              continue;
+              if (mode === 'create') {
+                results.failed++;
+                results.errors.push({
+                  product: productInput.name,
+                  error: `Duplicate external_id: ${productInput.external_id}`,
+                });
+                continue;
+              } else {
+                // UPSERT mode: update existing product
+                productId = existing.id;
+                isUpdate = true;
+
+                const { error: updateError } = await supabase
+                  .from('products')
+                  .update({
+                    name: productInput.name,
+                    description: productInput.description,
+                    category: productInput.category,
+                    supplier_price: productInput.supplier_price,
+                    recommended_retail_price: productInput.recommended_retail_price,
+                    metadata: productInput.metadata || {},
+                  })
+                  .eq('id', productId);
+
+                if (updateError) {
+                  results.failed++;
+                  results.errors.push({
+                    product: productInput.name,
+                    error: updateError.message,
+                  });
+                  continue;
+                }
+
+                // Delete existing related records before inserting new ones
+                await supabase.from('product_images').delete().eq('product_id', productId);
+                await supabase.from('product_media').delete().eq('product_id', productId);
+                await supabase.from('product_creatives').delete().eq('product_id', productId);
+                await supabase.from('product_variants').delete().eq('product_id', productId);
+              }
             }
           }
 
-          // Insert product
-          const { data: product, error: productError } = await supabase
-            .from('products')
-            .insert({
-              name: productInput.name,
-              description: productInput.description,
-              category: productInput.category,
-              supplier_price: productInput.supplier_price,
-              recommended_retail_price: productInput.recommended_retail_price,
-              external_id: productInput.external_id,
-              source,
-              approval_status: 'pending',
-              created_by: user.id,
-              metadata: productInput.metadata || {},
-            })
-            .select('id')
-            .single();
+          // Insert new product if not updating
+          if (!isUpdate) {
+            const { data: product, error: productError } = await supabase
+              .from('products')
+              .insert({
+                name: productInput.name,
+                description: productInput.description,
+                category: productInput.category,
+                supplier_price: productInput.supplier_price,
+                recommended_retail_price: productInput.recommended_retail_price,
+                external_id: productInput.external_id,
+                source,
+                approval_status: 'pending',
+                created_by: user.id,
+                metadata: productInput.metadata || {},
+              })
+              .select('id')
+              .single();
 
-          if (productError || !product) {
-            results.failed++;
-            results.errors.push({
-              product: productInput.name,
-              error: productError?.message || 'Failed to create product',
-            });
-            continue;
+            if (productError || !product) {
+              results.failed++;
+              results.errors.push({
+                product: productInput.name,
+                error: productError?.message || 'Failed to create product',
+              });
+              continue;
+            }
+
+            productId = product.id;
           }
 
-          const productId = product.id;
           results.product_ids.push(productId);
 
           // Insert images
