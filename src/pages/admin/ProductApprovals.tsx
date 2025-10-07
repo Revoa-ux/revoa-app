@@ -57,10 +57,7 @@ export default function ProductApprovals() {
 
       let query = supabase
         .from('products')
-        .select(`
-          *,
-          creator:created_by(email, name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (filter !== 'all') {
@@ -73,7 +70,7 @@ export default function ProductApprovals() {
 
       const productsWithDetails = await Promise.all(
         (data || []).map(async (product) => {
-          const [imagesRes, creativesRes] = await Promise.all([
+          const [imagesRes, creativesRes, creatorRes] = await Promise.all([
             supabase
               .from('product_images')
               .select('*')
@@ -82,13 +79,19 @@ export default function ProductApprovals() {
             supabase
               .from('product_creatives')
               .select('*')
-              .eq('product_id', product.id)
+              .eq('product_id', product.id),
+            supabase
+              .from('user_profiles')
+              .select('email, name')
+              .eq('user_id', product.created_by)
+              .maybeSingle()
           ]);
 
           return {
             ...product,
             images: imagesRes.data || [],
-            creatives: creativesRes.data || []
+            creatives: creativesRes.data || [],
+            creator: creatorRes.data || null
           };
         })
       );
