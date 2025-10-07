@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Revoa AI Agent Product Import Script (Price-First + UPSERT)
-===========================================================
+Revoa AI Agent Product Import Script (Price-First + UPSERT + Auto Copy)
+========================================================================
 
-Price-first workflow:
+Price-first workflow with auto-generated copy:
 1. Checks Amazon (Prime-only) and AliExpress (top 3, with shipping, min sales)
 2. Enforces pricing rule: AE ≤ 50% of Amazon OR spread ≥ $20
-3. Only uploads assets AFTER pricing passes
-4. UPSERT mode to update existing products
+3. Generates marketing copy (titles, description blocks, ad variants)
+4. Only uploads assets AFTER pricing passes
+5. UPSERT mode to update existing products
 
 Requirements:
 - Python 3.7+
@@ -100,7 +101,6 @@ def upload(token: str, local_path: str, bucket_rel_path: str) -> str:
             detail = r.json()
         except:
             detail = r.text
-        # If file exists, that's OK - return the public URL anyway
         if "already exists" not in str(detail).lower():
             print(f"⚠️ Upload warning for {local_path}: {detail}")
 
@@ -167,10 +167,8 @@ def parse_amazon_prime_price(html: str) -> Tuple[Optional[float], bool]:
     if not html:
         return None, False
 
-    # Check for Prime
     prime = bool(re.search(r'Prime[^<]*</span>|aria-label="Prime"|amazon-prime', html, re.IGNORECASE))
 
-    # Try multiple price selectors
     price = None
     patterns = [
         r'id="priceblock_ourprice"[^>]*>.*?\$?([0-9,]+\.[0-9]{2})',
@@ -194,7 +192,6 @@ def parse_aliexpress_price_shipping_sales(html: str) -> Tuple[Optional[float], O
     if not html:
         return None, None, None
 
-    # Price
     price = None
     price_patterns = [
         r'"salePrice"\s*:\s*"(.*?)"',
@@ -208,7 +205,6 @@ def parse_aliexpress_price_shipping_sales(html: str) -> Tuple[Optional[float], O
             if price:
                 break
 
-    # Shipping
     ship = None
     ship_patterns = [
         r'"shippingFee"\s*:\s*"(.*?)"',
@@ -221,9 +217,8 @@ def parse_aliexpress_price_shipping_sales(html: str) -> Tuple[Optional[float], O
             break
 
     if ship is None:
-        ship = 0.0  # Treat missing as free
+        ship = 0.0
 
-    # Sales count
     sales = None
     sales_patterns = [
         r'"tradeCount"\s*:\s*"?(\d+)"?',
@@ -257,10 +252,7 @@ def fetch_amazon_price_prime_only(amazon_url: str) -> Optional[float]:
 
 
 def fetch_aliexpress_total_best(candidate_urls: List[str], min_sales: int = 300, top_n: int = 3) -> Tuple[Optional[float], Optional[str]]:
-    """
-    Fetch best AliExpress total (item + shipping) from top candidates.
-    Returns (best_total, best_url).
-    """
+    """Fetch best AliExpress total (item + shipping) from top candidates."""
     print(f"   🔍 Checking top {top_n} AliExpress candidates (min {min_sales} sales)…")
     results = []
 
@@ -293,10 +285,7 @@ def fetch_aliexpress_total_best(candidate_urls: List[str], min_sales: int = 300,
 
 
 def enforce_rule(ae_total: Optional[float], amz_total: Optional[float], min_spread: float = 20.0) -> Tuple[bool, str]:
-    """
-    Enforce pricing rule: AE ≤ 50% of Amazon OR spread ≥ $20.
-    Returns (pass, reason).
-    """
+    """Enforce pricing rule: AE ≤ 50% of Amazon OR spread ≥ $20."""
     if ae_total is None:
         return False, "AliExpress price not found"
     if amz_total is None:
@@ -312,6 +301,76 @@ def enforce_rule(ae_total: Optional[float], amz_total: Optional[float], min_spre
     return False, f"FAIL (AE ${ae_total:.2f} vs AMZ ${amz_total:.2f}; spread ${spread:.2f})"
 
 
+# ---------- COPY GENERATOR ----------
+def generate_copy(rec: Dict[str, Any], ae_total: float, rrp: float) -> Dict[str, Any]:
+    """Generate marketing copy based on category and product details."""
+    name = rec.get("name", "This Product")
+    cat = (rec.get("category") or "").lower()
+    benefit = rec.get("description", "").split(".")[0].strip()
+
+    angles = {
+        "lighting": [
+            "Instant curb appeal",
+            "No wiring, no stress",
+            "Weather-resistant, dusk-to-dawn"
+        ],
+        "home": [
+            "Seal drafts in seconds",
+            "Quieter, comfier rooms",
+            "Cut energy waste"
+        ],
+        "fitness": [
+            "Train anywhere",
+            "Full-body results fast",
+            "Beginner to advanced"
+        ]
+    }
+    a = angles.get(cat, ["Easy upgrade", "High perceived quality", "Built to last"])
+
+    titles = [
+        f"{name}: {a[0]}",
+        f"{a[1]} — {name}",
+        f"{a[2]} • Under ${int(rrp)}"
+    ][:3]
+
+    blocks = [
+        f"{benefit}. Installs in minutes—no tools or pros needed.",
+        f"Designed for everyday use. Durable materials and clean look fit any style.",
+        f"Risk-free try. If it doesn't wow your space, send it back."
+    ]
+
+    primary_text = [
+        f"Today only! 35% off + bundle & save. {name} ships fast. (No wiring, zero hassle.)",
+        f"Upgrade your space in minutes. {name} = {a[0].lower()}.",
+        f"Join thousands who switched. High quality without the premium price."
+    ]
+
+    headlines = [
+        "35% off (Ends Tomorrow)",
+        "Fast & Free Shipping",
+        "Easy Install • No Damage",
+        "Elevate Your Curb Appeal",
+        "Built to Last",
+        f"Why Pay ${int(rrp)} Elsewhere?"
+    ]
+
+    descriptions = [
+        "(fast & free shipping)",
+        f"3× value vs suppliers • From ${ae_total:.2f}",
+        "Hassle-free returns"
+    ]
+
+    return {
+        "titles": titles,
+        "description_blocks": blocks,
+        "ad": {
+            "primary_text": primary_text,
+            "headlines": headlines,
+            "descriptions": descriptions
+        }
+    }
+
+
 # ---------- Build Product ----------
 def build_product(
     rec: Dict[str, Any],
@@ -321,8 +380,7 @@ def build_product(
     pass_reason: str,
     best_ae_url: str
 ) -> Dict[str, Any]:
-    """Build product payload for import."""
-    # Images
+    """Build product payload for import with auto-generated copy."""
     images = []
     mains = [u for u in assets["images"] if u.endswith("main.jpg")]
     lifestyles = [u for u in assets["images"] if "lifestyle" in u]
@@ -332,13 +390,13 @@ def build_product(
         for i, u in enumerate(sorted(lifestyles), start=1):
             images.append({"url": u, "type": "lifestyle", "display_order": i})
 
-    # Media (videos)
     media = [{"url": u, "type": "video", "description": "Product demo"} for u in assets["videos"]]
 
-    # Creatives
+    rrp = round(ae_total * 3, 2)
+    copy = generate_copy(rec, ae_total, rrp)
+
     creatives = []
 
-    # Add inspiration reels
     for reel in rec.get("inspiration_reels", []):
         creatives.append({
             "type": "reel",
@@ -347,19 +405,15 @@ def build_product(
             "is_inspiration": True
         })
 
-    # Add GIFs as ad creatives
-    for u in sorted(assets["gifs"]):
+    for idx, u in enumerate(sorted(assets["gifs"])):
         creatives.append({
             "type": "ad",
             "url": u,
             "platform": "meta",
-            "headline": rec.get("headline", "Shop Now"),
-            "ad_copy": rec.get("ad_copy", "(fast & free shipping)"),
+            "headline": copy["ad"]["headlines"][0] if idx == 0 else None,
+            "ad_copy": copy["ad"]["primary_text"][0] if idx == 0 else None,
             "is_inspiration": False
         })
-
-    # Calculate RRP = 3x supplier price
-    rrp = round(ae_total * 3, 2)
 
     return {
         "external_id": rec["external_id"],
@@ -378,6 +432,7 @@ def build_product(
             "aliexpress_url": best_ae_url,
             "amz_total": amz_total,
             "ae_total": ae_total,
+            "copy": copy,
             "notes": "GIFs must be text-free; uploaded after pricing pass."
         }
     }
@@ -437,19 +492,16 @@ def load_manifests() -> List[Dict[str, Any]]:
 # ---------- Main ----------
 def main():
     """Main execution flow."""
-    print("🚀 Revoa Importer (Price-First + UPSERT)")
+    print("🚀 Revoa Importer (Price-First + UPSERT + Auto Copy)")
     print("=" * 60)
 
-    # Validate environment
     if not SUPABASE_URL or not ANON_KEY:
         print("❌ Missing SUPABASE_URL or SUPABASE_ANON_KEY environment variables")
         sys.exit(1)
 
-    # Authenticate
     token = login()
     print("✅ Auth OK\n")
 
-    # Load manifests
     specs = load_manifests()
     if not specs:
         print("ℹ️ No product specifications found in /products/*.yml")
@@ -465,7 +517,6 @@ def main():
         print(f"Product: {rec.get('name', 'Unknown')}")
         print(f"{'=' * 60}")
 
-        # Required fields for pricing
         amz_url = rec.get("amazon_url")
         ae_candidates = rec.get("aliexpress_candidates", [])
         min_sales = int(rec.get("min_sales", 300))
@@ -481,17 +532,14 @@ def main():
             skipped.append({"external_id": rec.get("external_id"), "reason": "Missing aliexpress_candidates"})
             continue
 
-        # 1) Price first (NO assets yet)
         amz_total = fetch_amazon_price_prime_only(amz_url)
         ae_total, best_ae_url = fetch_aliexpress_total_best(ae_candidates, min_sales=min_sales, top_n=top_n)
 
-        # Fallback to explicit supplier_price if provided
         if ae_total is None and rec.get("supplier_price") is not None:
             ae_total = float(rec["supplier_price"])
             best_ae_url = ae_candidates[0] if ae_candidates else rec.get("aliexpress_url")
             print(f"   ℹ️ Using explicit supplier_price: ${ae_total:.2f}")
 
-        # Enforce pricing rule
         pass_rule, reason = enforce_rule(ae_total, amz_total)
         print(f"\n   📊 Pricing Rule: {reason}")
 
@@ -500,18 +548,17 @@ def main():
             skipped.append({"external_id": rec.get("external_id"), "reason": reason})
             continue
 
-        # 2) Assets only AFTER PASS
         print(f"\n   📤 Uploading assets…")
         assets = collect_and_upload(token, rec.get("assets_dir", ""))
 
         if not assets["gifs"]:
             print(f"   ⚠️ No GIFs found (recommend minimum 3, no text)")
 
-        # 3) Build product payload
         prod = build_product(rec, assets, ae_total, amz_total, reason, best_ae_url)
         payload.append(prod)
 
-        print(f"   ✅ Ready to import: {len(assets['images'])} images, {len(assets['gifs'])} GIFs, {len(assets['videos'])} videos\n")
+        print(f"   ✅ Ready to import: {len(assets['images'])} images, {len(assets['gifs'])} GIFs, {len(assets['videos'])} videos")
+        print(f"   📝 Auto-generated copy: {len(prod['metadata']['copy']['titles'])} titles, {len(prod['metadata']['copy']['description_blocks'])} blocks\n")
 
     if not payload:
         print("\n⚠️ No products passed pricing rules. Nothing to import.")
@@ -520,7 +567,6 @@ def main():
             print(json.dumps(skipped, indent=2))
         return
 
-    # Import all products with UPSERT
     print(f"\n{'=' * 60}")
     print(f"📦 Sending UPSERT import for {len(payload)} product(s)…")
     print(f"{'=' * 60}\n")
