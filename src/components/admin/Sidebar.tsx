@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   Home,
   Users,
   MessageSquare,
@@ -8,7 +8,9 @@ import {
   Package,
   Settings,
   UserPlus,
-  LogOut
+  LogOut,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +32,24 @@ export default function AdminSidebar() {
   const location = useLocation();
   const { signOut } = useAuth();
   const { isSuperAdmin } = useAdmin();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const stored = localStorage.getItem('color-theme');
+    if (stored) {
+      return stored === 'dark';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (isDarkMode) {
+      html.classList.add('dark');
+      localStorage.setItem('color-theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('color-theme', 'light');
+    }
+  }, [isDarkMode]);
 
   const filteredNavigation = navigation.filter(item => 
     !item.superAdminOnly || (item.superAdminOnly && isSuperAdmin)
@@ -46,15 +66,20 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="w-[280px] fixed inset-y-0 left-0 bg-white border-r border-gray-200">
+    <div className="w-[280px] fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
       <div className="flex flex-col h-full">
         {/* Logo */}
-        <div className="py-8 px-6">
+        <div className="py-8 px-4">
           <div className="w-32 h-8 relative">
             <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
               alt="Logo"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain dark:hidden"
+            />
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+              alt="Logo"
+              className="w-full h-full object-contain hidden dark:block"
             />
           </div>
         </div>
@@ -72,8 +97,8 @@ export default function AdminSidebar() {
                   className={cn(
                     'flex items-center px-3 py-2 text-[13px] rounded-lg transition-colors',
                     isActive
-                      ? 'bg-gray-900 text-white font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-gray-900 text-white dark:bg-gray-600 dark:text-white font-medium'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   )}
                 >
                   <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
@@ -84,11 +109,22 @@ export default function AdminSidebar() {
           </nav>
         </div>
 
-        {/* Log Out */}
+        {/* Dark Mode and Log Out */}
         <div className="p-3">
-          <button 
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className="w-full flex items-center px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            {isDarkMode ? (
+              <Sun className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+            ) : (
+              <Moon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+            )}
+            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
+          <button
             onClick={handleLogout}
-            className="w-full flex items-center px-3 py-2 mt-0.5 text-[13px] text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center px-3 py-2 mt-0.5 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <LogOut className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
             Log Out
