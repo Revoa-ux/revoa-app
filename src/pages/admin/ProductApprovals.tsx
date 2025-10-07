@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Eye, Package, Calendar, User, AlertCircle, Loader2, Download } from 'lucide-react';
+import { Check, X, Eye, Package, Calendar, User, AlertCircle, Loader2, Download, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -46,6 +46,8 @@ export default function ProductApprovals() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showFullPreview, setShowFullPreview] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -183,12 +185,12 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Product Approvals
         </h1>
         <p className="text-gray-600 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-          Review and approve products imported by AI agent or added manually
+          Review and approve products imported by AI agent
         </p>
       </div>
 
@@ -254,9 +256,6 @@ export default function ProductApprovals() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Created
                   </th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -314,44 +313,6 @@ export default function ProductApprovals() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {new Date(product.created_at).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedProduct(product);
-                          }}
-                          className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
-                          title="View details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        {product.approval_status === 'pending' && (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleApprove(product.id);
-                              }}
-                              className="p-2 text-green-600 hover:text-green-700 transition-colors rounded-lg hover:bg-green-50"
-                              title="Approve"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleReject(product.id);
-                              }}
-                              className="p-2 text-red-600 hover:text-red-700 transition-colors rounded-lg hover:bg-red-50"
-                              title="Reject"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -370,7 +331,7 @@ export default function ProductApprovals() {
             {/* Header */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-gray-200">
               <div className="flex-1">
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-gray-900">
                   {selectedProduct.name}
                 </h3>
               </div>
@@ -397,7 +358,7 @@ export default function ProductApprovals() {
               <div className="rounded-lg p-4 border border-gray-200 relative overflow-hidden">
                 {/* Margin Percentage Badge */}
                 {selectedProduct.recommended_retail_price && selectedProduct.supplier_price && (
-                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/70 backdrop-blur-sm rounded-full shadow-sm">
+                  <div className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-600/80 rounded-full shadow-sm">
                     <span className="text-xs font-bold text-white">
                       {Math.round(((selectedProduct.recommended_retail_price - selectedProduct.supplier_price) / selectedProduct.recommended_retail_price) * 100)}%
                     </span>
@@ -422,7 +383,7 @@ export default function ProductApprovals() {
                     <label className="text-sm font-semibold text-gray-700">
                       Ad Inspirations
                     </label>
-                    <span className="w-5 h-5 rounded-full bg-red-500/70 backdrop-blur-sm text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-5 h-5 rounded-full bg-red-600/80 text-white text-xs font-semibold flex items-center justify-center">
                       {selectedProduct.creatives.length}
                     </span>
                   </div>
@@ -536,14 +497,23 @@ export default function ProductApprovals() {
 
             {/* Product Page Preview */}
             <div>
-              <label className="text-sm font-semibold text-gray-700 mb-3 block">
-                Product Page Preview
-              </label>
-              <details className="rounded-xl border-2 border-gray-200 overflow-hidden bg-white shadow-sm">
-                <summary className="cursor-pointer bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors list-none flex items-center justify-between">
-                  <span>Click to expand full product page</span>
-                  <Eye className="w-4 h-4" />
-                </summary>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-semibold text-gray-700">
+                  Product Page Preview
+                </label>
+                <button
+                  onClick={() => {
+                    setShowFullPreview(true);
+                    setCurrentImageIndex(0);
+                  }}
+                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  Full Preview
+                </button>
+              </div>
+
+              <div className="rounded-xl border-2 border-gray-200 overflow-hidden bg-white shadow-sm">
                 {/* Mock Browser Chrome */}
                 <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex items-center gap-2">
                   <div className="flex gap-1.5">
@@ -557,31 +527,64 @@ export default function ProductApprovals() {
                 </div>
 
                 {/* Product Layout */}
-                <div className="p-6 bg-white max-h-[600px] overflow-y-auto">
-                  <div className="grid grid-cols-2 gap-8">
-                    {/* Left: Product Images */}
+                <div className="p-6 bg-white max-h-[400px] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Left: Product Images with Carousel */}
                     <div className="space-y-3">
                       {selectedProduct.images && selectedProduct.images.length > 0 ? (
                         <>
-                          {/* Main Image */}
-                          <div className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                          {/* Main Image with Navigation */}
+                          <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group">
                             <img
-                              src={selectedProduct.images[0].url}
+                              src={selectedProduct.images[currentImageIndex].url}
                               alt={selectedProduct.name}
                               className="w-full aspect-square object-cover"
                             />
+                            {selectedProduct.images.length > 1 && (
+                              <>
+                                <button
+                                  onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? selectedProduct.images.length - 1 : prev - 1))}
+                                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <ChevronLeft className="w-4 h-4 text-gray-700" />
+                                </button>
+                                <button
+                                  onClick={() => setCurrentImageIndex((prev) => (prev === selectedProduct.images.length - 1 ? 0 : prev + 1))}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <ChevronRight className="w-4 h-4 text-gray-700" />
+                                </button>
+                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                  {selectedProduct.images.map((_, idx) => (
+                                    <button
+                                      key={idx}
+                                      onClick={() => setCurrentImageIndex(idx)}
+                                      className={`w-2 h-2 rounded-full transition-all ${
+                                        idx === currentImageIndex ? 'bg-white w-4' : 'bg-white/60'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              </>
+                            )}
                           </div>
                           {/* Thumbnail Grid */}
                           {selectedProduct.images.length > 1 && (
                             <div className="grid grid-cols-4 gap-2">
-                              {selectedProduct.images.slice(0, 4).map((img) => (
-                                <div key={img.id} className="rounded border border-gray-200 overflow-hidden bg-gray-50">
+                              {selectedProduct.images.slice(0, 4).map((img, idx) => (
+                                <button
+                                  key={img.id}
+                                  onClick={() => setCurrentImageIndex(idx)}
+                                  className={`rounded border-2 overflow-hidden bg-gray-50 transition-all ${
+                                    idx === currentImageIndex ? 'border-gray-900' : 'border-gray-200 hover:border-gray-400'
+                                  }`}
+                                >
                                   <img
                                     src={img.url}
                                     alt={img.type}
                                     className="w-full aspect-square object-cover"
                                   />
-                                </div>
+                                </button>
                               ))}
                             </div>
                           )}
@@ -594,19 +597,19 @@ export default function ProductApprovals() {
                     </div>
 
                     {/* Right: Product Info */}
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       <div>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        <h2 className="text-xl font-bold text-gray-900 mb-2">
                           {selectedProduct.name}
                         </h2>
-                        <div className="text-3xl font-bold text-gray-900">
+                        <div className="text-2xl font-bold text-gray-900">
                           ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
                         </div>
                       </div>
 
-                      {/* Description */}
-                      <div className="prose prose-sm max-w-none">
-                        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap border-t border-gray-200 pt-4">
+                      {/* Description - Scrollable */}
+                      <div className="border-t border-gray-200 pt-3">
+                        <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[200px] overflow-y-auto pr-2">
                           {selectedProduct.description}
                         </div>
                       </div>
@@ -617,47 +620,8 @@ export default function ProductApprovals() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Product Description Section with GIFs */}
-                  {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
-                    <div className="mt-8 pt-8 border-t border-gray-200">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Product Features</h3>
-                      <div className="grid grid-cols-3 gap-4">
-                        {selectedProduct.creatives
-                          .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
-                          .map((gif, idx) => (
-                            <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                              <img
-                                src={gif.url}
-                                alt="Product Feature"
-                                className="w-full aspect-square object-cover"
-                              />
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Ad Copy Section */}
-                  {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
-                    <div className="mt-8 pt-8 border-t border-gray-200">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Marketing Copy</h3>
-                      <div className="space-y-3">
-                        {selectedProduct.creatives
-                          .filter(c => c.ad_copy)
-                          .map((creative, idx) => (
-                            <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                              <p className="text-sm text-gray-700 italic">"{creative.ad_copy}"</p>
-                              {creative.headline && (
-                                <p className="text-xs text-gray-500 mt-2 font-semibold">{creative.headline}</p>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </details>
+              </div>
             </div>
 
             {/* Created Info */}
@@ -705,6 +669,164 @@ export default function ProductApprovals() {
                   <Check className="w-4 h-4" />
                   Approve
                 </button>
+              )}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Full Preview Modal */}
+      {showFullPreview && selectedProduct && (
+        <Modal
+          isOpen={true}
+          onClose={() => setShowFullPreview(false)}
+          title="Full Product Page Preview"
+        >
+          <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+            {/* Mock Browser Chrome */}
+            <div className="bg-gray-100 px-4 py-2 rounded-lg border border-gray-200 flex items-center gap-2">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+              </div>
+              <div className="flex-1 bg-white rounded px-3 py-1 text-xs text-gray-500 font-mono">
+                yourstore.myshopify.com/products/{selectedProduct.name.toLowerCase().replace(/\s+/g, '-')}
+              </div>
+            </div>
+
+            {/* Full Product Layout */}
+            <div className="bg-white rounded-lg border border-gray-200 p-8">
+              <div className="grid grid-cols-2 gap-12">
+                {/* Left: Product Images with Carousel */}
+                <div className="space-y-4">
+                  {selectedProduct.images && selectedProduct.images.length > 0 ? (
+                    <>
+                      {/* Main Image with Navigation */}
+                      <div className="relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group">
+                        <img
+                          src={selectedProduct.images[currentImageIndex].url}
+                          alt={selectedProduct.name}
+                          className="w-full aspect-square object-cover"
+                        />
+                        {selectedProduct.images.length > 1 && (
+                          <>
+                            <button
+                              onClick={() => setCurrentImageIndex((prev) => (prev === 0 ? selectedProduct.images.length - 1 : prev - 1))}
+                              className="absolute left-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronLeft className="w-5 h-5 text-gray-700" />
+                            </button>
+                            <button
+                              onClick={() => setCurrentImageIndex((prev) => (prev === selectedProduct.images.length - 1 ? 0 : prev + 1))}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 p-3 bg-white/90 hover:bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronRight className="w-5 h-5 text-gray-700" />
+                            </button>
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                              {selectedProduct.images.map((_, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setCurrentImageIndex(idx)}
+                                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                                    idx === currentImageIndex ? 'bg-white w-6' : 'bg-white/60'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {/* Thumbnail Grid */}
+                      {selectedProduct.images.length > 1 && (
+                        <div className="grid grid-cols-5 gap-3">
+                          {selectedProduct.images.map((img, idx) => (
+                            <button
+                              key={img.id}
+                              onClick={() => setCurrentImageIndex(idx)}
+                              className={`rounded border-2 overflow-hidden bg-gray-50 transition-all ${
+                                idx === currentImageIndex ? 'border-gray-900' : 'border-gray-200 hover:border-gray-400'
+                              }`}
+                            >
+                              <img
+                                src={img.url}
+                                alt={img.type}
+                                className="w-full aspect-square object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 aspect-square flex items-center justify-center">
+                      <Package className="w-16 h-16 text-gray-300" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Right: Product Info */}
+                <div className="space-y-6">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                      {selectedProduct.name}
+                    </h1>
+                    <div className="text-4xl font-bold text-gray-900">
+                      ${selectedProduct.recommended_retail_price?.toFixed(2) || 'N/A'}
+                    </div>
+                  </div>
+
+                  {/* Description - Fully Scrollable */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <div className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap max-h-[400px] overflow-y-auto pr-2">
+                      {selectedProduct.description}
+                    </div>
+                  </div>
+
+                  {/* Mock Add to Cart Button */}
+                  <button className="w-full py-3.5 bg-gray-800 text-white text-base font-semibold rounded-lg cursor-default opacity-60">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+
+              {/* Product Features Section with GIFs */}
+              {selectedProduct.creatives && selectedProduct.creatives.filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif'))).length > 0 && (
+                <div className="mt-12 pt-12 border-t border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Product Features</h2>
+                  <div className="grid grid-cols-3 gap-6">
+                    {selectedProduct.creatives
+                      .filter(c => c.type === 'gif' || (c.type === 'ad' && c.url?.includes('.gif')))
+                      .map((gif, idx) => (
+                        <div key={idx} className="rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                          <img
+                            src={gif.url}
+                            alt="Product Feature"
+                            className="w-full aspect-square object-cover"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Marketing Copy Section */}
+              {selectedProduct.creatives && selectedProduct.creatives.some(c => c.ad_copy) && (
+                <div className="mt-12 pt-12 border-t border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Marketing Copy</h2>
+                  <div className="space-y-4">
+                    {selectedProduct.creatives
+                      .filter(c => c.ad_copy)
+                      .map((creative, idx) => (
+                        <div key={idx} className="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                          <p className="text-base text-gray-700 italic">"{creative.ad_copy}"</p>
+                          {creative.headline && (
+                            <p className="text-sm text-gray-500 mt-3 font-semibold">{creative.headline}</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                </div>
               )}
             </div>
           </div>
