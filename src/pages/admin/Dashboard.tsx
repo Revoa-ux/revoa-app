@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, 
+import {
+  Users,
   DollarSign,
   RefreshCw,
   ArrowUpRight,
@@ -12,6 +12,10 @@ import {
   Server,
   MemoryStick as Memory,
   Activity,
+  FileText,
+  Shield,
+  ShoppingCart,
+  ChevronRight,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAdmin } from '@/contexts/AdminContext';
