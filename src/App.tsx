@@ -14,6 +14,7 @@ import SettingsPage from './pages/Settings';
 import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
 import AdminProductApprovals from './pages/admin/ProductApprovals';
+import AdminProductImport from './pages/admin/ProductImport';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminQuotes from './pages/admin/Quotes';
@@ -108,6 +109,7 @@ function App() {
               <Route path="quotes" element={<AdminQuotes />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
+              <Route path="product-import" element={<AdminProductImport />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />

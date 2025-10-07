@@ -6,6 +6,7 @@ import {
   MessageSquare,
   FileText,
   Package,
+  Upload,
   Settings,
   UserPlus,
   LogOut,
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Quote Requests', href: '/admin/quotes', icon: FileText },
   { name: 'Conversations', href: '/admin/chat', icon: MessageSquare },
   { name: 'Product Approvals', href: '/admin/products', icon: Package, superAdminOnly: true },
+  { name: 'Import Products', href: '/admin/product-import', icon: Upload, superAdminOnly: true },
   { name: 'Bulk Invoices', href: '/admin/invoices', icon: FileText },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true },
   { name: 'Settings', href: '/admin/settings', icon: Settings }
