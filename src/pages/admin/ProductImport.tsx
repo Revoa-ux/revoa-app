@@ -51,22 +51,65 @@ export default function ProductImport() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      // Fetch the YAML file content
-      console.log('Fetching YAML file...');
-      const yamlResponse = await fetch('/products/pilot.yml');
-      if (!yamlResponse.ok) {
-        throw new Error(`Failed to load YAML file: ${yamlResponse.status} ${yamlResponse.statusText}`);
-      }
-      const yamlContent = await yamlResponse.text();
-      console.log('YAML content loaded, length:', yamlContent.length);
-      console.log('First 200 chars:', yamlContent.substring(0, 200));
+      // Hardcoded YAML content for pilot products
+      const yamlContent = `products:
+  - external_id: "ig:DLpBJg-s-_i:solar-step-lights"
+    name: "Peel-and-Stick Solar Step Lights (Warm White)"
+    category: "Lighting"
+    description: "Boost curb appeal in minutes with weather-resistant solar step lights."
+    assets_dir: "assets/lighting/solar-step-lights"
+    amazon_url: "https://www.amazon.com/dp/EXAMPLE1"
+    aliexpress_candidates:
+      - "https://www.aliexpress.com/item/EXAMPLE-A.html"
+      - "https://www.aliexpress.com/item/EXAMPLE-B.html"
+      - "https://www.aliexpress.com/item/EXAMPLE-C.html"
+    min_sales: 300
+    top_n: 3
+    inspiration_reels:
+      - "https://www.instagram.com/reel/DLpBJg-s-_i/"
+    headline: "Elevate your curb appeal"
+    ad_copy: "(fast & free shipping)"
+
+  - external_id: "ig:DLxeJLpuUHd:under-door-draft-stopper"
+    name: "Under Door Draft Stopper"
+    category: "Home"
+    description: "Seal drafts and cut noise with this easy-install door stopper."
+    assets_dir: "assets/home/under-door-draft-stopper"
+    amazon_url: "https://www.amazon.com/dp/EXAMPLE2"
+    aliexpress_candidates:
+      - "https://www.aliexpress.com/item/EXAMPLE-D.html"
+      - "https://www.aliexpress.com/item/EXAMPLE-E.html"
+    min_sales: 300
+    top_n: 3
+    inspiration_reels:
+      - "https://www.instagram.com/reel/DLxeJLpuUHd/"
+    headline: "Block drafts & noise"
+    ad_copy: "(easy install)"
+
+  - external_id: "ig:DMngbHWPjJP:resistance-bands-pro-set"
+    name: "Resistance Bands Pro Set"
+    category: "Fitness"
+    description: "Train anywhere with this professional full-body resistance band set."
+    assets_dir: "assets/fitness/resistance-bands"
+    amazon_url: "https://www.amazon.com/dp/EXAMPLE3"
+    aliexpress_candidates:
+      - "https://www.aliexpress.com/item/EXAMPLE-F.html"
+      - "https://www.aliexpress.com/item/EXAMPLE-G.html"
+      - "https://www.aliexpress.com/item/EXAMPLE-H.html"
+    min_sales: 300
+    top_n: 3
+    inspiration_reels:
+      - "https://www.instagram.com/reel/DMngbHWPjJP/"
+    headline: "Home gym in a bag"
+    ad_copy: "(professional quality)"`;
+
+      console.log('Sending YAML content, length:', yamlContent.length);
 
       const payload = {
         source: 'yaml',
         mode: 'upsert',
         yaml_content: yamlContent
       };
-      console.log('Sending payload with yaml_content length:', yamlContent.length);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
