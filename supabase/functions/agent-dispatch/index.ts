@@ -125,10 +125,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check admin status
+    // Parse request body
+    const body: DispatchRequest = await req.json().catch(() => ({}));
+    const mode = body.mode || 'real';
+
+    // Check super-admin status (Real Mode requires super-admin)
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('is_admin, email')
+      .select('is_admin, is_super_admin, email')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -142,9 +146,16 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Parse request body
-    const body: DispatchRequest = await req.json().catch(() => ({}));
-    const mode = body.mode || 'real';
+    // Real mode requires super-admin
+    if (mode === 'real' && !profile?.is_super_admin) {
+      return new Response(
+        JSON.stringify({ error: 'Super-admin access required for Real Mode. Use Demo Mode instead.' }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
     const maxProducts = body.max_products || 5;
     const niche = body.niche;
 
