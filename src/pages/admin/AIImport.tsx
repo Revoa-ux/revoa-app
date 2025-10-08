@@ -99,18 +99,48 @@ export default function AIImport() {
   }, []);
 
   const triggerPilotImport = async () => {
+    setUploading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const response = await fetch('/products/pilot.yml');
       if (!response.ok) throw new Error('Failed to fetch pilot.yml');
 
       const yamlContent = await response.text();
-      const blob = new Blob([yamlContent], { type: 'text/yaml' });
-      const file = new File([blob], 'pilot.yml', { type: 'text/yaml' });
 
-      await uploadFile(file);
+      // Send directly to import-products with YAML content
+      const importResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            yaml_content: yamlContent,
+            source: 'ai_agent',
+            mode: 'upsert'
+          })
+        }
+      );
+
+      if (!importResponse.ok) {
+        const error = await importResponse.json();
+        throw new Error(error.error || 'Import failed');
+      }
+
+      const result = await importResponse.json();
+      toast.success(`Import completed! ${result.successful}/${result.total} products imported.`);
+
+      // Refresh to show new "job" (actually just show success)
+      fetchJobs();
     } catch (error) {
       console.error('Pilot import error:', error);
-      toast.error('Failed to trigger pilot import');
+      toast.error(error instanceof Error ? error.message : 'Failed to trigger pilot import');
+    } finally {
+      setUploading(false);
     }
   };
 
