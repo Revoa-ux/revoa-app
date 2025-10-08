@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+import { parse } from 'npm:yaml@2.3.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -58,8 +59,9 @@ interface ProductInput {
 }
 
 interface BulkImportRequest {
-  products: ProductInput[];
-  source: 'ai_agent' | 'manual' | 'csv' | 'api';
+  products?: ProductInput[];
+  yaml_content?: string;
+  source: 'ai_agent' | 'manual' | 'csv' | 'api' | 'yaml';
   mode?: 'create' | 'upsert';
 }
 
@@ -122,7 +124,50 @@ Deno.serve(async (req: Request) => {
 
     if (req.method === 'POST') {
       const body: BulkImportRequest = await req.json();
-      const { products, source = 'api', mode = 'create' } = body;
+      let { products, source = 'api' } = body;
+      const { yaml_content, mode = 'create' } = body;
+
+      // Parse YAML if provided
+      if (yaml_content && !products) {
+        try {
+          const yamlData = parse(yaml_content);
+
+          // Convert YAML format to ProductInput format
+          products = yamlData.products?.map((item: any) => ({
+            external_id: item.external_id,
+            name: item.name,
+            description: item.description,
+            category: item.category,
+            supplier_price: item.supplier_price || 0,
+            recommended_retail_price: item.recommended_retail_price || 0,
+            metadata: {
+              amazon_url: item.amazon_url,
+              aliexpress_candidates: item.aliexpress_candidates,
+              headline: item.headline,
+              ad_copy: item.ad_copy,
+              min_sales: item.min_sales,
+              top_n: item.top_n,
+              assets_dir: item.assets_dir,
+            },
+            creatives: item.inspiration_reels?.map((url: string) => ({
+              type: 'reel',
+              url,
+              platform: 'instagram',
+              is_inspiration: true,
+            })) || [],
+          })) || [];
+
+          source = 'yaml';
+        } catch (err) {
+          return new Response(
+            JSON.stringify({ error: `Failed to parse YAML: ${err instanceof Error ? err.message : 'Unknown error'}` }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
 
       if (!Array.isArray(products) || products.length === 0) {
         return new Response(

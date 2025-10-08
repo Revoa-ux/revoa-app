@@ -51,6 +51,11 @@ export default function ProductImport() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
+      // Fetch the YAML file content
+      const yamlResponse = await fetch('/products/pilot.yml');
+      if (!yamlResponse.ok) throw new Error('Failed to load YAML file');
+      const yamlContent = await yamlResponse.text();
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
         {
@@ -62,7 +67,7 @@ export default function ProductImport() {
           body: JSON.stringify({
             source: 'yaml',
             mode: 'upsert',
-            yaml_path: 'products/pilot.yml'
+            yaml_content: yamlContent
           })
         }
       );
