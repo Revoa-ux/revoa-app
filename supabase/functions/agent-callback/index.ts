@@ -43,16 +43,30 @@ Deno.serve(async (req: Request) => {
     // Get environment variables
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const CALLBACK_SECRET = Deno.env.get('CALLBACK_SECRET') || '';
 
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error('Missing Supabase configuration');
     }
 
-    // Verify callback secret (simple auth from GitHub Actions)
+    // Verify authorization (GitHub Actions uses service role key)
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader || authHeader !== `Bearer ${CALLBACK_SECRET}`) {
-      console.error('Invalid callback secret');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Extract token from Bearer header
+    const token = authHeader.replace('Bearer ', '');
+
+    // Verify it's a valid service role key
+    if (token !== SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Invalid service role key');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         {

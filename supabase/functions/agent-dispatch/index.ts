@@ -8,16 +8,11 @@ const corsHeaders = {
 };
 
 interface DispatchRequest {
+  mode?: 'real' | 'demo';
   niche?: string;
   hashtags?: string[];
   max_products?: number;
 }
-
-// Mock product research data for demonstration
-const PRODUCT_CATEGORIES = [
-  'Pet Supplies', 'Home & Garden', 'Kitchen Gadgets', 'Fitness & Sports',
-  'Beauty & Personal Care', 'Electronics', 'Baby Products', 'Office Supplies'
-];
 
 const SAMPLE_PRODUCTS = [
   { name: 'Automatic Pet Feeder', category: 'Pet Supplies', supplier_price: 25, retail_price: 59.99 },
@@ -25,35 +20,29 @@ const SAMPLE_PRODUCTS = [
   { name: 'Portable Blender', category: 'Kitchen Gadgets', supplier_price: 18, retail_price: 49.99 },
   { name: 'Resistance Bands Set', category: 'Fitness & Sports', supplier_price: 15, retail_price: 39.99 },
   { name: 'Facial Cleansing Brush', category: 'Beauty & Personal Care', supplier_price: 22, retail_price: 54.99 },
-  { name: 'Wireless Earbuds', category: 'Electronics', supplier_price: 28, retail_price: 69.99 },
-  { name: 'Baby Monitor Camera', category: 'Baby Products', supplier_price: 35, retail_price: 89.99 },
-  { name: 'Desk Organizer Set', category: 'Office Supplies', supplier_price: 14, retail_price: 32.99 },
 ];
 
-async function runProductResearch(supabase: any, userId: string, maxProducts: number, niche?: string) {
+async function runDemoMode(supabase: any, userId: string, maxProducts: number, niche?: string) {
   const products = [];
   const numProducts = Math.min(maxProducts, SAMPLE_PRODUCTS.length);
-
-  // Select random products
   const shuffled = [...SAMPLE_PRODUCTS].sort(() => 0.5 - Math.random());
   const selected = shuffled.slice(0, numProducts);
 
   for (const product of selected) {
     const productData = {
-      name: product.name,
-      description: `High-quality ${product.name.toLowerCase()} with excellent profit margins. Popular on social media with proven track record.`,
+      name: `[DEMO] ${product.name}`,
+      description: `Demo product: ${product.name.toLowerCase()} with sample data for testing.`,
       category: niche || product.category,
       supplier_price: product.supplier_price,
       recommended_retail_price: product.retail_price,
-      external_id: `research_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      source: 'ai_agent',
+      external_id: `demo_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      source: 'demo',
       approval_status: 'pending',
       created_by: userId,
       metadata: {
-        research_source: 'ai_agent',
+        mode: 'demo',
         profit_margin: Math.round(((product.retail_price - product.supplier_price) / product.retail_price) * 100),
-        research_date: new Date().toISOString(),
-        confidence_score: 0.85 + Math.random() * 0.14,
+        created_at: new Date().toISOString(),
       },
     };
 
@@ -65,16 +54,14 @@ async function runProductResearch(supabase: any, userId: string, maxProducts: nu
 
     if (!error && newProduct) {
       products.push(newProduct);
-
-      // Add sample creative data
       await supabase.from('product_creatives').insert({
         product_id: newProduct.id,
         type: 'reel',
         url: 'https://www.instagram.com/reel/example',
         platform: 'instagram',
         is_inspiration: true,
-        headline: `Discover ${product.name}`,
-        ad_copy: `Transform your life with this amazing ${product.name.toLowerCase()}! Perfect for everyday use.`,
+        headline: `Demo: ${product.name}`,
+        ad_copy: `Sample ad copy for ${product.name.toLowerCase()}.`,
       });
     }
   }
@@ -157,6 +144,7 @@ Deno.serve(async (req: Request) => {
 
     // Parse request body
     const body: DispatchRequest = await req.json().catch(() => ({}));
+    const mode = body.mode || 'real';
     const maxProducts = body.max_products || 5;
     const niche = body.niche;
 
@@ -164,10 +152,11 @@ Deno.serve(async (req: Request) => {
     const { data: job, error: jobError } = await supabase
       .from('import_jobs')
       .insert({
-        status: 'running',
-        source: 'ai_agent',
+        status: mode === 'demo' ? 'running' : 'queued',
+        source: mode === 'demo' ? 'demo' : 'ai_agent',
         triggered_by: user.id,
         inputs: {
+          mode,
           niche: niche || null,
           hashtags: body.hashtags || [],
           max_products: maxProducts,
@@ -188,56 +177,82 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log(`Created import job: ${job.id}`);
-    console.log(`Starting product research for ${maxProducts} products${niche ? ` in niche: ${niche}` : ''}`);
+    console.log(`Created import job: ${job.id} (mode: ${mode})`);
 
-    // Run product research
-    try {
-      const importedProducts = await runProductResearch(supabase, user.id, maxProducts, niche);
+    // DEMO MODE: Run instant sample insert
+    if (mode === 'demo') {
+      try {
+        const importedProducts = await runDemoMode(supabase, user.id, maxProducts, niche);
 
-      // Update job with results
-      await supabase
-        .from('import_jobs')
-        .update({
-          status: 'completed',
-          successful_imports: importedProducts.length,
-          failed_imports: 0,
-          skipped_imports: 0,
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', job.id);
+        await supabase
+          .from('import_jobs')
+          .update({
+            status: 'completed',
+            successful_imports: importedProducts.length,
+            failed_imports: 0,
+            skipped_imports: 0,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', job.id);
 
-      console.log(`Successfully imported ${importedProducts.length} products`);
+        console.log(`Demo completed: ${importedProducts.length} products`);
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          job_id: job.id,
-          message: `AI agent completed! ${importedProducts.length} products added for approval.`,
-          products_imported: importedProducts.length,
-        }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    } catch (researchError) {
-      console.error('Product research failed:', researchError);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            job_id: job.id,
+            mode: 'demo',
+            message: `Demo completed! ${importedProducts.length} sample products added.`,
+            products_imported: importedProducts.length,
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      } catch (demoError) {
+        console.error('Demo failed:', demoError);
+        await supabase
+          .from('import_jobs')
+          .update({
+            status: 'failed',
+            error: demoError instanceof Error ? demoError.message : 'Unknown error',
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', job.id);
 
-      // Mark job as failed
+        return new Response(
+          JSON.stringify({
+            error: 'Demo failed',
+            details: demoError instanceof Error ? demoError.message : 'Unknown error',
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+
+    // REAL MODE: Dispatch GitHub Actions
+    const GITHUB_TOKEN = Deno.env.get('GITHUB_TOKEN');
+    const GITHUB_OWNER = Deno.env.get('GITHUB_OWNER');
+    const GITHUB_REPO = Deno.env.get('GITHUB_REPO');
+
+    if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
       await supabase
         .from('import_jobs')
         .update({
           status: 'failed',
-          error: researchError instanceof Error ? researchError.message : 'Unknown error',
+          error: 'GitHub configuration missing. Set GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO.',
           completed_at: new Date().toISOString(),
         })
         .eq('id', job.id);
 
       return new Response(
         JSON.stringify({
-          error: 'Product research failed',
-          details: researchError instanceof Error ? researchError.message : 'Unknown error',
+          error: 'GitHub configuration missing',
+          details: 'Please configure GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO environment variables.',
         }),
         {
           status: 500,
@@ -245,6 +260,75 @@ Deno.serve(async (req: Request) => {
         }
       );
     }
+
+    console.log(`Dispatching GitHub Actions for job ${job.id}`);
+
+    const workflowFile = 'import-products.yml';
+    const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${workflowFile}/dispatches`;
+
+    const dispatchResponse = await fetch(dispatchUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ref: 'main',
+        inputs: {
+          job_id: job.id,
+          niche: niche || 'all',
+          max_products: String(maxProducts),
+        },
+      }),
+    });
+
+    if (!dispatchResponse.ok) {
+      const errorText = await dispatchResponse.text();
+      console.error('GitHub dispatch failed:', dispatchResponse.status, errorText);
+
+      await supabase
+        .from('import_jobs')
+        .update({
+          status: 'failed',
+          error: `GitHub dispatch failed: ${dispatchResponse.status} - ${errorText}`,
+          completed_at: new Date().toISOString(),
+        })
+        .eq('id', job.id);
+
+      return new Response(
+        JSON.stringify({
+          error: 'Failed to dispatch GitHub workflow',
+          details: `Status ${dispatchResponse.status}: ${errorText}`,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log('GitHub workflow dispatched successfully');
+
+    await supabase
+      .from('import_jobs')
+      .update({ status: 'running' })
+      .eq('id', job.id);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        job_id: job.id,
+        mode: 'real',
+        message: 'AI agent workflow started. Check job status below.',
+        run_url: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions`,
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
     console.error('Agent dispatch error:', error);
     return new Response(

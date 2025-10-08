@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Upload, FileText, CheckCircle2, XCircle, Clock, RefreshCw, AlertCircle, ExternalLink, Zap } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Upload, FileText, CheckCircle2, XCircle, Clock, RefreshCw, AlertCircle, ExternalLink, Zap, ChevronDown } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { useClickOutside } from '@/lib/useClickOutside';
 
 interface ImportJob {
   id: string;
@@ -25,6 +26,10 @@ export default function AIImport() {
   const [uploading, setUploading] = useState(false);
   const [jobs, setJobs] = useState<ImportJob[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModeDropdown, setShowModeDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(dropdownRef, () => setShowModeDropdown(false));
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -100,11 +105,16 @@ export default function AIImport() {
     await uploadFile(file);
   }, []);
 
-  const triggerAIAgent = async () => {
+  const triggerAIAgent = async (mode: 'real' | 'demo' = 'real') => {
     setUploading(true);
+    setShowModeDropdown(false);
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
+
+      const modeLabel = mode === 'demo' ? 'Demo mode' : 'Real AI agent';
+      toast.info(`Starting ${modeLabel}...`);
 
       // Call the agent-dispatch edge function
       const response = await fetch(
@@ -116,7 +126,8 @@ export default function AIImport() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            max_products: 10
+            mode,
+            max_products: mode === 'demo' ? 5 : 10
           })
         }
       );
@@ -127,20 +138,27 @@ export default function AIImport() {
       }
 
       const result = await response.json();
-      toast.success(result.message || 'AI agent workflow started successfully!');
+
+      if (mode === 'demo') {
+        toast.success(`${result.message} (Demo mode)`);
+      } else {
+        toast.success(result.message || 'AI agent workflow started!');
+      }
 
       // Refresh jobs list
       fetchJobs();
 
-      // Set up polling to refresh job status
-      const pollInterval = setInterval(() => {
-        fetchJobs();
-      }, 5000);
+      // Set up polling for real mode only
+      if (mode === 'real') {
+        const pollInterval = setInterval(() => {
+          fetchJobs();
+        }, 5000);
 
-      // Stop polling after 5 minutes
-      setTimeout(() => {
-        clearInterval(pollInterval);
-      }, 300000);
+        // Stop polling after 5 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval);
+        }, 300000);
+      }
     } catch (error) {
       console.error('Agent dispatch error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to trigger AI agent');
@@ -223,31 +241,89 @@ export default function AIImport() {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Agent Import</h1>
-            <p className="text-gray-600">Upload YAML/CSV/ZIP files to automatically import products with price validation</p>
+            <p className="text-gray-600">Trigger real product research or test with demo data</p>
           </div>
-          <button
-            onClick={triggerAIAgent}
-            disabled={uploading}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-          >
-            <Zap className="w-5 h-5" />
-            {uploading ? 'Starting...' : 'Run AI Agent Now'}
-          </button>
+
+          <div className="relative" ref={dropdownRef}>
+            <div className="flex items-center gap-0">
+              <button
+                onClick={() => triggerAIAgent('real')}
+                disabled={uploading}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-l-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                <Zap className="w-5 h-5" />
+                {uploading ? 'Starting...' : 'Run AI Agent'}
+              </button>
+              <button
+                onClick={() => setShowModeDropdown(!showModeDropdown)}
+                disabled={uploading}
+                className="px-3 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-r-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border-l border-blue-500"
+              >
+                <ChevronDown className="w-5 h-5" />
+              </button>
+            </div>
+
+            {showModeDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-10">
+                <button
+                  onClick={() => triggerAIAgent('real')}
+                  disabled={uploading}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Real Mode (Default)</div>
+                      <div className="text-sm text-gray-600">Runs Python agent via GitHub Actions</div>
+                    </div>
+                  </div>
+                </button>
+
+                <div className="border-t border-gray-200 my-1"></div>
+
+                <button
+                  onClick={() => triggerAIAgent('demo')}
+                  disabled={uploading}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex items-start gap-3">
+                    <FileText className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold text-gray-900">Demo Mode</div>
+                      <div className="text-sm text-gray-600">Instant test with 5 sample products</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <div className="flex gap-3">
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
-              <p className="font-medium mb-2">AI Agent Workflow:</p>
-              <ul className="list-disc list-inside space-y-1 text-blue-800">
-                <li>Click "Run AI Agent Now" to trigger a fresh product research cycle</li>
-                <li>AI agent discovers winning products with validated profit margins</li>
-                <li>Products are automatically added with sample creative inspiration</li>
-                <li>All products appear in Product Approvals with "pending" status</li>
-                <li>Review and approve products to add them to your catalog</li>
-                <li>You can also manually upload YAML/CSV/ZIP files below</li>
-              </ul>
+              <p className="font-medium mb-2">How It Works:</p>
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium text-blue-900">Real Mode (Default):</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-800 ml-2">
+                    <li>Triggers GitHub Actions workflow with your Python agent</li>
+                    <li>Scrapes Instagram/TikTok for winning products</li>
+                    <li>Validates pricing: AliExpress ≤ 50% of Amazon OR $20+ spread</li>
+                    <li>Auto-generates text-free GIFs and uploads assets</li>
+                    <li>Products appear in Product Approvals for your review</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-medium text-blue-900">Demo Mode:</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-800 ml-2">
+                    <li>Instantly creates 5 sample products for testing</li>
+                    <li>No external API calls or asset generation</li>
+                    <li>Perfect for UI testing and workflow verification</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -331,9 +407,18 @@ export default function AIImport() {
                           {getStatusIcon(job.status)}
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {job.source === 'ai_agent' || job.source === 'admin_trigger' ? 'AI Agent' : job.filename || job.source}
+                              {job.source === 'ai_agent' ? 'AI Agent (Real)' :
+                               job.source === 'demo' ? 'Demo Mode' :
+                               job.source === 'admin_trigger' ? 'AI Agent' :
+                               job.filename || job.source}
                             </div>
-                            {(job.source === 'ai_agent' || job.source === 'admin_trigger') && (
+                            {job.source === 'ai_agent' && (
+                              <div className="text-xs text-gray-500">GitHub Actions</div>
+                            )}
+                            {job.source === 'demo' && (
+                              <div className="text-xs text-gray-500">Sample Data</div>
+                            )}
+                            {job.source === 'admin_trigger' && (
                               <div className="text-xs text-gray-500">Automated Research</div>
                             )}
                           </div>
@@ -370,9 +455,21 @@ export default function AIImport() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
+                          {job.github_run_url && (
+                            <a
+                              href={job.github_run_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                              title="View GitHub Actions run"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              GitHub
+                            </a>
+                          )}
                           {job.status === 'failed' && (
                             <button
-                              onClick={() => triggerAIAgent()}
+                              onClick={() => triggerAIAgent('real')}
                               className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
                             >
                               <RefreshCw className="w-4 h-4" />
@@ -382,10 +479,10 @@ export default function AIImport() {
                           {job.status === 'completed' && job.successful_imports && job.successful_imports > 0 && (
                             <a
                               href="/admin/product-approvals"
-                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                              className="text-green-600 hover:text-green-700 text-sm font-medium flex items-center gap-1"
                             >
-                              <ExternalLink className="w-4 h-4" />
-                              View
+                              <CheckCircle2 className="w-4 h-4" />
+                              Review
                             </a>
                           )}
                         </div>
