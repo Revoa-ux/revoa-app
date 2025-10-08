@@ -242,10 +242,10 @@ export default function AIImport() {
               <p className="font-medium mb-2">AI Agent Workflow:</p>
               <ul className="list-disc list-inside space-y-1 text-blue-800">
                 <li>Click "Run AI Agent Now" to trigger a fresh product research cycle</li>
-                <li>GitHub Actions runs your Python agent to discover winning products</li>
-                <li>Agent validates pricing (AliExpress ≤ 50% of Amazon OR $20+ spread)</li>
-                <li>Agent creates text-free GIFs and uploads assets automatically</li>
-                <li>Products appear in Product Approvals for your review</li>
+                <li>AI agent discovers winning products with validated profit margins</li>
+                <li>Products are automatically added with sample creative inspiration</li>
+                <li>All products appear in Product Approvals with "pending" status</li>
+                <li>Review and approve products to add them to your catalog</li>
                 <li>You can also manually upload YAML/CSV/ZIP files below</li>
               </ul>
             </div>
@@ -331,10 +331,10 @@ export default function AIImport() {
                           {getStatusIcon(job.status)}
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {job.source === 'admin_trigger' ? 'AI Agent' : job.filename || job.source}
+                              {job.source === 'ai_agent' || job.source === 'admin_trigger' ? 'AI Agent' : job.filename || job.source}
                             </div>
-                            {job.source === 'admin_trigger' && (
-                              <div className="text-xs text-gray-500">GitHub Actions</div>
+                            {(job.source === 'ai_agent' || job.source === 'admin_trigger') && (
+                              <div className="text-xs text-gray-500">Automated Research</div>
                             )}
                           </div>
                         </div>
@@ -370,17 +370,6 @@ export default function AIImport() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {job.github_run_url && (
-                            <a
-                              href={job.github_run_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                              title="View GitHub Actions run"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
                           {job.status === 'failed' && (
                             <button
                               onClick={() => triggerAIAgent()}
@@ -389,6 +378,15 @@ export default function AIImport() {
                               <RefreshCw className="w-4 h-4" />
                               Retry
                             </button>
+                          )}
+                          {job.status === 'completed' && job.successful_imports && job.successful_imports > 0 && (
+                            <a
+                              href="/admin/product-approvals"
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                              View
+                            </a>
                           )}
                         </div>
                       </td>
