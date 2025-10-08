@@ -3,6 +3,8 @@ products:
     name: "Peel-and-Stick Solar Step Lights (Warm White)"
     category: "Lighting"
     description: "Boost curb appeal in minutes with weather-resistant solar step lights."
+    supplier_price: 9.80
+    recommended_retail_price: 29.40
     assets_dir: "assets/lighting/solar-step-lights"
     amazon_url: "https://www.amazon.com/dp/EXAMPLE1"
     aliexpress_candidates:
@@ -20,6 +22,8 @@ products:
     name: "Under Door Draft Stopper"
     category: "Home"
     description: "Seal drafts and cut noise with this easy-install door stopper."
+    supplier_price: 7.50
+    recommended_retail_price: 22.50
     assets_dir: "assets/home/under-door-draft-stopper"
     amazon_url: "https://www.amazon.com/dp/EXAMPLE2"
     aliexpress_candidates:
@@ -36,6 +40,8 @@ products:
     name: "Resistance Bands Pro Set"
     category: "Fitness"
     description: "Train anywhere with this professional full-body resistance band set."
+    supplier_price: 12.99
+    recommended_retail_price: 38.97
     assets_dir: "assets/fitness/resistance-bands"
     amazon_url: "https://www.amazon.com/dp/EXAMPLE3"
     aliexpress_candidates:
