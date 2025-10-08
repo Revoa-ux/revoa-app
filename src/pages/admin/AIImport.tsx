@@ -45,18 +45,7 @@ export default function AIImport() {
     fetchJobs();
   }, [fetchJobs]);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
-
-    const file = acceptedFiles[0];
-    const allowedTypes = ['.yml', '.yaml', '.csv', '.zip'];
-    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-
-    if (!allowedTypes.includes(fileExt)) {
-      toast.error('Invalid file type. Please upload YAML, CSV, or ZIP files only.');
-      return;
-    }
-
+  const uploadFile = async (file: File) => {
     setUploading(true);
 
     try {
@@ -92,7 +81,38 @@ export default function AIImport() {
     } finally {
       setUploading(false);
     }
-  }, [fetchJobs]);
+  };
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return;
+
+    const file = acceptedFiles[0];
+    const allowedTypes = ['.yml', '.yaml', '.csv', '.zip'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+
+    if (!allowedTypes.includes(fileExt)) {
+      toast.error('Invalid file type. Please upload YAML, CSV, or ZIP files only.');
+      return;
+    }
+
+    await uploadFile(file);
+  }, []);
+
+  const triggerPilotImport = async () => {
+    try {
+      const response = await fetch('/products/pilot.yml');
+      if (!response.ok) throw new Error('Failed to fetch pilot.yml');
+
+      const yamlContent = await response.text();
+      const blob = new Blob([yamlContent], { type: 'text/yaml' });
+      const file = new File([blob], 'pilot.yml', { type: 'text/yaml' });
+
+      await uploadFile(file);
+    } catch (error) {
+      console.error('Pilot import error:', error);
+      toast.error('Failed to trigger pilot import');
+    }
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -163,9 +183,19 @@ export default function AIImport() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Agent Import</h1>
-          <p className="text-gray-600">Upload YAML/CSV/ZIP files to automatically import products with price validation</p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Agent Import</h1>
+            <p className="text-gray-600">Upload YAML/CSV/ZIP files to automatically import products with price validation</p>
+          </div>
+          <button
+            onClick={triggerPilotImport}
+            disabled={uploading}
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <Upload className="w-5 h-5" />
+            Trigger AI Import
+          </button>
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
