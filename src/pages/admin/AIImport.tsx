@@ -1,21 +1,23 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Upload, FileText, CheckCircle2, XCircle, Clock, RefreshCw, AlertCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle2, XCircle, Clock, RefreshCw, AlertCircle, ExternalLink, Zap } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
 interface ImportJob {
   id: string;
-  filename: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  filename?: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  source: string;
   created_at: string;
   completed_at?: string;
-  summary?: {
-    total: number;
-    successful: number;
-    failed: number;
-    skipped?: Array<{ external_id: string; reason: string }>;
-  };
+  total_products?: number;
+  successful_imports?: number;
+  failed_imports?: number;
+  skipped_imports?: number;
+  github_run_id?: string;
+  github_run_url?: string;
+  triggered_by?: string;
   error?: string;
 }
 
@@ -98,20 +100,15 @@ export default function AIImport() {
     await uploadFile(file);
   }, []);
 
-  const triggerPilotImport = async () => {
+  const triggerAIAgent = async () => {
     setUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/products/pilot.yml');
-      if (!response.ok) throw new Error('Failed to fetch pilot.yml');
-
-      const yamlContent = await response.text();
-
-      // Send directly to import-products with YAML content
-      const importResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
+      // Call the agent-dispatch edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-dispatch`,
         {
           method: 'POST',
           headers: {
@@ -119,26 +116,34 @@ export default function AIImport() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            yaml_content: yamlContent,
-            source: 'ai_agent',
-            mode: 'upsert'
+            max_products: 10
           })
         }
       );
 
-      if (!importResponse.ok) {
-        const error = await importResponse.json();
-        throw new Error(error.error || 'Import failed');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || error.details || 'Failed to start AI agent');
       }
 
-      const result = await importResponse.json();
-      toast.success(`Import completed! ${result.successful}/${result.total} products imported.`);
+      const result = await response.json();
+      toast.success(result.message || 'AI agent workflow started successfully!');
 
-      // Refresh to show new "job" (actually just show success)
+      // Refresh jobs list
       fetchJobs();
+
+      // Set up polling to refresh job status
+      const pollInterval = setInterval(() => {
+        fetchJobs();
+      }, 5000);
+
+      // Stop polling after 5 minutes
+      setTimeout(() => {
+        clearInterval(pollInterval);
+      }, 300000);
     } catch (error) {
-      console.error('Pilot import error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to trigger pilot import');
+      console.error('Agent dispatch error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to trigger AI agent');
     } finally {
       setUploading(false);
     }
@@ -188,8 +193,10 @@ export default function AIImport() {
         return <CheckCircle2 className="w-5 h-5 text-green-600" />;
       case 'failed':
         return <XCircle className="w-5 h-5 text-red-600" />;
-      case 'processing':
+      case 'running':
         return <Clock className="w-5 h-5 text-blue-600 animate-pulse" />;
+      case 'queued':
+        return <Clock className="w-5 h-5 text-gray-400" />;
       default:
         return <Clock className="w-5 h-5 text-gray-400" />;
     }
@@ -199,8 +206,8 @@ export default function AIImport() {
     const styles = {
       completed: 'bg-green-100 text-green-800',
       failed: 'bg-red-100 text-red-800',
-      processing: 'bg-blue-100 text-blue-800',
-      pending: 'bg-gray-100 text-gray-800'
+      running: 'bg-blue-100 text-blue-800',
+      queued: 'bg-gray-100 text-gray-800'
     };
 
     return (
@@ -219,12 +226,12 @@ export default function AIImport() {
             <p className="text-gray-600">Upload YAML/CSV/ZIP files to automatically import products with price validation</p>
           </div>
           <button
-            onClick={triggerPilotImport}
+            onClick={triggerAIAgent}
             disabled={uploading}
             className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <Upload className="w-5 h-5" />
-            Trigger AI Import
+            <Zap className="w-5 h-5" />
+            {uploading ? 'Starting...' : 'Run AI Agent Now'}
           </button>
         </div>
 
@@ -232,13 +239,14 @@ export default function AIImport() {
           <div className="flex gap-3">
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-blue-900">
-              <p className="font-medium mb-2">How it works:</p>
+              <p className="font-medium mb-2">AI Agent Workflow:</p>
               <ul className="list-disc list-inside space-y-1 text-blue-800">
-                <li>Upload YAML manifest or ZIP containing manifest + assets</li>
-                <li>System validates Amazon (Prime-only) and AliExpress prices</li>
-                <li>Only products that pass pricing rules are imported</li>
-                <li>Assets are uploaded only after pricing passes</li>
-                <li>UPSERT mode prevents duplicates</li>
+                <li>Click "Run AI Agent Now" to trigger a fresh product research cycle</li>
+                <li>GitHub Actions runs your Python agent to discover winning products</li>
+                <li>Agent validates pricing (AliExpress ≤ 50% of Amazon OR $20+ spread)</li>
+                <li>Agent creates text-free GIFs and uploads assets automatically</li>
+                <li>Products appear in Product Approvals for your review</li>
+                <li>You can also manually upload YAML/CSV/ZIP files below</li>
               </ul>
             </div>
           </div>
@@ -299,16 +307,16 @@ export default function AIImport() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      File
+                      Source
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Summary
+                      Results
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
+                      Started
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -321,44 +329,68 @@ export default function AIImport() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           {getStatusIcon(job.status)}
-                          <span className="text-sm font-medium text-gray-900">{job.filename}</span>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {job.source === 'admin_trigger' ? 'AI Agent' : job.filename || job.source}
+                            </div>
+                            {job.source === 'admin_trigger' && (
+                              <div className="text-xs text-gray-500">GitHub Actions</div>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(job.status)}
                       </td>
                       <td className="px-6 py-4">
-                        {job.summary ? (
+                        {job.total_products !== undefined ? (
                           <div className="text-sm">
                             <div className="text-gray-900">
-                              {job.summary.successful}/{job.summary.total} successful
+                              {job.successful_imports || 0}/{job.total_products} imported
                             </div>
-                            {job.summary.failed > 0 && (
-                              <div className="text-red-600">{job.summary.failed} failed</div>
+                            {(job.failed_imports || 0) > 0 && (
+                              <div className="text-red-600">{job.failed_imports} failed</div>
                             )}
-                            {job.summary.skipped && job.summary.skipped.length > 0 && (
-                              <div className="text-yellow-600">{job.summary.skipped.length} skipped</div>
+                            {(job.skipped_imports || 0) > 0 && (
+                              <div className="text-yellow-600">{job.skipped_imports} skipped</div>
                             )}
                           </div>
                         ) : job.error ? (
-                          <div className="text-sm text-red-600">{job.error}</div>
+                          <div className="text-sm text-red-600 max-w-xs truncate" title={job.error}>
+                            {job.error}
+                          </div>
                         ) : (
-                          <div className="text-sm text-gray-400">-</div>
+                          <div className="text-sm text-gray-400">
+                            {job.status === 'running' ? 'Processing...' : 'Waiting...'}
+                          </div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {new Date(job.created_at).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {job.status === 'failed' && (
-                          <button
-                            onClick={() => reprocessJob(job.id)}
-                            className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
-                          >
-                            <RefreshCw className="w-4 h-4" />
-                            Retry
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {job.github_run_url && (
+                            <a
+                              href={job.github_run_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                              title="View GitHub Actions run"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          )}
+                          {job.status === 'failed' && (
+                            <button
+                              onClick={() => triggerAIAgent()}
+                              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                              Retry
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
