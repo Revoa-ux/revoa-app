@@ -130,10 +130,22 @@ Deno.serve(async (req: Request) => {
       // Parse YAML if provided
       if (yaml_content && !products) {
         try {
+          console.log('Parsing YAML content, length:', yaml_content.length);
           const yamlData = parse(yaml_content);
+          console.log('Parsed YAML data:', JSON.stringify(yamlData, null, 2));
+
+          if (!yamlData || !yamlData.products) {
+            return new Response(
+              JSON.stringify({ error: 'YAML file must contain a "products" array' }),
+              {
+                status: 400,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              }
+            );
+          }
 
           // Convert YAML format to ProductInput format
-          products = yamlData.products?.map((item: any) => ({
+          products = yamlData.products.map((item: any) => ({
             external_id: item.external_id,
             name: item.name,
             description: item.description,
@@ -155,12 +167,17 @@ Deno.serve(async (req: Request) => {
               platform: 'instagram',
               is_inspiration: true,
             })) || [],
-          })) || [];
+          }));
 
+          console.log('Converted products array length:', products.length);
           source = 'yaml';
         } catch (err) {
+          console.error('YAML parsing error:', err);
           return new Response(
-            JSON.stringify({ error: `Failed to parse YAML: ${err instanceof Error ? err.message : 'Unknown error'}` }),
+            JSON.stringify({
+              error: `Failed to parse YAML: ${err instanceof Error ? err.message : 'Unknown error'}`,
+              details: err instanceof Error ? err.stack : undefined
+            }),
             {
               status: 400,
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -168,6 +185,8 @@ Deno.serve(async (req: Request) => {
           );
         }
       }
+
+      console.log('Products array check - is array:', Array.isArray(products), 'length:', products?.length);
 
       if (!Array.isArray(products) || products.length === 0) {
         return new Response(

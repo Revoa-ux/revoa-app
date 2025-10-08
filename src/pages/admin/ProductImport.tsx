@@ -52,9 +52,21 @@ export default function ProductImport() {
       if (!session) throw new Error('Not authenticated');
 
       // Fetch the YAML file content
+      console.log('Fetching YAML file...');
       const yamlResponse = await fetch('/products/pilot.yml');
-      if (!yamlResponse.ok) throw new Error('Failed to load YAML file');
+      if (!yamlResponse.ok) {
+        throw new Error(`Failed to load YAML file: ${yamlResponse.status} ${yamlResponse.statusText}`);
+      }
       const yamlContent = await yamlResponse.text();
+      console.log('YAML content loaded, length:', yamlContent.length);
+      console.log('First 200 chars:', yamlContent.substring(0, 200));
+
+      const payload = {
+        source: 'yaml',
+        mode: 'upsert',
+        yaml_content: yamlContent
+      };
+      console.log('Sending payload with yaml_content length:', yamlContent.length);
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/import-products`,
@@ -64,20 +76,25 @@ export default function ProductImport() {
             'Authorization': `Bearer ${session.access_token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            source: 'yaml',
-            mode: 'upsert',
-            yaml_content: yamlContent
-          })
+          body: JSON.stringify(payload)
         }
       );
 
+      const responseText = await response.text();
+      console.log('Response status:', response.status);
+      console.log('Response body:', responseText);
+
       if (!response.ok) {
-        const error = await response.json();
+        let error;
+        try {
+          error = JSON.parse(responseText);
+        } catch {
+          error = { error: responseText };
+        }
         throw new Error(error.error || 'Bulk import failed');
       }
 
-      const result = await response.json();
+      const result = JSON.parse(responseText);
       toast.success(`Bulk import complete! ${result.successful} products imported successfully.`);
     } catch (error) {
       console.error('Bulk import error:', error);
