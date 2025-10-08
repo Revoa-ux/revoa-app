@@ -27,15 +27,18 @@ git push -u origin main
 
 Go to your GitHub repository → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-Add these 5 secrets:
+Add these secrets:
 
-| Secret Name | Description | Where to Find |
-|------------|-------------|---------------|
-| `SUPABASE_URL` | Your Supabase project URL | Supabase Dashboard → Project Settings → API |
-| `SUPABASE_ANON_KEY` | Your Supabase anon key | Supabase Dashboard → Project Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key | Supabase Dashboard → Project Settings → API |
-| `ADMIN_EMAIL` | Admin email for authentication | Your admin user email |
-| `ADMIN_PASSWORD` | Admin password for authentication | Your admin user password |
+| Secret Name | Description | Where to Find | Required |
+|------------|-------------|---------------|----------|
+| `SUPABASE_URL` | Your Supabase project URL | Supabase Dashboard → Project Settings → API | Yes |
+| `SUPABASE_ANON_KEY` | Your Supabase anon key | Supabase Dashboard → Project Settings → API | Yes |
+| `SUPABASE_SERVICE_ROLE` | Your Supabase service role key | Supabase Dashboard → Project Settings → API | Yes |
+| `REVOA_ADMIN_TOKEN` | Admin token for authentication | Generate via Supabase auth | Optional* |
+| `REVOA_ADMIN_EMAIL` | Admin email for authentication | Your admin user email | Optional* |
+| `REVOA_ADMIN_PASSWORD` | Admin password for authentication | Your admin user password | Optional* |
+
+**Note**: You need EITHER `REVOA_ADMIN_TOKEN` OR both `REVOA_ADMIN_EMAIL` + `REVOA_ADMIN_PASSWORD`.
 
 ### 3. Configure Edge Function Secrets
 

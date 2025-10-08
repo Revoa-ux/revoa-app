@@ -583,10 +583,14 @@ def main():
     specs = load_manifests()
     if not specs:
         print("ℹ️ No YAML manifests under /products")
+        # Write empty summary
+        with open("run_summary.json", "w") as f:
+            json.dump({"total": 0, "successful": 0, "failed": 0, "skipped": 0}, f)
         return
 
     payload = []
     skipped = []
+    failed = []
 
     for rec in specs:
         # ---- Required fields for pricing ----
@@ -632,18 +636,47 @@ def main():
         prod = build_product(rec, assets, ae_total, amz_total, reason, best_ae_url)
         payload.append(prod)
 
+    total = len(specs)
+    successful = len(payload)
+    failed_count = len(failed)
+    skipped_count = len(skipped)
+
     if not payload:
         print("⚠️ No products passed pricing. Nothing to import.")
         if skipped: print(json.dumps({"skipped": skipped}, indent=2))
+        # Write summary
+        with open("run_summary.json", "w") as f:
+            json.dump({
+                "total": total,
+                "successful": 0,
+                "failed": failed_count,
+                "skipped": skipped_count
+            }, f)
         return
 
     print("📦 Sending UPSERT import…")
-    import_products(token, payload)
-    print("🎉 Done — review in /admin/product-approvals")
+    try:
+        import_products(token, payload)
+        print("🎉 Done — review in /admin/product-approvals")
+    except Exception as e:
+        print(f"❌ Import failed: {e}")
+        failed_count = len(payload)
+        successful = 0
 
     if skipped:
         print("\n⚠️ Skipped (pricing failed or missing URLs):")
         print(json.dumps(skipped, indent=2))
+
+    # Write summary JSON for GitHub Actions callback
+    summary = {
+        "total": total,
+        "successful": successful,
+        "failed": failed_count,
+        "skipped": skipped_count
+    }
+    with open("run_summary.json", "w") as f:
+        json.dump(summary, f, indent=2)
+    print("\n📊 Summary:", json.dumps(summary, indent=2))
 
 if __name__ == "__main__":
     try:
