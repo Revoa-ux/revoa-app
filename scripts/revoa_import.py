@@ -738,13 +738,29 @@ def main():
     skipped = []
     failed = []
 
-    # Load YAML manifests as seed products
-    specs = load_manifests()
-    if not specs:
-        print("ℹ️ No YAML manifests under /products")
-        return 0, 0, 0, []
+    # =====================================================================
+    # TODO: REAL AI PRODUCT DISCOVERY
+    # =====================================================================
+    # This is where the real AI agent should:
+    # 1. Discover trending products from Instagram reels (viral content)
+    # 2. Analyze engagement metrics, comments, trending hashtags
+    # 3. Identify product opportunities from viral videos
+    # 4. Find matching Amazon Prime listings
+    # 5. Find AliExpress suppliers with good pricing
+    # 6. Generate compelling copy based on viral content
+    #
+    # Current implementation: DISABLED - No YAML test products
+    # =====================================================================
 
-    # Process YAML products
+    print("⚠️  AI DISCOVERY NOT YET IMPLEMENTED")
+    print("    The script needs Instagram discovery logic to find real products.")
+    print("    Currently only processes YAML files which contain test data.")
+    print("")
+    print("🚫 Skipping YAML test products - waiting for real AI discovery...")
+
+    specs = []  # Explicitly empty - don't load test products
+
+    # Process discovered products (currently empty until discovery implemented)
     for rec in specs:
         # Check if we hit target or timeout
         if found >= target:
@@ -852,7 +868,8 @@ def main():
 
     # Import if we have any products
     if not payload:
-        print("⚠️ No products passed pricing. Nothing to import.")
+        print("⚠️ No products to import.")
+        print("   Reason: AI discovery not yet implemented (currently skipping YAML test products)")
         if skipped: print(json.dumps({"skipped": skipped}, indent=2))
         return len(specs), 0, len(failed), skipped
 
