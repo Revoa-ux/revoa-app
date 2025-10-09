@@ -11,6 +11,14 @@ on:
         description: "Why triggered (optional note)"
         required: false
         default: ""
+      job_id:
+        description: "Import job UUID from Supabase (optional)"
+        required: false
+        default: ""
+      niche:
+        description: "Niche filter"
+        required: false
+        default: "all"
   schedule:
     - cron: "0 6 * * *"   # daily 06:00 UTC
   push:
@@ -19,27 +27,6 @@ on:
       - "assets/**"
       - "scripts/**"
       - ".github/workflows/import-products.yml"
-
-
-name: Import Products (AI Agent)
-
-on:
-  workflow_dispatch:
-    inputs:
-      job_id:
-        description: "Import job UUID from Supabase"
-        required: true
-      niche:
-        description: "Niche filter"
-        required: false
-        default: "all"
-  schedule:
-    - cron: "0 6 * * *"
-  push:
-    paths:
-      - "products/**"
-      - "assets/**"
-      - "scripts/**"
 
 jobs:
   import:
