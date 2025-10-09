@@ -39,11 +39,24 @@ except Exception:
     cv2 = None
 
 # ---------- Config / Env ----------
-SUPABASE_URL = os.environ["SUPABASE_URL"]
-ANON_KEY = os.environ["SUPABASE_ANON_KEY"]
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
 ADMIN_TOKEN = os.environ.get("REVOA_ADMIN_TOKEN")
 ADMIN_EMAIL = os.environ.get("REVOA_ADMIN_EMAIL")
 ADMIN_PASSWORD = os.environ.get("REVOA_ADMIN_PASSWORD")
+
+# Debug: print environment variable status
+print("🔍 Environment Check:")
+print(f"  SUPABASE_URL: {'✓' if SUPABASE_URL else '✗'}")
+print(f"  SUPABASE_ANON_KEY: {'✓' if ANON_KEY else '✗'}")
+print(f"  REVOA_ADMIN_TOKEN: {'✓' if ADMIN_TOKEN else '✗'}")
+print(f"  REVOA_ADMIN_EMAIL: {'✓' if ADMIN_EMAIL else '✗'}")
+print(f"  REVOA_ADMIN_PASSWORD: {'✓' if ADMIN_PASSWORD else '✗'}")
+
+if not SUPABASE_URL or not ANON_KEY:
+    raise RuntimeError("Missing SUPABASE_URL or SUPABASE_ANON_KEY")
+if not ADMIN_TOKEN and not (ADMIN_EMAIL and ADMIN_PASSWORD):
+    raise RuntimeError("Missing REVOA_ADMIN_TOKEN or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
 
 TIMEOUT = 30
 PRICE_TIMEOUT = 25
@@ -699,12 +712,15 @@ if __name__ == "__main__":
         with open("run_summary.json", "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
         print("✅ Wrote run_summary.json")
+        print("RUN SUMMARY:", json.dumps(summary))
 
         # 2. POST directly to agent-callback as fallback
         if job_id and SUPABASE_URL:
             try:
                 print("📡 Posting summary to agent-callback...")
-                callback_url = f"{SUPABASE_URL}/functions/v1/agent-callback"
+                # Ensure URL has protocol
+                base_url = SUPABASE_URL if SUPABASE_URL.startswith("http") else f"https://{SUPABASE_URL}"
+                callback_url = f"{base_url}/functions/v1/agent-callback"
                 r = requests.post(
                     callback_url,
                     headers={"Content-Type": "application/json"},
