@@ -57,13 +57,18 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const status = summary.error_text ? 'failed' : 'succeeded';
+    const errorText = summary.error_text ?? null;
+    const status = errorText ? 'failed' : (summary.successful > 0 ? 'succeeded' : 'completed');
 
     const { error } = await supabase.from('import_jobs').update({
       status,
       finished_at: new Date().toISOString(),
       github_run_url: summary.github_run_url ?? null,
-      error_text: summary.error_text ?? null,
+      error_text: errorText,
+      total_products: summary.total ?? 0,
+      successful_imports: summary.successful ?? 0,
+      failed_imports: summary.failed ?? 0,
+      skipped_imports: summary.skipped?.length ?? 0,
       summary
     }).eq('id', summary.job_id);
 

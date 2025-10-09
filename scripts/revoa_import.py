@@ -577,16 +577,23 @@ def load_manifests():
 
 def main():
     print("🚀 Revoa Importer (Price-First + UPSERT + Auto-GIF)")
+
+    print("ENV sanity:", {
+        "HAS_URL": bool(os.environ.get("SUPABASE_URL")),
+        "HAS_ANON": bool(os.environ.get("SUPABASE_ANON_KEY")),
+        "HAS_ADMIN_TOKEN": bool(os.environ.get("REVOA_ADMIN_TOKEN")),
+        "HAS_EMAIL": bool(os.environ.get("REVOA_ADMIN_EMAIL")),
+        "HAS_PASSWORD": bool(os.environ.get("REVOA_ADMIN_PASSWORD")),
+        "JOB_ID": os.environ.get("JOB_ID")
+    })
+
     token = login()
     print("✅ Auth OK")
 
     specs = load_manifests()
     if not specs:
         print("ℹ️ No YAML manifests under /products")
-        # Write empty summary
-        with open("run_summary.json", "w") as f:
-            json.dump({"total": 0, "successful": 0, "failed": 0, "skipped": 0}, f)
-        return
+        return 0, 0, 0, []
 
     payload = []
     skipped = []
@@ -644,15 +651,7 @@ def main():
     if not payload:
         print("⚠️ No products passed pricing. Nothing to import.")
         if skipped: print(json.dumps({"skipped": skipped}, indent=2))
-        # Write summary
-        with open("run_summary.json", "w") as f:
-            json.dump({
-                "total": total,
-                "successful": 0,
-                "failed": failed_count,
-                "skipped": skipped_count
-            }, f)
-        return
+        return total, 0, failed_count, skipped
 
     print("📦 Sending UPSERT import…")
     try:
@@ -667,20 +666,29 @@ def main():
         print("\n⚠️ Skipped (pricing failed or missing URLs):")
         print(json.dumps(skipped, indent=2))
 
-    # Write summary JSON for GitHub Actions callback
-    summary = {
-        "total": total,
-        "successful": successful,
-        "failed": failed_count,
-        "skipped": skipped_count
-    }
-    with open("run_summary.json", "w") as f:
-        json.dump(summary, f, indent=2)
-    print("\n📊 Summary:", json.dumps(summary, indent=2))
+    print(f"\n📊 Summary: {successful}/{total} successful, {failed_count} failed, {skipped_count} skipped")
+    return total, successful, failed_count, skipped
 
 if __name__ == "__main__":
+    job_id = os.environ.get("JOB_ID", "")
+    summary = {
+        "job_id": job_id,
+        "total": 0,
+        "successful": 0,
+        "failed": 0,
+        "skipped": []
+    }
     try:
-        main()
+        total, successful, failed, skipped_list = main()
+        summary["total"] = int(total)
+        summary["successful"] = int(successful)
+        summary["failed"] = int(failed)
+        summary["skipped"] = skipped_list
     except Exception as e:
+        summary["failed"] = 1
+        summary["error_text"] = f"{type(e).__name__}: {e}"
         print(f"❌ Error: {e}")
-        sys.exit(1)
+    finally:
+        with open("run_summary.json", "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+        print("✅ Wrote run_summary.json")
