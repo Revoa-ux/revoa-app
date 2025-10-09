@@ -10,63 +10,6 @@ const corsHeaders = {
 interface DispatchRequest {
   mode?: 'real' | 'demo';
   niche?: string;
-  hashtags?: string[];
-  max_products?: number;
-}
-
-const SAMPLE_PRODUCTS = [
-  { name: 'Automatic Pet Feeder', category: 'Pet Supplies', supplier_price: 25, retail_price: 59.99 },
-  { name: 'LED Strip Lights', category: 'Home & Garden', supplier_price: 12, retail_price: 34.99 },
-  { name: 'Portable Blender', category: 'Kitchen Gadgets', supplier_price: 18, retail_price: 49.99 },
-  { name: 'Resistance Bands Set', category: 'Fitness & Sports', supplier_price: 15, retail_price: 39.99 },
-  { name: 'Facial Cleansing Brush', category: 'Beauty & Personal Care', supplier_price: 22, retail_price: 54.99 },
-];
-
-async function runDemoMode(supabase: any, userId: string, maxProducts: number, niche?: string) {
-  const products = [];
-  const numProducts = Math.min(maxProducts, SAMPLE_PRODUCTS.length);
-  const shuffled = [...SAMPLE_PRODUCTS].sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, numProducts);
-
-  for (const product of selected) {
-    const productData = {
-      name: `[DEMO] ${product.name}`,
-      description: `Demo product: ${product.name.toLowerCase()} with sample data for testing.`,
-      category: niche || product.category,
-      supplier_price: product.supplier_price,
-      recommended_retail_price: product.retail_price,
-      external_id: `demo_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      source: 'demo',
-      approval_status: 'pending',
-      created_by: userId,
-      metadata: {
-        mode: 'demo',
-        profit_margin: Math.round(((product.retail_price - product.supplier_price) / product.retail_price) * 100),
-        created_at: new Date().toISOString(),
-      },
-    };
-
-    const { data: newProduct, error } = await supabase
-      .from('products')
-      .insert(productData)
-      .select('id')
-      .single();
-
-    if (!error && newProduct) {
-      products.push(newProduct);
-      await supabase.from('product_creatives').insert({
-        product_id: newProduct.id,
-        type: 'reel',
-        url: 'https://www.instagram.com/reel/example',
-        platform: 'instagram',
-        is_inspiration: true,
-        headline: `Demo: ${product.name}`,
-        ad_copy: `Sample ad copy for ${product.name.toLowerCase()}.`,
-      });
-    }
-  }
-
-  return products;
 }
 
 Deno.serve(async (req: Request) => {
@@ -80,7 +23,7 @@ Deno.serve(async (req: Request) => {
 
     if (req.method !== 'POST') {
       return new Response(
-        JSON.stringify({ error: 'Method not allowed' }),
+        JSON.stringify({ ok: false, error: 'Method not allowed' }),
         {
           status: 405,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -88,19 +31,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Get environment variables
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY');
+    const GITHUB_TOKEN = Deno.env.get('GITHUB_TOKEN') || '';
+    const GITHUB_OWNER = Deno.env.get('GITHUB_OWNER') || '';
+    const GITHUB_REPO = Deno.env.get('GITHUB_REPO') || '';
+    const WORKFLOW_FILE = 'import-products.yml';
+    const WORKFLOW_REF = 'main';
 
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       throw new Error('Missing Supabase configuration');
     }
 
-    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ ok: false, error: 'Unauthorized' }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -117,7 +63,7 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ ok: false, error: 'Unauthorized' }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -125,20 +71,15 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Parse request body
-    const body: DispatchRequest = await req.json().catch(() => ({}));
-    const mode = body.mode || 'real';
-
-    // Check super-admin status (Real Mode requires super-admin)
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
-      .select('is_admin, is_super_admin, email')
+      .select('is_admin, admin_role')
       .eq('user_id', user.id)
       .maybeSingle();
 
-    if (!profile?.is_admin) {
+    if (profileError || !profile?.is_admin) {
       return new Response(
-        JSON.stringify({ error: 'Admin access required' }),
+        JSON.stringify({ ok: false, error: 'Forbidden' }),
         {
           status: 403,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -146,41 +87,19 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Real mode requires super-admin
-    if (mode === 'real' && !profile?.is_super_admin) {
-      return new Response(
-        JSON.stringify({ error: 'Super-admin access required for Real Mode. Use Demo Mode instead.' }),
-        {
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-    const maxProducts = body.max_products || 5;
-    const niche = body.niche;
+    const body: DispatchRequest = await req.json().catch(() => ({}));
+    const mode = body.mode || 'real';
+    const niche = body.niche || 'all';
 
-    // Create import job record
-    const { data: job, error: jobError } = await supabase
+    const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
-      .insert({
-        status: mode === 'demo' ? 'running' : 'queued',
-        source: mode === 'demo' ? 'demo' : 'ai_agent',
-        triggered_by: user.id,
-        inputs: {
-          mode,
-          niche: niche || null,
-          hashtags: body.hashtags || [],
-          max_products: maxProducts,
-        },
-        total_products: maxProducts,
-      })
-      .select()
-      .single();
+      .insert({ created_by: user.id, status: 'queued', mode, niche })
+      .select('id')
+      .maybeSingle();
 
-    if (jobError || !job) {
-      console.error('Failed to create import job:', jobError);
+    if (jobErr || !jobIns) {
       return new Response(
-        JSON.stringify({ error: 'Failed to create import job', details: jobError?.message }),
+        JSON.stringify({ ok: false, error: jobErr?.message || 'Failed to create job' }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -188,168 +107,89 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log(`Created import job: ${job.id} (mode: ${mode})`);
+    const job_id = jobIns.id as string;
 
-    // DEMO MODE: Run instant sample insert
     if (mode === 'demo') {
-      try {
-        const importedProducts = await runDemoMode(supabase, user.id, maxProducts, niche);
+      await supabase.from('import_jobs').update({
+        status: 'succeeded',
+        started_at: new Date().toISOString(),
+        finished_at: new Date().toISOString(),
+        summary: { note: 'Demo mode — no GH dispatch', total: 0, successful: 0, failed: 0 }
+      }).eq('id', job_id);
 
-        await supabase
-          .from('import_jobs')
-          .update({
-            status: 'completed',
-            successful_imports: importedProducts.length,
-            failed_imports: 0,
-            skipped_imports: 0,
-            completed_at: new Date().toISOString(),
-          })
-          .eq('id', job.id);
-
-        console.log(`Demo completed: ${importedProducts.length} products`);
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            job_id: job.id,
-            mode: 'demo',
-            message: `Demo completed! ${importedProducts.length} sample products added.`,
-            products_imported: importedProducts.length,
-          }),
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      } catch (demoError) {
-        console.error('Demo failed:', demoError);
-        await supabase
-          .from('import_jobs')
-          .update({
-            status: 'failed',
-            error: demoError instanceof Error ? demoError.message : 'Unknown error',
-            completed_at: new Date().toISOString(),
-          })
-          .eq('id', job.id);
-
-        return new Response(
-          JSON.stringify({
-            error: 'Demo failed',
-            details: demoError instanceof Error ? demoError.message : 'Unknown error',
-          }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
+      return new Response(
+        JSON.stringify({ ok: true, job_id }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // REAL MODE: Dispatch GitHub Actions
-    const GITHUB_TOKEN = Deno.env.get('GITHUB_TOKEN');
-    const GITHUB_OWNER = Deno.env.get('GITHUB_OWNER');
-    const GITHUB_REPO = Deno.env.get('GITHUB_REPO');
-
     if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-      await supabase
-        .from('import_jobs')
-        .update({
-          status: 'failed',
-          error: 'GitHub configuration missing. Set GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO.',
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', job.id);
+      const errorMsg = 'Missing GITHUB_TOKEN / GITHUB_OWNER / GITHUB_REPO edge secrets';
+      await supabase.from('import_jobs').update({
+        status: 'failed',
+        error_text: errorMsg
+      }).eq('id', job_id);
 
       return new Response(
         JSON.stringify({
-          error: 'GitHub configuration missing',
-          details: 'Please configure GITHUB_TOKEN, GITHUB_OWNER, and GITHUB_REPO environment variables.',
+          ok: false,
+          error: 'GitHub configuration missing. Set GITHUB_TOKEN (repo+workflow), GITHUB_OWNER, GITHUB_REPO in Supabase secrets.'
         }),
         {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    console.log(`Dispatching GitHub Actions for job ${job.id}`);
+    const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
 
-    const workflowFile = 'import-products.yml';
-    const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${workflowFile}/dispatches`;
-
-    const dispatchResponse = await fetch(dispatchUrl, {
+    const ghRes = await fetch(dispatchUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github+json',
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Content-Type': 'application/json',
+        'User-Agent': 'revoa-agent-dispatch'
       },
-      body: JSON.stringify({
-        ref: 'main',
-        inputs: {
-          job_id: job.id,
-          niche: niche || 'all',
-          max_products: String(maxProducts),
-        },
-      }),
+      body: JSON.stringify({ ref: WORKFLOW_REF, inputs: { job_id, niche } })
     });
 
-    if (!dispatchResponse.ok) {
-      const errorText = await dispatchResponse.text();
-      console.error('GitHub dispatch failed:', dispatchResponse.status, errorText);
-
-      await supabase
-        .from('import_jobs')
-        .update({
-          status: 'failed',
-          error: `GitHub dispatch failed: ${dispatchResponse.status} - ${errorText}`,
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', job.id);
+    if (!ghRes.ok) {
+      const errText = await ghRes.text();
+      await supabase.from('import_jobs').update({
+        status: 'failed',
+        error_text: `GitHub dispatch failed (${ghRes.status}): ${errText}`
+      }).eq('id', job_id);
 
       return new Response(
         JSON.stringify({
-          error: 'Failed to dispatch GitHub workflow',
-          details: `Status ${dispatchResponse.status}: ${errorText}`,
+          ok: false,
+          status: ghRes.status,
+          error: errText
         }),
         {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    console.log('GitHub workflow dispatched successfully');
-
-    await supabase
-      .from('import_jobs')
-      .update({ status: 'running' })
-      .eq('id', job.id);
+    await supabase.from('import_jobs').update({
+      status: 'running',
+      started_at: new Date().toISOString()
+    }).eq('id', job_id);
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        job_id: job.id,
-        mode: 'real',
-        message: 'AI agent workflow started. Check job status below.',
-        run_url: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/actions`,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({ ok: true, job_id }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error) {
-    console.error('Agent dispatch error:', error);
+  } catch (e) {
+    console.error('Agent dispatch error:', e);
     return new Response(
-      JSON.stringify({
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
+      JSON.stringify({ ok: false, error: String(e) }),
       {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
