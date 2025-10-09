@@ -185,23 +185,23 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900">
           Product Approvals
         </h1>
-        <p className="text-gray-600 flex items-center gap-2">
+        <p className="text-gray-600 flex items-center gap-2 mt-1">
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
           Review and approve products imported by AI agent
         </p>
       </div>
 
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex items-center gap-3 mb-6">
         {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === status
-                ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+                ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-sm'
                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
             }`}
           >

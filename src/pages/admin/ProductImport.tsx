@@ -309,11 +309,14 @@ export default function ProductImport() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl text-gray-900 dark:text-white mb-2">Import Products</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Add new products with images, GIFs, and Instagram inspiration</p>
+          <h1 className="text-3xl font-bold text-gray-900">Import Products</h1>
+          <p className="text-gray-600 flex items-center gap-2 mt-1">
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+            Add new products with images, GIFs, and Instagram inspiration
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
