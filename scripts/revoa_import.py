@@ -671,6 +671,8 @@ def main():
 
 if __name__ == "__main__":
     job_id = os.environ.get("JOB_ID", "")
+    github_run_url = os.environ.get("GITHUB_RUN_URL", "")
+
     summary = {
         "job_id": job_id,
         "total": 0,
@@ -678,6 +680,10 @@ if __name__ == "__main__":
         "failed": 0,
         "skipped": []
     }
+
+    if github_run_url:
+        summary["github_run_url"] = github_run_url
+
     try:
         total, successful, failed, skipped_list = main()
         summary["total"] = int(total)
@@ -689,6 +695,25 @@ if __name__ == "__main__":
         summary["error_text"] = f"{type(e).__name__}: {e}"
         print(f"❌ Error: {e}")
     finally:
+        # 1. Always write local file for GitHub Actions
         with open("run_summary.json", "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
         print("✅ Wrote run_summary.json")
+
+        # 2. POST directly to agent-callback as fallback
+        if job_id and SUPABASE_URL:
+            try:
+                print("📡 Posting summary to agent-callback...")
+                callback_url = f"{SUPABASE_URL}/functions/v1/agent-callback"
+                r = requests.post(
+                    callback_url,
+                    headers={"Content-Type": "application/json"},
+                    json=summary,
+                    timeout=10
+                )
+                if r.ok:
+                    print("✅ Agent callback successful")
+                else:
+                    print(f"⚠️ Agent callback returned {r.status_code}: {r.text[:200]}")
+            except Exception as cb_err:
+                print(f"⚠️ Agent callback failed (non-fatal): {cb_err}")
