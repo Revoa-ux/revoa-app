@@ -312,8 +312,8 @@ export default function ProductImport() {
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Import Products</h1>
-          <p className="text-gray-600 flex items-center gap-2 mt-1">
+          <h1 className="text-2xl font-normal text-gray-900 mb-2">Import Products</h1>
+          <p className="text-sm text-gray-500 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             Add new products with images, GIFs, and Instagram inspiration
           </p>
@@ -537,7 +537,7 @@ export default function ProductImport() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-red-700 hover:to-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+              className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <>

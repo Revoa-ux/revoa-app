@@ -185,10 +185,10 @@ export default function ProductApprovals() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
           Product Approvals
         </h1>
-        <p className="text-gray-600 flex items-center gap-2 mt-1">
+        <p className="text-sm text-gray-500 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
           Review and approve products imported by AI agent
         </p>

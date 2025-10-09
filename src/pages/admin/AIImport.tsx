@@ -120,8 +120,8 @@ export default function AIImport() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">AI Agent Product Import</h1>
-          <p className="text-gray-600 flex items-center gap-2 mt-1">
+          <h1 className="text-2xl font-normal text-gray-900 mb-2">AI Agent Product Import</h1>
+          <p className="text-sm text-gray-500 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
             Run the AI agent to find and import winning products automatically
           </p>
