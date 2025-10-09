@@ -309,41 +309,20 @@ export default function ProductImport() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
+    <div className="p-6">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Import Products</h1>
-              <p className="text-gray-600">Add new products with images, GIFs, and Instagram inspiration</p>
-            </div>
-            <button
-              onClick={handleBulkImport}
-              disabled={bulkImporting}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              {bulkImporting ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Importing from YAML...
-                </>
-              ) : (
-                <>
-                  <Package className="w-5 h-5" />
-                  Bulk Import from YAML
-                </>
-              )}
-            </button>
-          </div>
+          <h1 className="text-2xl text-gray-900 dark:text-white mb-2">Import Products</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Add new products with images, GIFs, and Instagram inspiration</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-8">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900">
+              <div className="text-sm text-blue-900 dark:text-blue-100">
                 <p className="font-medium mb-1">GIF Requirements:</p>
-                <ul className="list-disc list-inside space-y-1 text-blue-800">
+                <ul className="list-disc list-inside space-y-1 text-blue-800 dark:text-blue-200">
                   <li>Minimum 3 GIFs per product</li>
                   <li>1-5 seconds duration, looping</li>
                   <li>NO text overlays or watermarks</li>
@@ -355,7 +334,7 @@ export default function ProductImport() {
 
           <div className="grid grid-cols-2 gap-6">
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Product Name
               </label>
               <input
@@ -363,13 +342,13 @@ export default function ProductImport() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="Solar Step Lights"
               />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Description
               </label>
               <textarea
@@ -377,20 +356,20 @@ export default function ProductImport() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="Benefit-led description..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Category
               </label>
               <select
                 required
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
               >
                 <option value="">Select category</option>
                 {CATEGORIES.map(cat => (
@@ -400,20 +379,20 @@ export default function ProductImport() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 External ID (optional)
               </label>
               <input
                 type="text"
                 value={formData.external_id}
                 onChange={(e) => setFormData({ ...formData, external_id: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="ig:POST_ID:product-slug"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Supplier Price ($)
               </label>
               <input
@@ -422,13 +401,13 @@ export default function ProductImport() {
                 required
                 value={formData.supplier_price}
                 onChange={(e) => setFormData({ ...formData, supplier_price: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="9.80"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Recommended Retail Price ($)
               </label>
               <input
@@ -437,85 +416,103 @@ export default function ProductImport() {
                 required
                 value={formData.recommended_retail_price}
                 onChange={(e) => setFormData({ ...formData, recommended_retail_price: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="29.40"
               />
             </div>
           </div>
 
-          <div className="space-y-6 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Image className="w-5 h-5" />
+          <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               Product Assets
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Main Image (1080×1080, light grey background)
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange('main_image', e.target.files)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <Upload className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {formData.main_image ? formData.main_image.name : 'Choose file'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange('main_image', e.target.files)}
+                  className="hidden"
+                />
+              </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Lifestyle Images (optional, multiple)
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => handleFileChange('lifestyle_images', e.target.files)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {formData.lifestyle_images.length > 0 && (
-                <p className="mt-2 text-sm text-gray-600">{formData.lifestyle_images.length} file(s) selected</p>
-              )}
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <Image className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {formData.lifestyle_images.length > 0 ? `${formData.lifestyle_images.length} file(s) selected` : 'Choose files'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileChange('lifestyle_images', e.target.files)}
+                  className="hidden"
+                />
+              </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 GIFs (minimum 3, no text!)
               </label>
-              <input
-                type="file"
-                accept="image/gif"
-                multiple
-                onChange={(e) => handleFileChange('gifs', e.target.files)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              {formData.gifs.length > 0 && (
-                <p className="mt-2 text-sm text-gray-600">{formData.gifs.length} GIF(s) selected</p>
-              )}
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <Film className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {formData.gifs.length > 0 ? `${formData.gifs.length} GIF(s) selected` : 'Choose GIFs'}
+                </span>
+                <input
+                  type="file"
+                  accept="image/gif"
+                  multiple
+                  onChange={(e) => handleFileChange('gifs', e.target.files)}
+                  className="hidden"
+                />
+              </label>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Demo Video (optional)
               </label>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={(e) => handleFileChange('demo_video', e.target.files)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <label className="flex items-center justify-center w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <Film className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {formData.demo_video ? formData.demo_video.name : 'Choose video'}
+                </span>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => handleFileChange('demo_video', e.target.files)}
+                  className="hidden"
+                />
+              </label>
             </div>
           </div>
 
-          <div className="space-y-4 pt-6 border-t border-gray-200">
+          <div className="space-y-4 pt-6 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
+              <h3 className="text-base text-gray-900 dark:text-white flex items-center gap-2">
+                <Film className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 Instagram Inspiration Reels
               </h3>
               <button
                 type="button"
                 onClick={addInstagramUrl}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 font-medium"
               >
                 + Add URL
               </button>
@@ -527,7 +524,7 @@ export default function ProductImport() {
                 type="url"
                 value={url}
                 onChange={(e) => updateInstagramUrl(index, e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="https://www.instagram.com/reel/..."
               />
             ))}
@@ -537,7 +534,7 @@ export default function ProductImport() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-red-700 hover:to-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <>
