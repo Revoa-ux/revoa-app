@@ -1,3 +1,6 @@
+[[ -z "$SUPABASE_URL" || -z "$SUPABASE_ANON_KEY" ]] && { echo "Missing Supabase env"; exit 1; }
+[[ -z "$REVOA_ADMIN_TOKEN" && ( -z "$REVOA_ADMIN_EMAIL" || -z "$REVOA_ADMIN_PASSWORD" ) ]] && { echo "Missing admin auth env"; exit 1; }
+
 name: Import Products (AI Agent)
 
 on:
