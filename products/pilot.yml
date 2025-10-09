@@ -4,13 +4,30 @@ products:
     category: "Lighting"
     description: "Boost curb appeal in minutes with weather-resistant solar step lights."
     assets_dir: "assets/lighting/solar-step-lights"
+
     amazon_url: "https://www.amazon.com/dp/EXAMPLE1"
+
+    # EITHER give candidates OR let the agent search:
     aliexpress_candidates:
       - "https://www.aliexpress.com/item/EXAMPLE-A.html"
       - "https://www.aliexpress.com/item/EXAMPLE-B.html"
-      - "https://www.aliexpress.com/item/EXAMPLE-C.html"
-    min_sales: 300
-    top_n: 3
+    # OR use search terms (agent will find best matching products):
+    aliexpress_search_terms:
+      - "solar step light waterproof warm white"
+      - "solar stair lights outdoor"
+      - "solar deck lights peel and stick"
+
+    # New defaults (can omit):
+    min_sales: 100        # default now 100 (was 300)
+    top_n: 3              # still respected (when candidates exist)
+
+    # Soft-pass rules:
+    allow_aliexpress_soft_pass: true  # if AE price can't be found, still import (pending)
+
+    # Optional fallback for RRP if AE price not found:
+    supplier_price: 9.80              # used to compute RRP = 3x when AE missing
+    use_supplier_price_if_ae_scrape_fails: true
+
     inspiration_reels:
       - "https://www.instagram.com/reel/DLpBJg-s-_i/"
     headline: "Elevate your curb appeal"
@@ -21,12 +38,19 @@ products:
     category: "Home"
     description: "Seal drafts and cut noise with this easy-install door stopper."
     assets_dir: "assets/home/under-door-draft-stopper"
+
     amazon_url: "https://www.amazon.com/dp/EXAMPLE2"
-    aliexpress_candidates:
-      - "https://www.aliexpress.com/item/EXAMPLE-D.html"
-      - "https://www.aliexpress.com/item/EXAMPLE-E.html"
-    min_sales: 300
-    top_n: 3
+
+    aliexpress_search_terms:
+      - "door draft stopper under door seal"
+      - "door bottom seal weatherstrip"
+      - "under door draft blocker"
+
+    min_sales: 100
+    allow_aliexpress_soft_pass: true
+    supplier_price: 7.50
+    use_supplier_price_if_ae_scrape_fails: true
+
     inspiration_reels:
       - "https://www.instagram.com/reel/DLxeJLpuUHd/"
     headline: "Block drafts & noise"
@@ -37,13 +61,19 @@ products:
     category: "Fitness"
     description: "Train anywhere with this professional full-body resistance band set."
     assets_dir: "assets/fitness/resistance-bands"
+
     amazon_url: "https://www.amazon.com/dp/EXAMPLE3"
-    aliexpress_candidates:
-      - "https://www.aliexpress.com/item/EXAMPLE-F.html"
-      - "https://www.aliexpress.com/item/EXAMPLE-G.html"
-      - "https://www.aliexpress.com/item/EXAMPLE-H.html"
-    min_sales: 300
-    top_n: 3
+
+    aliexpress_search_terms:
+      - "resistance bands set workout professional"
+      - "exercise resistance bands full body"
+      - "fitness resistance bands heavy duty"
+
+    min_sales: 100
+    allow_aliexpress_soft_pass: true
+    supplier_price: 12.99
+    use_supplier_price_if_ae_scrape_fails: true
+
     inspiration_reels:
       - "https://www.instagram.com/reel/DMngbHWPjJP/"
     headline: "Home gym in a bag"

@@ -60,6 +60,8 @@ if not ADMIN_TOKEN and not (ADMIN_EMAIL and ADMIN_PASSWORD):
 
 TIMEOUT = 30
 PRICE_TIMEOUT = 25
+MIN_SALES_DEFAULT = 100
+TOP_N_DEFAULT = 3
 
 # GIF constraints / defaults
 GIF_MAX_MB = float(os.environ.get("GIF_MAX_MB", "20"))
@@ -251,31 +253,90 @@ def fetch_amazon_price_prime_only(amazon_url):
         return None
     return price
 
-def fetch_aliexpress_total_best(candidate_urls, min_sales=300, top_n=3):
+def fetch_aliexpress_total_best(candidate_urls, min_sales=MIN_SALES_DEFAULT, top_n=TOP_N_DEFAULT):
+    """From explicit product URLs: return (best_total, best_url) where total = item + shipping."""
     results = []
     for u in candidate_urls[:top_n]:
         html = fetch_html(u)
         price, ship, sales = parse_aliexpress_price_shipping_sales(html)
         if price is None:
             continue
-        if sales is None or sales < min_sales:
+        if (sales or 0) < min_sales:
             continue
         total = float(price) + float(ship or 0.0)
-        results.append((total, u))
+        results.append((total, u, sales or 0))
     if not results:
         return None, None
-    results.sort(key=lambda x: x[0])
-    return results[0]
+    results.sort(key=lambda x: (x[0], -x[2]))  # lowest total, tie-breaker highest sales
+    best_total, best_url, _ = results[0]
+    return best_total, best_url
 
-def enforce_rule(ae_total, amz_total, min_spread=20.0):
-    if ae_total is None: return (False, "AliExpress price not found")
-    if amz_total is None: return (False, "Amazon (Prime) price not found")
+def search_aliexpress_and_pick_best(search_terms, min_sales=MIN_SALES_DEFAULT):
+    """
+    Tries multiple queries on AliExpress search, sorts by estimated sales, then verifies
+    price+shipping on the product page. Returns (best_total, best_url) or (None, None).
+    """
+    def search_once(term):
+        q = term.strip().replace(" ", "%20")
+        url = f"https://www.aliexpress.com/wholesale?SearchText={q}&SortType=total_tranpro_desc"
+        html = fetch_html(url)
+        if not html:
+            return []
+        items = []
+        for m in re.finditer(r'href="(https://www\.aliexpress\.com/item/[^"]+)"', html):
+            href = m.group(1)
+            window = html[max(0, m.start()-500): m.end()+500]
+            sm = re.search(r'(?:sold|orders?)\s*([0-9,]+)', window, re.IGNORECASE)
+            sales = int(sm.group(1).replace(",", "")) if sm else None
+            items.append((href, sales))
+        seen, uniq = set(), []
+        for href, sales in items:
+            key = href.split("?")[0]
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append((href, sales or 0))
+        uniq.sort(key=lambda x: x[1], reverse=True)
+        return uniq[:10]
+
+    candidate_pool = []
+    for t in (search_terms or []):
+        candidate_pool.extend(search_once(t))
+
+    best = None
+    for href, est_sales in candidate_pool:
+        html = fetch_html(href)
+        price, ship, sales = parse_aliexpress_price_shipping_sales(html)
+        sales_final = sales or est_sales or 0
+        if sales_final < min_sales or price is None:
+            continue
+        total = float(price) + float(ship or 0.0)
+        if (best is None) or (total < best[0]):
+            best = (total, href, sales_final)
+
+    if not best:
+        return None, None
+    return best[0], best[1]
+
+def enforce_rule(ae_total, amz_total, min_spread=20.0, soft_pass=False):
+    """
+    Returns tuple (passed, reason, soft_flag)
+    soft_pass=True allows pass if AE missing (admin to review).
+    """
+    if ae_total is None:
+        if soft_pass and amz_total is not None:
+            return True, "SOFT-PASS: AE price not found; admin to confirm pricing", True
+        return False, "AliExpress price not found", False
+
+    if amz_total is None:
+        return False, "Amazon (Prime) price not found", False
+
     spread = amz_total - ae_total
     half_rule = ae_total <= (amz_total * 0.50)
     spread_rule = spread >= min_spread
     if half_rule or spread_rule:
-        return True, f"PASS (AE ${ae_total:.2f} vs AMZ ${amz_total:.2f}; spread ${spread:.2f})"
-    return False, f"FAIL (AE ${ae_total:.2f} vs AMZ ${amz_total:.2f}; spread ${spread:.2f})"
+        return True, f"PASS (AE ${ae_total:.2f} vs AMZ ${amz_total:.2f}; spread ${spread:.2f})", False
+    return False, f"FAIL (AE ${ae_total:.2f} vs AMZ ${amz_total:.2f}; spread ${spread:.2f})", False
 
 # ---------- Copy generation ----------
 def gen_copy(rec, rrp):
@@ -702,28 +763,60 @@ def main():
         # ---- Required fields for pricing ----
         amz_url = rec.get("amazon_url")
         ae_candidates = rec.get("aliexpress_candidates", [])
-        if not amz_url or not ae_candidates:
-            print(f"⛔ {ext_id}: missing amazon_url or aliexpress_candidates")
-            skipped.append({"external_id": ext_id, "reason": "missing pricing URLs"})
+        ae_search_terms = rec.get("aliexpress_search_terms", [])
+
+        if not amz_url:
+            print(f"⛔ {ext_id}: missing amazon_url")
+            skipped.append({"external_id": ext_id, "reason": "missing amazon_url"})
             continue
 
-        min_sales = int(rec.get("min_sales", 300))
-        top_n = int(rec.get("top_n", 3))
+        min_sales = int(rec.get("min_sales", MIN_SALES_DEFAULT))
+        top_n = int(rec.get("top_n", TOP_N_DEFAULT))
 
-        # 1) Price-first (NO assets yet)
+        # PRICING — Amazon (Prime) + AliExpress
         amz_total = fetch_amazon_price_prime_only(amz_url)
-        ae_total, best_ae_url = fetch_aliexpress_total_best(ae_candidates, min_sales=min_sales, top_n=top_n)
 
-        # Allow fallback supplier_price if AE parse failed but explicitly provided
-        if ae_total is None and rec.get("supplier_price") is not None:
+        # 1) If explicit AE candidates provided, try those:
+        if ae_candidates:
+            ae_total, best_ae_url = fetch_aliexpress_total_best(
+                ae_candidates,
+                min_sales=min_sales,
+                top_n=top_n,
+            )
+        else:
+            ae_total, best_ae_url = None, None
+
+        # 2) If still missing, try AE search with provided search terms:
+        if ae_total is None and ae_search_terms:
+            print(f"🔎 Searching AliExpress by terms for {ext_id}…")
+            ae_total, best_ae_url = search_aliexpress_and_pick_best(
+                ae_search_terms,
+                min_sales=min_sales,
+            )
+            if ae_total is not None:
+                print(f"   → Found AE candidate via search: ${ae_total:.2f}")
+
+        # 3) If AE missing, consider supplier fallback
+        if ae_total is None and rec.get("supplier_price") is not None and rec.get("use_supplier_price_if_ae_scrape_fails", True):
             ae_total = float(rec["supplier_price"])
+            print(f"🟨 AE scrape failed — using supplier_price fallback: ${ae_total:.2f}")
             best_ae_url = ae_candidates[0] if ae_candidates else rec.get("aliexpress_url")
 
-        pass_rule, reason = enforce_rule(ae_total, amz_total)
-        if not pass_rule:
+        # 4) Enforce rule (with soft-pass if requested)
+        soft_ok = bool(rec.get("allow_aliexpress_soft_pass", True))
+        passed, reason, soft_flag = enforce_rule(ae_total, amz_total, soft_pass=soft_ok)
+
+        if not passed:
             print(f"⛔ Skip {ext_id}: {reason}")
             skipped.append({"external_id": ext_id, "reason": reason})
             continue
+
+        # RRP logic
+        if ae_total is not None:
+            rrp = round(ae_total * 3, 2)
+        else:
+            # Soft-pass with no AE: use supplier_price if present; else no RRP (admin will fill)
+            rrp = round(float(rec["supplier_price"]) * 3, 2) if rec.get("supplier_price") is not None else None
 
         # 2) Assets only AFTER PASS
         assets = collect_and_upload(token, rec.get("assets_dir",""))
@@ -740,6 +833,18 @@ def main():
 
         # 3) Build + queue
         prod = build_product(rec, assets, ae_total, amz_total, reason, best_ae_url)
+
+        # Override RRP if soft-pass and we computed via supplier:
+        if rrp is not None:
+            prod["recommended_retail_price"] = rrp
+
+        # If soft-pass with no prices, send zeros and flag admin_review_required
+        if soft_flag and rrp is None:
+            prod["supplier_price"] = 0.0
+            prod["recommended_retail_price"] = 0.0
+            prod.setdefault("metadata", {})["admin_review_required"] = True
+            print(f"🟨 {ext_id} soft-pass with admin review required")
+
         payload.append(prod)
         found += 1
         seen_extids.add(ext_id)
