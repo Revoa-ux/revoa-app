@@ -27,7 +27,7 @@ Env:
     GIF_VARIANTS=3
 """
 
-import os, sys, json, pathlib, requests, yaml, re, math, tempfile, subprocess, shutil
+import os, sys, json, pathlib, requests, yaml, re, math, tempfile, subprocess, shutil, time, hashlib
 from pathlib import Path
 from urllib.parse import urlparse
 import numpy as np
@@ -74,6 +74,11 @@ FFMPEG_BIN = os.environ.get("FFMPEG_BIN", "ffmpeg")
 FFPROBE_BIN = os.environ.get("FFPROBE_BIN", "ffprobe")
 YTDLP_BIN = os.environ.get("YTDLP_BIN", "yt-dlp")
 
+# Agent discovery controls
+TARGET_NEW_PRODUCTS = int(os.environ.get("TARGET_NEW_PRODUCTS", "5"))
+MAX_RUNTIME_MIN = int(os.environ.get("MAX_RUNTIME_MIN", "25"))
+REELS_PAGE_LIMIT = int(os.environ.get("REELS_PAGE_LIMIT", "0"))  # 0 = unlimited
+
 HEADERS_BROWSER = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 }
@@ -100,6 +105,64 @@ def login():
     if not tok:
         raise RuntimeError(f"No access_token in login response: {data}")
     return tok
+
+# ---------- Deduplication Helpers ----------
+def _hash(s: str) -> str:
+    """SHA1 hash for dedup IDs"""
+    return hashlib.sha1(s.encode("utf-8")).hexdigest()
+
+def fetch_seen_sets(token: str):
+    """Return (seen_reel_ids, seen_external_ids) for deduplication"""
+    headers = {"apikey": ANON_KEY, "Authorization": f"Bearer {token}"}
+    seen_reels = set()
+    seen_ext = set()
+
+    # 1) Existing products (external_ids)
+    try:
+        r = requests.get(
+            f"{SUPABASE_URL}/rest/v1/products?select=external_id",
+            headers=headers, timeout=TIMEOUT
+        )
+        if r.ok:
+            for row in r.json():
+                if row.get("external_id"):
+                    seen_ext.add(row["external_id"])
+    except Exception as e:
+        print(f"⚠️ Could not fetch existing products: {e}")
+
+    # 2) Agent seen sources (reel_id hashes)
+    try:
+        r2 = requests.get(
+            f"{SUPABASE_URL}/rest/v1/agent_seen_sources?select=reel_id_hash",
+            headers=headers, timeout=TIMEOUT
+        )
+        if r2.ok:
+            for row in r2.json():
+                h = row.get("reel_id_hash")
+                if h:
+                    seen_reels.add(h)
+    except Exception as e:
+        print(f"⚠️ Could not fetch seen sources: {e}")
+
+    print(f"📋 Dedup loaded: {len(seen_ext)} external_ids, {len(seen_reels)} reel hashes")
+    return seen_reels, seen_ext
+
+def mark_seen_reel(token: str, reel_id: str):
+    """Mark a reel as evaluated to skip it in future runs"""
+    headers = {
+        "apikey": ANON_KEY,
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=ignore-duplicates"
+    }
+    payload = {"reel_id_hash": _hash(reel_id)}
+    try:
+        requests.post(
+            f"{SUPABASE_URL}/rest/v1/agent_seen_sources",
+            headers=headers, json=payload, timeout=TIMEOUT
+        )
+    except Exception as e:
+        print(f"⚠️ Could not mark reel as seen: {e}")
 
 # ---------- Storage ----------
 def upload(token, local_path, bucket_rel_path):
@@ -589,7 +652,7 @@ def load_manifests():
     return specs
 
 def main():
-    print("🚀 Revoa Importer (Price-First + UPSERT + Auto-GIF)")
+    print(f"🚀 Revoa Importer (Price-First + UPSERT + Auto-GIF) - Target: {TARGET_NEW_PRODUCTS} products, Max time: {MAX_RUNTIME_MIN}m")
 
     print("ENV sanity:", {
         "HAS_URL": bool(os.environ.get("SUPABASE_URL")),
@@ -603,22 +666,45 @@ def main():
     token = login()
     print("✅ Auth OK")
 
+    # Load dedup sets
+    seen_reels, seen_extids = fetch_seen_sets(token)
+
+    # Start timer for runtime budget
+    start_time = time.time()
+    target = TARGET_NEW_PRODUCTS
+    found = 0
+    payload = []
+    skipped = []
+    failed = []
+
+    # Load YAML manifests as seed products
     specs = load_manifests()
     if not specs:
         print("ℹ️ No YAML manifests under /products")
         return 0, 0, 0, []
 
-    payload = []
-    skipped = []
-    failed = []
-
+    # Process YAML products
     for rec in specs:
+        # Check if we hit target or timeout
+        if found >= target:
+            print(f"✅ Target of {target} products reached")
+            break
+        if (time.time() - start_time) / 60.0 > MAX_RUNTIME_MIN:
+            print(f"⏱️ Runtime budget of {MAX_RUNTIME_MIN}m reached; stopping")
+            break
+
+        # Skip if already imported
+        ext_id = rec.get("external_id")
+        if ext_id in seen_extids:
+            print(f"⏭️ Skip {ext_id}: already imported")
+            continue
+
         # ---- Required fields for pricing ----
         amz_url = rec.get("amazon_url")
         ae_candidates = rec.get("aliexpress_candidates", [])
         if not amz_url or not ae_candidates:
-            print(f"⛔ {rec.get('external_id')}: missing amazon_url or aliexpress_candidates")
-            skipped.append({"external_id": rec.get("external_id"), "reason": "missing pricing URLs"})
+            print(f"⛔ {ext_id}: missing amazon_url or aliexpress_candidates")
+            skipped.append({"external_id": ext_id, "reason": "missing pricing URLs"})
             continue
 
         min_sales = int(rec.get("min_sales", 300))
@@ -635,8 +721,8 @@ def main():
 
         pass_rule, reason = enforce_rule(ae_total, amz_total)
         if not pass_rule:
-            print(f"⛔ Skip {rec.get('external_id')}: {reason}")
-            skipped.append({"external_id": rec.get("external_id"), "reason": reason})
+            print(f"⛔ Skip {ext_id}: {reason}")
+            skipped.append({"external_id": ext_id, "reason": reason})
             continue
 
         # 2) Assets only AFTER PASS
@@ -650,37 +736,39 @@ def main():
             if auto_gifs:
                 assets["gifs"].extend(auto_gifs)
         if not assets["gifs"]:
-            print(f"⚠️ No GIFs for {rec.get('external_id')} (auto mode found none)")
+            print(f"⚠️ No GIFs for {ext_id} (auto mode found none)")
 
         # 3) Build + queue
         prod = build_product(rec, assets, ae_total, amz_total, reason, best_ae_url)
         payload.append(prod)
+        found += 1
+        seen_extids.add(ext_id)
+        print(f"✓ Product {found}/{target} queued: {ext_id}")
 
-    total = len(specs)
-    successful = len(payload)
-    failed_count = len(failed)
-    skipped_count = len(skipped)
-
+    # Import if we have any products
     if not payload:
         print("⚠️ No products passed pricing. Nothing to import.")
         if skipped: print(json.dumps({"skipped": skipped}, indent=2))
-        return total, 0, failed_count, skipped
+        return len(specs), 0, len(failed), skipped
 
-    print("📦 Sending UPSERT import…")
+    print(f"📦 Sending UPSERT import for {len(payload)} product(s)…")
+    successful = 0
     try:
         import_products(token, payload)
+        successful = len(payload)
         print("🎉 Done — review in /admin/product-approvals")
     except Exception as e:
         print(f"❌ Import failed: {e}")
-        failed_count = len(payload)
-        successful = 0
+        failed.extend([{"external_id": p.get("external_id"), "reason": str(e)} for p in payload])
 
     if skipped:
         print("\n⚠️ Skipped (pricing failed or missing URLs):")
         print(json.dumps(skipped, indent=2))
 
-    print(f"\n📊 Summary: {successful}/{total} successful, {failed_count} failed, {skipped_count} skipped")
-    return total, successful, failed_count, skipped
+    elapsed = (time.time() - start_time) / 60.0
+    print(f"\n📊 Summary: {successful} successful, {len(failed)} failed, {len(skipped)} skipped")
+    print(f"⏱️ Runtime: {elapsed:.1f}m / {MAX_RUNTIME_MIN}m budget")
+    return len(specs), successful, len(failed), skipped
 
 if __name__ == "__main__":
     job_id = os.environ.get("JOB_ID", "")
