@@ -1,5 +1,25 @@
-[[ -z "$SUPABASE_URL" || -z "$SUPABASE_ANON_KEY" ]] && { echo "Missing Supabase env"; exit 1; }
-[[ -z "$REVOA_ADMIN_TOKEN" && ( -z "$REVOA_ADMIN_EMAIL" || -z "$REVOA_ADMIN_PASSWORD" ) ]] && { echo "Missing admin auth env"; exit 1; }
+name: import-products
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode (real|demo)"
+        required: false
+        default: "real"
+      reason:
+        description: "Why triggered (optional note)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 6 * * *"   # daily 06:00 UTC
+  push:
+    paths:
+      - "products/**"
+      - "assets/**"
+      - "scripts/**"
+      - ".github/workflows/import-products.yml"
+
 
 name: Import Products (AI Agent)
 
