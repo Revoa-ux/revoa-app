@@ -96,21 +96,100 @@ MAX_RUNTIME_MIN = int(os.environ.get("MAX_RUNTIME_MIN", "25"))
 REELS_PAGE_LIMIT = int(os.environ.get("REELS_PAGE_LIMIT", "0"))  # 0 = unlimited
 
 # ========== AUTONOMOUS DISCOVERY DEFAULTS (NO YAML REQUIRED) ==========
-# Discovery search terms (baked-in defaults, overridable via env)
-DEFAULT_DISCOVERY_TERMS = [
-    "under door draft stopper",
-    "outdoor step lights",
-    "peel and stick solar lights",
-    "resistance bands workout",
-    "magnetic window screen",
-    "cordless led puck lights",
-    "bathroom led mirror light",
-    "wireless handheld vacuum",
-    "kitchen sink sprayer",
-    "motion sensor cabinet lights"
-]
-DEFAULT_NICHES = ["home", "lighting", "fitness", "kitchen"]
+# Comprehensive search terms library - based on analyzing 25+ real viral product reels
+# These mirror exactly what successful viral creators post about
 
+# TIER 1: Broad viral discovery (what shows up in feeds)
+DEFAULT_BROAD_TERMS = [
+    "viral product 2025", "amazon must haves", "tiktok made me buy it",
+    "gadgets you actually need", "cool tech finds", "best things on the internet",
+    "trending products 2025", "cheap but genius", "problem solving gadgets",
+    "oddly satisfying gadgets", "amazon finds that make sense",
+    "gadgets you didn't know existed", "stuff you need from amazon",
+    "impulse buy worth it", "amazon hidden gems", "game changer amazon"
+]
+
+# TIER 2: Niche-specific discovery (actual product categories from viral reels)
+DEFAULT_NICHE_TERMS = {
+    "lighting": [
+        "outdoor solar lights", "patio step lights", "garden path lights",
+        "motion sensor solar lamp", "driveway curb lights", "peel and stick solar lights",
+        "warm white landscape lights", "deck lighting ideas", "solar string lights",
+        "landscape spotlight solar", "fence post solar lights", "stair lights outdoor"
+    ],
+    "home_organization": [
+        "under door draft stopper", "kitchen organization hacks", "bathroom must haves",
+        "shower storage hack", "cable management gadgets", "sink rack organizer",
+        "closet organization ideas", "pantry storage solutions", "drawer dividers",
+        "space saving hacks", "command hooks ideas", "magnetic storage strips"
+    ],
+    "cleaning": [
+        "grout cleaning tool", "sticky mop reusable", "lint remover electric",
+        "squeegee window cleaner", "scrub daddy alternatives", "cleaning gadgets viral",
+        "power scrubber drill", "steam cleaner handheld", "carpet cleaner portable",
+        "bathroom cleaning hacks", "deep clean tools", "grout pen white"
+    ],
+    "kitchen": [
+        "mini chopper electric", "oil sprayer cooking", "magnetic measuring spoons",
+        "pot lid rack organizer", "collapsible colander", "automatic stirrer pan",
+        "silicone lid covers universal", "pan organizer rack", "garlic press upgrade",
+        "vegetable chopper onion", "salad spinner large", "spice rack magnetic",
+        "kitchen gadgets must have", "cooking tools amazon finds"
+    ],
+    "fitness": [
+        "resistance bands set heavy", "door anchor workout home", "posture corrector",
+        "massage gun mini portable", "ab roller wheel compact", "ankle weights adjustable",
+        "yoga mat thick non slip", "foam roller muscle", "pull up bar doorway",
+        "home gym equipment compact", "workout bands booty", "fitness tracker watch"
+    ],
+    "car": [
+        "car organizer trunk storage", "visor clip sunglass holder", "trunk net cargo",
+        "seat gap filler leather", "magnetic phone mount car", "car cleaning gel putty",
+        "car accessories must have", "road trip essentials kit", "car organization hacks",
+        "dash cam front and rear", "tire pressure gauge digital", "car emergency kit"
+    ],
+    "pet": [
+        "dog paw cleaner portable", "lint roller pet hair extra sticky", "interactive cat toy",
+        "chew toy indestructible dog", "automatic water dispenser pet", "pet hair remover couch",
+        "cat litter mat trapping", "dog grooming brush", "pet camera treat dispenser",
+        "dog toys aggressive chewers", "cat scratching post tall", "pet fountain water"
+    ],
+    "beauty": [
+        "blackhead remover tool vacuum", "hair curler heatless overnight", "facial steamer nano",
+        "electric callus remover foot", "scalp massager shampoo brush", "makeup organizer acrylic",
+        "hair dryer brush one step", "jade roller gua sha", "led face mask therapy",
+        "eyelash curler heated", "nail drill electric manicure", "mini skincare fridge"
+    ],
+    "outdoors": [
+        "camping lantern rechargeable led", "bug zapper outdoor electric", "portable air pump electric",
+        "hose splitter 4 way brass", "magnetic pickup tool led", "pressure washer attachment hose",
+        "garden hose expandable 100ft", "watering can long spout", "plant stakes tall",
+        "outdoor thermometer wireless", "rain gauge decorative glass", "garden tools set ergonomic"
+    ]
+}
+
+# TIER 3: Long-tail intent phrases (exactly what appears in viral captions)
+DEFAULT_INTENT_PHRASES = [
+    "amazon finds under 30", "home essentials you need", "genius products everyone needs",
+    "satisfying cleaning products", "organization must haves", "aesthetic home finds",
+    "life changing gadgets", "products that went viral", "trending home finds 2025",
+    "small apartment essentials", "gift ideas under 50", "home hacks that work"
+]
+
+# Build comprehensive discovery list (rotates daily via randomization in discover function)
+_all_niche_terms = []
+for niche_list in DEFAULT_NICHE_TERMS.values():
+    _all_niche_terms.extend(niche_list[:4])  # Top 4 from each niche
+
+DEFAULT_DISCOVERY_TERMS = (
+    DEFAULT_BROAD_TERMS[:8] +  # Top broad viral terms
+    _all_niche_terms[:40] +    # Diverse niche coverage
+    DEFAULT_INTENT_PHRASES[:8]  # Intent-driven searches
+)
+
+DEFAULT_NICHES = list(DEFAULT_NICHE_TERMS.keys())
+
+# Load from env or use defaults
 DISCOVERY_TERMS = [s.strip() for s in os.environ.get("DISCOVERY_TERMS", ",".join(DEFAULT_DISCOVERY_TERMS)).split(",") if s.strip()]
 DISCOVERY_NICHES = [s.strip() for s in os.environ.get("DISCOVERY_NICHES", ",".join(DEFAULT_NICHES)).split(",") if s.strip()]
 MIN_VIEWS = int(os.environ.get("DISCOVERY_MIN_VIEWS", "50000"))
