@@ -907,28 +907,30 @@ def main():
     failed = []
 
     # =====================================================================
-    # TODO: REAL AI PRODUCT DISCOVERY
+    # PRODUCT DISCOVERY - Load from YAML manifests
     # =====================================================================
-    # This is where the real AI agent should:
-    # 1. Discover trending products from Instagram reels (viral content)
-    # 2. Analyze engagement metrics, comments, trending hashtags
-    # 3. Identify product opportunities from viral videos
-    # 4. Find matching Amazon Prime listings
-    # 5. Find AliExpress suppliers with good pricing
-    # 6. Generate compelling copy based on viral content
-    #
-    # Current implementation: DISABLED - No YAML test products
+    # Products are defined in /products/*.yml files
+    # The agent will:
+    # 1. Scrape Amazon Prime prices (with retry logic)
+    # 2. Search AliExpress for suppliers (100+ orders)
+    # 3. Validate pricing rules (50% rule or $20 spread)
+    # 4. Download inspiration reels from Instagram
+    # 5. Generate 2-3 text-free GIFs per product
+    # 6. Upload assets to Supabase storage
+    # 7. UPSERT products to database (status: pending)
     # =====================================================================
 
-    print("⚠️  AI DISCOVERY NOT YET IMPLEMENTED")
-    print("    The script needs Instagram discovery logic to find real products.")
-    print("    Currently only processes YAML files which contain test data.")
-    print("")
-    print("🚫 Skipping YAML test products - waiting for real AI discovery...")
+    print("📂 Loading product manifests from /products/*.yml...")
+    specs = load_manifests()
 
-    specs = []  # Explicitly empty - don't load test products
+    if not specs:
+        print("⚠️  No products found in /products/*.yml files")
+        print("    Create YAML files in the /products directory to import products.")
+        print("    See AI_AGENT_SCRAPING_GUIDE.md for format details.")
+    else:
+        print(f"✓ Loaded {len(specs)} product(s) from YAML manifests")
 
-    # Process discovered products (currently empty until discovery implemented)
+    # Process products from YAML
     for rec in specs:
         # Check if we hit target or timeout
         if found >= target:
