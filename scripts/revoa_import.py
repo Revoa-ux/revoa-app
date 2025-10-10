@@ -128,6 +128,282 @@ def login():
         raise RuntimeError(f"No access_token in login response: {data}")
     return tok
 
+# ---------- Instagram Discovery ----------
+def discover_viral_reels(hashtags, min_likes=10000, max_reels=50):
+    """
+    Discover viral Instagram reels by hashtag/search.
+    Returns list of reel metadata: {url, likes, comments, views, shortcode}
+
+    NOTE: Instagram heavily rate-limits and blocks scrapers.
+    This is a simplified implementation that may need:
+    - Rotating proxies
+    - Session management
+    - GraphQL API parsing
+    - CAPTCHA solving
+    """
+    discovered = []
+
+    for hashtag in hashtags:
+        print(f"🔍 Searching Instagram for #{hashtag}...")
+
+        # Try public Instagram search (no auth)
+        # Instagram's web interface uses GraphQL but we'll try the simpler tags page
+        search_url = f"https://www.instagram.com/explore/tags/{hashtag}/"
+
+        try:
+            html = fetch_html_with_retry(search_url, max_retries=2)
+            if not html:
+                print(f"  ⚠️ Could not fetch #{hashtag} page")
+                continue
+
+            # Instagram embeds data in <script> tags as JSON
+            # Look for window._sharedData or similar
+            pattern = r'window\._sharedData\s*=\s*({.+?});'
+            match = re.search(pattern, html)
+
+            if match:
+                try:
+                    data = json.loads(match.group(1))
+                    # Navigate JSON structure (changes frequently)
+                    # This is an approximation - actual structure may vary
+                    edges = data.get('entry_data', {}).get('TagPage', [{}])[0]\
+                               .get('graphql', {}).get('hashtag', {})\
+                               .get('edge_hashtag_to_media', {}).get('edges', [])
+
+                    for edge in edges[:max_reels]:
+                        node = edge.get('node', {})
+                        shortcode = node.get('shortcode')
+
+                        if not shortcode:
+                            continue
+
+                        # Check if it's a video (reel)
+                        is_video = node.get('is_video', False)
+                        if not is_video:
+                            continue
+
+                        likes = node.get('edge_liked_by', {}).get('count', 0)
+                        comments = node.get('edge_media_to_comment', {}).get('count', 0)
+                        views = node.get('video_view_count', 0)
+
+                        if likes < min_likes:
+                            continue
+
+                        discovered.append({
+                            'url': f'https://www.instagram.com/reel/{shortcode}/',
+                            'shortcode': shortcode,
+                            'likes': likes,
+                            'comments': comments,
+                            'views': views,
+                            'hashtag': hashtag
+                        })
+
+                except json.JSONDecodeError:
+                    print(f"  ⚠️ Could not parse Instagram JSON for #{hashtag}")
+
+            else:
+                print(f"  ⚠️ Instagram data structure not found for #{hashtag}")
+
+        except Exception as e:
+            print(f"  ⚠️ Error searching #{hashtag}: {e}")
+
+    # Sort by engagement (likes + comments)
+    discovered.sort(key=lambda x: x['likes'] + x['comments'], reverse=True)
+    print(f"✓ Discovered {len(discovered)} viral reels")
+
+    return discovered[:max_reels]
+
+def extract_product_info_from_reel(reel_url, video_path=None):
+    """
+    Analyze a reel to identify product information.
+    Uses:
+    1. Video frames (OCR for text, object detection for products)
+    2. Caption text analysis
+    3. Hashtags for product hints
+
+    Returns: {
+        'product_name': str,
+        'category': str,
+        'keywords': list,
+        'description_hint': str
+    }
+    """
+    print(f"🔍 Analyzing reel: {reel_url}")
+
+    # Download the reel if not provided
+    if not video_path:
+        with tempfile.TemporaryDirectory() as td:
+            video_path = download_video(reel_url, td)
+            if not video_path:
+                print("  ⚠️ Could not download reel for analysis")
+                return None
+
+    info = {
+        'product_name': None,
+        'category': None,
+        'keywords': [],
+        'description_hint': ''
+    }
+
+    # Try to get caption/metadata from Instagram page
+    try:
+        html = fetch_html_with_retry(reel_url, max_retries=2)
+        if html and BeautifulSoup:
+            soup = BeautifulSoup(html, 'lxml')
+
+            # Look for meta tags with description
+            og_desc = soup.find('meta', property='og:description')
+            if og_desc:
+                caption = og_desc.get('content', '')
+                info['description_hint'] = caption[:200]
+
+                # Extract hashtags
+                hashtags = re.findall(r'#(\w+)', caption)
+                info['keywords'].extend(hashtags)
+
+                # Simple keyword extraction for product hints
+                # Look for common product indicators
+                product_patterns = [
+                    r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b',  # Capitalized words
+                    r'\b(\w+\s+(?:Stopper|Light|Band|Tool|Gadget|Kit))\b',  # Common product types
+                ]
+                for pattern in product_patterns:
+                    matches = re.findall(pattern, caption, re.IGNORECASE)
+                    info['keywords'].extend(matches[:5])
+
+    except Exception as e:
+        print(f"  ⚠️ Could not extract caption: {e}")
+
+    # Use OpenCV for frame analysis if available
+    if cv2 and os.path.exists(video_path):
+        try:
+            cap = cv2.VideoCapture(video_path)
+            frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+            # Sample a few frames (beginning, middle, end)
+            sample_frames = [0, frame_count // 2, frame_count - 1]
+
+            for frame_idx in sample_frames:
+                cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
+                ret, frame = cap.read()
+
+                if ret:
+                    # TODO: Add OCR here to extract text from frames
+                    # Could use pytesseract or similar
+                    # For now, just note that frame analysis is available
+                    pass
+
+            cap.release()
+
+        except Exception as e:
+            print(f"  ⚠️ Frame analysis error: {e}")
+
+    # If we found keywords, try to infer product name and category
+    if info['keywords']:
+        # Take most common/relevant keywords as product name hint
+        keyword_str = ' '.join(info['keywords'][:3])
+        info['product_name'] = keyword_str.title()
+
+        # Simple category inference from keywords
+        category_map = {
+            'light': 'Lighting',
+            'band': 'Fitness',
+            'stopper': 'Home',
+            'gadget': 'Electronics',
+            'kitchen': 'Kitchen',
+            'fitness': 'Fitness',
+            'beauty': 'Beauty',
+            'tool': 'Tools'
+        }
+
+        for keyword in info['keywords']:
+            for key, cat in category_map.items():
+                if key.lower() in keyword.lower():
+                    info['category'] = cat
+                    break
+            if info['category']:
+                break
+
+        if not info['category']:
+            info['category'] = 'Home'  # Default
+
+    print(f"  ✓ Identified: {info['product_name']} ({info['category']})")
+    return info
+
+def search_amazon_for_product(product_name, keywords, max_results=5):
+    """
+    Search Amazon for products matching the given name and keywords.
+    Returns list of {title, asin, url, price, prime}
+
+    NOTE: Amazon blocks scrapers aggressively. This may require:
+    - Amazon Product Advertising API (official)
+    - Rotating proxies
+    - CAPTCHA solving
+    """
+    print(f"🔍 Searching Amazon for: {product_name}")
+
+    results = []
+
+    # Build search query
+    search_terms = product_name
+    if keywords:
+        search_terms += ' ' + ' '.join(keywords[:3])
+
+    query = quote(search_terms)
+    search_url = f"https://www.amazon.com/s?k={query}"
+
+    try:
+        html = fetch_html_with_retry(search_url, max_retries=3)
+        if not html:
+            print("  ⚠️ Could not fetch Amazon search results")
+            return results
+
+        if BeautifulSoup:
+            soup = BeautifulSoup(html, 'lxml')
+
+            # Find product cards (structure changes frequently)
+            products = soup.select('[data-component-type="s-search-result"]')
+
+            for product in products[:max_results]:
+                try:
+                    # Extract ASIN
+                    asin = product.get('data-asin')
+                    if not asin:
+                        continue
+
+                    # Extract title
+                    title_elem = product.select_one('h2 a span')
+                    title = title_elem.get_text(strip=True) if title_elem else ''
+
+                    # Extract price
+                    price_elem = product.select_one('.a-price .a-offscreen')
+                    price_text = price_elem.get_text(strip=True) if price_elem else ''
+                    price = _num(price_text) if price_text else None
+
+                    # Check for Prime
+                    prime_elem = product.select_one('[aria-label*="Prime"]')
+                    is_prime = bool(prime_elem)
+
+                    if asin and title:
+                        results.append({
+                            'title': title,
+                            'asin': asin,
+                            'url': f'https://www.amazon.com/dp/{asin}',
+                            'price': price,
+                            'prime': is_prime
+                        })
+
+                except Exception as e:
+                    print(f"  ⚠️ Error parsing product: {e}")
+                    continue
+
+        print(f"  ✓ Found {len(results)} Amazon products")
+
+    except Exception as e:
+        print(f"  ⚠️ Amazon search error: {e}")
+
+    return results
+
 # ---------- Deduplication Helpers ----------
 def _hash(s: str) -> str:
     """SHA1 hash for dedup IDs"""
@@ -907,30 +1183,152 @@ def main():
     failed = []
 
     # =====================================================================
-    # PRODUCT DISCOVERY - Load from YAML manifests
+    # AUTONOMOUS PRODUCT DISCOVERY
     # =====================================================================
-    # Products are defined in /products/*.yml files
     # The agent will:
-    # 1. Scrape Amazon Prime prices (with retry logic)
-    # 2. Search AliExpress for suppliers (100+ orders)
-    # 3. Validate pricing rules (50% rule or $20 spread)
-    # 4. Download inspiration reels from Instagram
-    # 5. Generate 2-3 text-free GIFs per product
-    # 6. Upload assets to Supabase storage
-    # 7. UPSERT products to database (status: pending)
+    # 1. Search Instagram for viral reels by hashtag
+    # 2. Analyze reel captions/frames to identify products
+    # 3. Search Amazon for matching products
+    # 4. Search AliExpress for suppliers (100+ orders)
+    # 5. Validate pricing rules (50% rule or $20 spread)
+    # 6. Download reels and generate text-free GIFs
+    # 7. Upload assets to Supabase storage
+    # 8. UPSERT products to database (status: pending)
     # =====================================================================
 
-    print("📂 Loading product manifests from /products/*.yml...")
-    specs = load_manifests()
+    print("🤖 AUTONOMOUS PRODUCT DISCOVERY MODE")
+    print("=" * 60)
 
-    if not specs:
-        print("⚠️  No products found in /products/*.yml files")
-        print("    Create YAML files in the /products directory to import products.")
-        print("    See AI_AGENT_SCRAPING_GUIDE.md for format details.")
+    # Define niches and hashtags to search
+    discovery_niches = os.environ.get("DISCOVERY_NICHES", "home,fitness,kitchen").split(",")
+    hashtag_map = {
+        'home': ['homedecor', 'homeessentials', 'homegadgets', 'amazonfinds'],
+        'fitness': ['fitnessgadgets', 'workoutathome', 'gymequipment', 'fitness'],
+        'kitchen': ['kitchengadgets', 'kitchenhacks', 'cooking', 'amazonkitchen'],
+        'beauty': ['beautygadgets', 'skincare', 'makeuptips', 'beautyfinds'],
+        'tools': ['tooltips', 'diytools', 'handyman', 'homeimprovement']
+    }
+
+    # Collect hashtags for selected niches
+    all_hashtags = []
+    for niche in discovery_niches:
+        niche = niche.strip().lower()
+        if niche in hashtag_map:
+            all_hashtags.extend(hashtag_map[niche])
+
+    if not all_hashtags:
+        all_hashtags = ['amazonfinds', 'gadgets', 'viral']  # Fallback
+
+    print(f"📍 Discovery niches: {', '.join(discovery_niches)}")
+    print(f"🏷️  Searching hashtags: {', '.join(all_hashtags)}")
+    print()
+
+    # Step 1: Discover viral reels
+    print("🔍 STEP 1: Discovering viral Instagram reels...")
+    discovered_reels = discover_viral_reels(
+        all_hashtags,
+        min_likes=10000,  # Minimum engagement threshold
+        max_reels=50  # Max reels to discover
+    )
+
+    if not discovered_reels:
+        print("⚠️  No viral reels discovered")
+        print("    Instagram may be blocking requests or hashtags returned no results")
+        print("    Falling back to YAML manifests if available...")
+
+        # Fallback to YAML
+        specs = load_manifests()
+        if specs:
+            print(f"✓ Loaded {len(specs)} product(s) from YAML manifests")
+        else:
+            print("❌ No YAML files found either. Exiting.")
+            sys.exit(0)
     else:
-        print(f"✓ Loaded {len(specs)} product(s) from YAML manifests")
+        print(f"✓ Discovered {len(discovered_reels)} viral reels")
+        print()
 
-    # Process products from YAML
+        # Step 2: Analyze reels and identify products
+        print("🔍 STEP 2: Analyzing reels to identify products...")
+        specs = []
+
+        for reel in discovered_reels[:target * 2]:  # Analyze 2x target to account for filtering
+            if len(specs) >= target:
+                break
+
+            reel_hash = _hash(reel['shortcode'])
+            if reel_hash in seen_reels:
+                print(f"  ⏭️  Skip {reel['shortcode']}: already processed")
+                continue
+
+            print(f"  Analyzing: {reel['url']} ({reel['likes']} likes)")
+
+            # Extract product info from reel
+            product_info = extract_product_info_from_reel(reel['url'])
+
+            if not product_info or not product_info.get('product_name'):
+                print("    ⚠️  Could not identify product, skipping")
+                continue
+
+            # Step 3: Search Amazon for the product
+            amazon_results = search_amazon_for_product(
+                product_info['product_name'],
+                product_info.get('keywords', []),
+                max_results=3
+            )
+
+            if not amazon_results:
+                print("    ⚠️  No Amazon products found, skipping")
+                continue
+
+            # Take the first Prime-eligible product
+            amazon_product = None
+            for result in amazon_results:
+                if result.get('prime'):
+                    amazon_product = result
+                    break
+
+            if not amazon_product:
+                print("    ⚠️  No Prime-eligible products found, skipping")
+                continue
+
+            # Build product spec
+            slug = re.sub(r'[^a-z0-9]+', '-', product_info['product_name'].lower()).strip('-')
+            external_id = f"ig:{reel['shortcode']}:{slug}"
+
+            spec = {
+                'external_id': external_id,
+                'name': amazon_product['title'][:100],  # Use Amazon title
+                'category': product_info.get('category', 'Home'),
+                'description': product_info.get('description_hint', '')[:500],
+                'amazon_url': amazon_product['url'],
+                'aliexpress_search_terms': [
+                    product_info['product_name'],
+                    ' '.join(product_info.get('keywords', [])[:3])
+                ],
+                'inspiration_reels': [reel['url']],
+                'min_sales': 100,
+                'allow_aliexpress_soft_pass': True,
+                'supplier_price': None,  # Will search AliExpress
+                'headline': f"Get {product_info['product_name']}",
+                'ad_copy': "(as seen on Instagram)",
+                '_reel_metadata': {
+                    'likes': reel['likes'],
+                    'comments': reel['comments'],
+                    'views': reel.get('views', 0)
+                }
+            }
+
+            specs.append(spec)
+            print(f"    ✓ Product identified: {spec['name'][:50]}...")
+
+            # Mark reel as seen
+            seen_reels.add(reel_hash)
+
+        print()
+        print(f"✓ Identified {len(specs)} products from viral reels")
+        print()
+
+    # Process discovered/loaded products
     for rec in specs:
         # Check if we hit target or timeout
         if found >= target:
