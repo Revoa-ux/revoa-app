@@ -29,8 +29,14 @@ Env:
 
 import os, sys, json, pathlib, requests, yaml, re, math, tempfile, subprocess, shutil, time, hashlib
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 import numpy as np
+
+# HTML parsing
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 # Optional heavy deps (opencv) import lazily where needed
 try:
@@ -63,6 +69,14 @@ PRICE_TIMEOUT = 25
 MIN_SALES_DEFAULT = 100
 TOP_N_DEFAULT = 3
 
+# Retry configuration
+SCRAPE_MAX_RETRIES = int(os.environ.get("SCRAPE_MAX_RETRIES", "4"))
+SCRAPE_SLEEP_BASE = float(os.environ.get("SCRAPE_SLEEP_BASE", "2.0"))
+REQUESTS_USER_AGENT = os.environ.get(
+    "REQUESTS_USER_AGENT",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+
 # GIF constraints / defaults
 GIF_MAX_MB = float(os.environ.get("GIF_MAX_MB", "20"))
 GIF_MIN_SEC = float(os.environ.get("GIF_MIN_SEC", "3.0"))
@@ -82,7 +96,13 @@ MAX_RUNTIME_MIN = int(os.environ.get("MAX_RUNTIME_MIN", "25"))
 REELS_PAGE_LIMIT = int(os.environ.get("REELS_PAGE_LIMIT", "0"))  # 0 = unlimited
 
 HEADERS_BROWSER = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+    "User-Agent": REQUESTS_USER_AGENT,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1"
 }
 
 # ---------- Utilities ----------
@@ -213,24 +233,102 @@ def _num(s):
     m = re.search(r"(\d+(?:\.\d{1,2})?)", s)
     return float(m.group(1)) if m else None
 
-def fetch_html(url):
-    try:
-        r = requests.get(url, headers=HEADERS_BROWSER, timeout=PRICE_TIMEOUT)
-        if r.status_code == 200: return r.text
-    except requests.RequestException:
-        pass
+def fetch_html_with_retry(url, max_retries=SCRAPE_MAX_RETRIES, base_sleep=SCRAPE_SLEEP_BASE):
+    """Fetch HTML with exponential backoff retry logic."""
+    for attempt in range(max_retries):
+        try:
+            r = requests.get(url, headers=HEADERS_BROWSER, timeout=PRICE_TIMEOUT, allow_redirects=True)
+            if r.status_code == 200:
+                return r.text
+            elif r.status_code == 503:  # Service unavailable, retry
+                if attempt < max_retries - 1:
+                    sleep_time = base_sleep * (2 ** attempt)
+                    print(f"  → 503 error, retry {attempt + 1}/{max_retries} after {sleep_time}s...")
+                    time.sleep(sleep_time)
+                    continue
+        except requests.RequestException as e:
+            if attempt < max_retries - 1:
+                sleep_time = base_sleep * (2 ** attempt)
+                print(f"  → Request error: {e}, retry {attempt + 1}/{max_retries} after {sleep_time}s...")
+                time.sleep(sleep_time)
+                continue
+            print(f"  → Failed after {max_retries} attempts: {e}")
     return None
 
+def fetch_html(url):
+    """Legacy wrapper for backward compatibility."""
+    return fetch_html_with_retry(url)
+
 def parse_amazon_prime_price(html):
-    if not html: return None, False
-    # detect "Prime" badging near price blocks
-    prime = bool(re.search(r'Prime[^<]*</span>|aria-label="Prime"', html, re.IGNORECASE))
-    # price location heuristics
-    m = re.search(r'id="priceblock_ourprice"[^>]*>([^<]+)</span>', html)
-    if not m:
-        m = re.search(r'class="a-offscreen"[^>]*>([^<]+)</span>', html)
-    price = _num(m.group(1)) if m else None
-    return price, prime
+    """
+    Parse Amazon price and Prime status using BeautifulSoup + regex fallbacks.
+    Returns (price, is_prime)
+    """
+    if not html:
+        return None, False
+
+    price = None
+    is_prime = False
+
+    # Detect Prime badge
+    prime_patterns = [
+        r'Prime\s*</span>',
+        r'aria-label="Prime"',
+        r'primeIcon',
+        r'a-icon-prime',
+        r'amazon-prime-logo',
+        r'<i[^>]*prime[^>]*>',
+    ]
+    for pattern in prime_patterns:
+        if re.search(pattern, html, re.IGNORECASE):
+            is_prime = True
+            break
+
+    # Try BeautifulSoup first
+    if BeautifulSoup:
+        try:
+            soup = BeautifulSoup(html, 'lxml')
+
+            # Try various price selectors
+            price_selectors = [
+                '.a-offscreen',
+                '#corePrice_desktop .a-offscreen',
+                '#corePrice_feature_div .a-offscreen',
+                '#priceblock_ourprice',
+                '#priceblock_dealprice',
+                '#sns-base-price',
+                '.a-price-whole',
+                '[data-a-color="price"] .a-offscreen',
+            ]
+
+            for selector in price_selectors:
+                elem = soup.select_one(selector)
+                if elem:
+                    price_text = elem.get_text(strip=True)
+                    price = _num(price_text)
+                    if price:
+                        break
+        except Exception as e:
+            print(f"  → BeautifulSoup parse error: {e}")
+
+    # Regex fallbacks
+    if price is None:
+        patterns = [
+            r'id="priceblock_ourprice"[^>]*>\s*\$?([0-9,.]+)',
+            r'id="priceblock_dealprice"[^>]*>\s*\$?([0-9,.]+)',
+            r'class="a-offscreen"[^>]*>\s*\$?([0-9,.]+)',
+            r'id="sns-base-price"[^>]*>\s*\$?([0-9,.]+)',
+            r'"priceAmount"\s*:\s*([0-9,.]+)',
+            r'"price"\s*:\s*"\$?([0-9,.]+)"',
+        ]
+        for pattern in patterns:
+            m = re.search(pattern, html, re.IGNORECASE)
+            if m:
+                price = _num(m.group(1))
+                if price:
+                    break
+
+    return price, is_prime
 
 def parse_aliexpress_price_shipping_sales(html):
     if not html: return None, None, None
@@ -273,49 +371,91 @@ def fetch_aliexpress_total_best(candidate_urls, min_sales=MIN_SALES_DEFAULT, top
 
 def search_aliexpress_and_pick_best(search_terms, min_sales=MIN_SALES_DEFAULT):
     """
-    Tries multiple queries on AliExpress search, sorts by estimated sales, then verifies
-    price+shipping on the product page. Returns (best_total, best_url) or (None, None).
+    Tries multiple queries on AliExpress search, sorts by orders, then verifies
+    price+shipping on the product page. Only considers items with ≥min_sales orders.
+    Returns (best_total, best_url) or (None, None).
     """
     def search_once(term):
-        q = term.strip().replace(" ", "%20")
-        url = f"https://www.aliexpress.com/wholesale?SearchText={q}&SortType=total_tranpro_desc"
+        q = quote(term.strip())
+        # Sort by orders descending
+        url = f"https://www.aliexpress.com/wholesale?SearchText={q}&SortType=orders_desc"
+        print(f"  🔎 Searching AliExpress: {term}")
         html = fetch_html(url)
         if not html:
             return []
+
         items = []
-        for m in re.finditer(r'href="(https://www\.aliexpress\.com/item/[^"]+)"', html):
+        # Find product links
+        for m in re.finditer(r'href="(https://www\.aliexpress\.(?:com|us)/item/[^"]+)"', html):
             href = m.group(1)
-            window = html[max(0, m.start()-500): m.end()+500]
-            sm = re.search(r'(?:sold|orders?)\s*([0-9,]+)', window, re.IGNORECASE)
-            sales = int(sm.group(1).replace(",", "")) if sm else None
-            items.append((href, sales))
+            # Look for sales count in surrounding context
+            window = html[max(0, m.start()-800): m.end()+800]
+
+            # Try multiple sales patterns
+            sales = None
+            sales_patterns = [
+                r'(\d+(?:,\d+)*)\s*(?:sold|orders?)',
+                r'tradeCount["\']?\s*:\s*["\']?(\d+)',
+                r'totalSales["\']?\s*:\s*["\']?(\d+)',
+            ]
+            for pattern in sales_patterns:
+                sm = re.search(pattern, window, re.IGNORECASE)
+                if sm:
+                    sales = int(sm.group(1).replace(",", ""))
+                    break
+
+            # Only include if meets min_sales
+            if sales and sales >= min_sales:
+                items.append((href, sales))
+
+        # Deduplicate and sort by sales
         seen, uniq = set(), []
         for href, sales in items:
             key = href.split("?")[0]
-            if key in seen:
-                continue
-            seen.add(key)
-            uniq.append((href, sales or 0))
+            if key not in seen:
+                seen.add(key)
+                uniq.append((href, sales))
+
         uniq.sort(key=lambda x: x[1], reverse=True)
-        return uniq[:10]
+        print(f"  → Found {len(uniq)} items with ≥{min_sales} orders")
+        return uniq[:12]  # Top 12 candidates
 
     candidate_pool = []
     for t in (search_terms or []):
         candidate_pool.extend(search_once(t))
 
+    if not candidate_pool:
+        print(f"  ⚠️ No AliExpress items found with ≥{min_sales} orders")
+        return None, None
+
+    # Verify prices on product pages
     best = None
+    checked = 0
     for href, est_sales in candidate_pool:
+        if checked >= 8:  # Limit to 8 page fetches max
+            break
+        checked += 1
+
+        print(f"  → Checking product {checked}: {est_sales} orders")
         html = fetch_html(href)
         price, ship, sales = parse_aliexpress_price_shipping_sales(html)
-        sales_final = sales or est_sales or 0
+
+        sales_final = sales if sales is not None else est_sales
         if sales_final < min_sales or price is None:
+            print(f"    ✗ Skip: price={price}, sales={sales_final}")
             continue
+
         total = float(price) + float(ship or 0.0)
+        print(f"    ✓ Total: ${total:.2f} (${price:.2f} + ${ship or 0:.2f} shipping)")
+
         if (best is None) or (total < best[0]):
             best = (total, href, sales_final)
 
     if not best:
+        print(f"  ⚠️ No valid AliExpress products after verification")
         return None, None
+
+    print(f"  ✓ Best: ${best[0]:.2f} ({best[2]} orders)")
     return best[0], best[1]
 
 def enforce_rule(ae_total, amz_total, min_spread=20.0, soft_pass=False):
@@ -401,23 +541,39 @@ def probe_video(mp4):
     except Exception:
         return None
 
-def crop_box_for_aspect(w, h, aspect):
+def crop_box_for_aspect(w, h, aspect, safe_margin_top=0.11, safe_margin_bottom=0.11):
+    """
+    Crop to target aspect ratio, avoiding top/bottom margins where IG overlays text.
+    safe_margin_top/bottom: fraction of height to mask (default 11% each = 22% total).
+    This creates a safe zone avoiding typical Instagram text overlays.
+    """
     if aspect == "4x6":
         # target ratio 2:3 (w:h = 2:3). We crop to 2:3 centered
         target_ratio = 2/3
     else:
         target_ratio = 1.0  # square
-    in_ratio = w / max(h,1)
+
+    # Apply safe margins to avoid text overlay zones
+    safe_top = int(h * safe_margin_top)
+    safe_bottom = int(h * safe_margin_bottom)
+    usable_h = h - safe_top - safe_bottom
+    usable_w = w
+
+    in_ratio = usable_w / max(usable_h, 1)
     if in_ratio > target_ratio:
         # too wide -> reduce width
-        new_w = int(h * target_ratio)
-        new_h = h
+        new_w = int(usable_h * target_ratio)
+        new_h = usable_h
     else:
         # too tall -> reduce height
-        new_w = w
-        new_h = int(w / target_ratio)
+        new_w = usable_w
+        new_h = int(usable_w / target_ratio)
+
+    # Center horizontally
     x = (w - new_w) // 2
-    y = (h - new_h) // 2
+    # Vertically offset to avoid text zones
+    y = safe_top + (usable_h - new_h) // 2
+
     return x, y, new_w, new_h
 
 def score_frame_for_text(frame, crop_box):
@@ -524,15 +680,27 @@ def find_clean_windows(mp4, aspect, min_s=3.0, max_s=6.0, wanted=3):
     return {"crop": crop, "wins": wins}
 
 def palette_gif(mp4, start, end, out_gif, aspect="square", target_w=1080, target_h=1080, fps=24):
-    # compose crop filter
+    """
+    Generate GIF with palette optimization using ffmpeg.
+    Applies safe margin cropping to avoid Instagram text overlays (top 11%, bottom 11%).
+    """
+    # Compose crop filter with safe margins for text-free zones
+    # Format: crop=out_w:out_h:x:y
+    # We crop the middle 78% of height (avoiding 11% top + 11% bottom)
     if aspect == "4x6":
-        # 2:3
-        crop_filter = "crop='min(iw,ih*2/3)':'min(ih,iw*3/2)':(in_w-out_w)/2:(in_h-out_h)/2"
+        # Target 2:3 ratio, avoiding text zones
+        # crop height to 78% of original (ih*0.78), starting at 11% from top (ih*0.11)
+        # then crop width to match 2:3 aspect
+        crop_filter = "crop='min(iw,ih*0.78*2/3)':'ih*0.78':('iw-out_w')/2:'ih*0.11'"
     else:
-        # square
-        crop_filter = "crop='min(iw,ih)':'min(iw,ih)':(in_w-out_w)/2:(in_h-out_h)/2"
+        # Square, avoiding text zones
+        # crop height to 78%, take square from center
+        crop_filter = "crop='min(iw,ih*0.78)':'min(iw,ih*0.78)':('iw-out_w')/2:'ih*0.11'"
+
+    # Build filter chains for palette generation and use
     vf1 = f"trim=start={start}:end={end},setpts=PTS-STARTPTS,{crop_filter},scale={target_w}:{target_h}:flags=lanczos,fps={fps},palettegen=stats_mode=diff"
     vf2 = f"trim=start={start}:end={end},setpts=PTS-STARTPTS,{crop_filter},scale={target_w}:{target_h}:flags=lanczos,fps={fps},paletteuse=new=1:diff_mode=rectangle"
+
     pal = out_gif + ".pal.png"
     r1 = _run([FFMPEG_BIN, "-y", "-i", mp4, "-vf", vf1, pal])
     if r1.returncode != 0:
