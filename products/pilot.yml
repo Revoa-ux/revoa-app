@@ -1,10 +1,19 @@
 products:
+  # NOTE: These are EXAMPLE products with PLACEHOLDER URLs
+  # To import real products:
+  # 1. Replace amazon_url with REAL Amazon product URLs (e.g., /dp/B08XYZ1234)
+  # 2. Ensure the product exists and has Prime shipping
+  # 3. The AliExpress search terms will find suppliers automatically
+  # 4. The script will validate pricing and generate GIFs from the Instagram reels
+
   - external_id: "ig:DLpBJg-s-_i:solar-step-lights"
     name: "Peel-and-Stick Solar Step Lights (Warm White)"
     category: "Lighting"
     description: "Boost curb appeal in minutes with weather-resistant solar step lights."
     assets_dir: "assets/lighting/solar-step-lights"
 
+    # REPLACE THIS WITH A REAL AMAZON URL!
+    # Example: https://www.amazon.com/dp/B09TYQJXYZ
     amazon_url: "https://www.amazon.com/dp/EXAMPLE1"
 
     # EITHER give candidates OR let the agent search:

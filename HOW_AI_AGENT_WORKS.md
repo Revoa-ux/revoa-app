@@ -1,13 +1,30 @@
-# How the AI Agent Product Import Works
+# ⚠️ How the AI Agent ACTUALLY Works
 
-## Overview
+## Important Reality Check
 
-The AI agent will use a Python script to automatically import products into your Revoa platform. Here's how it all fits together:
+The "AI Agent" is **NOT fully automated Instagram discovery**. Here's what it really does:
 
-## The Setup (What We Just Did)
+## What It DOES ✅
 
-### 1. **The Import Script** (`ai_agent_import.py`)
-   - Located in your project root directory
+1. **Loads products from YAML files** you create manually
+2. **Scrapes Amazon prices** with retry logic
+3. **Searches AliExpress** for suppliers (100+ orders)
+4. **Downloads Instagram reels** from URLs you provide
+5. **Generates text-free GIFs** automatically
+6. **Validates pricing rules** (50% or $20 spread)
+7. **Imports products** to database for review
+
+## What It DOES NOT ❌
+
+1. ❌ Discover viral reels automatically
+2. ❌ Identify products from videos
+3. ❌ Search Instagram for trends
+4. ❌ Find Amazon listings automatically
+5. ❌ Fully autonomous product discovery
+
+## Why Your Run Failed
+
+Looking at your screenshot, all products have:
    - Written in Python (works anywhere Python 3 is installed)
    - Contains automatic login functionality
    - Has the 3 pilot products pre-configured
