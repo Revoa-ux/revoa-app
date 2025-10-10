@@ -242,9 +242,9 @@ def login():
     return tok
 
 # ---------- Instagram Discovery ----------
-def discover_viral_reels(hashtags, min_likes=10000, max_reels=50):
+def discover_viral_reels(search_terms, min_views=50000, max_reels=250):
     """
-    Discover viral Instagram reels by hashtag/search.
+    Discover viral Instagram reels by search terms.
     Returns list of reel metadata: {url, likes, comments, views, shortcode}
 
     NOTE: Instagram heavily rate-limits and blocks scrapers.
@@ -256,17 +256,18 @@ def discover_viral_reels(hashtags, min_likes=10000, max_reels=50):
     """
     discovered = []
 
-    for hashtag in hashtags:
-        print(f"🔍 Searching Instagram for #{hashtag}...")
+    for term in search_terms[:max_reels // 10]:  # Limit terms to avoid too many requests
+        print(f"🔍 Searching Instagram for: {term}...")
 
         # Try public Instagram search (no auth)
-        # Instagram's web interface uses GraphQL but we'll try the simpler tags page
-        search_url = f"https://www.instagram.com/explore/tags/{hashtag}/"
+        # Search by term (not just hashtags)
+        # Try both hashtag search and explore search
+        search_url = f"https://www.instagram.com/explore/tags/{term.replace(' ', '')}/"
 
         try:
             html = fetch_html_with_retry(search_url, max_retries=2)
             if not html:
-                print(f"  ⚠️ Could not fetch #{hashtag} page")
+                print(f"  ⚠️ Could not fetch page for: {term}")
                 continue
 
             # Instagram embeds data in <script> tags as JSON
@@ -299,7 +300,8 @@ def discover_viral_reels(hashtags, min_likes=10000, max_reels=50):
                         comments = node.get('edge_media_to_comment', {}).get('count', 0)
                         views = node.get('video_view_count', 0)
 
-                        if likes < min_likes:
+                        # Filter by min_views
+                        if views < min_views:
                             continue
 
                         discovered.append({
@@ -308,20 +310,20 @@ def discover_viral_reels(hashtags, min_likes=10000, max_reels=50):
                             'likes': likes,
                             'comments': comments,
                             'views': views,
-                            'hashtag': hashtag
+                            'search_term': term
                         })
 
                 except json.JSONDecodeError:
-                    print(f"  ⚠️ Could not parse Instagram JSON for #{hashtag}")
+                    print(f"  ⚠️ Could not parse Instagram JSON for: {term}")
 
             else:
-                print(f"  ⚠️ Instagram data structure not found for #{hashtag}")
+                print(f"  ⚠️ Instagram data structure not found for: {term}")
 
         except Exception as e:
-            print(f"  ⚠️ Error searching #{hashtag}: {e}")
+            print(f"  ⚠️ Error searching for '{term}': {e}")
 
-    # Sort by engagement (likes + comments)
-    discovered.sort(key=lambda x: x['likes'] + x['comments'], reverse=True)
+    # Sort by engagement (views + likes + comments)
+    discovered.sort(key=lambda x: x.get('views', 0) + x['likes'] + x['comments'], reverse=True)
     print(f"✓ Discovered {len(discovered)} viral reels")
 
     return discovered[:max_reels]
