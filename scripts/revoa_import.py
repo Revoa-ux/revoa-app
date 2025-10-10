@@ -95,6 +95,40 @@ TARGET_NEW_PRODUCTS = int(os.environ.get("TARGET_NEW_PRODUCTS", "5"))
 MAX_RUNTIME_MIN = int(os.environ.get("MAX_RUNTIME_MIN", "25"))
 REELS_PAGE_LIMIT = int(os.environ.get("REELS_PAGE_LIMIT", "0"))  # 0 = unlimited
 
+# ========== AUTONOMOUS DISCOVERY DEFAULTS (NO YAML REQUIRED) ==========
+# Discovery search terms (baked-in defaults, overridable via env)
+DEFAULT_DISCOVERY_TERMS = [
+    "under door draft stopper",
+    "outdoor step lights",
+    "peel and stick solar lights",
+    "resistance bands workout",
+    "magnetic window screen",
+    "cordless led puck lights",
+    "bathroom led mirror light",
+    "wireless handheld vacuum",
+    "kitchen sink sprayer",
+    "motion sensor cabinet lights"
+]
+DEFAULT_NICHES = ["home", "lighting", "fitness", "kitchen"]
+
+DISCOVERY_TERMS = [s.strip() for s in os.environ.get("DISCOVERY_TERMS", ",".join(DEFAULT_DISCOVERY_TERMS)).split(",") if s.strip()]
+DISCOVERY_NICHES = [s.strip() for s in os.environ.get("DISCOVERY_NICHES", ",".join(DEFAULT_NICHES)).split(",") if s.strip()]
+MIN_VIEWS = int(os.environ.get("DISCOVERY_MIN_VIEWS", "50000"))
+MAX_REELS = int(os.environ.get("DISCOVERY_MAX_REELS", "250"))
+
+# Pricing rules
+MIN_AE_SALES = int(os.environ.get("MIN_AE_SALES", "100"))
+ALLOW_AE_SOFT_PASS = os.environ.get("ALLOW_AE_SOFT_PASS", "true").lower() == "true"
+MIN_SPREAD_USD = float(os.environ.get("MIN_SPREAD_USD", "20"))
+AE_LEQ_HALF_AMZ = os.environ.get("AE_LEQ_HALF_AMZ", "true").lower() == "true"
+
+# Asset rules
+GIF_MIN_S = int(os.environ.get("GIF_MIN_S", "2"))
+GIF_MAX_S = int(os.environ.get("GIF_MAX_S", "5"))
+GIF_MAX_MB_LIMIT = int(os.environ.get("GIF_MAX_MB", "20"))
+GIF_SIZES = [s.strip() for s in os.environ.get("GIF_OUTPUT_SIZES", "1080x1080,1080x1620").split(",")]
+MAIN_BG_HEX = os.environ.get("MAIN_BG_HEX", "#F5F5F5")
+
 HEADERS_BROWSER = {
     "User-Agent": REQUESTS_USER_AGENT,
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -1196,139 +1230,153 @@ def main():
     # 8. UPSERT products to database (status: pending)
     # =====================================================================
 
-    print("🤖 AUTONOMOUS PRODUCT DISCOVERY MODE")
+    print("🤖 FULLY AUTONOMOUS PRODUCT DISCOVERY MODE")
     print("=" * 60)
-
-    # Define niches and hashtags to search
-    discovery_niches = os.environ.get("DISCOVERY_NICHES", "home,fitness,kitchen").split(",")
-    hashtag_map = {
-        'home': ['homedecor', 'homeessentials', 'homegadgets', 'amazonfinds'],
-        'fitness': ['fitnessgadgets', 'workoutathome', 'gymequipment', 'fitness'],
-        'kitchen': ['kitchengadgets', 'kitchenhacks', 'cooking', 'amazonkitchen'],
-        'beauty': ['beautygadgets', 'skincare', 'makeuptips', 'beautyfinds'],
-        'tools': ['tooltips', 'diytools', 'handyman', 'homeimprovement']
-    }
-
-    # Collect hashtags for selected niches
-    all_hashtags = []
-    for niche in discovery_niches:
-        niche = niche.strip().lower()
-        if niche in hashtag_map:
-            all_hashtags.extend(hashtag_map[niche])
-
-    if not all_hashtags:
-        all_hashtags = ['amazonfinds', 'gadgets', 'viral']  # Fallback
-
-    print(f"📍 Discovery niches: {', '.join(discovery_niches)}")
-    print(f"🏷️  Searching hashtags: {', '.join(all_hashtags)}")
+    print(f"📍 Discovery niches: {', '.join(DISCOVERY_NICHES)}")
+    print(f"🔍 Search terms: {len(DISCOVERY_TERMS)} terms loaded")
+    print(f"📊 Min views: {MIN_VIEWS:,}, Max reels: {MAX_REELS}")
+    print(f"💰 Pricing: AE ≥{MIN_AE_SALES} orders, spread ≥${MIN_SPREAD_USD}, soft-pass: {ALLOW_AE_SOFT_PASS}")
     print()
 
-    # Step 1: Discover viral reels
+    # Step 1: Discover viral reels using SEARCH TERMS (not just hashtags)
     print("🔍 STEP 1: Discovering viral Instagram reels...")
+    print(f"   Using {len(DISCOVERY_TERMS)} search terms:")
+    for term in DISCOVERY_TERMS[:5]:
+        print(f"   - {term}")
+    if len(DISCOVERY_TERMS) > 5:
+        print(f"   ... and {len(DISCOVERY_TERMS) - 5} more")
+    print()
+
     discovered_reels = discover_viral_reels(
-        all_hashtags,
-        min_likes=10000,  # Minimum engagement threshold
-        max_reels=50  # Max reels to discover
+        DISCOVERY_TERMS,  # Use search terms, not hashtags
+        min_views=MIN_VIEWS,
+        max_reels=MAX_REELS
     )
 
     if not discovered_reels:
         print("⚠️  No viral reels discovered")
-        print("    Instagram may be blocking requests or hashtags returned no results")
-        print("    Falling back to YAML manifests if available...")
-
-        # Fallback to YAML
-        specs = load_manifests()
-        if specs:
-            print(f"✓ Loaded {len(specs)} product(s) from YAML manifests")
-        else:
-            print("❌ No YAML files found either. Exiting.")
-            sys.exit(0)
-    else:
-        print(f"✓ Discovered {len(discovered_reels)} viral reels")
+        print("    Instagram may be blocking requests or search terms returned no results")
+        print("    This is normal for web scraping - will retry on next run")
         print()
+        print("💡 TIP: Try adjusting DISCOVERY_MIN_VIEWS or DISCOVERY_TERMS env vars")
+        print("    Exiting gracefully - no products imported this run")
+        sys.exit(0)
 
-        # Step 2: Analyze reels and identify products
-        print("🔍 STEP 2: Analyzing reels to identify products...")
-        specs = []
+    print(f"✓ Discovered {len(discovered_reels)} viral reels")
+    print()
 
-        for reel in discovered_reels[:target * 2]:  # Analyze 2x target to account for filtering
-            if len(specs) >= target:
+    # Step 2: Analyze reels and identify products
+    print("🔍 STEP 2: Analyzing reels to identify products...")
+    specs = []
+
+    for reel in discovered_reels[:target * 3]:  # Analyze 3x target to account for heavy filtering
+        if len(specs) >= target:
+            print(f"✓ Reached target of {target} identified products")
+            break
+
+        reel_hash = _hash(reel['shortcode'])
+        if reel_hash in seen_reels:
+            print(f"  ⏭️  Skip {reel['shortcode']}: already processed")
+            continue
+
+        print(f"  Analyzing: {reel['url']} ({reel.get('views', 0):,} views, {reel['likes']:,} likes)")
+
+        # Extract product info from reel
+        product_info = extract_product_info_from_reel(reel['url'])
+
+        if not product_info or not product_info.get('product_name'):
+            print("    ⚠️  Could not identify product from caption/hashtags, skipping")
+            # Mark as seen so we don't retry
+            try:
+                headers = {"apikey": ANON_KEY, "Authorization": f"Bearer {token}"}
+                requests.post(
+                    f"{SUPABASE_URL}/rest/v1/agent_seen_sources",
+                    headers=headers,
+                    json={"reel_id_hash": reel_hash},
+                    timeout=5
+                )
+            except:
+                pass
+            continue
+
+        # Step 3: Search Amazon for the product
+        amazon_results = search_amazon_for_product(
+            product_info['product_name'],
+            product_info.get('keywords', []),
+            max_results=5  # Try more results
+        )
+
+        if not amazon_results:
+            print("    ⚠️  No Amazon products found, skipping")
+            continue
+
+        # Take the first Prime-eligible product
+        amazon_product = None
+        for result in amazon_results:
+            if result.get('prime'):
+                amazon_product = result
                 break
 
-            reel_hash = _hash(reel['shortcode'])
-            if reel_hash in seen_reels:
-                print(f"  ⏭️  Skip {reel['shortcode']}: already processed")
-                continue
+        if not amazon_product:
+            print("    ⚠️  No Prime-eligible products found, skipping")
+            continue
 
-            print(f"  Analyzing: {reel['url']} ({reel['likes']} likes)")
+        # Build product spec for pricing validation
+        slug = re.sub(r'[^a-z0-9]+', '-', product_info['product_name'].lower()).strip('-')
+        external_id = f"ig:{reel['shortcode']}:{slug}"
 
-            # Extract product info from reel
-            product_info = extract_product_info_from_reel(reel['url'])
-
-            if not product_info or not product_info.get('product_name'):
-                print("    ⚠️  Could not identify product, skipping")
-                continue
-
-            # Step 3: Search Amazon for the product
-            amazon_results = search_amazon_for_product(
+        spec = {
+            'external_id': external_id,
+            'name': amazon_product['title'][:100],  # Use Amazon title
+            'category': product_info.get('category', 'Home'),
+            'description': product_info.get('description_hint', '')[:500],
+            'amazon_url': amazon_product['url'],
+            'amazon_price': amazon_product.get('price'),  # May be None
+            'aliexpress_search_terms': [
                 product_info['product_name'],
-                product_info.get('keywords', []),
-                max_results=3
-            )
-
-            if not amazon_results:
-                print("    ⚠️  No Amazon products found, skipping")
-                continue
-
-            # Take the first Prime-eligible product
-            amazon_product = None
-            for result in amazon_results:
-                if result.get('prime'):
-                    amazon_product = result
-                    break
-
-            if not amazon_product:
-                print("    ⚠️  No Prime-eligible products found, skipping")
-                continue
-
-            # Build product spec
-            slug = re.sub(r'[^a-z0-9]+', '-', product_info['product_name'].lower()).strip('-')
-            external_id = f"ig:{reel['shortcode']}:{slug}"
-
-            spec = {
-                'external_id': external_id,
-                'name': amazon_product['title'][:100],  # Use Amazon title
-                'category': product_info.get('category', 'Home'),
-                'description': product_info.get('description_hint', '')[:500],
-                'amazon_url': amazon_product['url'],
-                'aliexpress_search_terms': [
-                    product_info['product_name'],
-                    ' '.join(product_info.get('keywords', [])[:3])
-                ],
-                'inspiration_reels': [reel['url']],
-                'min_sales': 100,
-                'allow_aliexpress_soft_pass': True,
-                'supplier_price': None,  # Will search AliExpress
-                'headline': f"Get {product_info['product_name']}",
-                'ad_copy': "(as seen on Instagram)",
-                '_reel_metadata': {
-                    'likes': reel['likes'],
-                    'comments': reel['comments'],
-                    'views': reel.get('views', 0)
-                }
+                ' '.join(product_info.get('keywords', [])[:3])
+            ],
+            'inspiration_reels': [reel['url']],
+            'min_sales': MIN_AE_SALES,
+            'allow_aliexpress_soft_pass': ALLOW_AE_SOFT_PASS,
+            'supplier_price': None,  # Will search AliExpress in main loop
+            'headline': f"Get {product_info['product_name']}",
+            'ad_copy': "(as seen on Instagram)",
+            '_reel_metadata': {
+                'likes': reel['likes'],
+                'comments': reel.get('comments', 0),
+                'views': reel.get('views', 0),
+                'shortcode': reel['shortcode']
             }
+        }
 
-            specs.append(spec)
-            print(f"    ✓ Product identified: {spec['name'][:50]}...")
+        specs.append(spec)
+        print(f"    ✓ Product identified: {spec['name'][:50]}...")
 
-            # Mark reel as seen
+        # Mark reel as seen in database
+        try:
+            headers = {"apikey": ANON_KEY, "Authorization": f"Bearer {token}"}
+            requests.post(
+                f"{SUPABASE_URL}/rest/v1/agent_seen_sources",
+                headers=headers,
+                json={"reel_id_hash": reel_hash},
+                timeout=5
+            )
             seen_reels.add(reel_hash)
+        except Exception as e:
+            print(f"    ⚠️  Could not mark reel as seen: {e}")
 
-        print()
-        print(f"✓ Identified {len(specs)} products from viral reels")
-        print()
+    print()
+    if not specs:
+        print("⚠️  No products identified from discovered reels")
+        print("    Captions may not contain clear product names")
+        print("    Exiting - will retry on next run")
+        sys.exit(0)
 
-    # Process discovered/loaded products
+    print(f"✓ Identified {len(specs)} products from viral reels")
+    print()
+
+    # Continue with pricing validation and asset generation
     for rec in specs:
         # Check if we hit target or timeout
         if found >= target:
