@@ -95,7 +95,13 @@ Deno.serve(async (req: Request) => {
 
     const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
-      .insert({ created_by: user.id, status: 'queued', mode, niche })
+      .insert({
+        created_by: user.id,
+        status: 'queued',
+        mode,
+        niche,
+        reel_urls: reel_urls.length > 0 ? reel_urls : null
+      })
       .select('id')
       .maybeSingle();
 
@@ -146,11 +152,9 @@ Deno.serve(async (req: Request) => {
 
     const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
 
-    const inputs: { job_id: string; niche: string; reel_urls?: string } = { job_id, niche };
-
-    if (reel_urls.length > 0) {
-      inputs.reel_urls = reel_urls.join(',');
-    }
+    // Note: reel_urls are stored in the database (import_jobs table)
+    // Python script will fetch them from there using job_id
+    const inputs = { job_id, niche };
 
     const ghRes = await fetch(dispatchUrl, {
       method: 'POST',

@@ -1286,6 +1286,22 @@ def main():
     token = login()
     print("✅ Auth OK")
 
+    # Fetch job details from database to get reel_urls if provided
+    job_id = os.environ.get("JOB_ID")
+    provided_urls = []
+
+    if job_id:
+        try:
+            headers = {"Authorization": f"Bearer {token}", "apikey": ANON_KEY}
+            resp = requests.get(f"{SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}&select=reel_urls", headers=headers, timeout=TIMEOUT)
+            if resp.ok:
+                data = resp.json()
+                if data and len(data) > 0 and data[0].get('reel_urls'):
+                    provided_urls = data[0]['reel_urls']
+                    print(f"📋 Found {len(provided_urls)} URLs in job record")
+        except Exception as e:
+            print(f"⚠️  Could not fetch job URLs from database: {e}")
+
     # Load dedup sets
     seen_reels, seen_extids = fetch_seen_sets(token)
 
@@ -1320,16 +1336,13 @@ def main():
     print()
 
     # Step 1: Get reels from URLs or discover via search
-    provided_urls = os.environ.get("REEL_URLS", "").strip()
-
     if provided_urls:
         print("📋 STEP 1: Using provided Instagram reel URLs...")
-        url_list = [u.strip() for u in provided_urls.split(',') if u.strip()]
-        print(f"   Found {len(url_list)} URLs provided")
+        print(f"   Found {len(provided_urls)} URLs provided")
 
         # Convert URLs to reel metadata format
         discovered_reels = []
-        for url in url_list:
+        for url in provided_urls:
             # Extract shortcode from URL
             # URL format: https://www.instagram.com/reel/ABC123/ or https://www.instagram.com/p/ABC123/
             match = re.search(r'/(reel|p)/([^/]+)', url)
