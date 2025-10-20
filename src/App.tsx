@@ -28,6 +28,9 @@ import ShopifySetup from './pages/ShopifySetup';
 import CallbackHandler from './components/shopify/CallbackHandler';
 import Pricing from './pages/Pricing';
 import Products from './pages/Products';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import DataDeletion from './pages/DataDeletion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -122,6 +125,11 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/sign-in" element={<Auth />} />
             <Route path="/sign-up" element={<SignUpNew />} />
+
+            {/* Legal pages - publicly accessible */}
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/data-deletion" element={<DataDeletion />} />
             
             {/* Onboarding routes */}
             <Route path="/onboarding/*" element={
