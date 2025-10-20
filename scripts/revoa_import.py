@@ -1319,32 +1319,67 @@ def main():
     print(f"💰 Pricing: AE ≥{MIN_AE_SALES} orders, spread ≥${MIN_SPREAD_USD}, soft-pass: {ALLOW_AE_SOFT_PASS}")
     print()
 
-    # Step 1: Discover viral reels using SEARCH TERMS (not just hashtags)
-    print("🔍 STEP 1: Discovering viral Instagram reels...")
-    print(f"   Using {len(DISCOVERY_TERMS)} search terms:")
-    for term in DISCOVERY_TERMS[:5]:
-        print(f"   - {term}")
-    if len(DISCOVERY_TERMS) > 5:
-        print(f"   ... and {len(DISCOVERY_TERMS) - 5} more")
-    print()
+    # Step 1: Get reels from URLs or discover via search
+    provided_urls = os.environ.get("REEL_URLS", "").strip()
 
-    discovered_reels = discover_viral_reels(
-        DISCOVERY_TERMS,  # Use search terms, not hashtags
-        min_views=MIN_VIEWS,
-        max_reels=MAX_REELS
-    )
+    if provided_urls:
+        print("📋 STEP 1: Using provided Instagram reel URLs...")
+        url_list = [u.strip() for u in provided_urls.split(',') if u.strip()]
+        print(f"   Found {len(url_list)} URLs provided")
 
-    if not discovered_reels:
-        print("⚠️  No viral reels discovered")
-        print("    Instagram may be blocking requests or search terms returned no results")
-        print("    This is normal for web scraping - will retry on next run")
+        # Convert URLs to reel metadata format
+        discovered_reels = []
+        for url in url_list:
+            # Extract shortcode from URL
+            # URL format: https://www.instagram.com/reel/ABC123/ or https://www.instagram.com/p/ABC123/
+            match = re.search(r'/(reel|p)/([^/]+)', url)
+            if match:
+                shortcode = match.group(2)
+                discovered_reels.append({
+                    'url': url,
+                    'shortcode': shortcode,
+                    'likes': 0,  # Unknown for manual URLs
+                    'comments': 0,
+                    'views': 0,
+                    'source': 'manual_input'
+                })
+                print(f"   ✓ {url}")
+            else:
+                print(f"   ✗ Invalid URL: {url}")
+
+        if not discovered_reels:
+            print("⚠️  No valid Instagram reel URLs provided")
+            print("    URLs must be in format: https://www.instagram.com/reel/SHORTCODE/")
+            sys.exit(1)
+
+        print(f"✓ Loaded {len(discovered_reels)} reels from provided URLs")
         print()
-        print("💡 TIP: Try adjusting DISCOVERY_MIN_VIEWS or DISCOVERY_TERMS env vars")
-        print("    Exiting gracefully - no products imported this run")
-        sys.exit(0)
+    else:
+        print("🔍 STEP 1: Discovering viral Instagram reels...")
+        print(f"   Using {len(DISCOVERY_TERMS)} search terms:")
+        for term in DISCOVERY_TERMS[:5]:
+            print(f"   - {term}")
+        if len(DISCOVERY_TERMS) > 5:
+            print(f"   ... and {len(DISCOVERY_TERMS) - 5} more")
+        print()
 
-    print(f"✓ Discovered {len(discovered_reels)} viral reels")
-    print()
+        discovered_reels = discover_viral_reels(
+            DISCOVERY_TERMS,  # Use search terms, not hashtags
+            min_views=MIN_VIEWS,
+            max_reels=MAX_REELS
+        )
+
+        if not discovered_reels:
+            print("⚠️  No viral reels discovered")
+            print("    Instagram may be blocking requests or search terms returned no results")
+            print("    This is normal for web scraping - will retry on next run")
+            print()
+            print("💡 TIP: Try adjusting DISCOVERY_MIN_VIEWS or DISCOVERY_TERMS env vars")
+            print("    Exiting gracefully - no products imported this run")
+            sys.exit(0)
+
+        print(f"✓ Discovered {len(discovered_reels)} viral reels")
+        print()
 
     # Step 2: Analyze reels and identify products
     print("🔍 STEP 2: Analyzing reels to identify products...")

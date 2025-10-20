@@ -27,6 +27,7 @@ export default function AIImport() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [lastError, setLastError] = useState<string>('');
+  const [reelUrls, setReelUrls] = useState<string>('');
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -59,6 +60,21 @@ export default function AIImport() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
+      // Parse reel URLs if provided
+      const urls = reelUrls
+        .split('\n')
+        .map(url => url.trim())
+        .filter(url => url && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')));
+
+      const payload: { mode: 'real' | 'demo'; niche: string; reel_urls?: string[] } = {
+        mode,
+        niche: 'all'
+      };
+
+      if (urls.length > 0) {
+        payload.reel_urls = urls;
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-dispatch`,
         {
@@ -67,7 +83,7 @@ export default function AIImport() {
             'Authorization': `Bearer ${session.access_token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ mode, niche: 'all' })
+          body: JSON.stringify(payload)
         }
       );
 
@@ -81,6 +97,7 @@ export default function AIImport() {
       }
 
       toast.success(mode === 'demo' ? 'Demo completed!' : 'AI agent started! Check status below.');
+      setReelUrls(''); // Clear URLs on success
       fetchJobs();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to start agent';
@@ -150,6 +167,29 @@ export default function AIImport() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Run Import</h2>
+
+        <div className="mb-6">
+          <label htmlFor="reel-urls" className="block text-sm font-medium text-gray-700 mb-2">
+            Instagram Reel URLs (Optional)
+          </label>
+          <textarea
+            id="reel-urls"
+            value={reelUrls}
+            onChange={(e) => setReelUrls(e.target.value)}
+            placeholder="Paste Instagram reel URLs here, one per line:
+https://www.instagram.com/reel/ABC123/
+https://www.instagram.com/reel/DEF456/
+https://www.instagram.com/p/GHI789/
+
+Leave empty to use automatic discovery (may be blocked by Instagram)"
+            rows={8}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm"
+          />
+          <p className="text-xs text-gray-500 mt-2">
+            {reelUrls.split('\n').filter(url => url.trim() && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/'))).length} valid URLs detected
+          </p>
+        </div>
+
         <div className="flex gap-3">
           <button
             onClick={() => runAgent('demo')}

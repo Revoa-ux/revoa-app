@@ -10,6 +10,7 @@ const corsHeaders = {
 interface DispatchRequest {
   mode?: 'real' | 'demo';
   niche?: string;
+  reel_urls?: string[];
 }
 
 Deno.serve(async (req: Request) => {
@@ -90,6 +91,7 @@ Deno.serve(async (req: Request) => {
     const body: DispatchRequest = await req.json().catch(() => ({}));
     const mode = body.mode || 'real';
     const niche = body.niche || 'all';
+    const reel_urls = body.reel_urls || [];
 
     const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
@@ -144,6 +146,12 @@ Deno.serve(async (req: Request) => {
 
     const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
 
+    const inputs: { job_id: string; niche: string; reel_urls?: string } = { job_id, niche };
+
+    if (reel_urls.length > 0) {
+      inputs.reel_urls = reel_urls.join(',');
+    }
+
     const ghRes = await fetch(dispatchUrl, {
       method: 'POST',
       headers: {
@@ -151,7 +159,7 @@ Deno.serve(async (req: Request) => {
         'Accept': 'application/vnd.github+json',
         'User-Agent': 'revoa-agent-dispatch'
       },
-      body: JSON.stringify({ ref: WORKFLOW_REF, inputs: { job_id, niche } })
+      body: JSON.stringify({ ref: WORKFLOW_REF, inputs })
     });
 
     if (!ghRes.ok) {
