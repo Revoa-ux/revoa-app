@@ -62,7 +62,15 @@ print(f"  REVOA_ADMIN_PASSWORD: {'✓' if ADMIN_PASSWORD else '✗'}")
 if not SUPABASE_URL or not ANON_KEY:
     raise RuntimeError("Missing SUPABASE_URL or SUPABASE_ANON_KEY")
 if not SERVICE_ROLE_KEY and not (ADMIN_EMAIL and ADMIN_PASSWORD):
-    raise RuntimeError("Missing SUPABASE_SERVICE_ROLE or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
+    print("\n❌ Authentication Error:")
+    print("   Missing authentication credentials. You need either:")
+    print("   1. SUPABASE_SERVICE_ROLE (recommended)")
+    print("   2. Both REVOA_ADMIN_EMAIL and REVOA_ADMIN_PASSWORD")
+    print("\n   Add these as GitHub secrets:")
+    print("   - Go to repository Settings → Secrets and variables → Actions")
+    print("   - Add ADMIN_EMAIL and ADMIN_PASSWORD secrets")
+    print("   - Or add SUPABASE_SERVICE_ROLE secret (preferred)")
+    raise RuntimeError("Missing authentication credentials")
 
 TIMEOUT = 30
 PRICE_TIMEOUT = 25
