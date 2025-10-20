@@ -78,20 +78,20 @@ const AssignInvoiceModal: React.FC<AssignInvoiceModalProps> = ({
             placeholder="Search by name, email or store URL..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
           />
         </div>
 
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           {filteredUsers.map((user) => (
             <button
               key={user.id}
               onClick={() => onAssign(user.id)}
-              className="w-full px-4 py-3 flex items-start hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors"
+              className="w-full px-4 py-3 flex items-start hover:bg-gray-50 transition-colors"
             >
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{user.email}</p>
+                <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
                 {user.storeUrl && (
                   <p className="text-xs text-gray-400 mt-0.5">{user.storeUrl}</p>
                 )}
@@ -101,7 +101,7 @@ const AssignInvoiceModal: React.FC<AssignInvoiceModalProps> = ({
 
           {filteredUsers.length === 0 && (
             <div className="py-8 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">No users found</p>
+              <p className="text-sm text-gray-500">No users found</p>
             </div>
           )}
         </div>
@@ -203,18 +203,18 @@ const AdminInvoices: React.FC = () => {
   return (
     <div className="max-w-[1050px] mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
           Bulk Invoices
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500">
             Upload and process invoices in bulk
           </p>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
         <div className="max-w-xl mx-auto">
           <div
             {...getRootProps()}
@@ -227,18 +227,18 @@ const AdminInvoices: React.FC = () => {
             <input {...getInputProps()} />
             {isUploading ? (
               <div>
-                <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Processing invoices...</p>
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600">Processing invoices...</p>
               </div>
             ) : (
               <>
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600">
                   {isDragActive
                     ? 'Drop the files here'
                     : 'Drag & drop invoice files here, or click to select'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Supports .xls and .xlsx files
                 </p>
               </>
@@ -256,7 +256,7 @@ const AdminInvoices: React.FC = () => {
               placeholder="Search invoices..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
@@ -271,7 +271,7 @@ const AdminInvoices: React.FC = () => {
           <div className="relative" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
             >
               <Filter className="w-4 h-4 text-gray-400" />
               <span>Status: {statusFilter === 'all' ? 'All' : statusFilter}</span>
@@ -279,7 +279,7 @@ const AdminInvoices: React.FC = () => {
             </button>
             
             {showStatusDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                 {(['all', 'pending', 'processing', 'completed'] as const).map((status) => (
                   <button
                     key={status}
@@ -287,7 +287,7 @@ const AdminInvoices: React.FC = () => {
                       setStatusFilter(status);
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
                   >
                     <span>{status === 'all' ? 'All' : status.charAt(0).toUpperCase() + status.slice(1)}</span>
                     {statusFilter === status && <Check className="w-4 h-4 text-primary-500" />}
@@ -299,36 +299,36 @@ const AdminInvoices: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr>
-                <th className="w-[30%] px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 first:rounded-tl-xl">Invoice</th>
-                <th className="w-[20%] px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Date</th>
-                <th className="w-[15%] px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Amount</th>
-                <th className="w-[15%] px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">Status</th>
-                <th className="w-[20%] px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 last:rounded-tr-xl">Actions</th>
+                <th className="w-[30%] px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-200 first:rounded-tl-xl">Invoice</th>
+                <th className="w-[20%] px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-200">Date</th>
+                <th className="w-[15%] px-6 py-3 text-right text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-200">Amount</th>
+                <th className="w-[15%] px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-200">Status</th>
+                <th className="w-[20%] px-6 py-3 text-right text-xs font-medium text-gray-500 bg-gray-50 border-b border-gray-200 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200">
               {filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50">
+                <tr key={invoice.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                      <span className="text-sm font-medium text-gray-900 truncate">
                         {invoice.number}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-gray-500">
                       {new Date(invoice.createdAt).toLocaleDateString()}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <span className="text-sm font-medium text-gray-900">
                       ${invoice.amount.toLocaleString()}
                     </span>
                   </td>

@@ -181,7 +181,7 @@ export default function AdminDashboard() {
       {
         id: 'users',
         title: 'Total Users',
-        icon: <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+        icon: <Users className="w-4 h-4 text-gray-600" />,
         value: '342',
         change: 12.5,
         metric1: { label: 'New Today', value: '12' },
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
       {
         id: 'revenue',
         title: 'Total Revenue',
-        icon: <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+        icon: <DollarSign className="w-4 h-4 text-gray-600" />,
         value: '$32,621',
         change: 8.2,
         metric1: { label: 'MRR', value: '$12.5k' },
@@ -199,7 +199,7 @@ export default function AdminDashboard() {
       {
         id: 'orders',
         title: 'Total Orders',
-        icon: <ShoppingCart className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+        icon: <ShoppingCart className="w-4 h-4 text-gray-600" />,
         value: '1,203',
         change: -3.4,
         metric1: { label: 'Completed', value: '1,180' },
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
       {
         id: 'quotes',
         title: 'Active Quotes',
-        icon: <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+        icon: <FileText className="w-4 h-4 text-gray-600" />,
         value: '45',
         change: 15.8,
         metric1: { label: 'Acceptance Rate', value: '92%' },
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
     return (
       <div className="grid grid-cols-4 gap-6">
         {metrics.map(metric => (
-          <div key={metric.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div key={metric.id} className="bg-white p-6 rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 rounded-lg">
                 {metric.icon}
@@ -227,17 +227,17 @@ export default function AdminDashboard() {
               {renderChangeIndicator(metric.change)}
             </div>
             <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">{metric.title}</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{metric.value}</p>
+              <h3 className="text-xs text-gray-500">{metric.title}</h3>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{metric.value}</p>
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">{metric.metric1.label}</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{metric.metric1.value}</span>
+                <span className="text-xs text-gray-500">{metric.metric1.label}</span>
+                <span className="text-xs font-medium text-gray-900">{metric.metric1.value}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">{metric.metric2.label}</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{metric.metric2.value}</span>
+                <span className="text-xs text-gray-500">{metric.metric2.label}</span>
+                <span className="text-xs font-medium text-gray-900">{metric.metric2.value}</span>
               </div>
             </div>
           </div>
@@ -250,23 +250,23 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 mb-2">
             Admin Dashboard
           </h1>
           <div className="flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500">
               {isLoading ? 'Updating metrics...' : 'Welcome back, ' + adminUser?.email}
             </p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} users active now</p>
+            <p className="text-sm text-gray-900">{onlineUsers} users active now</p>
           </div>
           <button 
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+            className="px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
@@ -296,10 +296,10 @@ export default function AdminDashboard() {
       {isSuperAdmin && (
         <div className="grid grid-cols-4 gap-6">
           {/* API Health */}
-          <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-white rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <div className="p-2 bg-gray-100 rounded-lg">
-                <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <Activity className="w-4 h-4 text-gray-600" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 backendHealth.api.status === 'healthy' ? 'bg-green-50 text-green-700' :
@@ -309,28 +309,28 @@ export default function AdminDashboard() {
                 {backendHealth.api.status.charAt(0).toUpperCase() + backendHealth.api.status.slice(1)}
               </span>
             </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">API Performance</h4>
+            <h4 className="text-sm font-medium text-gray-900">API Performance</h4>
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Requests/min</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.requestsPerMinute}</span>
+                <span className="text-xs text-gray-500">Requests/min</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.api.requestsPerMinute}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Response</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.averageResponseTime}ms</span>
+                <span className="text-xs text-gray-500">Avg Response</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.api.averageResponseTime}ms</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Error Rate</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.errorRate}%</span>
+                <span className="text-xs text-gray-500">Error Rate</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.api.errorRate}%</span>
               </div>
             </div>
           </div>
 
           {/* Database Health */}
-          <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-white rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <div className="p-2 bg-gray-100 rounded-lg">
-                <Database className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <Database className="w-4 h-4 text-gray-600" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 backendHealth.database.status === 'healthy' ? 'bg-green-50 text-green-700' :
@@ -340,28 +340,28 @@ export default function AdminDashboard() {
                 {backendHealth.database.status.charAt(0).toUpperCase() + backendHealth.database.status.slice(1)}
               </span>
             </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Database Health</h4>
+            <h4 className="text-sm font-medium text-gray-900">Database Health</h4>
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Connections</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.connections}</span>
+                <span className="text-xs text-gray-500">Connections</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.database.connections}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Query Time</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.averageQueryTime}ms</span>
+                <span className="text-xs text-gray-500">Query Time</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.database.averageQueryTime}ms</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Disk Usage</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.diskUsage}%</span>
+                <span className="text-xs text-gray-500">Disk Usage</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.database.diskUsage}%</span>
               </div>
             </div>
           </div>
 
           {/* Memory Usage */}
-          <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-white rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <div className="p-2 bg-gray-100 rounded-lg">
-                <Memory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <Memory className="w-4 h-4 text-gray-600" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 backendHealth.memory.status === 'healthy' ? 'bg-green-50 text-green-700' :
@@ -371,28 +371,28 @@ export default function AdminDashboard() {
                 {backendHealth.memory.status.charAt(0).toUpperCase() + backendHealth.memory.status.slice(1)}
               </span>
             </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Memory Usage</h4>
+            <h4 className="text-sm font-medium text-gray-900">Memory Usage</h4>
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Used</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.used}GB</span>
+                <span className="text-xs text-gray-500">Used</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.memory.used}GB</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.total}GB</span>
+                <span className="text-xs text-gray-500">Total</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.memory.total}GB</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Usage</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.percentage}%</span>
+                <span className="text-xs text-gray-500">Usage</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.memory.percentage}%</span>
               </div>
             </div>
           </div>
 
           {/* Security Overview */}
-          <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-white rounded-xl border border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <div className="p-2 bg-gray-100 rounded-lg">
-                <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <Shield className="w-4 h-4 text-gray-600" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 backendHealth.security.status === 'healthy' ? 'bg-green-50 text-green-700' :
@@ -402,18 +402,18 @@ export default function AdminDashboard() {
                 {backendHealth.security.status.charAt(0).toUpperCase() + backendHealth.security.status.slice(1)}
               </span>
             </div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Security Overview</h4>
+            <h4 className="text-sm font-medium text-gray-900">Security Overview</h4>
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Active Users</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.security.activeUsers}</span>
+                <span className="text-xs text-gray-500">Active Users</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.security.activeUsers}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Failed Logins</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.security.failedLogins}</span>
+                <span className="text-xs text-gray-500">Failed Logins</span>
+                <span className="text-xs font-medium text-gray-900">{backendHealth.security.failedLogins}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Threat Level</span>
+                <span className="text-xs text-gray-500">Threat Level</span>
                 <span className={`text-xs font-medium ${
                   backendHealth.security.threatLevel === 'low' ? 'text-green-600' :
                   backendHealth.security.threatLevel === 'medium' ? 'text-yellow-600' :
@@ -427,14 +427,14 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white p-4 rounded-xl border border-gray-200">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-red-50 rounded-lg">
             <Bell className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Alerts</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm font-medium text-gray-900">Active Alerts</h3>
+            <p className="text-sm text-gray-500">
               {notifications.filter(n => n.status === 'unread').length} unread notifications
             </p>
           </div>
@@ -456,7 +456,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <h4 className="text-sm font-medium text-gray-900">
                       {notification.title}
                     </h4>
                     <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
@@ -469,9 +469,9 @@ export default function AdminDashboard() {
                       {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{notification.message}</p>
+                  <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
                   <div className="flex items-center space-x-4 mt-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500">
                       {new Date(notification.timestamp).toLocaleTimeString()}
                     </span>
                     {notification.actionUrl && (
@@ -507,17 +507,17 @@ export default function AdminDashboard() {
 
       {getMetricCards()}
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+      <div className="bg-white p-6 rounded-xl border border-gray-200">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">New Users</h3>
+          <h3 className="text-base font-medium text-gray-900">New Users</h3>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-primary-500 rounded"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">New Signups</span>
+              <span className="text-sm text-gray-600">New Signups</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-gray-300 rounded"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Active Users</span>
+              <span className="text-sm text-gray-600">Active Users</span>
             </div>
           </div>
         </div>

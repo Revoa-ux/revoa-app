@@ -183,7 +183,7 @@ https://www.instagram.com/p/GHI789/
 
 Leave empty to use automatic discovery (may be blocked by Instagram)"
             rows={8}
-            className="w-full px-4 py-3 bg-white dark:bg-gray-800 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-400"
+            className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {reelUrls.split('\n').filter(url => url.trim() && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/'))).length} valid URLs detected
@@ -194,7 +194,7 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
           <button
             onClick={() => runAgent('demo')}
             disabled={running}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 dark:bg-gray-700 text-gray-700 dark:text-gray-300 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
           >
             <Play className="w-4 h-4" />
             Run Demo Mode
@@ -239,7 +239,7 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
                 </tr>
               ) : (
                 jobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors">
+                  <tr key={job.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(job.status)}
@@ -268,7 +268,7 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
                           <span className="text-gray-600 dark:text-gray-400">{job.summary.total}</span>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-400 dark:text-gray-500 dark:text-gray-400">-</span>
+                        <span className="text-sm text-gray-400 dark:text-gray-500">-</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

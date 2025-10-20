@@ -109,9 +109,9 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
     >
       <div className="space-y-6">
         <div>
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Product Details</h3>
-          <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{quote.productName}</p>
+          <h3 className="text-sm font-medium text-gray-900">Product Details</h3>
+          <div className="mt-2 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm font-medium text-gray-900">{quote.productName}</p>
             <a
               href={quote.productUrl}
               target="_blank"
@@ -126,14 +126,14 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Pricing Options</h3>
+            <h3 className="text-sm font-medium text-gray-900">Pricing Options</h3>
             <div className="flex items-center space-x-2">
               <input
                 type="number"
                 min="1"
                 value={customQuantity}
                 onChange={(e) => setCustomQuantity(parseInt(e.target.value))}
-                className="w-24 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+                className="w-24 px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
                 placeholder="Quantity"
               />
               <button
@@ -148,15 +148,15 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
           <div className="space-y-4">
             {variants.map((variant, index) => (
-              <div key={index} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+              <div key={index} className="p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <h4 className="text-sm font-medium text-gray-900">
                     {variant.quantity} Unit{variant.quantity > 1 ? 's' : ''}
                   </h4>
                   {index >= 3 && (
                     <button
                       onClick={() => removeVariant(index)}
-                      className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -165,7 +165,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Cost per Item</label>
+                    <label className="block text-xs text-gray-500 mb-1">Cost per Item</label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
@@ -174,12 +174,12 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         step="0.01"
                         value={variant.costPerItem}
                         onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+                        className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</label>
+                    <label className="block text-xs text-gray-500 mb-1">Shipping Cost</label>
                     <div className="relative">
                       <Truck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
@@ -188,13 +188,13 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         step="0.01"
                         value={variant.shippingCost}
                         onChange={(e) => updateVariant(index, { shippingCost: parseFloat(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+                        className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</label>
-                    <div className="px-3 py-2 text-sm bg-gray-100 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <label className="block text-xs text-gray-500 mb-1">Total Cost</label>
+                    <div className="px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-lg">
                       ${variant.totalCost.toFixed(2)}
                     </div>
                   </div>
@@ -204,10 +204,10 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             Cancel
           </button>
@@ -277,12 +277,12 @@ export default function AdminQuotes() {
   return (
     <div className="max-w-[1050px] mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
           Quote Requests
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500">
             Process and manage customer quote requests
           </p>
         </div>
@@ -297,7 +297,7 @@ export default function AdminQuotes() {
               placeholder="Search quotes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
@@ -312,7 +312,7 @@ export default function AdminQuotes() {
           <div className="relative" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
             >
               <Filter className="w-4 h-4 text-gray-400" />
               <span>Status: {statusFilter === 'all' ? 'All' : statusFilter.replace('_', ' ')}</span>
@@ -320,7 +320,7 @@ export default function AdminQuotes() {
             </button>
             
             {showStatusDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                 {(['all', 'quote_pending', 'quoted', 'accepted', 'rejected', 'expired'] as const).map((status) => (
                   <button
                     key={status}
@@ -328,7 +328,7 @@ export default function AdminQuotes() {
                       setStatusFilter(status);
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
                   >
                     <span>{status === 'all' ? 'All' : status.replace('_', ' ')}</span>
                     {statusFilter === status && <Check className="w-4 h-4 text-primary-500" />}
@@ -340,23 +340,23 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 first:rounded-tl-xl">Request ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 last:rounded-tr-xl">Actions</th>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50 first:rounded-tl-xl">Request ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 bg-gray-50">Status</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 bg-gray-50 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200">
               {filteredQuotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50">
+                <tr key={quote.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4">
-                    <span className="text-xs text-gray-900 dark:text-gray-100">{quote.id}</span>
+                    <span className="text-xs text-gray-900">{quote.id}</span>
                   </td>
                   <td className="px-6 py-4">
                     <a
@@ -370,7 +370,7 @@ export default function AdminQuotes() {
                     </a>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500">
                       {new Date(quote.requestDate).toLocaleDateString()}
                     </span>
                   </td>
@@ -398,7 +398,7 @@ export default function AdminQuotes() {
                         Process
                       </button>
                     ) : (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500">
                         {quote.status === 'quoted' ? `Expires in ${quote.expiresIn}d` : '-'}
                       </span>
                     )}

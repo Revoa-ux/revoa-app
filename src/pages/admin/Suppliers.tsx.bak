@@ -164,7 +164,7 @@ export default function Suppliers() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 dark:text-white mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
             Suppliers
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -183,7 +183,7 @@ export default function Suppliers() {
       {suppliers.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
           <Building2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
             No suppliers yet
           </h3>
           <p className="text-gray-500 dark:text-gray-400 mb-6">
@@ -210,7 +210,7 @@ export default function Suppliers() {
                     <Building2 className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 dark:text-white mb-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">
                       {supplier.name}
                     </h3>
                     {getStatusBadge(supplier)}
@@ -221,7 +221,7 @@ export default function Suppliers() {
                     <button
                       onClick={() => handleRefreshStatus(supplier)}
                       disabled={refreshingStatus === supplier.id}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
+                      className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors disabled:opacity-50"
                       title="Refresh Status"
                     >
                       <RefreshCw
@@ -303,7 +303,7 @@ export default function Suppliers() {
                 type="text"
                 name="name"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="Enter supplier business name"
               />
             </div>
@@ -316,7 +316,7 @@ export default function Suppliers() {
                 type="email"
                 name="email"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="supplier@example.com"
               />
             </div>
@@ -333,7 +333,7 @@ export default function Suppliers() {
                 max="100"
                 defaultValue="2.00"
                 required
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 placeholder="2.00"
               />
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -345,7 +345,7 @@ export default function Suppliers() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-700 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>

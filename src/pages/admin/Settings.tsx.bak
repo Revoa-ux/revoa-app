@@ -58,33 +58,33 @@ export default function AdminSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
           Admin Settings
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500">
             Configure your admin preferences
           </p>
         </div>
       </div>
 
       {/* Notification Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Notifications</h2>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">Notifications</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <UserPlus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <UserPlus className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">New User Notifications</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Get notified when new users sign up</p>
+                  <h3 className="text-sm font-medium text-gray-900">New User Notifications</h3>
+                  <p className="text-sm text-gray-500">Get notified when new users sign up</p>
                 </div>
               </div>
               <button
@@ -106,11 +106,11 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <MessageSquare className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Message Notifications</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Get notified of new user messages</p>
+                  <h3 className="text-sm font-medium text-gray-900">Message Notifications</h3>
+                  <p className="text-sm text-gray-500">Get notified of new user messages</p>
                 </div>
               </div>
               <button
@@ -132,11 +132,11 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <FileText className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <FileText className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Quote Request Notifications</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Get notified of new quote requests</p>
+                  <h3 className="text-sm font-medium text-gray-900">Quote Request Notifications</h3>
+                  <p className="text-sm text-gray-500">Get notified of new quote requests</p>
                 </div>
               </div>
               <button
@@ -157,21 +157,21 @@ export default function AdminSettings() {
       </div>
 
       {/* User Assignment Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">User Assignment</h2>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">User Assignment</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Users className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Auto-Assign Users</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Automatically assign new users</p>
+                  <h3 className="text-sm font-medium text-gray-900">Auto-Assign Users</h3>
+                  <p className="text-sm text-gray-500">Automatically assign new users</p>
                 </div>
               </div>
               <button
@@ -193,11 +193,11 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <SettingsIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <SettingsIcon className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Load Balancing</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Distribute users evenly</p>
+                  <h3 className="text-sm font-medium text-gray-900">Load Balancing</h3>
+                  <p className="text-sm text-gray-500">Distribute users evenly</p>
                 </div>
               </div>
               <button
@@ -218,21 +218,21 @@ export default function AdminSettings() {
       </div>
 
       {/* Communication Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Communication</h2>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">Communication</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Mail className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Auto-Response</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Send automatic responses</p>
+                  <h3 className="text-sm font-medium text-gray-900">Auto-Response</h3>
+                  <p className="text-sm text-gray-500">Send automatic responses</p>
                 </div>
               </div>
               <button
@@ -254,11 +254,11 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Clock className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Follow-up Reminders</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Get reminders for follow-ups</p>
+                  <h3 className="text-sm font-medium text-gray-900">Follow-up Reminders</h3>
+                  <p className="text-sm text-gray-500">Get reminders for follow-ups</p>
                 </div>
               </div>
               <button
@@ -279,21 +279,21 @@ export default function AdminSettings() {
       </div>
 
       {/* Reporting Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reporting</h2>
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-medium text-gray-900">Reporting</h2>
         </div>
         
-        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="divide-y divide-gray-200">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <Calendar className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Daily Digest</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Receive daily activity summary</p>
+                  <h3 className="text-sm font-medium text-gray-900">Daily Digest</h3>
+                  <p className="text-sm text-gray-500">Receive daily activity summary</p>
                 </div>
               </div>
               <button
@@ -315,11 +315,11 @@ export default function AdminSettings() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  <BarChart3 className="w-5 h-5 text-gray-600" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Performance Reports</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Weekly performance metrics</p>
+                  <h3 className="text-sm font-medium text-gray-900">Performance Reports</h3>
+                  <p className="text-sm text-gray-500">Weekly performance metrics</p>
                 </div>
               </div>
               <button

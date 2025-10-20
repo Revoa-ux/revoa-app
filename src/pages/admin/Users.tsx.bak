@@ -178,12 +178,12 @@ export default function Users() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+        <h1 className="text-2xl font-normal text-gray-900 mb-2">
           User Management
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-gray-500">
             Manage and monitor user accounts
           </p>
         </div>
@@ -198,7 +198,7 @@ export default function Users() {
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
@@ -213,7 +213,7 @@ export default function Users() {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
             >
               <Filter className="w-4 h-4 text-gray-400" />
               <span>Filter: {selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}</span>
@@ -221,7 +221,7 @@ export default function Users() {
             </button>
             
             {showFilterDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                 {[
                   { value: 'all', label: 'All Users' },
                   { value: 'assigned', label: 'Assigned' },
@@ -230,10 +230,10 @@ export default function Users() {
                   <button
                     key={filter.value}
                     onClick={() => handleFilter(filter.value as typeof selectedFilter)}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
                   >
                     <span>{filter.label}</span>
-                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-gray-900" />}
                   </button>
                 ))}
               </div>
@@ -243,14 +243,14 @@ export default function Users() {
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center space-x-2"
             >
               <span>Sort by: {sortOptions.find(opt => opt.value === sortBy.field)?.label}</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
             
             {showSortDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
@@ -258,10 +258,10 @@ export default function Users() {
                       handleSort(option.value as keyof User);
                       setShowSortDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
                   >
                     <span>{option.label}</span>
-                    {sortBy.field === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                    {sortBy.field === option.value && <Check className="w-4 h-4 text-gray-900" />}
                   </button>
                 ))}
               </div>
@@ -282,32 +282,32 @@ export default function Users() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="relative overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+              <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-4 py-4 text-left first:rounded-tl-xl">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
                       checked={selectAll}
                       onChange={handleSelectAll}
-                      className="rounded border-gray-300 text-gray-900 dark:text-gray-100 focus:ring-gray-900"
+                      className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
                     />
                   </div>
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">User</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Registration</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Volume</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Store Revenue</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Invoices</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">User</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Registration</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Volume</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Store Revenue</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500">Assigned To</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Transactions</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500">Invoices</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRowSkeleton key={index} index={index} />
@@ -321,34 +321,34 @@ export default function Users() {
                           type="checkbox"
                           checked={selectedUsers.includes(user.id)}
                           onChange={() => handleSelectUser(user.id)}
-                          className="rounded border-gray-300 text-gray-900 dark:text-gray-100 focus:ring-gray-900"
+                          className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
                         />
                       </div>
                     </td>
                     <td className="px-4 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-sm text-gray-500">{user.email}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-4 text-sm text-gray-500">{user.registrationDate}</td>
+                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                       ${user.volume.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                       ${user.storeRevenue.toLocaleString()}
                     </td>
                     <td className="px-4 py-4">
                       {user.assignedTo ? (
-                        <span className="text-sm text-gray-900 dark:text-gray-100">{user.assignedTo.name}</span>
+                        <span className="text-sm text-gray-900">{user.assignedTo.name}</span>
                       ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
+                        <span className="text-sm text-gray-500">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                       ${user.transactions.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900">
                       {user.invoices}
                     </td>
                     <td className="px-4 py-4 text-right">
