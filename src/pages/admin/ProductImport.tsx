@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Package, Image, Film, Sparkles, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Upload, Package, Image, Film, Sparkles, AlertCircle, CheckCircle2, Loader2, Zap, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
@@ -33,6 +33,13 @@ const CATEGORIES = [
 export default function ProductImport() {
   const [loading, setLoading] = useState(false);
   const [bulkImporting, setBulkImporting] = useState(false);
+  const [importMode, setImportMode] = useState<'manual' | 'hybrid' | 'autonomous'>('hybrid');
+  const [hybridFormData, setHybridFormData] = useState({
+    product_name: '',
+    sample_reel_url: '',
+    amazon_url: '',
+    aliexpress_url: ''
+  });
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -308,6 +315,63 @@ export default function ProductImport() {
     }));
   };
 
+  const handleHybridSubmit = async () => {
+    if (!hybridFormData.product_name.trim()) {
+      toast.error('Product name is required');
+      return;
+    }
+
+    if (!hybridFormData.sample_reel_url && !hybridFormData.amazon_url && !hybridFormData.aliexpress_url) {
+      toast.error('At least one link (reel, Amazon, or AliExpress) is required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-dispatch`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            mode: 'real',
+            import_type: 'hybrid',
+            product_name: hybridFormData.product_name,
+            sample_reel_url: hybridFormData.sample_reel_url || null,
+            amazon_url: hybridFormData.amazon_url || null,
+            aliexpress_url: hybridFormData.aliexpress_url || null
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to dispatch job');
+      }
+
+      const result = await response.json();
+      toast.success('AI agent is processing your product! Check AI Import Jobs for progress.');
+
+      setHybridFormData({
+        product_name: '',
+        sample_reel_url: '',
+        amazon_url: '',
+        aliexpress_url: ''
+      });
+    } catch (error) {
+      console.error('Hybrid import error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to start hybrid import');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
@@ -315,11 +379,141 @@ export default function ProductImport() {
           <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">Import Products</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-            Add new products with images, GIFs, and Instagram inspiration
+            Add products manually or let AI agents enrich them
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <div className="flex gap-3">
+            <button
+              onClick={() => setImportMode('hybrid')}
+              className={`flex-1 px-4 py-3 rounded-lg border transition-all ${
+                importMode === 'hybrid'
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Zap className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">AI-Assisted (Hybrid)</div>
+                  <div className="text-xs opacity-90">Provide basics, AI does the rest</div>
+                </div>
+              </div>
+            </button>
+            <button
+              onClick={() => setImportMode('manual')}
+              className={`flex-1 px-4 py-3 rounded-lg border transition-all ${
+                importMode === 'manual'
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-md'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <FileText className="w-5 h-5" />
+                <div className="text-left">
+                  <div className="font-medium">Manual Entry</div>
+                  <div className="text-xs opacity-90">Full control over details</div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {importMode === 'hybrid' ? (
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-6">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex gap-3">
+                <Sparkles className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-blue-900 dark:text-blue-100">
+                  <p className="font-medium mb-1">AI Agent Will:</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-800 dark:text-blue-200">
+                    <li>Fetch product data from Amazon/AliExpress</li>
+                    <li>Find similar Instagram reels for inspiration</li>
+                    <li>Generate product GIFs without text overlays</li>
+                    <li>Write compelling Shopify product descriptions</li>
+                    <li>Extract pricing and specs automatically</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={hybridFormData.product_name}
+                onChange={(e) => setHybridFormData({ ...hybridFormData, product_name: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                placeholder="Solar Step Lights"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Sample Instagram Reel URL
+              </label>
+              <input
+                type="url"
+                value={hybridFormData.sample_reel_url}
+                onChange={(e) => setHybridFormData({ ...hybridFormData, sample_reel_url: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                placeholder="https://www.instagram.com/reel/..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Amazon Product URL
+              </label>
+              <input
+                type="url"
+                value={hybridFormData.amazon_url}
+                onChange={(e) => setHybridFormData({ ...hybridFormData, amazon_url: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                placeholder="https://www.amazon.com/dp/..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                AliExpress Product URL
+              </label>
+              <input
+                type="url"
+                value={hybridFormData.aliexpress_url}
+                onChange={(e) => setHybridFormData({ ...hybridFormData, aliexpress_url: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                placeholder="https://www.aliexpress.com/item/..."
+              />
+            </div>
+
+            <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                type="button"
+                onClick={handleHybridSubmit}
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-lg hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Starting AI Agent...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5" />
+                    Let AI Agent Process
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-8">
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <div className="flex gap-3">
               <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -553,6 +747,7 @@ export default function ProductImport() {
             </button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

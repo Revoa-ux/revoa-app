@@ -11,6 +11,11 @@ interface DispatchRequest {
   mode?: 'real' | 'demo';
   niche?: string;
   reel_urls?: string[];
+  import_type?: 'autonomous' | 'hybrid';
+  product_name?: string;
+  amazon_url?: string;
+  aliexpress_url?: string;
+  sample_reel_url?: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -92,6 +97,11 @@ Deno.serve(async (req: Request) => {
     const mode = body.mode || 'real';
     const niche = body.niche || 'all';
     const reel_urls = body.reel_urls || [];
+    const import_type = body.import_type || 'autonomous';
+    const product_name = body.product_name || null;
+    const amazon_url = body.amazon_url || null;
+    const aliexpress_url = body.aliexpress_url || null;
+    const sample_reel_url = body.sample_reel_url || null;
 
     const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
@@ -100,7 +110,13 @@ Deno.serve(async (req: Request) => {
         status: 'queued',
         mode,
         niche,
-        reel_urls: reel_urls.length > 0 ? reel_urls : null
+        reel_urls: reel_urls.length > 0 ? reel_urls : null,
+        import_type,
+        product_name,
+        amazon_url,
+        aliexpress_url,
+        sample_reel_url,
+        filename: import_type === 'hybrid' ? `hybrid_${product_name || 'product'}` : 'autonomous_discovery'
       })
       .select('id')
       .maybeSingle();

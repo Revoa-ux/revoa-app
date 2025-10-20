@@ -9,6 +9,11 @@ interface ImportJob {
   status: 'queued' | 'running' | 'succeeded' | 'failed';
   mode: 'real' | 'demo';
   niche?: string;
+  import_type?: 'autonomous' | 'hybrid';
+  product_name?: string;
+  amazon_url?: string;
+  aliexpress_url?: string;
+  sample_reel_url?: string;
   started_at?: string;
   finished_at?: string;
   github_run_url?: string;
@@ -222,8 +227,8 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
             <thead className="bg-gray-50 dark:bg-gray-900/50">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Mode</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Niche</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Product/Niche</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Started</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Duration</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Results</th>
@@ -247,10 +252,26 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 dark:text-gray-100 capitalize">{job.mode}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-900 dark:text-gray-100 capitalize">{job.import_type || 'autonomous'}</span>
+                        {job.mode === 'demo' && (
+                          <span className="px-2 py-0.5 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 rounded">demo</span>
+                        )}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{job.niche || 'all'}</span>
+                    <td className="px-6 py-4">
+                      {job.import_type === 'hybrid' && job.product_name ? (
+                        <div className="text-sm">
+                          <div className="font-medium text-gray-900 dark:text-gray-100">{job.product_name}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5 mt-1">
+                            {job.amazon_url && <div>Amazon: Yes</div>}
+                            {job.aliexpress_url && <div>AliExpress: Yes</div>}
+                            {job.sample_reel_url && <div>Reel: Yes</div>}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{job.niche || 'all'}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
                       {job.started_at ? formatDate(job.started_at) : '-'}
