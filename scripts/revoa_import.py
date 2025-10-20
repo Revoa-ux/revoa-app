@@ -1297,7 +1297,18 @@ def main():
             if resp.ok:
                 data = resp.json()
                 if data and len(data) > 0 and data[0].get('reel_urls'):
-                    provided_urls = data[0]['reel_urls']
+                    raw_urls = data[0]['reel_urls']
+                    # Flatten the array - some entries might have multiple URLs separated by spaces
+                    for entry in raw_urls:
+                        if entry:
+                            # Split by space and newline in case URLs are concatenated
+                            urls_in_entry = re.split(r'[\s\n]+', entry.strip())
+                            for url in urls_in_entry:
+                                url = url.strip()
+                                # Only add valid Instagram URLs
+                                if url and ('instagram.com/reel/' in url or 'instagram.com/p/' in url):
+                                    # Clean query parameters if needed
+                                    provided_urls.append(url)
                     print(f"📋 Found {len(provided_urls)} URLs in job record")
         except Exception as e:
             print(f"⚠️  Could not fetch job URLs from database: {e}")
