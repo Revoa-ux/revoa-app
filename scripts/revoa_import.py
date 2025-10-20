@@ -1290,14 +1290,20 @@ def main():
     job_id = os.environ.get("JOB_ID")
     provided_urls = []
 
-    if job_id:
+    print(f"🔍 Debug: JOB_ID environment variable = '{job_id}'")
+
+    if job_id and job_id.strip():
         try:
             headers = {"Authorization": f"Bearer {token}", "apikey": ANON_KEY}
+            print(f"🔍 Fetching job from: {SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}")
             resp = requests.get(f"{SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}&select=reel_urls", headers=headers, timeout=TIMEOUT)
+            print(f"🔍 Response status: {resp.status_code}")
             if resp.ok:
                 data = resp.json()
+                print(f"🔍 Response data: {data}")
                 if data and len(data) > 0 and data[0].get('reel_urls'):
                     raw_urls = data[0]['reel_urls']
+                    print(f"🔍 Raw reel_urls array has {len(raw_urls)} entries")
                     # Flatten the array - some entries might have multiple URLs separated by spaces
                     for entry in raw_urls:
                         if entry:
@@ -1310,6 +1316,10 @@ def main():
                                     # Clean query parameters if needed
                                     provided_urls.append(url)
                     print(f"📋 Found {len(provided_urls)} URLs in job record")
+                else:
+                    print(f"⚠️  No reel_urls in job record (data: {data})")
+            else:
+                print(f"⚠️  Failed to fetch job: {resp.text}")
         except Exception as e:
             print(f"⚠️  Could not fetch job URLs from database: {e}")
 
