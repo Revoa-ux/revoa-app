@@ -47,7 +47,7 @@ except Exception:
 # ---------- Config / Env ----------
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 ANON_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
-ADMIN_TOKEN = os.environ.get("REVOA_ADMIN_TOKEN")
+SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE")
 ADMIN_EMAIL = os.environ.get("REVOA_ADMIN_EMAIL")
 ADMIN_PASSWORD = os.environ.get("REVOA_ADMIN_PASSWORD")
 
@@ -55,14 +55,14 @@ ADMIN_PASSWORD = os.environ.get("REVOA_ADMIN_PASSWORD")
 print("🔍 Environment Check:")
 print(f"  SUPABASE_URL: {'✓' if SUPABASE_URL else '✗'}")
 print(f"  SUPABASE_ANON_KEY: {'✓' if ANON_KEY else '✗'}")
-print(f"  REVOA_ADMIN_TOKEN: {'✓' if ADMIN_TOKEN else '✗'}")
+print(f"  SUPABASE_SERVICE_ROLE: {'✓' if SERVICE_ROLE_KEY else '✗'}")
 print(f"  REVOA_ADMIN_EMAIL: {'✓' if ADMIN_EMAIL else '✗'}")
 print(f"  REVOA_ADMIN_PASSWORD: {'✓' if ADMIN_PASSWORD else '✗'}")
 
 if not SUPABASE_URL or not ANON_KEY:
     raise RuntimeError("Missing SUPABASE_URL or SUPABASE_ANON_KEY")
-if not ADMIN_TOKEN and not (ADMIN_EMAIL and ADMIN_PASSWORD):
-    raise RuntimeError("Missing REVOA_ADMIN_TOKEN or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
+if not SERVICE_ROLE_KEY and not (ADMIN_EMAIL and ADMIN_PASSWORD):
+    raise RuntimeError("Missing SUPABASE_SERVICE_ROLE or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
 
 TIMEOUT = 30
 PRICE_TIMEOUT = 25
@@ -224,12 +224,12 @@ def _run(cmd):
     return subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
 def login():
-    """Return admin token (prefers REVOA_ADMIN_TOKEN, fallback password grant)."""
-    if ADMIN_TOKEN:
-        print("🔑 Using admin token")
-        return ADMIN_TOKEN
+    """Return admin token (prefers service role, fallback password grant)."""
+    if SERVICE_ROLE_KEY:
+        print("🔑 Using service role key")
+        return SERVICE_ROLE_KEY
     if not (ADMIN_EMAIL and ADMIN_PASSWORD):
-        raise RuntimeError("Missing REVOA_ADMIN_TOKEN or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
+        raise RuntimeError("Missing SUPABASE_SERVICE_ROLE or REVOA_ADMIN_EMAIL/REVOA_ADMIN_PASSWORD")
     print("🔐 Logging in via password grant…")
     url = f"{SUPABASE_URL}/auth/v1/token?grant_type=password"
     r = requests.post(url, headers={"apikey": ANON_KEY, "Content-Type": "application/json"},
@@ -1277,7 +1277,7 @@ def main():
     print("ENV sanity:", {
         "HAS_URL": bool(os.environ.get("SUPABASE_URL")),
         "HAS_ANON": bool(os.environ.get("SUPABASE_ANON_KEY")),
-        "HAS_ADMIN_TOKEN": bool(os.environ.get("REVOA_ADMIN_TOKEN")),
+        "HAS_SERVICE_ROLE": bool(os.environ.get("SUPABASE_SERVICE_ROLE")),
         "HAS_EMAIL": bool(os.environ.get("REVOA_ADMIN_EMAIL")),
         "HAS_PASSWORD": bool(os.environ.get("REVOA_ADMIN_PASSWORD")),
         "JOB_ID": os.environ.get("JOB_ID")
