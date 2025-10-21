@@ -553,17 +553,33 @@ export default function AdminDashboard() {
                   color: '#F9FAFB'
                 }}
               />
+              <defs>
+                <linearGradient id="colorNewUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#FB7185" stopOpacity={0.7} />
+                </linearGradient>
+                <linearGradient id="colorActiveUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#E5E7EB" stopOpacity={0.95} />
+                  <stop offset="100%" stopColor="#F3F4F6" stopOpacity={0.75} />
+                </linearGradient>
+              </defs>
               <Bar
                 dataKey="newUsers"
-                fill="#F43F5E"
+                fill="url(#colorNewUsers)"
                 radius={[8, 8, 0, 0]}
                 maxBarSize={60}
+                style={{
+                  filter: 'drop-shadow(0 4px 6px rgba(244, 63, 94, 0.15))',
+                }}
               />
               <Bar
                 dataKey="activeUsers"
-                fill="#E5E7EB"
+                fill="url(#colorActiveUsers)"
                 radius={[8, 8, 0, 0]}
                 maxBarSize={60}
+                style={{
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))',
+                }}
               />
             </BarChart>
           </ResponsiveContainer>
