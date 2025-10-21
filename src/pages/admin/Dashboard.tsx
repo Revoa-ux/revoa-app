@@ -221,7 +221,7 @@ export default function AdminDashboard() {
         {metrics.map(metric => (
           <div key={metric.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 {metric.icon}
               </div>
               {renderChangeIndicator(metric.change)}
@@ -230,7 +230,7 @@ export default function AdminDashboard() {
               <h3 className="text-xs text-gray-500 dark:text-gray-400">{metric.title}</h3>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{metric.value}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">{metric.metric1.label}</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{metric.metric1.value}</span>
@@ -298,13 +298,13 @@ export default function AdminDashboard() {
           {/* API Health */}
           <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                backendHealth.api.status === 'healthy' ? 'bg-green-50 text-green-700' :
-                backendHealth.api.status === 'degraded' ? 'bg-yellow-50 text-yellow-700' :
-                'bg-red-50 text-red-700'
+                backendHealth.api.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                backendHealth.api.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
               }`}>
                 {backendHealth.api.status.charAt(0).toUpperCase() + backendHealth.api.status.slice(1)}
               </span>
@@ -329,13 +329,13 @@ export default function AdminDashboard() {
           {/* Database Health */}
           <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Database className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                backendHealth.database.status === 'healthy' ? 'bg-green-50 text-green-700' :
-                backendHealth.database.status === 'degraded' ? 'bg-yellow-50 text-yellow-700' :
-                'bg-red-50 text-red-700'
+                backendHealth.database.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                backendHealth.database.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
               }`}>
                 {backendHealth.database.status.charAt(0).toUpperCase() + backendHealth.database.status.slice(1)}
               </span>
@@ -360,13 +360,13 @@ export default function AdminDashboard() {
           {/* Memory Usage */}
           <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Memory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                backendHealth.memory.status === 'healthy' ? 'bg-green-50 text-green-700' :
-                backendHealth.memory.status === 'degraded' ? 'bg-yellow-50 text-yellow-700' :
-                'bg-red-50 text-red-700'
+                backendHealth.memory.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                backendHealth.memory.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
               }`}>
                 {backendHealth.memory.status.charAt(0).toUpperCase() + backendHealth.memory.status.slice(1)}
               </span>
@@ -391,13 +391,13 @@ export default function AdminDashboard() {
           {/* Security Overview */}
           <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-gray-100 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                backendHealth.security.status === 'healthy' ? 'bg-green-50 text-green-700' :
-                backendHealth.security.status === 'degraded' ? 'bg-yellow-50 text-yellow-700' :
-                'bg-red-50 text-red-700'
+                backendHealth.security.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                backendHealth.security.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
               }`}>
                 {backendHealth.security.status.charAt(0).toUpperCase() + backendHealth.security.status.slice(1)}
               </span>
@@ -442,12 +442,12 @@ export default function AdminDashboard() {
         
         <div className="mt-4 space-y-3">
           {notifications.map((notification) => (
-            <div 
+            <div
               key={notification.id}
               className={`flex items-start justify-between p-4 rounded-lg border ${
                 notification.status === 'unread'
-                  ? 'bg-gray-50 border-gray-200'
-                  : 'bg-white border-gray-100'
+                  ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
+                  : 'bg-white dark:bg-gray-700/30 border-gray-100 dark:border-gray-600'
               }`}
             >
               <div className="flex items-start space-x-3">
@@ -461,10 +461,10 @@ export default function AdminDashboard() {
                     </h4>
                     <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                       notification.priority === 'high'
-                        ? 'bg-red-50 text-red-700'
+                        ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
                         : notification.priority === 'medium'
-                        ? 'bg-yellow-50 text-yellow-700'
-                        : 'bg-gray-50 text-gray-700'
+                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                        : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                     }`}>
                       {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)}
                     </span>
@@ -486,19 +486,19 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              <button 
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              <button
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                 onClick={() => {
-                  setNotifications(prev => 
-                    prev.map(n => 
-                      n.id === notification.id 
-                        ? { ...n, status: 'read' } 
+                  setNotifications(prev =>
+                    prev.map(n =>
+                      n.id === notification.id
+                        ? { ...n, status: 'read' }
                         : n
                     )
                   );
                 }}
               >
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="w-4 h-4 text-gray-400 dark:text-gray-500" />
               </button>
             </div>
           ))}
