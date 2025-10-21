@@ -532,9 +532,9 @@ export default function AdminDashboard() {
               { date: '2024-03-06', newUsers: 55, activeUsers: 50 },
               { date: '2024-03-07', newUsers: 58, activeUsers: 52 }
             ]}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis 
-                dataKey="date" 
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
+              <XAxis
+                dataKey="date"
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6B7280' }}
@@ -545,9 +545,26 @@ export default function AdminDashboard() {
                 tickLine={false}
                 tick={{ fontSize: 12, fill: '#6B7280' }}
               />
-              <Tooltip />
-              <Bar dataKey="newUsers" fill="#F43F5E" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="activeUsers" fill="#E5E7EB" radius={[4, 4, 0, 0]} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#1F2937',
+                  border: '1px solid #374151',
+                  borderRadius: '8px',
+                  color: '#F9FAFB'
+                }}
+              />
+              <Bar
+                dataKey="newUsers"
+                fill="#F43F5E"
+                radius={[8, 8, 0, 0]}
+                maxBarSize={60}
+              />
+              <Bar
+                dataKey="activeUsers"
+                fill="#E5E7EB"
+                radius={[8, 8, 0, 0]}
+                maxBarSize={60}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
