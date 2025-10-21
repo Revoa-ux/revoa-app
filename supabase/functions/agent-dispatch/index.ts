@@ -96,12 +96,16 @@ Deno.serve(async (req: Request) => {
     const body: DispatchRequest = await req.json().catch(() => ({}));
     const mode = body.mode || 'real';
     const niche = body.niche || 'all';
-    const reel_urls = body.reel_urls || [];
+    let reel_urls = body.reel_urls || [];
     const import_type = body.import_type || 'autonomous';
     const product_name = body.product_name || null;
     const amazon_url = body.amazon_url || null;
     const aliexpress_url = body.aliexpress_url || null;
     const sample_reel_url = body.sample_reel_url || null;
+
+    if (import_type === 'hybrid' && sample_reel_url && reel_urls.length === 0) {
+      reel_urls = [sample_reel_url];
+    }
 
     const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
@@ -168,8 +172,6 @@ Deno.serve(async (req: Request) => {
 
     const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
 
-    // Note: reel_urls are stored in the database (import_jobs table)
-    // Python script will fetch them from there using job_id
     const inputs = { job_id, niche };
 
     const ghRes = await fetch(dispatchUrl, {
@@ -177,24 +179,25 @@ Deno.serve(async (req: Request) => {
       headers: {
         'Authorization': `Bearer ${GITHUB_TOKEN}`,
         'Accept': 'application/vnd.github+json',
-        'User-Agent': 'revoa-agent-dispatch'
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ ref: WORKFLOW_REF, inputs })
+      body: JSON.stringify({
+        ref: WORKFLOW_REF,
+        inputs
+      })
     });
 
     if (!ghRes.ok) {
-      const errText = await ghRes.text();
+      const ghErr = await ghRes.text();
+      console.error('[agent-dispatch] GitHub dispatch failed:', ghErr);
       await supabase.from('import_jobs').update({
         status: 'failed',
-        error_text: `GitHub dispatch failed (${ghRes.status}): ${errText}`
+        error_text: `GitHub API error: ${ghRes.status} - ${ghErr}`
       }).eq('id', job_id);
 
       return new Response(
-        JSON.stringify({
-          ok: false,
-          status: ghRes.status,
-          error: errText
-        }),
+        JSON.stringify({ ok: false, error: `GitHub workflow dispatch failed: ${ghErr}` }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -211,10 +214,11 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({ ok: true, job_id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (e) {
-    console.error('Agent dispatch error:', e);
+
+  } catch (err) {
+    console.error('[agent-dispatch] Top-level error:', err);
     return new Response(
-      JSON.stringify({ ok: false, error: String(e) }),
+      JSON.stringify({ ok: false, error: String(err) }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
