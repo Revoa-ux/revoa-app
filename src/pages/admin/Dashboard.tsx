@@ -543,20 +543,10 @@ export default function AdminDashboard() {
                   <stop offset="100%" stopColor="#FB7185" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="colorActiveUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#D1D5DB" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#E5E7EB" stopOpacity={0.7} />
+                  <stop offset="0%" stopColor="#94A3B8" stopOpacity={0.85} />
+                  <stop offset="50%" stopColor="#B0BBC9" stopOpacity={0.75} />
+                  <stop offset="100%" stopColor="#CBD5E1" stopOpacity={0.65} />
                 </linearGradient>
-                <filter id="glassEffect">
-                  <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
-                  <feOffset dx="0" dy="2" result="offsetblur" />
-                  <feComponentTransfer>
-                    <feFuncA type="linear" slope="0.2" />
-                  </feComponentTransfer>
-                  <feMerge>
-                    <feMergeNode />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
               <XAxis
@@ -572,6 +562,7 @@ export default function AdminDashboard() {
                 tick={{ fontSize: 12, fill: '#6B7280' }}
               />
               <Tooltip
+                cursor={false}
                 contentStyle={{
                   backgroundColor: '#1F2937',
                   border: '1px solid #374151',
