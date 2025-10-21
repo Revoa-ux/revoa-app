@@ -523,15 +523,41 @@ export default function AdminDashboard() {
         </div>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={[
-              { date: '2024-03-01', newUsers: 42, activeUsers: 38 },
-              { date: '2024-03-02', newUsers: 38, activeUsers: 35 },
-              { date: '2024-03-03', newUsers: 45, activeUsers: 40 },
-              { date: '2024-03-04', newUsers: 52, activeUsers: 48 },
-              { date: '2024-03-05', newUsers: 48, activeUsers: 45 },
-              { date: '2024-03-06', newUsers: 55, activeUsers: 50 },
-              { date: '2024-03-07', newUsers: 58, activeUsers: 52 }
-            ]}>
+            <BarChart
+              data={[
+                { date: '2024-03-01', newUsers: 42, activeUsers: 38 },
+                { date: '2024-03-02', newUsers: 38, activeUsers: 35 },
+                { date: '2024-03-03', newUsers: 45, activeUsers: 40 },
+                { date: '2024-03-04', newUsers: 52, activeUsers: 48 },
+                { date: '2024-03-05', newUsers: 48, activeUsers: 45 },
+                { date: '2024-03-06', newUsers: 55, activeUsers: 50 },
+                { date: '2024-03-07', newUsers: 58, activeUsers: 52 }
+              ]}
+              barGap={8}
+              barCategoryGap="20%"
+            >
+              <defs>
+                <linearGradient id="colorNewUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.95} />
+                  <stop offset="50%" stopColor="#F43F5E" stopOpacity={0.85} />
+                  <stop offset="100%" stopColor="#FB7185" stopOpacity={0.8} />
+                </linearGradient>
+                <linearGradient id="colorActiveUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#D1D5DB" stopOpacity={0.9} />
+                  <stop offset="100%" stopColor="#E5E7EB" stopOpacity={0.7} />
+                </linearGradient>
+                <filter id="glassEffect">
+                  <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+                  <feOffset dx="0" dy="2" result="offsetblur" />
+                  <feComponentTransfer>
+                    <feFuncA type="linear" slope="0.2" />
+                  </feComponentTransfer>
+                  <feMerge>
+                    <feMergeNode />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
               <XAxis
                 dataKey="date"
@@ -553,33 +579,17 @@ export default function AdminDashboard() {
                   color: '#F9FAFB'
                 }}
               />
-              <defs>
-                <linearGradient id="colorNewUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.9} />
-                  <stop offset="100%" stopColor="#FB7185" stopOpacity={0.7} />
-                </linearGradient>
-                <linearGradient id="colorActiveUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#E5E7EB" stopOpacity={0.95} />
-                  <stop offset="100%" stopColor="#F3F4F6" stopOpacity={0.75} />
-                </linearGradient>
-              </defs>
               <Bar
                 dataKey="newUsers"
                 fill="url(#colorNewUsers)"
                 radius={[8, 8, 0, 0]}
-                maxBarSize={60}
-                style={{
-                  filter: 'drop-shadow(0 4px 6px rgba(244, 63, 94, 0.15))',
-                }}
+                maxBarSize={40}
               />
               <Bar
                 dataKey="activeUsers"
                 fill="url(#colorActiveUsers)"
                 radius={[8, 8, 0, 0]}
-                maxBarSize={60}
-                style={{
-                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08))',
-                }}
+                maxBarSize={40}
               />
             </BarChart>
           </ResponsiveContainer>
