@@ -1325,8 +1325,8 @@ def main():
                                 urls_in_entry = re.split(r'[\s\n]+', entry.strip())
                                 for url in urls_in_entry:
                                     url = url.strip()
-                                    # Only add valid Instagram URLs
-                                    if url and ('instagram.com/reel/' in url or 'instagram.com/p/' in url):
+                                    # Only add valid Instagram URLs (handle both /reel/ and /reels/)
+                                    if url and ('instagram.com/reel' in url or 'instagram.com/p/' in url):
                                         # Clean query parameters if needed
                                         provided_urls.append(url)
                         print(f"📋 Found {len(provided_urls)} URLs in job record")
@@ -1371,7 +1371,7 @@ def main():
 
         # Process each reel with the provided URLs
         for reel_url in provided_urls:
-            match = re.search(r'/(reel|p)/([^/\?]+)', reel_url)
+            match = re.search(r'/(reels?|p)/([^/\?]+)', reel_url)
             if not match:
                 print(f"⚠️  Invalid reel URL: {reel_url}")
                 continue
