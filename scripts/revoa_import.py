@@ -1294,9 +1294,11 @@ def main():
     token = login()
     print("✅ Auth OK")
 
-    # Fetch job details from database to get reel_urls if provided
+    # Fetch job details from database to get reel_urls and optional amazon/aliexpress URLs
     job_id = os.environ.get("JOB_ID")
     provided_urls = []
+    hybrid_amazon_url = None
+    hybrid_aliexpress_url = None
 
     print(f"🔍 Debug: JOB_ID environment variable = '{job_id}'")
 
@@ -1304,28 +1306,42 @@ def main():
         try:
             headers = {"Authorization": f"Bearer {token}", "apikey": ANON_KEY}
             print(f"🔍 Fetching job from: {SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}")
-            resp = requests.get(f"{SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}&select=reel_urls", headers=headers, timeout=TIMEOUT)
+            resp = requests.get(f"{SUPABASE_URL}/rest/v1/import_jobs?id=eq.{job_id}&select=reel_urls,amazon_url,aliexpress_url", headers=headers, timeout=TIMEOUT)
             print(f"🔍 Response status: {resp.status_code}")
             if resp.ok:
                 data = resp.json()
                 print(f"🔍 Response data: {data}")
-                if data and len(data) > 0 and data[0].get('reel_urls'):
-                    raw_urls = data[0]['reel_urls']
-                    print(f"🔍 Raw reel_urls array has {len(raw_urls)} entries")
-                    # Flatten the array - some entries might have multiple URLs separated by spaces
-                    for entry in raw_urls:
-                        if entry:
-                            # Split by space and newline in case URLs are concatenated
-                            urls_in_entry = re.split(r'[\s\n]+', entry.strip())
-                            for url in urls_in_entry:
-                                url = url.strip()
-                                # Only add valid Instagram URLs
-                                if url and ('instagram.com/reel/' in url or 'instagram.com/p/' in url):
-                                    # Clean query parameters if needed
-                                    provided_urls.append(url)
-                    print(f"📋 Found {len(provided_urls)} URLs in job record")
+                if data and len(data) > 0:
+                    job_data = data[0]
+
+                    # Extract reel URLs
+                    if job_data.get('reel_urls'):
+                        raw_urls = job_data['reel_urls']
+                        print(f"🔍 Raw reel_urls array has {len(raw_urls)} entries")
+                        # Flatten the array - some entries might have multiple URLs separated by spaces
+                        for entry in raw_urls:
+                            if entry:
+                                # Split by space and newline in case URLs are concatenated
+                                urls_in_entry = re.split(r'[\s\n]+', entry.strip())
+                                for url in urls_in_entry:
+                                    url = url.strip()
+                                    # Only add valid Instagram URLs
+                                    if url and ('instagram.com/reel/' in url or 'instagram.com/p/' in url):
+                                        # Clean query parameters if needed
+                                        provided_urls.append(url)
+                        print(f"📋 Found {len(provided_urls)} URLs in job record")
+                    else:
+                        print(f"⚠️  No reel_urls in job record")
+
+                    # Extract hybrid mode URLs if provided
+                    if job_data.get('amazon_url'):
+                        hybrid_amazon_url = job_data['amazon_url'].strip()
+                        print(f"🔗 Hybrid mode: Amazon URL provided")
+                    if job_data.get('aliexpress_url'):
+                        hybrid_aliexpress_url = job_data['aliexpress_url'].strip()
+                        print(f"🔗 Hybrid mode: AliExpress URL provided")
                 else:
-                    print(f"⚠️  No reel_urls in job record (data: {data})")
+                    print(f"⚠️  No job data found")
             else:
                 print(f"⚠️  Failed to fetch job: {resp.text}")
         except Exception as e:
@@ -1341,6 +1357,152 @@ def main():
     payload = []
     skipped = []
     failed = []
+
+    # =====================================================================
+    # HYBRID MODE: Use provided Amazon/AliExpress URLs if available
+    # =====================================================================
+    if hybrid_amazon_url and hybrid_aliexpress_url and provided_urls:
+        print("🔀 HYBRID MODE: Using provided product URLs")
+        print("=" * 60)
+        print(f"📋 Reel URLs: {len(provided_urls)}")
+        print(f"🔗 Amazon URL: {hybrid_amazon_url[:80]}...")
+        print(f"🔗 AliExpress URL: {hybrid_aliexpress_url[:80]}...")
+        print()
+
+        # Process each reel with the provided URLs
+        for reel_url in provided_urls:
+            match = re.search(r'/(reel|p)/([^/\?]+)', reel_url)
+            if not match:
+                print(f"⚠️  Invalid reel URL: {reel_url}")
+                continue
+
+            shortcode = match.group(2)
+            reel_hash = _hash(shortcode)
+
+            if reel_hash in seen_reels:
+                print(f"⏭️  Skip {shortcode}: already processed")
+                continue
+
+            print(f"Processing: {reel_url}")
+
+            # Fetch Amazon price
+            amazon_price = fetch_amazon_price_prime_only(hybrid_amazon_url)
+            if not amazon_price:
+                print("  ⚠️  Could not fetch Amazon price")
+                failed.append({"reel": shortcode, "reason": "amazon_price_fetch_failed"})
+                continue
+
+            # Fetch AliExpress price
+            ae_price = fetch_aliexpress_price(hybrid_aliexpress_url)
+            if not ae_price:
+                print("  ⚠️  Could not fetch AliExpress price")
+                failed.append({"reel": shortcode, "reason": "aliexpress_price_fetch_failed"})
+                continue
+
+            spread = amazon_price - ae_price
+            print(f"  💰 Amazon: ${amazon_price:.2f}, AliExpress: ${ae_price:.2f}, Spread: ${spread:.2f}")
+
+            if spread < MIN_SPREAD_USD:
+                print(f"  ⚠️  Spread ${spread:.2f} < minimum ${MIN_SPREAD_USD}")
+                skipped.append({"reel": shortcode, "reason": f"low_spread_{spread:.2f}"})
+                continue
+
+            # Download reel and create GIF
+            print(f"  📥 Downloading reel...")
+            video_path = download_instagram_reel(reel_url, shortcode)
+            if not video_path:
+                print("  ⚠️  Failed to download reel")
+                failed.append({"reel": shortcode, "reason": "download_failed"})
+                continue
+
+            gif_path = video_to_gif(video_path, shortcode)
+            if not gif_path:
+                print("  ⚠️  Failed to convert to GIF")
+                failed.append({"reel": shortcode, "reason": "gif_conversion_failed"})
+                continue
+
+            # Upload assets
+            print(f"  ☁️  Uploading assets...")
+            video_url = upload_to_storage(video_path, f"videos/{shortcode}.mp4", token)
+            gif_url = upload_to_storage(gif_path, f"gifs/{shortcode}.gif", token)
+
+            if not video_url or not gif_url:
+                print("  ⚠️  Failed to upload assets")
+                failed.append({"reel": shortcode, "reason": "upload_failed"})
+                continue
+
+            # Extract product title from Amazon URL
+            amazon_title = "Imported Product"
+            try:
+                html = fetch_html(hybrid_amazon_url)
+                if html:
+                    soup = BeautifulSoup(html, 'html.parser')
+                    title_elem = soup.select_one('#productTitle')
+                    if title_elem:
+                        amazon_title = title_elem.get_text().strip()[:100]
+            except:
+                pass
+
+            # Create product record
+            product = {
+                'external_id': f"hybrid:{shortcode}",
+                'name': amazon_title,
+                'category': 'Home',
+                'description': '',
+                'amazon_url': hybrid_amazon_url,
+                'amazon_price': amazon_price,
+                'supplier_url': hybrid_aliexpress_url,
+                'supplier_price': ae_price,
+                'inspiration_reels': [reel_url],
+                'video_urls': [video_url],
+                'gif_urls': [gif_url],
+                'status': 'pending',
+                'profit_margin': ((amazon_price - ae_price) / amazon_price) * 100 if amazon_price > 0 else 0,
+            }
+
+            payload.append(product)
+            found += 1
+            print(f"  ✅ Product added (spread: ${spread:.2f})")
+
+            # Mark as seen
+            try:
+                headers = {"apikey": ANON_KEY, "Authorization": f"Bearer {token}"}
+                requests.post(
+                    f"{SUPABASE_URL}/rest/v1/agent_seen_sources",
+                    headers=headers,
+                    json={"reel_id_hash": reel_hash},
+                    timeout=5
+                )
+            except:
+                pass
+
+            if found >= target:
+                break
+
+        print(f"\n✅ Hybrid mode complete: {found} products created")
+
+        # Skip autonomous discovery if we found products
+        if found > 0:
+            # Upload products to database
+            if payload:
+                print("\n📤 Uploading products to database...")
+                success_count = 0
+                for product in payload:
+                    if upsert_product(product, token):
+                        success_count += 1
+
+                print(f"✅ Successfully uploaded {success_count}/{len(payload)} products")
+
+            # Write summary
+            summary = {
+                "job_id": job_id,
+                "total": found,
+                "successful": found,
+                "failed": len(failed),
+                "skipped": len(skipped)
+            }
+            print(f"\n📊 RUN SUMMARY: {summary}")
+            sys.exit(0)
 
     # =====================================================================
     # AUTONOMOUS PRODUCT DISCOVERY
