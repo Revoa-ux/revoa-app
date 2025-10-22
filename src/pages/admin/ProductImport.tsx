@@ -36,9 +36,11 @@ export default function ProductImport() {
   const [importMode, setImportMode] = useState<'manual' | 'hybrid' | 'autonomous'>('hybrid');
   const [hybridFormData, setHybridFormData] = useState({
     product_name: '',
+    category: 'Home & Garden',
     sample_reel_url: '',
     amazon_url: '',
-    aliexpress_url: ''
+    aliexpress_url: '',
+    soft_pass: true
   });
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -343,9 +345,11 @@ export default function ProductImport() {
             mode: 'real',
             import_type: 'hybrid',
             product_name: hybridFormData.product_name,
+            category: hybridFormData.category,
             sample_reel_url: hybridFormData.sample_reel_url || null,
             amazon_url: hybridFormData.amazon_url || null,
-            aliexpress_url: hybridFormData.aliexpress_url || null
+            aliexpress_url: hybridFormData.aliexpress_url || null,
+            soft_pass: hybridFormData.soft_pass
           })
         }
       );
@@ -360,9 +364,11 @@ export default function ProductImport() {
 
       setHybridFormData({
         product_name: '',
+        category: 'Home & Garden',
         sample_reel_url: '',
         amazon_url: '',
-        aliexpress_url: ''
+        aliexpress_url: '',
+        soft_pass: true
       });
     } catch (error) {
       console.error('Hybrid import error:', error);
@@ -438,18 +444,36 @@ export default function ProductImport() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Product Name <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={hybridFormData.product_name}
-                onChange={(e) => setHybridFormData({ ...hybridFormData, product_name: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                placeholder="Solar Step Lights"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Product Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={hybridFormData.product_name}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, product_name: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  placeholder="Solar Step Lights"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  required
+                  value={hybridFormData.category}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, category: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                >
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>
@@ -489,6 +513,21 @@ export default function ProductImport() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
                 placeholder="https://www.aliexpress.com/item/..."
               />
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hybridFormData.soft_pass}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, soft_pass: e.target.checked })}
+                  className="w-5 h-5 rounded border-gray-300 text-red-500 focus:ring-red-500"
+                />
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Soft Pass Pricing</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Import even if pricing data is incomplete</div>
+                </div>
+              </label>
             </div>
 
             <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">

@@ -8,14 +8,16 @@ const corsHeaders = {
 };
 
 interface DispatchRequest {
-  mode?: 'real' | 'demo';
+  mode?: 'real' | 'demo' | 'hybrid';
   niche?: string;
   reel_urls?: string[];
   import_type?: 'autonomous' | 'hybrid';
   product_name?: string;
+  category?: string;
   amazon_url?: string;
   aliexpress_url?: string;
   sample_reel_url?: string;
+  soft_pass?: boolean;
 }
 
 Deno.serve(async (req: Request) => {
@@ -99,9 +101,11 @@ Deno.serve(async (req: Request) => {
     let reel_urls = body.reel_urls || [];
     const import_type = body.import_type || 'autonomous';
     const product_name = body.product_name || null;
+    const category = body.category || 'Home & Garden';
     const amazon_url = body.amazon_url || null;
     const aliexpress_url = body.aliexpress_url || null;
     const sample_reel_url = body.sample_reel_url || null;
+    const soft_pass = body.soft_pass !== undefined ? body.soft_pass : true;
 
     if (import_type === 'hybrid' && sample_reel_url && reel_urls.length === 0) {
       reel_urls = [sample_reel_url];
@@ -172,7 +176,20 @@ Deno.serve(async (req: Request) => {
 
     const dispatchUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`;
 
-    const inputs = { job_id, niche };
+    const inputs: Record<string, string> = {
+      job_id,
+      niche,
+      mode: import_type === 'hybrid' ? 'hybrid' : mode
+    };
+
+    if (import_type === 'hybrid') {
+      if (product_name) inputs.product_name = product_name;
+      if (category) inputs.category = category;
+      if (sample_reel_url) inputs.reel_url = sample_reel_url;
+      if (amazon_url) inputs.amazon_url = amazon_url;
+      if (aliexpress_url) inputs.aliexpress_url = aliexpress_url;
+      inputs.soft_pass = soft_pass ? 'true' : 'false';
+    }
 
     const ghRes = await fetch(dispatchUrl, {
       method: 'POST',
