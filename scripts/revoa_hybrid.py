@@ -169,10 +169,12 @@ def import_product(token: str, product_payload: dict):
 def main():
     manifest = {
         "name": os.environ["PROD_NAME"],
-        "category": os.environ["PROD_CATEGORY"],
+        "category": os.environ.get("PROD_CATEGORY", "Home & Garden"),
         "reel_url": os.environ["PROD_REEL"],
         "amazon_url": os.environ.get("PROD_AMZ",""),
+        "amazon_price": os.environ.get("PROD_AMZ_PRICE",""),
         "aliexpress_url": os.environ.get("PROD_AE",""),
+        "aliexpress_price": os.environ.get("PROD_AE_PRICE",""),
         "soft_pass": os.environ.get("SOFT_PASS","true").lower() == "true",
     }
 
@@ -187,11 +189,24 @@ def main():
 
         amz_total, prime = (None, False)
         ae_total = None
-        if manifest["amazon_url"]:
+
+        if manifest["amazon_price"]:
+            try:
+                amz_total = float(manifest["amazon_price"])
+                prime = True
+            except ValueError:
+                pass
+        elif manifest["amazon_url"]:
             price, prime = scrape_amazon_price(manifest["amazon_url"])
             if prime:
                 amz_total = price
-        if manifest["aliexpress_url"]:
+
+        if manifest["aliexpress_price"]:
+            try:
+                ae_total = float(manifest["aliexpress_price"])
+            except ValueError:
+                pass
+        elif manifest["aliexpress_url"]:
             item, ship = scrape_aliexpress_total(manifest["aliexpress_url"])
             if item:
                 ae_total = item + ship

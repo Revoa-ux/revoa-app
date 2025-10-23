@@ -36,10 +36,11 @@ export default function ProductImport() {
   const [importMode, setImportMode] = useState<'manual' | 'hybrid' | 'autonomous'>('hybrid');
   const [hybridFormData, setHybridFormData] = useState({
     product_name: '',
-    category: 'Home & Garden',
     sample_reel_url: '',
     amazon_url: '',
+    amazon_price: '',
     aliexpress_url: '',
+    aliexpress_price: '',
     soft_pass: true
   });
   const [formData, setFormData] = useState<ProductFormData>({
@@ -345,10 +346,11 @@ export default function ProductImport() {
             mode: 'real',
             import_type: 'hybrid',
             product_name: hybridFormData.product_name,
-            category: hybridFormData.category,
             sample_reel_url: hybridFormData.sample_reel_url || null,
             amazon_url: hybridFormData.amazon_url || null,
+            amazon_price: hybridFormData.amazon_price || null,
             aliexpress_url: hybridFormData.aliexpress_url || null,
+            aliexpress_price: hybridFormData.aliexpress_price || null,
             soft_pass: hybridFormData.soft_pass
           })
         }
@@ -364,10 +366,11 @@ export default function ProductImport() {
 
       setHybridFormData({
         product_name: '',
-        category: 'Home & Garden',
         sample_reel_url: '',
         amazon_url: '',
+        amazon_price: '',
         aliexpress_url: '',
+        aliexpress_price: '',
         soft_pass: true
       });
     } catch (error) {
@@ -444,36 +447,18 @@ export default function ProductImport() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Product Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={hybridFormData.product_name}
-                  onChange={(e) => setHybridFormData({ ...hybridFormData, product_name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                  placeholder="Solar Step Lights"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Category <span className="text-red-500">*</span>
-                </label>
-                <select
-                  required
-                  value={hybridFormData.category}
-                  onChange={(e) => setHybridFormData({ ...hybridFormData, category: e.target.value })}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Product Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={hybridFormData.product_name}
+                onChange={(e) => setHybridFormData({ ...hybridFormData, product_name: e.target.value })}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                placeholder="Solar Step Lights"
+              />
             </div>
 
             <div>
@@ -489,30 +474,62 @@ export default function ProductImport() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Amazon Product URL
-              </label>
-              <input
-                type="url"
-                value={hybridFormData.amazon_url}
-                onChange={(e) => setHybridFormData({ ...hybridFormData, amazon_url: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                placeholder="https://www.amazon.com/dp/..."
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Amazon Product URL
+                </label>
+                <input
+                  type="url"
+                  value={hybridFormData.amazon_url}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, amazon_url: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  placeholder="https://www.amazon.com/dp/..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Amazon Price (optional)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={hybridFormData.amazon_price}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, amazon_price: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  placeholder="29.99"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                AliExpress Product URL
-              </label>
-              <input
-                type="url"
-                value={hybridFormData.aliexpress_url}
-                onChange={(e) => setHybridFormData({ ...hybridFormData, aliexpress_url: e.target.value })}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
-                placeholder="https://www.aliexpress.com/item/..."
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  AliExpress Product URL
+                </label>
+                <input
+                  type="url"
+                  value={hybridFormData.aliexpress_url}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, aliexpress_url: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  placeholder="https://www.aliexpress.com/item/..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  AliExpress Price (optional)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={hybridFormData.aliexpress_price}
+                  onChange={(e) => setHybridFormData({ ...hybridFormData, aliexpress_price: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  placeholder="9.99"
+                />
+              </div>
             </div>
 
             <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
