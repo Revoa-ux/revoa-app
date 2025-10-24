@@ -83,3 +83,4 @@ jobs:
                 --arg job "${{ github.event.inputs.job_id }}" \
                 '. + { github_run_url: $url, job_id: $job }')" \
             "${SUPABASE_URL}/functions/v1/agent-callback" || true
+
