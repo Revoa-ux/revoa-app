@@ -33,15 +33,14 @@ const CATEGORIES = [
 export default function ProductImport() {
   const [loading, setLoading] = useState(false);
   const [bulkImporting, setBulkImporting] = useState(false);
-  const [importMode, setImportMode] = useState<'manual' | 'hybrid' | 'autonomous'>('hybrid');
+  const [importMode, setImportMode] = useState<'manual' | 'ai'>('ai');
   const [hybridFormData, setHybridFormData] = useState({
     product_name: '',
     sample_reel_url: '',
     amazon_url: '',
     amazon_price: '',
     aliexpress_url: '',
-    aliexpress_price: '',
-    soft_pass: true
+    aliexpress_price: ''
   });
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -395,9 +394,9 @@ export default function ProductImport() {
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
           <div className="flex gap-3">
             <button
-              onClick={() => setImportMode('hybrid')}
+              onClick={() => setImportMode('ai')}
               className={`flex-1 px-4 py-3 rounded-lg border transition-all ${
-                importMode === 'hybrid'
+                importMode === 'ai'
                   ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-transparent shadow-md'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
               }`}
@@ -405,7 +404,7 @@ export default function ProductImport() {
               <div className="flex items-center justify-center gap-2">
                 <Zap className="w-5 h-5" />
                 <div className="text-left">
-                  <div className="font-medium">AI-Assisted (Hybrid)</div>
+                  <div className="font-medium">AI-Assisted Import</div>
                   <div className="text-xs opacity-90">Provide basics, AI does the rest</div>
                 </div>
               </div>
@@ -429,7 +428,7 @@ export default function ProductImport() {
           </div>
         </div>
 
-        {importMode === 'hybrid' ? (
+        {importMode === 'ai' ? (
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 space-y-6">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <div className="flex gap-3">
@@ -532,22 +531,7 @@ export default function ProductImport() {
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hybridFormData.soft_pass}
-                  onChange={(e) => setHybridFormData({ ...hybridFormData, soft_pass: e.target.checked })}
-                  className="w-5 h-5 rounded border-gray-300 text-red-500 focus:ring-red-500"
-                />
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">Soft Pass Pricing</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Import even if pricing data is incomplete</div>
-                </div>
-              </label>
-            </div>
-
-            <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex gap-4 pt-6">
               <button
                 type="button"
                 onClick={handleHybridSubmit}
