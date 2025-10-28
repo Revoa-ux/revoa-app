@@ -41,7 +41,7 @@ ADMIN_TOKEN = os.environ.get("REVOA_ADMIN_TOKEN")
 ADMIN_EMAIL = os.environ.get("REVOA_ADMIN_EMAIL")
 ADMIN_PASSWORD = os.environ.get("REVOA_ADMIN_PASSWORD")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
-REMOVEBG_API_KEY = os.environ.get("REMOVEBG_API_KEY", "")
+CANVA_API_KEY = os.environ.get("CANVA_API_KEY", "")
 
 TIMEOUT = 30
 MAX_IMAGE_SIZE_MB = 20
@@ -287,45 +287,106 @@ def scrape_aliexpress_images(url: str, dest_dir: pathlib.Path) -> List[pathlib.P
     return images
 
 
-def remove_background(image_path: pathlib.Path, output_path: pathlib.Path) -> None:
-    """Remove background from image using remove.bg API."""
-    if not REMOVEBG_API_KEY:
-        print("Warning: REMOVEBG_API_KEY not set, skipping background removal")
+def remove_background_canva(image_path: pathlib.Path, output_path: pathlib.Path) -> None:
+    """Remove background and upscale image using Canva API."""
+    if not CANVA_API_KEY:
+        print("Warning: CANVA_API_KEY not set, skipping background removal")
         shutil.copy(image_path, output_path)
         return
 
-    with open(image_path, "rb") as f:
-        response = requests.post(
-            "https://api.remove.bg/v1.0/removebg",
-            files={"image_file": f},
-            data={"size": "auto"},
-            headers={"X-Api-Key": REMOVEBG_API_KEY},
+    try:
+        # Step 1: Upload image to Canva
+        with open(image_path, "rb") as f:
+            upload_response = requests.post(
+                "https://api.canva.com/rest/v1/assets",
+                headers={
+                    "Authorization": f"Bearer {CANVA_API_KEY}",
+                    "Content-Type": "application/octet-stream"
+                },
+                data=f.read(),
+                timeout=60
+            )
+
+        if upload_response.status_code != 200:
+            print(f"Canva upload failed: {upload_response.text}")
+            shutil.copy(image_path, output_path)
+            return
+
+        asset_id = upload_response.json()["asset"]["id"]
+
+        # Step 2: Apply background removal and upscale
+        edit_response = requests.post(
+            "https://api.canva.com/rest/v1/asset-jobs",
+            headers={
+                "Authorization": f"Bearer {CANVA_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "asset_id": asset_id,
+                "edit_operations": [
+                    {"type": "background_removal"},
+                    {"type": "upscale", "scale_factor": 2}
+                ]
+            },
             timeout=60
         )
 
-    if response.status_code == 200:
-        output_path.write_bytes(response.content)
-    else:
-        print(f"Background removal failed: {response.text}")
+        if edit_response.status_code != 200:
+            print(f"Canva edit failed: {edit_response.text}")
+            shutil.copy(image_path, output_path)
+            return
+
+        job_id = edit_response.json()["job"]["id"]
+
+        # Step 3: Poll for completion
+        max_attempts = 30
+        for attempt in range(max_attempts):
+            status_response = requests.get(
+                f"https://api.canva.com/rest/v1/asset-jobs/{job_id}",
+                headers={"Authorization": f"Bearer {CANVA_API_KEY}"},
+                timeout=30
+            )
+
+            if status_response.status_code == 200:
+                job_status = status_response.json()["job"]["status"]
+                if job_status == "success":
+                    result_url = status_response.json()["job"]["result"]["url"]
+                    # Download processed image
+                    img_data = requests.get(result_url, timeout=60).content
+                    output_path.write_bytes(img_data)
+                    print(f"✓ Canva processing complete (removed background + 2x upscale)")
+                    return
+                elif job_status == "failed":
+                    print(f"Canva job failed")
+                    break
+
+            import time
+            time.sleep(2)
+
+        print("Canva processing timeout, using original image")
+        shutil.copy(image_path, output_path)
+
+    except Exception as e:
+        print(f"Canva API error: {e}")
         shutil.copy(image_path, output_path)
 
 
 def process_product_image(image_path: pathlib.Path, output_path: pathlib.Path) -> None:
     """
     Process product image:
-    1. Remove background
+    1. Remove background with Canva (includes 2x upscale)
     2. Add light grey background
     3. Resize to 1080x1080
     """
-    # Remove background
+    # Remove background and upscale with Canva
     nobg_path = output_path.with_suffix(".nobg.png")
-    remove_background(image_path, nobg_path)
+    remove_background_canva(image_path, nobg_path)
 
     # Add grey background and resize
     subprocess.run([
         "ffmpeg", "-y",
         "-i", str(nobg_path),
-        "-vf", "scale=1080:-1:force_original_aspect_ratio=decrease,pad=1080:1080:(1080-iw)/2:(1080-ih)/2:color=0xF5F5F5",
+        "-vf", "scale=2160:-1:force_original_aspect_ratio=decrease,pad=2160:2160:(2160-iw)/2:(2160-ih)/2:color=0xF5F5F5,scale=1080:1080",
         "-qscale:v", "2",
         str(output_path)
     ], check=True, capture_output=True)

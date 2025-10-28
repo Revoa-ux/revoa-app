@@ -53,7 +53,7 @@ ADMIN_PASSWORD            # Admin login password
 ### Optional Secrets (for enhanced features)
 ```bash
 OPENAI_API_KEY            # For AI-generated marketing copy
-REMOVEBG_API_KEY          # For automatic background removal
+CANVA_API_KEY             # For background removal + 2x upscale (RECOMMENDED)
 GITHUB_TOKEN              # For workflow dispatch (already configured)
 GITHUB_OWNER              # Your GitHub username
 GITHUB_REPO               # Repository name
@@ -69,12 +69,19 @@ GITHUB_REPO               # Repository name
 
 **Without OpenAI**: System falls back to template-based copy generation
 
-### Remove.bg API Key (Optional)
-1. Sign up at https://www.remove.bg/api
-2. Get your free API key (50 images/month free)
-3. Add to GitHub secrets as `REMOVEBG_API_KEY`
+### Canva API Key (Highly Recommended)
+1. Log into your Canva Pro account at https://www.canva.com/
+2. Go to Settings > Apps & integrations
+3. Create a new API key for your application
+4. Add to GitHub secrets as `CANVA_API_KEY`
 
-**Without remove.bg**: Images processed without background removal
+**Benefits of Canva API**:
+- Unlimited background removal (included with Pro subscription)
+- Automatic 2x upscaling for HD quality
+- Professional-grade image processing
+- No per-image limits or additional costs
+
+**Without Canva**: Images processed without background removal (product images will have original backgrounds)
 
 ## How to Use
 

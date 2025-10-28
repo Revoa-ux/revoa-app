@@ -95,7 +95,7 @@ GITHUB_REPO
 ### Optional Secrets (Enhanced Features)
 ```
 OPENAI_API_KEY         # AI-generated marketing copy
-REMOVEBG_API_KEY       # Automatic background removal
+CANVA_API_KEY          # Background removal + 2x upscale (RECOMMENDED - unlimited with Pro)
 ```
 
 ## Usage
