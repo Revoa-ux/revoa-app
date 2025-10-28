@@ -34,6 +34,14 @@ export default function AIImport() {
   const [lastError, setLastError] = useState<string>('');
   const [reelUrls, setReelUrls] = useState<string>('');
 
+  const [productTitle, setProductTitle] = useState<string>('');
+  const [instagramReelUrl, setInstagramReelUrl] = useState<string>('');
+  const [amazonUrl, setAmazonUrl] = useState<string>('');
+  const [aliexpressUrl, setAliexpressUrl] = useState<string>('');
+  const [amazonPrice, setAmazonPrice] = useState<string>('');
+  const [aliexpressPrice, setAliexpressPrice] = useState<string>('');
+  const [suggestedRetailPrice, setSuggestedRetailPrice] = useState<string>('');
+
   const fetchJobs = useCallback(async () => {
     try {
       const { data, error } = await supabase
@@ -71,7 +79,7 @@ export default function AIImport() {
         .map(url => url.trim())
         .filter(url => url && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/')));
 
-      const payload: { mode: 'real' | 'demo'; niche: string; reel_urls?: string[] } = {
+      const payload: any = {
         mode,
         niche: 'all'
       };
@@ -79,6 +87,14 @@ export default function AIImport() {
       if (urls.length > 0) {
         payload.reel_urls = urls;
       }
+
+      if (productTitle) payload.product_name = productTitle;
+      if (instagramReelUrl) payload.sample_reel_url = instagramReelUrl;
+      if (amazonUrl) payload.amazon_url = amazonUrl;
+      if (aliexpressUrl) payload.aliexpress_url = aliexpressUrl;
+      if (amazonPrice) payload.amazon_price = amazonPrice;
+      if (aliexpressPrice) payload.aliexpress_price = aliexpressPrice;
+      if (suggestedRetailPrice) payload.suggested_retail_price = suggestedRetailPrice;
 
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/agent-dispatch`,
@@ -102,7 +118,14 @@ export default function AIImport() {
       }
 
       toast.success(mode === 'demo' ? 'Demo completed!' : 'AI agent started! Check status below.');
-      setReelUrls(''); // Clear URLs on success
+      setReelUrls('');
+      setProductTitle('');
+      setInstagramReelUrl('');
+      setAmazonUrl('');
+      setAliexpressUrl('');
+      setAmazonPrice('');
+      setAliexpressPrice('');
+      setSuggestedRetailPrice('');
       fetchJobs();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Failed to start agent';
@@ -171,11 +194,118 @@ export default function AIImport() {
       )}
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Run Import</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Hybrid AI Product Import</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+          Provide basic product information below. The AI agent will automatically generate product images, GIFs, and marketing copy.
+        </p>
 
-        <div className="mb-6">
-          <label htmlFor="reel-urls" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Instagram Reel URLs (Optional)
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label htmlFor="product-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Product Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="product-title"
+              type="text"
+              value={productTitle}
+              onChange={(e) => setProductTitle(e.target.value)}
+              placeholder="e.g., Solar LED Garden Lights"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="instagram-reel" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Instagram Reel URL <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="instagram-reel"
+              type="url"
+              value={instagramReelUrl}
+              onChange={(e) => setInstagramReelUrl(e.target.value)}
+              placeholder="https://www.instagram.com/reel/ABC123/"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="amazon-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Amazon Product URL
+            </label>
+            <input
+              id="amazon-url"
+              type="url"
+              value={amazonUrl}
+              onChange={(e) => setAmazonUrl(e.target.value)}
+              placeholder="https://www.amazon.com/dp/..."
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="aliexpress-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              AliExpress Product URL
+            </label>
+            <input
+              id="aliexpress-url"
+              type="url"
+              value={aliexpressUrl}
+              onChange={(e) => setAliexpressUrl(e.target.value)}
+              placeholder="https://www.aliexpress.com/item/..."
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="amazon-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Amazon Price (USD)
+            </label>
+            <input
+              id="amazon-price"
+              type="number"
+              step="0.01"
+              value={amazonPrice}
+              onChange={(e) => setAmazonPrice(e.target.value)}
+              placeholder="29.99"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="aliexpress-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              AliExpress Price (USD)
+            </label>
+            <input
+              id="aliexpress-price"
+              type="number"
+              step="0.01"
+              value={aliexpressPrice}
+              onChange={(e) => setAliexpressPrice(e.target.value)}
+              placeholder="12.50"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="suggested-retail-price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Suggested Retail Price (USD)
+            </label>
+            <input
+              id="suggested-retail-price"
+              type="number"
+              step="0.01"
+              value={suggestedRetailPrice}
+              onChange={(e) => setSuggestedRetailPrice(e.target.value)}
+              placeholder="49.99"
+              className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <div className="mb-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Or use autonomous discovery mode:</h3>
+          <label htmlFor="reel-urls" className="block text-sm text-gray-600 dark:text-gray-400 mb-2">
+            Instagram Reel URLs (Optional - for autonomous mode)
           </label>
           <textarea
             id="reel-urls"
@@ -183,12 +313,9 @@ export default function AIImport() {
             onChange={(e) => setReelUrls(e.target.value)}
             placeholder="Paste Instagram reel URLs here, one per line:
 https://www.instagram.com/reel/ABC123/
-https://www.instagram.com/reel/DEF456/
-https://www.instagram.com/p/GHI789/
-
-Leave empty to use automatic discovery (may be blocked by Instagram)"
-            rows={8}
-            className="w-full px-4 py-3 bg-white dark:bg-gray-800 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-400"
+https://www.instagram.com/reel/DEF456/"
+            rows={4}
+            className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-y font-mono text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
             {reelUrls.split('\n').filter(url => url.trim() && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/'))).length} valid URLs detected
@@ -197,24 +324,20 @@ Leave empty to use automatic discovery (may be blocked by Instagram)"
 
         <div className="flex gap-3">
           <button
-            onClick={() => runAgent('demo')}
-            disabled={running}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-800 dark:bg-gray-700 text-gray-700 dark:text-gray-300 dark:text-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
-          >
-            <Play className="w-4 h-4" />
-            Run Demo Mode
-          </button>
-          <button
             onClick={() => runAgent('real')}
-            disabled={running}
+            disabled={running || (!productTitle && !instagramReelUrl && reelUrls.split('\n').filter(url => url.trim() && (url.includes('instagram.com/reel/') || url.includes('instagram.com/p/'))).length === 0)}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium text-sm"
           >
             <Zap className="w-4 h-4" />
-            Run AI Agent (Real Mode)
+            {productTitle ? 'Generate Product Assets' : 'Run Autonomous Discovery'}
           </button>
         </div>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
-          <strong>Demo:</strong> Quick test (no GitHub). <strong>Real Mode:</strong> Full AI import via GitHub Actions.
+          {productTitle ? (
+            <span><strong>Hybrid Mode:</strong> AI will download the reel, generate GIFs and images, scrape prices (if not provided), and create marketing copy.</span>
+          ) : (
+            <span><strong>Autonomous Mode:</strong> AI will discover products from provided reels or search Instagram automatically.</span>
+          )}
         </p>
       </div>
 

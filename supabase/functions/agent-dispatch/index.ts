@@ -13,7 +13,11 @@ interface DispatchRequest {
   amazon_price?: string;
   aliexpress_url?: string;
   aliexpress_price?: string;
+  suggested_retail_price?: string;
   sample_reel_url?: string;
+  mode?: 'real' | 'demo';
+  niche?: string;
+  reel_urls?: string[];
 }
 
 Deno.serve(async (req: Request) => {
@@ -97,21 +101,30 @@ Deno.serve(async (req: Request) => {
     const amazon_price = body.amazon_price || null;
     const aliexpress_url = body.aliexpress_url || null;
     const aliexpress_price = body.aliexpress_price || null;
+    const suggested_retail_price = body.suggested_retail_price || null;
     const sample_reel_url = body.sample_reel_url || null;
+    const mode = body.mode || 'real';
+    const niche = body.niche || 'all';
+    const reel_urls = body.reel_urls || null;
+
+    const import_type = product_name ? 'hybrid' : 'autonomous';
 
     const { data: jobIns, error: jobErr } = await supabase
       .from('import_jobs')
       .insert({
         created_by: user.id,
         status: 'queued',
-        mode: 'real',
-        niche: 'all',
-        reel_urls: sample_reel_url ? [sample_reel_url] : null,
-        import_type: 'hybrid',
+        mode,
+        niche,
+        reel_urls: sample_reel_url ? [sample_reel_url] : (reel_urls || null),
+        import_type,
         product_name,
         amazon_url,
         aliexpress_url,
         sample_reel_url,
+        amazon_price: amazon_price ? parseFloat(amazon_price) : null,
+        aliexpress_price: aliexpress_price ? parseFloat(aliexpress_price) : null,
+        suggested_retail_price: suggested_retail_price ? parseFloat(suggested_retail_price) : null,
         filename: `product_${product_name || Date.now()}`
       })
       .select('id')
@@ -152,7 +165,8 @@ Deno.serve(async (req: Request) => {
 
     const inputs: Record<string, string> = {
       job_id,
-      mode: 'hybrid'
+      mode: import_type,
+      run_mode: mode
     };
 
     if (product_name) inputs.product_name = product_name;
@@ -161,6 +175,9 @@ Deno.serve(async (req: Request) => {
     if (amazon_price) inputs.amazon_price = amazon_price;
     if (aliexpress_url) inputs.aliexpress_url = aliexpress_url;
     if (aliexpress_price) inputs.aliexpress_price = aliexpress_price;
+    if (suggested_retail_price) inputs.suggested_retail_price = suggested_retail_price;
+    if (niche) inputs.niche = niche;
+    if (reel_urls && reel_urls.length > 0) inputs.reel_urls = JSON.stringify(reel_urls);
 
     const ghRes = await fetch(dispatchUrl, {
       method: 'POST',
