@@ -542,12 +542,12 @@ const Chat = () => {
                   {message.sender === 'user' && (
                     <button
                       onClick={() => openDeleteModal(message.id)}
-                      className={`opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0 ${
+                      className={`opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0 ${
                         message.type !== 'text' ? 'mt-1.5' : ''
                       }`}
                       title="Delete message"
                     >
-                      <Trash2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                      <Trash2 className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                     </button>
                   )}
                 </div>
