@@ -26,6 +26,35 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 
+const getDateLabel = (date: Date): string => {
+  const today = new Date();
+  const messageDate = new Date(date);
+
+  today.setHours(0, 0, 0, 0);
+  messageDate.setHours(0, 0, 0, 0);
+
+  const diffTime = today.getTime() - messageDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  if (diffDays < 7) return messageDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+  return messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined });
+};
+
+const shouldShowDateLabel = (currentMessage: Message, previousMessage: Message | undefined): boolean => {
+  if (!previousMessage) return true;
+
+  const currentDate = new Date(currentMessage.timestamp);
+  const previousDate = new Date(previousMessage.timestamp);
+
+  currentDate.setHours(0, 0, 0, 0);
+  previousDate.setHours(0, 0, 0, 0);
+
+  return currentDate.getTime() !== previousDate.getTime();
+};
+
 const Chat = () => {
   const { user } = useAuth();
   const [chat, setChat] = useState<ChatType | null>(null);
@@ -352,77 +381,113 @@ const Chat = () => {
               </div>
             </div>
           ) : null}
-          {!isLoading && messages.map((message) => (
-            <div
-              key={message.id}
-              ref={el => messageRefs.current[message.id] = el}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[70%] break-words ${
-                message.sender === 'user'
-                  ? 'message-bubble-user text-white'
-                  : 'message-bubble-team text-gray-900 dark:text-white'
-              } rounded-lg px-4 py-2`}>
-                {message.type === 'image' && message.fileUrl ? (
-                  <div className="space-y-2">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-1">
-                      <img
-                        src={message.fileUrl}
-                        alt={message.fileName || 'Uploaded image'}
-                        className="max-w-full rounded-lg max-h-64 object-cover"
-                      />
-                    </div>
-                    <p className="text-sm">{message.fileName}</p>
-                    <div className={`text-xs ${
-                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                    </div>
+          {!isLoading && messages.map((message, index) => (
+            <React.Fragment key={message.id}>
+              {shouldShowDateLabel(message, messages[index - 1]) && (
+                <div className="flex justify-center my-4">
+                  <div className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                      {getDateLabel(message.timestamp)}
+                    </span>
                   </div>
-                ) : message.type === 'file' && message.fileUrl ? (
-                  <>
-                    <a
-                      href={message.fileUrl}
-                      download={message.fileName}
-                      className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-                    >
-                      <div className={`p-2 rounded-lg ${
+                </div>
+              )}
+              <div
+                ref={el => messageRefs.current[message.id] = el}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[70%] break-words ${
+                  message.sender === 'user'
+                    ? 'message-bubble-user text-white'
+                    : 'message-bubble-team text-gray-900 dark:text-white'
+                } rounded-lg overflow-hidden`}>
+                  {message.type === 'image' && message.fileUrl ? (
+                    <div className="flex flex-col">
+                      <div className="p-1">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-1">
+                          <img
+                            src={message.fileUrl}
+                            alt={message.fileName || 'Uploaded image'}
+                            className="max-w-full rounded-md max-h-64 object-cover"
+                          />
+                        </div>
+                      </div>
+                      <div className="px-3 pb-2">
+                        <p className="text-sm mb-1">{message.fileName}</p>
+                      </div>
+                      <div className={`px-3 py-1.5 -mx-px -mb-px ${
                         message.sender === 'user'
-                          ? 'bg-white/20'
-                          : 'bg-gray-100 dark:bg-gray-700'
+                          ? 'bg-[#C91C43]'
+                          : 'bg-gray-200 dark:bg-gray-700'
                       }`}>
-                        <FileText className="w-5 h-5" />
+                        <span className={`text-[10px] ${
+                          message.sender === 'user' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{message.fileName}</p>
-                        {message.fileSize && (
-                          <p className={`text-xs ${
-                            message.sender === 'user' ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'
+                    </div>
+                  ) : message.type === 'file' && message.fileUrl ? (
+                    <div className="flex flex-col">
+                      <div className="px-4 pt-3 pb-2">
+                        <a
+                          href={message.fileUrl}
+                          download={message.fileName}
+                          className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                        >
+                          <div className={`p-2 rounded-lg ${
+                            message.sender === 'user'
+                              ? 'bg-white/20'
+                              : 'bg-gray-100 dark:bg-gray-700'
                           }`}>
-                            {(message.fileSize / 1024).toFixed(1)} KB
-                          </p>
-                        )}
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{message.fileName}</p>
+                            {message.fileSize && (
+                              <p className={`text-xs ${
+                                message.sender === 'user' ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'
+                              }`}>
+                                {(message.fileSize / 1024).toFixed(1)} KB
+                              </p>
+                            )}
+                          </div>
+                          <Download className="w-4 h-4 flex-shrink-0" />
+                        </a>
                       </div>
-                      <Download className="w-4 h-4 flex-shrink-0" />
-                    </a>
-                    <div className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                      <div className={`px-3 py-1.5 -mx-px -mb-px ${
+                        message.sender === 'user'
+                          ? 'bg-[#C91C43]'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`}>
+                        <span className={`text-[10px] ${
+                          message.sender === 'user' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                        </span>
+                      </div>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-sm">{message.content}</p>
-                    <div className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                  ) : (
+                    <div className="flex flex-col">
+                      <div className="px-4 pt-2 pb-2">
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+                      <div className={`px-3 py-1.5 -mx-px -mb-px ${
+                        message.sender === 'user'
+                          ? 'bg-[#C91C43]'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`}>
+                        <span className={`text-[10px] ${
+                          message.sender === 'user' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                        </span>
+                      </div>
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            </React.Fragment>
           ))}
           {isTyping && (
             <div className="flex items-end space-x-2">
