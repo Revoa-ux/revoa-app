@@ -412,13 +412,13 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-dark-hover dark:to-gray-700'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                           }`}>
                             <div className={`absolute inset-0 ${
                               message.sender === 'team'
-                                ? 'bg-black/5'
-                                : 'bg-black/3 dark:bg-white/3'
+                                ? 'bg-black/3'
+                                : ''
                             }`} />
                             <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -449,13 +449,13 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-dark-hover dark:to-gray-700'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                           }`}>
                             <div className={`absolute inset-0 ${
                               message.sender === 'team'
-                                ? 'bg-black/5'
-                                : 'bg-black/3 dark:bg-white/3'
+                                ? 'bg-black/3'
+                                : ''
                             }`} />
                             <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -471,13 +471,13 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-dark-hover dark:to-gray-700'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                           }`}>
                             <div className={`absolute inset-0 ${
                               message.sender === 'team'
-                                ? 'bg-black/5'
-                                : 'bg-black/3 dark:bg-white/3'
+                                ? 'bg-black/3'
+                                : ''
                             }`} />
                             <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
