@@ -411,10 +411,10 @@ const AdminChat = () => {
                               <p className="text-sm">{message.content}</p>
                             </div>
                           )}
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
+                          <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
-                              : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -443,10 +443,10 @@ const AdminChat = () => {
                               </a>
                             </div>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
+                          <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
-                              : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -460,10 +460,10 @@ const AdminChat = () => {
                           <div className="px-3 pt-2 pb-1.5">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
+                          <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
-                              : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
