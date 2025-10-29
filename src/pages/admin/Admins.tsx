@@ -115,7 +115,7 @@ export default function AdminManage() {
       <div className="grid grid-cols-4 gap-6">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
             {renderChangeIndicator(12.5)}
@@ -128,7 +128,7 @@ export default function AdminManage() {
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
             {renderChangeIndicator(-8.3)}
@@ -139,7 +139,7 @@ export default function AdminManage() {
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
             {renderChangeIndicator(15.7)}
@@ -150,7 +150,7 @@ export default function AdminManage() {
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gray-100 rounded-lg">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
             {renderChangeIndicator(23.4)}
@@ -182,7 +182,7 @@ export default function AdminManage() {
             <div key={admin.id} className="px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       {admin.name.charAt(0)}
                     </span>

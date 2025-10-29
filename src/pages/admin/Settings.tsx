@@ -115,7 +115,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <UserPlus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -141,7 +141,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <MessageSquare className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -202,7 +202,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -228,7 +228,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <SettingsIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -263,7 +263,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -289,7 +289,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -324,7 +324,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <Calendar className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -350,7 +350,7 @@ export default function AdminSettings() {
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                   <BarChart3 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
