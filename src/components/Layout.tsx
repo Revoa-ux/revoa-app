@@ -146,19 +146,27 @@ export default function Layout() {
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
+                const isComingSoon = item.name === 'Find Products';
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     className={cn(
-                      'flex items-center px-3 py-2 text-[13px] rounded-lg transition-colors',
+                      'flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors',
                       isActive
                         ? 'bg-gray-900 text-white dark:bg-gray-600 dark:text-white font-medium'
                         : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     )}
                   >
-                    <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-                    {item.name}
+                    <div className="flex items-center">
+                      <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                      {item.name}
+                    </div>
+                    {isComingSoon && (
+                      <span className="px-2 py-0.5 text-[10px] font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
+                        Soon
+                      </span>
+                    )}
                   </Link>
                 );
               })}

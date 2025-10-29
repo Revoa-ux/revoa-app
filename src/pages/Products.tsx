@@ -644,9 +644,14 @@ const Products: React.FC = () => {
   return (
     <div className="max-w-[1600px] mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Products
-        </h1>
+        <div className="flex items-center space-x-3 mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white">
+            Products
+          </h1>
+          <span className="px-3 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
+            Coming Soon
+          </span>
+        </div>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -655,7 +660,7 @@ const Products: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between blur-sm pointer-events-none select-none">
         <div className="flex items-center space-x-4">
           <div className="relative w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -687,7 +692,7 @@ const Products: React.FC = () => {
               </div>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
-            
+
             {showCategoryDropdown && (
               <div className="absolute z-50 w-[180px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {categories.map((category) => (
@@ -720,7 +725,7 @@ const Products: React.FC = () => {
               </div>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
-            
+
             {showSortDropdown && (
               <div className="absolute z-50 w-[180px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {sortOptions.map((option) => (
@@ -737,7 +742,7 @@ const Products: React.FC = () => {
                   >
                     <span>{option.label}</span>
                     {sortConfig.field === option.field && (
-                      sortConfig.direction === 'asc' ? 
+                      sortConfig.direction === 'asc' ?
                         <ArrowUp className="w-4 h-4 text-primary-500" /> :
                         <ArrowDown className="w-4 h-4 text-primary-500" />
                     )}
@@ -759,53 +764,55 @@ const Products: React.FC = () => {
           <p className="text-gray-500 dark:text-gray-400">No products found</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {sortedProducts.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200"
-          >
-            <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="p-4">
-              <div className="mb-3">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">{product.name}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{product.category}</p>
+        <div className="relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 blur-sm pointer-events-none select-none">
+            {sortedProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200"
+            >
+              <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Your Cost</span>
-                  <p className="font-medium text-gray-900 dark:text-white">${product.cost}</p>
+              <div className="p-4">
+                <div className="mb-3">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">{product.name}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{product.category}</p>
                 </div>
-                <div>
-                  <span className="text-gray-500 dark:text-gray-400">Sell For</span>
-                  <p className="font-medium text-gray-900 dark:text-white">${product.recommendedPrice}</p>
-                </div>
-              </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => setSelectedProduct(product)}
-                    className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                  >
-                    See Details
-                  </button>
-                  <div className="text-xs font-medium text-gray-900 dark:text-white">
-                    {((product.recommendedPrice - product.cost) / product.recommendedPrice * 100).toFixed(1)}% margin
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Your Cost</span>
+                    <p className="font-medium text-gray-900 dark:text-white">${product.cost}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 dark:text-gray-400">Sell For</span>
+                    <p className="font-medium text-gray-900 dark:text-white">${product.recommendedPrice}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={() => setSelectedProduct(product)}
+                      className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                    >
+                      See Details
+                    </button>
+                    <div className="text-xs font-medium text-gray-900 dark:text-white">
+                      {((product.recommendedPrice - product.cost) / product.recommendedPrice * 100).toFixed(1)}% margin
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            ))}
           </div>
-          ))}
         </div>
       )}
 
