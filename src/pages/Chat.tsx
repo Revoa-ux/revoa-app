@@ -447,7 +447,7 @@ const Chat = () => {
                 <div className={`flex ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} ${
                   message.type === 'text' ? 'items-end gap-2' : 'items-start gap-0.5'
                 }`}>
-                  <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
+                  <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-md'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
                       : 'message-bubble-team text-gray-900 dark:text-white'
