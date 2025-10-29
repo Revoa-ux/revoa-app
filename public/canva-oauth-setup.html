@@ -179,7 +179,7 @@
             const state = Math.random().toString(36).substring(7);
             sessionStorage.setItem('canva_oauth_state', state);
 
-            const scope = 'asset:read asset:write design:content:read design:content:write';
+            const scope = 'asset:read asset:write';
             const authUrl = `https://www.canva.com/api/oauth/authorize?` +
                 `response_type=code&` +
                 `client_id=${encodeURIComponent(CLIENT_ID)}&` +
