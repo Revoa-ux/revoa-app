@@ -359,21 +359,23 @@ const Chat = () => {
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-[70%] break-words ${
-                message.type === 'image'
-                  ? 'bg-transparent'
-                  : message.sender === 'user'
+                message.sender === 'user'
                   ? 'message-bubble-user text-white'
                   : 'message-bubble-team text-gray-900 dark:text-white'
               } rounded-lg px-4 py-2`}>
                 {message.type === 'image' && message.fileUrl ? (
                   <div className="space-y-2">
-                    <img
-                      src={message.fileUrl}
-                      alt={message.fileName || 'Uploaded image'}
-                      className="max-w-full rounded-lg max-h-64 object-cover"
-                    />
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{message.fileName}</p>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-1">
+                      <img
+                        src={message.fileUrl}
+                        alt={message.fileName || 'Uploaded image'}
+                        className="max-w-full rounded-lg max-h-64 object-cover"
+                      />
+                    </div>
+                    <p className="text-sm">{message.fileName}</p>
+                    <div className={`text-xs ${
+                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
+                    }`}>
                       {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                     </div>
                   </div>
