@@ -404,22 +404,22 @@ const Chat = () => {
                 } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
-                      <div className="w-full">
+                      <div className="p-2">
                         <img
                           src={message.fileUrl}
                           alt={message.fileName || 'Uploaded image'}
-                          className="w-full rounded-t-lg max-h-96 object-cover"
+                          className="w-full rounded-lg max-h-96 object-cover"
                         />
                       </div>
                       {message.content && message.content !== message.fileName && (
-                        <div className="px-3 py-2">
+                        <div className="px-3 pb-2">
                           <p className="text-sm">{message.content}</p>
                         </div>
                       )}
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
-                          : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                          ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
+                          : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -458,8 +458,8 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
-                          : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                          ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
+                          : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
@@ -475,8 +475,8 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
-                          : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
+                          ? 'bg-gradient-to-br from-red-600/90 to-rose-600/90 justify-end'
+                          : 'bg-gradient-to-br from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                       }`}>
                         <span className={`text-[8px] leading-none ${
                           message.sender === 'user' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
