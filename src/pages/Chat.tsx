@@ -14,7 +14,8 @@ import {
   Send,
   FileText,
   Image as ImageIcon,
-  X
+  X,
+  Reply
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -82,6 +83,8 @@ const Chat = () => {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [messageActionsOpen, setMessageActionsOpen] = useState<string | null>(null);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -538,13 +541,40 @@ const Chat = () => {
                   )}
                   </div>
                   {message.sender === 'user' && (
-                    <button
-                      onClick={() => openDeleteModal(message.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0 mb-1"
-                      title="Delete message"
-                    >
-                      <Trash2 className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                    </button>
+                    <div className="relative mb-1">
+                      <button
+                        onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
+                        title="Message actions"
+                      >
+                        <MoreVertical className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      </button>
+                      {messageActionsOpen === message.id && (
+                        <div className="absolute right-0 bottom-full mb-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 min-w-[140px]">
+                          <button
+                            onClick={() => {
+                              setReplyToMessage(message);
+                              setMessageActionsOpen(null);
+                              textareaRef.current?.focus();
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                          >
+                            <Reply className="w-4 h-4" />
+                            Reply
+                          </button>
+                          <button
+                            onClick={() => {
+                              openDeleteModal(message.id);
+                              setMessageActionsOpen(null);
+                            }}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -574,6 +604,23 @@ const Chat = () => {
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
             <div className="min-h-[44px] p-3">
+              {replyToMessage && (
+                <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded flex items-start gap-2">
+                  <Reply className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Replying to your message</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                      {replyToMessage.type === 'text' ? replyToMessage.content : `${replyToMessage.type} message`}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setReplyToMessage(null)}
+                    className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded transition-colors flex-shrink-0"
+                  >
+                    <X className="w-4 h-4 text-blue-500" />
+                  </button>
+                </div>
+              )}
               {selectedFile && (
                 <div className="mb-2 p-2 bg-white dark:bg-gray-600 rounded-lg flex items-center gap-2">
                   {filePreview ? (
