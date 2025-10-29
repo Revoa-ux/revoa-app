@@ -359,7 +359,9 @@ const Chat = () => {
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`max-w-[70%] break-words ${
-                message.sender === 'user'
+                message.type === 'image'
+                  ? 'bg-transparent'
+                  : message.sender === 'user'
                   ? 'message-bubble-user text-white'
                   : 'message-bubble-team text-gray-900 dark:text-white'
               } rounded-lg px-4 py-2`}>
@@ -370,41 +372,53 @@ const Chat = () => {
                       alt={message.fileName || 'Uploaded image'}
                       className="max-w-full rounded-lg max-h-64 object-cover"
                     />
-                    <p className="text-sm">{message.fileName}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">{message.fileName}</p>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                    </div>
                   </div>
                 ) : message.type === 'file' && message.fileUrl ? (
-                  <a
-                    href={message.fileUrl}
-                    download={message.fileName}
-                    className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-                  >
-                    <div className={`p-2 rounded-lg ${
-                      message.sender === 'user'
-                        ? 'bg-white/20'
-                        : 'bg-gray-100 dark:bg-gray-700'
+                  <>
+                    <a
+                      href={message.fileUrl}
+                      download={message.fileName}
+                      className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                    >
+                      <div className={`p-2 rounded-lg ${
+                        message.sender === 'user'
+                          ? 'bg-white/20'
+                          : 'bg-gray-100 dark:bg-gray-700'
+                      }`}>
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{message.fileName}</p>
+                        {message.fileSize && (
+                          <p className={`text-xs ${
+                            message.sender === 'user' ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'
+                          }`}>
+                            {(message.fileSize / 1024).toFixed(1)} KB
+                          </p>
+                        )}
+                      </div>
+                      <Download className="w-4 h-4 flex-shrink-0" />
+                    </a>
+                    <div className={`text-xs mt-1 ${
+                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
                     }`}>
-                      <FileText className="w-5 h-5" />
+                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{message.fileName}</p>
-                      {message.fileSize && (
-                        <p className={`text-xs ${
-                          message.sender === 'user' ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'
-                        }`}>
-                          {(message.fileSize / 1024).toFixed(1)} KB
-                        </p>
-                      )}
-                    </div>
-                    <Download className="w-4 h-4 flex-shrink-0" />
-                  </a>
+                  </>
                 ) : (
-                  <p className="text-sm">{message.content}</p>
+                  <>
+                    <p className="text-sm">{message.content}</p>
+                    <div className={`text-xs mt-1 ${
+                      message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                    </div>
+                  </>
                 )}
-                <div className={`text-xs mt-1 ${
-                  message.sender === 'user' ? 'text-gray-400' : 'text-gray-500 dark:text-gray-400'
-                }`}>
-                  {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                </div>
               </div>
             </div>
           ))}

@@ -354,42 +354,54 @@ const AdminChat = () => {
                   className={`flex ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`max-w-[70%] break-words ${
-                    message.sender === 'team'
+                    message.type === 'image'
+                      ? 'bg-transparent'
+                      : message.sender === 'team'
                       ? 'message-bubble-user text-white'
-                      : 'message-bubble-team text-gray-900'
+                      : 'message-bubble-team text-gray-900 dark:text-white'
                   } rounded-lg px-4 py-2`}>
                     {message.type === 'image' && message.fileUrl ? (
                       <div className="space-y-2">
                         <img
                           src={message.fileUrl}
                           alt={message.fileName || 'Uploaded image'}
-                          className="max-w-full h-auto rounded-lg"
+                          className="max-w-full rounded-lg max-h-64 object-cover"
                         />
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{message.fileName}</p>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
                     ) : message.type === 'file' && message.fileUrl ? (
-                      <div className="flex items-center space-x-2 bg-white dark:bg-gray-800/10 rounded-lg p-2">
-                        <FileText className="w-5 h-5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{message.fileName}</p>
-                          <p className="text-xs opacity-80">
-                            {message.fileSize ? `${(message.fileSize / 1024).toFixed(1)} KB` : ''}
-                          </p>
+                      <>
+                        <div className="flex items-center space-x-2 bg-white/20 dark:bg-gray-800/20 rounded-lg p-2">
+                          <FileText className="w-5 h-5" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{message.fileName}</p>
+                            <p className="text-xs opacity-80">
+                              {message.fileSize ? `${(message.fileSize / 1024).toFixed(1)} KB` : ''}
+                            </p>
+                          </div>
+                          <a
+                            href={message.fileUrl}
+                            download={message.fileName}
+                            className="p-1 hover:bg-white/20 dark:hover:bg-gray-800/30 rounded transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
                         </div>
-                        <a
-                          href={message.fileUrl}
-                          download={message.fileName}
-                          className="p-1 hover:bg-white dark:bg-gray-800/20 rounded transition-colors"
-                        >
-                          <Download className="w-4 h-4" />
-                        </a>
-                      </div>
+                        <p className="text-xs opacity-70 mt-1">
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </>
                     ) : (
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <>
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </>
                     )}
-                    <p className="text-xs opacity-70 mt-1">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
                   </div>
                 </div>
               ))}
