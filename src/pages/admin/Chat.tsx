@@ -410,12 +410,12 @@ const AdminChat = () => {
                           <div className="px-3 pb-2">
                             <p className="text-sm mb-1">{message.fileName}</p>
                           </div>
-                          <div className={`px-2 py-0.5 -mx-px -mb-px ${
+                          <div className={`px-2 py-px -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
                               ? 'bg-rose-700'
                               : 'bg-gray-300 dark:bg-gray-600'
                           }`}>
-                            <span className={`text-[8px] ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -442,12 +442,12 @@ const AdminChat = () => {
                               </a>
                             </div>
                           </div>
-                          <div className={`px-2 py-0.5 -mx-px -mb-px ${
+                          <div className={`px-2 py-px -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
                               ? 'bg-rose-700'
                               : 'bg-gray-300 dark:bg-gray-600'
                           }`}>
-                            <span className={`text-[8px] ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -459,12 +459,12 @@ const AdminChat = () => {
                           <div className="px-4 pt-2 pb-2">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <div className={`px-2 py-0.5 -mx-px -mb-px ${
+                          <div className={`px-2 py-px -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
                               ? 'bg-rose-700'
                               : 'bg-gray-300 dark:bg-gray-600'
                           }`}>
-                            <span className={`text-[8px] ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
