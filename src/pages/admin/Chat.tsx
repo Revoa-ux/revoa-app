@@ -410,12 +410,17 @@ const AdminChat = () => {
                           <div className="px-3 pb-2">
                             <p className="text-sm mb-1">{message.fileName}</p>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center justify-center ${
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-b from-primary-500/80 to-primary-600/90'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
+                              : 'bg-gray-100 dark:bg-dark-hover'
                           }`}>
-                            <span className={`text-[8px] leading-none ${
+                            <div className={`absolute inset-0 ${
+                              message.sender === 'team'
+                                ? 'bg-black/10'
+                                : 'bg-black/5 dark:bg-white/5'
+                            }`} />
+                            <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -442,12 +447,17 @@ const AdminChat = () => {
                               </a>
                             </div>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center justify-center ${
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-b from-primary-500/80 to-primary-600/90'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
+                              : 'bg-gray-100 dark:bg-dark-hover'
                           }`}>
-                            <span className={`text-[8px] leading-none ${
+                            <div className={`absolute inset-0 ${
+                              message.sender === 'team'
+                                ? 'bg-black/10'
+                                : 'bg-black/5 dark:bg-white/5'
+                            }`} />
+                            <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -459,12 +469,17 @@ const AdminChat = () => {
                           <div className="px-4 pt-2 pb-2">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center justify-center ${
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-b from-primary-500/80 to-primary-600/90'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A]'
+                              : 'bg-gray-100 dark:bg-dark-hover'
                           }`}>
-                            <span className={`text-[8px] leading-none ${
+                            <div className={`absolute inset-0 ${
+                              message.sender === 'team'
+                                ? 'bg-black/10'
+                                : 'bg-black/5 dark:bg-white/5'
+                            }`} />
+                            <span className={`text-[8px] leading-none relative z-10 ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
