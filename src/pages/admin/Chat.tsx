@@ -243,12 +243,12 @@ const AdminChat = () => {
               <button
                 key={chat.id}
                 onClick={() => setSelectedChat(chat)}
-                className={`w-full p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors text-left ${
-                  selectedChat?.id === chat.id ? 'bg-gray-50' : ''
+                className={`w-full p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left ${
+                  selectedChat?.id === chat.id ? 'bg-gray-50 dark:bg-gray-700' : ''
                 }`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                     <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div className="flex-1 min-w-0">
