@@ -314,7 +314,7 @@ export default function Users() {
                 ))
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}>
+                  <tr key={user.id} className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-900/30'}>
                     <td className="px-4 py-4">
                       <div className="flex items-center">
                         <input
