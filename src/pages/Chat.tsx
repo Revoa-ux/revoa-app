@@ -13,7 +13,8 @@ import {
   Smile,
   Send,
   FileText,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -21,7 +22,6 @@ import { Message } from '@/types/chat';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { useAuth } from '@/contexts/AuthContext';
 import { chatService, Chat as ChatType } from '@/lib/chatService';
-import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
@@ -78,7 +78,8 @@ const Chat = () => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -160,8 +161,8 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (!newMessage.trim() && attachments.length === 0) return;
-    if (!chat) {
+    if (!newMessage.trim() && !selectedFile) return;
+    if (!chat || !user) {
       toast.error('Chat not initialized');
       return;
     }
@@ -172,6 +173,34 @@ const Chat = () => {
       textareaRef.current.style.height = '24px';
     }
 
+    // Handle file upload if present
+    if (selectedFile) {
+      try {
+        toast.info('Uploading file...');
+        const savedMessage = await chatService.sendFileMessage(
+          chat.id,
+          selectedFile,
+          'user',
+          user.id,
+          messageText || undefined
+        );
+
+        if (savedMessage) {
+          setMessages(prev => [...prev, savedMessage]);
+          setSelectedFile(null);
+          setFilePreview(null);
+          toast.success('File sent successfully');
+        } else {
+          toast.error('Failed to send file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.error('Failed to send file');
+      }
+      return;
+    }
+
+    // Handle text message
     const tempMessage: Message = {
       id: Date.now().toString(),
       content: messageText,
@@ -203,33 +232,43 @@ const Chat = () => {
     }
   };
 
-  const handleFileUpload = async (file: File, messageText?: string) => {
-    if (!chat || !user) {
-      toast.error('Chat not initialized');
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!window.confirm('Are you sure you want to delete this message?')) {
       return;
     }
 
-    try {
-      toast.info('Uploading file...');
+    const success = await chatService.deleteMessage(messageId);
+    if (success) {
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      toast.success('Message deleted');
+    } else {
+      toast.error('Failed to delete message');
+    }
+  };
 
-      const savedMessage = await chatService.sendFileMessage(
-        chat.id,
-        file,
-        'user',
-        user.id,
-        messageText
-      );
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-      if (savedMessage) {
-        setMessages(prev => [...prev, savedMessage]);
-        setShowUploadModal(false);
-        toast.success('File sent successfully');
-      } else {
-        toast.error('Failed to send file');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      toast.error('Failed to send file');
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setFilePreview(url);
+    } else {
+      setFilePreview(null);
+    }
+
+    // Reset the input so the same file can be selected again
+    event.target.value = '';
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview);
+      setFilePreview(null);
     }
   };
 
@@ -395,13 +434,14 @@ const Chat = () => {
               )}
               <div
                 ref={el => messageRefs.current[message.id] = el}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[70%] break-words ${
-                  message.sender === 'user'
-                    ? 'message-bubble-user text-white'
-                    : 'message-bubble-team text-gray-900 dark:text-white'
-                } rounded-lg overflow-hidden`}>
+                <div className={`flex items-end gap-2 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div className={`max-w-[70%] break-words ${
+                    message.sender === 'user'
+                      ? 'message-bubble-user text-white'
+                      : 'message-bubble-team text-gray-900 dark:text-white'
+                  } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
                       <div className="p-2">
@@ -486,6 +526,14 @@ const Chat = () => {
                       </div>
                     </div>
                   )}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteMessage(message.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg"
+                    title="Delete message"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  </button>
                 </div>
               </div>
             </React.Fragment>
@@ -514,23 +562,49 @@ const Chat = () => {
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
             <div className="min-h-[44px] p-3">
+              {selectedFile && (
+                <div className="mb-2 p-2 bg-white dark:bg-gray-600 rounded-lg flex items-center gap-2">
+                  {filePreview ? (
+                    <img src={filePreview} alt="Preview" className="w-12 h-12 rounded object-cover" />
+                  ) : (
+                    <FileText className="w-12 h-12 text-gray-400" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                  <button
+                    onClick={handleRemoveFile}
+                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  </button>
+                </div>
+              )}
               <textarea
                 ref={textareaRef}
                 value={newMessage}
                 onChange={handleTyping}
                 onKeyDown={handleKeyPress}
-                placeholder="Type a message..."
+                placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message..."}
                 className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
                 style={{
                   height: '24px',
                   overflowY: 'hidden'
                 }}
               />
-              
+
               <div className="flex items-center justify-between mt-1">
                 <div className="flex items-center space-x-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileSelect}
+                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+                    className="hidden"
+                  />
                   <button
-                    onClick={() => setShowUploadModal(true)}
+                    onClick={() => fileInputRef.current?.click()}
                     className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                   >
                     <Paperclip className="w-5 h-5" />
@@ -558,10 +632,10 @@ const Chat = () => {
 
                 <button
                   onClick={handleSend}
-                  disabled={!newMessage.trim()}
+                  disabled={!newMessage.trim() && !selectedFile}
                   className="p-2 rounded-lg transition-all disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center"
                 >
-                  {newMessage.trim() ? (
+                  {(newMessage.trim() || selectedFile) ? (
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <defs>
                         <linearGradient id="sendGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -618,12 +692,6 @@ const Chat = () => {
         </Modal>
       )}
 
-      {showUploadModal && (
-        <FileUploadModal
-          onClose={() => setShowUploadModal(false)}
-          onUpload={handleFileUpload}
-        />
-      )}
     </div>
   );
 };

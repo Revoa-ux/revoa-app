@@ -218,6 +218,7 @@ export const chatService = {
       .from('messages')
       .select('*')
       .eq('chat_id', chatId)
+      .is('deleted_at', null)
       .order('timestamp', { ascending: true });
 
     if (error) {
@@ -327,6 +328,23 @@ export const chatService = {
       .from('chats')
       .update({ [field]: 0 })
       .eq('id', chatId);
+  },
+
+  async deleteMessage(messageId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('messages')
+      .update({
+        deleted_at: new Date().toISOString(),
+        deleted_by: (await supabase.auth.getUser()).data.user?.id
+      })
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Error deleting message:', error);
+      return false;
+    }
+
+    return true;
   },
 
   subscribeToMessages(chatId: string, callback: (message: Message) => void) {
