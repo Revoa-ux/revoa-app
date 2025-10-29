@@ -197,6 +197,20 @@ const AdminChat = () => {
     }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!window.confirm('Are you sure you want to delete this message?')) {
+      return;
+    }
+
+    const success = await chatService.deleteMessage(messageId);
+    if (success) {
+      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      toast.success('Message deleted');
+    } else {
+      toast.error('Failed to delete message');
+    }
+  };
+
   const handleFileUpload = async (file: File, messageText?: string) => {
     if (!selectedChat || !user) {
       toast.error('No chat selected');
@@ -390,13 +404,14 @@ const AdminChat = () => {
                   )}
                   <div
                     ref={el => messageRefs.current[message.id] = el}
-                    className={`flex ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`max-w-[70%] break-words ${
-                      message.sender === 'team'
-                        ? 'message-bubble-user text-white'
-                        : 'message-bubble-team text-gray-900 dark:text-white'
-                    } rounded-lg overflow-hidden`}>
+                    <div className={`flex items-end gap-1 ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div className={`max-w-[70%] break-words ${
+                        message.sender === 'team'
+                          ? 'message-bubble-user text-white'
+                          : 'message-bubble-team text-gray-900 dark:text-white'
+                      } rounded-lg overflow-hidden`}>
                       {message.type === 'image' && message.fileUrl ? (
                         <div className="flex flex-col">
                           <div className="p-2">
@@ -413,7 +428,7 @@ const AdminChat = () => {
                           )}
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              ? 'bg-[#e83653] justify-end'
                               : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
@@ -445,7 +460,7 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              ? 'bg-[#e83653] justify-end'
                               : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
@@ -462,7 +477,7 @@ const AdminChat = () => {
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                              ? 'bg-[#e83653] justify-end'
                               : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
@@ -472,6 +487,16 @@ const AdminChat = () => {
                             </span>
                           </div>
                         </div>
+                      )}
+                      </div>
+                      {message.sender === 'team' && (
+                        <button
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                          title="Delete message"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+                        </button>
                       )}
                     </div>
                   </div>

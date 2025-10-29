@@ -436,7 +436,7 @@ const Chat = () => {
                 ref={el => messageRefs.current[message.id] = el}
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex items-end gap-2 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex items-end gap-1 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`max-w-[70%] break-words ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
@@ -458,7 +458,7 @@ const Chat = () => {
                       )}
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                          ? 'bg-[#e83653] justify-end'
                           : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                       }`}>
                         <span className={`text-[8px] leading-none ${
@@ -498,7 +498,7 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                          ? 'bg-[#e83653] justify-end'
                           : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                       }`}>
                         <span className={`text-[8px] leading-none ${
@@ -515,7 +515,7 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-br from-red-500 via-red-600 to-rose-600 justify-end'
+                          ? 'bg-[#e83653] justify-end'
                           : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                       }`}>
                         <span className={`text-[8px] leading-none ${
@@ -527,13 +527,15 @@ const Chat = () => {
                     </div>
                   )}
                   </div>
-                  <button
-                    onClick={() => handleDeleteMessage(message.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg"
-                    title="Delete message"
-                  >
-                    <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                  </button>
+                  {message.sender === 'user' && (
+                    <button
+                      onClick={() => handleDeleteMessage(message.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                      title="Delete message"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+                    </button>
+                  )}
                 </div>
               </div>
             </React.Fragment>
