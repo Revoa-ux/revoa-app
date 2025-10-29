@@ -293,7 +293,8 @@ export const chatService = {
     chatId: string,
     file: File,
     sender: 'user' | 'team',
-    userId: string
+    userId: string,
+    messageContent?: string
   ): Promise<Message | null> {
     const fileUrl = await uploadChatFile(file, userId);
 
@@ -303,9 +304,12 @@ export const chatService = {
 
     const fileType = file.type.startsWith('image/') ? 'image' : 'file';
 
+    // Use custom message content if provided, otherwise use filename
+    const content = messageContent || file.name;
+
     return this.sendMessage(
       chatId,
-      file.name,
+      content,
       fileType as 'image' | 'file',
       sender,
       {

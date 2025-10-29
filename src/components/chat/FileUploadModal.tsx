@@ -6,7 +6,7 @@ import Modal from '../Modal';
 
 interface FileUploadModalProps {
   onClose: () => void;
-  onUpload: (file: File) => void;
+  onUpload: (file: File, messageText?: string) => void;
 }
 
 export const FileUploadModal: React.FC<FileUploadModalProps> = ({
@@ -15,15 +15,28 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [messageText, setMessageText] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     setError(null);
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  }, []);
+
+  const handleSend = async () => {
+    if (!selectedFile) return;
 
     try {
-      // Process file
       setIsProcessing(true);
-      onUpload(file);
+      onUpload(selectedFile, messageText.trim() || undefined);
     } catch (error) {
       console.error('Error processing file:', error);
       setError(error instanceof Error ? error.message : 'Failed to process file');
@@ -31,7 +44,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [onUpload]);
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -58,25 +71,20 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Upload File"
+      title={selectedFile ? 'Send File' : 'Upload File'}
     >
       <div className="space-y-4">
-        <div
-          {...getRootProps()}
-          className={`p-8 border-2 border-dashed rounded-lg text-center transition-colors ${
-            isDragActive
-              ? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/10'
-              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-          }`}
-        >
-          <input {...getInputProps()} />
-          {isProcessing ? (
-            <div>
-              <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Processing file...</p>
-            </div>
-          ) : (
-            <>
+        {!selectedFile ? (
+          <>
+            <div
+              {...getRootProps()}
+              className={`p-8 border-2 border-dashed rounded-lg text-center transition-colors ${
+                isDragActive
+                  ? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/10'
+                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+              }`}
+            >
+              <input {...getInputProps()} />
               <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {isDragActive
@@ -86,9 +94,89 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                 Supported files: Excel (.xls, .xlsx), PDF, Images, Word documents
               </p>
-            </>
-          )}
-        </div>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <FileText className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Excel Files</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">XLS, XLSX up to 10MB</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <FileText className="w-5 h-5 text-red-500 dark:text-red-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Other Files</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, DOCX, Images up to 25MB</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {previewUrl && (
+              <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="w-full max-h-64 object-contain bg-gray-50 dark:bg-gray-900"
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Add a message (optional)
+              </label>
+              <textarea
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                placeholder="Add a caption or message..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400 resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <FileText className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{selectedFile.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {(selectedFile.size / 1024).toFixed(1)} KB
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setSelectedFile(null);
+                  setPreviewUrl(null);
+                  setMessageText('');
+                }}
+                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                disabled={isProcessing}
+              >
+                Change File
+              </button>
+              <button
+                onClick={handleSend}
+                disabled={isProcessing}
+                className="flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 rounded-lg hover:from-red-600 hover:to-pink-700 transition-colors disabled:opacity-50"
+              >
+                {isProcessing ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </>
+        )}
 
         {error && (
           <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-800 rounded-lg">
@@ -101,28 +189,6 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({
             </div>
           </div>
         )}
-
-        <div className="mt-6 space-y-4">
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <FileText className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Excel Files</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">XLS, XLSX up to 10MB</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <FileText className="w-5 h-5 text-red-500 dark:text-red-400" />
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Other Files</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">PDF, DOC, DOCX, Images up to 25MB</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </Modal>
   );

@@ -197,7 +197,7 @@ const AdminChat = () => {
     }
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, messageText?: string) => {
     if (!selectedChat || !user) {
       toast.error('No chat selected');
       return;
@@ -210,7 +210,8 @@ const AdminChat = () => {
         selectedChat.id,
         file,
         'team',
-        user.id
+        user.id,
+        messageText
       );
 
       if (savedMessage) {
@@ -398,29 +399,24 @@ const AdminChat = () => {
                     } rounded-lg overflow-hidden`}>
                       {message.type === 'image' && message.fileUrl ? (
                         <div className="flex flex-col">
-                          <div className="p-1">
-                            <div className="bg-gray-800/10 dark:bg-gray-900/30 rounded-lg p-1">
-                              <img
-                                src={message.fileUrl}
-                                alt={message.fileName || 'Uploaded image'}
-                                className="max-w-full rounded-md max-h-64 object-cover"
-                              />
+                          <div className="w-full">
+                            <img
+                              src={message.fileUrl}
+                              alt={message.fileName || 'Uploaded image'}
+                              className="w-full rounded-t-lg max-h-96 object-cover"
+                            />
+                          </div>
+                          {message.content && message.content !== message.fileName && (
+                            <div className="px-3 py-2">
+                              <p className="text-sm">{message.content}</p>
                             </div>
-                          </div>
-                          <div className="px-3 pb-2">
-                            <p className="text-sm mb-1">{message.fileName}</p>
-                          </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
+                          )}
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
+                              : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                           }`}>
-                            <div className={`absolute inset-0 ${
-                              message.sender === 'team'
-                                ? 'bg-white/5'
-                                : ''
-                            }`} />
-                            <span className={`text-[8px] leading-none relative z-10 ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -447,17 +443,12 @@ const AdminChat = () => {
                               </a>
                             </div>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
+                              : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                           }`}>
-                            <div className={`absolute inset-0 ${
-                              message.sender === 'team'
-                                ? 'bg-white/5'
-                                : ''
-                            }`} />
-                            <span className={`text-[8px] leading-none relative z-10 ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -469,17 +460,12 @@ const AdminChat = () => {
                           <div className="px-3 pt-2 pb-1.5">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
+                          <div className={`px-2 py-1 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
-                              ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
-                              : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
+                              ? 'bg-gradient-to-r from-red-600/90 to-rose-600/90 justify-end'
+                              : 'bg-gradient-to-r from-gray-200/90 to-gray-300/90 dark:from-gray-700/90 dark:to-gray-600/90'
                           }`}>
-                            <div className={`absolute inset-0 ${
-                              message.sender === 'team'
-                                ? 'bg-white/5'
-                                : ''
-                            }`} />
-                            <span className={`text-[8px] leading-none relative z-10 ${
+                            <span className={`text-[8px] leading-none ${
                               message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

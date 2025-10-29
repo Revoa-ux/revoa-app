@@ -9,7 +9,7 @@ import { read, utils } from 'xlsx';
 
 interface ChatInputProps {
   onSendMessage: (content: string, type?: Message['type']) => void;
-  onSendFile: (file: File) => void;
+  onSendFile: (file: File, messageText?: string) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
