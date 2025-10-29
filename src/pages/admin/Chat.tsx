@@ -8,7 +8,7 @@ import {
   Download,
   MessageSquare,
   Search,
-  MoreVertical,
+  MoreHorizontal,
   Paperclip,
   Smile,
   Send,
@@ -88,8 +88,10 @@ const AdminChat = () => {
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messageActionsRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(moreMenuRef, () => setShowMoreMenu(false));
+  useClickOutside(messageActionsRef, () => setMessageActionsOpen(null));
 
   useEffect(() => {
     if (!user) return;
@@ -503,28 +505,31 @@ const AdminChat = () => {
                         </div>
                       )}
                       </div>
-                      {message.sender === 'team' && (
-                        <div className="relative mb-1">
-                          <button
-                            onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
-                            title="Message actions"
+                      <div className="relative mt-1 self-start">
+                        <button
+                          onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
+                          title="Message actions"
+                        >
+                          <MoreHorizontal className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                        </button>
+                        {messageActionsOpen === message.id && (
+                          <div
+                            ref={messageActionsRef}
+                            className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 min-w-[140px]"
                           >
-                            <MoreVertical className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                          </button>
-                          {messageActionsOpen === message.id && (
-                            <div className="absolute right-0 bottom-full mb-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 min-w-[140px]">
-                              <button
-                                onClick={() => {
-                                  setReplyToMessage(message);
-                                  setMessageActionsOpen(null);
-                                  textareaRef.current?.focus();
-                                }}
-                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
-                              >
-                                <Reply className="w-4 h-4" />
-                                Reply
-                              </button>
+                            <button
+                              onClick={() => {
+                                setReplyToMessage(message);
+                                setMessageActionsOpen(null);
+                                textareaRef.current?.focus();
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                            >
+                              <Reply className="w-4 h-4" />
+                              Reply
+                            </button>
+                            {message.sender === 'team' && (
                               <button
                                 onClick={() => {
                                   openDeleteModal(message.id);
@@ -535,10 +540,10 @@ const AdminChat = () => {
                                 <Trash2 className="w-4 h-4" />
                                 Delete
                               </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </React.Fragment>
@@ -562,19 +567,19 @@ const AdminChat = () => {
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                 <div className="min-h-[44px] p-3">
                   {replyToMessage && (
-                    <div className="mb-2 p-2 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded flex items-start gap-2">
-                      <Reply className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
+                      <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-blue-700 dark:text-blue-400">Replying to {replyToMessage.sender === 'user' ? 'user' : 'your'} message</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Replying to {replyToMessage.sender === 'user' ? 'user' : 'your'} message</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                           {replyToMessage.type === 'text' ? replyToMessage.content : `${replyToMessage.type} message`}
                         </p>
                       </div>
                       <button
                         onClick={() => setReplyToMessage(null)}
-                        className="p-1 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors flex-shrink-0"
                       >
-                        <X className="w-4 h-4 text-blue-500" />
+                        <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       </button>
                     </div>
                   )}
