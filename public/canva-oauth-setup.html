@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canva OAuth Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .status {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-text {
+            color: #2d3748;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success {
+            color: #48bb78;
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="initial-state">
+            <div class="icon">🎨</div>
+            <h1>Canva OAuth Setup</h1>
+            <p>Connect your Canva account to enable unlimited background removal and 2x upscaling for product images in your AI agent workflow.</p>
+
+            <div class="status">
+                <p class="status-text">This is a one-time setup. The refresh token will be securely stored in your database.</p>
+            </div>
+
+            <button class="btn" onclick="startOAuth()">
+                🚀 Connect Canva Account
+            </button>
+        </div>
+
+        <div id="processing-state" style="display: none;">
+            <div class="spinner"></div>
+            <h1>Processing...</h1>
+            <p>Exchanging authorization code for tokens...</p>
+        </div>
+
+        <div id="success-state" style="display: none;">
+            <div class="success">✓</div>
+            <h1>Success!</h1>
+            <p>Your Canva account has been connected successfully. The refresh token has been saved and your AI agent can now use Canva's API.</p>
+            <button class="btn" onclick="window.close()">Close Window</button>
+        </div>
+
+        <div id="error-state" style="display: none;">
+            <div class="icon">⚠️</div>
+            <h1>Connection Failed</h1>
+            <div class="error" id="error-message"></div>
+            <button class="btn" onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://iipaykvimkbbnoobtpzz.supabase.co';
+        const CLIENT_ID = import.meta.env.VITE_CANVA_CLIENT_ID || 'OC-AZorqyYpRAVp';
+        const REDIRECT_URI = `${window.location.origin}/canva-oauth-setup.html`;
+
+        function showState(state) {
+            document.getElementById('initial-state').style.display = 'none';
+            document.getElementById('processing-state').style.display = 'none';
+            document.getElementById('success-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'none';
+            document.getElementById(state + '-state').style.display = 'block';
+        }
+
+        function startOAuth() {
+            const state = Math.random().toString(36).substring(7);
+            sessionStorage.setItem('canva_oauth_state', state);
+
+            const scope = 'asset:read asset:write design:content:read design:content:write';
+            const authUrl = `https://www.canva.com/api/oauth/authorize?` +
+                `response_type=code&` +
+                `client_id=${encodeURIComponent(CLIENT_ID)}&` +
+                `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+                `scope=${encodeURIComponent(scope)}&` +
+                `state=${encodeURIComponent(state)}`;
+
+            window.location.href = authUrl;
+        }
+
+        async function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+            const errorDescription = urlParams.get('error_description');
+
+            if (error) {
+                showState('error');
+                document.getElementById('error-message').textContent =
+                    `Authorization failed: ${error}${errorDescription ? ' - ' + errorDescription : ''}`;
+                return;
+            }
+
+            if (!code) {
+                return;
+            }
+
+            const savedState = sessionStorage.getItem('canva_oauth_state');
+            if (state !== savedState) {
+                showState('error');
+                document.getElementById('error-message').textContent = 'Invalid state parameter. Possible CSRF attack.';
+                return;
+            }
+
+            showState('processing');
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/functions/v1/canva-oauth`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        code: code,
+                        redirect_uri: REDIRECT_URI
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to exchange code for tokens');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showState('success');
+                    sessionStorage.removeItem('canva_oauth_state');
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showState('error');
+                document.getElementById('error-message').textContent = error.message;
+            }
+        }
+
+        if (window.location.search.includes('code=')) {
+            handleCallback();
+        }
+    </script>
+</body>
+</html>
