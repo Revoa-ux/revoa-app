@@ -444,12 +444,14 @@ const Chat = () => {
                   } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
-                      <div className="p-3 bg-black/10 dark:bg-white/10 rounded-lg">
-                        <img
-                          src={message.fileUrl}
-                          alt={message.fileName || 'Uploaded image'}
-                          className="w-full rounded-md max-h-96 object-cover"
-                        />
+                      <div className="p-3">
+                        <div className="bg-black/10 dark:bg-white/10 rounded-lg p-2">
+                          <img
+                            src={message.fileUrl}
+                            alt={message.fileName || 'Uploaded image'}
+                            className="w-full rounded-md max-h-96 object-cover"
+                          />
+                        </div>
                       </div>
                       {message.content && message.content !== message.fileName && (
                         <div className="px-3 pb-2">
@@ -530,10 +532,10 @@ const Chat = () => {
                   {message.sender === 'user' && (
                     <button
                       onClick={() => handleDeleteMessage(message.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                       title="Delete message"
                     >
-                      <Trash2 className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+                      <Trash2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
                   )}
                 </div>
