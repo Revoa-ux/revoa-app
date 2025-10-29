@@ -410,13 +410,13 @@ const AdminChat = () => {
                           <div className="px-3 pb-2">
                             <p className="text-sm mb-1">{message.fileName}</p>
                           </div>
-                          <div className={`px-3 py-1.5 -mx-px -mb-px ${
+                          <div className={`px-3 py-1 -mx-px -mb-px ${
                             message.sender === 'team'
-                              ? 'bg-[#C91C43]'
+                              ? 'bg-[#E11D48]/20'
                               : 'bg-gray-200 dark:bg-gray-700'
                           }`}>
-                            <span className={`text-[10px] ${
-                              message.sender === 'team' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                            <span className={`text-[9px] ${
+                              message.sender === 'team' ? 'text-white/70' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
@@ -442,13 +442,13 @@ const AdminChat = () => {
                               </a>
                             </div>
                           </div>
-                          <div className={`px-3 py-1.5 -mx-px -mb-px ${
+                          <div className={`px-3 py-1 -mx-px -mb-px ${
                             message.sender === 'team'
-                              ? 'bg-[#C91C43]'
+                              ? 'bg-[#E11D48]/20'
                               : 'bg-gray-200 dark:bg-gray-700'
                           }`}>
-                            <span className={`text-[10px] ${
-                              message.sender === 'team' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                            <span className={`text-[9px] ${
+                              message.sender === 'team' ? 'text-white/70' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
@@ -459,13 +459,13 @@ const AdminChat = () => {
                           <div className="px-4 pt-2 pb-2">
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                           </div>
-                          <div className={`px-3 py-1.5 -mx-px -mb-px ${
+                          <div className={`px-3 py-1 -mx-px -mb-px ${
                             message.sender === 'team'
-                              ? 'bg-[#C91C43]'
+                              ? 'bg-[#E11D48]/20'
                               : 'bg-gray-200 dark:bg-gray-700'
                           }`}>
-                            <span className={`text-[10px] ${
-                              message.sender === 'team' ? 'text-white/80' : 'text-gray-600 dark:text-gray-400'
+                            <span className={`text-[9px] ${
+                              message.sender === 'team' ? 'text-white/70' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
