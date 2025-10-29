@@ -21,7 +21,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const emojiButtonRef = useRef<HTMLButtonElement>(null);
@@ -29,18 +28,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() && !selectedFile) return;
+    if (!message.trim()) return;
 
     try {
-      if (selectedFile) {
-        await onSendFile(selectedFile);
-        if (message.trim()) {
-          onSendMessage(message);
-        }
-        setSelectedFile(null);
-      } else {
-        onSendMessage(message);
-      }
+      onSendMessage(message);
       setMessage('');
       if (textareaRef.current) {
         textareaRef.current.style.height = '24px';
@@ -63,25 +54,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
         // Send file message with invoice type
         onSendMessage(file.name, 'invoice');
-        await onSendFile(file);
-        setShowUploadModal(false);
-      } else if (file.type.startsWith('image/')) {
-        // For images, set as selected file to allow adding text
-        setSelectedFile(file);
-        setShowUploadModal(false);
-        // Focus on textarea
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-        }
+        onSendFile(file);
       } else {
         // Handle other file types
         await onSendFile(file);
-        setShowUploadModal(false);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
     } finally {
       setIsProcessing(false);
+      setShowUploadModal(false);
     }
   };
 
@@ -111,47 +93,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
       <form onSubmit={handleSubmit}>
         <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
-          {selectedFile && (
-            <div className="p-3 border-b border-gray-200 dark:border-gray-600">
-              <div className="flex items-center space-x-2 bg-white dark:bg-gray-600 rounded-lg p-2">
-                <div className="flex-shrink-0 w-12 h-12 bg-gray-100 dark:bg-gray-500 rounded overflow-hidden">
-                  {selectedFile.type.startsWith('image/') ? (
-                    <img
-                      src={URL.createObjectURL(selectedFile)}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Paperclip className="w-6 h-6 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {selectedFile.name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {(selectedFile.size / 1024).toFixed(1)} KB
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedFile(null)}
-                  className="flex-shrink-0 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          )}
           <div className="min-h-[44px] p-3">
             <textarea
               ref={textareaRef}
               value={message}
               onChange={handleTyping}
               onKeyDown={handleKeyPress}
-              placeholder={selectedFile ? 'Add a caption (optional)...' : 'Type a message...'}
+              placeholder="Type a message..."
               className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
               style={{
                 height: '24px',
@@ -192,7 +140,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 </button>
                 <button
                   type="submit"
-                  disabled={(!message.trim() && !selectedFile) || isProcessing}
+                  disabled={!message.trim() || isProcessing}
                   className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
                 >
                   <Send className="w-5 h-5" />
