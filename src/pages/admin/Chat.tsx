@@ -365,7 +365,7 @@ const AdminChat = () => {
                     onClick={() => setShowMoreMenu(!showMoreMenu)}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <MoreVertical className="w-5 h-5" />
+                    <MoreHorizontal className="w-5 h-5" />
                   </button>
                   {showMoreMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
