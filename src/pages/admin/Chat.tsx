@@ -414,8 +414,8 @@ const AdminChat = () => {
                     ref={el => messageRefs.current[message.id] = el}
                     className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-end ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} ${
-                      message.type === 'text' ? 'gap-2' : 'gap-1'
+                    <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} ${
+                      message.type === 'text' ? 'items-end gap-2' : 'items-start gap-1'
                     }`}>
                       <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
                         message.sender === 'team'
@@ -504,7 +504,9 @@ const AdminChat = () => {
                       {message.sender === 'team' && (
                         <button
                           onClick={() => openDeleteModal(message.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
+                          className={`opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0 ${
+                            message.type !== 'text' ? 'mt-2' : ''
+                          }`}
                           title="Delete message"
                         >
                           <Trash2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
