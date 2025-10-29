@@ -404,11 +404,16 @@ const Chat = () => {
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
                       <div className="p-1">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-1">
+                        <div className="relative rounded-lg p-1 overflow-hidden">
+                          <div className="absolute inset-0 opacity-10" style={{
+                            backgroundImage: 'linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)',
+                            backgroundSize: '20px 20px',
+                            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                          }} />
                           <img
                             src={message.fileUrl}
                             alt={message.fileName || 'Uploaded image'}
-                            className="max-w-full rounded-md max-h-64 object-cover"
+                            className="max-w-full rounded-md max-h-64 object-cover relative z-10"
                           />
                         </div>
                       </div>
@@ -422,7 +427,7 @@ const Chat = () => {
                       }`}>
                         <div className={`absolute inset-0 ${
                           message.sender === 'user'
-                            ? 'bg-black/3'
+                            ? 'bg-white/5'
                             : ''
                         }`} />
                         <span className={`text-[8px] leading-none relative z-10 ${
@@ -467,7 +472,7 @@ const Chat = () => {
                       }`}>
                         <div className={`absolute inset-0 ${
                           message.sender === 'user'
-                            ? 'bg-black/3'
+                            ? 'bg-white/5'
                             : ''
                         }`} />
                         <span className={`text-[8px] leading-none relative z-10 ${
@@ -489,7 +494,7 @@ const Chat = () => {
                       }`}>
                         <div className={`absolute inset-0 ${
                           message.sender === 'user'
-                            ? 'bg-black/3'
+                            ? 'bg-white/5'
                             : ''
                         }`} />
                         <span className={`text-[8px] leading-none relative z-10 ${
