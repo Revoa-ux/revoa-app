@@ -74,7 +74,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com; font-src 'self' https://rsms.me; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app; frame-src 'self' https://*.myshopify.com https://*.shopify.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com; font-src 'self' https://rsms.me; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app; frame-src 'self' https://*.myshopify.com https://*.shopify.com https://*.canva.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
 
 
     # Cache Control for static assets
