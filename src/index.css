@@ -204,7 +204,7 @@
 
 /* User message bubbles */
 .message-bubble-user {
-  @apply bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] text-white ml-auto rounded-br-sm;
+  @apply bg-[#f3405f] text-white ml-auto rounded-br-sm;
 }
 
 .message-bubble-user.message-tail-user::after {
@@ -214,7 +214,7 @@
   right: -0.5rem;
   width: 0.75rem;
   height: 1rem;
-  background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%);
+  background: #f3405f;
   clip-path: polygon(0 0, 0 100%, 100% 100%);
   border-bottom-right-radius: 0.5rem;
 }
