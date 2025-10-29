@@ -444,7 +444,7 @@ const Chat = () => {
                   } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
-                      <div className="p-2">
+                      <div className="p-2 bg-black/5 dark:bg-white/5">
                         <img
                           src={message.fileUrl}
                           alt={message.fileName || 'Uploaded image'}
