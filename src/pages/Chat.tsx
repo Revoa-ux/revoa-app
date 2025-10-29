@@ -444,7 +444,9 @@ const Chat = () => {
                 ref={el => messageRefs.current[message.id] = el}
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex items-end gap-2 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex items-end ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} ${
+                  message.type === 'text' ? 'gap-2' : 'gap-1'
+                }`}>
                   <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'

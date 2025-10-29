@@ -15,7 +15,9 @@ import {
   BarChart3,
   CreditCard,
   Mail,
-  Package
+  Package,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -40,6 +42,7 @@ export default function Layout() {
   const { signOut } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [shopifyStore, setShopifyStore] = useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check local storage first, then system preference
     const stored = localStorage.getItem('color-theme');
@@ -103,42 +106,76 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Fixed width sidebar */}
-      <div className="w-[280px] fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-[70px]' : 'w-[280px]'
+      }`}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="py-8 px-4">
-            <div className="w-32 h-8 relative">
-              <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
-                alt="Logo"
-                className="w-full h-full object-contain dark:hidden"
-              />
-              <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
-                alt="Logo"
-                className="w-full h-full object-contain hidden dark:block"
-              />
+          {/* Logo and Collapse Button */}
+          <div className="py-8 px-4 flex items-center justify-between">
+            <div className={`transition-all duration-300 ${isCollapsed ? 'w-8 h-8' : 'w-32 h-8'} relative overflow-hidden`}>
+              {isCollapsed ? (
+                <img
+                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <>
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
+                    alt="Logo"
+                    className="w-full h-full object-contain dark:hidden"
+                  />
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+                    alt="Logo"
+                    className="w-full h-full object-contain hidden dark:block"
+                  />
+                </>
+              )}
             </div>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={`p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all ${
+                isCollapsed ? 'ml-0' : 'ml-2'
+              }`}
+              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {isCollapsed ? (
+                <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              ) : (
+                <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
           </div>
 
           {/* Account Selector */}
-          <div className="px-4 py-4">
-            <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
-              <div className="flex items-center space-x-3">
-                <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
-                  {shopifyStore ? shopifyStore.charAt(0).toUpperCase() : 'Y'}
-                </div>
-                <div className="text-left">
-                  <div className="text-base font-medium text-gray-900 dark:text-white">
-                    {shopifyStore || 'Your Store'}
+          {!isCollapsed && (
+            <div className="px-4 py-4">
+              <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
+                    {shopifyStore ? shopifyStore.charAt(0).toUpperCase() : 'Y'}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                  <div className="text-left">
+                    <div className="text-base font-medium text-gray-900 dark:text-white">
+                      {shopifyStore || 'Your Store'}
+                    </div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                    </div>
                   </div>
                 </div>
+              </button>
+            </div>
+          )}
+          {isCollapsed && (
+            <div className="px-2 py-4 flex justify-center">
+              <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
+                {shopifyStore ? shopifyStore.charAt(0).toUpperCase() : 'Y'}
               </div>
-            </button>
-          </div>
+            </div>
+          )}
 
           {/* Main Menu */}
           <div className="flex-1 overflow-y-auto px-3 py-4 border-y border-gray-100 dark:border-gray-700">
@@ -151,21 +188,30 @@ export default function Layout() {
                   <Link
                     key={item.name}
                     to={item.href}
+                    title={isCollapsed ? item.name : undefined}
                     className={cn(
-                      'flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-colors',
+                      'flex items-center rounded-lg transition-colors',
+                      isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
+                      'text-[13px]',
                       isActive
-                        ? 'bg-gray-900 text-white dark:bg-gray-600 dark:text-white font-medium'
+                        ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
                         : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                     )}
                   >
-                    <div className="flex items-center">
-                      <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-                      {item.name}
-                    </div>
-                    {isComingSoon && (
-                      <span className="px-2 py-0.5 text-[10px] font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
-                        Soon
-                      </span>
+                    {isCollapsed ? (
+                      <Icon className="h-4 w-4" strokeWidth={1.5} />
+                    ) : (
+                      <>
+                        <div className="flex items-center">
+                          <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                          {item.name}
+                        </div>
+                        {isComingSoon && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full whitespace-nowrap">
+                            Coming Soon
+                          </span>
+                        )}
+                      </>
                     )}
                   </Link>
                 );
@@ -178,52 +224,68 @@ export default function Layout() {
             <nav className="space-y-0.5">
               <Link
                 to="/settings"
+                title={isCollapsed ? 'Settings' : undefined}
                 className={cn(
-                  'flex items-center px-3 py-2 text-[13px] rounded-lg transition-colors',
+                  'flex items-center text-[13px] rounded-lg transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                   location.pathname === '/settings'
-                    ? 'bg-gray-900 text-white dark:bg-gray-600 dark:text-white font-medium'
+                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 )}
               >
-                <Settings className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-                Settings
+                <Settings className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                {!isCollapsed && 'Settings'}
               </Link>
               <button
                 onClick={() => setShowHelpModal(true)}
-                className="w-full flex items-center px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                title={isCollapsed ? 'Help & Support' : undefined}
+                className={cn(
+                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+                )}
               >
-                <Headphones className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-                Help & Support
+                <Headphones className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                {!isCollapsed && 'Help & Support'}
               </button>
             </nav>
           </div>
 
           {/* Dark Mode and Log Out */}
           <div className="p-3">
-            <button 
+            <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="w-full flex items-center px-3 py-2 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
+              className={cn(
+                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              )}
             >
               {isDarkMode ? (
-                <Sun className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
               ) : (
-                <Moon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
               )}
-              {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+              {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
             </button>
-            <button 
+            <button
               onClick={handleLogout}
-              className="w-full flex items-center px-3 py-2 mt-0.5 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title={isCollapsed ? 'Log Out' : undefined}
+              className={cn(
+                'w-full flex items-center mt-0.5 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              )}
             >
-              <LogOut className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-              Log Out
+              <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+              {!isCollapsed && 'Log Out'}
             </button>
           </div>
         </div>
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 pl-[280px]">
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'pl-[70px]' : 'pl-[280px]'
+      }`}>
         <div className="max-w-[1050px] mx-auto p-6">
           <Outlet />
         </div>
