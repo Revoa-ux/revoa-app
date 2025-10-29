@@ -429,8 +429,8 @@ export default function AdminDashboard() {
 
       <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-red-50 rounded-lg">
-            <Bell className="w-5 h-5 text-red-500" />
+          <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            <Bell className="w-5 h-5 text-red-500 dark:text-red-400" />
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Alerts</h3>
