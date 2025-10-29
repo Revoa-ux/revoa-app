@@ -220,15 +220,22 @@ const AdminChat = () => {
   const userEmail = selectedChat?.user_profile?.email || '';
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900/50">
-      {/* Conversations List */}
-      <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Conversations</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{chats.length} active chats</p>
+    <div className="p-8">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+            Conversations
+          </h1>
+          <div className="flex items-center space-x-2">
+            <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{chats.length} active chats</p>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          {/* Conversations List */}
+          <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="w-6 h-6 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin"></div>
@@ -278,9 +285,9 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </div>
                 <div>
@@ -291,35 +298,35 @@ const AdminChat = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => setShowSearchModal(true)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
                   <Search className="w-5 h-5" />
                 </button>
                 <div className="relative" ref={moreMenuRef}>
                   <button
                     onClick={() => setShowMoreMenu(!showMoreMenu)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
                     <MoreVertical className="w-5 h-5" />
                   </button>
                   {showMoreMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-10">
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 flex items-center">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
                         <Archive className="w-4 h-4 mr-2" />
                         Archive
                       </button>
                       <button
                         onClick={() => setIsMuted(!isMuted)}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 flex items-center"
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
                       >
                         {isMuted ? <Volume2 className="w-4 h-4 mr-2" /> : <VolumeX className="w-4 h-4 mr-2" />}
                         {isMuted ? 'Unmute' : 'Mute'}
                       </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 flex items-center">
+                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
                         <Flag className="w-4 h-4 mr-2" />
                         Flag
                       </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center">
+                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
                       </button>
@@ -401,7 +408,7 @@ const AdminChat = () => {
             </div>
 
             {/* Input */}
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                 <div className="min-h-[44px] p-3">
                   <textarea
@@ -410,7 +417,7 @@ const AdminChat = () => {
                     onChange={handleTyping}
                     onKeyDown={handleKeyPress}
                     placeholder="Type a message..."
-                    className="w-full min-h-[24px] max-h-[120px] text-sm text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none resize-none placeholder-gray-400"
+                    className="w-full min-h-[24px] max-h-[120px] text-sm text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
                     style={{
                       height: '24px',
                       overflowY: 'hidden'
@@ -421,14 +428,14 @@ const AdminChat = () => {
                     <div className="flex items-center space-x-1">
                       <button
                         onClick={() => setShowUploadModal(true)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                       >
                         <Paperclip className="w-5 h-5" />
                       </button>
                       <div className="relative">
                         <button
                           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         >
                           <Smile className="w-5 h-5" />
                         </button>
@@ -480,38 +487,40 @@ const AdminChat = () => {
           </div>
         )}
       </div>
+        </div>
 
-      {showUploadModal && (
-        <FileUploadModal
-          onClose={() => setShowUploadModal(false)}
-          onUpload={handleFileUpload}
-        />
-      )}
+        {showUploadModal && (
+          <FileUploadModal
+            onClose={() => setShowUploadModal(false)}
+            onUpload={handleFileUpload}
+          />
+        )}
 
-      {showSearchModal && (
-        <Modal
-          isOpen={showSearchModal}
-          onClose={() => setShowSearchModal(false)}
-          title="Search Messages"
-        >
-          <div className="space-y-4">
-            <MessageSearch
-              messages={messages}
-              onSearch={handleSearchMessages}
-              isSearching={isSearching}
-              filters={searchFilters}
-              onFiltersChange={setSearchFilters}
-            />
-            {searchResults.length > 0 && (
-              <SearchResults
-                results={searchResults}
-                onMessageClick={handleMessageClick}
-                highlightedMessageId={highlightedMessageId}
+        {showSearchModal && (
+          <Modal
+            isOpen={showSearchModal}
+            onClose={() => setShowSearchModal(false)}
+            title="Search Messages"
+          >
+            <div className="space-y-4">
+              <MessageSearch
+                messages={messages}
+                onSearch={handleSearchMessages}
+                isSearching={isSearching}
+                filters={searchFilters}
+                onFiltersChange={setSearchFilters}
               />
-            )}
-          </div>
-        </Modal>
-      )}
+              {searchResults.length > 0 && (
+                <SearchResults
+                  results={searchResults}
+                  onMessageClick={handleMessageClick}
+                  highlightedMessageId={highlightedMessageId}
+                />
+              )}
+            </div>
+          </Modal>
+        )}
+      </div>
     </div>
   );
 };
