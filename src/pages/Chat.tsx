@@ -437,7 +437,7 @@ const Chat = () => {
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex items-end gap-1 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`max-w-[70%] ${message.type === 'text' ? '' : 'break-words'} ${
+                  <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
                       : 'message-bubble-team text-gray-900 dark:text-white'

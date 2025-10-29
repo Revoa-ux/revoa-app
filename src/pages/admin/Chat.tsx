@@ -407,7 +407,7 @@ const AdminChat = () => {
                     className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex items-end gap-1 ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'}`}>
-                      <div className={`max-w-[70%] ${message.type === 'text' ? '' : 'break-words'} ${
+                      <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
                         message.sender === 'team'
                           ? 'message-bubble-user text-white'
                           : 'message-bubble-team text-gray-900 dark:text-white'
