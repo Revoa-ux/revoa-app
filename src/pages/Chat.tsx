@@ -437,18 +437,18 @@ const Chat = () => {
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`flex items-end gap-1 ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <div className={`max-w-[70%] break-words ${
+                  <div className={`max-w-[70%] ${message.type === 'text' ? '' : 'break-words'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
                       : 'message-bubble-team text-gray-900 dark:text-white'
                   } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
-                      <div className="p-2 bg-black/5 dark:bg-white/5">
+                      <div className="p-3 bg-black/10 dark:bg-white/10 rounded-lg">
                         <img
                           src={message.fileUrl}
                           alt={message.fileName || 'Uploaded image'}
-                          className="w-full rounded-lg max-h-96 object-cover"
+                          className="w-full rounded-md max-h-96 object-cover"
                         />
                       </div>
                       {message.content && message.content !== message.fileName && (
@@ -511,7 +511,7 @@ const Chat = () => {
                   ) : (
                     <div className="flex flex-col">
                       <div className="px-3 pt-2 pb-1.5">
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                       </div>
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
