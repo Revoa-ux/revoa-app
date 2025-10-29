@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { stripeConnectService, Supplier } from '@/lib/stripeConnect';
-import { Modal } from '@/components/Modal';
+import Modal from '@/components/Modal';
 
 export default function Suppliers() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);

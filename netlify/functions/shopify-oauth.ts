@@ -8,7 +8,11 @@ const client_secret = process.env.VITE_SHOPIFY_CLIENT_SECRET as string;
 const supabaseUrl = process.env.VITE_SUPABASE_URL as string;
 const supabaseServiceKey = process.env.VITE_SUPABASE_SERVICE_KEY as string;
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey || '');
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing required Supabase environment variables');
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 function getErrorHTML(title: string, message: string): string {
   const appUrl = process.env.VITE_APP_URL || 'https://members.revoa.app';
