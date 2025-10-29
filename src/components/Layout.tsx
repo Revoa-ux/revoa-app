@@ -111,43 +111,46 @@ export default function Layout() {
       }`}>
         <div className="flex flex-col h-full">
           {/* Logo and Collapse Button */}
-          <div className="py-8 px-4 flex items-center justify-between">
-            <div className={`transition-all duration-300 ${isCollapsed ? 'w-8 h-8' : 'w-32 h-8'} relative overflow-hidden`}>
-              {isCollapsed ? (
+          {isCollapsed ? (
+            <div className="py-8 px-2 flex flex-col items-center gap-3">
+              <div className="w-10 h-10 relative">
                 <img
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                   alt="Logo"
                   className="w-full h-full object-contain"
                 />
-              ) : (
-                <>
-                  <img
-                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
-                    alt="Logo"
-                    className="w-full h-full object-contain dark:hidden"
-                  />
-                  <img
-                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
-                    alt="Logo"
-                    className="w-full h-full object-contain hidden dark:block"
-                  />
-                </>
-              )}
-            </div>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className={`p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all ${
-                isCollapsed ? 'ml-0' : 'ml-2'
-              }`}
-              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {isCollapsed ? (
+              </div>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                title="Expand sidebar"
+              >
                 <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              ) : (
+              </button>
+            </div>
+          ) : (
+            <div className="py-8 px-4 flex items-center justify-between">
+              <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
+                <img
+                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
+                  alt="Logo"
+                  className="w-full h-full object-contain dark:hidden"
+                />
+                <img
+                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+                  alt="Logo"
+                  className="w-full h-full object-contain hidden dark:block"
+                />
+              </div>
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all ml-2"
+                title="Collapse sidebar"
+              >
                 <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              )}
-            </button>
-          </div>
+              </button>
+            </div>
+          )}
 
           {/* Account Selector */}
           {!isCollapsed && (
