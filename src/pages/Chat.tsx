@@ -403,21 +403,23 @@ const Chat = () => {
                 } rounded-lg overflow-hidden`}>
                   {message.type === 'image' && message.fileUrl ? (
                     <div className="flex flex-col">
-                      <div className="p-1">
-                        <div className="bg-gray-800/10 dark:bg-gray-900/30 rounded-lg p-1">
+                      <div className="relative inline-block">
+                        <div className="bg-gray-800/10 dark:bg-gray-900/30 rounded-lg inline-block">
                           <img
                             src={message.fileUrl}
                             alt={message.fileName || 'Uploaded image'}
-                            className="max-w-full rounded-md max-h-64 object-cover"
+                            className="block rounded-lg max-h-64 w-auto"
                           />
                         </div>
                       </div>
-                      <div className="px-3 pb-2">
-                        <p className="text-sm mb-1">{message.fileName}</p>
-                      </div>
+                      {message.content && (
+                        <div className="px-3 pt-2 pb-1.5">
+                          <p className="text-sm">{message.content}</p>
+                        </div>
+                      )}
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                          ? 'bg-gradient-to-r from-[#f3405f] to-[#d63050] justify-end'
                           : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                       }`}>
                         <div className={`absolute inset-0 ${
@@ -462,7 +464,7 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                          ? 'bg-gradient-to-r from-[#f3405f] to-[#d63050] justify-end'
                           : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                       }`}>
                         <div className={`absolute inset-0 ${
@@ -484,7 +486,7 @@ const Chat = () => {
                       </div>
                       <div className={`px-2 py-1 -mx-px -mb-px flex items-center relative ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] justify-end'
+                          ? 'bg-gradient-to-r from-[#f3405f] to-[#d63050] justify-end'
                           : 'bg-gradient-to-b from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800'
                       }`}>
                         <div className={`absolute inset-0 ${
