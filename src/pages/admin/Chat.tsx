@@ -77,6 +77,8 @@ const AdminChat = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -197,18 +199,24 @@ const AdminChat = () => {
     }
   };
 
-  const handleDeleteMessage = async (messageId: string) => {
-    if (!window.confirm('Are you sure you want to delete this message?')) {
-      return;
-    }
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
 
-    const success = await chatService.deleteMessage(messageId);
+    const success = await chatService.deleteMessage(messageToDelete);
     if (success) {
-      setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      setMessages(prev => prev.filter(msg => msg.id !== messageToDelete));
       toast.success('Message deleted');
     } else {
       toast.error('Failed to delete message');
     }
+
+    setDeleteModalOpen(false);
+    setMessageToDelete(null);
+  };
+
+  const openDeleteModal = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setDeleteModalOpen(true);
   };
 
   const handleFileUpload = async (file: File, messageText?: string) => {
@@ -406,7 +414,7 @@ const AdminChat = () => {
                     ref={el => messageRefs.current[message.id] = el}
                     className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-end gap-1 ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`flex items-end gap-2 ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'}`}>
                       <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-[70%]'} ${
                         message.sender === 'team'
                           ? 'message-bubble-user text-white'
@@ -493,8 +501,8 @@ const AdminChat = () => {
                       </div>
                       {message.sender === 'team' && (
                         <button
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                          onClick={() => openDeleteModal(message.id)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
                           title="Delete message"
                         >
                           <Trash2 className="w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -628,6 +636,41 @@ const AdminChat = () => {
                   highlightedMessageId={highlightedMessageId}
                 />
               )}
+            </div>
+          </Modal>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteModalOpen && (
+          <Modal
+            isOpen={deleteModalOpen}
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setMessageToDelete(null);
+            }}
+            title="Delete Message"
+          >
+            <div className="p-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to delete this message? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setDeleteModalOpen(false);
+                    setMessageToDelete(null);
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteMessage}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </Modal>
         )}
