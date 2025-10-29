@@ -415,11 +415,11 @@ const AdminChat = () => {
                       {message.type === 'image' && message.fileUrl ? (
                         <div className="flex flex-col">
                           <div className="p-3">
-                            <div className="bg-black/10 dark:bg-white/10 rounded-lg p-2">
+                            <div className="bg-black/10 dark:bg-white/10 rounded-lg overflow-hidden">
                               <img
                                 src={message.fileUrl}
                                 alt={message.fileName || 'Uploaded image'}
-                                className="w-full rounded-md max-h-96 object-cover"
+                                className="w-full max-h-96 object-cover"
                               />
                             </div>
                           </div>
@@ -475,7 +475,7 @@ const AdminChat = () => {
                       ) : (
                         <div className="flex flex-col">
                           <div className="px-3 pt-2 pb-1.5">
-                            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                            <p className="text-sm whitespace-nowrap">{message.content}</p>
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
