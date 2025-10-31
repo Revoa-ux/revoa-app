@@ -37,15 +37,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
+
     // Set a timeout to ensure loading state doesn't hang indefinitely
     const loadingTimeout = setTimeout(() => {
-      console.warn('Session loading timeout - continuing without session');
-      setIsLoading(false);
-    }, 10000); // 10 second timeout
+      if (isMounted) {
+        console.warn('Session loading timeout - continuing without session');
+        setIsLoading(false);
+      }
+    }, 8000); // 8 second timeout
 
     // Get initial session
-    supabase.auth.getSession()
-      .then(({ data: { session }, error }) => {
+    const initSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (!isMounted) return;
         clearTimeout(loadingTimeout);
 
         if (error) {
@@ -59,80 +66,117 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (session?.user) {
           console.log('[AuthContext] Checking onboarding status for user:', session.user.id);
-          // Check onboarding status with timeout
-          const profileTimeout = setTimeout(() => {
-            console.warn('Profile fetch timeout - assuming onboarding incomplete');
-            setHasCompletedOnboarding(false);
-          }, 5000);
 
-          supabase
-            .from('user_profiles')
-            .select('onboarding_completed')
-            .eq('user_id', session.user.id)
-            .maybeSingle()
-            .then(({ data: profile, error }) => {
-              clearTimeout(profileTimeout);
-              if (error) {
-                console.error('[AuthContext] Error fetching user profile:', error);
+          // Check onboarding status with shorter timeout
+          try {
+            const profilePromise = supabase
+              .from('user_profiles')
+              .select('onboarding_completed')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Profile timeout')), 3000)
+            );
+
+            const { data: profile, error: profileError } = await Promise.race([
+              profilePromise,
+              timeoutPromise
+            ]) as any;
+
+            if (isMounted) {
+              if (profileError) {
+                console.error('[AuthContext] Error fetching user profile:', profileError);
                 setHasCompletedOnboarding(false);
-                return;
+              } else {
+                console.log('[AuthContext] User profile:', profile);
+                const completed = profile?.onboarding_completed || false;
+                console.log('[AuthContext] Onboarding completed:', completed);
+                setHasCompletedOnboarding(completed);
               }
-              console.log('[AuthContext] User profile:', profile);
-              const completed = profile?.onboarding_completed || false;
-              console.log('[AuthContext] Onboarding completed:', completed);
-              setHasCompletedOnboarding(completed);
-            })
-            .catch(() => {
-              clearTimeout(profileTimeout);
+            }
+          } catch (err) {
+            if (isMounted) {
+              console.warn('[AuthContext] Profile fetch timeout or error:', err);
               setHasCompletedOnboarding(false);
-            });
+            }
+          }
         }
 
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        clearTimeout(loadingTimeout);
-        console.error('Fatal error getting session:', error);
-        setIsLoading(false);
-      });
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          clearTimeout(loadingTimeout);
+          console.error('Fatal error getting session:', error);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
       console.debug('Auth state changed:', event, session?.user?.id);
 
       if (event === 'SIGNED_IN') {
         setSession(session);
         setUser(session?.user ?? null);
 
-        if (session?.user) {
+        if (session?.user && isMounted) {
           console.log('[AuthContext] SIGNED_IN - Checking onboarding status for user:', session.user.id);
-          // Check onboarding status
-          supabase
-            .from('user_profiles')
-            .select('onboarding_completed')
-            .eq('user_id', session.user.id)
-            .maybeSingle()
-            .then(({ data: profile, error }) => {
+
+          try {
+            const profilePromise = supabase
+              .from('user_profiles')
+              .select('onboarding_completed')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Profile timeout')), 3000)
+            );
+
+            const { data: profile, error } = await Promise.race([
+              profilePromise,
+              timeoutPromise
+            ]) as any;
+
+            if (isMounted) {
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN:', error);
                 setHasCompletedOnboarding(false);
-                return;
+              } else {
+                console.log('[AuthContext] SIGNED_IN profile:', profile);
+                const completed = profile?.onboarding_completed || false;
+                console.log('[AuthContext] SIGNED_IN onboarding completed:', completed);
+                setHasCompletedOnboarding(completed);
               }
-              console.log('[AuthContext] SIGNED_IN profile:', profile);
-              const completed = profile?.onboarding_completed || false;
-              console.log('[AuthContext] SIGNED_IN onboarding completed:', completed);
-              setHasCompletedOnboarding(completed);
-            });
+            }
+          } catch (err) {
+            if (isMounted) {
+              console.warn('[AuthContext] Profile check timeout on SIGNED_IN');
+              setHasCompletedOnboarding(false);
+            }
+          }
         }
       } else if (event === 'SIGNED_OUT') {
-        setSession(null);
-        setUser(null);
-        setHasCompletedOnboarding(false);
-        navigate('/auth', { replace: true });
+        if (isMounted) {
+          setSession(null);
+          setUser(null);
+          setHasCompletedOnboarding(false);
+          navigate('/auth', { replace: true });
+        }
       }
     });
 
     return () => {
+      isMounted = false;
+      clearTimeout(loadingTimeout);
       subscription.unsubscribe();
     };
   }, [navigate]);

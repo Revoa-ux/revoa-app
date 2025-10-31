@@ -50,7 +50,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // Create a timeout promise for the entire check
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Admin status check timeout')), 8000);
+        setTimeout(() => reject(new Error('Admin status check timeout')), 5000);
       });
 
       const checkPromise = (async () => {
@@ -109,9 +109,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   useEffect(() => {
-    checkAdminStatus().catch((err) => {
-      console.error('Unhandled error in checkAdminStatus:', err);
-    });
+    let isMounted = true;
+
+    const init = async () => {
+      if (isMounted) {
+        await checkAdminStatus().catch((err) => {
+          console.error('Unhandled error in checkAdminStatus:', err);
+          if (isMounted) {
+            setLoading(false);
+          }
+        });
+      }
+    };
+
+    init();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const value = {
