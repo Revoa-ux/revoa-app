@@ -37,40 +37,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        console.error('Error getting session:', error);
-        setIsLoading(false);
-        return;
-      }
-
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        console.log('[AuthContext] Checking onboarding status for user:', session.user.id);
-        // Check onboarding status
-        supabase
-          .from('user_profiles')
-          .select('onboarding_completed')
-          .eq('user_id', session.user.id)
-          .maybeSingle()
-          .then(({ data: profile, error }) => {
-            if (error) {
-              console.error('[AuthContext] Error fetching user profile:', error);
-              setHasCompletedOnboarding(false);
-              return;
-            }
-            console.log('[AuthContext] User profile:', profile);
-            const completed = profile?.onboarding_completed || false;
-            console.log('[AuthContext] Onboarding completed:', completed);
-            setHasCompletedOnboarding(completed);
-          });
-      }
-
+    // Set a timeout to ensure loading state doesn't hang indefinitely
+    const loadingTimeout = setTimeout(() => {
+      console.warn('Session loading timeout - continuing without session');
       setIsLoading(false);
-    });
+    }, 10000); // 10 second timeout
+
+    // Get initial session
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        clearTimeout(loadingTimeout);
+
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          return;
+        }
+
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          console.log('[AuthContext] Checking onboarding status for user:', session.user.id);
+          // Check onboarding status with timeout
+          const profileTimeout = setTimeout(() => {
+            console.warn('Profile fetch timeout - assuming onboarding incomplete');
+            setHasCompletedOnboarding(false);
+          }, 5000);
+
+          supabase
+            .from('user_profiles')
+            .select('onboarding_completed')
+            .eq('user_id', session.user.id)
+            .maybeSingle()
+            .then(({ data: profile, error }) => {
+              clearTimeout(profileTimeout);
+              if (error) {
+                console.error('[AuthContext] Error fetching user profile:', error);
+                setHasCompletedOnboarding(false);
+                return;
+              }
+              console.log('[AuthContext] User profile:', profile);
+              const completed = profile?.onboarding_completed || false;
+              console.log('[AuthContext] Onboarding completed:', completed);
+              setHasCompletedOnboarding(completed);
+            })
+            .catch(() => {
+              clearTimeout(profileTimeout);
+              setHasCompletedOnboarding(false);
+            });
+        }
+
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        clearTimeout(loadingTimeout);
+        console.error('Fatal error getting session:', error);
+        setIsLoading(false);
+      });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

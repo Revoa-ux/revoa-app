@@ -48,46 +48,55 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setLoading(true);
       setError(null);
 
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
+      // Create a timeout promise for the entire check
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Admin status check timeout')), 8000);
+      });
 
-      if (!session?.user) {
-        setAdminUser(null);
-        return;
-      }
+      const checkPromise = (async () => {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
 
-      // Check if user has admin privileges in user_profiles
-      const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
+        if (!session?.user) {
+          setAdminUser(null);
+          return;
+        }
 
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError);
-        throw profileError;
-      }
+        // Check if user has admin privileges in user_profiles
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .maybeSingle();
 
-      if (!profile?.is_admin || !profile?.admin_role) {
-        setAdminUser(null);
-        return;
-      }
+        if (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          throw profileError;
+        }
 
-      // Create admin user object
-      const adminUserData: AdminUser = {
-        id: profile.id,
-        userId: profile.user_id,
-        role: profile.admin_role,
-        email: profile.email,
-        assignedUsersCount: 0,
-        totalTransactionVolume: 0,
-        lastActiveAt: profile.last_active_at,
-        createdAt: profile.created_at,
-        updatedAt: profile.updated_at,
-        metadata: profile.metadata
-      };
+        if (!profile?.is_admin || !profile?.admin_role) {
+          setAdminUser(null);
+          return;
+        }
 
-      setAdminUser(adminUserData);
+        // Create admin user object
+        const adminUserData: AdminUser = {
+          id: profile.id,
+          userId: profile.user_id,
+          role: profile.admin_role,
+          email: profile.email,
+          assignedUsersCount: 0,
+          totalTransactionVolume: 0,
+          lastActiveAt: profile.last_active_at,
+          createdAt: profile.created_at,
+          updatedAt: profile.updated_at,
+          metadata: profile.metadata
+        };
+
+        setAdminUser(adminUserData);
+      })();
+
+      await Promise.race([checkPromise, timeoutPromise]);
     } catch (error) {
       console.error('Error checking admin status:', error);
       const message = error instanceof Error ? error.message : 'Failed to check admin status';
@@ -100,7 +109,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   useEffect(() => {
-    checkAdminStatus();
+    checkAdminStatus().catch((err) => {
+      console.error('Unhandled error in checkAdminStatus:', err);
+    });
   }, []);
 
   const value = {

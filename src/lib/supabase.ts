@@ -22,7 +22,25 @@ export const supabase = createClient<Database>(
       detectSessionInUrl: true,
       storageKey: 'sb-auth-token',
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    }
+    },
+    global: {
+      headers: {
+        'X-Client-Info': 'revoa-app',
+      },
+      fetch: (url, options = {}) => {
+        // Add timeout to all fetch requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+        return fetch(url, {
+          ...options,
+          signal: controller.signal,
+        }).finally(() => clearTimeout(timeoutId));
+      },
+    },
+    db: {
+      schema: 'public',
+    },
   }
 );
 
