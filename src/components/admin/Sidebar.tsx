@@ -7,7 +7,6 @@ import {
   FileText,
   Package,
   Upload,
-  Sparkles,
   Settings,
   UserPlus,
   LogOut,
@@ -37,21 +36,31 @@ export default function AdminSidebar() {
   const { signOut } = useAuth();
   const { isSuperAdmin } = useAdmin();
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    const stored = localStorage.getItem('color-theme');
-    if (stored) {
-      return stored === 'dark';
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = localStorage.getItem('color-theme');
+      if (stored) {
+        return stored === 'dark';
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
     }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.add('dark');
-      localStorage.setItem('color-theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      localStorage.setItem('color-theme', 'light');
+    try {
+      if (isDarkMode) {
+        html.classList.add('dark');
+        localStorage.setItem('color-theme', 'dark');
+      } else {
+        html.classList.remove('dark');
+        localStorage.setItem('color-theme', 'light');
+      }
+    } catch (error) {
+      console.error('Failed to save theme preference:', error);
     }
   }, [isDarkMode]);
 

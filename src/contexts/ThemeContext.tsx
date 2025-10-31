@@ -10,24 +10,39 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
+const getStoredTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'system';
+  try {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (!savedTheme) {
       localStorage.setItem('theme', 'system');
       return 'system';
     }
     return savedTheme;
-  });
+  } catch {
+    return 'system';
+  }
+};
 
-  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>(() => {
+const getInitialEffectiveTheme = (): 'light' | 'dark' => {
+  if (typeof window === 'undefined') return 'light';
+  try {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme === 'light') return 'light';
     if (savedTheme === 'dark') return 'dark';
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  } catch {
+    return 'light';
+  }
+};
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setThemeState] = useState<Theme>(getStoredTheme);
+  const [effectiveTheme, setEffectiveTheme] = useState<'light' | 'dark'>(getInitialEffectiveTheme);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const root = document.documentElement;
 
     const applyTheme = (isDark: boolean) => {
@@ -54,7 +69,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('theme', newTheme);
+      } catch (error) {
+        console.error('Failed to save theme preference:', error);
+      }
+    }
   };
 
   return (

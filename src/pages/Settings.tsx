@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  User, Mail, Lock, Bell, Globe, DollarSign, Moon, Sun, Languages, CreditCard, Building2, AlertTriangle, Facebook, Check, ChevronRight,
+  Mail, Bell, Globe, Moon, Sun, Languages, AlertTriangle, Facebook, Check, ChevronRight,
   Download,
   Trash2,
   Loader2,
   ChevronDown,
   X,
-  UserPlus,
-  Settings as SettingsIcon,
-  Shield, // eslint-disable-next-line @typescript-eslint/no-unused-vars
   MessageSquare,
-  FileText,
-  ExternalLink,
-  Plus,
-  Minus,
-  DollarSign as DollarSignIcon,
-  Truck,
   Key,
   Copy,
   Eye,
@@ -28,7 +19,6 @@ import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager
 import { useClickOutside } from '@/lib/useClickOutside';
 import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
-import { initiateShopifyOAuth } from '@/lib/shopify/auth';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 
 interface UserProfile {
