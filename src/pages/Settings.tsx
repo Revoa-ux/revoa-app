@@ -29,6 +29,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
 import { initiateShopifyOAuth } from '@/lib/shopify/auth';
+import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 
 interface UserProfile {
   firstName: string;
@@ -174,6 +175,7 @@ const SettingsPage = () => {
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [showShopifyModal, setShowShopifyModal] = useState(false);
   
   const languageDropdownRef = useRef<HTMLDivElement>(null);
   const currencyDropdownRef = useRef<HTMLDivElement>(null);
@@ -240,37 +242,26 @@ const SettingsPage = () => {
       return;
     }
 
-    try {
-      setShopifyConnecting(true);
-      await initiateShopifyOAuth(user.id);
+    setShowShopifyModal(true);
+  };
 
-      // Poll database every 2 seconds to check if connection succeeded
-      const pollInterval = setInterval(async () => {
-        const { data } = await supabase
-          .from('shopify_installations')
-          .select('store_url, status')
-          .eq('user_id', user.id)
-          .eq('status', 'installed')
-          .maybeSingle();
+  const handleShopifySuccess = async (storeUrl: string) => {
+    setShowShopifyModal(false);
+    setIntegrationStatus(prev => ({ ...prev, shopify: true }));
+    setShopifyStore(storeUrl);
+    toast.success('Shopify store connected successfully');
 
-        if (data) {
-          clearInterval(pollInterval);
-          setShopifyConnecting(false);
-          setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-          setShopifyStore(data.store_url);
-          toast.success('Shopify store connected successfully');
-        }
-      }, 2000);
+    if (user?.id) {
+      const { data } = await supabase
+        .from('shopify_installations')
+        .select('store_url, status')
+        .eq('user_id', user.id)
+        .eq('status', 'installed')
+        .maybeSingle();
 
-      // Stop polling after 2 minutes
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        setShopifyConnecting(false);
-      }, 120000);
-    } catch (error) {
-      console.error('Error connecting Shopify:', error);
-      toast.error('Failed to connect Shopify');
-      setShopifyConnecting(false);
+      if (data) {
+        setShopifyStore(data.store_url);
+      }
     }
   };
 
@@ -377,7 +368,14 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="max-w-[1050px] mx-auto">
+    <>
+      <ShopifyConnectModal
+        isOpen={showShopifyModal}
+        onClose={() => setShowShopifyModal(false)}
+        onSuccess={handleShopifySuccess}
+      />
+
+      <div className="max-w-[1050px] mx-auto">
       {/* Title Section */}
       <div className="mb-8">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
@@ -1002,7 +1000,8 @@ const SettingsPage = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
