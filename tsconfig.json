@@ -20,6 +20,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["netlify/functions"],
+  "include": ["src", "netlify/functions"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
