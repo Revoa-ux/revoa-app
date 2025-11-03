@@ -94,8 +94,13 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
       });
 
     if (oauthError) {
-      console.error('Error storing OAuth session:', oauthError);
-      throw oauthError;
+      console.error('Error storing OAuth session:', {
+        message: oauthError.message,
+        details: oauthError.details,
+        hint: oauthError.hint,
+        code: oauthError.code
+      });
+      throw new Error(`Failed to store OAuth session: ${oauthError.message}`);
     }
 
     // Validate required config

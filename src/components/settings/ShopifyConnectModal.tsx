@@ -184,6 +184,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       setCheckInterval(intervalId);
     } catch (error) {
       console.error('Error connecting to Shopify:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        error
+      });
       setIsLoading(false);
       setHasError(true);
       setErrorMessage(error instanceof Error ? error.message : 'Failed to connect to Shopify');
