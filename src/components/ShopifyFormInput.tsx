@@ -20,11 +20,11 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
     return (
       <div className="space-y-2 w-full">
         {label && (
-          <label 
-            htmlFor={props.id} 
+          <label
+            htmlFor={props.id}
             className={cn(
               "text-sm font-medium transition-colors duration-150",
-              focused ? "text-black" : "text-gray-500"
+              focused ? "text-black dark:text-white" : "text-gray-500 dark:text-gray-400"
             )}
           >
             {label}
@@ -37,7 +37,7 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
         )}>
           <div className={cn(
             "absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground transition-all duration-200",
-            focused ? "text-black" : "text-gray-400"
+            focused ? "text-black dark:text-white" : "text-gray-400 dark:text-gray-500"
           )}>
             {props.type === "password" ? (
               <LockIcon className="h-4 w-4" />
@@ -59,14 +59,17 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
               props.onBlur?.(e);
             }}
             className={cn(
-              "flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm placeholder:text-muted-foreground text-gray-900",
+              "flex h-10 w-full rounded-md border px-3 py-2 pl-10 text-sm",
+              "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+              "text-gray-900 dark:text-white",
+              "bg-white dark:bg-gray-800",
               "ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium",
               "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary-500 focus-visible:border-primary-500",
               "disabled:cursor-not-allowed disabled:opacity-50",
               "transition-all duration-200 shadow-sm",
               error
-                ? "border-red-300 focus-visible:ring-1 focus-visible:ring-red-500 focus-visible:border-red-500"
-                : "border-gray-300 hover:border-gray-400",
+                ? "border-red-300 dark:border-red-600 focus-visible:ring-1 focus-visible:ring-red-500 focus-visible:border-red-500"
+                : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500",
               className
             )}
           />
@@ -78,13 +81,13 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
           )}>
             <div className={cn(
               "h-2 w-2 rounded-full transition-colors duration-200",
-              focused ? "bg-green-500" : "bg-gray-400"
+              focused ? "bg-green-500" : "bg-gray-400 dark:bg-gray-600"
             )} />
           </div>
         </div>
         
         {error && (
-          <p className="text-sm font-medium text-red-500 mt-1 ml-1 animate-in">
+          <p className="text-sm font-medium text-red-500 dark:text-red-400 mt-1 ml-1 animate-in">
             {error}
           </p>
         )}
