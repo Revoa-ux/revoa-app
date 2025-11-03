@@ -32,6 +32,23 @@ export default function ShopifyCallback() {
         }
 
         console.log('[Callback] Verifying state against database...');
+        console.log('[Callback] Looking for state:', state);
+        console.log('[Callback] User ID:', session.user.id);
+
+        // First, try to find ANY session with this state to debug
+        const { data: anySession, error: debugError } = await supabase
+          .from('oauth_sessions')
+          .select('*')
+          .eq('state', state)
+          .maybeSingle();
+
+        console.log('[Callback] Debug - Any session with state found?', anySession ? 'YES' : 'NO');
+        if (anySession) {
+          console.log('[Callback] Debug - Session user_id:', anySession.user_id);
+          console.log('[Callback] Debug - Current user_id:', session.user.id);
+          console.log('[Callback] Debug - Match?', anySession.user_id === session.user.id);
+        }
+
         const { data: oauthSession, error: sessionError } = await supabase
           .from('oauth_sessions')
           .select('*')
