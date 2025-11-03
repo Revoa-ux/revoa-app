@@ -104,13 +104,19 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
     }
 
     // Validate required config
+    console.log('[Auth] Checking Shopify config...');
+    console.log('[Auth] CLIENT_ID:', SHOPIFY_CONFIG.CLIENT_ID ? 'present' : '❌ MISSING ❌');
+    console.log('[Auth] REDIRECT_URI:', SHOPIFY_CONFIG.REDIRECT_URI);
+    console.log('[Auth] SCOPES:', SHOPIFY_CONFIG.SCOPES.substring(0, 50) + '...');
+
     if (!SHOPIFY_CONFIG.CLIENT_ID) {
-      console.error('SHOPIFY_CONFIG.CLIENT_ID is not defined');
-      throw new Error('Shopify configuration error: CLIENT_ID is missing');
+      console.error('❌ SHOPIFY_CONFIG.CLIENT_ID is not defined');
+      console.error('Check your .env file for VITE_SHOPIFY_CLIENT_ID');
+      throw new Error('Shopify configuration error: CLIENT_ID is missing. Check your .env file.');
     }
 
     if (!SHOPIFY_CONFIG.REDIRECT_URI) {
-      console.error('SHOPIFY_CONFIG.REDIRECT_URI is not defined');
+      console.error('❌ SHOPIFY_CONFIG.REDIRECT_URI is not defined');
       throw new Error('Shopify configuration error: REDIRECT_URI is missing');
     }
 
@@ -123,7 +129,9 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
     });
 
     const authUrl = `https://${normalizedDomain}/admin/oauth/authorize?${params.toString()}`;
-    console.debug('Generated auth URL:', authUrl);
+    console.log('[Auth] ✅ Generated auth URL:');
+    console.log('[Auth] URL:', authUrl);
+    console.log('[Auth] This URL should be opened in the popup...');
 
     return authUrl;
   } catch (error) {

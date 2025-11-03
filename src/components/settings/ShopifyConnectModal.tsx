@@ -93,12 +93,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       const authUrl = await getShopifyAuthUrl(validDomain);
       console.log('Auth URL generated:', authUrl);
 
+      // Debug: Show the URL before opening
+      if (!authUrl || !authUrl.startsWith('https://')) {
+        alert(`ERROR: Invalid auth URL generated: ${authUrl}\n\nCheck console for details.`);
+        throw new Error('Invalid auth URL generated');
+      }
+
       const width = 800;
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
-      console.log('Opening OAuth window...');
+      console.log('Opening OAuth window with URL:', authUrl);
       const authWindow = window.open(
         authUrl,
         'shopify-auth',
