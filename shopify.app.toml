@@ -5,31 +5,12 @@ application_url = "https://members.revoa.app"
 embedded = false
 
 [access_scopes]
-# This section defines the access scopes the app needs
-scopes = [
-  "read_products",
-  "write_products",
-  "read_orders",
-  "write_orders",
-  "read_customers",
-  "write_customers",
-  "read_inventory",
-  "write_inventory",
-  "read_reports",
-  "read_fulfillments",
-  "write_fulfillments",
-  "read_shipping",
-  "write_shipping",
-  "read_analytics",
-  "read_themes",
-  "write_themes",
-  "read_content",
-  "write_content",
-  "read_recurring_payments",
-  "write_recurring_payments",
-  "read_price_rules",
-  "write_price_rules"
-]
+# Required scopes for core functionality
+scopes = "read_products,write_products,read_orders,read_inventory"
+
+# Optional scope - only needed if syncing inventory back to Shopify
+# Uncomment if you implement inventory sync feature:
+# optional_scopes = "write_inventory"
 
 
 [auth]
