@@ -58,8 +58,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleConnect called', { shopUrl });
 
     if (!shopUrl.trim()) {
+      console.log('Shop URL is empty, returning');
       return;
     }
 
@@ -68,13 +70,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     setErrorMessage('');
 
     try {
+      console.log('Getting session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !session?.user) {
         throw new Error('Please sign in to connect your store');
       }
+      console.log('Session found:', session.user.id);
 
+      console.log('Validating store URL:', shopUrl);
       const validation = validateStoreUrl(shopUrl);
       if (!validation.success) {
+        console.error('Validation failed:', validation.error);
         setIsLoading(false);
         setHasError(true);
         setErrorMessage(validation.error || 'Invalid store URL');
@@ -82,13 +88,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       }
 
       const validDomain = validation.data;
+      console.log('Valid domain:', validDomain);
+      console.log('Getting Shopify auth URL...');
       const authUrl = await getShopifyAuthUrl(validDomain);
+      console.log('Auth URL generated:', authUrl);
 
       const width = 800;
       const height = 600;
       const left = window.screen.width / 2 - width / 2;
       const top = window.screen.height / 2 - height / 2;
 
+      console.log('Opening OAuth window...');
       const authWindow = window.open(
         authUrl,
         'shopify-auth',
@@ -96,8 +106,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       );
 
       if (!authWindow) {
+        console.error('Failed to open popup window');
         throw new Error('Please allow pop-ups for this site to connect your Shopify store');
       }
+      console.log('OAuth window opened successfully');
 
       if (checkInterval) {
         clearInterval(checkInterval);
