@@ -1,0 +1,136 @@
+import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Shopify-Hmac-Sha256, X-Shopify-Shop-Domain, X-Shopify-API-Version',
+};
+
+async function verifyWebhookHmac(body: string, hmac: string, secret: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(body)
+  );
+
+  const calculatedHmac = btoa(String.fromCharCode(...new Uint8Array(signature)));
+
+  return calculatedHmac === hmac;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
+
+  try {
+    console.log('[Uninstall Webhook] Received request');
+
+    const shop = req.headers.get('X-Shopify-Shop-Domain');
+    const hmac = req.headers.get('X-Shopify-Hmac-Sha256');
+    const apiVersion = req.headers.get('X-Shopify-API-Version');
+
+    console.log('[Uninstall Webhook] Headers:', { shop, hasHmac: !!hmac, apiVersion });
+
+    if (!shop || !hmac) {
+      console.error('[Uninstall Webhook] Missing required headers');
+      throw new Error('Missing required headers: shop or HMAC');
+    }
+
+    const body = await req.text();
+    console.log('[Uninstall Webhook] Body received, length:', body.length);
+
+    const secret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
+    if (!secret) {
+      console.error('[Uninstall Webhook] Missing SHOPIFY_CLIENT_SECRET');
+      throw new Error('Server configuration error');
+    }
+
+    const isValid = await verifyWebhookHmac(body, hmac, secret);
+    if (!isValid) {
+      console.error('[Uninstall Webhook] Invalid HMAC signature');
+      throw new Error('Invalid HMAC signature');
+    }
+
+    console.log('[Uninstall Webhook] HMAC verified successfully');
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[Uninstall Webhook] Missing Supabase credentials');
+      throw new Error('Server configuration error');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
+
+    const { data, error } = await supabase
+      .from('shopify_installations')
+      .update({
+        status: 'uninstalled',
+        uninstalled_at: new Date().toISOString(),
+        metadata: supabase.rpc('jsonb_set', {
+          target: 'metadata',
+          path: '{uninstall_reason}',
+          new_value: JSON.stringify('app_uninstalled_webhook'),
+        }),
+      })
+      .eq('store_url', shop)
+      .eq('status', 'installed')
+      .select();
+
+    if (error) {
+      console.error('[Uninstall Webhook] Database error:', error);
+      throw new Error(`Database error: ${error.message}`);
+    }
+
+    console.log('[Uninstall Webhook] Success:', data);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'App uninstalled successfully',
+        shop,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[Uninstall Webhook] Error:', errorMessage);
+
+    return new Response(
+      JSON.stringify({
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+});
