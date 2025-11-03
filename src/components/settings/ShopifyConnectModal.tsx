@@ -235,29 +235,29 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
 
               {hasError && (
-                <div className="border border-gray-200 dark:border-gray-700 bg-gray-900/80 dark:bg-gray-900/80 rounded-lg p-4">
+                <div className="border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
-                    <HelpCircle className="w-5 h-5 text-gray-300 dark:text-gray-400 mt-0.5 flex-shrink-0" />
+                    <HelpCircle className="w-5 h-5 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
                       {errorMessage && (
-                        <p className="font-medium text-red-400 dark:text-red-400 mb-2.5">{errorMessage}</p>
+                        <p className="font-medium text-red-600 dark:text-red-400 mb-2.5">{errorMessage}</p>
                       )}
-                      <p className="font-medium text-white dark:text-white mb-2.5">Having trouble connecting?</p>
-                      <ul className="space-y-2 text-gray-300 dark:text-gray-300">
+                      <p className="font-medium text-gray-900 dark:text-white mb-2.5">Having trouble connecting?</p>
+                      <ul className="space-y-2 text-gray-700 dark:text-gray-300">
                         <li className="flex items-start">
-                          <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                           <span>Make sure your browser allows popups</span>
                         </li>
                         <li className="flex items-start">
-                          <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                           <span>Make sure you are not logged into a different store in a separate tab</span>
                         </li>
                         <li className="flex items-start">
-                          <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                           <span>Must be on a paid and active Shopify plan</span>
                         </li>
                         <li className="flex items-start">
-                          <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
+                          <span className="inline-block w-1 h-1 rounded-full bg-gray-500 dark:bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                           <span>Must be an admin of the Shopify store</span>
                         </li>
                       </ul>
