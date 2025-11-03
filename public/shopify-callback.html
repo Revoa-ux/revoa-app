@@ -205,7 +205,13 @@
             type: 'shopify:success',
             shop: shop,
             data: result
-          }, window.location.origin);
+          }, '*');
+
+          // Also try to trigger a storage event as fallback
+          localStorage.setItem('shopify_oauth_success', JSON.stringify({
+            shop: shop,
+            timestamp: Date.now()
+          }));
         }
 
         // Close window after delay
@@ -234,7 +240,13 @@
           window.opener.postMessage({
             type: 'shopify:error',
             error: error.message || 'Failed to connect to Shopify'
-          }, window.location.origin);
+          }, '*');
+
+          // Also set localStorage error as fallback
+          localStorage.setItem('shopify_oauth_error', JSON.stringify({
+            error: error.message,
+            timestamp: Date.now()
+          }));
         }
 
         // Close window after delay

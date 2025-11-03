@@ -125,13 +125,13 @@ const SettingsPage = () => {
     fetchShopifyStatus();
   }, [user?.id]);
 
-  // Listen for OAuth callback messages
+  // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      console.log('Received message:', event.data);
+      console.log('[Settings] Received postMessage:', event.data);
 
       if (event.data?.type === 'shopify:success') {
-        console.log('Shopify connection successful');
+        console.log('[Settings] Shopify connection successful');
         setShopifyConnecting(false);
         setIntegrationStatus(prev => ({ ...prev, shopify: true }));
         setShopifyStore(event.data.shop);
@@ -150,15 +150,69 @@ const SettingsPage = () => {
             setShopifyStore(data.store_url);
           }
         }
+
+        localStorage.removeItem('shopify_oauth_success');
       } else if (event.data?.type === 'shopify:error') {
-        console.log('Shopify connection error:', event.data.error);
+        console.log('[Settings] Shopify connection error:', event.data.error);
         setShopifyConnecting(false);
         toast.error(event.data.error || 'Failed to connect Shopify');
+        localStorage.removeItem('shopify_oauth_error');
       }
     };
 
+    // Poll localStorage as fallback for when postMessage doesn't work
+    const pollInterval = setInterval(async () => {
+      const successFlag = localStorage.getItem('shopify_oauth_success');
+      const errorFlag = localStorage.getItem('shopify_oauth_error');
+
+      if (successFlag) {
+        try {
+          const data = JSON.parse(successFlag);
+          console.log('[Settings] Detected OAuth success in localStorage:', data);
+
+          setShopifyConnecting(false);
+          setIntegrationStatus(prev => ({ ...prev, shopify: true }));
+          setShopifyStore(data.shop);
+          toast.success('Shopify store connected successfully');
+
+          if (user?.id) {
+            const { data: shopifyData } = await supabase
+              .from('shopify_installations')
+              .select('store_url, status')
+              .eq('user_id', user.id)
+              .eq('status', 'installed')
+              .maybeSingle();
+
+            if (shopifyData) {
+              setShopifyStore(shopifyData.store_url);
+            }
+          }
+
+          localStorage.removeItem('shopify_oauth_success');
+        } catch (error) {
+          console.error('[Settings] Error parsing success flag:', error);
+        }
+      }
+
+      if (errorFlag) {
+        try {
+          const data = JSON.parse(errorFlag);
+          console.error('[Settings] Detected OAuth error in localStorage:', data.error);
+          setShopifyConnecting(false);
+          toast.error(data.error || 'Failed to connect Shopify');
+          localStorage.removeItem('shopify_oauth_error');
+        } catch (error) {
+          console.error('[Settings] Error parsing error flag:', error);
+        }
+      }
+    }, 500); // Poll every 500ms
+
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      clearInterval(pollInterval);
+    };
   }, [user?.id]);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
