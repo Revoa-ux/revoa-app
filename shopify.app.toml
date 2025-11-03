@@ -34,8 +34,8 @@ scopes = [
 
 [auth]
 redirect_urls = [
-  "https://members.revoa.app/auth/callback",
-  "http://localhost:5173/auth/callback"
+  "https://members.revoa.app/shopify-callback.html",
+  "http://localhost:5173/shopify-callback.html"
 ]
 
 [webhooks]

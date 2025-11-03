@@ -1,5 +1,6 @@
 import { supabase } from '../supabase';
 import { SHOPIFY_CONFIG } from '../config';
+import * as GraphQL from './graphql';
 
 // Types for Shopify API responses
 export interface ShopifyCustomer {
@@ -216,27 +217,27 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       return getDefaultMetrics();
     }
 
-    // Use count endpoints that DON'T require protected customer data access
-    console.log('[Shopify API] Fetching order count...');
-    const ordersCountResponse = await fetchFromShopify<{ count: number }>('/orders/count.json?status=any');
-    const totalOrders = ordersCountResponse.count;
-    console.log('[Shopify API] Total orders:', totalOrders);
-
-    console.log('[Shopify API] Fetching product count...');
-    const productsCountResponse = await fetchFromShopify<{ count: number }>('/products/count.json');
-    const totalProducts = productsCountResponse.count;
+    // Use GraphQL to get counts and product data
+    console.log('[Shopify API] Fetching product count via GraphQL...');
+    const totalProducts = await GraphQL.getProductsCount();
     console.log('[Shopify API] Total products:', totalProducts);
 
     // Fetch products for inventory calculation
-    console.log('[Shopify API] Fetching products for inventory...');
-    const productsResponse = await fetchFromShopify<{ products: ShopifyProduct[] }>('/products.json?limit=250');
-    const products = productsResponse.products;
+    console.log('[Shopify API] Fetching products via GraphQL...');
+    const products = await GraphQL.getProducts(250);
     console.log('[Shopify API] Found', products.length, 'products');
 
-    // Calculate inventory value
+    // Fetch orders to get count
+    console.log('[Shopify API] Fetching orders via GraphQL...');
+    const orders = await GraphQL.getOrders(250);
+    const totalOrders = orders.length;
+    console.log('[Shopify API] Total orders:', totalOrders);
+
+    // Calculate inventory value from GraphQL data
     const inventoryValue = products.reduce((sum, product) => {
-      return sum + product.variants.reduce((variantSum, variant) => {
-        return variantSum + (parseFloat(variant.price) * variant.inventory_quantity);
+      return sum + product.variants.edges.reduce((variantSum, variantEdge) => {
+        const variant = variantEdge.node;
+        return variantSum + (parseFloat(variant.price) * variant.inventoryQuantity);
       }, 0);
     }, 0);
 
@@ -360,11 +361,10 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     const startDateStr = startDate.toISOString();
     const endDateStr = endDate.toISOString();
 
-    // Use count endpoint for orders in date range
-    const ordersCountResponse = await fetchFromShopify<{ count: number }>(
-      `/orders/count.json?status=any&created_at_min=${startDateStr}&created_at_max=${endDateStr}`
-    );
-    const numberOfOrders = ordersCountResponse.count;
+    // Use GraphQL to fetch orders in date range
+    const query = `created_at:>='${startDateStr}' AND created_at:<='${endDateStr}'`;
+    const orders = await GraphQL.getOrders(1000, query);
+    const numberOfOrders = orders.length;
 
     // Estimated metrics based on order count (using industry averages)
     const averageOrderValue = 75;
@@ -468,7 +468,7 @@ const getDefaultCalculatorMetrics = (): ShopifyCalculatorMetrics => {
   };
 };
 
-// Create a product in Shopify
+// Create a product in Shopify using GraphQL
 export const createShopifyProduct = async (productData: {
   title: string;
   body_html?: string;
@@ -484,16 +484,53 @@ export const createShopifyProduct = async (productData: {
     src: string;
   }>;
 }): Promise<ShopifyProduct> => {
-  console.log('[Shopify API] Creating product:', productData.title);
+  console.log('[Shopify API] Creating product via GraphQL:', productData.title);
 
-  // Use the proxy endpoint to create the product
-  const response = await fetchFromShopify<{ product: ShopifyProduct }>('/products.json', {
-    method: 'POST',
-    body: JSON.stringify({ product: productData }),
-  });
+  // Convert REST-style input to GraphQL format
+  const input: any = {
+    title: productData.title,
+    descriptionHtml: productData.body_html,
+    vendor: productData.vendor,
+    productType: productData.product_type,
+    status: 'ACTIVE',
+  };
 
-  console.log('[Shopify API] Product created successfully:', response.product.id);
-  return response.product;
+  if (productData.variants && productData.variants.length > 0) {
+    input.variants = productData.variants.map(v => ({
+      price: v.price,
+      compareAtPrice: v.compare_at_price,
+      sku: v.sku,
+      inventoryQuantity: v.inventory_quantity,
+    }));
+  }
+
+  const product = await GraphQL.createProduct(input);
+
+  // Convert GraphQL response to REST format for backward compatibility
+  const restProduct: ShopifyProduct = {
+    id: product.id.replace('gid://shopify/Product/', ''),
+    title: product.title,
+    vendor: product.vendor,
+    product_type: product.productType,
+    created_at: product.createdAt,
+    updated_at: product.updatedAt,
+    published_at: product.publishedAt,
+    variants: product.variants.edges.map(edge => ({
+      id: edge.node.id.replace('gid://shopify/ProductVariant/', ''),
+      title: edge.node.title,
+      price: edge.node.price,
+      sku: edge.node.sku || '',
+      inventory_quantity: edge.node.inventoryQuantity,
+      inventory_management: edge.node.inventoryManagement || '',
+    })),
+    images: product.images.edges.map(edge => ({
+      id: edge.node.id.replace('gid://shopify/ProductImage/', ''),
+      src: edge.node.url,
+    })),
+  };
+
+  console.log('[Shopify API] Product created successfully:', restProduct.id);
+  return restProduct;
 };
 
 // Debug utility to check Shopify connection status

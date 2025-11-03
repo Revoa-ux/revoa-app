@@ -213,6 +213,7 @@ Deno.serve(async (req: Request) => {
     const shopifyUrl = `https://${installation.store_url}/admin/api/${SHOPIFY_API_VERSION}${endpoint}`;
     console.log('[Shopify Proxy] Shopify URL:', shopifyUrl);
 
+    // For GraphQL requests, we need to send the body as-is
     const shopifyResponse = await fetch(shopifyUrl, {
       method: req.method,
       headers: {
