@@ -26,6 +26,7 @@ import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
 import CallbackHandler from './components/shopify/CallbackHandler';
+import ShopifyCallback from './pages/ShopifyCallback';
 import Pricing from './pages/Pricing';
 import Products from './pages/Products';
 import Privacy from './pages/Privacy';
@@ -145,6 +146,7 @@ function App() {
               </UserProtectedRoute>
             } />
             <Route path="/auth/callback" element={<CallbackHandler />} />
+            <Route path="/shopify-callback" element={<ShopifyCallback />} />
             
             {/* Main app routes */}
             <Route path="/" element={

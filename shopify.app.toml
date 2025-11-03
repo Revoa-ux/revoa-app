@@ -15,8 +15,8 @@ scopes = "read_products,write_products,read_orders,read_inventory"
 
 [auth]
 redirect_urls = [
-  "https://members.revoa.app/shopify-callback.html",
-  "http://localhost:5173/shopify-callback.html"
+  "https://members.revoa.app/shopify-callback",
+  "http://localhost:5173/shopify-callback"
 ]
 
 [webhooks]
