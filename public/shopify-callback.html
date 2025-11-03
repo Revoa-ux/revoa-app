@@ -134,21 +134,6 @@
           throw new Error('Missing required OAuth parameters');
         }
 
-        // Get stored state and shop from localStorage (parent window's localStorage)
-        const storedState = localStorage.getItem('shopify_state');
-        const storedShop = localStorage.getItem('shopify_shop');
-
-        console.log('Stored values:', { storedState, storedShop });
-
-        // Verify state parameter
-        if (!storedState || state !== storedState) {
-          throw new Error('Invalid state parameter - security check failed');
-        }
-
-        if (!storedShop || shop !== storedShop) {
-          throw new Error('Shop mismatch - security check failed');
-        }
-
         // Get Supabase client details - hardcoded for static HTML
         const supabaseUrl = 'https://iipaykvimkbbnoobtpzz.supabase.co';
         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA';
@@ -157,20 +142,16 @@
           throw new Error('Supabase configuration missing');
         }
 
-        // Get the session token from localStorage
-        const authData = localStorage.getItem('sb-' + supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
-        if (!authData) {
-          throw new Error('Authentication required - please sign in');
-        }
-
-        const { access_token } = JSON.parse(authData);
+        // Verify state and shop exist in database (don't use localStorage - popup can't access it)
+        // The edge function will verify these and get the user_id from the oauth_sessions table
+        console.log('Calling edge function to complete OAuth...');
 
         // Call our edge function to handle the OAuth completion
+        // The edge function will verify the state parameter and retrieve the user_id from the database
         const response = await fetch(`${supabaseUrl}/functions/v1/shopify-proxy`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access_token}`,
             'apikey': supabaseAnonKey
           },
           body: JSON.stringify({

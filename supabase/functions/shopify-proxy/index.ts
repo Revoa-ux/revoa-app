@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const SHOPIFY_API_VERSION = '2025-01';
 
-async function handleOAuthCompletion(req: Request, supabase: any, user: any) {
+async function handleOAuthCompletion(req: Request, supabase: any) {
   const body = await req.json();
   const { shop, code, state } = body;
 
@@ -17,6 +17,30 @@ async function handleOAuthCompletion(req: Request, supabase: any, user: any) {
   if (!shop || !code || !state) {
     throw new Error('Missing required OAuth parameters');
   }
+
+  // Retrieve user_id from oauth_sessions table using state parameter
+  console.log('[OAuth] Looking up OAuth session for state:', state);
+  const { data: oauthSession, error: sessionError } = await supabase
+    .from('oauth_sessions')
+    .select('user_id, shop_domain, expires_at')
+    .eq('state', state)
+    .eq('shop_domain', shop)
+    .maybeSingle();
+
+  if (sessionError || !oauthSession) {
+    console.error('[OAuth] OAuth session not found or error:', sessionError);
+    throw new Error('Invalid or expired OAuth session. Please try again.');
+  }
+
+  // Check if session has expired (5 minutes)
+  const expiresAt = new Date(oauthSession.expires_at);
+  if (expiresAt < new Date()) {
+    console.error('[OAuth] OAuth session expired');
+    throw new Error('OAuth session expired. Please try again.');
+  }
+
+  const userId = oauthSession.user_id;
+  console.log('[OAuth] Found user_id from session:', userId);
 
   const clientId = Deno.env.get('SHOPIFY_CLIENT_ID');
   const clientSecret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
@@ -54,7 +78,7 @@ async function handleOAuthCompletion(req: Request, supabase: any, user: any) {
   const { error: installError } = await supabase
     .from('shopify_installations')
     .upsert({
-      user_id: user.id,
+      user_id: userId,
       store_url: shop,
       access_token,
       scopes: scope.split(','),
@@ -72,13 +96,14 @@ async function handleOAuthCompletion(req: Request, supabase: any, user: any) {
     throw new Error(`Failed to save installation: ${installError.message}`);
   }
 
-  // Delete the OAuth session
-  console.log('[OAuth] Deleting OAuth session');
+  // Mark OAuth session as completed
+  console.log('[OAuth] Marking OAuth session as completed');
   await supabase
     .from('oauth_sessions')
-    .delete()
-    .eq('user_id', user.id)
-    .eq('shop_domain', shop)
+    .update({
+      completed_at: new Date().toISOString(),
+      error: null
+    })
     .eq('state', state);
 
   console.log('[OAuth] OAuth completion successful');
@@ -95,16 +120,6 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // Get the authorization header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('[Shopify Proxy] Missing authorization header');
-      throw new Error('Missing authorization header');
-    }
-
-    // Extract JWT token
-    const token = authHeader.replace('Bearer ', '');
-
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -114,11 +129,49 @@ Deno.serve(async (req: Request) => {
       throw new Error('Server configuration error');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: { Authorization: authHeader },
-      },
-    });
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check if this is an OAuth completion request (doesn't require auth)
+    if (req.method === 'POST') {
+      const contentType = req.headers.get('Content-Type') || '';
+      if (contentType.includes('application/json')) {
+        const bodyText = await req.text();
+        let body;
+        try {
+          body = JSON.parse(bodyText);
+        } catch {
+          body = {};
+        }
+
+        if (body.action === 'complete-oauth') {
+          console.log('[Shopify Proxy] Handling OAuth completion (no auth required)');
+          const result = await handleOAuthCompletion(
+            new Request(req.url, {
+              method: req.method,
+              headers: req.headers,
+              body: JSON.stringify(body),
+            }),
+            supabase
+          );
+          return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Continue with normal proxy if not OAuth completion
+      }
+    }
+
+    // For non-OAuth requests, require authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('[Shopify Proxy] Missing authorization header');
+      throw new Error('Missing authorization header');
+    }
+
+    // Extract JWT token
+    const token = authHeader.replace('Bearer ', '');
 
     // Get the authenticated user
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
@@ -132,38 +185,6 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log('[Shopify Proxy] Request from user:', user.id);
-
-    // Check if this is an OAuth completion request
-    if (req.method === 'POST') {
-      const contentType = req.headers.get('Content-Type') || '';
-      if (contentType.includes('application/json')) {
-        const bodyText = await req.text();
-        let body;
-        try {
-          body = JSON.parse(bodyText);
-        } catch {
-          body = {};
-        }
-
-        if (body.action === 'complete-oauth') {
-          const result = await handleOAuthCompletion(
-            new Request(req.url, {
-              method: req.method,
-              headers: req.headers,
-              body: JSON.stringify(body),
-            }),
-            supabase,
-            user
-          );
-          return new Response(JSON.stringify(result), {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        }
-
-        // Continue with normal proxy if not OAuth completion
-      }
-    }
 
     // Get user's Shopify installation
     console.log('[Shopify Proxy] Fetching installation for user:', user.id);
