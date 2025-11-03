@@ -10,7 +10,8 @@ import {
   Key,
   Copy,
   Eye,
-  EyeOff
+  EyeOff,
+  DollarSign
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
