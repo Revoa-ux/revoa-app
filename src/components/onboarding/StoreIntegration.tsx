@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { HelpCircle, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
-import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
@@ -184,7 +183,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   };
 
   return (
-    <div className="max-w-[540px] mx-auto">
+    <div className="max-w-[540px] mx-auto light">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
@@ -201,19 +200,19 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         </div>
 
         <div className="max-w-md mx-auto">
-          <GlassCard>
+          <div className="bg-gray-100/50 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <form onSubmit={handleConnect} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL
                 </label>
-                <div className="relative">
+                <div className="relative light">
                   <ShopifyFormInput
                     value={shopUrl}
                     onChange={handleShopChange}
                     disabled={isLoading}
                     placeholder="your-store.myshopify.com"
-                    className="pr-12"
+                    className="pr-12 !bg-white !text-gray-900 !border-gray-300"
                   />
                   <button
                     type="submit"
@@ -255,7 +254,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               </div>
               )}
             </form>
-          </GlassCard>
+          </div>
         </div>
       </div>
     </div>
