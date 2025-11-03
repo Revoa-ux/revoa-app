@@ -161,29 +161,29 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
       throw new Error('Missing required parameters');
     }
 
-    // Verify state parameter
-    const storedState = localStorage.getItem('shopify_state');
-    const storedShop = localStorage.getItem('shopify_shop');
+    // Verify state parameter and get user_id from database
+    // NOTE: We don't use localStorage here because popup windows may not have access
+    // to the parent window's localStorage. Instead, we retrieve everything from the database.
+    const { data: oauthSession, error: oauthError } = await supabase
+      .from('oauth_sessions')
+      .select('*')
+      .eq('state', state)
+      .eq('shop_domain', shop)
+      .single();
 
-    console.debug('Stored values:', { storedState, storedShop });
-
-    if (!storedState || state !== storedState) {
-      console.error('State mismatch:', { received: state, stored: storedState });
-      throw new Error('Invalid state parameter');
+    if (oauthError || !oauthSession) {
+      console.error('OAuth session not found or error:', oauthError);
+      throw new Error('Invalid or expired OAuth session. Please try again.');
     }
 
-    if (!storedShop || shop !== storedShop) {
-      console.error('Shop mismatch:', { received: shop, stored: storedShop });
-      throw new Error('Shop mismatch');
+    // Check if session has expired (5 minutes)
+    const expiresAt = new Date(oauthSession.expires_at);
+    if (expiresAt < new Date()) {
+      console.error('OAuth session expired');
+      throw new Error('OAuth session expired. Please try again.');
     }
 
-    // Get current session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) throw sessionError;
-
-    if (!session?.user) {
-      throw new Error('No authenticated user found');
-    }
+    const userId = oauthSession.user_id;
 
     // Exchange code for access token
     const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
@@ -209,7 +209,7 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
     const { error: installError } = await supabase
       .from('shopify_installations')
       .upsert({
-        user_id: session.user.id,
+        user_id: userId,
         store_url: shop,
         access_token,
         scopes: scope.split(','),
@@ -226,6 +226,15 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
       console.error('Error creating Shopify installation:', installError);
       throw installError;
     }
+
+    // Mark OAuth session as completed
+    await supabase
+      .from('oauth_sessions')
+      .update({
+        completed_at: new Date().toISOString(),
+        error: null
+      })
+      .eq('state', state);
 
     // Save auth data to localStorage for backward compatibility
     const authData: ShopifyAuthData = {
