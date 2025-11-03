@@ -7,9 +7,8 @@ export const config = {
     isProduction: import.meta.env.PROD
   },
   supabase: {
-    url: import.meta.env.VITE_SUPABASE_URL || 'https://iipaykvimkbbnoobtpzz.supabase.co',
-    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    serviceKey: import.meta.env.VITE_SUPABASE_SERVICE_KEY
+    url: import.meta.env.VITE_SUPABASE_URL,
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY
   },
   auth: {
     cookieName: 'sb-auth-token',
@@ -27,8 +26,7 @@ export const config = {
 // Shopify configuration
 export const SHOPIFY_CONFIG = {
   // App credentials
-  CLIENT_ID: import.meta.env.VITE_SHOPIFY_CLIENT_ID || "21f747d6719351a523236f5481e5a60c",
-  CLIENT_SECRET: import.meta.env.VITE_SHOPIFY_CLIENT_SECRET,
+  CLIENT_ID: import.meta.env.VITE_SHOPIFY_CLIENT_ID,
 
   // URLs
   APP_URL: import.meta.env.VITE_APP_URL || 'https://members.revoa.app',

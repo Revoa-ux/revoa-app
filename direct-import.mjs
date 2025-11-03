@@ -2,14 +2,13 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 
 const env = fs.readFileSync('.env', 'utf8');
-const matches = env.match(/VITE_SUPABASE_URL=(.+)/);
-const matches2 = env.match(/VITE_SUPABASE_ANON_KEY=(.+)/);
+const urlMatch = env.match(/VITE_SUPABASE_URL=(.+)/);
+const anonMatch = env.match(/VITE_SUPABASE_ANON_KEY=(.+)/);
+const serviceMatch = env.match(/VITE_SUPABASE_SERVICE_KEY=(.+)/);
 
-const SUPABASE_URL = matches[1].trim();
-const ANON_KEY = matches2[1].trim();
-
-// Use service role key for direct access
-const SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjE2NTgxOCwiZXhwIjoyMDU3NzQxODE4fQ.n-SS4_dMZK-C22FS-iMKy8PrdFODG1XROCiCJlwpFH8";
+const SUPABASE_URL = urlMatch[1].trim();
+const ANON_KEY = anonMatch[1].trim();
+const SERVICE_ROLE_KEY = serviceMatch[1].trim();
 
 console.log("============================================================");
 console.log("AI Agent - Product Import Tool (Direct Mode)");

@@ -1,8 +1,7 @@
 // App credentials
 export const SHOPIFY_CONFIG = {
   // App credentials
-  CLIENT_ID: import.meta.env.VITE_SHOPIFY_CLIENT_ID || "21f747d6719351a523236f5481e5a60c",
-  CLIENT_SECRET: import.meta.env.VITE_SHOPIFY_CLIENT_SECRET,
+  CLIENT_ID: import.meta.env.VITE_SHOPIFY_CLIENT_ID,
   
   // URLs
   APP_URL: import.meta.env.VITE_APP_URL || 'https://members.revoa.app',
