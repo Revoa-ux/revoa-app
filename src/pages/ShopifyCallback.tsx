@@ -26,23 +26,41 @@ export default function ShopifyCallback() {
           throw new Error('Missing required OAuth parameters');
         }
 
-        const storedState = localStorage.getItem('shopify_state');
-        const storedShop = localStorage.getItem('shopify_shop');
-
-        console.log('[Callback] Stored values:', { storedState, storedShop });
-
-        if (!storedState || state !== storedState) {
-          throw new Error('Invalid state parameter - security check failed');
-        }
-
-        if (!storedShop || shop !== storedShop) {
-          throw new Error('Shop mismatch - security check failed');
-        }
-
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) {
           throw new Error('Authentication required - please sign in');
         }
+
+        console.log('[Callback] Verifying state against database...');
+        const { data: oauthSession, error: sessionError } = await supabase
+          .from('oauth_sessions')
+          .select('*')
+          .eq('state', state)
+          .eq('user_id', session.user.id)
+          .maybeSingle();
+
+        if (sessionError) {
+          console.error('[Callback] Error checking OAuth session:', sessionError);
+          throw new Error('Failed to verify OAuth state');
+        }
+
+        if (!oauthSession) {
+          console.error('[Callback] No matching OAuth session found for state:', state);
+          throw new Error('Invalid state parameter - security check failed');
+        }
+
+        if (oauthSession.shop_domain !== shop) {
+          console.error('[Callback] Shop mismatch:', { expected: oauthSession.shop_domain, received: shop });
+          throw new Error('Shop mismatch - security check failed');
+        }
+
+        const expiresAt = new Date(oauthSession.expires_at);
+        if (expiresAt < new Date()) {
+          console.error('[Callback] OAuth session expired:', { expiresAt, now: new Date() });
+          throw new Error('OAuth session expired - please try again');
+        }
+
+        console.log('[Callback] State verification successful');
 
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
         const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
