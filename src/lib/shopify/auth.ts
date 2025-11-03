@@ -131,7 +131,12 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
     const authUrl = `https://${normalizedDomain}/admin/oauth/authorize?${params.toString()}`;
     console.log('[Auth] ✅ Generated auth URL:');
     console.log('[Auth] URL:', authUrl);
-    console.log('[Auth] This URL should be opened in the popup...');
+    console.log('[Auth] redirect_uri being sent:', SHOPIFY_CONFIG.REDIRECT_URI);
+    console.log('[Auth] ⚠️  CRITICAL: redirect_uri MUST match one of these EXACTLY:');
+    console.log('[Auth]   - https://members.revoa.app/shopify-callback');
+    console.log('[Auth]   - http://localhost:5173/shopify-callback');
+    console.log('[Auth]   - https://members.revoa.app/shopify-callback.html');
+    console.log('[Auth]   - http://localhost:5173/shopify-callback.html');
 
     return authUrl;
   } catch (error) {
