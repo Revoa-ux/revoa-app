@@ -46,7 +46,9 @@ export default function ShopifyCallback() {
 
         if (!oauthSession) {
           console.error('[Callback] No matching OAuth session found for state:', state);
-          throw new Error('Invalid state parameter - security check failed');
+          console.error('[Callback] User ID:', session.user.id);
+          console.error('[Callback] This may occur if testing on a preview environment with a different database');
+          throw new Error('Invalid state parameter - security check failed. Are you testing on a preview environment?');
         }
 
         if (oauthSession.shop_domain !== shop) {

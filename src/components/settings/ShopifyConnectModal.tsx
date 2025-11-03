@@ -224,7 +224,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               <img
                 src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                 alt="Revoa Store Sync"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain dark:invert"
               />
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
