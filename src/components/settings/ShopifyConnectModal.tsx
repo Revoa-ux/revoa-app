@@ -21,6 +21,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -64,6 +65,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
     setIsLoading(true);
     setHasError(false);
+    setErrorMessage('');
 
     try {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -75,6 +77,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (!validation.success) {
         setIsLoading(false);
         setHasError(true);
+        setErrorMessage(validation.error || 'Invalid store URL');
         return;
       }
 
@@ -171,6 +174,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       console.error('Error connecting to Shopify:', error);
       setIsLoading(false);
       setHasError(true);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to connect to Shopify');
     }
   };
 
@@ -235,6 +239,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   <div className="flex items-start space-x-3">
                     <HelpCircle className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
+                      {errorMessage && (
+                        <p className="font-medium text-red-600 dark:text-red-400 mb-2.5">{errorMessage}</p>
+                      )}
                       <p className="font-medium text-gray-900 dark:text-white mb-2.5">Having trouble connecting?</p>
                       <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                         <li className="flex items-start">

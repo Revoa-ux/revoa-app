@@ -98,6 +98,17 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
       throw oauthError;
     }
 
+    // Validate required config
+    if (!SHOPIFY_CONFIG.CLIENT_ID) {
+      console.error('SHOPIFY_CONFIG.CLIENT_ID is not defined');
+      throw new Error('Shopify configuration error: CLIENT_ID is missing');
+    }
+
+    if (!SHOPIFY_CONFIG.REDIRECT_URI) {
+      console.error('SHOPIFY_CONFIG.REDIRECT_URI is not defined');
+      throw new Error('Shopify configuration error: REDIRECT_URI is missing');
+    }
+
     // Build the authorization URL with required parameters
     const params = new URLSearchParams({
       client_id: SHOPIFY_CONFIG.CLIENT_ID,
