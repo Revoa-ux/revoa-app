@@ -8,6 +8,83 @@ const corsHeaders = {
 
 const SHOPIFY_API_VERSION = '2025-01';
 
+async function handleOAuthCompletion(req: Request, supabase: any, user: any) {
+  const body = await req.json();
+  const { shop, code, state } = body;
+
+  console.log('[OAuth] Completing OAuth for shop:', shop);
+
+  if (!shop || !code || !state) {
+    throw new Error('Missing required OAuth parameters');
+  }
+
+  const clientId = Deno.env.get('SHOPIFY_CLIENT_ID');
+  const clientSecret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
+
+  if (!clientId || !clientSecret) {
+    console.error('[OAuth] Missing Shopify credentials');
+    throw new Error('Server configuration error');
+  }
+
+  // Exchange code for access token
+  console.log('[OAuth] Exchanging code for access token');
+  const tokenResponse = await fetch(`https://${shop}/admin/oauth/access_token`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+    }),
+  });
+
+  if (!tokenResponse.ok) {
+    const error = await tokenResponse.text();
+    console.error('[OAuth] Token exchange failed:', error);
+    throw new Error(`Failed to exchange token: ${error}`);
+  }
+
+  const { access_token, scope } = await tokenResponse.json();
+  console.log('[OAuth] Access token obtained successfully');
+
+  // Save installation to database
+  console.log('[OAuth] Saving installation to database');
+  const { error: installError } = await supabase
+    .from('shopify_installations')
+    .upsert({
+      user_id: user.id,
+      store_url: shop,
+      access_token,
+      scopes: scope.split(','),
+      status: 'installed',
+      installed_at: new Date().toISOString(),
+      last_auth_at: new Date().toISOString(),
+      metadata: {
+        install_count: 1,
+        last_install: new Date().toISOString(),
+      },
+    });
+
+  if (installError) {
+    console.error('[OAuth] Error saving installation:', installError);
+    throw new Error(`Failed to save installation: ${installError.message}`);
+  }
+
+  // Delete the OAuth session
+  console.log('[OAuth] Deleting OAuth session');
+  await supabase
+    .from('oauth_sessions')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('shop_domain', shop)
+    .eq('state', state);
+
+  console.log('[OAuth] OAuth completion successful');
+  return { success: true, shop };
+}
+
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -31,7 +108,7 @@ Deno.serve(async (req: Request) => {
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    
+
     if (!supabaseUrl || !supabaseKey) {
       console.error('[Shopify Proxy] Missing Supabase environment variables');
       throw new Error('Server configuration error');
@@ -55,6 +132,38 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log('[Shopify Proxy] Request from user:', user.id);
+
+    // Check if this is an OAuth completion request
+    if (req.method === 'POST') {
+      const contentType = req.headers.get('Content-Type') || '';
+      if (contentType.includes('application/json')) {
+        const bodyText = await req.text();
+        let body;
+        try {
+          body = JSON.parse(bodyText);
+        } catch {
+          body = {};
+        }
+
+        if (body.action === 'complete-oauth') {
+          const result = await handleOAuthCompletion(
+            new Request(req.url, {
+              method: req.method,
+              headers: req.headers,
+              body: JSON.stringify(body),
+            }),
+            supabase,
+            user
+          );
+          return new Response(JSON.stringify(result), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Continue with normal proxy if not OAuth completion
+      }
+    }
 
     // Get user's Shopify installation
     console.log('[Shopify Proxy] Fetching installation for user:', user.id);
