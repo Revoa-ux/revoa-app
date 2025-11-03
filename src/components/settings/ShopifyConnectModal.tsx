@@ -209,7 +209,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             </p>
           </div>
 
-          <GlassCard>
+          <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6">
             <form onSubmit={handleConnect} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -266,7 +266,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </div>
               )}
             </form>
-          </GlassCard>
+          </div>
         </div>
       </div>
     </div>
