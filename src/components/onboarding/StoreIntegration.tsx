@@ -16,6 +16,31 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
 
+  // Check if store is already connected on mount
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+
+        const { data: installation } = await supabase
+          .from('shopify_installations')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .eq('status', 'installed')
+          .maybeSingle();
+
+        if (installation) {
+          onStoreConnected(true);
+        }
+      } catch (error) {
+        console.error('Error checking existing connection:', error);
+      }
+    };
+
+    checkExistingConnection();
+  }, [onStoreConnected]);
+
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
   };

@@ -241,11 +241,28 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       }, 0);
     }, 0);
 
-    // Estimated metrics based on order count (using industry averages)
-    // Note: Customer count estimated from orders (typically 0.7-0.8 ratio)
-    const totalCustomers = Math.round(totalOrders * 0.75); // Estimate customers as 75% of orders
-    const averageOrderValue = 75; // Industry average
-    const totalRevenue = totalOrders * averageOrderValue;
+    // Calculate real metrics from actual order data
+    const totalRevenue = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalPriceSet.shopMoney.amount);
+    }, 0);
+
+    const totalTaxes = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalTaxSet.shopMoney.amount);
+    }, 0);
+
+    const totalShipping = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalShippingPriceSet.shopMoney.amount);
+    }, 0);
+
+    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    // Count unique customers
+    const uniqueCustomers = new Set(
+      orders.filter(o => o.customer?.id).map(o => o.customer!.id)
+    );
+    const totalCustomers = uniqueCustomers.size;
+
+    // Estimate COGS at 30% margin (could be improved with product cost data)
     const profitMargin = 30;
     const costOfGoodsSold = totalRevenue * (1 - profitMargin / 100);
 
@@ -259,13 +276,13 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     // New customers today (estimate 1% of total)
     const newCustomersToday = Math.round(totalCustomers * 0.01);
 
-    // Shipping costs (estimate 10% of revenue)
-    const shippingCosts = totalRevenue * 0.1;
+    // Use actual shipping from orders
+    const shippingCosts = totalShipping;
 
-    // Transaction fees (2.9% + $0.30 per transaction)
+    // Transaction fees (2.9% + $0.30 per transaction for Shopify Payments)
     const transactionFees = totalOrders * 0.30 + totalRevenue * 0.029;
 
-    // Refunds (estimate 2% of orders)
+    // Refunds (estimate 2% of orders - would need refunds API for real data)
     const refunds = totalRevenue * 0.02;
 
     const chargebacks = 0;
@@ -366,11 +383,20 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     const orders = await GraphQL.getOrders(1000, query);
     const numberOfOrders = orders.length;
 
-    // Estimated metrics based on order count (using industry averages)
-    const averageOrderValue = 75;
-    const totalRevenue = numberOfOrders * averageOrderValue;
-    const taxesCollected = totalRevenue * 0.08; // Estimate 8% tax
-    const shippingRevenue = totalRevenue * 0.1; // Estimate 10% shipping
+    // Calculate real metrics from actual order data
+    const totalRevenue = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalPriceSet.shopMoney.amount);
+    }, 0);
+
+    const taxesCollected = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalTaxSet.shopMoney.amount);
+    }, 0);
+
+    const shippingRevenue = orders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalShippingPriceSet.shopMoney.amount);
+    }, 0);
+
+    const averageOrderValue = numberOfOrders > 0 ? totalRevenue / numberOfOrders : 0;
 
     // Cost of goods sold (30% margin)
     const grossMarginPercent = 30;
