@@ -87,12 +87,7 @@ const SignUpNew = () => {
                 <img
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                   alt="Logo"
-                  className="w-full h-full object-contain dark:hidden"
-                />
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Icon.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain hidden dark:block"
+                  className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
                 />
               </div>
             </div>

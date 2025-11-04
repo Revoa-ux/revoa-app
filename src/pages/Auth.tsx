@@ -212,12 +212,7 @@ const Auth = () => {
                 <img
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                   alt="Logo"
-                  className="w-full h-full object-contain dark:hidden"
-                />
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Icon.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain hidden dark:block"
+                  className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
                 />
               </div>
             </div>
@@ -396,10 +391,10 @@ const Auth = () => {
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded"
+                        className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={isLoading}
                       />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300 cursor-pointer">
                         Remember me
                       </label>
                     </div>
