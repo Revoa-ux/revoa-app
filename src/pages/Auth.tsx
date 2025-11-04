@@ -208,7 +208,7 @@ const Auth = () => {
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-32 h-8 relative">
+              <div className="w-48 h-12 relative">
                 <img
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                   alt="Logo"

@@ -190,7 +190,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
               alt="Revoa Store Sync"
-              className="w-full h-full object-contain dark:invert"
+              className="w-full h-full object-contain"
             />
           </div>
           <h2 className="text-3xl font-medium text-gray-900 mb-2">Connect Your Store</h2>
