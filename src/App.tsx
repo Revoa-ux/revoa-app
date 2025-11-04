@@ -35,7 +35,7 @@ import DataDeletion from './pages/DataDeletion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
 
 // Protected route component for admin routes
@@ -92,6 +92,11 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
+};
+
+const ThemedToaster = () => {
+  const { effectiveTheme } = useTheme();
+  return <Toaster position="top-right" theme={effectiveTheme} />;
 };
 
 function App() {
@@ -167,7 +172,7 @@ function App() {
               <Route path="*" element={<DashboardCopy />} />
             </Route>
             </Routes>
-            <Toaster position="top-right" />
+            <ThemedToaster />
           </LoadingProvider>
         </AdminProvider>
       </AuthProvider>

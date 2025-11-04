@@ -62,7 +62,7 @@ const Onboarding = () => {
           .from('shopify_installations')
           .select('id, status, uninstalled_at')
           .eq('user_id', user.id)
-          .eq('status', 'active')
+          .eq('status', 'installed')
           .is('uninstalled_at', null)
           .maybeSingle();
 
