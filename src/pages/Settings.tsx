@@ -88,7 +88,7 @@ const SettingsPage = () => {
       if (!user?.id) return;
 
       const { data: profileData } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('is_admin')
         .eq('user_id', user.id)
         .maybeSingle();
