@@ -89,6 +89,8 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
         install_count: 1,
         last_install: new Date().toISOString(),
       },
+    }, {
+      onConflict: 'store_url'
     });
 
   if (installError) {
