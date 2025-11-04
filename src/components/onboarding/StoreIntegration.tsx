@@ -224,13 +224,13 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">Connect Your Store</h2>
           <div className="max-w-md mx-auto mb-6">
             <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-              Enter your .myshopify.com URL below. You can find your URL in Settings {'>'} Domains on Shopify.{' '}
+              Find your store URL in Shopify Settings → Domains.{' '}
               <button
                 type="button"
                 onClick={() => setShowVideo(!showVideo)}
                 className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
               >
-                {showVideo ? 'Hide tutorial' : 'Watch how'}
+                {showVideo ? 'Hide tutorial' : 'Show tutorial'}
                 <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${showVideo ? 'rotate-180' : ''}`} />
               </button>
             </p>
@@ -239,6 +239,28 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
         <div className="max-w-md mx-auto">
           <div className="bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+            {/* Collapsible Tutorial Video - Moved above form */}
+            {showVideo && (
+              <div className="mb-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="relative rounded-lg overflow-hidden shadow-md">
+                  <video
+                    className="w-full h-auto"
+                    style={{ transform: 'scale(2)', transformOrigin: 'center' }}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  >
+                    <source
+                      src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-add-store-instructions.mp4"
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleConnect} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -262,32 +284,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   </button>
                 </div>
               </div>
-
-              {/* Collapsible Tutorial Video */}
-              {showVideo && (
-                <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
-                  <div className="max-w-xs mx-auto">
-                    <div className="relative rounded-lg overflow-hidden shadow-md aspect-square">
-                      <video
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                      >
-                        <source
-                          src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-add-store-instructions.mp4"
-                          type="video/mp4"
-                        />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                    <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
-                      Find your store URL in Shopify Settings → Domains
-                    </p>
-                  </div>
-                </div>
-              )}
             </form>
 
             {hasError && (
