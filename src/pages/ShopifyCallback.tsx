@@ -12,6 +12,15 @@ export default function ShopifyCallback() {
   const [status, setStatus] = useState<Status>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  // Apply dark mode class to html element on mount
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches ||
+                   localStorage.getItem('theme') === 'dark';
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
   useEffect(() => {
     const handleCallback = async () => {
       try {
@@ -180,7 +189,7 @@ export default function ShopifyCallback() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-12 max-w-md w-full text-center">
         {status === 'loading' && (
           <>
-            <Loader2 className="w-16 h-16 mx-auto mb-6 text-rose-600 animate-spin" />
+            <Loader2 className="w-16 h-16 mx-auto mb-6 text-rose-600 dark:text-rose-500 animate-spin" />
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
               Connecting to Shopify
             </h1>
@@ -206,7 +215,7 @@ export default function ShopifyCallback() {
 
         {status === 'error' && (
           <>
-            <div className="w-16 h-16 mx-auto mb-6 bg-red-500 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-6 bg-red-500 dark:bg-red-600 rounded-full flex items-center justify-center">
               <XCircle className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
