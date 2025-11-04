@@ -147,9 +147,9 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {isLoading ? (
                     <div className="text-center py-10">
-                      <div className="w-8 h-8 border-2 border-gray-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-3"></div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">Loading Products</h3>
-                      <p className="text-sm text-gray-500">
+                      <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-pink-500 rounded-full animate-spin mx-auto mb-3"></div>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Loading Products</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Please wait while we fetch your products from Shopify.
                       </p>
                     </div>
@@ -163,12 +163,12 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                             placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
                           />
                           {searchTerm && (
                             <button
                               onClick={() => setSearchTerm('')}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100"
+                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
                             >
                               <X className="w-4 h-4 text-gray-400" />
                             </button>
@@ -178,13 +178,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={handleSelectAll}
-                            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                            className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                           >
                             Select All
                           </button>
                           <button
                             onClick={handleDeselectAll}
-                            className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                            className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                           >
                             Deselect All
                           </button>
@@ -192,8 +192,8 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                       </div>
                       
                       {filteredProducts.length === 0 ? (
-                        <div className="text-center py-10 bg-gray-50 rounded-lg">
-                          <p className="text-gray-500">No products found.</p>
+                        <div className="text-center py-10 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <p className="text-gray-500 dark:text-gray-400">No products found.</p>
                         </div>
                       ) : (
                         <div className="grid grid-cols-2 gap-3">
@@ -201,13 +201,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                             <div
                               key={product.id}
                               className={`border rounded-lg overflow-hidden transition-colors cursor-pointer ${
-                                product.selected 
-                                  ? 'border-gray-900 bg-gray-50' 
-                                  : 'border-gray-200 hover:border-gray-300'
+                                product.selected
+                                  ? 'border-gray-900 dark:border-gray-500 bg-gray-50 dark:bg-gray-800'
+                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                               }`}
                               onClick={() => handleToggleProduct(product.id)}
                             >
-                              <div className="relative h-36 bg-gray-100">
+                              <div className="relative h-36 bg-gray-100 dark:bg-gray-900">
                                 <img
                                   src={product.image}
                                   alt={product.title}
@@ -224,10 +224,10 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                                 </div>
                               </div>
                               <div className="p-3">
-                                <h3 className="text-sm font-medium text-gray-900 truncate">{product.title}</h3>
+                                <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.title}</h3>
                                 <div className="flex items-center justify-between mt-1">
-                                  <p className="text-sm text-gray-500">{product.price}</p>
-                                  <p className="text-xs text-gray-400">{product.variants} variants</p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">{product.price}</p>
+                                  <p className="text-xs text-gray-400 dark:text-gray-500">{product.variants} variants</p>
                                 </div>
                               </div>
                             </div>
@@ -237,7 +237,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                       
                       <div className="mt-5 space-y-3">
                         <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             {selectedCount} of {products.length} products selected
                           </div>
                           <button
@@ -271,17 +271,17 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
           
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="px-2 bg-white text-sm text-gray-500">or</span>
+              <span className="px-2 bg-white dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
             </div>
           </div>
           
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
-            option === 'new' 
-              ? 'border-gray-900 bg-gray-50/50' 
-              : 'border-gray-200 hover:border-gray-300'
+            option === 'new'
+              ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
+              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
               onClick={() => handleOptionSelect('new')}
@@ -289,13 +289,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <FormInput className="w-5 h-5 text-gray-900" />
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+                    <FormInput className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-base font-medium text-gray-900">No products yet? No problem!</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <h3 className="text-base font-medium text-gray-900 dark:text-white">No products yet? No problem!</h3>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Chat with us to see if we can help you add a product that will sell and scale it for you!
                   </p>
                 </div>
@@ -309,8 +309,8 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                     <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
                       <Check className="w-6 h-6 text-green-600" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900">Great choice!</h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Great choice!</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       Please fill out the form below and we'll help you find the perfect product.
                     </p>
                   </div>

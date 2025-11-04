@@ -166,7 +166,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                   {platform.status === 'error' && (
                     <button
                       onClick={() => handleConnectPlatform(platform.id)}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                     >
                       Retry
                     </button>
@@ -177,15 +177,15 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           ))}
         </div>
         
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-medium text-gray-900">Connected Platforms</h3>
-              <p className="mt-1 text-sm text-gray-600">
+              <h3 className="text-base font-medium text-gray-900 dark:text-white">Connected Platforms</h3>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 You can add more platforms later from your account settings.
               </p>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
               {platforms.filter(p => p.status === 'connected').length} of {platforms.length}
             </span>
           </div>
