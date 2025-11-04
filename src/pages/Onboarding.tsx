@@ -57,6 +57,10 @@ const Onboarding = () => {
       try {
         setIsCheckingStatus(true);
 
+        // Check for test mode bypass
+        const searchParams = new URLSearchParams(location.search);
+        const isTestMode = searchParams.get('test') === 'true';
+
         // Check if Shopify store is connected
         const { data: shopifyData, error: shopifyError } = await supabase
           .from('shopify_installations')
@@ -94,8 +98,8 @@ const Onboarding = () => {
         // Determine which step to start on
         const currentPath = location.pathname.split('/').pop();
 
-        // If both store and profile are complete, redirect to dashboard
-        if (hasShopifyConnected && hasProfileComplete) {
+        // If both store and profile are complete, redirect to dashboard (unless in test mode)
+        if (hasShopifyConnected && hasProfileComplete && !isTestMode) {
           await setHasCompletedOnboarding(true);
           navigate('/', { replace: true });
           return;
