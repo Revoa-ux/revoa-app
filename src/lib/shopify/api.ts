@@ -233,6 +233,15 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     const totalOrders = orders.length;
     console.log('[Shopify API] Total orders:', totalOrders);
 
+    if (orders.length > 0) {
+      console.log('[Shopify API] Sample order:', {
+        id: orders[0].id,
+        name: orders[0].name,
+        totalPrice: orders[0].totalPriceSet.shopMoney.amount,
+        createdAt: orders[0].createdAt
+      });
+    }
+
     // Calculate inventory value from GraphQL data
     const inventoryValue = products.reduce((sum, product) => {
       return sum + product.variants.edges.reduce((variantSum, variantEdge) => {
@@ -262,19 +271,30 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     );
     const totalCustomers = uniqueCustomers.size;
 
-    // Estimate COGS at 30% margin (could be improved with product cost data)
-    const profitMargin = 30;
-    const costOfGoodsSold = totalRevenue * (1 - profitMargin / 100);
+    // Calculate date ranges for customer activity
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Estimate 10% of customers ordered in last 30 days
-    const activeCustomers = Math.round(totalCustomers * 0.1);
+    // Count active customers (ordered in last 30 days)
+    const recentCustomers = new Set(
+      orders
+        .filter(o => o.customer?.id && new Date(o.createdAt) >= thirtyDaysAgo)
+        .map(o => o.customer!.id)
+    );
+    const activeCustomers = recentCustomers.size;
 
-    // Estimate monthly revenue as total revenue / months in business (assume 12 months)
+    // Count new customers today
+    const todaysCustomerIds = new Set(
+      orders
+        .filter(o => o.customer?.id && new Date(o.createdAt) >= today)
+        .map(o => o.customer!.id)
+    );
+    const newCustomersToday = todaysCustomerIds.size;
+
+    // Calculate revenue metrics
     const monthlyRecurringRevenue = totalRevenue / 12;
     const annualRecurringRevenue = totalRevenue;
-
-    // New customers today (estimate 1% of total)
-    const newCustomersToday = Math.round(totalCustomers * 0.01);
 
     // Use actual shipping from orders
     const shippingCosts = totalShipping;
@@ -282,9 +302,10 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     // Transaction fees (2.9% + $0.30 per transaction for Shopify Payments)
     const transactionFees = totalOrders * 0.30 + totalRevenue * 0.029;
 
-    // Refunds (estimate 2% of orders - would need refunds API for real data)
-    const refunds = totalRevenue * 0.02;
-
+    // Set to 0 as we don't have refund data from API
+    const costOfGoodsSold = 0;
+    const profitMargin = 0;
+    const refunds = 0;
     const chargebacks = 0;
 
     const metrics = {
@@ -319,6 +340,17 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     console.error('[Shopify API] Error fetching Shopify metrics:', error);
     if (error instanceof Error) {
       console.error('[Shopify API] Error details:', error.message, error.stack);
+
+      // Show user-friendly error
+      if (error.message.includes('No Shopify store connected')) {
+        console.warn('[Shopify API] User needs to connect their Shopify store');
+      } else if (error.message.includes('404')) {
+        console.warn('[Shopify API] Shopify installation not found');
+      } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        console.warn('[Shopify API] Authentication failed - may need to reconnect store');
+      } else {
+        console.error('[Shopify API] Unexpected error:', error.message);
+      }
     }
     return getDefaultMetrics();
   }
@@ -398,49 +430,25 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
 
     const averageOrderValue = numberOfOrders > 0 ? totalRevenue / numberOfOrders : 0;
 
-    // Cost of goods sold (30% margin)
-    const grossMarginPercent = 30;
-    const costOfGoodsSold = totalRevenue * (1 - grossMarginPercent / 100);
-
-    // Transaction fees (2.9% + $0.30 per transaction)
+    // Transaction fees (2.9% + $0.30 per transaction for Shopify Payments)
     const transactionFees = numberOfOrders * 0.30 + totalRevenue * 0.029;
 
-    // Refunds (estimate 2%)
-    const refunds = totalRevenue * 0.02;
+    // Set to 0 as we don't have this data from Shopify API
+    const costOfGoodsSold = 0;
+    const refunds = 0;
     const chargebacks = 0;
+    const customerLifetimeValue = 0;
+    const purchaseFrequency = 0;
+    const adCostPerOrder = 0;
+    const roasRefundsIncluded = 0;
+    const breakEvenRoas = 0;
+    const customerAcquisitionCost = 0;
+    const averageCogs = 0;
+    const grossMarginPercent = 0;
+    const profitMarginPercent = 0;
 
     // Average order value net refunds
-    const netRevenue = totalRevenue - refunds;
-    const averageOrderValueNetRefunds = numberOfOrders > 0 ? netRevenue / numberOfOrders : 0;
-
-    // Customer lifetime value (simplified)
-    const customerLifetimeValue = averageOrderValue * 2.5;
-
-    // Purchase frequency
-    const purchaseFrequency = 45;
-
-    // Ad cost per order
-    const adCostPerOrder = 15;
-
-    // ROAS
-    const adSpend = numberOfOrders * adCostPerOrder;
-    const roasRefundsIncluded = adSpend > 0 ? netRevenue / adSpend : 0;
-
-    // Break-even ROAS
-    const breakEvenRoas = 1.5;
-
-    // Customer acquisition cost
-    const customerAcquisitionCost = adCostPerOrder * 1.2;
-
-    // Average COGS
-    const averageCogs = numberOfOrders > 0 ? costOfGoodsSold / numberOfOrders : 0;
-
-    // Gross margin percent
-    const calculatedGrossMarginPercent = totalRevenue > 0 ? ((totalRevenue - costOfGoodsSold) / totalRevenue) * 100 : 0;
-
-    // Profit margin percent
-    const totalCosts = costOfGoodsSold + transactionFees + adSpend;
-    const calculatedProfitMarginPercent = totalRevenue > 0 ? ((totalRevenue - totalCosts) / totalRevenue) * 100 : 0;
+    const averageOrderValueNetRefunds = averageOrderValue;
 
     return {
       totalRevenue,
@@ -460,8 +468,8 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
       breakEvenRoas,
       customerAcquisitionCost,
       averageCogs,
-      grossMarginPercent: calculatedGrossMarginPercent,
-      profitMarginPercent: calculatedProfitMarginPercent
+      grossMarginPercent,
+      profitMarginPercent
     };
   } catch (error) {
     console.error('Error fetching Shopify calculator metrics:', error);
