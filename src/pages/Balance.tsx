@@ -85,88 +85,9 @@ export default function Balance() {
     }
   }, [searchParams, setSearchParams]);
 
-  const [invoices, setInvoices] = useState<Invoice[]>([  
-    {
-      id: '1',
-      date: '2024-03-15',
-      invoice_number: 'INV-001',
-      product_cost: 1800,
-      shipping_cost: 250,
-      total_cost: 2050,
-      status: 'pending',
-      payment_link: 'https://wise.com/pay/r/ABC123',
-      file_url: '#'
-    },
-    {
-      id: '2',
-      date: '2024-03-10',
-      invoice_number: 'INV-002',
-      product_cost: 1200,
-      shipping_cost: 180,
-      total_cost: 1380,
-      status: 'paid',
-      file_url: '#'
-    },
-    {
-      id: '3',
-      date: '2024-03-05',
-      invoice_number: 'INV-003',
-      product_cost: 2500,
-      shipping_cost: 320,
-      total_cost: 2820,
-      status: 'unpaid',
-      payment_link: 'https://wise.com/pay/r/XYZ789',
-      file_url: '#'
-    }
-  ]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
-  const [transactions, setTransactions] = useState<Transaction[]>([  
-    {
-      id: '1',
-      date: '2024-03-15',
-      type: 'payment',
-      amount: 2050,
-      payment_method: 'bank_transfer',
-      status: 'pending',
-      reference: 'INV-001'
-    },
-    {
-      id: '2',
-      date: '2024-03-10',
-      type: 'payment',
-      amount: 1380,
-      payment_method: 'card',
-      status: 'completed',
-      reference: 'INV-002'
-    },
-    {
-      id: '3',
-      date: '2024-03-05',
-      type: 'payment',
-      amount: 2820,
-      payment_method: 'bank_transfer',
-      status: 'pending',
-      reference: 'INV-003'
-    },
-    {
-      id: '4',
-      date: '2024-03-01',
-      type: 'top_up',
-      amount: 10000,
-      payment_method: 'card',
-      status: 'completed',
-      reference: 'TOP-001'
-    },
-    {
-      id: '5',
-      date: '2024-02-25',
-      type: 'top_up',
-      amount: 5000,
-      payment_method: 'paypal',
-      status: 'completed',
-      reference: 'TOP-002'
-    }
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const bankDetails: BankDetails = {
     accountHolder: "Hangzhou Jiaming Yichang Technology",
@@ -176,26 +97,26 @@ export default function Balance() {
     swiftCode: "CMFGUS33"
   };
 
-  const currentBalance = 24892; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const projectedExpenses = 29475;  
-  const suggestedBalance = 126322.50; // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const suggestedTopUp = suggestedBalance - currentBalance;
+  const currentBalance = 0;
+  const projectedExpenses = 0;
+  const suggestedBalance = 0;
+  const suggestedTopUp = 0;
 
   const cogsProjectionData = {
     '7d': {
       period: '7d',
-      total: 29475,
-      percentageChange: 8.5
+      total: 0,
+      percentageChange: 0
     },
     '14d': {
       period: '14d',
-      total: 58950,
-      percentageChange: 7.2
+      total: 0,
+      percentageChange: 0
     },
     '30d': {
       period: '30d',
-      total: 126322,
-      percentageChange: 5.8
+      total: 0,
+      percentageChange: 0
     }
   };
 
