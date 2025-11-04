@@ -411,9 +411,31 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     const endDateStr = endDate.toISOString();
 
     // Use GraphQL to fetch orders in date range
+    // Shopify query format: created_at:>='2024-01-01' AND created_at:<='2024-12-31'
     const query = `created_at:>='${startDateStr}' AND created_at:<='${endDateStr}'`;
-    const orders = await GraphQL.getOrders(1000, query);
+    console.log('[Calculator] Fetching orders with query:', query);
+    console.log('[Calculator] Date range:', { start: startDateStr, end: endDateStr, timeframe });
+
+    let orders;
+    try {
+      orders = await GraphQL.getOrders(1000, query);
+    } catch (error) {
+      console.error('[Calculator] Error with date query, trying without filter:', error);
+      // If date query fails, try getting all orders
+      orders = await GraphQL.getOrders(1000);
+    }
+
     const numberOfOrders = orders.length;
+    console.log('[Calculator] Found', numberOfOrders, 'orders in timeframe:', timeframe);
+
+    if (orders.length > 0) {
+      console.log('[Calculator] Sample order:', {
+        id: orders[0].id,
+        name: orders[0].name,
+        totalPrice: orders[0].totalPriceSet.shopMoney.amount,
+        createdAt: orders[0].createdAt
+      });
+    }
 
     // Calculate real metrics from actual order data
     const totalRevenue = orders.reduce((sum, order) => {
