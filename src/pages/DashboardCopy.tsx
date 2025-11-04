@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
+import {
   BarChart3,
   DollarSign,
   RefreshCw,
@@ -15,7 +15,8 @@ import {
   Receipt,
   ArrowUpRight,
   ArrowDownRight,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
@@ -64,6 +65,7 @@ export default function DashboardCopy() {
   const [shopifyMetrics, setShopifyMetrics] = useState<ShopifyMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
+  const [emptyStateDismissed, setEmptyStateDismissed] = useState(false);
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -125,6 +127,14 @@ export default function DashboardCopy() {
     fetchShopifyData();
   }, [timeframe, selectedTime]);
 
+  // Load empty state dismissed preference
+  useEffect(() => {
+    const dismissed = localStorage.getItem('dashboard-empty-state-dismissed');
+    if (dismissed === 'true') {
+      setEmptyStateDismissed(true);
+    }
+  }, []);
+
   // Fetch user name from profile
   useEffect(() => {
     const fetchUserName = async () => {
@@ -150,6 +160,11 @@ export default function DashboardCopy() {
 
     fetchUserName();
   }, []);
+
+  const handleDismissEmptyState = () => {
+    localStorage.setItem('dashboard-empty-state-dismissed', 'true');
+    setEmptyStateDismissed(true);
+  };
 
   // Generate card data based on Shopify metrics
   const cardsData: CardData[] = [
@@ -515,16 +530,23 @@ export default function DashboardCopy() {
         </div>
       </div>
 
-      {shopifyMetrics && shopifyMetrics.totalOrders === 0 && shopifyMetrics.totalRevenue === 0 && !isLoading && (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div className="flex items-start space-x-3">
+      {shopifyMetrics && shopifyMetrics.totalOrders === 0 && shopifyMetrics.totalRevenue === 0 && !isLoading && !emptyStateDismissed && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg relative">
+          <button
+            onClick={handleDismissEmptyState}
+            className="absolute top-3 right-3 p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors"
+            aria-label="Dismiss"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <div className="flex items-start space-x-3 pr-8">
             <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
                 Store Connected Successfully
               </h3>
               <p className="text-sm text-blue-700 dark:text-blue-300">
-                Your Shopify store is connected and ready. Metrics will populate automatically as you receive orders and add products. This is expected for new or development stores.
+                Your Shopify store is connected and ready. Once you receive orders, your metrics will automatically populate here with real-time data including revenue, profit, and performance analytics.
               </p>
             </div>
           </div>
