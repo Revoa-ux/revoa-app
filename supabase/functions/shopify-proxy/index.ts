@@ -149,7 +149,7 @@ Deno.serve(async (req: Request) => {
             new Request(req.url, {
               method: req.method,
               headers: req.headers,
-              body: JSON.stringify(body),
+              body: bodyText,
             }),
             supabase
           );
@@ -159,7 +159,13 @@ Deno.serve(async (req: Request) => {
           });
         }
 
-        // Continue with normal proxy if not OAuth completion
+        // If not OAuth completion, we need to reconstruct the request with the body
+        // for the rest of the function to use
+        req = new Request(req.url, {
+          method: req.method,
+          headers: req.headers,
+          body: bodyText,
+        });
       }
     }
 
