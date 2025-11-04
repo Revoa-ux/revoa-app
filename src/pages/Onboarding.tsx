@@ -142,8 +142,11 @@ const Onboarding = () => {
   };
   
   const handleStoreConnected = useCallback((connected: boolean) => {
+    console.log('[Onboarding] handleStoreConnected called with:', connected);
+    console.log('[Onboarding] Previous storeConnected state:', storeConnected);
     setStoreConnected(connected);
-  }, []);
+    console.log('[Onboarding] State should now be:', connected);
+  }, [storeConnected]);
   
   const handleAdPlatformsConnected = useCallback((platforms: string[]) => {
     setAdPlatforms(platforms);
@@ -171,18 +174,21 @@ const Onboarding = () => {
     );
   }
   
+  const canGoNext =
+    (currentStep === 'store' && storeConnected) ||
+    currentStep === 'ads' ||
+    currentStep === 'products' ||
+    (currentStep === 'complete' && completionFormValid);
+
+  console.log('[Onboarding] Render - currentStep:', currentStep, 'storeConnected:', storeConnected, 'canGoNext:', canGoNext);
+
   return (
-    <OnboardingLayout 
+    <OnboardingLayout
       currentStep={currentStep}
       progress={progress}
       onNext={goToNextStep}
       onPrevious={goToPreviousStep}
-      canGoNext={
-        (currentStep === 'store' && storeConnected) ||
-        currentStep === 'ads' || // Allow proceeding without connecting ad platforms
-        currentStep === 'products' || // Allow proceeding without setting up products
-        (currentStep === 'complete' && completionFormValid) // Can only finish when form is valid
-      }
+      canGoNext={canGoNext}
       adPlatforms={adPlatforms}
       productSetupComplete={productSetupComplete}
     >

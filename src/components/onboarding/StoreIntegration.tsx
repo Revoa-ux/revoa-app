@@ -49,7 +49,9 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   // Set up message listener for the popup window
   useEffect(() => {
     const messageHandler = (event: MessageEvent) => {
+      console.log('[StoreIntegration] Received message:', event.data);
       if (event.data.type === 'shopify:success') {
+        console.log('[StoreIntegration] Success! Calling onStoreConnected(true)');
         onStoreConnected(true);
         setIsLoading(false);
         setHasError(false);
@@ -58,6 +60,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           setCheckInterval(null);
         }
       } else if (event.data.type === 'shopify:error') {
+        console.log('[StoreIntegration] Error received');
         setIsLoading(false);
         setHasError(true);
         if (checkInterval) {
@@ -173,6 +176,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             // Check if the OAuth session completed successfully
             if (oauthSession.completed_at) {
               // Success! Connection completed
+              console.log('[StoreIntegration] Polling detected completed session! Calling onStoreConnected(true)');
               cleanOauthSession(oauthSession);
               onStoreConnected(true);
               if (authWindow && !authWindow.closed) {

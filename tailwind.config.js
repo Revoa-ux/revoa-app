@@ -4,6 +4,15 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      animation: {
+        'spin': 'spin 1s linear infinite',
+      },
+      keyframes: {
+        spin: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+      },
       fontFamily: {
         sans: ['Inter var', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
