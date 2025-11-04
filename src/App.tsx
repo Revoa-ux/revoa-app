@@ -44,10 +44,6 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
 
-  if (isLoading || adminLoading) {
-    return null;
-  }
-
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
@@ -64,10 +60,6 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
-
-  if (isLoading || adminLoading) {
-    return null;
-  }
 
   if (!user) {
     return <Navigate to="/auth" replace />;
