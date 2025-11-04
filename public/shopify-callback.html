@@ -165,14 +165,23 @@
 
         if (!response.ok) {
           let errorMessage = `OAuth completion failed: ${response.status} ${response.statusText}`;
+          let errorDetails = '';
           try {
             const error = await response.json();
+            console.error('Edge function returned error:', error);
             errorMessage = error.error || error.message || errorMessage;
+            errorDetails = JSON.stringify(error, null, 2);
           } catch (e) {
             const errorText = await response.text();
-            if (errorText) errorMessage = errorText;
+            console.error('Edge function returned text:', errorText);
+            if (errorText) {
+              errorMessage = errorText;
+              errorDetails = errorText;
+            }
           }
-          throw new Error(errorMessage);
+          const fullError = new Error(errorMessage);
+          fullError.details = errorDetails;
+          throw fullError;
         }
 
         const result = await response.json();
@@ -216,7 +225,7 @@
         document.getElementById('error-text').textContent = error.message || 'Failed to connect to Shopify';
 
         const errorDetails = document.getElementById('error-details');
-        errorDetails.textContent = error.stack || error.toString();
+        errorDetails.textContent = error.details || error.stack || error.toString();
         errorDetails.style.display = 'block';
 
         // Clear localStorage
