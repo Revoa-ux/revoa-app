@@ -290,7 +290,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             </form>
 
             {hasError && (
-                <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
+                <div className="mt-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex items-start space-x-3">
                   <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
