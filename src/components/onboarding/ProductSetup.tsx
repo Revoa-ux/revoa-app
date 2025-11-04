@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Import, FormInput, Check, Search, X, ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { getActiveShopifyInstallation } from '@/lib/shopify/status';
+import { supabase } from '@/lib/supabase';
 
 interface ProductSetupProps {
   onComplete: (completed: boolean) => void;
@@ -23,13 +25,52 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCount, setSelectedCount] = useState(0);
-  
+  const [isCheckingConnection, setIsCheckingConnection] = useState(true);
+  const [actuallyConnected, setActuallyConnected] = useState(false);
+
+  // Double-check store connection on mount
   useEffect(() => {
-    if (option === 'import' && storeConnected) {
+    const checkStoreConnection = async () => {
+      console.log('[ProductSetup] Checking store connection on mount, prop says:', storeConnected);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) {
+          setIsCheckingConnection(false);
+          return;
+        }
+
+        const installation = await getActiveShopifyInstallation(session.user.id);
+        console.log('[ProductSetup] Found installation:', installation);
+        setActuallyConnected(!!installation);
+      } catch (error) {
+        console.error('[ProductSetup] Error checking connection:', error);
+        setActuallyConnected(false);
+      } finally {
+        setIsCheckingConnection(false);
+      }
+    };
+
+    checkStoreConnection();
+  }, []);
+
+  // Use actuallyConnected if we've finished checking, otherwise fall back to prop
+  const isStoreConnected = isCheckingConnection ? storeConnected : actuallyConnected;
+
+  useEffect(() => {
+    console.log('[ProductSetup] Store connection status:', {
+      isCheckingConnection,
+      storeConnected,
+      actuallyConnected,
+      isStoreConnected
+    });
+  }, [isCheckingConnection, storeConnected, actuallyConnected, isStoreConnected]);
+
+  useEffect(() => {
+    if (option === 'import' && isStoreConnected) {
       loadProducts();
     }
-  }, [option, storeConnected]);
-  
+  }, [option, isStoreConnected]);
+
   useEffect(() => {
     setSelectedCount(products.filter(p => p.selected).length);
   }, [products]);
@@ -116,11 +157,11 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             <button
               onClick={() => handleOptionSelect('import')}
               className={`w-full p-4 text-left transition-colors ${
-                storeConnected 
-                  ? '' 
+                isStoreConnected
+                  ? ''
                   : 'opacity-50 cursor-not-allowed'
               }`}
-              disabled={!storeConnected}
+              disabled={!isStoreConnected}
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -133,7 +174,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Import products from your connected Shopify store.
                   </p>
-                  {!storeConnected && (
+                  {!isStoreConnected && (
                     <p className="mt-1 text-xs text-red-600">
                       You need to connect your Shopify store first.
                     </p>

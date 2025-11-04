@@ -148,10 +148,8 @@ const Onboarding = () => {
   
   const handleStoreConnected = useCallback((connected: boolean) => {
     console.log('[Onboarding] handleStoreConnected called with:', connected);
-    console.log('[Onboarding] Previous storeConnected state:', storeConnected);
     setStoreConnected(connected);
-    console.log('[Onboarding] State should now be:', connected);
-  }, [storeConnected]);
+  }, []);
   
   const handleAdPlatformsConnected = useCallback((platforms: string[]) => {
     setAdPlatforms(platforms);
