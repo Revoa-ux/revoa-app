@@ -11,26 +11,34 @@ interface ProfileData {
   company: string;
 }
 
-const ProfileForm = () => {
+interface ProfileFormProps {
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar?: string;
+  onUpdate: (updates: Partial<ProfileData>) => Promise<void>;
+}
+
+const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps) => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
-    email: '',
-    firstName: '',
-    lastName: '',
+    email: email || '',
+    firstName: firstName || '',
+    lastName: lastName || '',
     phone: '',
     company: '',
   });
   const [validationErrors, setValidationErrors] = useState<Partial<ProfileData>>({});
 
   useEffect(() => {
-    if (user) {
-      setProfileData(prev => ({
-        ...prev,
-        email: user.email || '',
-      }));
-    }
-  }, [user]);
+    setProfileData(prev => ({
+      ...prev,
+      email: email || user?.email || '',
+      firstName: firstName || '',
+      lastName: lastName || '',
+    }));
+  }, [email, firstName, lastName, user]);
 
   const validateForm = (): boolean => {
     const errors: Partial<ProfileData> = {};
@@ -73,14 +81,14 @@ const ProfileForm = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
-      // Simulate API call to update profile
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Show success message or handle success
+      await onUpdate(profileData);
       console.log('Profile updated successfully');
     } catch (error) {
       console.error('Failed to update profile:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
