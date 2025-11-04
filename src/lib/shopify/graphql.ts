@@ -40,7 +40,6 @@ export interface Product {
         compareAtPrice: string | null;
         sku: string | null;
         inventoryQuantity: number;
-        inventoryManagement: string | null;
       };
     }>;
   };
@@ -168,7 +167,6 @@ export const PRODUCTS_QUERY = `
                 compareAtPrice
                 sku
                 inventoryQuantity
-                inventoryManagement
               }
             }
           }
