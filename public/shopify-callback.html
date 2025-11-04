@@ -164,8 +164,15 @@
         });
 
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || `OAuth completion failed: ${response.statusText}`);
+          let errorMessage = `OAuth completion failed: ${response.status} ${response.statusText}`;
+          try {
+            const error = await response.json();
+            errorMessage = error.error || error.message || errorMessage;
+          } catch (e) {
+            const errorText = await response.text();
+            if (errorText) errorMessage = errorText;
+          }
+          throw new Error(errorMessage);
         }
 
         const result = await response.json();
