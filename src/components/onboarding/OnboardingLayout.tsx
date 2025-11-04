@@ -53,7 +53,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Progress bar and step indicators */}
       <div className="w-full flex justify-center mt-8 mb-12 px-4">
         <div className="w-full max-w-[700px]">
@@ -77,7 +77,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                       className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 ${
                         isActive || isCompleted
                           ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-lg'
-                          : 'bg-white border-2 border-gray-300 text-gray-400'
+                          : 'bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
                       }`}
                     >
                       {isCompleted && !isActive ? (
@@ -88,7 +88,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                     </div>
                     <span
                       className={`text-xs font-medium whitespace-nowrap transition-colors ${
-                        isActive || isCompleted ? 'text-gray-900' : 'text-gray-500'
+                        isActive || isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'
                       }`}
                     >
                       {step.label}
@@ -100,7 +100,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
 
             {/* Progress bar line positioned absolutely behind icons */}
             <div className="absolute left-0 right-0 top-5 -z-10 flex items-center px-5">
-              <div className="relative w-full h-0.5 bg-gray-200 rounded-full">
+              <div className="relative w-full h-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">
                 {/* Animated gradient progress bar */}
                 <div
                   className="absolute left-0 top-0 h-0.5 rounded-full transition-all duration-500 ease-in-out overflow-hidden"
@@ -118,22 +118,22 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       <main className="flex-1 flex flex-col pb-24">
         <div className="max-w-[700px] mx-auto px-4 flex-1">
           {/* Content wrapper */}
-          <div className="bg-gray-50/80 p-8 rounded-xl">
+          <div className="bg-gray-50/80 dark:bg-gray-900/80 p-8 rounded-xl">
             {children}
           </div>
         </div>
       </main>
 
       {/* Navigation buttons - sticky at the bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
         <div className="max-w-[700px] mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={onPrevious}
               className={`group flex items-center px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
                 currentStep === 'store'
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-700 hover:bg-gray-100 bg-white border border-gray-200'
+                  ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600'
               }`}
               disabled={currentStep === 'store'}
             >

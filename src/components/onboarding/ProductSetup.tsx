@@ -92,26 +92,31 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
               alt="Revoa Product Sync"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain dark:hidden"
+            />
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Icon.png"
+              alt="Revoa Product Sync"
+              className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          <h2 className="text-3xl font-medium text-gray-900 mb-3">Set Up Your Products</h2>
-          <p className="mt-1 text-gray-600">
+          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Set Up Your Products</h2>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
             Choose how you want to set up your products in Revoa.
           </p>
         </div>
         
         <div className="space-y-3 mt-6">
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
-            option === 'import' 
-              ? 'border-gray-900 bg-gray-50/50' 
-              : 'border-gray-200 hover:border-gray-300'
+            option === 'import'
+              ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
+              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
               onClick={() => handleOptionSelect('import')}
@@ -124,13 +129,13 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <Import className="w-5 h-5 text-gray-900" />
+                  <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+                    <Import className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-base font-medium text-gray-900">Import Existing Products</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <h3 className="text-base font-medium text-gray-900 dark:text-white">Import Existing Products</h3>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                     Import products from your connected Shopify store.
                   </p>
                   {!storeConnected && (
@@ -144,7 +149,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
 
             {option === 'import' && (
               <div className="px-4 pb-4">
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {isLoading ? (
                     <div className="text-center py-10">
                       <div className="w-8 h-8 border-2 border-gray-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-3"></div>
@@ -304,7 +309,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
 
             {option === 'new' && (
               <div className="px-4 pb-4">
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="text-center">
                     <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
                       <Check className="w-6 h-6 text-green-600" />

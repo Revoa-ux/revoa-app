@@ -210,36 +210,41 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   };
 
   return (
-    <div className="max-w-[540px] mx-auto light">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="max-w-[540px] mx-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
               alt="Revoa Store Sync"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain dark:hidden"
+            />
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Icon.png"
+              alt="Revoa Store Sync"
+              className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          <h2 className="text-3xl font-medium text-gray-900 mb-2">Connect Your Store</h2>
-          <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">Connect Your Store</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
             Enter your .myshopify.com URL below. You can find your URL in Settings {'>'} Domains on Shopify.
           </p>
         </div>
 
         <div className="max-w-md mx-auto">
-          <div className="bg-gray-100/50 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-gray-100/50 dark:bg-gray-900/50 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <form onSubmit={handleConnect} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Store URL
                 </label>
-                <div className="relative light">
+                <div className="relative">
                   <ShopifyFormInput
                     value={shopUrl}
                     onChange={handleShopChange}
                     disabled={isLoading}
                     placeholder="your-store.myshopify.com"
-                    className="pr-12 !bg-white !text-gray-900 !border-gray-300"
+                    className="pr-12 !bg-white dark:!bg-gray-900 !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
                   />
                   <button
                     type="submit"
@@ -274,19 +279,19 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                       </div>
                     </div>
                   </div>
-                  <p className="text-xs text-center text-gray-500 mt-2">
+                  <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                     Need help finding your store URL? Watch this quick tutorial
                   </p>
                 </div>
               </div>
 
               {hasError && (
-                <div className="border border-gray-200 bg-white rounded-lg p-4">
+                <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-lg p-4">
                 <div className="flex items-start space-x-3">
-                  <HelpCircle className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                  <HelpCircle className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                   <div className="text-sm">
-                    <p className="font-medium text-gray-900 mb-2.5">Having trouble connecting?</p>
-                    <ul className="space-y-2 text-gray-600">
+                    <p className="font-medium text-gray-900 dark:text-white mb-2.5">Having trouble connecting?</p>
+                    <ul className="space-y-2 text-gray-600 dark:text-gray-400">
                       <li className="flex items-start">
                         <span className="inline-block w-1 h-1 rounded-full bg-gray-400 mt-1.5 mr-2 flex-shrink-0"></span>
                         <span>Make sure your browser allows popups</span>

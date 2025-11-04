@@ -92,17 +92,17 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
   return (
     <div className="max-w-[540px] mx-auto">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-medium text-gray-900 mb-2">One Last Thing!</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-2">One Last Thing!</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Help us personalize your experience
           </p>
         </div>
 
         <div className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               What should we call you?
             </label>
             <input
@@ -111,13 +111,13 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="John Doe"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 placeholder:text-gray-400"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               disabled={isLoading}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               What type of store do you run?
             </label>
             <div className="relative" ref={storeTypeDropdownRef}>
@@ -125,16 +125,16 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 type="button"
                 onClick={() => setShowStoreTypeDropdown(!showStoreTypeDropdown)}
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between bg-white dark:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className={formData.store_type ? 'text-gray-900' : 'text-gray-500'}>
+                <span className={formData.store_type ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                   {getStoreTypeLabel()}
                 </span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </button>
 
               {showStoreTypeDropdown && (
-                <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 max-h-60 overflow-auto">
+                <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
                   {storeTypes.map((type) => (
                     <button
                       key={type.value}
@@ -143,11 +143,11 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                         setFormData({ ...formData, store_type: type.value });
                         setShowStoreTypeDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <div>
-                        <div className="font-medium text-gray-900">{type.label}</div>
-                        <div className="text-sm text-gray-500">{type.description}</div>
+                        <div className="font-medium text-gray-900 dark:text-white">{type.label}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{type.description}</div>
                       </div>
                       {formData.store_type === type.value && <Check className="w-4 h-4 text-rose-500 flex-shrink-0 ml-2" />}
                     </button>
@@ -178,8 +178,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                   key={option.value.toString()}
                   className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
                     formData.wants_growth_assistance === option.value
-                      ? 'border-rose-500 bg-rose-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   <input
@@ -192,8 +192,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     required
                   />
                   <div className="ml-3">
-                    <div className="font-medium text-gray-900">{option.label}</div>
-                    <div className="text-sm text-gray-500">{option.description}</div>
+                    <div className="font-medium text-gray-900 dark:text-white">{option.label}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
                   </div>
                 </label>
               ))}
