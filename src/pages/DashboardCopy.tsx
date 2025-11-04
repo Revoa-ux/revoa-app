@@ -515,6 +515,22 @@ export default function DashboardCopy() {
         </div>
       </div>
 
+      {shopifyMetrics && shopifyMetrics.totalOrders === 0 && shopifyMetrics.totalRevenue === 0 && !isLoading && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                Store Connected Successfully
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Your Shopify store is connected and ready. Metrics will populate automatically as you receive orders and add products. This is expected for new or development stores.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <button 
