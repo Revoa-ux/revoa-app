@@ -37,6 +37,7 @@ import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
+import { DashboardSkeleton } from './components/PageSkeletons';
 
 // Protected route component for admin routes
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -44,14 +45,7 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   if (isLoading || adminLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Loading your account...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (!user) {
@@ -72,14 +66,7 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   if (isLoading || adminLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Loading your account...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (!user) {
