@@ -55,14 +55,8 @@ const Onboarding = () => {
       if (!user) return;
 
       try {
-        setIsCheckingStatus(true);
-
-        // Check for test mode bypass
-        const searchParams = new URLSearchParams(location.search);
-        const isTestMode = searchParams.get('test') === 'true';
-
         // Check if Shopify store is connected
-        const { data: shopifyData, error: shopifyError } = await supabase
+        const { data: shopifyData } = await supabase
           .from('shopify_installations')
           .select('id, status, uninstalled_at')
           .eq('user_id', user.id)
@@ -70,53 +64,20 @@ const Onboarding = () => {
           .is('uninstalled_at', null)
           .maybeSingle();
 
-        if (shopifyError) {
-          console.error('Error checking Shopify status:', shopifyError);
-        }
-
-        const hasShopifyConnected = !!shopifyData;
-        setStoreConnected(hasShopifyConnected);
+        setStoreConnected(!!shopifyData);
 
         // Check if profile is complete
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData } = await supabase
           .from('user_profiles')
           .select('name, store_type, wants_growth_assistance')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (profileError) {
-          console.error('Error checking profile:', profileError);
-        }
-
-        const hasProfileComplete = !!(
+        setProfileComplete(!!(
           profileData?.name &&
           profileData?.store_type &&
           profileData?.wants_growth_assistance !== null
-        );
-        setProfileComplete(hasProfileComplete);
-
-        // Determine which step to start on
-        const currentPath = location.pathname.split('/').pop();
-
-        // If both store and profile are complete, redirect to dashboard (unless in test mode)
-        if (hasShopifyConnected && hasProfileComplete && !isTestMode) {
-          await setHasCompletedOnboarding(true);
-          navigate('/', { replace: true });
-          return;
-        }
-
-        // If only checking store page and store is already connected, skip to next step
-        if (currentPath === 'store' && hasShopifyConnected) {
-          navigate('/onboarding/ads', { replace: true });
-          return;
-        }
-
-        // If on complete page and profile is already complete, finish onboarding
-        if (currentPath === 'complete' && hasProfileComplete) {
-          await setHasCompletedOnboarding(true);
-          navigate('/', { replace: true });
-          return;
-        }
+        ));
 
         setIsCheckingStatus(false);
       } catch (error) {
@@ -126,7 +87,7 @@ const Onboarding = () => {
     };
 
     checkOnboardingStatus();
-  }, [user, setHasCompletedOnboarding, navigate]);
+  }, [user]);
 
   // Update step based on URL changes
   useEffect(() => {
