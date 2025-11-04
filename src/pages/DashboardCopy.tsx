@@ -16,7 +16,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   AlertTriangle,
-  X
+  X,
+  Info
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
@@ -540,7 +541,7 @@ export default function DashboardCopy() {
             <X className="w-4 h-4" />
           </button>
           <div className="flex items-start space-x-3 pr-8">
-            <Package className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <div>
               <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
                 Store Connected Successfully

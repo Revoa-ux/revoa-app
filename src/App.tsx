@@ -143,6 +143,11 @@ function App() {
                 <Onboarding />
               </UserProtectedRoute>
             } />
+            <Route path="/onboard/*" element={
+              <UserProtectedRoute>
+                <Onboarding />
+              </UserProtectedRoute>
+            } />
             
             {/* Shopify routes */}
             <Route path="/shopify-setup" element={
