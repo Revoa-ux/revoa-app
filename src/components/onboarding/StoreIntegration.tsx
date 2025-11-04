@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Link2 } from 'lucide-react';
+import { HelpCircle, Link2, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -249,6 +249,34 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   >
                     <Link2 className="w-5 h-5" />
                   </button>
+                </div>
+
+                {/* Tutorial Video */}
+                <div className="mt-4 group cursor-pointer">
+                  <div className="relative rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-200">
+                    <video
+                      className="w-full h-auto"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                    >
+                      <source
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-add-store-instructions.mp4"
+                        type="video/mp4"
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                    {/* Optional: Play indicator overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors duration-200">
+                      <div className="bg-white/90 rounded-full p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <Play className="w-6 h-6 text-gray-800" />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Need help finding your store URL? Watch this quick tutorial
+                  </p>
                 </div>
               </div>
 

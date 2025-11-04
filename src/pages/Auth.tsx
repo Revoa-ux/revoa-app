@@ -208,11 +208,16 @@ const Auth = () => {
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-48 h-12 relative">
+              <div className="w-24 h-24 relative">
                 <img
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
                   alt="Logo"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain dark:hidden"
+                />
+                <img
+                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20White%20Icon.png"
+                  alt="Logo"
+                  className="w-full h-full object-contain hidden dark:block"
                 />
               </div>
             </div>
