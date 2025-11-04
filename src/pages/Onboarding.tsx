@@ -56,11 +56,6 @@ const Onboarding = () => {
 
     const checkOnboardingStatus = async () => {
       try {
-        // Check if Shopify store is connected using unified helper
-        const installation = await getActiveShopifyInstallation(user.id);
-        console.log('[Onboarding] Initial store connection check:', installation);
-        setStoreConnected(!!installation);
-
         // Check if profile is complete
         const { data: profileData } = await supabase
           .from('user_profiles')
@@ -83,9 +78,10 @@ const Onboarding = () => {
 
     checkOnboardingStatus();
 
-    // Subscribe to real-time changes in Shopify installation status
+    // Subscribe to real-time Shopify changes (includes immediate check)
+    console.log('[Onboarding] Setting up Shopify subscription for user:', user.id);
     const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
-      console.log('[Onboarding] Store status changed:', isConnected, installation);
+      console.log('[Onboarding] Shopify status update:', isConnected, installation);
       setStoreConnected(isConnected);
     });
 

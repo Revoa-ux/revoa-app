@@ -45,11 +45,19 @@ export async function hasActiveShopifyStore(userId: string): Promise<boolean> {
 
 /**
  * Subscribe to changes in Shopify installation status
+ * Also immediately checks and calls callback with current status
  */
 export function subscribeToShopifyStatus(
   userId: string,
   callback: (isConnected: boolean, installation: ShopifyInstallation | null) => void
 ) {
+  // Immediately check current status
+  getActiveShopifyInstallation(userId).then((installation) => {
+    console.log('[ShopifyStatus] Initial subscription check:', installation);
+    callback(installation !== null, installation);
+  });
+
+  // Set up real-time subscription for changes
   const channel = supabase
     .channel(`shopify_status_${userId}`)
     .on(

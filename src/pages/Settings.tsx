@@ -105,28 +105,24 @@ const SettingsPage = () => {
     checkAdminAndFetchToken();
   }, [user?.id]);
 
-  // Fetch Shopify connection status
+  // Fetch Shopify connection status and subscribe to changes
   useEffect(() => {
-    const fetchShopifyStatus = async () => {
-      if (!user?.id) return;
+    if (!user?.id) {
+      console.log('[Settings] No user ID, skipping Shopify check');
+      return;
+    }
 
-      const installation = await getActiveShopifyInstallation(user.id);
+    console.log('[Settings] Setting up Shopify subscription for user:', user.id);
 
-      if (installation) {
-        setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-        setShopifyStore(installation.store_url);
-      }
-    };
-
-    fetchShopifyStatus();
-
-    // Subscribe to real-time changes
+    // Subscribe to real-time changes (includes immediate check)
     const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
+      console.log('[Settings] Shopify status update - isConnected:', isConnected, 'installation:', installation);
       setIntegrationStatus(prev => ({ ...prev, shopify: isConnected }));
       setShopifyStore(installation?.store_url || '');
     });
 
     return () => {
+      console.log('[Settings] Cleaning up Shopify subscription');
       unsubscribe();
     };
   }, [user?.id]);
