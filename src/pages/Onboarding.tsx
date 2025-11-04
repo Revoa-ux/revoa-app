@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '../lib/shopify/status';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
@@ -49,22 +50,16 @@ const Onboarding = () => {
     }
   }, [navigate]);
   
-  // Check onboarding status on mount
+  // Check onboarding status on mount and subscribe to changes
   useEffect(() => {
+    if (!user) return;
+
     const checkOnboardingStatus = async () => {
-      if (!user) return;
-
       try {
-        // Check if Shopify store is connected
-        const { data: shopifyData } = await supabase
-          .from('shopify_installations')
-          .select('id, status, uninstalled_at')
-          .eq('user_id', user.id)
-          .eq('status', 'installed')
-          .is('uninstalled_at', null)
-          .maybeSingle();
-
-        setStoreConnected(!!shopifyData);
+        // Check if Shopify store is connected using unified helper
+        const installation = await getActiveShopifyInstallation(user.id);
+        console.log('[Onboarding] Initial store connection check:', installation);
+        setStoreConnected(!!installation);
 
         // Check if profile is complete
         const { data: profileData } = await supabase
@@ -81,12 +76,22 @@ const Onboarding = () => {
 
         setIsCheckingStatus(false);
       } catch (error) {
-        console.error('Error checking onboarding status:', error);
+        console.error('[Onboarding] Error checking status:', error);
         setIsCheckingStatus(false);
       }
     };
 
     checkOnboardingStatus();
+
+    // Subscribe to real-time changes in Shopify installation status
+    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
+      console.log('[Onboarding] Store status changed:', isConnected, installation);
+      setStoreConnected(isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user]);
 
   // Update step based on URL changes

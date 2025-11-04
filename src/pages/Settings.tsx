@@ -20,6 +20,7 @@ import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager
 import { useClickOutside } from '@/lib/useClickOutside';
 import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
+import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 
 interface UserProfile {
@@ -109,20 +110,25 @@ const SettingsPage = () => {
     const fetchShopifyStatus = async () => {
       if (!user?.id) return;
 
-      const { data, error } = await supabase
-        .from('shopify_installations')
-        .select('store_url, status')
-        .eq('user_id', user.id)
-        .eq('status', 'installed')
-        .maybeSingle();
+      const installation = await getActiveShopifyInstallation(user.id);
 
-      if (!error && data) {
+      if (installation) {
         setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-        setShopifyStore(data.store_url);
+        setShopifyStore(installation.store_url);
       }
     };
 
     fetchShopifyStatus();
+
+    // Subscribe to real-time changes
+    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
+      setIntegrationStatus(prev => ({ ...prev, shopify: isConnected }));
+      setShopifyStore(installation?.store_url || '');
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [user?.id]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
@@ -139,15 +145,9 @@ const SettingsPage = () => {
 
         // Refetch status to ensure we have latest data
         if (user?.id) {
-          const { data } = await supabase
-            .from('shopify_installations')
-            .select('store_url, status')
-            .eq('user_id', user.id)
-            .eq('status', 'installed')
-            .maybeSingle();
-
-          if (data) {
-            setShopifyStore(data.store_url);
+          const installation = await getActiveShopifyInstallation(user.id);
+          if (installation) {
+            setShopifyStore(installation.store_url);
           }
         }
 
@@ -176,15 +176,9 @@ const SettingsPage = () => {
           toast.success('Shopify store connected successfully');
 
           if (user?.id) {
-            const { data: shopifyData } = await supabase
-              .from('shopify_installations')
-              .select('store_url, status')
-              .eq('user_id', user.id)
-              .eq('status', 'installed')
-              .maybeSingle();
-
-            if (shopifyData) {
-              setShopifyStore(shopifyData.store_url);
+            const installation = await getActiveShopifyInstallation(user.id);
+            if (installation) {
+              setShopifyStore(installation.store_url);
             }
           }
 
@@ -297,15 +291,9 @@ const SettingsPage = () => {
     toast.success('Shopify store connected successfully');
 
     if (user?.id) {
-      const { data } = await supabase
-        .from('shopify_installations')
-        .select('store_url, status')
-        .eq('user_id', user.id)
-        .eq('status', 'installed')
-        .maybeSingle();
-
-      if (data) {
-        setShopifyStore(data.store_url);
+      const installation = await getActiveShopifyInstallation(user.id);
+      if (installation) {
+        setShopifyStore(installation.store_url);
       }
     }
   };

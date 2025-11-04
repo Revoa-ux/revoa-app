@@ -5,6 +5,7 @@ import ShopifyFormInput from '@/components/ShopifyFormInput';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
+import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 
 interface StoreIntegrationProps {
   onStoreConnected: (connected: boolean) => void;
@@ -24,18 +25,15 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) return;
 
-        const { data: installation } = await supabase
-          .from('shopify_installations')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .eq('status', 'installed')
-          .maybeSingle();
+        const installation = await getActiveShopifyInstallation(session.user.id);
+        console.log('[StoreIntegration] Checking existing connection:', installation);
 
         if (installation) {
+          console.log('[StoreIntegration] Found existing connection, calling onStoreConnected(true)');
           onStoreConnected(true);
         }
       } catch (error) {
-        console.error('Error checking existing connection:', error);
+        console.error('[StoreIntegration] Error checking existing connection:', error);
       }
     };
 

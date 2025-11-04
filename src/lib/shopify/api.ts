@@ -1,6 +1,7 @@
 import { supabase } from '../supabase';
 import { SHOPIFY_CONFIG } from '../config';
 import * as GraphQL from './graphql';
+import { getActiveShopifyInstallation } from './status';
 
 // Types for Shopify API responses
 export interface ShopifyCustomer {
@@ -121,41 +122,37 @@ export const getShopifyAccessToken = async (): Promise<{ accessToken: string; sh
     console.log('[Shopify API] Fetching installation for user:', session.user.id);
     console.log('[Shopify API] User email:', session.user.email);
 
-    // Use .maybeSingle() instead of .single() to avoid the error when no rows are returned
-    const { data: installation, error } = await supabase
-      .from('shopify_installations')
-      .select('store_url, access_token, status')
-      .eq('user_id', session.user.id)
-      .eq('status', 'installed')
-      .maybeSingle();
-
-    if (error) {
-      console.error('[Shopify API] Error fetching Shopify installation:', error);
-      return null;
-    }
+    // Use unified helper to get active installation (includes uninstalled_at check)
+    const installation = await getActiveShopifyInstallation(session.user.id);
 
     if (!installation) {
-      console.warn('[Shopify API] No Shopify installation found for user. Please connect your Shopify store.');
-      console.log('[Shopify API] Query was: user_id =', session.user.id, ', status = installed');
-
-      // Debug: Let's see what's actually in the table
-      const { data: allInstalls, error: debugError } = await supabase
-        .from('shopify_installations')
-        .select('user_id, store_url, status')
-        .limit(10);
-
-      if (!debugError && allInstalls) {
-        console.log('[Shopify API] All installations in DB:', allInstalls);
-      }
-
+      console.warn('[Shopify API] No active Shopify installation found for user. Please connect your Shopify store.');
+      console.log('[Shopify API] Query was: user_id =', session.user.id, ', status = installed, uninstalled_at IS NULL');
       return null;
     }
+
+    // Fetch access token separately (security-sensitive field)
+    const { data: installWithToken, error } = await supabase
+      .from('shopify_installations')
+      .select('access_token')
+      .eq('id', installation.id)
+      .single();
+
+    if (error || !installWithToken) {
+      console.error('[Shopify API] Error fetching access token:', error);
+      return null;
+    }
+
+    const fullInstallation = {
+      ...installation,
+      access_token: installWithToken.access_token
+    };
 
     console.log('[Shopify API] Found installation for store:', installation.store_url);
 
     return {
-      accessToken: installation.access_token,
-      shop: installation.store_url
+      accessToken: fullInstallation.access_token,
+      shop: fullInstallation.store_url
     };
   } catch (error) {
     console.error('[Shopify API] Error getting Shopify access token:', error);
