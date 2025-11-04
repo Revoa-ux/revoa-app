@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';
+import { useTheme } from '../contexts/ThemeContext';
 
 const SignUpNew = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const SignUpNew = () => {
   return (
     <>
       <PageTitle title="Sign Up" />
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         {/* Grid Background */}
         <div 
           className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
@@ -82,7 +83,7 @@ const SignUpNew = () => {
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-32 h-8 relative">
+              <div className="w-48 h-12 relative">
                 <img 
                   src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png" 
                   alt="Logo" 
@@ -90,22 +91,22 @@ const SignUpNew = () => {
                 />
               </div>
             </div>
-            <h2 className="text-3xl font-medium text-gray-900">Create your account</h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <h2 className="text-3xl font-medium text-gray-900 dark:text-white">Create your account</h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Already have an account?{' '}
               <button
                 onClick={() => navigate('/auth')}
-                className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 focus:outline-none focus:underline transition ease-in-out duration-150"
               >
                 Sign in
               </button>
             </p>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email address
                 </label>
                 <div className="mt-1 relative">
@@ -123,8 +124,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, email: undefined }));
                     }}
                     className={`block w-full pl-10 pr-3 py-2 border ${
-                      errors.email ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm`}
+                      errors.email ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
                     placeholder="you@example.com"
                     disabled={isLoading}
                   />
@@ -135,7 +136,7 @@ const SignUpNew = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Password
                 </label>
                 <div className="mt-1 relative">
@@ -153,8 +154,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, password: undefined }));
                     }}
                     className={`block w-full pl-10 pr-10 py-2 border ${
-                      errors.password ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm`}
+                      errors.password ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -176,7 +177,7 @@ const SignUpNew = () => {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Confirm Password
                 </label>
                 <div className="mt-1 relative">
@@ -194,8 +195,8 @@ const SignUpNew = () => {
                       setErrors(prev => ({ ...prev, confirmPassword: undefined }));
                     }}
                     className={`block w-full pl-10 pr-10 py-2 border ${
-                      errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm`}
+                      errors.confirmPassword ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
+                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -233,7 +234,7 @@ const SignUpNew = () => {
             </form>
           </div>
 
-          <p className="text-xs text-center text-gray-500">
+          <p className="text-xs text-center text-gray-500 dark:text-gray-400">
             By signing up, you agree to our{' '}
             <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
               Terms of Service

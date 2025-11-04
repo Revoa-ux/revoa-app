@@ -195,7 +195,7 @@ const Auth = () => {
   return (
     <>
       <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         {/* Grid Background */}
         <div 
           className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
@@ -216,19 +216,19 @@ const Auth = () => {
                 />
               </div>
             </div>
-            <h2 className="text-3xl font-medium text-gray-900">
+            <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
               {mode === 'signin' && 'Sign in to your account'}
               {mode === 'signup' && 'Create your account'}
               {mode === 'forgot-password' && 'Reset your password'}
               {mode === 'reset-success' && 'Check your email'}
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               {mode === 'signin' && (
                 <>
                   Don't have an account?{' '}
                   <button
                     onClick={() => handleModeChange('signup')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                    className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 focus:outline-none focus:underline transition ease-in-out duration-150"
                   >
                     Sign up
                   </button>
@@ -239,7 +239,7 @@ const Auth = () => {
                   Already have an account?{' '}
                   <button
                     onClick={() => handleModeChange('signin')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                    className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 focus:outline-none focus:underline transition ease-in-out duration-150"
                   >
                     Sign in
                   </button>
@@ -250,7 +250,7 @@ const Auth = () => {
                   Remember your password?{' '}
                   <button
                     onClick={() => handleModeChange('signin')}
-                    className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                    className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 focus:outline-none focus:underline transition ease-in-out duration-150"
                   >
                     Sign in
                   </button>
@@ -260,11 +260,11 @@ const Auth = () => {
             </p>
           </div>
 
-          <div className="bg-white/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             {mode !== 'reset-success' ? (
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Email address
                   </label>
                   <div className="mt-1 relative">
@@ -282,8 +282,8 @@ const Auth = () => {
                         setValidationErrors(prev => ({ ...prev, email: undefined }));
                       }}
                       className={cn(
-                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
-                        validationErrors.email ? "border-red-300" : "border-gray-300"
+                        "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                        validationErrors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                       )}
                       placeholder="you@example.com"
                       disabled={isLoading}
@@ -296,7 +296,7 @@ const Auth = () => {
 
                 {mode !== 'forgot-password' && (
                   <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </label>
                     <div className="mt-1 relative">
@@ -314,8 +314,8 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, password: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
-                          validationErrors.password ? "border-red-300" : "border-gray-300"
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                          validationErrors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                         )}
                         placeholder="••••••••"
                         disabled={isLoading}
@@ -340,7 +340,7 @@ const Auth = () => {
 
                 {mode === 'signup' && (
                   <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Confirm Password
                     </label>
                     <div className="mt-1 relative">
@@ -358,8 +358,8 @@ const Auth = () => {
                           setValidationErrors(prev => ({ ...prev, confirmPassword: undefined }));
                         }}
                         className={cn(
-                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm text-gray-900 placeholder:text-gray-400",
-                          validationErrors.confirmPassword ? "border-red-300" : "border-gray-300"
+                          "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                          validationErrors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                         )}
                         placeholder="••••••••"
                         disabled={isLoading}
@@ -403,7 +403,7 @@ const Auth = () => {
                       <button
                         type="button"
                         onClick={() => setMode('forgot-password')}
-                        className="font-medium text-primary-600 hover:text-primary-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+                        className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 focus:outline-none focus:underline transition ease-in-out duration-150"
                         disabled={isLoading}
                       >
                         Forgot your password?
