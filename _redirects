@@ -4,6 +4,9 @@
 # Force HTTPS for all requests
 http://*   https://:splat   301!
 
+# Handle Shopify callback route - MUST come before /* catch-all
+/shopify-callback    /shopify-callback.html    200
+
 # Handle Shopify callback route
 /auth/callback    /index.html    200
 
