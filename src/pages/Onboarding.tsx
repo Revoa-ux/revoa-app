@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
@@ -17,8 +18,10 @@ const Onboarding = () => {
   const [productSetupComplete, setProductSetupComplete] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [completionFormValid, setCompletionFormValid] = useState(false);
-  
-  const { setHasCompletedOnboarding } = useAuth();
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [profileComplete, setProfileComplete] = useState(false);
+
+  const { setHasCompletedOnboarding, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,11 +49,87 @@ const Onboarding = () => {
     }
   }, [navigate]);
   
+  // Check onboarding status on mount
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (!user) return;
+
+      try {
+        setIsCheckingStatus(true);
+
+        // Check if Shopify store is connected
+        const { data: shopifyData, error: shopifyError } = await supabase
+          .from('shopify_installations')
+          .select('id, status, uninstalled_at')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .is('uninstalled_at', null)
+          .maybeSingle();
+
+        if (shopifyError) {
+          console.error('Error checking Shopify status:', shopifyError);
+        }
+
+        const hasShopifyConnected = !!shopifyData;
+        setStoreConnected(hasShopifyConnected);
+
+        // Check if profile is complete
+        const { data: profileData, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('name, store_type, wants_growth_assistance')
+          .eq('user_id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error checking profile:', profileError);
+        }
+
+        const hasProfileComplete = !!(
+          profileData?.name &&
+          profileData?.store_type &&
+          profileData?.wants_growth_assistance !== null
+        );
+        setProfileComplete(hasProfileComplete);
+
+        // Determine which step to start on
+        const currentPath = location.pathname.split('/').pop();
+
+        // If both store and profile are complete, redirect to dashboard
+        if (hasShopifyConnected && hasProfileComplete) {
+          await setHasCompletedOnboarding(true);
+          navigate('/', { replace: true });
+          return;
+        }
+
+        // If only checking store page and store is already connected, skip to next step
+        if (currentPath === 'store' && hasShopifyConnected) {
+          navigate('/onboarding/ads', { replace: true });
+          return;
+        }
+
+        // If on complete page and profile is already complete, finish onboarding
+        if (currentPath === 'complete' && hasProfileComplete) {
+          await setHasCompletedOnboarding(true);
+          navigate('/', { replace: true });
+          return;
+        }
+
+        setIsCheckingStatus(false);
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        setIsCheckingStatus(false);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [user, setHasCompletedOnboarding, navigate]);
+
   // Update step based on URL changes
   useEffect(() => {
+    if (isCheckingStatus) return;
     const path = location.pathname.split('/').pop();
     updateStep(path);
-  }, [location.pathname, updateStep]);
+  }, [location.pathname, updateStep, isCheckingStatus]);
   
   const handleCompleteOnboarding = async () => {
     try {
@@ -113,13 +192,15 @@ const Onboarding = () => {
     setCompletionFormValid(isValid);
   }, []);
 
-  // If onboarding completion is in progress, show loading state
-  if (isCompleting) {
+  // If checking status or completing onboarding, show loading state
+  if (isCheckingStatus || isCompleting) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600">Completing onboarding...</p>
+          <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {isCheckingStatus ? 'Checking your progress...' : 'Completing onboarding...'}
+          </p>
         </div>
       </div>
     );
