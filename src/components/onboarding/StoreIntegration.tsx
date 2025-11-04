@@ -228,10 +228,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               <button
                 type="button"
                 onClick={() => setShowVideo(!showVideo)}
-                className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
+                className="inline-flex items-center text-xs font-normal text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 transition-colors"
               >
                 {showVideo ? 'Hide tutorial' : 'Show tutorial'}
-                <ChevronDown className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${showVideo ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 ml-0.5 transition-transform duration-200 ${showVideo ? 'rotate-180' : ''}`} />
               </button>
             </p>
           </div>
@@ -245,7 +245,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 <div className="relative rounded-lg overflow-hidden shadow-md">
                   <video
                     className="w-full h-auto"
-                    style={{ transform: 'scale(2)', transformOrigin: 'center' }}
                     autoPlay
                     loop
                     muted
