@@ -144,12 +144,19 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               return;
             }
 
-            if (oauthSession.error) {
-              if (oauthSession.error === "Session Started...") {
-                // Session is being created, keep polling
-                return;
+            // Check if the OAuth session completed successfully
+            if (oauthSession.completed_at) {
+              // Success! Connection completed
+              cleanOauthSession(oauthSession);
+              onStoreConnected(true);
+              if (authWindow && !authWindow.closed) {
+                authWindow.close();
               }
+              return;
+            }
 
+            // Check for errors
+            if (oauthSession.error && oauthSession.error !== "Session Started...") {
               cleanOauthSession(oauthSession);
               setHasError(true);
               if (authWindow && !authWindow.closed) {
@@ -158,12 +165,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               return;
             }
 
-            // Success! Connection completed
-            cleanOauthSession(oauthSession);
-            onStoreConnected(true);
-            if (authWindow && !authWindow.closed) {
-              authWindow.close();
-            }
+            // Still in progress, keep polling
           })
           .catch((err) => {
             console.error("Unexpected error fetching installation:", err);
