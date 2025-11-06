@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Facebook, 
-  Loader2, 
-  X, 
-  // Removed unused imports
+import {
+  Facebook,
+  Loader2,
+  X,
 } from 'lucide-react';
+import { facebookAdsService } from '@/lib/facebookAds';
+import { toast } from 'sonner';
 
 interface AdPlatformIntegrationProps {
   onPlatformsConnected: (platforms: string[]) => void;
@@ -55,36 +56,110 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   useEffect(() => {
     updateConnectedPlatforms();
   }, [updateConnectedPlatforms]);
+
+  // Check existing Facebook connection on mount
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      try {
+        const { connected } = await facebookAdsService.checkConnectionStatus();
+        if (connected) {
+          setPlatforms(prev =>
+            prev.map(p =>
+              p.id === 'facebook'
+                ? { ...p, status: 'connected' }
+                : p
+            )
+          );
+        }
+      } catch (error) {
+        console.error('Error checking Facebook connection:', error);
+      }
+    };
+
+    checkExistingConnection();
+  }, []);
   
-  const handleConnectPlatform = (platformId: string) => {
-    setPlatforms(prev => 
-      prev.map(p => 
-        p.id === platformId 
-          ? { ...p, status: 'connecting' } 
+  const handleConnectPlatform = async (platformId: string) => {
+    setPlatforms(prev =>
+      prev.map(p =>
+        p.id === platformId
+          ? { ...p, status: 'connecting' }
           : p
       )
     );
-    
-    const width = 800;
-    const height = 600;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-    
-    window.open(
-      'about:blank',
-      `${platformId}-oauth`,
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-    
-    setTimeout(() => {
-      setPlatforms(prev => 
-        prev.map(p => 
-          p.id === platformId 
-            ? { ...p, status: 'connected' }
-            : p
-        )
+
+    if (platformId === 'facebook') {
+      try {
+        const oauthUrl = await facebookAdsService.connectFacebookAds();
+
+        const width = 800;
+        const height = 700;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        const popup = window.open(
+          oauthUrl,
+          'facebook-oauth',
+          `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
+
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups for this site.');
+        }
+
+        const checkPopupClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkPopupClosed);
+            setTimeout(async () => {
+              const { connected } = await facebookAdsService.checkConnectionStatus();
+              setPlatforms(prev =>
+                prev.map(p =>
+                  p.id === platformId
+                    ? { ...p, status: connected ? 'connected' : 'idle' }
+                    : p
+                )
+              );
+
+              if (connected) {
+                toast.success('Facebook Ads connected successfully');
+              }
+            }, 1000);
+          }
+        }, 500);
+
+      } catch (error) {
+        console.error('Error connecting Facebook:', error);
+        toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
+        setPlatforms(prev =>
+          prev.map(p =>
+            p.id === platformId
+              ? { ...p, status: 'error' }
+              : p
+          )
+        );
+      }
+    } else {
+      const width = 800;
+      const height = 600;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+
+      window.open(
+        'about:blank',
+        `${platformId}-oauth`,
+        `width=${width},height=${height},left=${left},top=${top}`
       );
-    }, 2000);
+
+      setTimeout(() => {
+        setPlatforms(prev =>
+          prev.map(p =>
+            p.id === platformId
+              ? { ...p, status: 'connected' }
+              : p
+          )
+        );
+      }, 2000);
+    }
   };
   
   const handleDisconnectPlatform = (platformId: string) => {

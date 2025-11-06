@@ -11,7 +11,8 @@ import {
   Copy,
   Eye,
   EyeOff,
-  DollarSign
+  DollarSign,
+  RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -22,6 +23,8 @@ import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
+import { facebookAdsService } from '@/lib/facebookAds';
+import type { AdAccount } from '@/types/ads';
 
 interface UserProfile {
   firstName: string;
@@ -58,6 +61,9 @@ const SettingsPage = () => {
   const [showToken, setShowToken] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [facebookAccounts, setFacebookAccounts] = useState<AdAccount[]>([]);
+  const [facebookConnecting, setFacebookConnecting] = useState(false);
+  const [facebookSyncing, setFacebookSyncing] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     firstName: 'John',
     lastName: 'Doe',
@@ -103,6 +109,13 @@ const SettingsPage = () => {
       }
     };
     checkAdminAndFetchToken();
+  }, [user?.id]);
+
+  // Load Facebook accounts on mount
+  useEffect(() => {
+    if (user?.id) {
+      loadFacebookAccounts();
+    }
   }, [user?.id]);
 
   // Fetch Shopify connection status and subscribe to changes
@@ -319,9 +332,107 @@ const SettingsPage = () => {
     }
   };
 
+  const handleConnectFacebook = async () => {
+    if (!user?.id) {
+      toast.error('Please log in to connect Facebook Ads');
+      return;
+    }
+
+    try {
+      setFacebookConnecting(true);
+
+      const oauthUrl = await facebookAdsService.connectFacebookAds();
+
+      const width = 800;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+
+      const popup = window.open(
+        oauthUrl,
+        'facebook-oauth',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups for this site.');
+      }
+
+      const checkPopupClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkPopupClosed);
+          setTimeout(() => {
+            loadFacebookAccounts();
+            setFacebookConnecting(false);
+          }, 1000);
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('Error connecting Facebook:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
+      setFacebookConnecting(false);
+    }
+  };
+
+  const handleDisconnectFacebook = async (accountId: string) => {
+    try {
+      setFacebookConnecting(true);
+
+      await facebookAdsService.disconnectAdAccount(accountId);
+
+      setIntegrationStatus(prev => ({ ...prev, facebook: false }));
+      setFacebookAccounts([]);
+      toast.success('Facebook Ads account disconnected');
+    } catch (error) {
+      console.error('Error disconnecting Facebook:', error);
+      toast.error('Failed to disconnect Facebook Ads');
+    } finally {
+      setFacebookConnecting(false);
+    }
+  };
+
+  const handleSyncFacebook = async (accountId: string) => {
+    try {
+      setFacebookSyncing(true);
+
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const result = await facebookAdsService.syncAdAccount(accountId, startDate, endDate);
+
+      toast.success(result.message || 'Facebook Ads data synced successfully');
+
+      await loadFacebookAccounts();
+    } catch (error) {
+      console.error('Error syncing Facebook:', error);
+      toast.error('Failed to sync Facebook Ads data');
+    } finally {
+      setFacebookSyncing(false);
+    }
+  };
+
+  const loadFacebookAccounts = async () => {
+    try {
+      const accounts = await facebookAdsService.getAdAccounts('facebook');
+      setFacebookAccounts(accounts);
+      setIntegrationStatus(prev => ({
+        ...prev,
+        facebook: accounts.length > 0,
+      }));
+    } catch (error) {
+      console.error('Error loading Facebook accounts:', error);
+    }
+  };
+
   const handleConnectPlatform = async (platform: keyof IntegrationStatus) => {
     if (platform === 'shopify') {
       await handleConnectShopify();
+      return;
+    }
+
+    if (platform === 'facebook') {
+      await handleConnectFacebook();
       return;
     }
 
@@ -731,21 +842,80 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
+                      {facebookAccounts.length > 0 && (
+                        <div className="flex flex-col mt-1 space-y-0.5">
+                          {facebookAccounts.map(account => (
+                            <p key={account.id} className="text-xs text-gray-500 dark:text-gray-400">
+                              {account.platform_account_name}
+                              {account.last_synced_at && (
+                                <span className="ml-2 text-gray-400">
+                                  • Last synced {new Date(account.last_synced_at).toLocaleDateString()}
+                                </span>
+                              )}
+                            </p>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {integrationStatus.facebook ? (
-                    <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                      <span className="text-sm">Connected</span>
-                      <Check className="w-4 h-4" />
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
+                        <span className="text-sm">Connected</span>
+                        <Check className="w-4 h-4" />
+                      </div>
+                      <button
+                        onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].id)}
+                        disabled={facebookSyncing || facebookAccounts.length === 0}
+                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {facebookSyncing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Syncing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4" />
+                            <span>Sync</span>
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].id)}
+                        disabled={facebookConnecting || facebookAccounts.length === 0}
+                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        {facebookConnecting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Disconnecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4" />
+                            <span>Disconnect</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
-                      disabled={isLoading}
+                      disabled={facebookConnecting}
                       className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
                     >
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
+                      {facebookConnecting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
