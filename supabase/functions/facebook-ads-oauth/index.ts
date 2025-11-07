@@ -53,47 +53,19 @@ Deno.serve(async (req: Request) => {
 
         if (sessionError || !session) {
           console.error('Invalid session:', sessionError);
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-              <head><title>OAuth Error</title></head>
-              <body>
-                <h1>Authentication Error</h1>
-                <p>Invalid or expired session. Please try again.</p>
-                <script>
-                  setTimeout(() => {
-                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
-                  }, 3000);
-                </script>
-              </body>
-            </html>`,
-            {
-              status: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-            }
-          );
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=invalid_session`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
         }
 
         if (new Date(session.expires_at) < new Date()) {
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-              <head><title>OAuth Error</title></head>
-              <body>
-                <h1>Session Expired</h1>
-                <p>Your session has expired. Please try again.</p>
-                <script>
-                  setTimeout(() => {
-                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
-                  }, 3000);
-                </script>
-              </body>
-            </html>`,
-            {
-              status: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-            }
-          );
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=session_expired`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
         }
 
         const redirectUri = `${supabaseUrl}/functions/v1/facebook-ads-oauth`;
@@ -110,25 +82,11 @@ Deno.serve(async (req: Request) => {
 
         if (!tokenResponse.ok || !tokenData.access_token) {
           console.error('Token exchange failed:', tokenData);
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-              <head><title>OAuth Error</title></head>
-              <body>
-                <h1>Authentication Failed</h1>
-                <p>Failed to exchange authorization code. Please try again.</p>
-                <script>
-                  setTimeout(() => {
-                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
-                  }, 3000);
-                </script>
-              </body>
-            </html>`,
-            {
-              status: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-            }
-          );
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=token_exchange_failed`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
         }
 
         const longLivedTokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
@@ -151,25 +109,11 @@ Deno.serve(async (req: Request) => {
 
         if (!adAccountsResponse.ok || !adAccountsData.data) {
           console.error('Failed to fetch ad accounts:', adAccountsData);
-          return new Response(
-            `<!DOCTYPE html>
-            <html>
-              <head><title>OAuth Error</title></head>
-              <body>
-                <h1>Failed to Load Ad Accounts</h1>
-                <p>Could not fetch your Facebook ad accounts. Please ensure you have ad accounts set up.</p>
-                <script>
-                  setTimeout(() => {
-                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
-                  }, 3000);
-                </script>
-              </body>
-            </html>`,
-            {
-              status: 200,
-              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-            }
-          );
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=no_ad_accounts`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
         }
 
         for (const account of adAccountsData.data) {
@@ -208,46 +152,18 @@ Deno.serve(async (req: Request) => {
 
         await supabase.from('oauth_sessions').delete().eq('state', state);
 
-        return new Response(
-          `<!DOCTYPE html>
-          <html>
-            <head><title>Success</title></head>
-            <body>
-              <h1>Successfully Connected!</h1>
-              <p>Connected ${adAccountsData.data.length} Facebook ad account(s). Redirecting...</p>
-              <script>
-                setTimeout(() => {
-                  window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true';
-                }, 2000);
-              </script>
-            </body>
-          </html>`,
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-          }
-        );
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true&accounts=${adAccountsData.data.length}`;
+        return new Response(null, {
+          status: 302,
+          headers: { ...corsHeaders, 'Location': redirectUrl },
+        });
       } catch (error) {
         console.error('OAuth callback error:', error);
-        return new Response(
-          `<!DOCTYPE html>
-          <html>
-            <head><title>OAuth Error</title></head>
-            <body>
-              <h1>An Error Occurred</h1>
-              <p>Something went wrong during authentication. Please try again.</p>
-              <script>
-                setTimeout(() => {
-                  window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
-                }, 3000);
-              </script>
-            </body>
-          </html>`,
-          {
-            status: 200,
-            headers: { ...corsHeaders, 'Content-Type': 'text/html' },
-          }
-        );
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=oauth_error`;
+        return new Response(null, {
+          status: 302,
+          headers: { ...corsHeaders, 'Location': redirectUrl },
+        });
       }
     }
 
