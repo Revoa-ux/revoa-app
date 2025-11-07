@@ -98,10 +98,6 @@ Deno.serve(async (req: Request) => {
       const scope = [
         'ads_read',
         'ads_management',
-        'read_insights',
-        'business_management',
-        'pages_read_engagement',
-        'pages_manage_ads',
       ].join(',');
 
       const oauthUrl =
