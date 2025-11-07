@@ -36,10 +36,225 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const url = new URL(req.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const action = url.searchParams.get('action');
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (code && state && !action) {
+      try {
+        const { data: session, error: sessionError } = await supabase
+          .from('oauth_sessions')
+          .select('*')
+          .eq('state', state)
+          .maybeSingle();
+
+        if (sessionError || !session) {
+          console.error('Invalid session:', sessionError);
+          return new Response(
+            `<!DOCTYPE html>
+            <html>
+              <head><title>OAuth Error</title></head>
+              <body>
+                <h1>Authentication Error</h1>
+                <p>Invalid or expired session. Please try again.</p>
+                <script>
+                  setTimeout(() => {
+                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
+                  }, 3000);
+                </script>
+              </body>
+            </html>`,
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+            }
+          );
+        }
+
+        if (new Date(session.expires_at) < new Date()) {
+          return new Response(
+            `<!DOCTYPE html>
+            <html>
+              <head><title>OAuth Error</title></head>
+              <body>
+                <h1>Session Expired</h1>
+                <p>Your session has expired. Please try again.</p>
+                <script>
+                  setTimeout(() => {
+                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
+                  }, 3000);
+                </script>
+              </body>
+            </html>`,
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+            }
+          );
+        }
+
+        const redirectUri = `${supabaseUrl}/functions/v1/facebook-ads-oauth`;
+        const tokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
+        const tokenParams = new URLSearchParams({
+          client_id: facebookAppId,
+          client_secret: facebookAppSecret,
+          redirect_uri: redirectUri,
+          code,
+        });
+
+        const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);
+        const tokenData = await tokenResponse.json();
+
+        if (!tokenResponse.ok || !tokenData.access_token) {
+          console.error('Token exchange failed:', tokenData);
+          return new Response(
+            `<!DOCTYPE html>
+            <html>
+              <head><title>OAuth Error</title></head>
+              <body>
+                <h1>Authentication Failed</h1>
+                <p>Failed to exchange authorization code. Please try again.</p>
+                <script>
+                  setTimeout(() => {
+                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
+                  }, 3000);
+                </script>
+              </body>
+            </html>`,
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+            }
+          );
+        }
+
+        const longLivedTokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
+        const longLivedParams = new URLSearchParams({
+          grant_type: 'fb_exchange_token',
+          client_id: facebookAppId,
+          client_secret: facebookAppSecret,
+          fb_exchange_token: tokenData.access_token,
+        });
+
+        const longLivedResponse = await fetch(`${longLivedTokenUrl}?${longLivedParams.toString()}`);
+        const longLivedData = await longLivedResponse.json();
+
+        const accessToken = longLivedData.access_token || tokenData.access_token;
+        const expiresIn = longLivedData.expires_in || tokenData.expires_in || 5184000;
+
+        const adAccountsUrl = `https://graph.facebook.com/v18.0/me/adaccounts?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
+        const adAccountsResponse = await fetch(adAccountsUrl);
+        const adAccountsData = await adAccountsResponse.json();
+
+        if (!adAccountsResponse.ok || !adAccountsData.data) {
+          console.error('Failed to fetch ad accounts:', adAccountsData);
+          return new Response(
+            `<!DOCTYPE html>
+            <html>
+              <head><title>OAuth Error</title></head>
+              <body>
+                <h1>Failed to Load Ad Accounts</h1>
+                <p>Could not fetch your Facebook ad accounts. Please ensure you have ad accounts set up.</p>
+                <script>
+                  setTimeout(() => {
+                    window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
+                  }, 3000);
+                </script>
+              </body>
+            </html>`,
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+            }
+          );
+        }
+
+        for (const account of adAccountsData.data) {
+          const { error: accountError } = await supabase.from('ad_accounts').upsert(
+            {
+              platform_account_id: account.id,
+              name: account.name,
+              platform: 'facebook',
+              status: account.account_status === 1 ? 'active' : 'inactive',
+              currency: account.currency,
+              timezone: account.timezone_name,
+              user_id: session.user_id,
+            },
+            { onConflict: 'platform_account_id' }
+          );
+
+          if (accountError) {
+            console.error('Error upserting ad account:', accountError);
+          }
+
+          const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
+            {
+              user_id: session.user_id,
+              ad_account_id: account.id,
+              access_token: accessToken,
+              token_type: 'user',
+              expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+            },
+            { onConflict: 'ad_account_id' }
+          );
+
+          if (tokenError) {
+            console.error('Error upserting Facebook token:', tokenError);
+          }
+        }
+
+        await supabase.from('oauth_sessions').delete().eq('state', state);
+
+        return new Response(
+          `<!DOCTYPE html>
+          <html>
+            <head><title>Success</title></head>
+            <body>
+              <h1>Successfully Connected!</h1>
+              <p>Connected ${adAccountsData.data.length} Facebook ad account(s). Redirecting...</p>
+              <script>
+                setTimeout(() => {
+                  window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true';
+                }, 2000);
+              </script>
+            </body>
+          </html>`,
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+          }
+        );
+      } catch (error) {
+        console.error('OAuth callback error:', error);
+        return new Response(
+          `<!DOCTYPE html>
+          <html>
+            <head><title>OAuth Error</title></head>
+            <body>
+              <h1>An Error Occurred</h1>
+              <p>Something went wrong during authentication. Please try again.</p>
+              <script>
+                setTimeout(() => {
+                  window.location.href = '${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings';
+                }, 3000);
+              </script>
+            </body>
+          </html>`,
+          {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'text/html' },
+          }
+        );
+      }
+    }
+
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing authorization' }),
+        JSON.stringify({ success: false, error: 'Missing authorization header' }),
         {
           status: 401,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -48,7 +263,6 @@ Deno.serve(async (req: Request) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const {
       data: { user },
@@ -64,9 +278,6 @@ Deno.serve(async (req: Request) => {
         }
       );
     }
-
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action');
 
     if (action === 'connect') {
       const state = crypto.randomUUID();
@@ -111,147 +322,6 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({
           success: true,
           oauthUrl,
-        }),
-        {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    if (action === 'callback') {
-      const code = url.searchParams.get('code');
-      const state = url.searchParams.get('state');
-
-      if (!code || !state) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Missing code or state' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      const { data: session, error: sessionError } = await supabase
-        .from('oauth_sessions')
-        .select('*')
-        .eq('state', state)
-        .single();
-
-      if (sessionError || !session) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Invalid session' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      if (new Date(session.expires_at) < new Date()) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Session expired' }),
-          {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      const redirectUri = `${supabaseUrl}/functions/v1/facebook-ads-oauth`;
-      const tokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
-      const tokenParams = new URLSearchParams({
-        client_id: facebookAppId,
-        client_secret: facebookAppSecret,
-        redirect_uri: redirectUri,
-        code,
-      });
-
-      const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);
-      const tokenData = await tokenResponse.json();
-
-      if (!tokenResponse.ok || !tokenData.access_token) {
-        console.error('Token exchange failed:', tokenData);
-        return new Response(
-          JSON.stringify({ success: false, error: 'Failed to exchange code for token' }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      const longLivedTokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
-      const longLivedParams = new URLSearchParams({
-        grant_type: 'fb_exchange_token',
-        client_id: facebookAppId,
-        client_secret: facebookAppSecret,
-        fb_exchange_token: tokenData.access_token,
-      });
-
-      const longLivedResponse = await fetch(`${longLivedTokenUrl}?${longLivedParams.toString()}`);
-      const longLivedData = await longLivedResponse.json();
-
-      const accessToken = longLivedData.access_token || tokenData.access_token;
-      const expiresIn = longLivedData.expires_in || tokenData.expires_in || 5184000;
-
-      const adAccountsUrl = `https://graph.facebook.com/v18.0/me/adaccounts?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
-      const adAccountsResponse = await fetch(adAccountsUrl);
-      const adAccountsData = await adAccountsResponse.json();
-
-      if (!adAccountsResponse.ok || !adAccountsData.data) {
-        console.error('Failed to fetch ad accounts:', adAccountsData);
-        return new Response(
-          JSON.stringify({ success: false, error: 'Failed to fetch ad accounts' }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      for (const account of adAccountsData.data) {
-        const { error: accountError } = await supabase.from('ad_accounts').upsert(
-          {
-            platform_account_id: account.id,
-            name: account.name,
-            platform: 'facebook',
-            status: account.account_status === 1 ? 'active' : 'inactive',
-            currency: account.currency,
-            timezone: account.timezone_name,
-            user_id: session.user_id,
-          },
-          { onConflict: 'platform_account_id' }
-        );
-
-        if (accountError) {
-          console.error('Error upserting ad account:', accountError);
-        }
-
-        const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
-          {
-            user_id: session.user_id,
-            ad_account_id: account.id,
-            access_token: accessToken,
-            token_type: 'user',
-            expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
-          },
-          { onConflict: 'ad_account_id' }
-        );
-
-        if (tokenError) {
-          console.error('Error upserting Facebook token:', tokenError);
-        }
-      }
-
-      await supabase.from('oauth_sessions').delete().eq('state', state);
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Successfully connected Facebook Ads',
-          accountCount: adAccountsData.data.length,
         }),
         {
           status: 200,
