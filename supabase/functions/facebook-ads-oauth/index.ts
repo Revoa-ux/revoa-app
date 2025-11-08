@@ -108,17 +108,31 @@ Deno.serve(async (req: Request) => {
         const adAccountsResponse = await fetch(adAccountsUrl);
         const adAccountsData = await adAccountsResponse.json();
 
-        if (!adAccountsResponse.ok || !adAccountsData.data) {
-          console.error('Failed to fetch ad accounts:', adAccountsData);
-          const errorMsg = adAccountsData.error?.message || 'no_ad_accounts_found';
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
-          return new Response(null, {
-            status: 302,
-            headers: { ...corsHeaders, 'Location': redirectUrl },
-          });
+        let accounts = [];
+
+        if (adAccountsResponse.ok && adAccountsData.data && adAccountsData.data.length > 0) {
+          accounts = adAccountsData.data;
+        } else {
+          console.log('No ad accounts from /me/adaccounts, trying direct access');
+          const directAccountId = 'act_1799737293827038';
+          const directUrl = `https://graph.facebook.com/v18.0/${directAccountId}?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
+          const directResponse = await fetch(directUrl);
+          const directData = await directResponse.json();
+
+          if (directResponse.ok && !directData.error) {
+            accounts = [directData];
+          } else {
+            console.error('Failed to access ad account directly:', directData);
+            const errorMsg = directData.error?.message || adAccountsData.error?.message || 'no_ad_accounts_access';
+            const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
+            return new Response(null, {
+              status: 302,
+              headers: { ...corsHeaders, 'Location': redirectUrl },
+            });
+          }
         }
 
-        for (const account of adAccountsData.data) {
+        for (const account of accounts) {
           const { error: accountError } = await supabase.from('ad_accounts').upsert(
             {
               platform_account_id: account.id,
@@ -161,7 +175,7 @@ Deno.serve(async (req: Request) => {
           console.error('Error updating OAuth session:', deleteSessionError);
         }
 
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true&accounts=${adAccountsData.data.length}`;
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true&accounts=${accounts.length}`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },
