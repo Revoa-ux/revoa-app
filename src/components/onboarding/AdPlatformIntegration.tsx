@@ -78,6 +78,43 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
     checkExistingConnection();
   }, []);
+
+  // Listen for OAuth callback messages from popup
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      console.log('[AdPlatformIntegration] Received postMessage:', event.data);
+
+      if (event.data?.type === 'facebook-oauth-success') {
+        console.log('[AdPlatformIntegration] Facebook OAuth success');
+        setPlatforms(prev =>
+          prev.map(p =>
+            p.id === 'facebook'
+              ? { ...p, status: 'connected' }
+              : p
+          )
+        );
+        const accountCount = event.data.accountCount || 0;
+        const plural = accountCount === 1 ? 'account' : 'accounts';
+        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
+      } else if (event.data?.type === 'facebook-oauth-error') {
+        console.log('[AdPlatformIntegration] Facebook OAuth error:', event.data.error);
+        setPlatforms(prev =>
+          prev.map(p =>
+            p.id === 'facebook'
+              ? { ...p, status: 'error' }
+              : p
+          )
+        );
+        toast.error(event.data.error || 'Failed to connect Facebook Ads');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
   
   const handleConnectPlatform = async (platformId: string) => {
     setPlatforms(prev =>

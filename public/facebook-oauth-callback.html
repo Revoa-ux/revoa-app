@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook OAuth - Revoa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .icon.success {
+      background: #10b981;
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    .icon.error {
+      background: #ef4444;
+      animation: shake 0.5s ease-out;
+    }
+
+    .icon.loading {
+      background: #3b82f6;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scaleIn {
+      0% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #111827;
+    }
+
+    p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #5568d3;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Loading State -->
+    <div id="loading-state">
+      <div class="icon loading">
+        <div class="spinner"></div>
+      </div>
+      <h1>Connecting to Facebook...</h1>
+      <p>Please wait while we complete your connection.</p>
+    </div>
+
+    <!-- Success State -->
+    <div id="success-state" class="hidden">
+      <div class="icon success">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1>Successfully Connected!</h1>
+      <p id="success-message">Your Facebook Ads account has been connected.</p>
+      <button class="button" onclick="closeWindow()">Close Window</button>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden">
+      <div class="icon error">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      <h1>Connection Failed</h1>
+      <p id="error-message">We couldn't connect your Facebook Ads account.</p>
+      <button class="button" onclick="closeWindow()">Close Window</button>
+    </div>
+  </div>
+
+  <script>
+    function showSuccess(message, accountCount) {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('success-state').classList.remove('hidden');
+
+      if (accountCount) {
+        const plural = accountCount === 1 ? 'account' : 'accounts';
+        document.getElementById('success-message').textContent =
+          `Successfully connected ${accountCount} Facebook ad ${plural}.`;
+      }
+
+      // Notify parent window
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'facebook-oauth-success',
+          accountCount: accountCount
+        }, window.location.origin);
+      }
+
+      // Auto-close after 2 seconds
+      setTimeout(() => {
+        closeWindow();
+      }, 2000);
+    }
+
+    function showError(message) {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('error-state').classList.remove('hidden');
+      document.getElementById('error-message').textContent = message || 'An unexpected error occurred.';
+
+      // Notify parent window
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'facebook-oauth-error',
+          error: message
+        }, window.location.origin);
+      }
+    }
+
+    function closeWindow() {
+      if (window.opener) {
+        window.close();
+      } else {
+        window.location.href = '/settings';
+      }
+    }
+
+    // Parse URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('facebook_connected') === 'true';
+    const accountCount = parseInt(urlParams.get('accounts') || '0');
+    const error = urlParams.get('error');
+
+    if (success) {
+      showSuccess('Successfully connected Facebook Ads', accountCount);
+    } else if (error) {
+      const errorMessages = {
+        'invalid_session': 'Session expired. Please try again.',
+        'session_expired': 'Session expired. Please try again.',
+        'token_exchange_failed': 'Failed to exchange authorization code.',
+        'no_ad_accounts_access': 'Could not access any ad accounts. Please ensure you have the necessary permissions.',
+        'oauth_error': 'An error occurred during authorization.'
+      };
+
+      showError(errorMessages[error] || decodeURIComponent(error));
+    } else {
+      // If no parameters, something went wrong
+      showError('Invalid callback. Please try connecting again.');
+    }
+  </script>
+</body>
+</html>

@@ -7,6 +7,9 @@ http://*   https://:splat   301!
 # Handle Shopify callback route - MUST come before /* catch-all
 /shopify-callback    /shopify-callback.html    200
 
+# Handle Facebook OAuth callback - MUST come before /* catch-all
+/facebook-oauth-callback.html    /facebook-oauth-callback.html    200
+
 # Handle Shopify callback route
 /auth/callback    /index.html    200
 

@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
 
         if (sessionError || !session) {
           console.error('Invalid session:', sessionError);
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=invalid_session`;
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=invalid_session`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -61,7 +61,7 @@ Deno.serve(async (req: Request) => {
         }
 
         if (new Date(session.expires_at) < new Date()) {
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=session_expired`;
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=session_expired`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -83,7 +83,7 @@ Deno.serve(async (req: Request) => {
         if (!tokenResponse.ok || !tokenData.access_token) {
           console.error('Token exchange failed:', tokenData);
           const errorMsg = tokenData.error?.message || tokenData.error_description || 'token_exchange_failed';
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -124,7 +124,7 @@ Deno.serve(async (req: Request) => {
           } else {
             console.error('Failed to access ad account directly:', directData);
             const errorMsg = directData.error?.message || adAccountsData.error?.message || 'no_ad_accounts_access';
-            const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
+            const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
             return new Response(null, {
               status: 302,
               headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -175,14 +175,14 @@ Deno.serve(async (req: Request) => {
           console.error('Error updating OAuth session:', deleteSessionError);
         }
 
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true&accounts=${accounts.length}`;
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?facebook_connected=true&accounts=${accounts.length}`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },
         });
       } catch (error) {
         console.error('OAuth callback error:', error);
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=oauth_error`;
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=oauth_error`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },

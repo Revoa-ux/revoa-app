@@ -166,6 +166,17 @@ const SettingsPage = () => {
         setShopifyConnecting(false);
         toast.error(event.data.error || 'Failed to connect Shopify');
         localStorage.removeItem('shopify_oauth_error');
+      } else if (event.data?.type === 'facebook-oauth-success') {
+        console.log('[Settings] Facebook OAuth success:', event.data);
+        setFacebookConnecting(false);
+        const accountCount = event.data.accountCount || 0;
+        const plural = accountCount === 1 ? 'account' : 'accounts';
+        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
+        await loadFacebookAccounts();
+      } else if (event.data?.type === 'facebook-oauth-error') {
+        console.log('[Settings] Facebook OAuth error:', event.data.error);
+        setFacebookConnecting(false);
+        toast.error(event.data.error || 'Failed to connect Facebook Ads');
       }
     };
 
