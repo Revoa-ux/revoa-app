@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Lock } from 'lucide-react';
+import { CreditCard, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { stripeConnectService } from '@/lib/stripeConnect';
-import { Modal } from '../Modal';
+import Modal from '../Modal';
 
 interface CheckoutModalProps {
   isOpen: boolean;

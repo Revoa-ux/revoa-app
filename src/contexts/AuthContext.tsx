@@ -11,7 +11,7 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string) => Promise<{ error: any; data: any }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: any }>;
   updatePassword: (password: string) => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   isAuthenticated: boolean;
@@ -194,7 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('user_profiles')
         .upsert({
           user_id: user.id,
-          email: user.email,
+          email: user.email || '',
           onboarding_completed: completed,
           updated_at: new Date().toISOString()
         }, {

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { AdminUser, AdminPermissions } from '../types/admin';
+import { AdminUser, AdminPermissions, AdminRole } from '../types/admin';
 
 interface AdminContextType {
   isAdmin: boolean;
@@ -83,14 +83,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const adminUserData: AdminUser = {
           id: profile.id,
           userId: profile.user_id,
-          role: profile.admin_role,
+          role: (profile.admin_role as AdminRole) || 'admin',
           email: profile.email,
           assignedUsersCount: 0,
           totalTransactionVolume: 0,
-          lastActiveAt: profile.last_active_at,
-          createdAt: profile.created_at,
-          updatedAt: profile.updated_at,
-          metadata: profile.metadata
+          lastActiveAt: profile.last_active_at || undefined,
+          createdAt: profile.created_at || new Date().toISOString(),
+          updatedAt: profile.updated_at || new Date().toISOString(),
+          metadata: (profile.metadata as Record<string, any>) || undefined
         };
 
         setAdminUser(adminUserData);

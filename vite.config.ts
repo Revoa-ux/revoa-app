@@ -60,6 +60,7 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       sourcemap: mode === 'development',
       minify: mode === 'production',
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks: {
