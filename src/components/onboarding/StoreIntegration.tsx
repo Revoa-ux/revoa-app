@@ -15,6 +15,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -32,6 +33,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         if (installation) {
           console.log('[StoreIntegration] Found existing connection, calling onStoreConnected(true)');
           setIsSuccess(true);
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 3000);
           onStoreConnected(true);
         }
       } catch (error) {
@@ -55,6 +58,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
         setTimeout(() => {
           onStoreConnected(true);
         }, 800);
@@ -182,6 +187,8 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               console.log('[StoreIntegration] Polling detected completed session! Calling onStoreConnected(true)');
               cleanOauthSession(oauthSession);
               setIsSuccess(true);
+              setShowConfetti(true);
+              setTimeout(() => setShowConfetti(false), 3000);
               setTimeout(() => {
                 onStoreConnected(true);
               }, 800);
@@ -221,7 +228,56 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   };
 
   return (
-    <div className="max-w-[540px] mx-auto">
+    <div className="max-w-[540px] mx-auto relative">
+      {showConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div
+              key={i}
+              className="confetti"
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                animationDuration: `${2 + Math.random() * 1}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+      <style>{`
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(-100vh) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+        .confetti {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%);
+          animation: confetti-fall linear forwards;
+          top: -10px;
+        }
+        .confetti:nth-child(2n) {
+          background: linear-gradient(135deg, #EC4899 40%, #E8795A 80%, #F59E0B 100%);
+          width: 8px;
+          height: 8px;
+        }
+        .confetti:nth-child(3n) {
+          background: linear-gradient(135deg, #E8795A 40%, #F59E0B 80%, #E11D48 100%);
+          width: 6px;
+          height: 12px;
+        }
+        .confetti:nth-child(4n) {
+          width: 12px;
+          height: 6px;
+        }
+      `}</style>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
@@ -286,9 +342,9 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   <button
                     type="submit"
                     disabled={!shopUrl.trim() || isLoading || isSuccess}
-                    className={`absolute right-0 top-0 h-full px-4 text-white rounded-r-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center ${
+                    className={`absolute right-0 top-0 h-full px-4 text-white rounded-r-lg transition-all duration-500 disabled:cursor-not-allowed flex items-center justify-center ${
                       isSuccess
-                        ? 'bg-green-500'
+                        ? 'bg-gray-800 dark:bg-gray-700'
                         : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50'
                     }`}
                     aria-label="Connect store"

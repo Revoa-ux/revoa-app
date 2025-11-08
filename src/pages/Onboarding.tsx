@@ -173,10 +173,8 @@ const Onboarding = () => {
     );
   }
   
-  // TODO: After Facebook app approval, revert to require storeConnected on step 1
-  // Change line below to: (currentStep === 'store' && storeConnected) ||
   const canGoNext =
-    currentStep === 'store' ||
+    (currentStep === 'store' && storeConnected) ||
     currentStep === 'ads' ||
     currentStep === 'products' ||
     (currentStep === 'complete' && completionFormValid);
