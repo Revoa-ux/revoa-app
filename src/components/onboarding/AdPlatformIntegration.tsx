@@ -86,32 +86,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
       if (event.data?.type === 'facebook-oauth-success') {
         console.log('[AdPlatformIntegration] Facebook OAuth success');
-        setPlatforms(prev =>
-          prev.map(p =>
-            p.id === 'facebook'
-              ? { ...p, status: 'connected' }
-              : p
-          )
-        );
-        const accountCount = event.data.accountCount || 0;
-        const plural = accountCount === 1 ? 'account' : 'accounts';
-        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
-
-        // Trigger initial data sync
-        setTimeout(async () => {
-          try {
-            const { accounts } = await facebookAdsService.checkConnectionStatus();
-            if (accounts.length > 0) {
-              toast.info('Syncing your ad data...');
-              for (const account of accounts) {
-                await facebookAdsService.syncAdAccount(account.platform_account_id);
-              }
-              toast.success('Ad data synced successfully!');
-            }
-          } catch (error) {
-            console.error('Error syncing after connection:', error);
-          }
-        }, 2000);
+        handleFacebookSuccess(event.data.accountCount || 0);
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[AdPlatformIntegration] Facebook OAuth error:', event.data.error);
         setPlatforms(prev =>
@@ -136,32 +111,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           // Only process if recent (within last 10 seconds)
           if (Date.now() - parsed.timestamp < 10000) {
             console.log('[AdPlatformIntegration] Detected success in localStorage');
-            setPlatforms(prev =>
-              prev.map(p =>
-                p.id === 'facebook'
-                  ? { ...p, status: 'connected' }
-                  : p
-              )
-            );
-            const accountCount = parsed.accountCount || 0;
-            const plural = accountCount === 1 ? 'account' : 'accounts';
-            toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
-
-            // Trigger initial data sync
-            setTimeout(async () => {
-              try {
-                const { accounts } = await facebookAdsService.checkConnectionStatus();
-                if (accounts.length > 0) {
-                  toast.info('Syncing your ad data...');
-                  for (const account of accounts) {
-                    await facebookAdsService.syncAdAccount(account.platform_account_id);
-                  }
-                  toast.success('Ad data synced successfully!');
-                }
-              } catch (error) {
-                console.error('Error syncing after connection:', error);
-              }
-            }, 2000);
+            handleFacebookSuccess(parsed.accountCount || 0);
           }
           localStorage.removeItem('facebook_oauth_success');
         } catch (e) {
@@ -175,7 +125,38 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       clearInterval(checkLocalStorage);
     };
   }, []);
-  
+
+  // Helper function to handle Facebook connection success
+  const handleFacebookSuccess = async (accountCount: number) => {
+    setPlatforms(prev =>
+      prev.map(p =>
+        p.id === 'facebook'
+          ? { ...p, status: 'connected' }
+          : p
+      )
+    );
+
+    const plural = accountCount === 1 ? 'account' : 'accounts';
+    toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);;
+
+    // Trigger initial data sync after a short delay
+    setTimeout(async () => {
+      try {
+        const { accounts } = await facebookAdsService.checkConnectionStatus();
+        if (accounts.length > 0) {
+          toast.info('Syncing your ad data...');
+          for (const account of accounts) {
+            await facebookAdsService.syncAdAccount(account.platform_account_id);
+          }
+          toast.success('Ad data synced successfully!');
+        }
+      } catch (error) {
+        console.error('Error syncing after connection:', error);
+        toast.error('Connected but sync failed. You can manually sync in Settings.');
+      }
+    }, 3000);
+  };
+
   const handleConnectPlatform = async (platformId: string) => {
     setPlatforms(prev =>
       prev.map(p =>
@@ -207,20 +188,36 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         const checkPopupClosed = setInterval(() => {
           if (popup.closed) {
             clearInterval(checkPopupClosed);
+            // Check localStorage for connection result
             setTimeout(async () => {
-              const { connected } = await facebookAdsService.checkConnectionStatus();
-              setPlatforms(prev =>
-                prev.map(p =>
-                  p.id === platformId
-                    ? { ...p, status: connected ? 'connected' : 'idle' }
-                    : p
-                )
-              );
-
-              if (connected) {
-                toast.success('Facebook Ads connected successfully');
+              const successData = localStorage.getItem('facebook_oauth_success');
+              if (successData) {
+                // Already handled by localStorage polling
+                return;
               }
-            }, 1000);
+
+              // Fallback: check database directly
+              const { connected } = await facebookAdsService.checkConnectionStatus();
+              if (connected) {
+                setPlatforms(prev =>
+                  prev.map(p =>
+                    p.id === platformId
+                      ? { ...p, status: 'connected' }
+                      : p
+                  )
+                );
+                toast.success('Facebook Ads connected successfully');
+              } else {
+                // Reset to idle if not connected
+                setPlatforms(prev =>
+                  prev.map(p =>
+                    p.id === platformId
+                      ? { ...p, status: 'idle' }
+                      : p
+                  )
+                );
+              }
+            }, 1500);
           }
         }, 500);
 

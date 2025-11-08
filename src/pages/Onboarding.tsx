@@ -175,7 +175,7 @@ const Onboarding = () => {
   
   const canGoNext =
     (currentStep === 'store' && storeConnected) ||
-    currentStep === 'ads' ||
+    (currentStep === 'ads' && adPlatforms.length > 0) ||
     currentStep === 'products' ||
     (currentStep === 'complete' && completionFormValid);
 
