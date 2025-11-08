@@ -110,7 +110,8 @@ Deno.serve(async (req: Request) => {
 
         if (!adAccountsResponse.ok || !adAccountsData.data) {
           console.error('Failed to fetch ad accounts:', adAccountsData);
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=no_ad_accounts`;
+          const errorMsg = adAccountsData.error?.message || 'no_ad_accounts_found';
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -232,6 +233,9 @@ Deno.serve(async (req: Request) => {
       const scope = [
         'public_profile',
         'email',
+        'ads_read',
+        'ads_management',
+        'business_management',
       ].join(',');
 
       const oauthUrl =
