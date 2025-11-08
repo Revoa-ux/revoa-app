@@ -96,6 +96,22 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         const accountCount = event.data.accountCount || 0;
         const plural = accountCount === 1 ? 'account' : 'accounts';
         toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
+
+        // Trigger initial data sync
+        setTimeout(async () => {
+          try {
+            const { accounts } = await facebookAdsService.checkConnectionStatus();
+            if (accounts.length > 0) {
+              toast.info('Syncing your ad data...');
+              for (const account of accounts) {
+                await facebookAdsService.syncAdAccount(account.platform_account_id);
+              }
+              toast.success('Ad data synced successfully!');
+            }
+          } catch (error) {
+            console.error('Error syncing after connection:', error);
+          }
+        }, 2000);
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[AdPlatformIntegration] Facebook OAuth error:', event.data.error);
         setPlatforms(prev =>
@@ -111,8 +127,52 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
     window.addEventListener('message', handleMessage);
 
+    // Also check localStorage for success (in case postMessage fails)
+    const checkLocalStorage = setInterval(() => {
+      const successData = localStorage.getItem('facebook_oauth_success');
+      if (successData) {
+        try {
+          const parsed = JSON.parse(successData);
+          // Only process if recent (within last 10 seconds)
+          if (Date.now() - parsed.timestamp < 10000) {
+            console.log('[AdPlatformIntegration] Detected success in localStorage');
+            setPlatforms(prev =>
+              prev.map(p =>
+                p.id === 'facebook'
+                  ? { ...p, status: 'connected' }
+                  : p
+              )
+            );
+            const accountCount = parsed.accountCount || 0;
+            const plural = accountCount === 1 ? 'account' : 'accounts';
+            toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
+
+            // Trigger initial data sync
+            setTimeout(async () => {
+              try {
+                const { accounts } = await facebookAdsService.checkConnectionStatus();
+                if (accounts.length > 0) {
+                  toast.info('Syncing your ad data...');
+                  for (const account of accounts) {
+                    await facebookAdsService.syncAdAccount(account.platform_account_id);
+                  }
+                  toast.success('Ad data synced successfully!');
+                }
+              } catch (error) {
+                console.error('Error syncing after connection:', error);
+              }
+            }, 2000);
+          }
+          localStorage.removeItem('facebook_oauth_success');
+        } catch (e) {
+          console.error('Error parsing localStorage:', e);
+        }
+      }
+    }, 500);
+
     return () => {
       window.removeEventListener('message', handleMessage);
+      clearInterval(checkLocalStorage);
     };
   }, []);
   
