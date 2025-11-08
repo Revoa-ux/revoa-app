@@ -24,7 +24,9 @@ import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdRepor
 import { getDashboardMetrics, ShopifyMetrics } from '../lib/shopify/api';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
-import { supabase } from '../lib/supabase';  
+import { supabase } from '../lib/supabase';
+import { getCombinedDashboardMetrics, type CombinedMetrics } from '../lib/dashboardMetrics';
+import { useConnectionStore } from '../lib/connectionStore';  
 
 type CardType = 
   | 'profit' 
@@ -62,11 +64,15 @@ export default function DashboardCopy() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<CardType>('profit');
-  const [viewType, setViewType] = useState<ViewType>('card');  
+  const [viewType, setViewType] = useState<ViewType>('card');
   const [shopifyMetrics, setShopifyMetrics] = useState<ShopifyMetrics | null>(null);
+  const [combinedMetrics, setCombinedMetrics] = useState<CombinedMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [emptyStateDismissed, setEmptyStateDismissed] = useState(false);
+
+  // Use centralized connection store
+  const { shopify, facebook } = useConnectionStore();
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -98,27 +104,32 @@ export default function DashboardCopy() {
 
   const fetchShopifyData = async () => {
     try {
-      console.log('[Dashboard] Starting data fetch...');
+      console.log('[Dashboard] Starting combined data fetch...');
       setIsLoading(true);
       setError(null);
 
-      const metrics = await getDashboardMetrics();
-      console.log('[Dashboard] Received metrics:', metrics);
-      setShopifyMetrics(metrics);
+      // Fetch combined metrics from Shopify + Facebook
+      const combined = await getCombinedDashboardMetrics();
+      console.log('[Dashboard] Received combined metrics:', combined);
+
+      setCombinedMetrics(combined);
+      setShopifyMetrics(combined.shopify);
 
       // Check if we got real data or defaults
-      if (metrics.totalOrders === 0 && metrics.totalRevenue === 0) {
-        console.warn('[Dashboard] Received default/empty metrics. Store may not be connected or has no data.');
+      if (combined.shopify.totalOrders === 0 && combined.shopify.totalRevenue === 0) {
+        console.warn('[Dashboard] No orders/revenue yet. Store may be new or has no sales.');
       } else {
-        console.log('[Dashboard] Successfully loaded store data:', {
-          orders: metrics.totalOrders,
-          revenue: metrics.totalRevenue,
-          customers: metrics.totalCustomers
+        console.log('[Dashboard] Successfully loaded data:', {
+          orders: combined.shopify.totalOrders,
+          revenue: combined.shopify.totalRevenue,
+          adSpend: combined.facebook.totalSpend,
+          profit: combined.computed.profit,
+          roas: combined.computed.roas
         });
       }
     } catch (error) {
-      console.error('[Dashboard] Error fetching Shopify data:', error);
-      setError('Failed to fetch data from your Shopify store');
+      console.error('[Dashboard] Error fetching dashboard data:', error);
+      setError('Failed to fetch dashboard data. Please refresh.');
     } finally {
       setIsLoading(false);
     }
@@ -167,22 +178,22 @@ export default function DashboardCopy() {
     setEmptyStateDismissed(true);
   };
 
-  // Generate card data based on Shopify metrics
+  // Generate card data based on combined metrics (Shopify + Facebook)
   const cardsData: CardData[] = [
     {
       id: 'profit',
       title: 'Profit',
       icon: <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-      mainValue: shopifyMetrics ? `$${(shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold).toFixed(2)}` : '$0.00',
-      change: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(2)}%` : '0%',
-      changeType: 'positive',
-      dataPoint1: { 
-        label: 'Profit Margin', 
-        value: shopifyMetrics ? `${shopifyMetrics.profitMargin.toFixed(2)}%` : '0%' 
+      mainValue: combinedMetrics ? `$${combinedMetrics.computed.profit.toFixed(2)}` : '$0.00',
+      change: combinedMetrics ? `${combinedMetrics.computed.profitMargin.toFixed(1)}%` : '0%',
+      changeType: combinedMetrics && combinedMetrics.computed.profit >= 0 ? 'positive' : 'negative',
+      dataPoint1: {
+        label: 'Margin',
+        value: combinedMetrics ? `${combinedMetrics.computed.profitMargin.toFixed(1)}%` : '0%'
       },
-      dataPoint2: { 
-        label: 'Expenses', 
-        value: shopifyMetrics ? `$${shopifyMetrics.costOfGoodsSold.toFixed(2)}` : '$0.00' 
+      dataPoint2: {
+        label: 'ROAS',
+        value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x'
       },
       chartData: [
         { date: '2024-03-01', value1: 4200, value2: 24.2, value3: 14200 },
@@ -302,13 +313,13 @@ export default function DashboardCopy() {
     },
     {
       id: 'adCosts',
-      title: 'Ad Costs',
+      title: 'Ad Spend',
       icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-      mainValue: '$0.00',
-      change: '0.0%',
-      changeType: 'negative',
-      dataPoint1: { label: 'ROAS', value: '0.00x' },
-      dataPoint2: { label: 'CPA', value: '$0.00' },
+      mainValue: combinedMetrics ? `$${combinedMetrics.facebook.totalSpend.toFixed(2)}` : '$0.00',
+      change: facebook.isConnected ? '0.0%' : 'Not connected',
+      changeType: facebook.isConnected ? 'negative' : 'critical',
+      dataPoint1: { label: 'ROAS', value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x' },
+      dataPoint2: { label: 'CPA', value: combinedMetrics && combinedMetrics.shopify.totalOrders > 0 && combinedMetrics.facebook.totalSpend > 0 ? `$${(combinedMetrics.facebook.totalSpend / combinedMetrics.shopify.totalOrders).toFixed(2)}` : '$0.00' },
       chartData: [
         { date: '2024-03-01', value1: 0, value2: 0, value3: 0 },
         { date: '2024-03-02', value1: 0, value2: 0, value3: 0 },

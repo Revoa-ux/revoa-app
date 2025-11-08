@@ -17,6 +17,8 @@ import { OptimizationPriorities } from '@/components/reports/OptimizationPriorit
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
+import { getAdReportsMetrics, getCreativePerformance } from '@/lib/adReportsService';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface DateRange {
   startDate: Date;
@@ -185,6 +187,11 @@ export default function Audit() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
+  const [creatives, setCreatives] = useState(mockCreatives);
+  const [hasRealData, setHasRealData] = useState(false);
+
+  // Use centralized connection store
+  const { facebook } = useConnectionStore();
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
@@ -199,12 +206,51 @@ export default function Audit() {
     refreshData();
   };
 
-  const refreshData = () => {
+  const refreshData = async () => {
+    if (!facebook.isConnected) {
+      toast.error('Please connect your Facebook Ads account in Settings');
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const startDate = dateRange.startDate.toISOString().split('T')[0];
+      const endDate = dateRange.endDate.toISOString().split('T')[0];
+
+      console.log('[Audit] Fetching real ad data:', { startDate, endDate });
+
+      // Fetch real metrics and creatives
+      const [metrics, creativesData] = await Promise.all([
+        getAdReportsMetrics(startDate, endDate),
+        getCreativePerformance(startDate, endDate)
+      ]);
+
+      console.log('[Audit] Received data:', { metrics, creativesCount: creativesData.length });
+
+      setPerformanceData(metrics);
+      if (creativesData.length > 0) {
+        setCreatives(creativesData);
+        setHasRealData(true);
+      } else {
+        // Keep mock data if no real data available
+        setHasRealData(false);
+      }
+
+      toast.success('Data refreshed successfully');
+    } catch (error) {
+      console.error('[Audit] Error refreshing data:', error);
+      toast.error('Failed to refresh ad data');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
+
+  // Load data on mount and when Facebook is connected
+  useEffect(() => {
+    if (facebook.isConnected) {
+      refreshData();
+    }
+  }, [facebook.isConnected]);
 
   const handleConnectPlatform = (platform: 'facebook' | 'tiktok') => {
     console.log('Connecting to', platform);
@@ -237,7 +283,7 @@ export default function Audit() {
           <div className="flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {mockCreatives.length} creatives <span className="inline-block mx-1.5">•</span> {getTimePeriodText(selectedTime)}
+              {creatives.length} creatives <span className="inline-block mx-1.5">•</span> {getTimePeriodText(selectedTime)} {hasRealData && <span className="text-green-500">• Live Data</span>}
             </p>
           </div>
         </div>
@@ -311,7 +357,7 @@ export default function Audit() {
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <CreativeAnalysis
-          creatives={mockCreatives}
+          creatives={creatives}
           selectedTime={selectedTime}
           onTimeChange={handleTimeChange}
         />

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, BarChart3, DollarSign, CreditCard, RefreshCw } from 'lucide-react';
+import { TrendingUp, BarChart3, DollarSign, CreditCard, RefreshCw, AlertTriangle } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getCalculatorMetrics, ShopifyCalculatorMetrics } from '../lib/shopify/api';
 import { CalculatorSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
+import { getCombinedDashboardMetrics } from '../lib/dashboardMetrics';
+import { useConnectionStore } from '../lib/connectionStore';
 
 interface DateRange {
   startDate: Date;
@@ -41,6 +43,9 @@ export default function Calculator() {
   const [calculatorMetrics, setCalculatorMetrics] = useState<ShopifyCalculatorMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Use centralized connection store
+  const { shopify, facebook } = useConnectionStore();
+
   useEffect(() => {
     fetchCalculatorData();
   }, [selectedTime]);
@@ -61,8 +66,12 @@ export default function Calculator() {
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Convert TimeOption to timeframe string
+
+      // Fetch combined metrics from Shopify + Facebook
+      const combined = await getCombinedDashboardMetrics();
+      console.log('[Calculator] Received combined metrics:', combined);
+
+      // Also fetch detailed calculator metrics
       let timeframe = '7d';
       switch (selectedTime) {
         case '24h':
@@ -81,20 +90,20 @@ export default function Calculator() {
           timeframe = 'custom';
           break;
       }
-      
+
       const data = await getCalculatorMetrics(timeframe);
       setCalculatorMetrics(data);
-      
-      // Update metrics state with calculated values
+
+      // Update metrics state with REAL calculated values from combined data
       setMetrics({
-        profit: data.totalRevenue - data.costOfGoodsSold - data.transactionFees,
-        profitChange: 12, // Example value
-        totalRevenue: data.totalRevenue,
-        revenueChange: 8.2, // Example value
-        avgOrderValue: data.averageOrderValue,
-        avgOrderChange: 5.6, // Example value
-        totalAdSpend: data.numberOfOrders * data.adCostPerOrder,
-        adSpendChange: 3.8 // Example value
+        profit: combined.computed.profit,
+        profitChange: 0, // TODO: Calculate historical comparison
+        totalRevenue: combined.shopify.totalRevenue,
+        revenueChange: 0, // TODO: Calculate historical comparison
+        avgOrderValue: combined.shopify.averageOrderValue,
+        avgOrderChange: 0, // TODO: Calculate historical comparison
+        totalAdSpend: combined.facebook.totalSpend,
+        adSpendChange: 0 // TODO: Calculate historical comparison
       });
     } catch (error) {
       console.error('Error fetching calculator data:', error);

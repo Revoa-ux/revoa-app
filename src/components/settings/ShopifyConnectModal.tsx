@@ -5,6 +5,7 @@ import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface ShopifyConnectModalProps {
   isOpen: boolean;
@@ -22,6 +23,23 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // Watch connection store for Shopify changes
+  const { shopify } = useConnectionStore();
+
+  // Auto-close modal when Shopify gets connected
+  useEffect(() => {
+    if (shopify.isConnected && isOpen) {
+      console.log('[ShopifyConnectModal] Connection detected, closing modal');
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        setCheckInterval(null);
+      }
+      setIsLoading(false);
+      onSuccess(shopify.installation?.store_url || '');
+      onClose();
+    }
+  }, [shopify.isConnected, isOpen]);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -160,24 +178,30 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               return;
             }
 
-            if (oauthSession.error) {
-              if (oauthSession.error === "Session Started...") {
-                return;
-              }
-
+            // Check if OAuth completed successfully
+            if (oauthSession.completed_at) {
+              console.log('[ShopifyConnectModal] OAuth session completed!');
               cleanOauthSession(oauthSession);
-              setHasError(true);
+              // Connection store will detect the change and auto-close modal
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
               return;
             }
 
-            cleanOauthSession(oauthSession);
-            onSuccess(validDomain);
-            if (authWindow && !authWindow.closed) {
-              authWindow.close();
+            // Check for errors (but ignore "Session Started...")
+            if (oauthSession.error && oauthSession.error !== "Session Started...") {
+              console.error('[ShopifyConnectModal] OAuth error:', oauthSession.error);
+              cleanOauthSession(oauthSession);
+              setHasError(true);
+              setErrorMessage(oauthSession.error);
+              if (authWindow && !authWindow.closed) {
+                authWindow.close();
+              }
+              return;
             }
+
+            // Still in progress, keep polling
           })
           .catch(() => {
             clearInterval(intervalId);
