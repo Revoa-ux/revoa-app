@@ -169,18 +169,10 @@ const SettingsPage = () => {
       } else if (event.data?.type === 'facebook-oauth-success') {
         console.log('[Settings] Facebook OAuth success:', event.data);
         setFacebookConnecting(false);
-        const accountCount = event.data.accountCount || 0;
-        const plural = accountCount === 1 ? 'account' : 'accounts';
-        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}. Data is being synced.`);
 
         await loadFacebookAccounts();
 
-        if (event.data.shouldRefresh) {
-          setTimeout(async () => {
-            await loadFacebookAccounts();
-            toast.success('Facebook Ads data synced successfully!');
-          }, 5000);
-        }
+        setIntegrationStatus(prev => ({ ...prev, facebook: true }));
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
@@ -190,18 +182,19 @@ const SettingsPage = () => {
 
     // Poll localStorage as fallback for when postMessage doesn't work
     const pollInterval = setInterval(async () => {
-      const successFlag = localStorage.getItem('shopify_oauth_success');
-      const errorFlag = localStorage.getItem('shopify_oauth_error');
+      const shopifySuccessFlag = localStorage.getItem('shopify_oauth_success');
+      const shopifyErrorFlag = localStorage.getItem('shopify_oauth_error');
+      const facebookSuccessFlag = localStorage.getItem('facebook_oauth_success');
+      const facebookErrorFlag = localStorage.getItem('facebook_oauth_error');
 
-      if (successFlag) {
+      if (shopifySuccessFlag) {
         try {
-          const data = JSON.parse(successFlag);
-          console.log('[Settings] Detected OAuth success in localStorage:', data);
+          const data = JSON.parse(shopifySuccessFlag);
+          console.log('[Settings] Detected Shopify OAuth success in localStorage:', data);
 
           setShopifyConnecting(false);
           setIntegrationStatus(prev => ({ ...prev, shopify: true }));
           setShopifyStore(data.shop);
-          toast.success('Shopify store connected successfully');
 
           if (user?.id) {
             const installation = await getActiveShopifyInstallation(user.id);
@@ -216,15 +209,40 @@ const SettingsPage = () => {
         }
       }
 
-      if (errorFlag) {
+      if (shopifyErrorFlag) {
         try {
-          const data = JSON.parse(errorFlag);
-          console.error('[Settings] Detected OAuth error in localStorage:', data.error);
+          const data = JSON.parse(shopifyErrorFlag);
+          console.error('[Settings] Detected Shopify OAuth error in localStorage:', data.error);
           setShopifyConnecting(false);
-          toast.error(data.error || 'Failed to connect Shopify');
           localStorage.removeItem('shopify_oauth_error');
         } catch (error) {
           console.error('[Settings] Error parsing error flag:', error);
+        }
+      }
+
+      if (facebookSuccessFlag) {
+        try {
+          const data = JSON.parse(facebookSuccessFlag);
+          console.log('[Settings] Detected Facebook OAuth success in localStorage:', data);
+
+          setFacebookConnecting(false);
+          await loadFacebookAccounts();
+          setIntegrationStatus(prev => ({ ...prev, facebook: true }));
+
+          localStorage.removeItem('facebook_oauth_success');
+        } catch (error) {
+          console.error('[Settings] Error parsing Facebook success flag:', error);
+        }
+      }
+
+      if (facebookErrorFlag) {
+        try {
+          const data = JSON.parse(facebookErrorFlag);
+          console.error('[Settings] Detected Facebook OAuth error in localStorage:', data.error);
+          setFacebookConnecting(false);
+          localStorage.removeItem('facebook_oauth_error');
+        } catch (error) {
+          console.error('[Settings] Error parsing Facebook error flag:', error);
         }
       }
     }, 500); // Poll every 500ms
@@ -411,16 +429,16 @@ const SettingsPage = () => {
     }
   };
 
-  const handleSyncFacebook = async (accountId: string) => {
+  const handleSyncFacebook = async (platformAccountId: string) => {
     try {
       setFacebookSyncing(true);
 
       const endDate = new Date().toISOString().split('T')[0];
       const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-      const result = await facebookAdsService.syncAdAccount(accountId, startDate, endDate);
+      const result = await facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate);
 
-      toast.success(result.message || 'Facebook Ads data synced successfully');
+      toast.success('Facebook Ads data synced successfully');
 
       await loadFacebookAccounts();
     } catch (error) {
@@ -884,7 +902,7 @@ const SettingsPage = () => {
                         <Check className="w-4 h-4" />
                       </div>
                       <button
-                        onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].id)}
+                        onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
                         className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors disabled:opacity-50"
                       >
@@ -901,7 +919,7 @@ const SettingsPage = () => {
                         )}
                       </button>
                       <button
-                        onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].id)}
+                        onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookConnecting || facebookAccounts.length === 0}
                         className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
                       >

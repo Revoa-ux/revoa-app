@@ -12,8 +12,8 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -23,219 +23,163 @@
 
     .container {
       background: white;
+      padding: 48px;
       border-radius: 16px;
-      padding: 48px 32px;
-      max-width: 400px;
-      width: 100%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
     }
 
-    .icon {
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #E11D48;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success-icon {
       width: 64px;
       height: 64px;
       margin: 0 auto 24px;
+      background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: white;
       font-size: 32px;
     }
 
-    .icon.success {
-      background: #10b981;
-      animation: scaleIn 0.5s ease-out;
-    }
-
-    .icon.error {
+    .error-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
       background: #ef4444;
-      animation: shake 0.5s ease-out;
-    }
-
-    .icon.loading {
-      background: #3b82f6;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes scaleIn {
-      0% {
-        transform: scale(0);
-      }
-      50% {
-        transform: scale(1.1);
-      }
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
     }
 
     h1 {
       font-size: 24px;
       font-weight: 600;
-      margin-bottom: 12px;
       color: #111827;
+      margin-bottom: 12px;
     }
 
     p {
-      font-size: 14px;
       color: #6b7280;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .button {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
       font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
+      line-height: 1.6;
     }
 
-    .button:hover {
-      background: #5568d3;
-    }
-
-    .hidden {
-      display: none;
+    .error-message {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Loading State -->
     <div id="loading-state">
-      <div class="icon loading">
-        <div class="spinner"></div>
-      </div>
-      <h1>Connecting to Facebook...</h1>
-      <p>Please wait while we complete your connection.</p>
+      <div class="spinner"></div>
+      <h1>Connecting to Facebook</h1>
+      <p>Please wait while we complete the setup...</p>
     </div>
 
-    <!-- Success State -->
-    <div id="success-state" class="hidden">
-      <div class="icon success">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      </div>
-      <h1>Successfully Connected!</h1>
-      <p id="success-message">Your Facebook Ads account has been connected.</p>
-      <button class="button" onclick="closeWindow()">Close Window</button>
+    <div id="success-state" style="display: none;">
+      <div class="success-icon">✓</div>
+      <h1>Connection Complete!</h1>
+      <p id="success-message">Your Facebook Ads account has been connected successfully.</p>
     </div>
 
-    <!-- Error State -->
-    <div id="error-state" class="hidden">
-      <div class="icon error">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-      </div>
+    <div id="error-state" style="display: none;">
+      <div class="error-icon">✕</div>
       <h1>Connection Failed</h1>
-      <p id="error-message">We couldn't connect your Facebook Ads account.</p>
-      <button class="button" onclick="closeWindow()">Close Window</button>
+      <p id="error-text">Something went wrong. Please try again.</p>
+      <div id="error-details" class="error-message" style="display: none;"></div>
     </div>
   </div>
 
   <script>
-    async function syncAccounts(accountIds) {
-      if (!accountIds || accountIds.length === 0) return;
-
-      try {
-        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-sync?accountId=' + accountIds[0], {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('supabase.auth.token'),
-          }
-        });
-
-        if (response.ok) {
-          document.getElementById('success-message').textContent = 'Successfully connected and synced Facebook Ads data!';
-        }
-      } catch (error) {
-        console.error('Sync error:', error);
-      }
-    }
-
-    function showSuccess(message, accountCount, accountIds) {
-      document.getElementById('loading-state').classList.add('hidden');
-      document.getElementById('success-state').classList.remove('hidden');
+    function showSuccess(accountCount, accountIds) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
 
       if (accountCount) {
         const plural = accountCount === 1 ? 'account' : 'accounts';
         document.getElementById('success-message').textContent =
-          `Successfully connected ${accountCount} Facebook ad ${plural}. Syncing data...`;
-      }
-
-      // Trigger sync
-      if (accountIds && accountIds.length > 0) {
-        syncAccounts(accountIds);
+          `Successfully connected ${accountCount} Facebook ad ${plural}.`;
       }
 
       // Notify parent window
-      if (window.opener) {
+      if (window.opener && !window.opener.closed) {
         window.opener.postMessage({
           type: 'facebook-oauth-success',
           accountCount: accountCount,
-          shouldRefresh: true
-        }, window.location.origin);
+          accountIds: accountIds
+        }, '*');
+
+        // Also set localStorage as fallback
+        localStorage.setItem('facebook_oauth_success', JSON.stringify({
+          accountCount: accountCount,
+          accountIds: accountIds,
+          timestamp: Date.now()
+        }));
       }
 
-      // Auto-close after 3 seconds
+      // Close window after delay
       setTimeout(() => {
-        closeWindow();
-      }, 3000);
+        window.close();
+      }, 1500);
     }
 
-    function showError(message) {
-      document.getElementById('loading-state').classList.add('hidden');
-      document.getElementById('error-state').classList.remove('hidden');
-      document.getElementById('error-message').textContent = message || 'An unexpected error occurred.';
+    function showError(message, details) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-text').textContent = message || 'An unexpected error occurred.';
+
+      if (details) {
+        const errorDetails = document.getElementById('error-details');
+        errorDetails.textContent = details;
+        errorDetails.style.display = 'block';
+      }
 
       // Notify parent window
-      if (window.opener) {
+      if (window.opener && !window.opener.closed) {
         window.opener.postMessage({
           type: 'facebook-oauth-error',
           error: message
-        }, window.location.origin);
-      }
-    }
+        }, '*');
 
-    function closeWindow() {
-      if (window.opener) {
-        window.close();
-      } else {
-        window.location.href = '/settings';
+        // Also set localStorage as fallback
+        localStorage.setItem('facebook_oauth_error', JSON.stringify({
+          error: message,
+          timestamp: Date.now()
+        }));
       }
+
+      // Close window after delay
+      setTimeout(() => {
+        window.close();
+      }, 5000);
     }
 
     // Parse URL parameters
@@ -247,7 +191,7 @@
     const error = urlParams.get('error');
 
     if (success) {
-      showSuccess('Successfully connected Facebook Ads', accountCount, accountIds);
+      showSuccess(accountCount, accountIds);
     } else if (error) {
       const errorMessages = {
         'invalid_session': 'Session expired. Please try again.',
@@ -259,7 +203,6 @@
 
       showError(errorMessages[error] || decodeURIComponent(error));
     } else {
-      // If no parameters, something went wrong
       showError('Invalid callback. Please try connecting again.');
     }
   </script>
