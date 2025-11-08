@@ -229,10 +229,8 @@ Deno.serve(async (req: Request) => {
 
       const redirectUri = `${supabaseUrl}/functions/v1/facebook-ads-oauth`;
       const scope = [
+        'public_profile',
         'email',
-        'ads_read',
-        'ads_management',
-        'business_management',
       ].join(',');
 
       const oauthUrl =
