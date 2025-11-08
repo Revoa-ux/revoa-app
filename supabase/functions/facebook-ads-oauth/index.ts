@@ -257,25 +257,34 @@ Deno.serve(async (req: Request) => {
         for (const account of accounts) {
           const accountData: any = {
             platform_account_id: account.id,
-            name: account.name,
+            account_name: account.name,
             platform: 'facebook',
             status: account.account_status === 1 ? 'active' : 'inactive',
-            currency: account.currency,
-            timezone: account.timezone_name,
             user_id: userId,
+            access_token: accessToken,
+            token_expires_at: expiresAt,
+            metadata: {
+              currency: account.currency,
+              timezone: account.timezone_name,
+              account_status: account.account_status
+            }
           };
 
           if (shopifyStoreId) {
             accountData.shopify_store_id = shopifyStoreId;
           }
 
-          const { error: accountError } = await supabase.from('ad_accounts').upsert(
-            accountData,
-            { onConflict: 'platform_account_id' }
-          );
+          const { data: upsertedAccount, error: accountError } = await supabase
+            .from('ad_accounts')
+            .upsert(accountData, { onConflict: 'platform_account_id' })
+            .select()
+            .single();
 
           if (accountError) {
             console.error('Error upserting ad account:', accountError);
+            console.error('Account data that failed:', JSON.stringify(accountData));
+          } else {
+            console.log('Successfully saved ad account:', upsertedAccount?.id);
           }
 
           const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
