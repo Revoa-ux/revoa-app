@@ -233,9 +233,6 @@ Deno.serve(async (req: Request) => {
       const scope = [
         'public_profile',
         'email',
-        'ads_read',
-        'ads_management',
-        'business_management',
       ].join(',');
 
       const oauthUrl =
