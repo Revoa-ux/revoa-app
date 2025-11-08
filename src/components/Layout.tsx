@@ -23,8 +23,7 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
-import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '../lib/shopify/status';
-import { useAuth as useAuthContext } from '../contexts/AuthContext';
+import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -42,7 +41,6 @@ export default function Layout() {
   const location = useLocation();
   const { signOut, user } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check local storage first, then system preference
@@ -52,6 +50,9 @@ export default function Layout() {
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  // Use centralized connection store
+  const { shopify } = useConnectionStore();
 
   // Apply dark mode class to html element
   useEffect(() => {
@@ -65,34 +66,34 @@ export default function Layout() {
     }
   }, [isDarkMode]);
 
-  // Subscribe to Shopify store changes
+  // Initialize connections when user is available
   useEffect(() => {
     if (!user?.id) {
-      console.log('[Layout] No user, skipping Shopify subscription');
+      console.log('[Layout] No user, skipping initialization');
       return;
     }
 
-    console.log('[Layout] Setting up Shopify subscription for user:', user.id);
+    console.log('[Layout] Initializing connections for user:', user.id);
 
-    // Subscribe to real-time changes (includes immediate check)
-    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
-      console.log('[Layout] Shopify status update - isConnected:', isConnected, 'installation:', installation);
-      if (installation?.store_url) {
-        // Remove .myshopify.com and format nicely
-        const storeName = installation.store_url.replace('.myshopify.com', '');
-        setShopifyStore(storeName);
-        console.log('[Layout] Shopify store updated:', storeName);
-      } else {
-        setShopifyStore(null);
-        console.log('[Layout] No Shopify store connected');
-      }
-    });
+    const initConnections = async () => {
+      const unsubscribe = await initializeConnections(user.id);
+      return unsubscribe;
+    };
+
+    const unsubscribePromise = initConnections();
 
     return () => {
-      console.log('[Layout] Cleaning up Shopify subscription');
-      unsubscribe();
+      unsubscribePromise.then(unsubscribe => {
+        if (unsubscribe) {
+          console.log('[Layout] Cleaning up subscriptions');
+          unsubscribe();
+        }
+      });
     };
   }, [user?.id]);
+
+  // Compute store name from connection state
+  const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
 
   const handleLogout = async () => {
     try {

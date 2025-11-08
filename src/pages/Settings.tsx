@@ -25,6 +25,7 @@ import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/sh
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface UserProfile {
   firstName: string;
@@ -57,13 +58,18 @@ const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [shopifyConnecting, setShopifyConnecting] = useState(false);
-  const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [showToken, setShowToken] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [facebookAccounts, setFacebookAccounts] = useState<AdAccount[]>([]);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
+
+  // Use centralized connection store
+  const { shopify, facebook, refreshFacebookAccounts } = useConnectionStore();
+  const shopifyStore = shopify.installation?.store_url || null;
+  const facebookAccounts = facebook.accounts;
+  const integrationStatusShopify = shopify.isConnected;
+  const integrationStatusFacebook = facebook.isConnected;
   const [profile, setProfile] = useState<UserProfile>({
     firstName: 'John',
     lastName: 'Doe',
@@ -83,11 +89,20 @@ const SettingsPage = () => {
   });
 
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
-    shopify: false,
-    facebook: false,
+    shopify: integrationStatusShopify,
+    facebook: integrationStatusFacebook,
     google: false,
     tiktok: false
   });
+
+  // Sync integration status from store
+  useEffect(() => {
+    setIntegrationStatus(prev => ({
+      ...prev,
+      shopify: integrationStatusShopify,
+      facebook: integrationStatusFacebook,
+    }));
+  }, [integrationStatusShopify, integrationStatusFacebook]);
 
   // Check if user is admin and fetch token
   useEffect(() => {
@@ -111,34 +126,14 @@ const SettingsPage = () => {
     checkAdminAndFetchToken();
   }, [user?.id]);
 
-  // Load Facebook accounts on mount
+  // Connection store is automatically initialized in Layout component
+  // No need to initialize here, just refresh Facebook accounts if needed
   useEffect(() => {
-    if (user?.id) {
-      loadFacebookAccounts();
+    if (facebook.isConnected && facebook.accounts.length === 0) {
+      console.log('[Settings] Facebook connected but no accounts loaded, refreshing...');
+      refreshFacebookAccounts();
     }
-  }, [user?.id]);
-
-  // Fetch Shopify connection status and subscribe to changes
-  useEffect(() => {
-    if (!user?.id) {
-      console.log('[Settings] No user ID, skipping Shopify check');
-      return;
-    }
-
-    console.log('[Settings] Setting up Shopify subscription for user:', user.id);
-
-    // Subscribe to real-time changes (includes immediate check)
-    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
-      console.log('[Settings] Shopify status update - isConnected:', isConnected, 'installation:', installation);
-      setIntegrationStatus(prev => ({ ...prev, shopify: isConnected }));
-      setShopifyStore(installation?.store_url || '');
-    });
-
-    return () => {
-      console.log('[Settings] Cleaning up Shopify subscription');
-      unsubscribe();
-    };
-  }, [user?.id]);
+  }, [facebook.isConnected]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
@@ -170,9 +165,7 @@ const SettingsPage = () => {
         console.log('[Settings] Facebook OAuth success:', event.data);
         setFacebookConnecting(false);
 
-        await loadFacebookAccounts();
-
-        setIntegrationStatus(prev => ({ ...prev, facebook: true }));
+        await refreshFacebookAccounts();
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
@@ -226,8 +219,7 @@ const SettingsPage = () => {
           console.log('[Settings] Detected Facebook OAuth success in localStorage:', data);
 
           setFacebookConnecting(false);
-          await loadFacebookAccounts();
-          setIntegrationStatus(prev => ({ ...prev, facebook: true }));
+          await refreshFacebookAccounts();
 
           localStorage.removeItem('facebook_oauth_success');
         } catch (error) {
@@ -332,16 +324,8 @@ const SettingsPage = () => {
 
   const handleShopifySuccess = async (storeUrl: string) => {
     setShowShopifyModal(false);
-    setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-    setShopifyStore(storeUrl);
     toast.success('Shopify store connected successfully');
-
-    if (user?.id) {
-      const installation = await getActiveShopifyInstallation(user.id);
-      if (installation) {
-        setShopifyStore(installation.store_url);
-      }
-    }
+    // Store will automatically update via real-time subscription
   };
 
   const handleDisconnectShopify = async () => {
@@ -358,9 +342,8 @@ const SettingsPage = () => {
 
       if (error) throw error;
 
-      setIntegrationStatus(prev => ({ ...prev, shopify: false }));
-      setShopifyStore(null);
       toast.success('Shopify store disconnected');
+      // Store will automatically update via real-time subscription
     } catch (error) {
       console.error('Error disconnecting Shopify:', error);
       toast.error('Failed to disconnect Shopify');
@@ -398,8 +381,8 @@ const SettingsPage = () => {
       const checkPopupClosed = setInterval(() => {
         if (popup.closed) {
           clearInterval(checkPopupClosed);
-          setTimeout(() => {
-            loadFacebookAccounts();
+          setTimeout(async () => {
+            await refreshFacebookAccounts();
             setFacebookConnecting(false);
           }, 1000);
         }
@@ -418,8 +401,7 @@ const SettingsPage = () => {
 
       await facebookAdsService.disconnectAdAccount(accountId);
 
-      setIntegrationStatus(prev => ({ ...prev, facebook: false }));
-      setFacebookAccounts([]);
+      await refreshFacebookAccounts();
       toast.success('Facebook Ads account disconnected');
     } catch (error) {
       console.error('Error disconnecting Facebook:', error);
@@ -440,7 +422,7 @@ const SettingsPage = () => {
 
       toast.success('Facebook Ads data synced successfully');
 
-      await loadFacebookAccounts();
+      await refreshFacebookAccounts();
     } catch (error) {
       console.error('Error syncing Facebook:', error);
       toast.error('Failed to sync Facebook Ads data');
@@ -449,18 +431,7 @@ const SettingsPage = () => {
     }
   };
 
-  const loadFacebookAccounts = async () => {
-    try {
-      const accounts = await facebookAdsService.getAdAccounts('facebook');
-      setFacebookAccounts(accounts);
-      setIntegrationStatus(prev => ({
-        ...prev,
-        facebook: accounts.length > 0,
-      }));
-    } catch (error) {
-      console.error('Error loading Facebook accounts:', error);
-    }
-  };
+  // Removed loadFacebookAccounts - now using refreshFacebookAccounts from store
 
   const handleConnectPlatform = async (platform: keyof IntegrationStatus) => {
     if (platform === 'shopify') {
