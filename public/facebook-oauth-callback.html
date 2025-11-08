@@ -390,20 +390,56 @@
 
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const accounts = urlParams.get('accounts');
-    const token = urlParams.get('token');
-    const user = urlParams.get('user_id');
-    const expires = urlParams.get('expires_at');
+    const sessionId = urlParams.get('session');
     const error = urlParams.get('error');
 
-    if (accounts && token && user && expires) {
-      try {
-        const accountsData = JSON.parse(decodeURIComponent(accounts));
-        showAccountSelection(accountsData, token, user, expires);
-      } catch (e) {
-        console.error('Failed to parse accounts:', e);
-        showError('Failed to load ad accounts. Please try again.');
+    console.log('Callback received:', {
+      hasSession: !!sessionId,
+      error: error,
+      url: window.location.href
+    });
+
+    async function loadSessionData() {
+      if (!sessionId) {
+        showError('Invalid callback. Please try connecting again.');
+        return;
       }
+
+      try {
+        // Fetch session data from Supabase
+        const response = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load session');
+        }
+
+        const sessions = await response.json();
+        if (!sessions || sessions.length === 0) {
+          throw new Error('Session not found');
+        }
+
+        const session = sessions[0];
+        const { accounts, accessToken, expiresAt } = session.metadata;
+
+        if (!accounts || !accessToken || !expiresAt) {
+          throw new Error('Invalid session data');
+        }
+
+        console.log('Loaded session data:', { accountCount: accounts.length });
+        showAccountSelection(accounts, accessToken, session.user_id, expiresAt);
+      } catch (e) {
+        console.error('Failed to load session:', e);
+        showError('Failed to load session data. Please try again.');
+      }
+    }
+
+    if (sessionId) {
+      loadSessionData();
     } else if (error) {
       const errorMessages = {
         'invalid_session': 'Session expired. Please try again.',
@@ -414,9 +450,10 @@
       };
 
       showError(errorMessages[error] || decodeURIComponent(error));
-    } else {
-      showError('Invalid callback. Please try connecting again.');
+    } else if (window.location.search) {
+      showError('Invalid callback parameters. Please try connecting again.');
     }
+    // If no query params at all, just show loading (normal for direct page access)
   </script>
 </body>
 </html>

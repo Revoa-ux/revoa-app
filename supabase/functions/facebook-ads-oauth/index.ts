@@ -77,7 +77,8 @@ Deno.serve(async (req: Request) => {
           code,
         });
 
-        const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);        const tokenData = await tokenResponse.json();
+        const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);
+        const tokenData = await tokenResponse.json();
 
         if (!tokenResponse.ok || !tokenData.access_token) {
           console.error('Token exchange failed:', tokenData);
@@ -131,11 +132,22 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        const accountsParam = encodeURIComponent(JSON.stringify(accounts));
-        const tokenParam = encodeURIComponent(accessToken);
-        const expiresAtParam = encodeURIComponent(new Date(Date.now() + expiresIn * 1000).toISOString());
+        const { error: updateError } = await supabase
+          .from('oauth_sessions')
+          .update({
+            metadata: {
+              accounts: accounts,
+              accessToken: accessToken,
+              expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
+            }
+          })
+          .eq('state', state);
 
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?accounts=${accountsParam}&token=${tokenParam}&user_id=${session.user_id}&expires_at=${expiresAtParam}`;
+        if (updateError) {
+          console.error('Error updating OAuth session:', updateError);
+        }
+
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?session=${state}`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },
