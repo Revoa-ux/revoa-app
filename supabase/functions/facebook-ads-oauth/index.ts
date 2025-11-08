@@ -254,25 +254,23 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-        if (!shopifyStoreId) {
-          return new Response(
-            JSON.stringify({ success: false, error: 'Please select a Shopify store' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
         for (const account of accounts) {
+          const accountData: any = {
+            platform_account_id: account.id,
+            name: account.name,
+            platform: 'facebook',
+            status: account.account_status === 1 ? 'active' : 'inactive',
+            currency: account.currency,
+            timezone: account.timezone_name,
+            user_id: userId,
+          };
+
+          if (shopifyStoreId) {
+            accountData.shopify_store_id = shopifyStoreId;
+          }
+
           const { error: accountError } = await supabase.from('ad_accounts').upsert(
-            {
-              platform_account_id: account.id,
-              name: account.name,
-              platform: 'facebook',
-              status: account.account_status === 1 ? 'active' : 'inactive',
-              currency: account.currency,
-              timezone: account.timezone_name,
-              user_id: userId,
-              shopify_store_id: shopifyStoreId,
-            },
+            accountData,
             { onConflict: 'platform_account_id' }
           );
 

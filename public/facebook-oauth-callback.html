@@ -117,6 +117,7 @@
       width: 18px;
       height: 18px;
       cursor: pointer;
+      accent-color: #111827;
     }
 
     .account-info {
@@ -179,11 +180,12 @@
 
       <div id="store-selector" style="margin-bottom: 24px; text-align: left;">
         <label style="display: block; font-size: 14px; font-weight: 500; color: #111827; margin-bottom: 8px;">
-          Shopify Store
+          Shopify Store (Optional)
         </label>
-        <select id="shopify-store" style="width: 100%; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; color: #111827;">
+        <select id="shopify-store" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #111827; background: white;">
           <option value="">Loading stores...</option>
         </select>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 6px;">You can link a store now or later in Settings</p>
       </div>
 
       <div id="account-list"></div>
@@ -227,10 +229,9 @@
           const storeSelect = document.getElementById('shopify-store');
 
           if (stores.length === 0) {
-            storeSelect.innerHTML = '<option value="">No Shopify stores connected. Please connect a store first.</option>';
-            document.getElementById('confirm-selection').disabled = true;
+            storeSelect.innerHTML = '<option value="">No store (link later in Settings)</option>';
           } else {
-            storeSelect.innerHTML = '<option value="">Select a store...</option>' +
+            storeSelect.innerHTML = '<option value="">No store (link later in Settings)</option>' +
               stores.map(store => `<option value="${store.id}">${store.store_url}</option>`).join('');
           }
         }
@@ -244,7 +245,7 @@
       accessToken = token;
       userId = user;
       expiresAt = expires;
-      selectedAccounts = accounts.map(a => a.id); // Select all by default
+      selectedAccounts = []; // Don't pre-select any accounts
 
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('account-selection-state').style.display = 'block';
@@ -254,7 +255,7 @@
       const accountList = document.getElementById('account-list');
       accountList.innerHTML = accounts.map(account => `
         <div class="account-item" data-account-id="${account.id}">
-          <input type="checkbox" checked id="account-${account.id}">
+          <input type="checkbox" id="account-${account.id}">
           <div class="account-info">
             <div class="account-name">${account.name}</div>
             <div class="account-details">${account.id} • ${account.currency}</div>
@@ -295,12 +296,7 @@
     async function confirmSelection() {
       const button = document.getElementById('confirm-selection');
       const storeSelect = document.getElementById('shopify-store');
-      const shopifyStoreId = storeSelect.value;
-
-      if (!shopifyStoreId) {
-        showError('Please select a Shopify store');
-        return;
-      }
+      const shopifyStoreId = storeSelect.value || null;
 
       button.disabled = true;
       button.textContent = 'Connecting...';
