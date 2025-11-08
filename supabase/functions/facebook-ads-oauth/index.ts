@@ -287,7 +287,7 @@ Deno.serve(async (req: Request) => {
 
             const { data: upsertedAccount, error: accountError } = await supabase
               .from('ad_accounts')
-              .upsert(accountData, { onConflict: 'platform_account_id' })
+              .upsert(accountData, { onConflict: 'user_id,platform,platform_account_id' })
               .select()
               .single();
 
