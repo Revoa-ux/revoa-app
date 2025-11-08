@@ -224,11 +224,15 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     const products = await GraphQL.getProducts(250);
     console.log('[Shopify API] Found', products.length, 'products');
 
-    // Fetch orders to get count
-    console.log('[Shopify API] Fetching orders via GraphQL...');
-    const orders = await GraphQL.getOrders(250);
+    // Fetch ALL orders (up to 10,000 to capture full history for most stores)
+    console.log('[Shopify API] Fetching ALL orders via GraphQL...');
+    const orders = await GraphQL.getOrders(10000);
     const totalOrders = orders.length;
-    console.log('[Shopify API] Total orders:', totalOrders);
+    console.log('[Shopify API] Total orders fetched:', totalOrders);
+
+    if (totalOrders >= 10000) {
+      console.warn('[Shopify API] Hit 10,000 order limit. Store may have more orders than fetched.');
+    }
 
     if (orders.length > 0) {
       console.log('[Shopify API] Sample order:', {
@@ -415,11 +419,16 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
 
     let orders;
     try {
-      orders = await GraphQL.getOrders(1000, query);
+      // Fetch up to 10,000 orders for the date range
+      orders = await GraphQL.getOrders(10000, query);
     } catch (error) {
       console.error('[Calculator] Error with date query, trying without filter:', error);
-      // If date query fails, try getting all orders
-      orders = await GraphQL.getOrders(1000);
+      // If date query fails, try getting all orders (up to 10,000)
+      orders = await GraphQL.getOrders(10000);
+    }
+
+    if (orders.length >= 10000) {
+      console.warn('[Calculator] Hit 10,000 order limit. May be missing some orders from this period.');
     }
 
     const numberOfOrders = orders.length;

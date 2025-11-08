@@ -393,10 +393,12 @@ const SettingsPage = () => {
 
               try {
                 const endDate = new Date().toISOString().split('T')[0];
-                const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                // Fetch ALL historical data (Facebook allows up to 37 months, we'll use 3 years to be safe)
+                const startDate = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
+                console.log('[Settings] Auto-syncing from', startDate, 'to', endDate);
                 await facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate);
-                toast.success('Facebook Ads connected and data synced!');
+                toast.success('Facebook Ads connected and historical data synced!');
               } catch (syncError) {
                 console.error('[Settings] Auto-sync failed:', syncError);
                 toast.warning('Connected but sync failed. Click "Sync" button to retry.');
@@ -436,11 +438,15 @@ const SettingsPage = () => {
       setFacebookSyncing(true);
 
       const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Fetch ALL historical data (Facebook allows up to 37 months, we'll use 3 years to be safe)
+      const startDate = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      console.log('[Settings] Manual sync from', startDate, 'to', endDate);
+      toast.info(`Syncing Facebook Ads data from ${startDate}...`, { duration: 3000 });
 
       const result = await facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate);
 
-      toast.success('Facebook Ads data synced successfully');
+      toast.success('All historical Facebook Ads data synced successfully!');
 
       await refreshFacebookAccounts();
     } catch (error) {
