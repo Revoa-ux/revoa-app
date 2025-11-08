@@ -41,7 +41,12 @@ Deno.serve(async (req: Request) => {
     const state = url.searchParams.get('state');
     const action = url.searchParams.get('action');
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
 
     if (code && state) {
       try {
@@ -254,57 +259,79 @@ Deno.serve(async (req: Request) => {
           );
         }
 
+        const savedAccounts = [];
+        const errors = [];
+
         for (const account of accounts) {
-          const accountData: any = {
-            platform_account_id: account.id,
-            account_name: account.name,
-            platform: 'facebook',
-            status: account.account_status === 1 ? 'active' : 'inactive',
-            user_id: userId,
-            access_token: accessToken,
-            token_expires_at: expiresAt,
-            metadata: {
-              currency: account.currency,
-              timezone: account.timezone_name,
-              account_status: account.account_status
-            }
-          };
-
-          if (shopifyStoreId) {
-            accountData.shopify_store_id = shopifyStoreId;
-          }
-
-          const { data: upsertedAccount, error: accountError } = await supabase
-            .from('ad_accounts')
-            .upsert(accountData, { onConflict: 'platform_account_id' })
-            .select()
-            .single();
-
-          if (accountError) {
-            console.error('Error upserting ad account:', accountError);
-            console.error('Account data that failed:', JSON.stringify(accountData));
-          } else {
-            console.log('Successfully saved ad account:', upsertedAccount?.id);
-          }
-
-          const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
-            {
+          try {
+            const accountData: any = {
+              platform_account_id: account.id,
+              account_name: account.name,
+              platform: 'facebook',
+              status: account.account_status === 1 ? 'active' : 'inactive',
               user_id: userId,
-              ad_account_id: account.id,
               access_token: accessToken,
-              token_type: 'user',
-              expires_at: expiresAt,
-            },
-            { onConflict: 'ad_account_id' }
-          );
+              token_expires_at: expiresAt,
+              metadata: {
+                currency: account.currency,
+                timezone: account.timezone_name,
+                account_status: account.account_status
+              }
+            };
 
-          if (tokenError) {
-            console.error('Error upserting Facebook token:', tokenError);
+            if (shopifyStoreId) {
+              accountData.shopify_store_id = shopifyStoreId;
+            }
+
+            console.log(`[Facebook OAuth] Saving ad account ${account.id}:`, JSON.stringify(accountData));
+
+            const { data: upsertedAccount, error: accountError } = await supabase
+              .from('ad_accounts')
+              .upsert(accountData, { onConflict: 'platform_account_id' })
+              .select()
+              .single();
+
+            if (accountError) {
+              console.error(`[Facebook OAuth] Error upserting ad account ${account.id}:`, accountError);
+              console.error('[Facebook OAuth] Account data that failed:', JSON.stringify(accountData));
+              errors.push({ account: account.id, error: accountError.message });
+              continue; // Skip to next account
+            }
+
+            console.log(`[Facebook OAuth] Successfully saved ad account:`, upsertedAccount?.id);
+            savedAccounts.push(upsertedAccount);
+
+            // Save token separately
+            const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
+              {
+                user_id: userId,
+                ad_account_id: account.id,
+                access_token: accessToken,
+                token_type: 'user',
+                expires_at: expiresAt,
+              },
+              { onConflict: 'ad_account_id' }
+            );
+
+            if (tokenError) {
+              console.error(`[Facebook OAuth] Error upserting token for ${account.id}:`, tokenError);
+              errors.push({ account: account.id, error: `Token save failed: ${tokenError.message}` });
+            }
+          } catch (err) {
+            console.error(`[Facebook OAuth] Exception saving account ${account.id}:`, err);
+            errors.push({ account: account.id, error: err instanceof Error ? err.message : 'Unknown error' });
           }
         }
 
+        console.log(`[Facebook OAuth] Saved ${savedAccounts.length} accounts, ${errors.length} errors`);
+
         return new Response(
-          JSON.stringify({ success: true, message: 'Accounts saved successfully' }),
+          JSON.stringify({
+            success: savedAccounts.length > 0,
+            message: `Saved ${savedAccounts.length} accounts`,
+            accountsSaved: savedAccounts.length,
+            errors: errors.length > 0 ? errors : undefined
+          }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } catch (error) {

@@ -23,7 +23,8 @@ import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
-import { getShopifyAccessToken } from '../lib/shopify/api';
+import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '../lib/shopify/status';
+import { useAuth as useAuthContext } from '../contexts/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -39,7 +40,7 @@ const navigation = [
 
 export default function Layout() {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [shopifyStore, setShopifyStore] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -64,34 +65,34 @@ export default function Layout() {
     }
   }, [isDarkMode]);
 
-  // Fetch Shopify store name
+  // Subscribe to Shopify store changes
   useEffect(() => {
-    const fetchShopifyStore = async () => {
-      try {
-        console.log('[Layout] Starting to fetch Shopify store...');
-        const auth = await getShopifyAccessToken();
-        console.log('[Layout] getShopifyAccessToken returned:', auth);
+    if (!user?.id) {
+      console.log('[Layout] No user, skipping Shopify subscription');
+      return;
+    }
 
-        if (auth?.shop) {
-          // Remove .myshopify.com and format nicely
-          const storeName = auth.shop.replace('.myshopify.com', '');
-          setShopifyStore(storeName);
-          console.log('[Layout] Shopify store loaded:', storeName);
-        } else {
-          console.warn('[Layout] No shop found in auth response');
-        }
-      } catch (error) {
-        console.error('[Layout] Error fetching Shopify store:', error);
+    console.log('[Layout] Setting up Shopify subscription for user:', user.id);
+
+    // Subscribe to real-time changes (includes immediate check)
+    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
+      console.log('[Layout] Shopify status update - isConnected:', isConnected, 'installation:', installation);
+      if (installation?.store_url) {
+        // Remove .myshopify.com and format nicely
+        const storeName = installation.store_url.replace('.myshopify.com', '');
+        setShopifyStore(storeName);
+        console.log('[Layout] Shopify store updated:', storeName);
+      } else {
+        setShopifyStore(null);
+        console.log('[Layout] No Shopify store connected');
       }
+    });
+
+    return () => {
+      console.log('[Layout] Cleaning up Shopify subscription');
+      unsubscribe();
     };
-
-    // Add a small delay to ensure auth is ready
-    const timer = setTimeout(() => {
-      fetchShopifyStore();
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  }, [user?.id]);
 
   const handleLogout = async () => {
     try {
