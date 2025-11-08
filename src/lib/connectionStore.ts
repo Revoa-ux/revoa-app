@@ -38,14 +38,35 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   initialized: false,
 
   initializeShopify: async (userId: string) => {
-    console.log('[ConnectionStore] Initializing Shopify connection for user:', userId);
+    console.log('[ConnectionStore] ===== SHOPIFY INIT START =====');
+    console.log('[ConnectionStore] Initializing Shopify for user:', userId);
     set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
     try {
+      // DEBUG: Check what installations exist
+      const { data: allInstallations } = await supabase
+        .from('shopify_installations')
+        .select('id, store_url, status, uninstalled_at, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      console.log('[ConnectionStore] ALL installations found:', allInstallations);
+
+      // Try to get active installation
       const installation = await getActiveShopifyInstallation(userId);
-      console.log('[ConnectionStore] Shopify installation:', installation);
+      console.log('[ConnectionStore] Active installation:', installation);
+
+      // If no active but we have recent installations, log the problem
+      if (!installation && allInstallations && allInstallations.length > 0) {
+        const recent = allInstallations[0];
+        console.error('[ConnectionStore] ⚠️  FOUND SHOPIFY INSTALLATION BUT IT\'S NOT ACTIVE!');
+        console.error('[ConnectionStore] Store:', recent.store_url);
+        console.error('[ConnectionStore] Status:', recent.status);
+        console.error('[ConnectionStore] Uninstalled at:', recent.uninstalled_at);
+        console.error('[ConnectionStore] Problem: uninstalled_at should be NULL for active stores');
+      }
 
       set({
         shopify: {
@@ -54,6 +75,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           loading: false,
         },
       });
+      console.log('[ConnectionStore] ===== SHOPIFY INIT DONE ===== isConnected:', installation !== null);
     } catch (error) {
       console.error('[ConnectionStore] Error initializing Shopify:', error);
       set({
