@@ -132,8 +132,10 @@ Deno.serve(async (req: Request) => {
           }
         }
 
+        const accountIds: string[] = [];
+
         for (const account of accounts) {
-          const { error: accountError } = await supabase.from('ad_accounts').upsert(
+          const { data: dbAccount, error: accountError } = await supabase.from('ad_accounts').upsert(
             {
               platform_account_id: account.id,
               name: account.name,
@@ -144,10 +146,12 @@ Deno.serve(async (req: Request) => {
               user_id: session.user_id,
             },
             { onConflict: 'platform_account_id' }
-          );
+          ).select('id').maybeSingle();
 
           if (accountError) {
             console.error('Error upserting ad account:', accountError);
+          } else if (dbAccount) {
+            accountIds.push(account.id);
           }
 
           const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
@@ -175,7 +179,7 @@ Deno.serve(async (req: Request) => {
           console.error('Error updating OAuth session:', deleteSessionError);
         }
 
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?facebook_connected=true&accounts=${accounts.length}`;
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?facebook_connected=true&accounts=${accounts.length}&sync_status=syncing&account_ids=${accountIds.join(',')}`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },

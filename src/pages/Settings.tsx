@@ -171,8 +171,16 @@ const SettingsPage = () => {
         setFacebookConnecting(false);
         const accountCount = event.data.accountCount || 0;
         const plural = accountCount === 1 ? 'account' : 'accounts';
-        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
+        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}. Data is being synced.`);
+
         await loadFacebookAccounts();
+
+        if (event.data.shouldRefresh) {
+          setTimeout(async () => {
+            await loadFacebookAccounts();
+            toast.success('Facebook Ads data synced successfully!');
+          }, 5000);
+        }
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
