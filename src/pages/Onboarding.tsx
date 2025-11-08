@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '../lib/shopify/status';
+import { useConnectionStore } from '../lib/connectionStore';
 import StoreIntegration from '../components/onboarding/StoreIntegration';
 import AdPlatformIntegration from '../components/onboarding/AdPlatformIntegration';
 import ProductSetup from '../components/onboarding/ProductSetup';
@@ -25,6 +25,9 @@ const Onboarding = () => {
   const { setHasCompletedOnboarding, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Use centralized connection store
+  const { shopify, facebook } = useConnectionStore();
 
   // Memoize the step update logic
   const updateStep = useCallback((path: string | undefined) => {
@@ -50,7 +53,23 @@ const Onboarding = () => {
     }
   }, [navigate]);
   
-  // Check onboarding status on mount and subscribe to changes
+  // Watch connection store for Shopify status changes
+  useEffect(() => {
+    console.log('[Onboarding] Shopify connection state:', shopify.isConnected);
+    setStoreConnected(shopify.isConnected);
+  }, [shopify.isConnected]);
+
+  // Watch connection store for Facebook status changes
+  useEffect(() => {
+    console.log('[Onboarding] Facebook connection state:', facebook.isConnected);
+    if (facebook.isConnected && !adPlatforms.includes('facebook')) {
+      setAdPlatforms(prev => [...prev, 'facebook']);
+    } else if (!facebook.isConnected && adPlatforms.includes('facebook')) {
+      setAdPlatforms(prev => prev.filter(p => p !== 'facebook'));
+    }
+  }, [facebook.isConnected]);
+
+  // Check onboarding status on mount
   useEffect(() => {
     if (!user) return;
 
@@ -77,17 +96,6 @@ const Onboarding = () => {
     };
 
     checkOnboardingStatus();
-
-    // Subscribe to real-time Shopify changes (includes immediate check)
-    console.log('[Onboarding] Setting up Shopify subscription for user:', user.id);
-    const unsubscribe = subscribeToShopifyStatus(user.id, (isConnected, installation) => {
-      console.log('[Onboarding] Shopify status update:', isConnected, installation);
-      setStoreConnected(isConnected);
-    });
-
-    return () => {
-      unsubscribe();
-    };
   }, [user]);
 
   // Update step based on URL changes

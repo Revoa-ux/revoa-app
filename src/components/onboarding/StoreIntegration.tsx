@@ -6,6 +6,7 @@ import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface StoreIntegrationProps {
   onStoreConnected: (connected: boolean) => void;
@@ -20,30 +21,24 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [hasError, setHasError] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
 
-  // Check if store is already connected on mount
+  // Use centralized connection store
+  const { shopify } = useConnectionStore();
+
+  // Watch for Shopify connection changes from the store
   useEffect(() => {
-    const checkExistingConnection = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user) return;
-
-        const installation = await getActiveShopifyInstallation(session.user.id);
-        console.log('[StoreIntegration] Checking existing connection:', installation);
-
-        if (installation) {
-          console.log('[StoreIntegration] Found existing connection, calling onStoreConnected(true)');
-          setIsSuccess(true);
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 3000);
-          onStoreConnected(true);
-        }
-      } catch (error) {
-        console.error('[StoreIntegration] Error checking existing connection:', error);
+    console.log('[StoreIntegration] Shopify connection state changed:', shopify.isConnected);
+    if (shopify.isConnected) {
+      setIsSuccess(true);
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      onStoreConnected(true);
+      setIsLoading(false);
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        setCheckInterval(null);
       }
-    };
-
-    checkExistingConnection();
-  }, [onStoreConnected]);
+    }
+  }, [shopify.isConnected, onStoreConnected]);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
