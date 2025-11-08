@@ -77,8 +77,7 @@ Deno.serve(async (req: Request) => {
           code,
         });
 
-        const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);
-        const tokenData = await tokenResponse.json();
+        const tokenResponse = await fetch(`${tokenUrl}?${tokenParams.toString()}`);        const tokenData = await tokenResponse.json();
 
         if (!tokenResponse.ok || !tokenData.access_token) {
           console.error('Token exchange failed:', tokenData);
@@ -132,7 +131,6 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        // Redirect to account selection page
         const accountsParam = encodeURIComponent(JSON.stringify(accounts));
         const tokenParam = encodeURIComponent(accessToken);
         const expiresAtParam = encodeURIComponent(new Date(Date.now() + expiresIn * 1000).toISOString());
@@ -235,11 +233,18 @@ Deno.serve(async (req: Request) => {
     if (action === 'save-accounts' && req.method === 'POST') {
       try {
         const body = await req.json();
-        const { accounts, accessToken, userId, expiresAt } = body;
+        const { accounts, accessToken, userId, expiresAt, shopifyStoreId } = body;
 
         if (!accounts || !accessToken || !userId || !expiresAt) {
           return new Response(
             JSON.stringify({ success: false, error: 'Missing required parameters' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        if (!shopifyStoreId) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Please select a Shopify store' }),
             { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
@@ -254,6 +259,7 @@ Deno.serve(async (req: Request) => {
               currency: account.currency,
               timezone: account.timezone_name,
               user_id: userId,
+              shopify_store_id: shopifyStoreId,
             },
             { onConflict: 'platform_account_id' }
           );
