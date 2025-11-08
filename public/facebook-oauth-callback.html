@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facebook OAuth - Revoa</title>
+  <title>Connecting to Facebook...</title>
   <style>
     * {
       margin: 0;
@@ -94,6 +94,73 @@
       color: #991b1b;
       font-size: 13px;
     }
+
+    .account-item {
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .account-item:hover {
+      border-color: #E11D48;
+      background: #fef2f2;
+    }
+
+    .account-item input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .account-info {
+      flex: 1;
+    }
+
+    .account-name {
+      font-weight: 500;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .account-details {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #account-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 24px;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +169,19 @@
       <div class="spinner"></div>
       <h1>Connecting to Facebook</h1>
       <p>Please wait while we complete the setup...</p>
+    </div>
+
+    <div id="account-selection-state" style="display: none;">
+      <div style="margin-bottom: 24px;">
+        <h1>Select Ad Accounts</h1>
+        <p>Choose which ad accounts you want to connect:</p>
+      </div>
+
+      <div id="account-list"></div>
+
+      <button id="confirm-selection" class="btn">
+        Connect Selected Accounts
+      </button>
     </div>
 
     <div id="success-state" style="display: none;">
@@ -119,48 +199,130 @@
   </div>
 
   <script>
-    function showSuccess(accountCount, accountIds) {
+    let availableAccounts = [];
+    let selectedAccounts = [];
+    let accessToken = '';
+    let userId = '';
+    let expiresAt = '';
+
+    function showAccountSelection(accounts, token, user, expires) {
+      availableAccounts = accounts;
+      accessToken = token;
+      userId = user;
+      expiresAt = expires;
+      selectedAccounts = accounts.map(a => a.id); // Select all by default
+
       document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'block';
+
+      const accountList = document.getElementById('account-list');
+      accountList.innerHTML = accounts.map(account => `
+        <div class="account-item" data-account-id="${account.id}">
+          <input type="checkbox" checked id="account-${account.id}">
+          <div class="account-info">
+            <div class="account-name">${account.name}</div>
+            <div class="account-details">${account.id} • ${account.currency}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Add click handlers
+      accountList.querySelectorAll('.account-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            updateSelection();
+          }
+        });
+      });
+
+      accountList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+      });
+
+      document.getElementById('confirm-selection').addEventListener('click', confirmSelection);
+      updateSelection();
+    }
+
+    function updateSelection() {
+      selectedAccounts = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.id.replace('account-', ''));
+
+      const button = document.getElementById('confirm-selection');
+      button.disabled = selectedAccounts.length === 0;
+      button.textContent = selectedAccounts.length === 0
+        ? 'Select at least one account'
+        : `Connect ${selectedAccounts.length} Account${selectedAccounts.length > 1 ? 's' : ''}`;
+    }
+
+    async function confirmSelection() {
+      const button = document.getElementById('confirm-selection');
+      button.disabled = true;
+      button.textContent = 'Connecting...';
+
+      try {
+        const selected = availableAccounts.filter(a => selectedAccounts.includes(a.id));
+
+        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-oauth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+          },
+          body: JSON.stringify({
+            action: 'save-accounts',
+            accounts: selected,
+            accessToken: accessToken,
+            userId: userId,
+            expiresAt: expiresAt
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to save accounts');
+        }
+
+        showSuccess(selected.length);
+      } catch (error) {
+        console.error('Error saving accounts:', error);
+        showError(error.message || 'Failed to connect accounts. Please try again.');
+      }
+    }
+
+    function showSuccess(accountCount) {
+      document.getElementById('account-selection-state').style.display = 'none';
       document.getElementById('success-state').style.display = 'block';
 
-      if (accountCount) {
-        const plural = accountCount === 1 ? 'account' : 'accounts';
-        document.getElementById('success-message').textContent =
-          `Successfully connected ${accountCount} Facebook ad ${plural}.`;
-      }
+      const plural = accountCount === 1 ? 'account' : 'accounts';
+      document.getElementById('success-message').textContent =
+        `Successfully connected ${accountCount} Facebook ad ${plural}.`;
 
       // Notify parent window
       if (window.opener && !window.opener.closed) {
         window.opener.postMessage({
           type: 'facebook-oauth-success',
-          accountCount: accountCount,
-          accountIds: accountIds
+          accountCount: accountCount
         }, '*');
 
-        // Also set localStorage as fallback
         localStorage.setItem('facebook_oauth_success', JSON.stringify({
           accountCount: accountCount,
-          accountIds: accountIds,
           timestamp: Date.now()
         }));
       }
 
-      // Close window after delay
+      // Auto-close after 1.5 seconds
       setTimeout(() => {
         window.close();
       }, 1500);
     }
 
-    function showError(message, details) {
+    function showError(message) {
       document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'none';
       document.getElementById('error-state').style.display = 'block';
-      document.getElementById('error-text').textContent = message || 'An unexpected error occurred.';
-
-      if (details) {
-        const errorDetails = document.getElementById('error-details');
-        errorDetails.textContent = details;
-        errorDetails.style.display = 'block';
-      }
+      document.getElementById('error-text').textContent = message || 'Something went wrong. Please try again.';
 
       // Notify parent window
       if (window.opener && !window.opener.closed) {
@@ -169,14 +331,13 @@
           error: message
         }, '*');
 
-        // Also set localStorage as fallback
         localStorage.setItem('facebook_oauth_error', JSON.stringify({
           error: message,
           timestamp: Date.now()
         }));
       }
 
-      // Close window after delay
+      // Auto-close after 5 seconds
       setTimeout(() => {
         window.close();
       }, 5000);
@@ -184,14 +345,20 @@
 
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('facebook_connected') === 'true';
-    const accountCount = parseInt(urlParams.get('accounts') || '0');
-    const accountIdsParam = urlParams.get('account_ids');
-    const accountIds = accountIdsParam ? accountIdsParam.split(',') : [];
+    const accounts = urlParams.get('accounts');
+    const token = urlParams.get('token');
+    const user = urlParams.get('user_id');
+    const expires = urlParams.get('expires_at');
     const error = urlParams.get('error');
 
-    if (success) {
-      showSuccess(accountCount, accountIds);
+    if (accounts && token && user && expires) {
+      try {
+        const accountsData = JSON.parse(decodeURIComponent(accounts));
+        showAccountSelection(accountsData, token, user, expires);
+      } catch (e) {
+        console.error('Failed to parse accounts:', e);
+        showError('Failed to load ad accounts. Please try again.');
+      }
     } else if (error) {
       const errorMessages = {
         'invalid_session': 'Session expired. Please try again.',

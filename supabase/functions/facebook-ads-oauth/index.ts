@@ -132,54 +132,12 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        const accountIds: string[] = [];
+        // Redirect to account selection page
+        const accountsParam = encodeURIComponent(JSON.stringify(accounts));
+        const tokenParam = encodeURIComponent(accessToken);
+        const expiresAtParam = encodeURIComponent(new Date(Date.now() + expiresIn * 1000).toISOString());
 
-        for (const account of accounts) {
-          const { data: dbAccount, error: accountError } = await supabase.from('ad_accounts').upsert(
-            {
-              platform_account_id: account.id,
-              name: account.name,
-              platform: 'facebook',
-              status: account.account_status === 1 ? 'active' : 'inactive',
-              currency: account.currency,
-              timezone: account.timezone_name,
-              user_id: session.user_id,
-            },
-            { onConflict: 'platform_account_id' }
-          ).select('id').maybeSingle();
-
-          if (accountError) {
-            console.error('Error upserting ad account:', accountError);
-          } else if (dbAccount) {
-            accountIds.push(account.id);
-          }
-
-          const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
-            {
-              user_id: session.user_id,
-              ad_account_id: account.id,
-              access_token: accessToken,
-              token_type: 'user',
-              expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
-            },
-            { onConflict: 'ad_account_id' }
-          );
-
-          if (tokenError) {
-            console.error('Error upserting Facebook token:', tokenError);
-          }
-        }
-
-        const { error: deleteSessionError } = await supabase
-          .from('oauth_sessions')
-          .update({ completed_at: new Date().toISOString() })
-          .eq('state', state);
-
-        if (deleteSessionError) {
-          console.error('Error updating OAuth session:', deleteSessionError);
-        }
-
-        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?facebook_connected=true&accounts=${accounts.length}&sync_status=syncing&account_ids=${accountIds.join(',')}`;
+        const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?accounts=${accountsParam}&token=${tokenParam}&user_id=${session.user_id}&expires_at=${expiresAtParam}`;
         return new Response(null, {
           status: 302,
           headers: { ...corsHeaders, 'Location': redirectUrl },
@@ -272,6 +230,65 @@ Deno.serve(async (req: Request) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
+    }
+
+    if (action === 'save-accounts' && req.method === 'POST') {
+      try {
+        const body = await req.json();
+        const { accounts, accessToken, userId, expiresAt } = body;
+
+        if (!accounts || !accessToken || !userId || !expiresAt) {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Missing required parameters' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        for (const account of accounts) {
+          const { error: accountError } = await supabase.from('ad_accounts').upsert(
+            {
+              platform_account_id: account.id,
+              name: account.name,
+              platform: 'facebook',
+              status: account.account_status === 1 ? 'active' : 'inactive',
+              currency: account.currency,
+              timezone: account.timezone_name,
+              user_id: userId,
+            },
+            { onConflict: 'platform_account_id' }
+          );
+
+          if (accountError) {
+            console.error('Error upserting ad account:', accountError);
+          }
+
+          const { error: tokenError } = await supabase.from('facebook_tokens').upsert(
+            {
+              user_id: userId,
+              ad_account_id: account.id,
+              access_token: accessToken,
+              token_type: 'user',
+              expires_at: expiresAt,
+            },
+            { onConflict: 'ad_account_id' }
+          );
+
+          if (tokenError) {
+            console.error('Error upserting Facebook token:', tokenError);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Accounts saved successfully' }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (error) {
+        console.error('Error saving accounts:', error);
+        return new Response(
+          JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Failed to save accounts' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     if (action === 'disconnect' && req.method === 'DELETE') {
