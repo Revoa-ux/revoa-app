@@ -39,6 +39,8 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
+    console.log('[facebook-ads-sync] Syncing data from', startDate, 'to', endDate, 'for account', accountId);
+
     if (!accountId) {
       return new Response(
         JSON.stringify({ success: false, error: 'Missing accountId parameter' }),
@@ -178,7 +180,7 @@ Deno.serve(async (req: Request) => {
                         }
                       }
 
-                      const insightsUrl = `https://graph.facebook.com/v18.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&date_preset=last_30d&access_token=${accessToken}`;
+                      const insightsUrl = `https://graph.facebook.com/v18.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
                       const insightsResponse = await fetch(insightsUrl);
                       const insightsData = await insightsResponse.json();
 
@@ -218,7 +220,7 @@ Deno.serve(async (req: Request) => {
               }
             }
 
-            const campaignInsightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&date_preset=last_30d&access_token=${accessToken}`;
+            const campaignInsightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
             const campaignInsightsResponse = await fetch(campaignInsightsUrl);
             const campaignInsightsData = await campaignInsightsResponse.json();
 
@@ -262,15 +264,18 @@ Deno.serve(async (req: Request) => {
       .update({ last_synced_at: new Date().toISOString() })
       .eq('id', account.id);
 
+    console.log('[facebook-ads-sync] Successfully synced:', { campaigns: campaignsCount, adSets: adSetsCount, ads: adsCount, metrics: metricsCount });
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${campaignsCount} campaigns, ${adSetsCount} ad sets, ${adsCount} ads, and ${metricsCount} metrics`,
+        message: `Successfully synced ${campaignsCount} campaigns, ${adSetsCount} ad sets, ${adsCount} ads, and ${metricsCount} metrics from ${startDate} to ${endDate}`,
         data: {
           campaigns: campaignsCount,
           adSets: adSetsCount,
           ads: adsCount,
           metrics: metricsCount,
+          dateRange: { startDate, endDate },
         },
       }),
       {
