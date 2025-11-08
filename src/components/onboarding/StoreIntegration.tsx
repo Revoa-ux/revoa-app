@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Link2, Play, ChevronDown } from 'lucide-react';
+import { HelpCircle, Link2, Play, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -14,6 +14,7 @@ interface StoreIntegrationProps {
 const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected }) => {
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -30,6 +31,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
         if (installation) {
           console.log('[StoreIntegration] Found existing connection, calling onStoreConnected(true)');
+          setIsSuccess(true);
           onStoreConnected(true);
         }
       } catch (error) {
@@ -50,9 +52,12 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       console.log('[StoreIntegration] Received message:', event.data);
       if (event.data.type === 'shopify:success') {
         console.log('[StoreIntegration] Success! Calling onStoreConnected(true)');
-        onStoreConnected(true);
         setIsLoading(false);
+        setIsSuccess(true);
         setHasError(false);
+        setTimeout(() => {
+          onStoreConnected(true);
+        }, 800);
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
@@ -176,7 +181,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               // Success! Connection completed
               console.log('[StoreIntegration] Polling detected completed session! Calling onStoreConnected(true)');
               cleanOauthSession(oauthSession);
-              onStoreConnected(true);
+              setIsSuccess(true);
+              setTimeout(() => {
+                onStoreConnected(true);
+              }, 800);
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
@@ -277,11 +285,21 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   />
                   <button
                     type="submit"
-                    disabled={!shopUrl.trim()}
-                    className="absolute right-0 top-0 h-full px-4 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-r-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    disabled={!shopUrl.trim() || isLoading || isSuccess}
+                    className={`absolute right-0 top-0 h-full px-4 text-white rounded-r-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center ${
+                      isSuccess
+                        ? 'bg-green-500'
+                        : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50'
+                    }`}
                     aria-label="Connect store"
                   >
-                    <Link2 className="w-5 h-5" />
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : isSuccess ? (
+                      <Check className="w-5 h-5 animate-in zoom-in-50 duration-300" />
+                    ) : (
+                      <Link2 className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
