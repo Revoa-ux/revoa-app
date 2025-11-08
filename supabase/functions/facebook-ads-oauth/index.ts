@@ -43,7 +43,7 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (code && state && !action) {
+    if (code && state) {
       try {
         const { data: session, error: sessionError } = await supabase
           .from('oauth_sessions')
@@ -150,7 +150,14 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        await supabase.from('oauth_sessions').delete().eq('state', state);
+        const { error: deleteSessionError } = await supabase
+          .from('oauth_sessions')
+          .update({ completed_at: new Date().toISOString() })
+          .eq('state', state);
+
+        if (deleteSessionError) {
+          console.error('Error updating OAuth session:', deleteSessionError);
+        }
 
         const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?facebook_connected=true&accounts=${adAccountsData.data.length}`;
         return new Response(null, {
@@ -167,35 +174,34 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing authorization header' }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     if (action === 'connect') {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing authorization header' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser(token);
+
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unauthorized' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
       const state = crypto.randomUUID();
       const stateData: OAuthState = {
         userId: user.id,
@@ -252,6 +258,35 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === 'disconnect' && req.method === 'DELETE') {
+      const authHeader = req.headers.get('Authorization');
+
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing authorization header' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      const token = authHeader.replace('Bearer ', '');
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser(token);
+
+      if (authError || !user) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Unauthorized' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       const body = await req.json();
       const { accountId } = body;
 
