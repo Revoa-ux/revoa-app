@@ -542,6 +542,29 @@ export default function DashboardCopy() {
         </div>
       </div>
 
+      {/* Facebook Ads Sync Warning */}
+      {facebook.isConnected && combinedMetrics && !combinedMetrics.facebook.hasData && !isLoading && (
+        <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-1">
+                Facebook Ads Data Not Synced
+              </h3>
+              <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
+                Your Facebook Ads account is connected, but no campaign data has been synced yet. Click "Sync" in Settings to pull your ad spend data.
+              </p>
+              <a
+                href="/settings"
+                className="inline-flex items-center px-3 py-1.5 bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-600 text-white text-sm rounded-lg transition-colors"
+              >
+                Go to Settings →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {shopifyMetrics && shopifyMetrics.totalOrders === 0 && shopifyMetrics.totalRevenue === 0 && !isLoading && !emptyStateDismissed && (
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg relative">
           <button

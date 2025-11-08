@@ -382,7 +382,27 @@ const SettingsPage = () => {
         if (popup.closed) {
           clearInterval(checkPopupClosed);
           setTimeout(async () => {
+            console.log('[Settings] Facebook popup closed, refreshing accounts...');
             await refreshFacebookAccounts();
+
+            // Auto-sync data for newly connected accounts
+            const updatedAccounts = await facebookAdsService.getAdAccounts('facebook');
+            if (updatedAccounts.length > 0) {
+              console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
+              toast.info('Syncing Facebook Ads data...', { duration: 2000 });
+
+              try {
+                const endDate = new Date().toISOString().split('T')[0];
+                const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+                await facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate);
+                toast.success('Facebook Ads connected and data synced!');
+              } catch (syncError) {
+                console.error('[Settings] Auto-sync failed:', syncError);
+                toast.warning('Connected but sync failed. Click "Sync" button to retry.');
+              }
+            }
+
             setFacebookConnecting(false);
           }, 1000);
         }
