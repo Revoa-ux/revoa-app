@@ -82,7 +82,8 @@ Deno.serve(async (req: Request) => {
 
         if (!tokenResponse.ok || !tokenData.access_token) {
           console.error('Token exchange failed:', tokenData);
-          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=token_exchange_failed`;
+          const errorMsg = tokenData.error?.message || tokenData.error_description || 'token_exchange_failed';
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/settings?error=${encodeURIComponent(errorMsg)}`;
           return new Response(null, {
             status: 302,
             headers: { ...corsHeaders, 'Location': redirectUrl },
