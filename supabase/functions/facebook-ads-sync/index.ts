@@ -90,14 +90,91 @@ Deno.serve(async (req: Request) => {
     let metricsCount = 0;
 
     const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&access_token=${accessToken}`;
+    console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
+
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
 
+    console.log('[facebook-ads-sync] Campaigns response status:', campaignsResponse.status);
+    console.log('[facebook-ads-sync] Campaigns data:', JSON.stringify(campaignsData, null, 2));
+
     if (!campaignsResponse.ok || campaignsData.error) {
+      console.error('[facebook-ads-sync] Error fetching campaigns:', campaignsData.error);
       return new Response(
         JSON.stringify({ success: false, error: campaignsData.error?.message || 'Failed to fetch campaigns' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    console.log('[facebook-ads-sync] Number of campaigns found:', campaignsData.data?.length || 0);
+
+    // If no campaigns, try to get account-level insights anyway
+    if (!campaignsData.data || campaignsData.data.length === 0) {
+      console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
+
+      const accountInsightsUrl = `https://graph.facebook.com/v18.0/${accountId}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,account_name&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+      const accountInsightsResponse = await fetch(accountInsightsUrl);
+      const accountInsightsData = await accountInsightsResponse.json();
+
+      console.log('[facebook-ads-sync] Account insights response:', JSON.stringify(accountInsightsData, null, 2));
+
+      if (accountInsightsResponse.ok && accountInsightsData.data && accountInsightsData.data.length > 0) {
+        const insights = accountInsightsData.data[0];
+        const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+        const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+
+        console.log('[facebook-ads-sync] Inserting account-level metrics:', {
+          date: endDate,
+          spend: insights.spend,
+          impressions: insights.impressions,
+          clicks: insights.clicks,
+        });
+
+        // Create a synthetic campaign for account-level data
+        const { data: syntheticCampaign, error: syntheticError } = await supabase
+          .from('ad_campaigns')
+          .upsert({
+            platform_campaign_id: `${accountId}_account_total`,
+            name: 'Account Total',
+            status: 'active',
+            ad_account_id: account.id,
+            platform: 'facebook',
+            objective: 'account_overview',
+            daily_budget: null,
+            lifetime_budget: null,
+          }, { onConflict: 'platform_campaign_id' })
+          .select()
+          .single();
+
+        if (!syntheticError && syntheticCampaign) {
+          const { error: metricError } = await supabase.from('ad_metrics').upsert(
+            {
+              entity_id: syntheticCampaign.id,
+              entity_type: 'campaign',
+              date: endDate,
+              impressions: parseInt(insights.impressions || '0'),
+              clicks: parseInt(insights.clicks || '0'),
+              spend: parseFloat(insights.spend || '0'),
+              reach: parseInt(insights.reach || '0'),
+              conversions: parseInt(conversions),
+              conversion_value: parseFloat(conversionValue) * 10,
+              cpc: parseFloat(insights.cpc || '0'),
+              cpm: parseFloat(insights.cpm || '0'),
+              ctr: parseFloat(insights.ctr || '0'),
+              roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
+            },
+            { onConflict: 'entity_id,date' }
+          );
+
+          if (!metricError) {
+            campaignsCount++;
+            metricsCount++;
+            console.log('[facebook-ads-sync] Successfully saved account-level metrics');
+          } else {
+            console.error('[facebook-ads-sync] Error saving account-level metrics:', metricError);
+          }
+        }
+      }
     }
 
     if (campaignsData.data && campaignsData.data.length > 0) {
