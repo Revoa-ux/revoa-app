@@ -450,12 +450,15 @@ const SettingsPage = () => {
 
       const result = await facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate);
 
+      console.log('[Settings] Sync result:', result);
       toast.success('All historical Facebook Ads data synced successfully!');
 
       await refreshFacebookAccounts();
     } catch (error) {
-      console.error('Error syncing Facebook:', error);
-      toast.error('Failed to sync Facebook Ads data');
+      console.error('[Settings] Error syncing Facebook:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to sync Facebook Ads data';
+      console.error('[Settings] Error message:', errorMessage);
+      toast.error(errorMessage);
     } finally {
       setFacebookSyncing(false);
     }

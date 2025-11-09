@@ -119,22 +119,29 @@ export class FacebookAdsService {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/facebook-ads-sync?${params.toString()}`,
-        { headers }
-      );
+      const url = `${SUPABASE_URL}/functions/v1/facebook-ads-sync?${params.toString()}`;
+      console.log('[FacebookAds] Calling sync function:', url);
+      console.log('[FacebookAds] Headers:', { ...headers, Authorization: 'Bearer [REDACTED]' });
+
+      const response = await fetch(url, { headers });
+
+      console.log('[FacebookAds] Sync response status:', response.status);
+      console.log('[FacebookAds] Sync response ok:', response.ok);
 
       if (!response.ok) {
         const error = await response.text();
+        console.error('[FacebookAds] Sync error response:', error);
         throw new Error(error || 'Sync failed');
       }
 
       const data: SyncResponse = await response.json();
+      console.log('[FacebookAds] Sync data received:', data);
 
       if (!data.success) {
         throw new Error(data.error || 'Sync failed');
       }
 
+      console.log('[FacebookAds] Updating last_synced_at for account:', accountId);
       await supabase
         .from('ad_accounts')
         .update({ last_synced_at: new Date().toISOString() })
@@ -142,7 +149,11 @@ export class FacebookAdsService {
 
       return data;
     } catch (error) {
-      console.error('Error syncing ad account:', error);
+      console.error('[FacebookAds] Error syncing ad account:', error);
+      if (error instanceof Error) {
+        console.error('[FacebookAds] Error name:', error.name);
+        console.error('[FacebookAds] Error message:', error.message);
+      }
       throw error;
     }
   }
