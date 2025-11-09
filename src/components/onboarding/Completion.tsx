@@ -16,6 +16,46 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     store_type: '',
     wants_growth_assistance: null as boolean | null
   });
+  const [hasExistingData, setHasExistingData] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  // Load existing data on mount
+  React.useEffect(() => {
+    const loadExistingData = async () => {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+          setIsLoadingData(false);
+          return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('display_name, store_type, wants_growth_help, onboarding_completed_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!profileError && profile) {
+          const hasData = !!(profile.display_name || profile.store_type || profile.wants_growth_help !== null);
+          setHasExistingData(hasData);
+
+          if (hasData) {
+            setFormData({
+              name: profile.display_name || '',
+              store_type: profile.store_type || '',
+              wants_growth_assistance: profile.wants_growth_help
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    loadExistingData();
+  }, []);
 
   // Check if form is valid
   const isFormValid = formData.name.trim() !== '' && formData.store_type !== '' && formData.wants_growth_assistance !== null;
@@ -66,9 +106,10 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
       const { error: updateError } = await supabase
         .from('user_profiles')
         .update({
-          name: formData.name.trim(),
+          display_name: formData.name.trim(),
           store_type: formData.store_type,
-          wants_growth_assistance: formData.wants_growth_assistance,
+          wants_growth_help: formData.wants_growth_assistance,
+          onboarding_completed_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
@@ -90,6 +131,21 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     }
   }, [handleSubmit, onSubmit]);
 
+  if (isLoadingData) {
+    return (
+      <div className="max-w-[540px] mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-[540px] mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
@@ -98,6 +154,12 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Help us personalize your experience
           </p>
+          {hasExistingData && (
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+              <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Previously completed</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">

@@ -78,14 +78,14 @@ const Onboarding = () => {
         // Check if profile is complete
         const { data: profileData } = await supabase
           .from('user_profiles')
-          .select('name, store_type, wants_growth_assistance')
+          .select('display_name, store_type, wants_growth_help')
           .eq('user_id', user.id)
           .maybeSingle();
 
         setProfileComplete(!!(
-          profileData?.name &&
+          profileData?.display_name &&
           profileData?.store_type &&
-          profileData?.wants_growth_assistance !== null
+          profileData?.wants_growth_help !== null
         ));
 
         setIsCheckingStatus(false);
