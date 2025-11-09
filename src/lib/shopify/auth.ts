@@ -205,7 +205,8 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
 
     const { access_token, scope } = await response.json();
 
-    // Create installation record in Supabase
+    // Create or update installation record in Supabase
+    // CRITICAL: Clear uninstalled_at to reactivate previously uninstalled apps
     const { error: installError } = await supabase
       .from('shopify_installations')
       .upsert({
@@ -216,10 +217,13 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
         status: 'installed',
         installed_at: new Date().toISOString(),
         last_auth_at: new Date().toISOString(),
+        uninstalled_at: null,
         metadata: {
           install_count: 1,
           last_install: new Date().toISOString()
         }
+      }, {
+        onConflict: 'store_url'
       });
 
     if (installError) {

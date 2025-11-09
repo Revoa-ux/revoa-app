@@ -200,17 +200,29 @@ export class FacebookAdsService {
     endDate: string
   ): Promise<AggregatedMetrics> {
     try {
-      const { data, error } = await supabase
-        .from('ad_metrics')
-        .select('*')
-        .in('ad_account_id', accountIds)
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .eq('entity_type', 'campaign');
+      console.log('[FacebookAds] getAggregatedMetrics called with:', {
+        accountIds,
+        startDate,
+        endDate,
+        accountCount: accountIds.length
+      });
 
-      if (error) throw error;
+      // Query metrics through campaigns since metrics are linked via entity_id
+      // First get campaign IDs for these accounts
+      const { data: campaigns, error: campaignsError } = await supabase
+        .from('ad_campaigns')
+        .select('id')
+        .in('ad_account_id', accountIds);
 
-      if (!data || data.length === 0) {
+      if (campaignsError) {
+        console.error('[FacebookAds] Error fetching campaigns:', campaignsError);
+        throw campaignsError;
+      }
+
+      if (!campaigns || campaigns.length === 0) {
+        console.warn('[FacebookAds] No campaigns found for account IDs:', accountIds);
+        console.warn('[FacebookAds] This means sync hasn\'t created campaigns yet');
+
         return {
           totalSpend: 0,
           totalImpressions: 0,
@@ -223,6 +235,75 @@ export class FacebookAdsService {
           averageROAS: 0,
           totalReach: 0,
         };
+      }
+
+      const campaignIds = campaigns.map(c => c.id);
+      console.log('[FacebookAds] Found', campaignIds.length, 'campaigns for these accounts');
+
+      // Now query metrics for these campaigns
+      const { data, error } = await supabase
+        .from('ad_metrics')
+        .select('*')
+        .in('entity_id', campaignIds)
+        .gte('date', startDate)
+        .lte('date', endDate)
+        .eq('entity_type', 'campaign');
+
+      console.log('[FacebookAds] Metrics query result:', {
+        error: error?.message,
+        dataLength: data?.length || 0,
+        hasData: !!data && data.length > 0
+      });
+
+      if (error) {
+        console.error('[FacebookAds] Supabase query error:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('[FacebookAds] No metrics found for query parameters');
+        console.warn('[FacebookAds] This could mean:');
+        console.warn('[FacebookAds]   1. No data has been synced yet - click Sync in Settings');
+        console.warn('[FacebookAds]   2. Date range has no data - try a different date range');
+        console.warn('[FacebookAds]   3. Campaigns exist but have no metrics');
+
+        // Query without date filters to check if ANY data exists
+        const { data: anyData, error: anyError } = await supabase
+          .from('ad_metrics')
+          .select('entity_id, date, spend')
+          .in('entity_id', campaignIds)
+          .limit(5);
+
+        if (!anyError && anyData && anyData.length > 0) {
+          console.log('[FacebookAds] Found some metrics (without date filter):', anyData);
+          console.log('[FacebookAds] The date range filter might be excluding your data');
+        } else {
+          console.log('[FacebookAds] No metrics found at all for these campaigns');
+          console.log('[FacebookAds] Check if sync was successful and data was stored');
+        }
+
+        return {
+          totalSpend: 0,
+          totalImpressions: 0,
+          totalClicks: 0,
+          totalConversions: 0,
+          totalConversionValue: 0,
+          averageCTR: 0,
+          averageCPC: 0,
+          averageCPM: 0,
+          averageROAS: 0,
+          totalReach: 0,
+        };
+      }
+
+      console.log('[FacebookAds] Processing', data.length, 'metric records');
+      if (data.length > 0) {
+        console.log('[FacebookAds] Sample metric:', {
+          date: data[0].date,
+          spend: data[0].spend,
+          impressions: data[0].impressions,
+          clicks: data[0].clicks
+        });
       }
 
       const aggregated = data.reduce(
