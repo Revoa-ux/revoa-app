@@ -138,7 +138,7 @@ export class FacebookAdsService {
       await supabase
         .from('ad_accounts')
         .update({ last_synced_at: new Date().toISOString() })
-        .eq('id', accountId);
+        .eq('platform_account_id', accountId);
 
       return data;
     } catch (error) {
