@@ -7,15 +7,16 @@ export interface AdAccount {
   user_id: string;
   platform: AdPlatform;
   platform_account_id: string;
-  platform_account_name: string;
+  account_name: string;
   access_token: string;
   token_expires_at: string | null;
   refresh_token: string | null;
   status: AdAccountStatus;
-  currency: string;
-  timezone: string;
+  currency?: string;
+  timezone?: string;
   last_synced_at: string | null;
-  metadata: Record<string, any>;
+  shopify_store_id?: string;
+  metadata?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }

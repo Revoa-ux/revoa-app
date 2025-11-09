@@ -193,8 +193,6 @@ Deno.serve(async (req: Request) => {
                           {
                             entity_id: dbAdSet.id,
                             entity_type: 'adset',
-                            ad_account_id: account.id,
-                            platform: 'facebook',
                             date: endDate,
                             impressions: parseInt(insights.impressions || '0'),
                             clicks: parseInt(insights.clicks || '0'),
@@ -207,11 +205,13 @@ Deno.serve(async (req: Request) => {
                             ctr: parseFloat(insights.ctr || '0'),
                             roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
                           },
-                          { onConflict: 'entity_id,date,entity_type' }
+                          { onConflict: 'entity_id,date' }
                         );
 
                         if (!metricError) {
                           metricsCount++;
+                        } else {
+                          console.error('[facebook-ads-sync] Error inserting adset metrics:', metricError);
                         }
                       }
                     }
@@ -233,8 +233,6 @@ Deno.serve(async (req: Request) => {
                 {
                   entity_id: dbCampaign.id,
                   entity_type: 'campaign',
-                  ad_account_id: account.id,
-                  platform: 'facebook',
                   date: endDate,
                   impressions: parseInt(insights.impressions || '0'),
                   clicks: parseInt(insights.clicks || '0'),
@@ -247,11 +245,13 @@ Deno.serve(async (req: Request) => {
                   ctr: parseFloat(insights.ctr || '0'),
                   roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
                 },
-                { onConflict: 'entity_id,date,entity_type' }
+                { onConflict: 'entity_id,date' }
               );
 
               if (!metricError) {
                 metricsCount++;
+              } else {
+                console.error('[facebook-ads-sync] Error inserting campaign metrics:', metricError);
               }
             }
           }

@@ -887,7 +887,7 @@ const SettingsPage = () => {
                         <div className="flex flex-col mt-1 space-y-0.5">
                           {facebookAccounts.map(account => (
                             <p key={account.id} className="text-xs text-gray-500 dark:text-gray-400">
-                              {account.platform_account_name}
+                              {account.account_name}
                               {account.last_synced_at && (
                                 <span className="ml-2 text-gray-400">
                                   • Last synced {new Date(account.last_synced_at).toLocaleDateString()}
