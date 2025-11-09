@@ -20,6 +20,24 @@ export interface Transaction {
   reference?: string;
 }
 
+export interface ShopifyReturn {
+  id: string;
+  user_id: string;
+  shopify_order_id: string;
+  shopify_return_id: string;
+  return_amount: number;
+  return_reason?: string;
+  returned_at: string;
+  refund_line_items?: Array<{
+    quantity: number;
+    title: string;
+    sku: string | null;
+    amount: string;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Column<T> {
   id: keyof T;
   label: string;

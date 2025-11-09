@@ -5,8 +5,14 @@ application_url = "https://members.revoa.app"
 embedded = false
 
 [access_scopes]
-# Required scopes for core functionality
-scopes = "read_products,write_products,read_orders,write_orders,read_inventory,write_inventory,read_reports,read_analytics,read_fulfillments,write_fulfillments,read_shipping,write_shipping"
+# Core scopes for profit tracking and analytics
+# 1. read_products - View product catalog and pricing
+# 2. read_orders - Access order data for profit calculations (including historical data for YoY analytics)
+# 3. read_inventory - Track inventory levels
+# 4. read_fulfillments - Monitor order fulfillment status
+# 5. read_returns - Track returns for accurate net revenue calculations
+# 6. read_reports - Access sales reports and analytics
+scopes = "read_products,read_orders,read_inventory,read_fulfillments,read_returns,read_reports"
 
 
 [auth]

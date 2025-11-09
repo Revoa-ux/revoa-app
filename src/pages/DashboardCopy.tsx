@@ -17,7 +17,8 @@ import {
   ArrowDownRight,
   AlertTriangle,
   X,
-  Info
+  Info,
+  RotateCcw
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
@@ -28,16 +29,17 @@ import { supabase } from '../lib/supabase';
 import { getCombinedDashboardMetrics, type CombinedMetrics } from '../lib/dashboardMetrics';
 import { useConnectionStore } from '../lib/connectionStore';  
 
-type CardType = 
-  | 'profit' 
-  | 'revenue' 
-  | 'orders' 
-  | 'aov' 
+type CardType =
+  | 'profit'
+  | 'revenue'
+  | 'orders'
+  | 'aov'
   | 'cogs'
   | 'adCosts'
   | 'transactionFees'
-  | 'fulfill' 
-  | 'balance' 
+  | 'returns'
+  | 'fulfill'
+  | 'balance'
   | 'projected';
 
 type ViewType = 'card' | 'chart';
@@ -350,6 +352,32 @@ export default function DashboardCopy() {
         { date: '2024-03-07', value1: 1245, value2: 985, value3: 260 }
       ],
       showInChartView: false
+    },
+    {
+      id: 'returns',
+      title: 'Returns',
+      icon: <RotateCcw className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+      mainValue: shopifyMetrics ? `$${shopifyMetrics.returnAmount.toFixed(2)}` : '$0.00',
+      change: shopifyMetrics ? `${shopifyMetrics.returnRate.toFixed(1)}%` : '0.0%',
+      changeType: 'negative',
+      dataPoint1: {
+        label: 'Return Rate',
+        value: shopifyMetrics ? `${shopifyMetrics.returnRate.toFixed(2)}%` : '0.00%'
+      },
+      dataPoint2: {
+        label: 'Net Revenue',
+        value: shopifyMetrics ? `$${(shopifyMetrics.totalRevenue - shopifyMetrics.returnAmount).toFixed(2)}` : '$0.00'
+      },
+      chartData: [
+        { date: '2024-03-01', value1: 150, value2: 3.3, value3: 4350 },
+        { date: '2024-03-02', value1: 165, value2: 3.4, value3: 4635 },
+        { date: '2024-03-03', value1: 180, value2: 3.5, value3: 5020 },
+        { date: '2024-03-04', value1: 195, value2: 3.4, value3: 5605 },
+        { date: '2024-03-05', value1: 210, value2: 3.8, value3: 5390 },
+        { date: '2024-03-06', value1: 190, value2: 4.3, value3: 4210 },
+        { date: '2024-03-07', value1: 220, value2: 3.9, value3: 5380 }
+      ],
+      showInChartView: true
     },
     {
       id: 'fulfill',

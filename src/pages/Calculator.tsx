@@ -252,20 +252,21 @@ export default function Calculator() {
               change: 12.5
             },
             {
+              label: "Returns",
+              value: calculatorMetrics?.returnAmount || 0,
+              change: -2.1,
+              highlight: true
+            },
+            {
+              label: "Net Revenue",
+              value: calculatorMetrics?.netRevenue || 0,
+              change: 10.4
+            },
+            {
               label: "Number of Orders",
               value: calculatorMetrics?.numberOfOrders || 0,
               change: 8.1,
               format: (v: number) => v.toString()
-            },
-            {
-              label: "Taxes Collected",
-              value: calculatorMetrics?.taxesCollected || 0,
-              change: 5.2
-            },
-            {
-              label: "Shipping Revenue",
-              value: calculatorMetrics?.shippingRevenue || 0,
-              change: 7.8
             }
           ].map((card, index) => (
             <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[120px] flex flex-col justify-between">
@@ -389,6 +390,12 @@ export default function Calculator() {
               label: "Profit Margin %",
               value: calculatorMetrics?.profitMarginPercent || 0,
               change: 3.1,
+              suffix: "%"
+            },
+            {
+              label: "Return Rate",
+              value: calculatorMetrics?.returnRate || 0,
+              change: -1.5,
               suffix: "%"
             }
           ].map((card, index) => (

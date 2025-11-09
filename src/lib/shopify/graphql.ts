@@ -111,6 +111,49 @@ export interface Order {
   } | null;
 }
 
+export interface Return {
+  id: string;
+  name: string;
+  status: string;
+  createdAt: string;
+  order: {
+    id: string;
+    name: string;
+  };
+  totalQuantity: number;
+  refunds: {
+    edges: Array<{
+      node: {
+        id: string;
+        createdAt: string;
+        totalRefundedSet: {
+          shopMoney: {
+            amount: string;
+            currencyCode: string;
+          };
+        };
+        refundLineItems: {
+          edges: Array<{
+            node: {
+              quantity: number;
+              lineItem: {
+                id: string;
+                title: string;
+                sku: string | null;
+              };
+              priceSet: {
+                shopMoney: {
+                  amount: string;
+                };
+              };
+            };
+          }>;
+        };
+      };
+    }>;
+  };
+}
+
 export const executeGraphQL = async <T>(
   query: string,
   variables?: Record<string, any>
@@ -421,4 +464,100 @@ export const createProduct = async (input: {
   }
 
   return response.data.productCreate.product;
+};
+
+export const RETURNS_QUERY = `
+  query GetReturns($first: Int!, $after: String, $query: String) {
+    returns(first: $first, after: $after, query: $query) {
+      edges {
+        node {
+          id
+          name
+          status
+          createdAt
+          order {
+            id
+            name
+          }
+          totalQuantity
+          refunds {
+            edges {
+              node {
+                id
+                createdAt
+                totalRefundedSet {
+                  shopMoney {
+                    amount
+                    currencyCode
+                  }
+                }
+                refundLineItems(first: 100) {
+                  edges {
+                    node {
+                      quantity
+                      lineItem {
+                        id
+                        title
+                        sku
+                      }
+                      priceSet {
+                        shopMoney {
+                          amount
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
+
+export const getReturns = async (limit = 250, query?: string): Promise<Return[]> => {
+  const returns: Return[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+
+  while (hasNextPage && returns.length < limit) {
+    const response = await executeGraphQL<{
+      returns: {
+        edges: Array<{ node: Return; cursor: string }>;
+        pageInfo: { hasNextPage: boolean; endCursor: string };
+      };
+    }>(RETURNS_QUERY, {
+      first: Math.min(250, limit - returns.length),
+      after: cursor,
+      query,
+    });
+
+    if (response.errors) {
+      const errorMessage = response.errors[0].message;
+
+      if (errorMessage.includes('not approved to access')) {
+        console.warn('[Shopify API] Returns access not yet approved. Returning empty returns array.');
+        return [];
+      }
+
+      throw new Error(`GraphQL error: ${errorMessage}`);
+    }
+
+    if (!response.data) {
+      throw new Error('No data returned from GraphQL query');
+    }
+
+    returns.push(...response.data.returns.edges.map(edge => edge.node));
+    hasNextPage = response.data.returns.pageInfo.hasNextPage;
+    cursor = response.data.returns.pageInfo.endCursor;
+  }
+
+  return returns;
 };

@@ -79,6 +79,8 @@ export interface ShopifyMetrics {
   transactionFees: number;
   refunds: number;
   chargebacks: number;
+  returnAmount: number;
+  returnRate: number;
 }
 
 export interface ShopifyCalculatorMetrics {
@@ -101,6 +103,9 @@ export interface ShopifyCalculatorMetrics {
   averageCogs: number;
   grossMarginPercent: number;
   profitMarginPercent: number;
+  returnAmount: number;
+  returnRate: number;
+  netRevenue: number;
 }
 
 // Get Shopify access token from Supabase
@@ -303,7 +308,10 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     // Transaction fees (2.9% + $0.30 per transaction for Shopify Payments)
     const transactionFees = totalOrders * 0.30 + totalRevenue * 0.029;
 
-    // Set to 0 as we don't have refund data from API
+    const returnsSummary = await getReturnsSummary();
+    const returnAmount = returnsSummary.totalReturnAmount;
+    const returnRate = totalRevenue > 0 ? (returnAmount / totalRevenue) * 100 : 0;
+
     const costOfGoodsSold = 0;
     const profitMargin = 0;
     const refunds = 0;
@@ -325,7 +333,9 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
       shippingCosts,
       transactionFees,
       refunds,
-      chargebacks
+      chargebacks,
+      returnAmount,
+      returnRate
     };
 
     console.log('[Shopify API] Metrics calculated:', {
@@ -375,7 +385,9 @@ const getDefaultMetrics = (): ShopifyMetrics => {
     shippingCosts: 0,
     transactionFees: 0,
     refunds: 0,
-    chargebacks: 0
+    chargebacks: 0,
+    returnAmount: 0,
+    returnRate: 0
   };
 };
 
@@ -461,6 +473,11 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     // Transaction fees (2.9% + $0.30 per transaction for Shopify Payments)
     const transactionFees = numberOfOrders * 0.30 + totalRevenue * 0.029;
 
+    const returnsSummary = await getReturnsSummary();
+    const returnAmount = returnsSummary.totalReturnAmount;
+    const returnRate = totalRevenue > 0 ? (returnAmount / totalRevenue) * 100 : 0;
+    const netRevenue = totalRevenue - returnAmount;
+
     // Set to 0 as we don't have this data from Shopify API
     const costOfGoodsSold = 0;
     const refunds = 0;
@@ -476,7 +493,7 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
     const profitMarginPercent = 0;
 
     // Average order value net refunds
-    const averageOrderValueNetRefunds = averageOrderValue;
+    const averageOrderValueNetRefunds = numberOfOrders > 0 ? netRevenue / numberOfOrders : 0;
 
     return {
       totalRevenue,
@@ -497,7 +514,10 @@ export const getCalculatorMetrics = async (timeframe: string): Promise<ShopifyCa
       customerAcquisitionCost,
       averageCogs,
       grossMarginPercent,
-      profitMarginPercent
+      profitMarginPercent,
+      returnAmount,
+      returnRate,
+      netRevenue
     };
   } catch (error) {
     console.error('Error fetching Shopify calculator metrics:', error);
@@ -526,7 +546,10 @@ const getDefaultCalculatorMetrics = (): ShopifyCalculatorMetrics => {
     customerAcquisitionCost: 0,
     averageCogs: 0,
     grossMarginPercent: 0,
-    profitMarginPercent: 0
+    profitMarginPercent: 0,
+    returnAmount: 0,
+    returnRate: 0,
+    netRevenue: 0
   };
 };
 
@@ -642,5 +665,103 @@ export const checkShopifyConnection = async (): Promise<{
       isConnected: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     };
+  }
+};
+
+// Sync returns from Shopify to Supabase
+export const syncReturns = async (): Promise<{
+  synced: number;
+  error?: string;
+}> => {
+  try {
+    console.log('[Shopify API] Starting returns sync...');
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return { synced: 0, error: 'Not authenticated' };
+    }
+
+    const auth = await getShopifyAccessToken();
+    if (!auth) {
+      return { synced: 0, error: 'No Shopify connection' };
+    }
+
+    const returns = await GraphQL.getReturns(1000);
+    console.log('[Shopify API] Fetched', returns.length, 'returns from Shopify');
+
+    let syncedCount = 0;
+
+    for (const returnData of returns) {
+      for (const refundEdge of returnData.refunds.edges) {
+        const refund = refundEdge.node;
+        const returnAmount = parseFloat(refund.totalRefundedSet.shopMoney.amount);
+
+        const refundLineItems = refund.refundLineItems.edges.map(edge => ({
+          quantity: edge.node.quantity,
+          title: edge.node.lineItem.title,
+          sku: edge.node.lineItem.sku,
+          amount: edge.node.priceSet.shopMoney.amount,
+        }));
+
+        const { error } = await supabase
+          .from('shopify_returns')
+          .upsert({
+            user_id: session.user.id,
+            shopify_order_id: returnData.order.id,
+            shopify_return_id: returnData.id + '-' + refund.id,
+            return_amount: returnAmount,
+            returned_at: refund.createdAt,
+            refund_line_items: refundLineItems,
+          }, {
+            onConflict: 'shopify_return_id',
+          });
+
+        if (!error) {
+          syncedCount++;
+        } else {
+          console.error('[Shopify API] Error syncing return:', error);
+        }
+      }
+    }
+
+    console.log('[Shopify API] Successfully synced', syncedCount, 'returns');
+    return { synced: syncedCount };
+  } catch (error) {
+    console.error('[Shopify API] Error syncing returns:', error);
+    return {
+      synced: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+};
+
+// Get returns summary from Supabase
+export const getReturnsSummary = async (): Promise<{
+  totalReturns: number;
+  totalReturnAmount: number;
+}> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      return { totalReturns: 0, totalReturnAmount: 0 };
+    }
+
+    const { data: returns, error } = await supabase
+      .from('shopify_returns')
+      .select('return_amount')
+      .eq('user_id', session.user.id);
+
+    if (error) {
+      console.error('[Shopify API] Error fetching returns summary:', error);
+      return { totalReturns: 0, totalReturnAmount: 0 };
+    }
+
+    const totalReturns = returns?.length || 0;
+    const totalReturnAmount = returns?.reduce((sum, r) => sum + parseFloat(r.return_amount.toString()), 0) || 0;
+
+    return { totalReturns, totalReturnAmount };
+  } catch (error) {
+    console.error('[Shopify API] Error getting returns summary:', error);
+    return { totalReturns: 0, totalReturnAmount: 0 };
   }
 };
