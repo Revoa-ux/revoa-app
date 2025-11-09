@@ -21,14 +21,21 @@ export async function getActiveShopifyInstallation(
       .eq('user_id', userId)
       .eq('status', 'installed')
       .is('uninstalled_at', null)
-      .maybeSingle();
+      .order('last_auth_at', { ascending: false })
+      .limit(1);
 
     if (error) {
       console.error('[ShopifyStatus] Error checking installation:', error);
       return null;
     }
 
-    return data;
+    if (!data || data.length === 0) {
+      console.log('[Shopify API] No active Shopify installation found for user:', userId);
+      return null;
+    }
+
+    console.log('[Shopify API] Found active installation:', data[0].store_url);
+    return data[0];
   } catch (err) {
     console.error('[ShopifyStatus] Unexpected error:', err);
     return null;

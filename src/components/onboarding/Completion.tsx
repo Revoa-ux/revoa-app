@@ -57,8 +57,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     loadExistingData();
   }, []);
 
-  // Check if form is valid
-  const isFormValid = formData.name.trim() !== '' && formData.store_type !== '' && formData.wants_growth_assistance !== null;
+  // Check if form is valid (and mark as valid if already completed)
+  const isFormValid = (formData.name.trim() !== '' && formData.store_type !== '' && formData.wants_growth_assistance !== null) || hasExistingData;
 
   // Notify parent of form validity changes
   React.useEffect(() => {
@@ -132,18 +132,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
   }, [handleSubmit, onSubmit]);
 
   if (isLoadingData) {
-    return (
-      <div className="max-w-[540px] mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-          <div className="text-center">
-            <div className="animate-pulse">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mx-auto"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -155,9 +144,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
             Help us personalize your experience
           </p>
           {hasExistingData && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
-              <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Previously completed</span>
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600">
+              <Check className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Previously completed</span>
             </div>
           )}
         </div>
