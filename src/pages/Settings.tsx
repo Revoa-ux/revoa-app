@@ -143,6 +143,7 @@ const SettingsPage = () => {
       if (event.data?.type === 'shopify:success') {
         console.log('[Settings] Shopify connection successful');
         setShopifyConnecting(false);
+        setShowShopifyModal(false);
         setIntegrationStatus(prev => ({ ...prev, shopify: true }));
         setShopifyStore(event.data.shop);
         toast.success('Shopify store connected successfully');
@@ -159,6 +160,7 @@ const SettingsPage = () => {
       } else if (event.data?.type === 'shopify:error') {
         console.log('[Settings] Shopify connection error:', event.data.error);
         setShopifyConnecting(false);
+        setShowShopifyModal(false);
         toast.error(event.data.error || 'Failed to connect Shopify');
         localStorage.removeItem('shopify_oauth_error');
       } else if (event.data?.type === 'facebook-oauth-success') {
@@ -186,6 +188,7 @@ const SettingsPage = () => {
           console.log('[Settings] Detected Shopify OAuth success in localStorage:', data);
 
           setShopifyConnecting(false);
+          setShowShopifyModal(false);
           setIntegrationStatus(prev => ({ ...prev, shopify: true }));
           setShopifyStore(data.shop);
 
@@ -207,6 +210,7 @@ const SettingsPage = () => {
           const data = JSON.parse(shopifyErrorFlag);
           console.error('[Settings] Detected Shopify OAuth error in localStorage:', data.error);
           setShopifyConnecting(false);
+          setShowShopifyModal(false);
           localStorage.removeItem('shopify_oauth_error');
         } catch (error) {
           console.error('[Settings] Error parsing error flag:', error);
