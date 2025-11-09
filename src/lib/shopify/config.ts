@@ -14,7 +14,7 @@ export const SHOPIFY_CONFIG = {
   
   // Required scopes for all app features
   // Note: Removed read_customers/write_customers as they require Shopify approval
-  // We can get order metrics without accessing protected customer data
+  // Using read_reports and read_analytics as alternatives to protected customer data
   SCOPES: [
     'read_products',
     'write_products',
@@ -23,11 +23,11 @@ export const SHOPIFY_CONFIG = {
     'read_inventory',
     'write_inventory',
     'read_reports',
+    'read_analytics',
     'read_fulfillments',
     'write_fulfillments',
     'read_shipping',
-    'write_shipping',
-    'read_analytics'
+    'write_shipping'
   ].join(','),
 
   // API version - using latest stable version
