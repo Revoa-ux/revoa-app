@@ -362,7 +362,16 @@ export const getOrders = async (limit = 250, query?: string): Promise<Order[]> =
     });
 
     if (response.errors) {
-      throw new Error(`GraphQL error: ${response.errors[0].message}`);
+      const errorMessage = response.errors[0].message;
+
+      if (errorMessage.includes('not approved to access the Order object')) {
+        console.warn('[Shopify API] Order access not yet approved. Returning empty orders array.');
+        console.warn('[Shopify API] This app requires "Protected Customer Data" approval from Shopify.');
+        console.warn('[Shopify API] Visit: https://shopify.dev/docs/apps/launch/protected-customer-data');
+        return [];
+      }
+
+      throw new Error(`GraphQL error: ${errorMessage}`);
     }
 
     if (!response.data) {
