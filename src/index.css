@@ -51,6 +51,11 @@
     font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
   }
 
+  /* Global focus ring override - 1px for all elements */
+  *:focus-visible {
+    @apply ring-1 !important;
+  }
+
   /* Search Input */
   .search-input {
     @apply interactive-element pl-10 pr-4 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark hover:border-gray-300 dark:hover:border-dark-hover rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-dark-hover focus:border-gray-200 dark:focus:border-dark;

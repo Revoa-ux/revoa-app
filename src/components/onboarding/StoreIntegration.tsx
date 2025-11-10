@@ -20,14 +20,38 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [connectedStoreUrl, setConnectedStoreUrl] = useState<string | null>(null);
+  const [wasAlreadyConnected, setWasAlreadyConnected] = useState(false);
 
   // Use centralized connection store
   const { shopify } = useConnectionStore();
 
+  // Check for existing connection on mount
+  useEffect(() => {
+    const checkExistingConnection = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.user) return;
+
+        const installation = await getActiveShopifyInstallation(session.user.id);
+        if (installation) {
+          setConnectedStoreUrl(installation.store_url);
+          setIsSuccess(true);
+          setWasAlreadyConnected(true);
+          onStoreConnected(true);
+        }
+      } catch (error) {
+        console.error('[StoreIntegration] Error checking existing connection:', error);
+      }
+    };
+
+    checkExistingConnection();
+  }, [onStoreConnected]);
+
   // Watch for Shopify connection changes from the store
   useEffect(() => {
     console.log('[StoreIntegration] Shopify connection state changed:', shopify.isConnected);
-    if (shopify.isConnected) {
+    if (shopify.isConnected && !wasAlreadyConnected) {
       setIsSuccess(true);
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
@@ -37,8 +61,11 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         clearInterval(checkInterval);
         setCheckInterval(null);
       }
+      if (shopify.installation) {
+        setConnectedStoreUrl(shopify.installation.store_url);
+      }
     }
-  }, [shopify.isConnected, onStoreConnected]);
+  }, [shopify.isConnected, onStoreConnected, wasAlreadyConnected]);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -53,8 +80,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+        if (!wasAlreadyConnected) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 3000);
+        }
         setTimeout(() => {
           onStoreConnected(true);
         }, 800);
@@ -182,8 +211,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               console.log('[StoreIntegration] Polling detected completed session! Calling onStoreConnected(true)');
               cleanOauthSession(oauthSession);
               setIsSuccess(true);
-              setShowConfetti(true);
-              setTimeout(() => setShowConfetti(false), 3000);
+              if (!wasAlreadyConnected) {
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 3000);
+              }
               setTimeout(() => {
                 onStoreConnected(true);
               }, 800);
@@ -328,19 +359,19 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                 </label>
                 <div className="relative">
                   <ShopifyFormInput
-                    value={shopUrl}
+                    value={connectedStoreUrl || shopUrl}
                     onChange={handleShopChange}
-                    disabled={isLoading}
+                    disabled={isLoading || isSuccess}
                     placeholder="your-store.myshopify.com"
                     className="pr-12 !bg-white dark:!bg-gray-900 !text-gray-900 dark:!text-white !border-gray-300 dark:!border-gray-600"
                   />
                   <button
                     type="submit"
                     disabled={!shopUrl.trim() || isLoading || isSuccess}
-                    className={`absolute right-0 top-0 h-full px-4 text-white rounded-r-lg transition-all duration-500 disabled:cursor-not-allowed flex items-center justify-center ${
+                    className={`absolute right-0 top-0 h-full px-4 rounded-r-lg transition-all duration-500 disabled:cursor-not-allowed flex items-center justify-center ${
                       isSuccess
-                        ? 'bg-gray-800 dark:bg-gray-700'
-                        : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50'
+                        ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-default'
+                        : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50 text-white'
                     }`}
                     aria-label="Connect store"
                   >
