@@ -182,41 +182,41 @@ export default function Integrations() {
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {/* Shopify */}
           <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify%20(1).svg"
                     alt="Shopify"
                     className="w-6 h-6"
                   />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
                   {store && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{store.store_url}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{store.store_url}</p>
                   )}
                 </div>
               </div>
               {store ? (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
-                    <span className="text-sm">Connected</span>
-                    <Check className="w-4 h-4" />
-                  </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                    <Check className="w-3.5 h-3.5" />
+                    Connected
+                  </span>
                   <button
                     onClick={handleDisconnectShopify}
                     disabled={shopifyConnecting}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {shopifyConnecting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Disconnecting...</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Disconnecting</span>
                       </>
                     ) : (
                       <>
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                         <span>Disconnect</span>
                       </>
                     )}
@@ -226,7 +226,7 @@ export default function Integrations() {
                 <button
                   onClick={handleConnectShopify}
                   disabled={shopifyConnecting}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   {shopifyConnecting ? (
                     <>
@@ -246,44 +246,46 @@ export default function Integrations() {
 
           {/* Facebook Ads */}
           <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                   <Facebook className="w-6 h-6 text-[#1877F2]" />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
                   {facebookAccount && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {facebookAccount.name || 'Facebook Ad Account'}
+                    <div className="mt-1 space-y-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {facebookAccount.name || 'Facebook Ad Account'}
+                      </p>
                       {facebookAccount.last_synced_at && (
-                        <span className="ml-2 text-gray-400">
-                          • Last synced {new Date(facebookAccount.last_synced_at).toLocaleDateString()}
-                        </span>
+                        <p className="text-xs text-gray-400">
+                          Last synced {new Date(facebookAccount.last_synced_at).toLocaleDateString()}
+                        </p>
                       )}
-                    </p>
+                    </div>
                   )}
                 </div>
               </div>
               {facebookAccount ? (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
-                    <span className="text-sm">Connected</span>
-                    <Check className="w-4 h-4" />
-                  </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                    <Check className="w-3.5 h-3.5" />
+                    Connected
+                  </span>
                   <button
                     onClick={() => handleSyncFacebook(facebookAccount.id)}
                     disabled={facebookSyncing}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors disabled:opacity-50"
+                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {facebookSyncing ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Syncing...</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Syncing</span>
                       </>
                     ) : (
                       <>
-                        <RefreshCw className="w-4 h-4" />
+                        <RefreshCw className="w-3.5 h-3.5" />
                         <span>Sync</span>
                       </>
                     )}
@@ -291,16 +293,16 @@ export default function Integrations() {
                   <button
                     onClick={() => handleDisconnectFacebook(facebookAccount.id)}
                     disabled={facebookConnecting}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {facebookConnecting ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Disconnecting...</span>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Disconnecting</span>
                       </>
                     ) : (
                       <>
-                        <X className="w-4 h-4" />
+                        <X className="w-3.5 h-3.5" />
                         <span>Disconnect</span>
                       </>
                     )}
@@ -310,7 +312,7 @@ export default function Integrations() {
                 <button
                   onClick={handleConnectFacebook}
                   disabled={facebookConnecting || !store}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
                 >
                   {facebookConnecting ? (
                     <>
