@@ -812,20 +812,18 @@ const SettingsPage = () => {
             </div>
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="p-6">
+              <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <img
-                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify%20(1).svg"
-                        alt="Shopify"
-                        className="w-6 h-6 dark:invert dark:brightness-0 dark:contrast-200"
-                      />
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.337 19.666c.171.018.343.034.512.034 6.627 0 12-5.373 12-12 0-.215-.005-.43-.015-.643-2.146 2.446-5.284 3.988-8.785 3.988-2.105 0-4.048-.577-5.726-1.577l2.014 10.198zm-8.663-4.333c-.703-.402-1.346-.873-1.917-1.408l2.854 5.333 1.437-7.295c-.789.757-1.637 1.419-2.554 1.974l-.82 1.396zm13.326-8.666c0 3.037-1.232 5.789-3.219 7.772-1.493 1.493-3.287 2.517-5.228 2.964l.587-2.98c2.702-.588 4.987-2.315 6.36-4.635.6-.98.973-2.085 1.073-3.269.021-.244.032-.491.032-.741 0-.414-.033-.822-.096-1.222-.527-3.352-3.402-5.932-6.904-5.932-.897 0-1.757.168-2.551.475l-.814 4.132c.605-.211 1.248-.324 1.915-.324 3.037 0 5.5 2.463 5.5 5.5 0 .414-.046.818-.133 1.207-.695 3.118-3.458 5.443-6.767 5.443-2.538 0-4.743-1.362-5.956-3.395l-.932-1.873c-.565.316-1.104.681-1.612 1.092l1.457 2.929c1.77 3.559 5.434 6.003 9.643 6.003 5.938 0 10.75-4.812 10.75-10.75 0-5.937-4.812-10.75-10.75-10.75-1.32 0-2.586.238-3.758.674l.814-4.132c1.029-.316 2.123-.487 3.256-.487 6.627 0 12 5.373 12 12z"/>
+                      </svg>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
                       {shopifyStore && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{shopifyStore}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{shopifyStore}</p>
                       )}
                     </div>
                   </div>
@@ -843,16 +841,18 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <Facebook className="w-6 h-6 text-gray-700 dark:text-white" />
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
                       {facebookAccounts.length > 0 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {facebookAccounts[0].account_name}
                           {facebookAccounts[0].last_synced_at && (
                             <span className="text-gray-400"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
@@ -890,11 +890,11 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="p-6 opacity-60">
+              <div className="px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -903,7 +903,7 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Coming soon</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
                     </div>
                   </div>
                   <button
@@ -915,17 +915,17 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="p-6 opacity-60">
+              <div className="px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok Ads</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Coming soon</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Coming soon</p>
                     </div>
                   </div>
                   <button
