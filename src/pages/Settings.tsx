@@ -810,163 +810,91 @@ const SettingsPage = () => {
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Integrations</h2>
             </div>
-            
+
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="px-6 py-4">
+              <div className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-center flex-shrink-0">
                       <img
                         src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify%20(1).svg"
                         alt="Shopify"
-                        className="w-6 h-6"
+                        className="w-7 h-7"
                       />
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">Shopify Store</h3>
                       {shopifyStore && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{shopifyStore}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{shopifyStore}</p>
                       )}
                     </div>
                   </div>
-                  {integrationStatus.shopify ? (
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
-                        <span className="text-sm">Connected</span>
-                        <Check className="w-4 h-4" />
-                      </div>
-                      <button
-                        onClick={handleDisconnectShopify}
-                        disabled={shopifyConnecting}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
-                      >
-                        {shopifyConnecting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Disconnecting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-4 h-4" />
-                            <span>Disconnect</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleConnectPlatform('shopify')}
-                      disabled={shopifyConnecting}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {shopifyConnecting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Connecting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Connect</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-                  )}
+                  <button
+                    onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
+                    disabled={shopifyConnecting}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      integrationStatus.shopify
+                        ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                        : 'text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-sm'
+                    }`}
+                  >
+                    {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : 'Connect'}
+                  </button>
                 </div>
               </div>
 
-              <div className="px-6 py-4">
+              <div className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                      <Facebook className="w-6 h-6 text-[#1877F2]" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center flex-shrink-0">
+                      <Facebook className="w-7 h-7 text-[#1877F2]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">Facebook Ads</h3>
                       {facebookAccounts.length > 0 && (
-                        <div className="flex flex-col mt-1 space-y-0.5">
-                          {facebookAccounts.map(account => (
-                            <p key={account.id} className="text-xs text-gray-500 dark:text-gray-400">
-                              {account.account_name}
-                              {account.last_synced_at && (
-                                <span className="ml-2 text-gray-400">
-                                  • Last synced {new Date(account.last_synced_at).toLocaleDateString()}
-                                </span>
-                              )}
-                            </p>
-                          ))}
-                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                          {facebookAccounts[0].account_name}
+                          {facebookAccounts[0].last_synced_at && (
+                            <span className="text-gray-400"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
+                          )}
+                        </p>
                       )}
                     </div>
                   </div>
                   {integrationStatus.facebook ? (
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2 text-emerald-600 dark:text-emerald-400">
-                        <span className="text-sm">Connected</span>
-                        <Check className="w-4 h-4" />
-                      </div>
+                    <div className="flex gap-3">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {facebookSyncing ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Syncing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="w-4 h-4" />
-                            <span>Sync</span>
-                          </>
-                        )}
+                        {facebookSyncing ? 'Syncing...' : 'Sync'}
                       </button>
                       <button
                         onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookConnecting || facebookAccounts.length === 0}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                        className="px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {facebookConnecting ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Disconnecting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <X className="w-4 h-4" />
-                            <span>Disconnect</span>
-                          </>
-                        )}
+                        {facebookConnecting ? 'Loading...' : 'Disconnect'}
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+                      className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {facebookConnecting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Connecting...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Connect</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </>
-                      )}
+                      {facebookConnecting ? 'Connecting...' : 'Connect'}
                     </button>
                   )}
                 </div>
               </div>
 
-              <div className="px-6 py-4">
+              <div className="p-6 opacity-60">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-7 h-7" viewBox="0 0 24 24">
                         <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z" fill="#4285F4"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
@@ -974,54 +902,38 @@ const SettingsPage = () => {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">Google Ads</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Coming soon</p>
                     </div>
                   </div>
-                  {integrationStatus.google ? (
-                    <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                      <span className="text-sm">Connected</span>
-                      <Check className="w-4 h-4" />
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleConnectPlatform('google')}
-                      disabled={isLoading}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  )}
+                  <button
+                    disabled
+                    className="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+                  >
+                    Connect
+                  </button>
                 </div>
               </div>
 
-              <div className="px-6 py-4">
+              <div className="p-6 opacity-60">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-7 h-7 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok Ads</h3>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white">TikTok Ads</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Coming soon</p>
                     </div>
                   </div>
-                  {integrationStatus.tiktok ? (
-                    <div className="flex items-center space-x-2 text-gray-900 dark:text-white">
-                      <span className="text-sm">Connected</span>
-                      <Check className="w-4 h-4" />
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleConnectPlatform('tiktok')}
-                      disabled={isLoading}
-                      className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  )}
+                  <button
+                    disabled
+                    className="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+                  >
+                    Connect
+                  </button>
                 </div>
               </div>
             </div>
