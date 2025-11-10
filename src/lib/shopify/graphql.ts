@@ -158,14 +158,21 @@ export const executeGraphQL = async <T>(
   query: string,
   variables?: Record<string, any>
 ): Promise<GraphQLResponse<T>> => {
+  console.log('[GraphQL] === EXECUTING GRAPHQL QUERY ===');
+  console.log('[GraphQL] Variables:', JSON.stringify(variables, null, 2));
+
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
+    console.error('[GraphQL] ERROR: No session found');
     throw new Error('Not authenticated');
   }
+  console.log('[GraphQL] Session found, user:', session.user?.id);
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const url = `${supabaseUrl}/functions/v1/shopify-proxy?endpoint=/graphql.json`;
+  console.log('[GraphQL] Request URL:', url);
 
+  console.log('[GraphQL] Making fetch request...');
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -178,12 +185,25 @@ export const executeGraphQL = async <T>(
     }),
   });
 
+  console.log('[GraphQL] Response status:', response.status, response.statusText);
+
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('[GraphQL] ERROR: Request failed');
+    console.error('[GraphQL] Status:', response.status);
+    console.error('[GraphQL] Error:', errorText);
     throw new Error(`GraphQL request failed (${response.status}): ${errorText}`);
   }
 
-  return await response.json();
+  const result = await response.json();
+
+  if (result.errors) {
+    console.error('[GraphQL] GraphQL returned errors:', result.errors);
+  } else {
+    console.log('[GraphQL] ✓ Query successful');
+  }
+
+  return result;
 };
 
 export const PRODUCTS_QUERY = `
@@ -388,11 +408,18 @@ export const getProductsCount = async (): Promise<number> => {
 };
 
 export const getOrders = async (limit = 250, query?: string): Promise<Order[]> => {
+  console.log('[GraphQL] === FETCHING ORDERS ===');
+  console.log('[GraphQL] Limit:', limit, 'Query:', query || 'none');
+
   const orders: Order[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
+  let pageCount = 0;
 
   while (hasNextPage && orders.length < limit) {
+    pageCount++;
+    console.log('[GraphQL] Fetching page', pageCount, '(cursor:', cursor || 'start', ')');
+
     const response = await executeGraphQL<{
       orders: {
         edges: Array<{ node: Order; cursor: string }>;
@@ -406,11 +433,13 @@ export const getOrders = async (limit = 250, query?: string): Promise<Order[]> =
 
     if (response.errors) {
       const errorMessage = response.errors[0].message;
+      console.error('[GraphQL] ❌ Order fetch error:', errorMessage);
 
       if (errorMessage.includes('not approved to access the Order object')) {
-        console.warn('[Shopify API] Order access not yet approved. Returning empty orders array.');
-        console.warn('[Shopify API] This app requires "Protected Customer Data" approval from Shopify.');
-        console.warn('[Shopify API] Visit: https://shopify.dev/docs/apps/launch/protected-customer-data');
+        console.warn('[GraphQL] ⚠️  PROTECTED CUSTOMER DATA ACCESS NOT APPROVED');
+        console.warn('[GraphQL] This app requires "Protected Customer Data" approval from Shopify.');
+        console.warn('[GraphQL] Visit: https://shopify.dev/docs/apps/launch/protected-customer-data');
+        console.warn('[GraphQL] Returning empty orders array.');
         return [];
       }
 
@@ -418,14 +447,19 @@ export const getOrders = async (limit = 250, query?: string): Promise<Order[]> =
     }
 
     if (!response.data) {
+      console.error('[GraphQL] ERROR: No data in response');
       throw new Error('No data returned from GraphQL query');
     }
 
-    orders.push(...response.data.orders.edges.map(edge => edge.node));
+    const newOrders = response.data.orders.edges.map(edge => edge.node);
+    console.log('[GraphQL] Page', pageCount, 'fetched', newOrders.length, 'orders');
+
+    orders.push(...newOrders);
     hasNextPage = response.data.orders.pageInfo.hasNextPage;
     cursor = response.data.orders.pageInfo.endCursor;
   }
 
+  console.log('[GraphQL] ✓ Total orders fetched:', orders.length);
   return orders;
 };
 

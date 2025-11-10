@@ -26,14 +26,27 @@ export async function getCombinedDashboardMetrics(
   endDate?: string
 ): Promise<CombinedMetrics> {
   try {
+    console.log('[CombinedMetrics] === STARTING DATA FETCH ===');
+    console.log('[CombinedMetrics] Date range:', { startDate, endDate });
+
     // Fetch Shopify metrics
+    console.log('[CombinedMetrics] Step 1: Fetching Shopify metrics...');
     const shopifyMetrics = await getDashboardMetrics();
+    console.log('[CombinedMetrics] Shopify metrics received:', {
+      totalRevenue: shopifyMetrics.totalRevenue,
+      totalOrders: shopifyMetrics.totalOrders,
+      totalProducts: shopifyMetrics.totalProducts,
+      costOfGoodsSold: shopifyMetrics.costOfGoodsSold
+    });
 
     // Get user's Facebook ad accounts
+    console.log('[CombinedMetrics] Step 2: Getting current user...');
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      console.error('[CombinedMetrics] ERROR: User not authenticated');
       throw new Error('User not authenticated');
     }
+    console.log('[CombinedMetrics] User ID:', user.id);
 
     let totalAdSpend = 0;
     let accountIds: string[] = [];
@@ -41,25 +54,39 @@ export async function getCombinedDashboardMetrics(
 
     try {
       // Fetch Facebook ad accounts for the user
+      console.log('[CombinedMetrics] Step 3: Fetching Facebook ad accounts...');
       const accounts = await facebookAdsService.getAdAccounts('facebook');
+      console.log('[CombinedMetrics] Found', accounts.length, 'Facebook ad accounts');
       accountIds = accounts.map(acc => acc.id);
+      console.log('[CombinedMetrics] Account IDs:', accountIds);
 
       if (accounts.length > 0) {
         // Calculate date range if not provided
         const end = endDate || new Date().toISOString().split('T')[0];
         const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        console.log('[CombinedMetrics] Date range for metrics:', { start, end });
 
         // Fetch aggregated metrics for all accounts
+        console.log('[CombinedMetrics] Step 4: Fetching aggregated metrics...');
         const metrics = await facebookAdsService.getAggregatedMetrics(accountIds, start, end);
+        console.log('[CombinedMetrics] Facebook metrics:', {
+          totalSpend: metrics.totalSpend,
+          totalImpressions: metrics.totalImpressions,
+          totalClicks: metrics.totalClicks
+        });
         totalAdSpend = metrics.totalSpend;
         hasData = totalAdSpend > 0 || metrics.totalImpressions > 0;
+      } else {
+        console.log('[CombinedMetrics] No Facebook accounts found - skipping ad spend calculation');
       }
     } catch (error) {
-      console.error('[DashboardMetrics] Error fetching Facebook data:', error);
+      console.error('[CombinedMetrics] ERROR fetching Facebook data:', error);
+      console.error('[CombinedMetrics] Error details:', error instanceof Error ? error.message : String(error));
       // Continue with zero ad spend if Facebook data fails
     }
 
     // Compute combined metrics
+    console.log('[CombinedMetrics] Step 5: Computing combined metrics...');
     const profit = shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold - totalAdSpend;
     const profitMargin = shopifyMetrics.totalRevenue > 0
       ? (profit / shopifyMetrics.totalRevenue) * 100
@@ -69,7 +96,7 @@ export async function getCombinedDashboardMetrics(
       : 0;
     const netProfit = profit - shopifyMetrics.transactionFees;
 
-    return {
+    const result = {
       shopify: shopifyMetrics,
       facebook: {
         totalSpend: totalAdSpend,
@@ -83,6 +110,16 @@ export async function getCombinedDashboardMetrics(
         netProfit,
       },
     };
+
+    console.log('[CombinedMetrics] === FINAL COMPUTED METRICS ===');
+    console.log('[CombinedMetrics] Revenue:', shopifyMetrics.totalRevenue);
+    console.log('[CombinedMetrics] COGS:', shopifyMetrics.costOfGoodsSold);
+    console.log('[CombinedMetrics] Ad Spend:', totalAdSpend);
+    console.log('[CombinedMetrics] Profit:', profit);
+    console.log('[CombinedMetrics] ROAS:', roas);
+    console.log('[CombinedMetrics] === FETCH COMPLETE ===');
+
+    return result;
   } catch (error) {
     console.error('[DashboardMetrics] Error fetching combined metrics:', error);
     throw error;

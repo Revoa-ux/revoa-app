@@ -31,6 +31,9 @@ export class FacebookAdsService {
 
   async getAdAccounts(platform?: AdPlatform): Promise<AdAccount[]> {
     try {
+      console.log('[FacebookAds] === FETCHING AD ACCOUNTS ===');
+      console.log('[FacebookAds] Platform filter:', platform || 'all');
+
       let query = supabase
         .from('ad_accounts')
         .select('*')
@@ -43,11 +46,24 @@ export class FacebookAdsService {
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('[FacebookAds] ERROR fetching accounts:', error);
+        throw error;
+      }
+
+      console.log('[FacebookAds] Found', data?.length || 0, 'ad accounts');
+      if (data && data.length > 0) {
+        console.log('[FacebookAds] Account details:', data.map(acc => ({
+          id: acc.id,
+          platform: acc.platform,
+          name: acc.name || 'unnamed',
+          platform_account_id: acc.platform_account_id
+        })));
+      }
 
       return data || [];
     } catch (error) {
-      console.error('Error fetching ad accounts:', error);
+      console.error('[FacebookAds] Exception in getAdAccounts:', error);
       throw error;
     }
   }
