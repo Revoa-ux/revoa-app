@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Check, ChevronRight, RefreshCw, X, Loader2, Facebook } from 'lucide-react';
+import { AlertCircle, Loader2, Facebook } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { facebookAdsService } from '../lib/facebookAds';
 import { toast } from 'sonner';
@@ -175,167 +175,93 @@ export default function Integrations() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Connected Platforms</h2>
-        </div>
-
         <div className="divide-y divide-gray-200 dark:divide-gray-700">
           {/* Shopify */}
-          <div className="px-6 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 flex items-center justify-center flex-shrink-0">
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/shopify%20(1).svg"
                     alt="Shopify"
-                    className="w-6 h-6"
+                    className="w-8 h-8"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">Shopify Store</h3>
                   {store && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 truncate">{store.store_url}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{store.store_url}</p>
                   )}
                 </div>
               </div>
-              {store ? (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                    <Check className="w-3.5 h-3.5" />
-                    Connected
-                  </span>
-                  <button
-                    onClick={handleDisconnectShopify}
-                    disabled={shopifyConnecting}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
-                  >
-                    {shopifyConnecting ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Disconnecting</span>
-                      </>
-                    ) : (
-                      <>
-                        <X className="w-3.5 h-3.5" />
-                        <span>Disconnect</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleConnectShopify}
-                  disabled={shopifyConnecting}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
-                >
-                  {shopifyConnecting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Connecting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              )}
+              <button
+                onClick={store ? handleDisconnectShopify : handleConnectShopify}
+                disabled={shopifyConnecting}
+                className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  store
+                    ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                    : 'text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-sm'
+                }`}
+              >
+                {shopifyConnecting ? 'Loading...' : store ? 'Disconnect' : 'Connect'}
+              </button>
             </div>
           </div>
 
           {/* Facebook Ads */}
-          <div className="px-6 py-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                  <Facebook className="w-6 h-6 text-[#1877F2]" />
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center flex-shrink-0">
+                  <Facebook className="w-8 h-8 text-[#1877F2]" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">Facebook Ads</h3>
                   {facebookAccount && (
-                    <div className="mt-1 space-y-0.5">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {facebookAccount.name || 'Facebook Ad Account'}
-                      </p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+                      {facebookAccount.name || 'Connected'}
                       {facebookAccount.last_synced_at && (
-                        <p className="text-xs text-gray-400">
-                          Last synced {new Date(facebookAccount.last_synced_at).toLocaleDateString()}
-                        </p>
+                        <span className="text-gray-400"> • {new Date(facebookAccount.last_synced_at).toLocaleDateString()}</span>
                       )}
-                    </div>
+                    </p>
                   )}
                 </div>
               </div>
               {facebookAccount ? (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                    <Check className="w-3.5 h-3.5" />
-                    Connected
-                  </span>
+                <div className="flex gap-3">
                   <button
                     onClick={() => handleSyncFacebook(facebookAccount.id)}
                     disabled={facebookSyncing}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
+                    className="px-5 py-2.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {facebookSyncing ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Syncing</span>
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>Sync</span>
-                      </>
-                    )}
+                    {facebookSyncing ? 'Syncing...' : 'Sync'}
                   </button>
                   <button
                     onClick={() => handleDisconnectFacebook(facebookAccount.id)}
                     disabled={facebookConnecting}
-                    className="flex items-center space-x-1 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
+                    className="px-5 py-2.5 text-sm font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {facebookConnecting ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Disconnecting</span>
-                      </>
-                    ) : (
-                      <>
-                        <X className="w-3.5 h-3.5" />
-                        <span>Disconnect</span>
-                      </>
-                    )}
+                    {facebookConnecting ? 'Loading...' : 'Disconnect'}
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={handleConnectFacebook}
                   disabled={facebookConnecting || !store}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap flex-shrink-0"
+                  className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {facebookConnecting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Connecting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Connect</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </>
-                  )}
+                  {facebookConnecting ? 'Connecting...' : 'Connect'}
                 </button>
               )}
             </div>
           </div>
 
-          {/* Google Ads - Coming Soon */}
-          <div className="px-6 py-4 opacity-60">
+          {/* Google Ads */}
+          <div className="p-6 opacity-60">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -343,55 +269,44 @@ export default function Integrations() {
                   </svg>
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                      Coming Soon
-                    </span>
-                  </div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">Google Ads</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Coming soon</p>
                 </div>
               </div>
               <button
                 disabled
-                className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+                className="px-5 py-2.5 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
               >
-                <span>Connect</span>
-                <ChevronRight className="w-4 h-4" />
+                Connect
               </button>
             </div>
           </div>
 
-          {/* TikTok Ads - Coming Soon */}
-          <div className="px-6 py-4 opacity-60">
+          {/* TikTok Ads */}
+          <div className="p-6 opacity-60">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-center justify-center">
-                  <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
+                  <svg className="w-8 h-8 text-gray-700 dark:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/>
                   </svg>
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2">
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok Ads</h3>
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
-                      Coming Soon
-                    </span>
-                  </div>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">TikTok Ads</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">Coming soon</p>
                 </div>
               </div>
               <button
                 disabled
-                className="flex items-center space-x-1.5 px-3 py-1.5 text-sm text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
+                className="px-5 py-2.5 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-not-allowed"
               >
-                <span>Connect</span>
-                <ChevronRight className="w-4 h-4" />
+                Connect
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Info message when no store connected */}
       {!store && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-start space-x-3">
