@@ -73,8 +73,30 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
   const { access_token, scope } = await tokenResponse.json();
   console.log('[OAuth] Access token obtained successfully');
 
-  // Save installation to database
+  // Save installation to both tables for backwards compatibility
   console.log('[OAuth] Saving installation to database');
+
+  // Save to new stores table
+  const { error: storeError } = await supabase
+    .from('stores')
+    .upsert({
+      user_id: userId,
+      platform: 'shopify',
+      store_url: shop,
+      access_token,
+      scopes: scope.split(','),
+      status: 'active',
+      connected_at: new Date().toISOString(),
+      last_synced_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id,store_url'
+    });
+
+  if (storeError) {
+    console.error('[OAuth] Error saving to stores table:', storeError);
+  }
+
+  // Also save to shopify_installations for backwards compatibility
   const { error: installError } = await supabase
     .from('shopify_installations')
     .upsert({
@@ -195,14 +217,40 @@ Deno.serve(async (req: Request) => {
 
     console.log('[Shopify Proxy] Request from user:', user.id);
 
-    // Get user's Shopify installation
-    console.log('[Shopify Proxy] Fetching installation for user:', user.id);
-    const { data: installation, error: installError } = await supabase
-      .from('shopify_installations')
+    // Get user's Shopify store (try new stores table first, fallback to shopify_installations)
+    console.log('[Shopify Proxy] Fetching store for user:', user.id);
+    let installation = null;
+    let installError = null;
+
+    // Try new stores table first
+    const { data: storeData, error: storeError } = await supabase
+      .from('stores')
       .select('store_url, access_token')
       .eq('user_id', user.id)
-      .eq('status', 'installed')
+      .eq('platform', 'shopify')
+      .eq('status', 'active')
       .maybeSingle();
+
+    if (storeData) {
+      installation = storeData;
+    } else if (!storeError || storeError.code === 'PGRST116') {
+      // If no data in stores table, fallback to shopify_installations
+      console.log('[Shopify Proxy] No store found in stores table, trying shopify_installations');
+      const { data: installData, error: legacyError } = await supabase
+        .from('shopify_installations')
+        .select('store_url, access_token')
+        .eq('user_id', user.id)
+        .eq('status', 'installed')
+        .is('uninstalled_at', null)
+        .order('installed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      installation = installData;
+      installError = legacyError;
+    } else {
+      installError = storeError;
+    }
 
     if (installError) {
       console.error('[Shopify Proxy] Error fetching installation:', JSON.stringify(installError));
