@@ -816,9 +816,11 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.337 19.666c.171.018.343.034.512.034 6.627 0 12-5.373 12-12 0-.215-.005-.43-.015-.643-2.146 2.446-5.284 3.988-8.785 3.988-2.105 0-4.048-.577-5.726-1.577l2.014 10.198zm-8.663-4.333c-.703-.402-1.346-.873-1.917-1.408l2.854 5.333 1.437-7.295c-.789.757-1.637 1.419-2.554 1.974l-.82 1.396zm13.326-8.666c0 3.037-1.232 5.789-3.219 7.772-1.493 1.493-3.287 2.517-5.228 2.964l.587-2.98c2.702-.588 4.987-2.315 6.36-4.635.6-.98.973-2.085 1.073-3.269.021-.244.032-.491.032-.741 0-.414-.033-.822-.096-1.222-.527-3.352-3.402-5.932-6.904-5.932-.897 0-1.757.168-2.551.475l-.814 4.132c.605-.211 1.248-.324 1.915-.324 3.037 0 5.5 2.463 5.5 5.5 0 .414-.046.818-.133 1.207-.695 3.118-3.458 5.443-6.767 5.443-2.538 0-4.743-1.362-5.956-3.395l-.932-1.873c-.565.316-1.104.681-1.612 1.092l1.457 2.929c1.77 3.559 5.434 6.003 9.643 6.003 5.938 0 10.75-4.812 10.75-10.75 0-5.937-4.812-10.75-10.75-10.75-1.32 0-2.586.238-3.758.674l.814-4.132c1.029-.316 2.123-.487 3.256-.487 6.627 0 12 5.373 12 12z"/>
-                      </svg>
+                      <img
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
+                        alt="Shopify"
+                        className="w-5 h-5 grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
+                      />
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
