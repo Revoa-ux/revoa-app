@@ -37,6 +37,8 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
       email: email || user?.email || '',
       firstName: firstName || '',
       lastName: lastName || '',
+      phone: prev.phone,  // Keep existing phone value
+      company: prev.company,  // Keep existing company value
     }));
   }, [email, firstName, lastName, user]);
 

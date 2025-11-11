@@ -157,14 +157,18 @@ export default function DashboardCopy() {
         if (user) {
           const { data: profile } = await supabase
             .from('user_profiles')
-            .select('name')
+            .select('display_name, first_name, last_name')
             .eq('user_id', user.id)
             .maybeSingle();
 
-          if (profile?.name) {
-            // Get just the first name
-            const firstName = profile.name.split(' ')[0];
-            setUserName(firstName);
+          if (profile) {
+            // Prefer first_name, fallback to splitting display_name
+            if (profile.first_name) {
+              setUserName(profile.first_name);
+            } else if (profile.display_name) {
+              const firstName = profile.display_name.split(' ')[0];
+              setUserName(firstName);
+            }
           }
         }
       } catch (error) {
