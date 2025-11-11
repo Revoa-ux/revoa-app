@@ -181,9 +181,17 @@ const mockPriorities = [
 
 export default function Audit() {
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+
+  // Initialize date range for 7 days (same as Dashboard and Calculator)
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 7);
+  initialStartDate.setHours(0, 0, 0, 0);
+
   const [dateRange, setDateRange] = useState<DateRange>({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
+    startDate: initialStartDate,
+    endDate: initialEndDate
   });
   const [isLoading, setIsLoading] = useState(false);
   const [performanceData, setPerformanceData] = useState(mockPerformanceMetrics);
@@ -195,7 +203,92 @@ export default function Audit() {
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
-    refreshData();
+
+    const now = new Date();
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (time) {
+      case 'today':
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setDate(endDate.getDate() - 1);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '7d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '14d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 14);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '30d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '60d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 60);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '90d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 90);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'this_month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'last_month':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        // Don't update date range for custom - user will set it manually
+        return;
+      default:
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    console.log('[Audit] Time changed to:', time, 'Range:', startDate.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0]);
+    setDateRange({ startDate, endDate });
   };
 
   const handleDateRangeChange = (range: DateRange) => {
@@ -251,6 +344,14 @@ export default function Audit() {
       refreshData();
     }
   }, [facebook.isConnected]);
+
+  // Refresh data when date range changes
+  useEffect(() => {
+    if (facebook.isConnected) {
+      refreshData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   const handleConnectPlatform = (platform: 'facebook' | 'tiktok') => {
     console.log('Connecting to', platform);

@@ -72,11 +72,26 @@ export async function getAdReportsMetrics(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Fetch aggregated metrics from database
+    // Get all campaigns for these accounts
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('ad_campaigns')
+      .select('id')
+      .in('ad_account_id', accountIds);
+
+    if (campaignsError) throw campaignsError;
+
+    if (!campaigns || campaigns.length === 0) {
+      return getEmptyMetrics();
+    }
+
+    const campaignIds = campaigns.map(c => c.id);
+
+    // Fetch campaign-level metrics (to avoid double-counting from ad sets)
     const { data: metrics, error } = await supabase
       .from('ad_metrics')
       .select('*')
-      .in('ad_account_id', accountIds)
+      .eq('entity_type', 'campaign')
+      .in('entity_id', campaignIds)
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: true });
@@ -173,19 +188,39 @@ export async function getCreativePerformance(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Fetch ads with their metrics
+    // Get campaigns for these accounts
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('ad_campaigns')
+      .select('id')
+      .in('ad_account_id', accountIds);
+
+    if (campaignsError) throw campaignsError;
+
+    if (!campaigns || campaigns.length === 0) {
+      return [];
+    }
+
+    const campaignIds = campaigns.map(c => c.id);
+
+    // Get ad sets for these campaigns
+    const { data: adSets, error: adSetsError } = await supabase
+      .from('ad_sets')
+      .select('id')
+      .in('ad_campaign_id', campaignIds);
+
+    if (adSetsError) throw adSetsError;
+
+    if (!adSets || adSets.length === 0) {
+      return [];
+    }
+
+    const adSetIds = adSets.map(s => s.id);
+
+    // Fetch ads for these ad sets
     const { data: ads, error } = await supabase
       .from('ads')
-      .select(`
-        *,
-        ad_sets!inner(
-          campaign_id,
-          ad_campaigns!inner(
-            ad_account_id
-          )
-        )
-      `)
-      .in('ad_sets.ad_campaigns.ad_account_id', accountIds);
+      .select('*')
+      .in('ad_set_id', adSetIds);
 
     if (error) throw error;
 
@@ -193,13 +228,13 @@ export async function getCreativePerformance(
       return [];
     }
 
-    // Fetch metrics for these ads
-    const adIds = ads.map(ad => ad.platform_ad_id);
+    // Fetch metrics for these ads (using the ad's database ID, not platform ID)
+    const adIds = ads.map(ad => ad.id);
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
       .select('*')
-      .in('entity_id', adIds)
       .eq('entity_type', 'ad')
+      .in('entity_id', adIds)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -215,7 +250,7 @@ export async function getCreativePerformance(
 
     // Transform to creative performance format
     const creatives: CreativePerformance[] = ads.map(ad => {
-      const adMetrics = adMetricsMap.get(ad.platform_ad_id) || [];
+      const adMetrics = adMetricsMap.get(ad.id) || [];
       const totalSpend = adMetrics.reduce((sum, m) => sum + (m.spend || 0), 0);
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
@@ -236,15 +271,19 @@ export async function getCreativePerformance(
       // Based on declining CTR over time
       const fatigueScore = Math.min(100, Math.max(0, 100 - (ctr * 20)));
 
+      // Extract creative info from creative_data if available
+      const creativeData = ad.creative_data || {};
+      const isVideo = ad.creative_type === 'video' || creativeData.video_url;
+
       return {
         id: ad.id,
-        type: ad.creative_video_url ? 'video' : 'image',
-        url: ad.creative_image_url || ad.creative_video_url || '',
-        thumbnail: ad.creative_video_url ? ad.creative_image_url : undefined,
-        headline: ad.creative_title || ad.name,
-        description: ad.creative_body || '',
-        adCopy: ad.creative_body || '',
-        ctaText: ad.call_to_action || 'Learn More',
+        type: isVideo ? 'video' : 'image',
+        url: creativeData.image_url || creativeData.video_url || ad.creative_thumbnail_url || '',
+        thumbnail: isVideo ? (creativeData.image_url || ad.creative_thumbnail_url) : undefined,
+        headline: creativeData.title || ad.creative_name || ad.name,
+        description: creativeData.body || creativeData.description || '',
+        adCopy: creativeData.body || creativeData.description || '',
+        ctaText: creativeData.call_to_action || 'Learn More',
         metrics: {
           impressions: totalImpressions,
           clicks: totalClicks,
@@ -258,7 +297,7 @@ export async function getCreativePerformance(
         performance,
         fatigueScore,
         adName: ad.name,
-        platform: 'facebook',
+        platform: ad.platform || 'facebook',
         pageProfile: {
           name: 'Facebook Page',
           imageUrl: ''
