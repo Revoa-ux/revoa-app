@@ -242,12 +242,28 @@ export const getDashboardMetrics = async (startDate?: string, endDate?: string):
       const startTime = new Date(startDate).getTime();
       const endTime = new Date(endDate).getTime();
       console.log('[Shopify API] Filtering orders between:', startDate.split('T')[0], 'and', endDate.split('T')[0]);
+      console.log('[Shopify API] Start timestamp:', startTime, 'End timestamp:', endTime);
 
       orders = allOrders.filter(order => {
         const orderTime = new Date(order.createdAt).getTime();
-        return orderTime >= startTime && orderTime <= endTime;
+        const matches = orderTime >= startTime && orderTime <= endTime;
+        if (!matches && allOrders.length < 5) {
+          // Debug first few orders if filtering seems too strict
+          console.log('[Shopify API] Order', order.name, 'created at', order.createdAt, '(', orderTime, ') - excluded');
+        }
+        return matches;
       });
       console.log('[Shopify API] Filtered to', orders.length, 'orders in date range');
+
+      // If no orders in range, show sample of order dates
+      if (orders.length === 0 && allOrders.length > 0) {
+        console.warn('[Shopify API] WARNING: No orders in date range!');
+        console.warn('[Shopify API] Sample of order dates:', allOrders.slice(0, 5).map(o => ({
+          name: o.name,
+          createdAt: o.createdAt,
+          date: new Date(o.createdAt).toISOString().split('T')[0]
+        })));
+      }
     } else {
       console.log('[Shopify API] No date filter applied');
       orders = allOrders;
