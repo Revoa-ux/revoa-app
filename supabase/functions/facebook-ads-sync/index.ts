@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
-    console.log('[facebook-ads-sync] ===== SYNC REQUEST START =====');
+    console.log('[facebook-ads-sync] ===== SYNC REQUEST START ===== (v2.0)');
     console.log('[facebook-ads-sync] Account ID:', accountId);
     console.log('[facebook-ads-sync] Date range:', startDate, 'to', endDate);
     console.log('[facebook-ads-sync] User ID:', user.id);
