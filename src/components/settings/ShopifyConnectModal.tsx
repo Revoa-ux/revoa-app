@@ -182,10 +182,12 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             if (oauthSession.completed_at) {
               console.log('[ShopifyConnectModal] OAuth session completed!');
               cleanOauthSession(oauthSession);
-              // Connection store will detect the change and auto-close modal
+              // Close popup window
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
+              // Explicitly trigger success callback to close modal immediately
+              onSuccess(validDomain);
               return;
             }
 
