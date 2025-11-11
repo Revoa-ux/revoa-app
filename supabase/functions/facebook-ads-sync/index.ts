@@ -185,7 +185,7 @@ Deno.serve(async (req: Request) => {
             objective: 'account_overview',
             daily_budget: null,
             lifetime_budget: null,
-          }, { onConflict: 'platform_campaign_id' })
+          }, { onConflict: 'ad_account_id,platform_campaign_id' })
           .select()
           .single();
 
@@ -233,7 +233,7 @@ Deno.serve(async (req: Request) => {
             daily_budget: null,
             lifetime_budget: null,
           },
-          { onConflict: 'platform_campaign_id' }
+          { onConflict: 'ad_account_id,platform_campaign_id' }
         );
 
         if (campaignError) {
@@ -262,12 +262,13 @@ Deno.serve(async (req: Request) => {
                     platform_adset_id: adSet.id,
                     name: adSet.name,
                     status: adSet.status?.toLowerCase() || 'unknown',
+                    ad_campaign_id: dbCampaign.id,
                     campaign_id: dbCampaign.id,
                     platform: 'facebook',
                     daily_budget: adSet.daily_budget ? parseFloat(adSet.daily_budget) / 100 : null,
                     lifetime_budget: adSet.lifetime_budget ? parseFloat(adSet.lifetime_budget) / 100 : null,
                   },
-                  { onConflict: 'platform_adset_id' }
+                  { onConflict: 'ad_campaign_id,platform_adset_id' }
                 );
 
                 if (adSetError) {
@@ -302,7 +303,7 @@ Deno.serve(async (req: Request) => {
                             creative_name: ad.creative?.name || null,
                             creative_thumbnail_url: ad.creative?.thumbnail_url || null,
                           },
-                          { onConflict: 'platform_ad_id' }
+                          { onConflict: 'ad_set_id,platform_ad_id' }
                         );
 
                         if (adError) {
