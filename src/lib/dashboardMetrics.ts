@@ -61,10 +61,25 @@ export async function getCombinedDashboardMetrics(
       console.log('[CombinedMetrics] Account IDs:', accountIds);
 
       if (accounts.length > 0) {
-        // Calculate date range if not provided
-        const end = endDate || new Date().toISOString().split('T')[0];
-        const start = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        console.log('[CombinedMetrics] Date range for metrics:', { start, end });
+        // Format dates as YYYY-MM-DD for Facebook Ads API
+        // If dates are provided as ISO strings, extract just the date part
+        let start: string;
+        let end: string;
+
+        if (startDate) {
+          start = startDate.includes('T') ? startDate.split('T')[0] : startDate;
+        } else {
+          start = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        }
+
+        if (endDate) {
+          end = endDate.includes('T') ? endDate.split('T')[0] : endDate;
+        } else {
+          end = new Date().toISOString().split('T')[0];
+        }
+
+        console.log('[CombinedMetrics] Date range for Facebook metrics:', { start, end });
+        console.log('[CombinedMetrics] Original dates:', { startDate, endDate });
 
         // Fetch aggregated metrics for all accounts
         console.log('[CombinedMetrics] Step 4: Fetching aggregated metrics...');
