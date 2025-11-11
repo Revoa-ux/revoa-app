@@ -3,7 +3,10 @@ import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, X-Shopify-Hmac-Sha256, X-Shopify-Shop-Domain, X-Shopify-API-Version',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Shopify-Hmac-Sha256, X-Shopify-Shop-Domain, X-Shopify-API-Version, X-Shopify-Webhook-Id',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
 };
 
 async function verifyWebhookHmac(body: string, hmac: string, secret: string): Promise<boolean> {
@@ -41,8 +44,9 @@ Deno.serve(async (req: Request) => {
     const shop = req.headers.get('X-Shopify-Shop-Domain');
     const hmac = req.headers.get('X-Shopify-Hmac-Sha256');
     const apiVersion = req.headers.get('X-Shopify-API-Version');
+    const webhookId = req.headers.get('X-Shopify-Webhook-Id');
 
-    console.log('[Uninstall Webhook] Headers:', { shop, hasHmac: !!hmac, apiVersion });
+    console.log('[Uninstall Webhook] Headers:', { shop, hasHmac: !!hmac, apiVersion, webhookId });
 
     if (!shop || !hmac) {
       console.error('[Uninstall Webhook] Missing required headers');
@@ -75,6 +79,40 @@ Deno.serve(async (req: Request) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    if (webhookId) {
+      const { data: existingWebhook } = await supabase
+        .from('webhook_logs')
+        .select('id')
+        .eq('webhook_id', webhookId)
+        .maybeSingle();
+
+      if (existingWebhook) {
+        console.log('[Uninstall Webhook] Duplicate webhook detected, skipping:', webhookId);
+        return new Response(
+          JSON.stringify({
+            success: true,
+            message: 'Webhook already processed',
+            shop,
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 200,
+            headers: {
+              ...corsHeaders,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+      }
+
+      await supabase.from('webhook_logs').insert({
+        webhook_id: webhookId,
+        topic: 'app/uninstalled',
+        shop_domain: shop,
+        processed_at: new Date().toISOString(),
+      });
+    }
 
     console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
 
