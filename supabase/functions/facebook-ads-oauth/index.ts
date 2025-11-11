@@ -74,7 +74,7 @@ Deno.serve(async (req: Request) => {
         }
 
         const redirectUri = `${supabaseUrl}/functions/v1/facebook-ads-oauth`;
-        const tokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
+        const tokenUrl = 'https://graph.facebook.com/v21.0/oauth/access_token';
         const tokenParams = new URLSearchParams({
           client_id: facebookAppId,
           client_secret: facebookAppSecret,
@@ -95,7 +95,7 @@ Deno.serve(async (req: Request) => {
           });
         }
 
-        const longLivedTokenUrl = 'https://graph.facebook.com/v18.0/oauth/access_token';
+        const longLivedTokenUrl = 'https://graph.facebook.com/v21.0/oauth/access_token';
         const longLivedParams = new URLSearchParams({
           grant_type: 'fb_exchange_token',
           client_id: facebookAppId,
@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
         const expiresIn = longLivedData.expires_in || tokenData.expires_in || 5184000;
 
         console.log('[Facebook OAuth] Fetching ad accounts from Facebook API...');
-        const adAccountsUrl = `https://graph.facebook.com/v18.0/me/adaccounts?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
+        const adAccountsUrl = `https://graph.facebook.com/v21.0/me/adaccounts?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
         const adAccountsResponse = await fetch(adAccountsUrl);
         const adAccountsData = await adAccountsResponse.json();
 
@@ -244,7 +244,7 @@ Deno.serve(async (req: Request) => {
       ].join(',');
 
       const oauthUrl =
-        `https://www.facebook.com/v18.0/dialog/oauth?` +
+        `https://www.facebook.com/v21.0/dialog/oauth?` +
         `client_id=${facebookAppId}` +
         `&redirect_uri=${encodeURIComponent(redirectUri)}` +
         `&state=${state}` +

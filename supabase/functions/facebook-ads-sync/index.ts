@@ -110,8 +110,9 @@ Deno.serve(async (req: Request) => {
     let adsCount = 0;
     let metricsCount = 0;
 
-    const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=100&access_token=${accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&filtering=[{"field":"status","operator":"IN","value":["ACTIVE","PAUSED","ARCHIVED"]}]&limit=100&access_token=${accessToken}`;
     console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
+    console.log('[facebook-ads-sync] Account ID being queried:', accountId);
 
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
@@ -146,7 +147,7 @@ Deno.serve(async (req: Request) => {
     if (!campaignsData.data || campaignsData.data.length === 0) {
       console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
 
-      const accountInsightsUrl = `https://graph.facebook.com/v18.0/${accountId}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,account_name&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+      const accountInsightsUrl = `https://graph.facebook.com/v21.0/${accountId}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,account_name&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
       console.log('[facebook-ads-sync] Fetching account insights for date range:', startDate, 'to', endDate);
       const accountInsightsResponse = await fetch(accountInsightsUrl);
       const accountInsightsData = await accountInsightsResponse.json();
@@ -247,7 +248,7 @@ Deno.serve(async (req: Request) => {
             .maybeSingle();
 
           if (dbCampaign) {
-            const adSetsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&access_token=${accessToken}`;
+            const adSetsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&access_token=${accessToken}`;
             const adSetsResponse = await fetch(adSetsUrl);
             const adSetsData = await adSetsResponse.json();
 
@@ -276,7 +277,7 @@ Deno.serve(async (req: Request) => {
                     .maybeSingle();
 
                   if (dbAdSet) {
-                    const adsUrl = `https://graph.facebook.com/v18.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url}&access_token=${accessToken}`;
+                    const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url}&access_token=${accessToken}`;
                     const adsResponse = await fetch(adsUrl);
                     const adsData = await adsResponse.json();
 
@@ -301,7 +302,7 @@ Deno.serve(async (req: Request) => {
                         }
                       }
 
-                      const insightsUrl = `https://graph.facebook.com/v18.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+                      const insightsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
                       const insightsResponse = await fetch(insightsUrl);
                       const insightsData = await insightsResponse.json();
 
@@ -341,7 +342,7 @@ Deno.serve(async (req: Request) => {
               }
             }
 
-            const campaignInsightsUrl = `https://graph.facebook.com/v18.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+            const campaignInsightsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
             const campaignInsightsResponse = await fetch(campaignInsightsUrl);
             const campaignInsightsData = await campaignInsightsResponse.json();
 
