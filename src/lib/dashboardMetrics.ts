@@ -31,7 +31,7 @@ export async function getCombinedDashboardMetrics(
 
     // Fetch Shopify metrics
     console.log('[CombinedMetrics] Step 1: Fetching Shopify metrics...');
-    const shopifyMetrics = await getDashboardMetrics();
+    const shopifyMetrics = await getDashboardMetrics(startDate, endDate);
     console.log('[CombinedMetrics] Shopify metrics received:', {
       totalRevenue: shopifyMetrics.totalRevenue,
       totalOrders: shopifyMetrics.totalOrders,

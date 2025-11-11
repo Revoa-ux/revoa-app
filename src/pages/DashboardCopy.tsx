@@ -78,26 +78,45 @@ export default function DashboardCopy() {
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
-    
+
+    const endDate = new Date();
+    let startDate = new Date();
+
     switch (time) {
       case '24h':
         setTimeframe('1d');
+        startDate.setDate(startDate.getDate() - 1);
         break;
       case '7d':
+        setTimeframe('7d');
+        startDate.setDate(startDate.getDate() - 7);
+        break;
       case '14d':
         setTimeframe('7d');
+        startDate.setDate(startDate.getDate() - 14);
         break;
       case '30d':
+        setTimeframe('30d');
+        startDate.setDate(startDate.getDate() - 30);
+        break;
       case '60d':
+        setTimeframe('30d');
+        startDate.setDate(startDate.getDate() - 60);
+        break;
       case '90d':
         setTimeframe('30d');
+        startDate.setDate(startDate.getDate() - 90);
         break;
       case 'custom':
         setTimeframe('custom');
-        break;
+        // Don't update date range for custom - user will set it manually
+        return;
       default:
         setTimeframe('7d');
+        startDate.setDate(startDate.getDate() - 7);
     }
+
+    setDateRange({ startDate, endDate });
   }, []);
 
   const handleDateRangeChange = (range: { startDate: Date; endDate: Date }) => {
@@ -107,11 +126,17 @@ export default function DashboardCopy() {
   const fetchShopifyData = async () => {
     try {
       console.log('[Dashboard] Starting combined data fetch...');
+      console.log('[Dashboard] Date range:', dateRange);
       setIsLoading(true);
       setError(null);
 
+      // Format dates as ISO strings for the API
+      const startDateStr = dateRange.startDate.toISOString();
+      const endDateStr = dateRange.endDate.toISOString();
+      console.log('[Dashboard] Formatted dates:', { startDateStr, endDateStr });
+
       // Fetch combined metrics from Shopify + Facebook
-      const combined = await getCombinedDashboardMetrics();
+      const combined = await getCombinedDashboardMetrics(startDateStr, endDateStr);
       console.log('[Dashboard] Received combined metrics:', combined);
 
       setCombinedMetrics(combined);
@@ -139,7 +164,7 @@ export default function DashboardCopy() {
 
   useEffect(() => {
     fetchShopifyData();
-  }, [timeframe, selectedTime]);
+  }, [dateRange]);
 
   // Load empty state dismissed preference
   useEffect(() => {

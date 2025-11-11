@@ -208,9 +208,10 @@ export const fetchFromShopify = async <T>(
 };
 
 // Get dashboard metrics
-export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
+export const getDashboardMetrics = async (startDate?: string, endDate?: string): Promise<ShopifyMetrics> => {
   try {
     console.log('[Shopify API] Starting to fetch dashboard metrics...');
+    console.log('[Shopify API] Date range:', { startDate, endDate });
 
     // Check if we have a Shopify connection first
     const auth = await getShopifyAccessToken();
@@ -229,9 +230,22 @@ export const getDashboardMetrics = async (): Promise<ShopifyMetrics> => {
     const products = await GraphQL.getProducts(250);
     console.log('[Shopify API] Found', products.length, 'products');
 
-    // Fetch ALL orders (up to 10,000 to capture full history for most stores)
-    console.log('[Shopify API] Fetching ALL orders via GraphQL...');
-    const orders = await GraphQL.getOrders(10000);
+    // Fetch orders based on date range if provided
+    let orders;
+    if (startDate && endDate) {
+      console.log('[Shopify API] Fetching orders for date range via GraphQL...');
+      const query = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+      console.log('[Shopify API] Query:', query);
+      try {
+        orders = await GraphQL.getOrders(10000, query);
+      } catch (error) {
+        console.error('[Shopify API] Error with date query, trying without filter:', error);
+        orders = await GraphQL.getOrders(10000);
+      }
+    } else {
+      console.log('[Shopify API] Fetching ALL orders via GraphQL (no date filter)...');
+      orders = await GraphQL.getOrders(10000);
+    }
     const totalOrders = orders.length;
     console.log('[Shopify API] Total orders fetched:', totalOrders);
 
