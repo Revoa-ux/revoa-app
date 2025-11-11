@@ -143,7 +143,6 @@ Deno.serve(async (req: Request) => {
       console.log('[facebook-ads-sync] Campaign names:', campaignsData.data.map((c: any) => c.name));
     }
 
-    // If no campaigns, try to get account-level insights anyway
     if (!campaignsData.data || campaignsData.data.length === 0) {
       console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
 
@@ -175,7 +174,6 @@ Deno.serve(async (req: Request) => {
           clicks: insights.clicks,
         });
 
-        // Create a synthetic campaign for account-level data
         const { data: syntheticCampaign, error: syntheticError } = await supabase
           .from('ad_campaigns')
           .upsert({
@@ -238,14 +236,19 @@ Deno.serve(async (req: Request) => {
           { onConflict: 'platform_campaign_id' }
         );
 
-        if (!campaignError) {
-          campaignsCount++;
+        if (campaignError) {
+          console.error('[facebook-ads-sync] Error upserting campaign:', campaign.id, campaign.name);
+          console.error('[facebook-ads-sync] Campaign error details:', JSON.stringify(campaignError, null, 2));
+          continue;
+        }
 
-          const { data: dbCampaign } = await supabase
-            .from('ad_campaigns')
-            .select('id')
-            .eq('platform_campaign_id', campaign.id)
-            .maybeSingle();
+        campaignsCount++;
+
+        const { data: dbCampaign } = await supabase
+          .from('ad_campaigns')
+          .select('id')
+          .eq('platform_campaign_id', campaign.id)
+          .maybeSingle();
 
           if (dbCampaign) {
             const adSetsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&access_token=${accessToken}`;
@@ -267,14 +270,19 @@ Deno.serve(async (req: Request) => {
                   { onConflict: 'platform_adset_id' }
                 );
 
-                if (!adSetError) {
-                  adSetsCount++;
+                if (adSetError) {
+                  console.error('[facebook-ads-sync] Error upserting ad set:', adSet.id, adSet.name);
+                  console.error('[facebook-ads-sync] Ad set error details:', JSON.stringify(adSetError, null, 2));
+                  continue;
+                }
 
-                  const { data: dbAdSet } = await supabase
-                    .from('ad_sets')
-                    .select('id')
-                    .eq('platform_adset_id', adSet.id)
-                    .maybeSingle();
+                adSetsCount++;
+
+                const { data: dbAdSet } = await supabase
+                  .from('ad_sets')
+                  .select('id')
+                  .eq('platform_adset_id', adSet.id)
+                  .maybeSingle();
 
                   if (dbAdSet) {
                     const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url}&access_token=${accessToken}`;
@@ -297,9 +305,13 @@ Deno.serve(async (req: Request) => {
                           { onConflict: 'platform_ad_id' }
                         );
 
-                        if (!adError) {
-                          adsCount++;
+                        if (adError) {
+                          console.error('[facebook-ads-sync] Error upserting ad:', ad.id, ad.name);
+                          console.error('[facebook-ads-sync] Ad error details:', JSON.stringify(adError, null, 2));
+                          continue;
                         }
+
+                        adsCount++;
                       }
 
                       const insightsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
@@ -333,60 +345,29 @@ Deno.serve(async (req: Request) => {
                         if (!metricError) {
                           metricsCount++;
                         } else {
-                          console.error('[facebook-ads-sync] Error inserting adset metrics:', metricError);
+                          console.error('[facebook-ads-sync] Error saving metrics for ad set:', adSet.id);
+                          console.error('[facebook-ads-sync] Metric error:', metricError);
                         }
                       }
                     }
                   }
-                }
-              }
-            }
-
-            const campaignInsightsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
-            const campaignInsightsResponse = await fetch(campaignInsightsUrl);
-            const campaignInsightsData = await campaignInsightsResponse.json();
-
-            if (campaignInsightsResponse.ok && campaignInsightsData.data && campaignInsightsData.data.length > 0) {
-              const insights = campaignInsightsData.data[0];
-              const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-              const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-
-              const { error: metricError } = await supabase.from('ad_metrics').upsert(
-                {
-                  entity_id: dbCampaign.id,
-                  entity_type: 'campaign',
-                  date: endDate,
-                  impressions: parseInt(insights.impressions || '0'),
-                  clicks: parseInt(insights.clicks || '0'),
-                  spend: parseFloat(insights.spend || '0'),
-                  reach: parseInt(insights.reach || '0'),
-                  conversions: parseInt(conversions),
-                  conversion_value: parseFloat(conversionValue) * 10,
-                  cpc: parseFloat(insights.cpc || '0'),
-                  cpm: parseFloat(insights.cpm || '0'),
-                  ctr: parseFloat(insights.ctr || '0'),
-                  roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
-                },
-                { onConflict: 'entity_id,date' }
-              );
-
-              if (!metricError) {
-                metricsCount++;
-              } else {
-                console.error('[facebook-ads-sync] Error inserting campaign metrics:', metricError);
               }
             }
           }
-        }
       }
     }
+
+    console.log('[facebook-ads-sync] Successfully synced:', {
+      campaigns: campaignsCount,
+      adSets: adSetsCount,
+      ads: adsCount,
+      metrics: metricsCount,
+    });
 
     await supabase
       .from('ad_accounts')
       .update({ last_synced_at: new Date().toISOString() })
       .eq('id', account.id);
-
-    console.log('[facebook-ads-sync] Successfully synced:', { campaigns: campaignsCount, adSets: adSetsCount, ads: adsCount, metrics: metricsCount });
 
     return new Response(
       JSON.stringify({
@@ -397,25 +378,18 @@ Deno.serve(async (req: Request) => {
           adSets: adSetsCount,
           ads: adsCount,
           metrics: metricsCount,
-          dateRange: { startDate, endDate },
         },
       }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Facebook Ads sync error:', error);
+    console.error('[facebook-ads-sync] Unexpected error:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
       }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
