@@ -1,6 +1,21 @@
 import { supabase } from './supabase';
 import { facebookAdsService } from './facebookAds';
 
+// Function to get high-quality version of Facebook thumbnail URLs
+function getHighQualityFacebookImageUrl(url: string): string {
+  if (!url) return url;
+
+  // Remove the low-quality size parameters from Facebook CDN URLs
+  // These parameters make thumbnails tiny (64x64, 100x100, etc)
+  const cleanUrl = url
+    .replace(/[&?]stp=c[^&]+_dst-[^&]+_p\d+x\d+[^&]*/g, '') // Remove stp parameter with size
+    .replace(/[&?]_nc_sid=[^&]*/g, '') // Remove session id
+    .replace(/[&?]oh=[^&]*/g, '') // Remove hash
+    .replace(/[&?]oe=[^&]*/g, ''); // Remove expiry
+
+  return cleanUrl;
+}
+
 export interface AdReportMetrics {
   roas: {
     name: string;
@@ -275,15 +290,19 @@ export async function getCreativePerformance(
       const creativeData = ad.creative_data || {};
       const isVideo = ad.creative_type === 'video' || creativeData.video_id;
 
+      // Get high-quality URLs by removing Facebook's size parameters
+      const rawThumbnail = creativeData.video_thumbnail || creativeData.thumbnail_url || ad.creative_thumbnail_url || '';
+      const thumbnailUrl = getHighQualityFacebookImageUrl(rawThumbnail);
+
+      const rawImageUrl = creativeData.image_url || ad.creative_thumbnail_url || '';
+      const imageUrl = getHighQualityFacebookImageUrl(rawImageUrl);
+
       // Build proper media URL
       // For videos: use video_url if available, fallback to high-quality thumbnail
       // For images: use image_url or thumbnail
       const mediaUrl = isVideo
-        ? (creativeData.video_url || creativeData.video_thumbnail || creativeData.thumbnail_url || ad.creative_thumbnail_url || '')
-        : (creativeData.image_url || ad.creative_thumbnail_url || '');
-
-      // For video thumbnails, use the high-quality version
-      const thumbnailUrl = creativeData.video_thumbnail || creativeData.thumbnail_url || ad.creative_thumbnail_url || '';
+        ? (creativeData.video_url || thumbnailUrl)
+        : imageUrl;
 
       return {
         id: ad.platform_ad_id,

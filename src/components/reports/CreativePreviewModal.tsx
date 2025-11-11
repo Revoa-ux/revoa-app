@@ -175,6 +175,8 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                     src={creative.thumbnail}
                     alt={creative.adName}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    crossOrigin="anonymous"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
@@ -188,6 +190,8 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                     src={creative.url}
                     alt={creative.adName}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    crossOrigin="anonymous"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
