@@ -14,6 +14,7 @@ export const SHOPIFY_CONFIG = {
   
   // Required scopes for all app features
   SCOPES: [
+    'read_all_orders',
     'read_fulfillments',
     'read_inventory',
     'read_orders',
