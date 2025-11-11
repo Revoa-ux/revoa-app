@@ -540,43 +540,60 @@ const Products: React.FC = () => {
         return;
       }
 
-      const shopifyProduct = {
-        product: {
-          title: product.name,
-          body_html: product.description || '',
-          vendor: 'Revoa',
-          product_type: product.category,
-          variants: product.variantGroups?.[0]?.variants.map(v => ({
-            title: v.name,
-            price: v.recommendedPrice.toString(),
-            sku: v.sku,
-            inventory_management: 'shopify',
-            inventory_quantity: v.stock
-          })) || [{
-            title: 'Default',
-            price: product.recommendedPrice.toString(),
-            inventory_management: 'shopify',
-            inventory_quantity: product.stock
-          }],
-          images: product.images?.map(url => ({ src: url })) || []
-        }
+      const productInput = {
+        title: product.name,
+        descriptionHtml: product.description || '',
+        vendor: 'Revoa',
+        productType: product.category,
+        status: 'ACTIVE' as const,
+        variants: product.variantGroups?.[0]?.variants.map(v => ({
+          price: v.recommendedPrice.toString(),
+          sku: v.sku,
+          inventoryQuantity: v.stock
+        })) || [{
+          price: product.recommendedPrice.toString(),
+          inventoryQuantity: product.stock
+        }]
       };
 
+      const mutation = `
+        mutation CreateProduct($input: ProductInput!) {
+          productCreate(input: $input) {
+            product {
+              id
+              title
+            }
+            userErrors {
+              field
+              message
+            }
+          }
+        }
+      `;
+
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy?endpoint=/products.json`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy?endpoint=/graphql.json`,
         {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(shopifyProduct)
+          body: JSON.stringify({
+            query: mutation,
+            variables: { input: productInput }
+          })
         }
       );
 
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to add product to Shopify');
+      }
+
+      const result = await response.json();
+      if (result.data?.productCreate?.userErrors?.length > 0) {
+        throw new Error(result.data.productCreate.userErrors[0].message);
       }
 
       toast.success('Product added to your Shopify store!');
