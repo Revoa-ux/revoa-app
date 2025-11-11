@@ -137,6 +137,11 @@ Deno.serve(async (req: Request) => {
     console.log('[facebook-ads-sync] Number of campaigns found:', campaignsData.data?.length || 0);
     console.log('[facebook-ads-sync] Has paging?', campaignsData.paging ? 'yes' : 'no');
 
+    if (campaignsData.data?.length > 0) {
+      console.log('[facebook-ads-sync] Campaign IDs:', campaignsData.data.map((c: any) => c.id));
+      console.log('[facebook-ads-sync] Campaign names:', campaignsData.data.map((c: any) => c.name));
+    }
+
     // If no campaigns, try to get account-level insights anyway
     if (!campaignsData.data || campaignsData.data.length === 0) {
       console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
