@@ -132,7 +132,7 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
     .eq('state', state);
 
   console.log('[OAuth] OAuth completion successful');
-  return { success: true, shop };
+  return { success: true, shop, access_token, scope };
 }
 
 Deno.serve(async (req: Request) => {

@@ -13,21 +13,13 @@ export const SHOPIFY_CONFIG = {
       : 'https://members.revoa.app/shopify-callback'),
   
   // Required scopes for all app features
-  // Note: Removed read_customers/write_customers as they require Shopify approval
-  // Using read_reports and read_analytics as alternatives to protected customer data
   SCOPES: [
+    'read_fulfillments',
+    'read_inventory',
+    'read_orders',
     'read_products',
     'write_products',
-    'read_orders',
-    'write_orders',
-    'read_inventory',
-    'write_inventory',
-    'read_reports',
-    'read_analytics',
-    'read_fulfillments',
-    'write_fulfillments',
-    'read_shipping',
-    'write_shipping'
+    'read_returns'
   ].join(','),
 
   // API version - using latest stable version
