@@ -13,19 +13,33 @@ const CallbackHandler: React.FC = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        console.debug('Processing callback with params:', Object.fromEntries(searchParams));
-        
+        console.log('=== SHOPIFY CALLBACK START ===');
+        console.log('All URL params:', Object.fromEntries(searchParams));
+        console.log('Is popup window:', !!window.opener);
+
         // Get and validate required parameters
         const shop = searchParams.get('shop');
         const code = searchParams.get('code');
         const state = searchParams.get('state');
         const hmac = searchParams.get('hmac');
 
+        console.log('Shop:', shop);
+        console.log('Code:', code ? 'present' : 'missing');
+        console.log('State:', state);
+        console.log('HMAC:', hmac ? 'present' : 'missing');
+
         if (!shop || !code || !state || !hmac) {
-          throw new Error('Missing required parameters');
+          const missing = [];
+          if (!shop) missing.push('shop');
+          if (!code) missing.push('code');
+          if (!state) missing.push('state');
+          if (!hmac) missing.push('hmac');
+          throw new Error(`Missing required parameters: ${missing.join(', ')}`);
         }
 
+        console.log('Calling handleCallback...');
         await handleCallback(searchParams);
+        console.log('handleCallback completed successfully');
 
         // Show success state
         setStatus('success');
@@ -46,25 +60,27 @@ const CallbackHandler: React.FC = () => {
             console.error('Error communicating with parent window:', error);
           }
 
-          // Close popup after delay
-          setTimeout(() => {
-            window.close();
-          }, 1000);
+          // DON'T CLOSE - Let user see console and close manually
+          console.log('=== SUCCESS - Window will stay open for debugging ===');
+          console.log('Close this window manually when done reviewing logs');
         } else {
           // Navigate to next step
           navigate('/onboarding/ads', { replace: true });
         }
       } catch (error) {
-        console.error('Callback processing error:', error);
-        
+        console.error('=== CALLBACK ERROR ===');
+        console.error('Error details:', error);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
+
         const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Shopify';
         setErrorMessage(errorMessage);
         setStatus('error');
-        
-        // If in popup, send error to parent
+
+        // If in popup, send error to parent but DON'T close
         if (window.opener) {
           window.opener.postMessage({ type: 'shopify:error', error: errorMessage }, '*');
-          window.close();
+          console.log('=== ERROR - Window will stay open for debugging ===');
+          console.log('Close this window manually when done reviewing logs');
         } else {
           toast.error('Failed to connect Shopify store', {
             description: errorMessage
