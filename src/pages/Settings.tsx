@@ -1619,7 +1619,6 @@ const SettingsPage = () => {
                             onClick={() => {
                               setTheme(themeOption as 'light' | 'dark' | 'system');
                               setShowThemeDropdown(false);
-                              toast.success(`Theme changed to ${themeOption}`);
                             }}
                             className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                           >

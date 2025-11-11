@@ -71,7 +71,6 @@ export default function AdminSidebar() {
   const handleLogout = async () => {
     try {
       await signOut();
-      toast.success('Successfully logged out');
     } catch (error) {
       console.error('Error logging out:', error);
       toast.error('Failed to log out. Please try again.');

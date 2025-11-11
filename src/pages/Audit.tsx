@@ -92,7 +92,7 @@ export default function Audit() {
     setDateRange({ startDate, endDate });
   };
 
-  const refreshData = async () => {
+  const refreshData = async (showSuccessToast = false) => {
     if (!facebook.isConnected) {
       console.log('[Audit] Facebook not connected, skipping data fetch');
       return;
@@ -117,7 +117,10 @@ export default function Audit() {
       setCreatives(creativesData);
       setHasRealData(creativesData.length > 0);
 
-      toast.success('Data refreshed successfully');
+      // Only show success toast if explicitly requested (e.g., manual refresh)
+      if (showSuccessToast) {
+        toast.success('Data refreshed successfully');
+      }
     } catch (error) {
       console.error('[Audit] Error refreshing data:', error);
       toast.error('Failed to refresh ad data');
@@ -168,7 +171,7 @@ export default function Audit() {
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={refreshData}
+              onClick={() => refreshData(true)}
               disabled={isLoading || !facebook.isConnected}
               className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
