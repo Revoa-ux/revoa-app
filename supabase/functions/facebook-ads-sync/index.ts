@@ -375,7 +375,7 @@ Deno.serve(async (req: Request) => {
                     name: ad.name,
                     status: ad.status?.toLowerCase() || 'unknown',
                     ad_set_id: dbAdSet.id,
-                    ad_account_id: adAccount.id,
+                    ad_account_id: account.id,
                     platform: 'facebook',
                     creative_id: ad.creative?.id || null,
                     creative_name: ad.creative?.name || null,
