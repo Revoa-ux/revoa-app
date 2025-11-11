@@ -101,28 +101,28 @@ export default function Inventory() {
 
   const [metrics, setMetrics] = useState<InventoryMetrics>({
     inventoryStatus: {
-      totalInStock: 15234,
-      totalFulfilled: 8456,
-      totalUnfulfilled: 342,
-      inStockChange: 12.5
+      totalInStock: 0,
+      totalFulfilled: 0,
+      totalUnfulfilled: 0,
+      inStockChange: 0
     },
     orderMetrics: {
-      totalOrders: 2845,
-      totalUnitsSold: 9876,
-      avgUnitsPerOrder: 3.47,
-      ordersChange: 8.2
+      totalOrders: 0,
+      totalUnitsSold: 0,
+      avgUnitsPerOrder: 0,
+      ordersChange: 0
     },
     timeMetrics: {
-      avgFulfillmentTime: 24,
-      avgDeliveryTime: 3.5,
-      avgDoorToDoorTime: 4.2,
-      fulfillmentChange: -15.3
+      avgFulfillmentTime: 0,
+      avgDeliveryTime: 0,
+      avgDoorToDoorTime: 0,
+      fulfillmentChange: 0
     },
     financialMetrics: {
-      totalRevenue: 456789,
-      avgProfitMarginAmount: 34.50,
-      avgProfitMarginPercent: 28.4,
-      revenueChange: 18.7
+      totalRevenue: 0,
+      avgProfitMarginAmount: 0,
+      avgProfitMarginPercent: 0,
+      revenueChange: 0
     }
   });
 
@@ -174,26 +174,9 @@ export default function Inventory() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
-          id: `prod-${i}`,
-          name: `Product ${i + 1}`,
-          image: '',
-          sku: `SKU-${1000 + i}`,
-          inStock: Math.floor(Math.random() * 1000),
-          unfulfilled: Math.floor(Math.random() * 100),
-          fulfilled: Math.floor(Math.random() * 500),
-          avgFulfillTime: Math.random() * 5,
-          avgDeliveryTime: Math.random() * 10,
-          totalSold: Math.floor(Math.random() * 2000),
-          profitMargin: (Math.random() * 40) - 10,
-          costPerItem: Math.random() * 100,
-          shippingCost: Math.random() * 20,
-          salePrice: Math.random() * 200
-        }));
 
-        setProducts(mockProducts);
+        // TODO: Implement real inventory fetching from Shopify
+        setProducts([]);
         setError(null);
       } catch (error) {
         setError('Failed to fetch inventory data');
