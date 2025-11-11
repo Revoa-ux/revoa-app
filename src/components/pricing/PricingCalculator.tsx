@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { calculatePricing } from './PricingTiers';
+import { DollarSign } from 'lucide-react';
 
 export const PricingCalculator: React.FC = () => {
   const [monthlyRevenue, setMonthlyRevenue] = useState(10000);
@@ -7,6 +8,20 @@ export const PricingCalculator: React.FC = () => {
   const pricing = useMemo(() => {
     return calculatePricing(monthlyRevenue);
   }, [monthlyRevenue]);
+
+  const formatCurrency = (value: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/,/g, '');
+    const numValue = Math.max(0, Number(value) || 0);
+    setMonthlyRevenue(numValue);
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
@@ -18,14 +33,18 @@ export const PricingCalculator: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Expected Monthly Revenue
         </label>
-        <input
-          type="number"
-          value={monthlyRevenue}
-          onChange={(e) => setMonthlyRevenue(Math.max(0, Number(e.target.value)))}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          min="0"
-          step="1000"
-        />
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none">
+            <DollarSign className="w-5 h-5" />
+          </div>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={formatCurrency(monthlyRevenue)}
+            onChange={handleInputChange}
+            className="w-full pl-12 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
