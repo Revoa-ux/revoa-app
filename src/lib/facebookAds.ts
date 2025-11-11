@@ -267,36 +267,20 @@ export class FacebookAdsService {
       const campaignIds = campaigns.map(c => c.id);
       console.log('[FacebookAds] Found', campaignIds.length, 'campaigns for these accounts');
 
-      // Query metrics for campaigns and their ad sets
-      // Get ad set IDs that belong to these campaigns
-      const { data: adSets, error: adSetsError } = await supabase
-        .from('ad_sets')
-        .select('id')
-        .in('ad_campaign_id', campaignIds);
-
-      if (adSetsError) {
-        console.error('[FacebookAds] Error fetching ad sets:', adSetsError);
-      }
-
-      const adSetIds = adSets?.map(s => s.id) || [];
-      console.log('[FacebookAds] Found', adSetIds.length, 'ad sets for these campaigns');
-
-      // Combine campaign IDs and ad set IDs for metrics query
-      const allEntityIds = [...campaignIds, ...adSetIds];
-      console.log('[FacebookAds] Querying metrics for', allEntityIds.length, 'entities');
-
-      // Now query metrics for both campaigns and ad sets
+      // Only query campaign-level metrics to avoid double-counting
+      // (Campaign metrics already aggregate the ad set data from Facebook)
       console.log('[FacebookAds] Executing metrics query with filters:', {
-        entityIds: allEntityIds.length,
+        entityIds: campaignIds.length,
         startDate,
         endDate,
-        sampleEntityId: allEntityIds[0]
+        sampleEntityId: campaignIds[0]
       });
 
       const { data, error } = await supabase
         .from('ad_metrics')
         .select('*')
-        .in('entity_id', allEntityIds)
+        .eq('entity_type', 'campaign')
+        .in('entity_id', campaignIds)
         .gte('date', startDate)
         .lte('date', endDate);
 
