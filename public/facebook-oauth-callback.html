@@ -285,6 +285,33 @@
           throw new Error(errorData.error || 'Failed to save accounts');
         }
 
+        // Trigger auto-sync for each connected account
+        button.textContent = 'Syncing data...';
+        console.log('[Facebook OAuth] Triggering auto-sync for', selected.length, 'accounts');
+
+        for (const account of selected) {
+          try {
+            console.log('[Facebook OAuth] Syncing account:', account.id);
+            const syncResponse = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-sync', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+              },
+              body: JSON.stringify({
+                accountId: account.id,
+                userId: userId
+              })
+            });
+
+            const syncResult = await syncResponse.json();
+            console.log('[Facebook OAuth] Sync result for', account.id, ':', syncResult);
+          } catch (syncError) {
+            console.error('[Facebook OAuth] Sync failed for', account.id, ':', syncError);
+            // Don't fail the whole process if sync fails
+          }
+        }
+
         showSuccess(selected.length);
       } catch (error) {
         console.error('Error saving accounts:', error);
