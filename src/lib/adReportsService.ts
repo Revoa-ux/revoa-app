@@ -1,21 +1,11 @@
 import { supabase } from './supabase';
 import { facebookAdsService } from './facebookAds';
 
-// Function to get high-quality version of Facebook thumbnail URLs
+// Function to return Facebook thumbnail URLs without modification
+// Facebook CDN URLs are signed and must be used exactly as provided
 function getHighQualityFacebookImageUrl(url: string): string {
-  if (!url) return url;
-
-  // For Facebook CDN URLs, try to upgrade to a larger size while keeping auth parameters
-  // The size is in the 'stp' parameter (e.g., p64x64 = 64x64, p480x480 = 480x480)
-  // We keep all auth parameters (_nc_sid, oh, oe) as they're required for the image to load
-
-  // Try to upgrade from p64x64 to p480x480 or p720x720
-  let enhancedUrl = url
-    .replace(/_p64x64_/g, '_p480x480_')
-    .replace(/_p100x100_/g, '_p480x480_')
-    .replace(/_p150x150_/g, '_p480x480_');
-
-  return enhancedUrl;
+  // Return URL as-is - Facebook CDN URLs are signed and any modification breaks them
+  return url;
 }
 
 export interface AdReportMetrics {
