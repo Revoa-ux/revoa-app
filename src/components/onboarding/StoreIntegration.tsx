@@ -368,22 +368,20 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
                   <button
                     type="submit"
                     disabled={!shopUrl.trim() || isLoading || isSuccess}
-                    className={`absolute right-0 top-0 h-full px-4 rounded-r-lg disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 ${
+                    className={`absolute right-0 top-0 h-full px-6 rounded-r-lg disabled:cursor-not-allowed flex items-center justify-center ${
                       isSuccess
                         ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-default'
                         : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:opacity-90 disabled:opacity-50 text-white'
                     }`}
                     aria-label="Connect store"
                   >
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : isSuccess ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Link2 className="w-5 h-5" />
-                      )}
-                    </div>
+                    {isLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : isSuccess ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <Link2 className="w-5 h-5" />
+                    )}
                   </button>
                 </div>
               </div>
