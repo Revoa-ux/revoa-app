@@ -38,11 +38,16 @@ import { LoadingProvider } from './contexts/LoadingContext';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { PageTitle } from './components/PageTitle';
 import { DashboardSkeleton } from './components/PageSkeletons';
+import { LoadingPage } from './components/LoadingPage';
 
 // Protected route component for admin routes
 const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
+
+  if (isLoading || adminLoading) {
+    return <LoadingPage />;
+  }
 
   if (!user) {
     return <Navigate to="/auth" replace />;
@@ -62,7 +67,7 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   if (isLoading || adminLoading) {
-    return <DashboardSkeleton />;
+    return <LoadingPage />;
   }
 
   if (!user) {
