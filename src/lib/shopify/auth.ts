@@ -185,8 +185,7 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
 
     const userId = oauthSession.user_id;
 
-    // Exchange code for access token via edge function
-    // This is secure because the edge function has access to CLIENT_SECRET
+    // Use edge function to complete OAuth securely
     const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy`;
 
     const response = await fetch(proxyUrl, {
@@ -203,23 +202,32 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to exchange token');
+      const errorData = await response.json().catch(() => ({}));
+      console.error('OAuth completion failed:', errorData);
+      throw new Error(errorData.error || 'Failed to complete OAuth');
     }
 
-    const result = await response.json();
-    const { access_token, scope } = result;
+    const { access_token, scope } = await response.json();
 
-    // Save auth data to localStorage for backward compatibility
+    // Save auth data to localStorage
     const authData: ShopifyAuthData = {
       shop,
       accessToken: access_token,
       scope,
       timestamp: Date.now()
     };
-    
+
     saveShopifyAuth(authData);
-    
+
+    // Mark OAuth session as completed
+    await supabase
+      .from('oauth_sessions')
+      .update({
+        completed_at: new Date().toISOString(),
+        error: null
+      })
+      .eq('state', state);
+
     // Clear state from localStorage
     localStorage.removeItem('shopify_state');
     localStorage.removeItem('shopify_shop');
