@@ -7,12 +7,14 @@ interface CreativePreviewModalProps {
     type: 'image' | 'video';
     url: string;
     videoUrl?: string;
+    videoId?: string;
     thumbnail?: string;
     headline: string;
     description: string;
     adCopy?: string;
     ctaText?: string;
     platform?: 'facebook' | 'tiktok';
+    adAccountId?: string;
     pageProfile?: {
       name: string;
       imageUrl: string;
@@ -132,12 +134,29 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
 
             <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4 cursor-pointer group"
               onClick={() => {
-                if (creative.platform === 'facebook' && creative.id) {
-                  window.open(`https://business.facebook.com/adsmanager/manage/ads?act=&selected_ad_ids=${creative.id}`, '_blank');
+                if (creative.platform === 'facebook' && creative.id && creative.adAccountId) {
+                  window.open(`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`, '_blank');
                 }
               }}
             >
-              {creative.type === 'video' && creative.videoUrl ? (
+              {creative.type === 'video' && creative.videoId ? (
+                <>
+                  <iframe
+                    src={`https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/facebook/videos/${creative.videoId}/&show_text=false&width=500`}
+                    className="w-full h-full"
+                    style={{ border: 'none', overflow: 'hidden' }}
+                    scrolling="no"
+                    frameBorder="0"
+                    allowFullScreen={true}
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
+                      Click to view in Ads Manager
+                    </div>
+                  </div>
+                </>
+              ) : creative.type === 'video' && creative.videoUrl ? (
                 <>
                   <video
                     ref={videoRef}
@@ -226,10 +245,10 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
               )}
             </div>
 
-            {creative.platform === 'facebook' && creative.id && (
+            {creative.platform === 'facebook' && creative.id && creative.adAccountId && (
               <div className="mt-4">
                 <a
-                  href={`https://business.facebook.com/adsmanager/manage/ads?act=&selected_ad_ids=${creative.id}`}
+                  href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"

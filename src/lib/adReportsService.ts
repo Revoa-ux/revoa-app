@@ -231,10 +231,13 @@ export async function getCreativePerformance(
 
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets
+    // Fetch ads for these ad sets with ad account info
     const { data: ads, error } = await supabase
       .from('ads')
-      .select('*')
+      .select(`
+        *,
+        ad_account:ad_accounts!ad_account_id(platform_account_id)
+      `)
       .in('ad_set_id', adSetIds);
 
     if (error) throw error;
@@ -309,6 +312,7 @@ export async function getCreativePerformance(
         type: isVideo ? 'video' : 'image',
         url: mediaUrl,
         videoUrl: creativeData.video_url || undefined,
+        videoId: creativeData.video_id || undefined,
         thumbnail: thumbnailUrl,
         headline: creativeData.title || '',
         description: creativeData.body || '',
@@ -328,6 +332,7 @@ export async function getCreativePerformance(
         fatigueScore,
         adName: ad.name,
         platform: ad.platform || 'facebook',
+        adAccountId: ad.ad_account?.platform_account_id || undefined,
         pageProfile: {
           name: 'Facebook Page',
           imageUrl: ''
