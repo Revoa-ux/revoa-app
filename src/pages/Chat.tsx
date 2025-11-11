@@ -26,6 +26,7 @@ import { chatService, Chat as ChatType } from '@/lib/chatService';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
+import { LoadingSpinner } from '@/components/PageSkeletons';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -420,10 +421,7 @@ const Chat = () => {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Loading chat...</p>
-              </div>
+              <LoadingSpinner />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">

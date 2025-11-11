@@ -1,5 +1,16 @@
 import React from 'react';
 
+export const LoadingSpinner = ({ message }: { message?: string }) => (
+  <div className="flex flex-col items-center justify-center py-8">
+    <div className="space-y-3 animate-pulse">
+      <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+      {message && (
+        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mx-auto"></div>
+      )}
+    </div>
+  </div>
+);
+
 export const DashboardSkeleton = () => (
   <div className="space-y-6 animate-pulse">
     <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>

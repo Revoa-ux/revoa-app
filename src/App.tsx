@@ -62,11 +62,7 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   if (isLoading || adminLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-pink-500 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!user) {

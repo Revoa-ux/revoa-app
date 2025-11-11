@@ -28,6 +28,7 @@ import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
+import { LoadingSpinner } from '@/components/PageSkeletons';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -295,9 +296,7 @@ const AdminChat = () => {
           <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden">
             <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="w-6 h-6 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin"></div>
-            </div>
+            <LoadingSpinner />
           ) : chats.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-32 text-center px-4">
               <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />

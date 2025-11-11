@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Modal from '@/components/Modal';
 import { read, utils } from 'xlsx';
+import { LoadingSpinner } from '@/components/PageSkeletons';
 
 interface Invoice {
   id: string;
@@ -227,8 +228,8 @@ const AdminInvoices: React.FC = () => {
             <input {...getInputProps()} />
             {isUploading ? (
               <div>
-                <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Processing invoices...</p>
+                <LoadingSpinner />
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Processing invoices...</p>
               </div>
             ) : (
               <>

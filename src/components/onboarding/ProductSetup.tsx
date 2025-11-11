@@ -3,6 +3,7 @@ import { Import, FormInput, Check, Search, X, ArrowUpRight } from 'lucide-react'
 import { toast } from 'sonner';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 import { supabase } from '@/lib/supabase';
+import { LoadingSpinner } from '@/components/PageSkeletons';
 
 interface ProductSetupProps {
   onComplete: (completed: boolean) => void;
@@ -188,8 +189,8 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                   {isLoading ? (
                     <div className="text-center py-10">
-                      <div className="w-8 h-8 border-2 border-gray-200 dark:border-gray-700 border-t-pink-500 rounded-full animate-spin mx-auto mb-3"></div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Loading Products</h3>
+                      <LoadingSpinner />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1 mt-4">Loading Products</h3>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Please wait while we fetch your products from Shopify.
                       </p>
