@@ -275,14 +275,22 @@ export async function getCreativePerformance(
       const creativeData = ad.creative_data || {};
       const isVideo = ad.creative_type === 'video' || creativeData.video_id;
 
-      // Build proper image URL (use thumbnail_url or image_url)
-      const imageUrl = creativeData.image_url || ad.creative_thumbnail_url || '';
+      // Build proper media URL
+      // For videos: use video_url if available, fallback to high-quality thumbnail
+      // For images: use image_url or thumbnail
+      const mediaUrl = isVideo
+        ? (creativeData.video_url || creativeData.video_thumbnail || creativeData.thumbnail_url || ad.creative_thumbnail_url || '')
+        : (creativeData.image_url || ad.creative_thumbnail_url || '');
+
+      // For video thumbnails, use the high-quality version
+      const thumbnailUrl = creativeData.video_thumbnail || creativeData.thumbnail_url || ad.creative_thumbnail_url || '';
 
       return {
         id: ad.platform_ad_id,
         type: isVideo ? 'video' : 'image',
-        url: imageUrl,
-        thumbnail: isVideo ? (creativeData.thumbnail_url || ad.creative_thumbnail_url) : undefined,
+        url: mediaUrl,
+        videoUrl: creativeData.video_url || undefined,
+        thumbnail: thumbnailUrl,
         headline: creativeData.title || '',
         description: creativeData.body || '',
         adCopy: creativeData.body || '',

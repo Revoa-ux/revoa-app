@@ -6,6 +6,7 @@ interface CreativePreviewModalProps {
     id: string;
     type: 'image' | 'video';
     url: string;
+    videoUrl?: string;
     thumbnail?: string;
     headline: string;
     description: string;
@@ -132,28 +133,29 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4 cursor-pointer group"
               onClick={() => {
                 if (creative.platform === 'facebook' && creative.id) {
-                  window.open(`https://www.facebook.com/ads/library/?id=${creative.id}`, '_blank');
+                  window.open(`https://business.facebook.com/adsmanager/manage/ads?act=&selected_ad_ids=${creative.id}`, '_blank');
                 }
               }}
             >
-              {creative.type === 'video' && creative.url ? (
+              {creative.type === 'video' && creative.videoUrl ? (
                 <>
                   <video
                     ref={videoRef}
-                    src={creative.url}
+                    src={creative.videoUrl}
                     poster={creative.thumbnail}
                     className="w-full h-full object-cover"
                     autoPlay
                     loop
                     muted={isMuted}
                     playsInline
+                    controls
                   />
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsMuted(!isMuted);
                     }}
-                    className="absolute bottom-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    className="absolute bottom-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors z-10"
                   >
                     {isMuted ? (
                       <VolumeX className="w-5 h-5" />
@@ -161,9 +163,22 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                       <Volume2 className="w-5 h-5" />
                     )}
                   </button>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
+                      Click to view in Ads Manager
+                    </div>
+                  </div>
+                </>
+              ) : creative.type === 'video' && creative.thumbnail ? (
+                <>
+                  <img
+                    src={creative.thumbnail}
+                    alt={creative.adName}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Facebook Ads Library
+                      Click to view in Ads Manager
                     </div>
                   </div>
                 </>
@@ -172,12 +187,11 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                   <img
                     src={creative.url}
                     alt={creative.adName}
-                    className="w-full h-full object-contain"
-                    style={{ imageRendering: 'crisp-edges' }}
+                    className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Facebook Ads Library
+                      Click to view in Ads Manager
                     </div>
                   </div>
                 </>
@@ -211,12 +225,12 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             {creative.platform === 'facebook' && creative.id && (
               <div className="mt-4">
                 <a
-                  href={`https://www.facebook.com/ads/library/?id=${creative.id}`}
+                  href={`https://business.facebook.com/adsmanager/manage/ads?act=&selected_ad_ids=${creative.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                 >
-                  View in Facebook Ads Library <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                  View in Ads Manager <ExternalLink className="w-3.5 h-3.5 ml-1" />
                 </a>
               </div>
             )}

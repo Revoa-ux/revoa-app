@@ -346,7 +346,25 @@ Deno.serve(async (req: Request) => {
                   if (ad.creative.title) creativeData.title = ad.creative.title;
                   if (ad.creative.body) creativeData.body = ad.creative.body;
                   if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
-                  if (ad.creative.video_id) creativeData.video_id = ad.creative.video_id;
+                  if (ad.creative.video_id) {
+                    creativeData.video_id = ad.creative.video_id;
+
+                    // Fetch video details to get the source URL
+                    try {
+                      const videoUrl = `https://graph.facebook.com/v21.0/${ad.creative.video_id}?fields=source,picture&access_token=${accessToken}`;
+                      const videoResponse = await fetch(videoUrl);
+                      const videoData = await videoResponse.json();
+
+                      if (videoResponse.ok && videoData.source) {
+                        creativeData.video_url = videoData.source;
+                      }
+                      if (videoData.picture) {
+                        creativeData.video_thumbnail = videoData.picture;
+                      }
+                    } catch (videoError) {
+                      console.error('[facebook-ads-sync] Error fetching video source:', videoError);
+                    }
+                  }
                   if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
                   if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
                 }
