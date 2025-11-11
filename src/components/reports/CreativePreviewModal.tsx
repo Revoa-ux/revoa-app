@@ -132,98 +132,40 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
               </div>
             )}
 
-            <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4 cursor-pointer group"
-              onClick={() => {
-                if (creative.platform === 'facebook' && creative.id && creative.adAccountId) {
-                  window.open(`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`, '_blank');
-                }
-              }}
-            >
-              {creative.type === 'video' && creative.videoId ? (
-                <>
-                  <iframe
-                    src={`https://www.facebook.com/plugins/video.php?href=https://www.facebook.com/facebook/videos/${creative.videoId}/&show_text=false&width=500`}
-                    className="w-full h-full"
-                    style={{ border: 'none', overflow: 'hidden' }}
-                    scrolling="no"
-                    frameBorder="0"
-                    allowFullScreen={true}
-                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Ads Manager
-                    </div>
-                  </div>
-                </>
-              ) : creative.type === 'video' && creative.videoUrl ? (
-                <>
-                  <video
-                    ref={videoRef}
-                    src={creative.videoUrl}
-                    poster={creative.thumbnail}
-                    className="w-full h-full object-cover"
-                    autoPlay
-                    loop
-                    muted={isMuted}
-                    playsInline
-                    controls
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsMuted(!isMuted);
-                    }}
-                    className="absolute bottom-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors z-10"
-                  >
-                    {isMuted ? (
-                      <VolumeX className="w-5 h-5" />
-                    ) : (
-                      <Volume2 className="w-5 h-5" />
-                    )}
-                  </button>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center pointer-events-none">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Ads Manager
-                    </div>
-                  </div>
-                </>
-              ) : creative.type === 'video' && creative.thumbnail ? (
-                <>
-                  <img
-                    src={creative.thumbnail}
-                    alt={creative.adName}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/500x625/1877F2/FFFFFF?text=Video+Ad';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Ads Manager
-                    </div>
-                  </div>
-                </>
+            <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
+              {creative.url || creative.thumbnail ? (
+                <img
+                  src={creative.url || creative.thumbnail}
+                  alt={creative.adName}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               ) : (
-                <>
-                  <img
-                    src={creative.url}
-                    alt={creative.adName}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/500x625/1877F2/FFFFFF?text=Ad+Creative';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
-                      Click to view in Ads Manager
-                    </div>
-                  </div>
-                </>
+                <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-6 text-center">
+                  <svg className="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                    <polyline points="21 15 16 10 5 21" strokeWidth="2"/>
+                  </svg>
+                  <p className="text-sm font-medium mb-1">Preview Not Available</p>
+                  <p className="text-xs">View in Ads Manager for full creative</p>
+                </div>
               )}
             </div>
+
+            {creative.platform === 'facebook' && creative.id && creative.adAccountId && (
+              <div className="mb-4">
+                <a
+                  href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-[#1877F2] text-[#1877F2] dark:text-[#1877F2] text-sm font-semibold rounded-lg hover:bg-[#1877F2]/5 transition-colors"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  View Full Ad in Ads Manager
+                </a>
+              </div>
+            )}
 
             {creative.ctaText && creative.ctaText !== 'Learn More' && (
               <div className="mb-6">
@@ -248,19 +190,6 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                 </div>
               )}
             </div>
-
-            {creative.platform === 'facebook' && creative.id && creative.adAccountId && (
-              <div className="mt-4">
-                <a
-                  href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                >
-                  View in Ads Manager <ExternalLink className="w-3.5 h-3.5 ml-1" />
-                </a>
-              </div>
-            )}
           </div>
         </div>
       </div>
