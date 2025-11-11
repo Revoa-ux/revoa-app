@@ -185,60 +185,30 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
 
     const userId = oauthSession.user_id;
 
-    // Exchange code for access token
-    const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: SHOPIFY_CONFIG.CLIENT_ID,
-          client_secret: SHOPIFY_CONFIG.CLIENT_SECRET,
-          code
-        })
-      });
+    // Exchange code for access token via edge function
+    // This is secure because the edge function has access to CLIENT_SECRET
+    const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy`;
+
+    const response = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'complete-oauth',
+        shop,
+        code,
+        state
+      })
+    });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Failed to exchange token');
+      throw new Error(error.error || 'Failed to exchange token');
     }
 
-    const { access_token, scope } = await response.json();
-
-    // Create or update installation record in Supabase
-    // CRITICAL: Clear uninstalled_at to reactivate previously uninstalled apps
-    const { error: installError } = await supabase
-      .from('shopify_installations')
-      .upsert({
-        user_id: userId,
-        store_url: shop,
-        access_token,
-        scopes: scope.split(','),
-        status: 'installed',
-        installed_at: new Date().toISOString(),
-        last_auth_at: new Date().toISOString(),
-        uninstalled_at: null,
-        metadata: {
-          install_count: 1,
-          last_install: new Date().toISOString()
-        }
-      }, {
-        onConflict: 'store_url'
-      });
-
-    if (installError) {
-      console.error('Error creating Shopify installation:', installError);
-      throw installError;
-    }
-
-    // Mark OAuth session as completed
-    await supabase
-      .from('oauth_sessions')
-      .update({
-        completed_at: new Date().toISOString(),
-        error: null
-      })
-      .eq('state', state);
+    const result = await response.json();
+    const { access_token, scope } = result;
 
     // Save auth data to localStorage for backward compatibility
     const authData: ShopifyAuthData = {
