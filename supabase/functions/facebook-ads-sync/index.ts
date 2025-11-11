@@ -39,7 +39,10 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
-    console.log('[facebook-ads-sync] Syncing data from', startDate, 'to', endDate, 'for account', accountId);
+    console.log('[facebook-ads-sync] ===== SYNC REQUEST START =====');
+    console.log('[facebook-ads-sync] Account ID:', accountId);
+    console.log('[facebook-ads-sync] Date range:', startDate, 'to', endDate);
+    console.log('[facebook-ads-sync] User ID:', user.id);
 
     if (!accountId) {
       return new Response(
@@ -55,12 +58,20 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    console.log('[facebook-ads-sync] Ad account query result:', { account: account?.id, error: accountError?.message });
+
     if (accountError || !account) {
+      console.error('[facebook-ads-sync] Ad account not found!');
+      console.error('[facebook-ads-sync] Searched for platform_account_id:', accountId);
+      console.error('[facebook-ads-sync] User ID:', user.id);
+      console.error('[facebook-ads-sync] Error:', accountError);
       return new Response(
         JSON.stringify({ success: false, error: 'Ad account not found or not accessible' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('[facebook-ads-sync] Found ad account:', { id: account.id, name: account.account_name });
 
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
@@ -69,19 +80,29 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    console.log('[facebook-ads-sync] Token query result:', { found: !!tokenData, error: tokenError?.message });
+
     if (tokenError || !tokenData) {
+      console.error('[facebook-ads-sync] Access token not found!');
+      console.error('[facebook-ads-sync] Searched for ad_account_id:', accountId);
+      console.error('[facebook-ads-sync] Error:', tokenError);
       return new Response(
         JSON.stringify({ success: false, error: 'Access token not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log('[facebook-ads-sync] Token expires at:', tokenData.expires_at);
+
     if (new Date(tokenData.expires_at) < new Date()) {
+      console.error('[facebook-ads-sync] Token expired!');
       return new Response(
         JSON.stringify({ success: false, error: 'Access token expired. Please reconnect your Facebook account.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('[facebook-ads-sync] Token is valid, proceeding with sync...');
 
     const accessToken = tokenData.access_token;
     let campaignsCount = 0;
