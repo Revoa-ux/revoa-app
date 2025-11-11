@@ -133,12 +133,32 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             )}
 
             <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
-              {creative.url || creative.thumbnail ? (
+              {(creative.url || creative.thumbnail) ? (
                 <img
                   src={creative.url || creative.thumbnail}
-                  alt={creative.adName}
+                  alt={creative.adName || 'Ad creative'}
                   className="w-full h-full object-cover"
-                  loading="lazy"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    console.log('Image failed to load:', creative.url || creative.thumbnail);
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      const fallback = document.createElement('div');
+                      fallback.className = 'w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-6 text-center';
+                      fallback.innerHTML = `
+                        <svg class="w-16 h-16 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-width="2"/>
+                          <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                          <polyline points="21 15 16 10 5 21" stroke-width="2"/>
+                        </svg>
+                        <p class="text-sm font-medium mb-1">Image Not Available</p>
+                        <p class="text-xs">Facebook creative images are protected.<br/>Click below to view in Ads Manager.</p>
+                      `;
+                      target.parentElement.appendChild(fallback);
+                    }
+                  }}
                 />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 dark:text-gray-500 p-6 text-center">
@@ -147,8 +167,8 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                     <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
                     <polyline points="21 15 16 10 5 21" strokeWidth="2"/>
                   </svg>
-                  <p className="text-sm font-medium mb-1">Preview Not Available</p>
-                  <p className="text-xs">View in Ads Manager for full creative</p>
+                  <p className="text-sm font-medium mb-1">No Preview Available</p>
+                  <p className="text-xs">Click below to view full ad in Ads Manager</p>
                 </div>
               )}
             </div>
