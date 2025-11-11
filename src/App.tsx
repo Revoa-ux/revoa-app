@@ -11,7 +11,6 @@ import Balance from './pages/Balance';
 import Audit from './pages/Audit';
 import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
-import Integrations from './pages/Integrations';
 import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
 import AdminProductApprovals from './pages/admin/ProductApprovals';
@@ -161,7 +160,6 @@ function App() {
               <Route path="audit" element={<Audit />} />
               <Route path="calculator" element={<Calculator />} />
               <Route path="settings" element={<SettingsPage />} />
-              <Route path="integrations" element={<Integrations />} />
               <Route path="pricing" element={<Pricing />} />
               <Route path="*" element={<DashboardCopy />} />
             </Route>
