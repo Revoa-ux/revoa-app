@@ -255,7 +255,7 @@ export const PRODUCTS_QUERY = `
 
 export const PRODUCTS_COUNT_QUERY = `
   query GetProductsCount {
-    productsCount(query: "") {
+    productsCount(query: "", limit: null) {
       count
     }
   }
