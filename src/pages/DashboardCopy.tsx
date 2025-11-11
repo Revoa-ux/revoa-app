@@ -232,7 +232,8 @@ export default function DashboardCopy() {
 
   useEffect(() => {
     fetchShopifyData();
-  }, [dateRange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   // Load empty state dismissed preference
   useEffect(() => {
