@@ -158,18 +158,25 @@ Deno.serve(async (req: Request) => {
 
     // Check if this is an OAuth completion request (doesn't require auth)
     if (req.method === 'POST') {
+      console.log('[Shopify Proxy] POST request received');
       const contentType = req.headers.get('Content-Type') || '';
+      console.log('[Shopify Proxy] Content-Type:', contentType);
+
       if (contentType.includes('application/json')) {
         const bodyText = await req.text();
+        console.log('[Shopify Proxy] Body text received, length:', bodyText.length);
         let body;
         try {
           body = JSON.parse(bodyText);
-        } catch {
+          console.log('[Shopify Proxy] Body parsed, keys:', Object.keys(body));
+          console.log('[Shopify Proxy] Body.action:', body.action);
+        } catch (e) {
+          console.error('[Shopify Proxy] Failed to parse body:', e);
           body = {};
         }
 
         if (body.action === 'complete-oauth') {
-          console.log('[Shopify Proxy] Handling OAuth completion (no auth required)');
+          console.log('[Shopify Proxy] ✓ Handling OAuth completion (no auth required)');
           const result = await handleOAuthCompletion(
             new Request(req.url, {
               method: req.method,
@@ -184,6 +191,7 @@ Deno.serve(async (req: Request) => {
           });
         }
 
+        console.log('[Shopify Proxy] Not OAuth completion, continuing with normal auth flow');
         // If not OAuth completion, we need to reconstruct the request with the body
         // for the rest of the function to use
         req = new Request(req.url, {
