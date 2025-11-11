@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
     let adsCount = 0;
     let metricsCount = 0;
 
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&filtering=[{"field":"status","operator":"IN","value":["ACTIVE","PAUSED","ARCHIVED"]}]&limit=100&access_token=${accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=100&access_token=${accessToken}`;
     console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
     console.log('[facebook-ads-sync] Account ID being queried:', accountId);
 
