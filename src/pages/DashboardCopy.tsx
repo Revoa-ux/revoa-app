@@ -182,17 +182,8 @@ export default function DashboardCopy() {
         endDate.setHours(23, 59, 59, 999);
     }
 
-    console.log('[Dashboard] ========== TIME SELECTOR CHANGED ==========');
-    console.log('[Dashboard] Selected time option:', time);
-    console.log('[Dashboard] Calculated date range:', {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      startTimestamp: startDate.getTime(),
-      endTimestamp: endDate.getTime()
-    });
-    console.log('[Dashboard] Setting new dateRange state...');
+    console.log('[Dashboard] Time changed to:', time, 'Range:', startDate.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0]);
     setDateRange({ startDate, endDate });
-    console.log('[Dashboard] State update triggered (useEffect should fire next)');
   }, []);
 
   const handleDateRangeChange = (range: { startDate: Date; endDate: Date }) => {
@@ -201,24 +192,16 @@ export default function DashboardCopy() {
 
   const fetchShopifyData = async () => {
     try {
-      console.log('[Dashboard] ========== FETCH START ==========');
-      console.log('[Dashboard] Current dateRange state:', {
-        startDate: dateRange.startDate.toISOString(),
-        endDate: dateRange.endDate.toISOString(),
-        startTimestamp: dateRange.startDate.getTime(),
-        endTimestamp: dateRange.endDate.getTime()
-      });
+      console.log('[Dashboard] Fetching metrics for:', dateRange.startDate.toISOString().split('T')[0], 'to', dateRange.endDate.toISOString().split('T')[0]);
       setIsLoading(true);
       setError(null);
 
       // Format dates as ISO strings for the API
       const startDateStr = dateRange.startDate.toISOString();
       const endDateStr = dateRange.endDate.toISOString();
-      console.log('[Dashboard] Dates being sent to API:', { startDateStr, endDateStr });
 
       // Fetch combined metrics from Shopify + Facebook
       const combined = await getCombinedDashboardMetrics(startDateStr, endDateStr);
-      console.log('[Dashboard] Received combined metrics:', combined);
 
       setCombinedMetrics(combined);
       setShopifyMetrics(combined.shopify);
@@ -244,11 +227,6 @@ export default function DashboardCopy() {
   };
 
   useEffect(() => {
-    console.log('[Dashboard] ========== USE_EFFECT TRIGGERED ==========');
-    console.log('[Dashboard] Date dependencies changed:', {
-      startTimestamp: dateRange.startDate.getTime(),
-      endTimestamp: dateRange.endDate.getTime()
-    });
     fetchShopifyData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange.startDate.getTime(), dateRange.endDate.getTime()]);

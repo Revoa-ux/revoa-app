@@ -234,13 +234,19 @@ export const getDashboardMetrics = async (startDate?: string, endDate?: string):
     let orders;
     if (startDate && endDate) {
       console.log('[Shopify API] Fetching orders for date range via GraphQL...');
-      const query = `created_at:>='${startDate}' AND created_at:<='${endDate}'`;
+      // Format dates for Shopify (YYYY-MM-DD format)
+      const formattedStart = startDate.split('T')[0];
+      const formattedEnd = endDate.split('T')[0];
+      const query = `created_at:>=${formattedStart} AND created_at:<=${formattedEnd}`;
       console.log('[Shopify API] Query:', query);
       try {
         orders = await GraphQL.getOrders(10000, query);
+        console.log('[Shopify API] Successfully fetched orders with date filter');
       } catch (error) {
-        console.error('[Shopify API] Error with date query, trying without filter:', error);
-        orders = await GraphQL.getOrders(10000);
+        console.error('[Shopify API] Error with date query:', error);
+        // If date query fails, return empty array instead of all orders
+        console.log('[Shopify API] Returning empty result set for invalid date range');
+        orders = [];
       }
     } else {
       console.log('[Shopify API] Fetching ALL orders via GraphQL (no date filter)...');
