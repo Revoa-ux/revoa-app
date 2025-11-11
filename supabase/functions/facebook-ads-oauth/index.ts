@@ -109,32 +109,45 @@ Deno.serve(async (req: Request) => {
         const accessToken = longLivedData.access_token || tokenData.access_token;
         const expiresIn = longLivedData.expires_in || tokenData.expires_in || 5184000;
 
+        console.log('[Facebook OAuth] Fetching ad accounts from Facebook API...');
         const adAccountsUrl = `https://graph.facebook.com/v18.0/me/adaccounts?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
         const adAccountsResponse = await fetch(adAccountsUrl);
         const adAccountsData = await adAccountsResponse.json();
+
+        console.log('[Facebook OAuth] Ad accounts response status:', adAccountsResponse.status);
+        console.log('[Facebook OAuth] Ad accounts response:', JSON.stringify(adAccountsData, null, 2));
 
         let accounts = [];
 
         if (adAccountsResponse.ok && adAccountsData.data && adAccountsData.data.length > 0) {
           accounts = adAccountsData.data;
+          console.log('[Facebook OAuth] Found', accounts.length, 'ad accounts');
         } else {
-          console.log('No ad accounts from /me/adaccounts, trying direct access');
-          const directAccountId = 'act_1799737293827038';
-          const directUrl = `https://graph.facebook.com/v18.0/${directAccountId}?fields=id,name,account_status,currency,timezone_name&access_token=${accessToken}`;
-          const directResponse = await fetch(directUrl);
-          const directData = await directResponse.json();
+          console.error('[Facebook OAuth] ⚠️  NO AD ACCOUNTS FOUND!');
+          console.error('[Facebook OAuth] Response status:', adAccountsResponse.status);
+          console.error('[Facebook OAuth] Response data:', JSON.stringify(adAccountsData, null, 2));
 
-          if (directResponse.ok && !directData.error) {
-            accounts = [directData];
-          } else {
-            console.error('Failed to access ad account directly:', directData);
-            const errorMsg = directData.error?.message || adAccountsData.error?.message || 'no_ad_accounts_access';
+          // Check if there's an error from Facebook
+          if (adAccountsData.error) {
+            console.error('[Facebook OAuth] Facebook API error:', adAccountsData.error.message);
+            console.error('[Facebook OAuth] Error type:', adAccountsData.error.type);
+            console.error('[Facebook OAuth] Error code:', adAccountsData.error.code);
+
+            const errorMsg = `Facebook API Error: ${adAccountsData.error.message}. Please ensure you have access to at least one Facebook Ad Account and have granted the necessary permissions.`;
             const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
             return new Response(null, {
               status: 302,
               headers: { ...corsHeaders, 'Location': redirectUrl },
             });
           }
+
+          // No accounts but no error - user likely doesn't have any ad accounts
+          const errorMsg = 'No Facebook Ad Accounts found. Please create a Facebook Ad Account first or ensure you have been granted access to at least one ad account.';
+          const redirectUrl = `${Deno.env.get('FRONTEND_URL') || 'https://members.revoa.app'}/facebook-oauth-callback.html?error=${encodeURIComponent(errorMsg)}`;
+          return new Response(null, {
+            status: 302,
+            headers: { ...corsHeaders, 'Location': redirectUrl },
+          });
         }
 
         const { error: updateError } = await supabase
@@ -225,7 +238,9 @@ Deno.serve(async (req: Request) => {
         'public_profile',
         'email',
         'ads_read',
-        'attribution_read',
+        'ads_management',
+        'business_management',
+        'read_insights',
       ].join(',');
 
       const oauthUrl =
