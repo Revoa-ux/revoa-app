@@ -60,9 +60,17 @@ interface CardData {
 export default function DashboardCopy() {
   const [timeframe, setTimeframe] = useState<'1d' | '7d' | '30d' | 'custom'>('7d');
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+
+  // Initialize date range for 7 days
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 7);
+  initialStartDate.setHours(0, 0, 0, 0);
+
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
+    startDate: initialStartDate,
+    endDate: initialEndDate
   });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<CardType>('profit');
@@ -79,33 +87,87 @@ export default function DashboardCopy() {
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
 
-    const endDate = new Date();
+    const now = new Date();
     let startDate = new Date();
+    let endDate = new Date();
 
     switch (time) {
-      case '24h':
+      case 'today':
         setTimeframe('1d');
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        setTimeframe('1d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setDate(endDate.getDate() - 1);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case '7d':
         setTimeframe('7d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case '14d':
         setTimeframe('7d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 14);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case '30d':
         setTimeframe('30d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case '60d':
         setTimeframe('30d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 60);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case '90d':
         setTimeframe('30d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 90);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'this_month':
+        setTimeframe('30d');
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'last_month':
+        setTimeframe('30d');
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        setTimeframe('30d');
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
         break;
       case 'custom':
         setTimeframe('custom');
@@ -113,9 +175,15 @@ export default function DashboardCopy() {
         return;
       default:
         setTimeframe('7d');
+        startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
     }
 
+    console.log('[Dashboard] Time changed to:', time);
+    console.log('[Dashboard] Date range:', { startDate, endDate });
     setDateRange({ startDate, endDate });
   }, []);
 

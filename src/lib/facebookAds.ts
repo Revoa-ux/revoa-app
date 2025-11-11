@@ -286,6 +286,13 @@ export class FacebookAdsService {
       console.log('[FacebookAds] Querying metrics for', allEntityIds.length, 'entities');
 
       // Now query metrics for both campaigns and ad sets
+      console.log('[FacebookAds] Executing metrics query with filters:', {
+        entityIds: allEntityIds.length,
+        startDate,
+        endDate,
+        sampleEntityId: allEntityIds[0]
+      });
+
       const { data, error } = await supabase
         .from('ad_metrics')
         .select('*')
@@ -298,6 +305,14 @@ export class FacebookAdsService {
         dataLength: data?.length || 0,
         hasData: !!data && data.length > 0
       });
+
+      if (data && data.length > 0) {
+        console.log('[FacebookAds] Date range of returned data:', {
+          firstDate: data[0].date,
+          lastDate: data[data.length - 1].date,
+          totalRecords: data.length
+        });
+      }
 
       if (error) {
         console.error('[FacebookAds] Supabase query error:', error);
