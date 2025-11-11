@@ -65,7 +65,7 @@ const SettingsPage = () => {
   const [facebookSyncing, setFacebookSyncing] = useState(false);
 
   // Use centralized connection store
-  const { shopify, facebook, refreshFacebookAccounts } = useConnectionStore();
+  const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus } = useConnectionStore();
   const shopifyStore = shopify.installation?.store_url || null;
   const facebookAccounts = facebook.accounts;
   const integrationStatusShopify = shopify.isConnected;
@@ -89,19 +89,20 @@ const SettingsPage = () => {
   });
 
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
-    shopify: integrationStatusShopify,
-    facebook: integrationStatusFacebook,
+    shopify: false,
+    facebook: false,
     google: false,
     tiktok: false
   });
 
-  // Sync integration status from store
+  // Sync integration status from store - use direct values instead of state
   useEffect(() => {
-    setIntegrationStatus(prev => ({
-      ...prev,
+    setIntegrationStatus({
       shopify: integrationStatusShopify,
       facebook: integrationStatusFacebook,
-    }));
+      google: false,
+      tiktok: false
+    });
   }, [integrationStatusShopify, integrationStatusFacebook]);
 
   // Check if user is admin and fetch token
@@ -144,16 +145,9 @@ const SettingsPage = () => {
         console.log('[Settings] Shopify connection successful');
         setShopifyConnecting(false);
         setShowShopifyModal(false);
-        setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-        setShopifyStore(event.data.shop);
 
-        // Refetch status to ensure we have latest data
-        if (user?.id) {
-          const installation = await getActiveShopifyInstallation(user.id);
-          if (installation) {
-            setShopifyStore(installation.store_url);
-          }
-        }
+        // Refetch status from connection store
+        await refreshShopifyStatus();
 
         localStorage.removeItem('shopify_oauth_success');
       } else if (event.data?.type === 'shopify:error') {
@@ -188,15 +182,9 @@ const SettingsPage = () => {
 
           setShopifyConnecting(false);
           setShowShopifyModal(false);
-          setIntegrationStatus(prev => ({ ...prev, shopify: true }));
-          setShopifyStore(data.shop);
 
-          if (user?.id) {
-            const installation = await getActiveShopifyInstallation(user.id);
-            if (installation) {
-              setShopifyStore(installation.store_url);
-            }
-          }
+          // Refetch status from connection store
+          await refreshShopifyStatus();
 
           localStorage.removeItem('shopify_oauth_success');
         } catch (error) {
@@ -341,7 +329,10 @@ const SettingsPage = () => {
         .eq('status', 'installed');
 
       if (error) throw error;
-      // Store will automatically update via real-time subscription
+
+      // Refresh connection store to reflect changes
+      await refreshShopifyStatus();
+      toast.success('Shopify disconnected successfully');
     } catch (error) {
       console.error('Error disconnecting Shopify:', error);
       toast.error('Failed to disconnect Shopify');
@@ -420,6 +411,7 @@ const SettingsPage = () => {
       await facebookAdsService.disconnectAdAccount(accountId);
 
       await refreshFacebookAccounts();
+      toast.success('Facebook Ads disconnected successfully');
     } catch (error) {
       console.error('Error disconnecting Facebook:', error);
       toast.error('Failed to disconnect Facebook Ads');

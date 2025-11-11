@@ -20,6 +20,7 @@ interface ConnectionState {
   initializeShopify: (userId: string) => Promise<void>;
   initializeFacebook: (userId: string) => Promise<void>;
   subscribeToShopifyChanges: (userId: string) => () => void;
+  refreshShopifyStatus: () => Promise<void>;
   refreshFacebookAccounts: () => Promise<void>;
   reset: () => void;
 }
@@ -130,6 +131,37 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         },
       });
     });
+  },
+
+  refreshShopifyStatus: async () => {
+    console.log('[ConnectionStore] Refreshing Shopify status');
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.error('[ConnectionStore] No user found for Shopify refresh');
+      return;
+    }
+
+    set(state => ({
+      shopify: { ...state.shopify, loading: true }
+    }));
+
+    try {
+      const installation = await getActiveShopifyInstallation(user.id);
+      set({
+        shopify: {
+          isConnected: installation !== null,
+          installation,
+          loading: false,
+        },
+      });
+      console.log('[ConnectionStore] Shopify status refreshed:', { isConnected: installation !== null });
+    } catch (error) {
+      console.error('[ConnectionStore] Error refreshing Shopify status:', error);
+      set(state => ({
+        shopify: { ...state.shopify, loading: false }
+      }));
+    }
   },
 
   refreshFacebookAccounts: async () => {
