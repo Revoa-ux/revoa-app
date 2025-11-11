@@ -133,7 +133,7 @@ const SettingsPage = () => {
       console.log('[Settings] Facebook connected but no accounts loaded, refreshing...');
       refreshFacebookAccounts();
     }
-  }, [facebook.isConnected]);
+  }, [facebook.isConnected, facebook.accounts.length, refreshFacebookAccounts]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
@@ -146,7 +146,6 @@ const SettingsPage = () => {
         setShowShopifyModal(false);
         setIntegrationStatus(prev => ({ ...prev, shopify: true }));
         setShopifyStore(event.data.shop);
-        toast.success('Shopify store connected successfully');
 
         // Refetch status to ensure we have latest data
         if (user?.id) {
@@ -290,7 +289,6 @@ const SettingsPage = () => {
           [type]: !prev.notifications[type]
         }
       }));
-      toast.success('Notification preferences updated');
     } catch (error) {
       toast.error('Failed to update notification preferences');
     } finally {
@@ -309,7 +307,6 @@ const SettingsPage = () => {
           [type]: !prev.dataSharing[type]
         }
       }));
-      toast.success('Data sharing preferences updated');
     } catch (error) {
       toast.error('Failed to update data sharing preferences');
     } finally {
@@ -328,7 +325,6 @@ const SettingsPage = () => {
 
   const handleShopifySuccess = async (storeUrl: string) => {
     setShowShopifyModal(false);
-    toast.success('Shopify store connected successfully');
     // Store will automatically update via real-time subscription
   };
 
@@ -345,8 +341,6 @@ const SettingsPage = () => {
         .eq('status', 'installed');
 
       if (error) throw error;
-
-      toast.success('Shopify store disconnected');
       // Store will automatically update via real-time subscription
     } catch (error) {
       console.error('Error disconnecting Shopify:', error);
@@ -402,10 +396,8 @@ const SettingsPage = () => {
 
                 console.log('[Settings] Auto-syncing from', startDate, 'to', endDate);
                 await facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate);
-                toast.success('Facebook Ads connected and historical data synced!');
               } catch (syncError) {
                 console.error('[Settings] Auto-sync failed:', syncError);
-                toast.warning('Connected but sync failed. Click "Sync" button to retry.');
               }
             }
 
@@ -428,7 +420,6 @@ const SettingsPage = () => {
       await facebookAdsService.disconnectAdAccount(accountId);
 
       await refreshFacebookAccounts();
-      toast.success('Facebook Ads account disconnected');
     } catch (error) {
       console.error('Error disconnecting Facebook:', error);
       toast.error('Failed to disconnect Facebook Ads');
@@ -446,12 +437,11 @@ const SettingsPage = () => {
       const startDate = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       console.log('[Settings] Manual sync from', startDate, 'to', endDate);
-      toast.info(`Syncing Facebook Ads data from ${startDate}...`, { duration: 3000 });
 
       const result = await facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate);
 
       console.log('[Settings] Sync result:', result);
-      toast.success('All historical Facebook Ads data synced successfully!');
+      toast.success('Data synced successfully');
 
       await refreshFacebookAccounts();
     } catch (error) {
