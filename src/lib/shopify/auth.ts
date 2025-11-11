@@ -188,10 +188,17 @@ export const handleCallback = async (params: URLSearchParams): Promise<ShopifyAu
     // Use edge function to complete OAuth securely
     const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/shopify-proxy`;
 
+    // Get the current session to include auth token
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('Authentication required to complete OAuth');
+    }
+
     const response = await fetch(proxyUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
         action: 'complete-oauth',
