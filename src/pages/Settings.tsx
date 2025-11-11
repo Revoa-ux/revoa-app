@@ -1318,8 +1318,8 @@ const SettingsPage = () => {
 
               try {
                 const endDate = new Date().toISOString().split('T')[0];
-                // Fetch ALL historical data (Facebook allows up to 37 months, we'll use 3 years to be safe)
-                const startDate = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                // Fetch last 30 days of data
+                const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
                 console.log('[Settings] Auto-syncing from', startDate, 'to', endDate);
                 await facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate);
@@ -1367,8 +1367,8 @@ const SettingsPage = () => {
       setFacebookSyncing(true);
 
       const endDate = new Date().toISOString().split('T')[0];
-      // Fetch ALL historical data (Facebook allows up to 37 months, we'll use 3 years to be safe)
-      const startDate = new Date(Date.now() - 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Fetch last 30 days of data
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       console.log('[Settings] Manual sync from', startDate, 'to', endDate);
 

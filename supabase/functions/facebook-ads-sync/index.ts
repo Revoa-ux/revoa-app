@@ -260,6 +260,9 @@ Deno.serve(async (req: Request) => {
             const campaignInsightsResponse = await fetch(campaignInsightsUrl);
             const campaignInsightsData = await campaignInsightsResponse.json();
 
+            console.log('[facebook-ads-sync] Campaign insights response status:', campaignInsightsResponse.status);
+            console.log('[facebook-ads-sync] Campaign insights response data:', JSON.stringify(campaignInsightsData, null, 2));
+
             if (campaignInsightsResponse.ok && campaignInsightsData.data && campaignInsightsData.data.length > 0) {
               console.log('[facebook-ads-sync] Found', campaignInsightsData.data.length, 'daily records for campaign:', campaign.name);
               for (const insights of campaignInsightsData.data) {
