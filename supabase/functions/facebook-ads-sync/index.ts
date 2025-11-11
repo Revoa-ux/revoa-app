@@ -206,7 +206,7 @@ Deno.serve(async (req: Request) => {
               ctr: parseFloat(insights.ctr || '0'),
               roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
             },
-            { onConflict: 'entity_id,date' }
+            { onConflict: 'entity_type,entity_id,date' }
           );
 
           if (!metricError) {
@@ -340,7 +340,7 @@ Deno.serve(async (req: Request) => {
                             ctr: parseFloat(insights.ctr || '0'),
                             roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
                           },
-                          { onConflict: 'entity_id,date' }
+                          { onConflict: 'entity_type,entity_id,date' }
                         );
 
                         if (!metricError) {
