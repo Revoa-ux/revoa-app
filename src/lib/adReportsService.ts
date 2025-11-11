@@ -5,15 +5,17 @@ import { facebookAdsService } from './facebookAds';
 function getHighQualityFacebookImageUrl(url: string): string {
   if (!url) return url;
 
-  // Remove the low-quality size parameters from Facebook CDN URLs
-  // These parameters make thumbnails tiny (64x64, 100x100, etc)
-  const cleanUrl = url
-    .replace(/[&?]stp=c[^&]+_dst-[^&]+_p\d+x\d+[^&]*/g, '') // Remove stp parameter with size
-    .replace(/[&?]_nc_sid=[^&]*/g, '') // Remove session id
-    .replace(/[&?]oh=[^&]*/g, '') // Remove hash
-    .replace(/[&?]oe=[^&]*/g, ''); // Remove expiry
+  // For Facebook CDN URLs, try to upgrade to a larger size while keeping auth parameters
+  // The size is in the 'stp' parameter (e.g., p64x64 = 64x64, p480x480 = 480x480)
+  // We keep all auth parameters (_nc_sid, oh, oe) as they're required for the image to load
 
-  return cleanUrl;
+  // Try to upgrade from p64x64 to p480x480 or p720x720
+  let enhancedUrl = url
+    .replace(/_p64x64_/g, '_p480x480_')
+    .replace(/_p100x100_/g, '_p480x480_')
+    .replace(/_p150x150_/g, '_p480x480_');
+
+  return enhancedUrl;
 }
 
 export interface AdReportMetrics {
