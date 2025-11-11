@@ -407,16 +407,22 @@ const SettingsPage = () => {
   const handleDisconnectFacebook = async (accountId: string) => {
     try {
       setFacebookConnecting(true);
+      console.log('[Settings] Disconnecting Facebook account:', accountId);
 
       await facebookAdsService.disconnectAdAccount(accountId);
+      console.log('[Settings] Disconnect API call completed');
 
       await refreshFacebookAccounts();
+      console.log('[Settings] Refreshed Facebook accounts after disconnect');
+      console.log('[Settings] New Facebook state:', facebook);
+
       toast.success('Facebook Ads disconnected successfully');
     } catch (error) {
       console.error('Error disconnecting Facebook:', error);
       toast.error('Failed to disconnect Facebook Ads');
     } finally {
       setFacebookConnecting(false);
+      console.log('[Settings] Disconnect process complete');
     }
   };
 
