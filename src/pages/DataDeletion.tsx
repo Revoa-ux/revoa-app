@@ -86,6 +86,30 @@ export default function DataDeletion() {
                   <li>Or email us at privacy@revoa.com to request Instagram data deletion</li>
                 </ol>
               </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h3 className="text-lg font-medium text-green-900 mb-3">For Shopify Merchants: Customer Data Deletion Requests</h3>
+                <p className="text-slate-700 mb-3">
+                  If you are a Shopify merchant and need to request deletion of your customer's data on their behalf
+                  (as required by GDPR, CCPA, or other privacy laws):
+                </p>
+                <ol className="list-decimal list-inside text-slate-700 space-y-2 ml-2">
+                  <li>Send an email to <strong>privacy@revoa.com</strong> with subject: "Customer Data Deletion Request"</li>
+                  <li>Include the following information:
+                    <ul className="list-disc list-inside ml-6 mt-2 space-y-1">
+                      <li>Your Shopify store URL</li>
+                      <li>Customer's email address or order ID</li>
+                      <li>Reason for deletion request</li>
+                    </ul>
+                  </li>
+                  <li>We will process the request within 48 hours</li>
+                  <li>You will receive confirmation once deletion is complete</li>
+                </ol>
+                <p className="text-slate-700 mt-3 font-medium">
+                  <strong>Note:</strong> Since we only store order amounts and product data (not customer personal information),
+                  there is typically no customer personal data to delete. However, we will verify and confirm this for each request.
+                </p>
+              </div>
             </div>
           </section>
 

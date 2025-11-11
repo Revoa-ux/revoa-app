@@ -6,7 +6,7 @@ export default function Privacy() {
       <div className="max-w-4xl mx-auto px-4 py-12">
         <PageTitle
           title="Privacy Policy"
-          subtitle="Last updated: October 20, 2025"
+          subtitle="Last updated: November 11, 2025"
         />
 
         <div className="mt-8 bg-white rounded-lg shadow-sm p-8 space-y-6">
@@ -42,9 +42,19 @@ export default function Privacy() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-slate-800 mb-2">Shopify Data</h3>
-                <p className="text-slate-700 leading-relaxed">
-                  If you connect your Shopify store, we access product information, inventory data, and order details.
+                <h3 className="text-lg font-medium text-slate-800 mb-2">Shopify Store Data</h3>
+                <p className="text-slate-700 leading-relaxed mb-2">
+                  If you connect your Shopify store, we access the following data to provide profit tracking and analytics:
+                </p>
+                <ul className="list-disc list-inside text-slate-700 ml-4 space-y-1">
+                  <li><strong>Order Data:</strong> Order totals, dates, line items, SKUs, product IDs, and transaction amounts</li>
+                  <li><strong>Product Data:</strong> Product titles, prices, SKUs, variants, and inventory levels</li>
+                  <li><strong>Fulfillment Data:</strong> Fulfillment status and shipping information</li>
+                  <li><strong>Return Data:</strong> Return amounts and refund information</li>
+                </ul>
+                <p className="text-slate-700 leading-relaxed mt-3 font-medium text-sm">
+                  <strong>Important:</strong> We do NOT access customer personal information such as names, email addresses,
+                  phone numbers, or shipping addresses. We only access anonymized order metrics and product data.
                 </p>
               </div>
 
@@ -85,6 +95,22 @@ export default function Privacy() {
           </section>
 
           <section>
+            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Shopify Data Usage and Protection</h2>
+            <p className="text-slate-700 leading-relaxed mb-3">
+              We use Shopify order and product data solely to provide profit tracking, analytics, and reporting services.
+              Your Shopify data is:
+            </p>
+            <ul className="list-disc list-inside text-slate-700 ml-4 space-y-2">
+              <li><strong>Purpose Limited:</strong> Used exclusively for calculating profit metrics, cost of goods sold, return rates, and analytics</li>
+              <li><strong>Minimum Data Collection:</strong> We only access the minimum data required (order totals, product info) and do NOT access customer personal information</li>
+              <li><strong>Securely Stored:</strong> All data is encrypted at rest using industry-standard encryption (AES-256) and in transit using TLS 1.3</li>
+              <li><strong>Access Controlled:</strong> Only you and authorized administrators can access your store data</li>
+              <li><strong>Never Sold:</strong> We will never sell, rent, or share your store data with third parties for marketing purposes</li>
+              <li><strong>Merchant Transparency:</strong> You can view all data we access through your Shopify admin panel under API access</li>
+            </ul>
+          </section>
+
+          <section>
             <h2 className="text-2xl font-semibold text-slate-900 mb-4">Instagram Data Usage</h2>
             <p className="text-slate-700 leading-relaxed">
               We use Instagram data solely to provide our product discovery and recommendation services. Your Instagram data is:
@@ -99,9 +125,20 @@ export default function Privacy() {
 
           <section>
             <h2 className="text-2xl font-semibold text-slate-900 mb-4">Data Security</h2>
-            <p className="text-slate-700 leading-relaxed">
-              We implement appropriate technical and organizational measures to protect your information, including encryption,
-              access controls, and secure data storage. However, no method of transmission over the internet is 100% secure.
+            <p className="text-slate-700 leading-relaxed mb-3">
+              We implement comprehensive technical and organizational measures to protect your information:
+            </p>
+            <ul className="list-disc list-inside text-slate-700 ml-4 space-y-2">
+              <li><strong>Encryption at Rest:</strong> All data stored in our databases is encrypted using AES-256 encryption</li>
+              <li><strong>Encryption in Transit:</strong> All data transmitted between your browser and our servers uses TLS 1.3 encryption</li>
+              <li><strong>Access Controls:</strong> Role-based access control (RBAC) ensures only authorized personnel can access data</li>
+              <li><strong>Secure Infrastructure:</strong> Hosted on enterprise-grade cloud infrastructure (Supabase) with SOC 2 Type II compliance</li>
+              <li><strong>Regular Security Audits:</strong> We conduct regular security assessments and vulnerability testing</li>
+              <li><strong>API Security:</strong> All API connections use OAuth 2.0 with secure token storage</li>
+            </ul>
+            <p className="text-slate-700 leading-relaxed mt-3 text-sm">
+              However, no method of transmission over the internet is 100% secure. While we strive to protect your data,
+              we cannot guarantee absolute security.
             </p>
           </section>
 
@@ -119,12 +156,40 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Data Retention</h2>
-            <p className="text-slate-700 leading-relaxed">
-              We retain your information for as long as your account is active or as needed to provide services.
-              When you delete your account, we delete your personal information within 30 days, except where we're
-              required to retain it for legal purposes.
-            </p>
+            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Data Retention and Deletion</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium text-slate-800 mb-2">Retention Periods</h3>
+                <ul className="list-disc list-inside text-slate-700 ml-4 space-y-1">
+                  <li><strong>Active Accounts:</strong> Data retained while your account is active and for the duration needed to provide services</li>
+                  <li><strong>Shopify Data:</strong> Order and product data retained for 90 days after you disconnect your Shopify store or delete your account</li>
+                  <li><strong>Instagram Data:</strong> Media and analytics data retained for 60 days after you revoke Instagram access</li>
+                  <li><strong>Account Data:</strong> Profile and authentication data deleted within 30 days of account deletion</li>
+                  <li><strong>Legal Compliance:</strong> Some data may be retained longer if required by law (e.g., financial records for tax purposes)</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-slate-800 mb-2">Data Deletion Process</h3>
+                <p className="text-slate-700 leading-relaxed mb-2">
+                  When you uninstall the Shopify app or delete your account:
+                </p>
+                <ol className="list-decimal list-inside text-slate-700 ml-4 space-y-1">
+                  <li>We immediately revoke all API access tokens</li>
+                  <li>Your store data becomes inaccessible through the app interface</li>
+                  <li>Personal data is permanently deleted within 30 days</li>
+                  <li>Shopify order data is permanently deleted within 90 days</li>
+                  <li>You can request immediate deletion by contacting privacy@revoa.com</li>
+                </ol>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-slate-800 mb-2">Customer Data Requests</h3>
+                <p className="text-slate-700 leading-relaxed">
+                  Shopify merchants can submit data deletion requests on behalf of their customers through the
+                  <a href="/data-deletion" className="text-blue-600 hover:underline"> Data Deletion Request page</a>.
+                  We process these requests within 48 hours as required by Shopify policies.
+                </p>
+              </div>
+            </div>
           </section>
 
           <section>
@@ -150,7 +215,8 @@ export default function Privacy() {
             </p>
             <div className="mt-3 text-slate-700">
               <p>Email: privacy@revoa.com</p>
-              <p>Address: [Your Business Address]</p>
+              <p>Support: support@revoa.com</p>
+              <p className="mt-2">For Shopify-related data protection inquiries, please include your store URL in your message.</p>
             </div>
           </section>
         </div>
