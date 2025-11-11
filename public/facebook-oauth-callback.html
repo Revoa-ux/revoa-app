@@ -289,19 +289,34 @@
         button.textContent = 'Syncing data...';
         console.log('[Facebook OAuth] Triggering auto-sync for', selected.length, 'accounts');
 
+        // Get user's auth token from localStorage
+        const sessionKey = Object.keys(localStorage).find(key => key.startsWith('sb-iipaykvimkbbnoobtpzz-auth-token'));
+        let authToken = null;
+        if (sessionKey) {
+          try {
+            const session = JSON.parse(localStorage.getItem(sessionKey));
+            authToken = session?.access_token;
+          } catch (e) {
+            console.error('[Facebook OAuth] Failed to get auth token:', e);
+          }
+        }
+
+        if (!authToken) {
+          console.error('[Facebook OAuth] No auth token found, skipping auto-sync');
+          showSuccess(selected.length);
+          return;
+        }
+
         for (const account of selected) {
           try {
             console.log('[Facebook OAuth] Syncing account:', account.id);
-            const syncResponse = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-sync', {
-              method: 'POST',
+            const syncResponse = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/facebook-ads-sync?accountId=${account.id}`, {
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
                 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
-              },
-              body: JSON.stringify({
-                accountId: account.id,
-                userId: userId
-              })
+              }
             });
 
             const syncResult = await syncResponse.json();
