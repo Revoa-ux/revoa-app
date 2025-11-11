@@ -107,17 +107,17 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
           <div
             key={tier.id}
             onClick={() => isClickable && onTierSelect?.(tier.id)}
-            className={`relative p-6 rounded-xl border-2 transition-all ${
+            className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${
               isClickable ? 'cursor-pointer' : ''
             } ${
               isSelected || isActive
-                ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700'
+                ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 shadow-lg shadow-primary-500/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 hover:bg-gradient-to-br hover:from-primary-50/50 hover:to-transparent dark:hover:from-primary-900/10 dark:hover:to-transparent'
             }`}
           >
             {isActive && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span className="bg-gradient-to-r from-primary-600 to-primary-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                   Current Tier
                 </span>
               </div>
@@ -157,7 +157,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
             <ul className="space-y-2">
               {tier.features.map((feature, index) => (
                 <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
-                  <span className="text-red-500 mr-2">✓</span>
+                  <span className="text-primary-500 mr-2">✓</span>
                   {feature}
                 </li>
               ))}
