@@ -12,7 +12,7 @@
     
   3. Important Notes
     - After running this, you MUST re-sync your Facebook Ads account
-    - The new sync will fetch daily breakdowns for the last 30 days
+    - The new sync will fetch daily breakdowns for the last 3 years
     - This will enable proper date filtering on the dashboard
 */
 
