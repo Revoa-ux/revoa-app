@@ -230,27 +230,27 @@ export const getDashboardMetrics = async (startDate?: string, endDate?: string):
     const products = await GraphQL.getProducts(250);
     console.log('[Shopify API] Found', products.length, 'products');
 
-    // Fetch orders based on date range if provided
+    // Fetch orders and filter client-side
+    // Shopify's query syntax is unreliable, so we fetch recent orders and filter in JS
+    console.log('[Shopify API] Fetching recent orders via GraphQL...');
+    let allOrders = await GraphQL.getOrders(10000);
+    console.log('[Shopify API] Fetched', allOrders.length, 'total orders');
+
+    // Filter by date range if provided
     let orders;
     if (startDate && endDate) {
-      console.log('[Shopify API] Fetching orders for date range via GraphQL...');
-      // Format dates for Shopify (YYYY-MM-DD format)
-      const formattedStart = startDate.split('T')[0];
-      const formattedEnd = endDate.split('T')[0];
-      const query = `created_at:>=${formattedStart} AND created_at:<=${formattedEnd}`;
-      console.log('[Shopify API] Query:', query);
-      try {
-        orders = await GraphQL.getOrders(10000, query);
-        console.log('[Shopify API] Successfully fetched orders with date filter');
-      } catch (error) {
-        console.error('[Shopify API] Error with date query:', error);
-        // If date query fails, return empty array instead of all orders
-        console.log('[Shopify API] Returning empty result set for invalid date range');
-        orders = [];
-      }
+      const startTime = new Date(startDate).getTime();
+      const endTime = new Date(endDate).getTime();
+      console.log('[Shopify API] Filtering orders between:', startDate.split('T')[0], 'and', endDate.split('T')[0]);
+
+      orders = allOrders.filter(order => {
+        const orderTime = new Date(order.createdAt).getTime();
+        return orderTime >= startTime && orderTime <= endTime;
+      });
+      console.log('[Shopify API] Filtered to', orders.length, 'orders in date range');
     } else {
-      console.log('[Shopify API] Fetching ALL orders via GraphQL (no date filter)...');
-      orders = await GraphQL.getOrders(10000);
+      console.log('[Shopify API] No date filter applied');
+      orders = allOrders;
     }
     const totalOrders = orders.length;
     console.log('[Shopify API] Total orders fetched:', totalOrders);
