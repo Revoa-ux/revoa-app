@@ -267,14 +267,31 @@ export class FacebookAdsService {
       const campaignIds = campaigns.map(c => c.id);
       console.log('[FacebookAds] Found', campaignIds.length, 'campaigns for these accounts');
 
-      // Now query metrics for these campaigns
+      // Query metrics for campaigns and their ad sets
+      // Get ad set IDs that belong to these campaigns
+      const { data: adSets, error: adSetsError } = await supabase
+        .from('ad_sets')
+        .select('id')
+        .in('ad_campaign_id', campaignIds);
+
+      if (adSetsError) {
+        console.error('[FacebookAds] Error fetching ad sets:', adSetsError);
+      }
+
+      const adSetIds = adSets?.map(s => s.id) || [];
+      console.log('[FacebookAds] Found', adSetIds.length, 'ad sets for these campaigns');
+
+      // Combine campaign IDs and ad set IDs for metrics query
+      const allEntityIds = [...campaignIds, ...adSetIds];
+      console.log('[FacebookAds] Querying metrics for', allEntityIds.length, 'entities');
+
+      // Now query metrics for both campaigns and ad sets
       const { data, error } = await supabase
         .from('ad_metrics')
         .select('*')
-        .in('entity_id', campaignIds)
+        .in('entity_id', allEntityIds)
         .gte('date', startDate)
-        .lte('date', endDate)
-        .eq('entity_type', 'campaign');
+        .lte('date', endDate);
 
       console.log('[FacebookAds] Metrics query result:', {
         error: error?.message,
@@ -298,7 +315,7 @@ export class FacebookAdsService {
         const { data: anyData, error: anyError } = await supabase
           .from('ad_metrics')
           .select('entity_id, date, spend')
-          .in('entity_id', campaignIds)
+          .in('entity_id', allEntityIds)
           .limit(5);
 
         if (!anyError && anyData && anyData.length > 0) {
