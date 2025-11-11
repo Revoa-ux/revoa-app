@@ -284,11 +284,11 @@ const mockProducts = [
     name: 'Wireless Earbuds Pro',
     category: 'Electronics',
     description: 'Premium wireless earbuds with active noise cancellation, 40-hour battery life, and crystal clear sound quality. Features include touch controls, wireless charging case, and IPX5 water resistance.',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+    image: 'https://placehold.co/600x400/e5e7eb/6b7280?text=Wireless+Earbuds',
     images: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
-      'https://images.unsplash.com/photo-1505740106531-4243f3831c78',
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30f'
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=Wireless+Earbuds',
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=View+2',
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=View+3'
     ],
     cost: 49.99,
     recommendedPrice: 149.99,
@@ -369,11 +369,11 @@ const mockProducts = [
     name: 'Smart Watch Series X',
     category: 'Electronics',
     description: 'Advanced smartwatch with health tracking, ECG monitoring, and always-on display. Features include blood oxygen monitoring, sleep tracking, and 5ATM water resistance.',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
+    image: 'https://placehold.co/600x400/e5e7eb/6b7280?text=Smart+Watch',
     images: [
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30',
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf31',
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf32'
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=Smart+Watch',
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=View+2',
+      'https://placehold.co/600x400/e5e7eb/6b7280?text=View+3'
     ],
     cost: 99.99,
     recommendedPrice: 299.99,
@@ -500,7 +500,7 @@ const Products: React.FC = () => {
         name: product.name,
         category: product.category,
         description: product.description,
-        image: product.images?.[0]?.url || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e',
+        image: product.images?.[0]?.url || 'https://placehold.co/600x400/e5e7eb/6b7280?text=Product+Image',
         images: product.images?.map((img: any) => img.url) || [],
         cost: product.supplier_price || 0,
         recommendedPrice: product.recommended_retail_price || 0,
