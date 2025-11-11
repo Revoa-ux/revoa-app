@@ -273,17 +273,20 @@ export async function getCreativePerformance(
 
       // Extract creative info from creative_data if available
       const creativeData = ad.creative_data || {};
-      const isVideo = ad.creative_type === 'video' || creativeData.video_url;
+      const isVideo = ad.creative_type === 'video' || creativeData.video_id;
+
+      // Build proper image URL (use thumbnail_url or image_url)
+      const imageUrl = creativeData.image_url || ad.creative_thumbnail_url || '';
 
       return {
-        id: ad.id,
+        id: ad.platform_ad_id,
         type: isVideo ? 'video' : 'image',
-        url: creativeData.image_url || creativeData.video_url || ad.creative_thumbnail_url || '',
-        thumbnail: isVideo ? (creativeData.image_url || ad.creative_thumbnail_url) : undefined,
-        headline: creativeData.title || ad.creative_name || ad.name,
-        description: creativeData.body || creativeData.description || '',
-        adCopy: creativeData.body || creativeData.description || '',
-        ctaText: creativeData.call_to_action || 'Learn More',
+        url: imageUrl,
+        thumbnail: isVideo ? (creativeData.thumbnail_url || ad.creative_thumbnail_url) : undefined,
+        headline: creativeData.title || '',
+        description: creativeData.body || '',
+        adCopy: creativeData.body || '',
+        ctaText: creativeData.call_to_action || '',
         metrics: {
           impressions: totalImpressions,
           clicks: totalClicks,

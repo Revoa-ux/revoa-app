@@ -335,12 +335,22 @@ Deno.serve(async (req: Request) => {
 
             adSetsCount++;
 
-            const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url}&access_token=${accessToken}`;
+            const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url,title,body,image_url,video_id,call_to_action_type,object_story_spec}&access_token=${accessToken}`;
             const adsResponse = await fetch(adsUrl);
             const adsData = await adsResponse.json();
 
             if (adsResponse.ok && adsData.data) {
               for (const ad of adsData.data) {
+                const creativeData: any = {};
+                if (ad.creative) {
+                  if (ad.creative.title) creativeData.title = ad.creative.title;
+                  if (ad.creative.body) creativeData.body = ad.creative.body;
+                  if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
+                  if (ad.creative.video_id) creativeData.video_id = ad.creative.video_id;
+                  if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
+                  if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
+                }
+
                 const { error: adError } = await supabase.from('ads').upsert(
                   {
                     platform_ad_id: ad.id,
@@ -351,6 +361,8 @@ Deno.serve(async (req: Request) => {
                     creative_id: ad.creative?.id || null,
                     creative_name: ad.creative?.name || null,
                     creative_thumbnail_url: ad.creative?.thumbnail_url || null,
+                    creative_type: ad.creative?.video_id ? 'video' : 'image',
+                    creative_data: creativeData,
                   },
                   { onConflict: 'ad_set_id,platform_ad_id' }
                 );

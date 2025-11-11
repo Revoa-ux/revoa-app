@@ -62,7 +62,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
         <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">{creative.headline}</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">{creative.adName}</h3>
               {creative.platform && (
                 <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                   creative.platform === 'facebook'
@@ -85,12 +85,24 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
         <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 4rem - 73px)' }}>
           <div className="p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700">
-                <img
-                  src={pageProfile.imageUrl}
-                  alt={pageProfile.name}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                {pageProfile.imageUrl ? (
+                  <img
+                    src={pageProfile.imageUrl}
+                    alt={pageProfile.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.innerHTML = '<div class="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center text-white font-semibold text-sm">' + pageProfile.name.charAt(0).toUpperCase() + '</div>';
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="w-8 h-8 bg-[#1877F2] rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                    {pageProfile.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-900 dark:text-white">{pageProfile.name}</h4>
@@ -117,8 +129,14 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
               </div>
             )}
 
-            <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
-              {creative.type === 'video' ? (
+            <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4 cursor-pointer group"
+              onClick={() => {
+                if (creative.platform === 'facebook' && creative.id) {
+                  window.open(`https://www.facebook.com/ads/library/?id=${creative.id}`, '_blank');
+                }
+              }}
+            >
+              {creative.type === 'video' && creative.url ? (
                 <>
                   <video
                     ref={videoRef}
@@ -131,7 +149,10 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                     playsInline
                   />
                   <button
-                    onClick={() => setIsMuted(!isMuted)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsMuted(!isMuted);
+                    }}
                     className="absolute bottom-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
                   >
                     {isMuted ? (
@@ -140,17 +161,30 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
                       <Volume2 className="w-5 h-5" />
                     )}
                   </button>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
+                      Click to view in Facebook Ads Library
+                    </div>
+                  </div>
                 </>
               ) : (
-                <img
-                  src={creative.url}
-                  alt={creative.headline}
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  <img
+                    src={creative.url}
+                    alt={creative.adName}
+                    className="w-full h-full object-contain"
+                    style={{ imageRendering: 'crisp-edges' }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-gray-800/90 px-4 py-2 rounded-lg text-sm font-medium">
+                      Click to view in Facebook Ads Library
+                    </div>
+                  </div>
+                </>
               )}
             </div>
 
-            {creative.ctaText && (
+            {creative.ctaText && creative.ctaText !== 'Learn More' && (
               <div className="mb-6">
                 <button className="w-full px-4 py-3 bg-[#1877F2] text-white text-sm font-semibold rounded-lg hover:bg-[#1877F2]/90 transition-colors">
                   {creative.ctaText}
@@ -159,27 +193,33 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             )}
 
             <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Headline</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{creative.headline}</p>
-              </div>
+              {creative.headline && creative.headline !== creative.adName && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Headline</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{creative.headline}</p>
+                </div>
+              )}
 
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Description</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{creative.description}</p>
-              </div>
+              {creative.description && (
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1">Description</h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{creative.description}</p>
+                </div>
+              )}
             </div>
 
-            <div className="mt-4">
-              <a
-                href={creative.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-              >
-                View original ad <ExternalLink className="w-3.5 h-3.5 ml-1" />
-              </a>
-            </div>
+            {creative.platform === 'facebook' && creative.id && (
+              <div className="mt-4">
+                <a
+                  href={`https://www.facebook.com/ads/library/?id=${creative.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                >
+                  View in Facebook Ads Library <ExternalLink className="w-3.5 h-3.5 ml-1" />
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
