@@ -17,10 +17,20 @@ interface PerformanceOverviewProps {
     roas: Metric;
     cpa: Metric;
     ctr: Metric;
-  };
+  } | null;
 }
 
 export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics }) => {
+  if (!metrics) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="text-gray-400 dark:text-gray-600 text-center">
+          <p className="text-lg font-medium mb-2">No performance data available</p>
+          <p className="text-sm">Connect your ad account and sync data to view metrics</p>
+        </div>
+      </div>
+    );
+  }
   // Format number to be more readable
   const formatYAxisTick = (value: number) => {
     // For ROAS, show with 1 decimal place

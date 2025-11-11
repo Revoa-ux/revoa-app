@@ -291,7 +291,15 @@ export default function DashboardCopy() {
         label: 'ROAS',
         value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x'
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 4200, value2: 24.2, value3: 14200 },
+        { date: '2024-03-02', value1: 4500, value2: 24.8, value3: 15100 },
+        { date: '2024-03-03', value1: 4800, value2: 25.1, value3: 15900 },
+        { date: '2024-03-04', value1: 5200, value2: 25.5, value3: 16800 },
+        { date: '2024-03-05', value1: 5500, value2: 26.0, value3: 17500 },
+        { date: '2024-03-06', value1: 5800, value2: 26.4, value3: 18200 },
+        { date: '2024-03-07', value1: 5960, value2: 26.6, value3: 18727 }
+      ],
       showInChartView: true
     },
     {
@@ -309,7 +317,15 @@ export default function DashboardCopy() {
         label: 'ARR', 
         value: shopifyMetrics ? `$${(shopifyMetrics.annualRecurringRevenue / 1000).toFixed(2)}k` : '$0.00k' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 4500, value2: 3200, value3: 1300 },
+        { date: '2024-03-02', value1: 4800, value2: 3400, value3: 1400 },
+        { date: '2024-03-03', value1: 5200, value2: 3600, value3: 1600 },
+        { date: '2024-03-04', value1: 5800, value2: 4000, value3: 1800 },
+        { date: '2024-03-05', value1: 5600, value2: 3900, value3: 1700 },
+        { date: '2024-03-06', value1: 4400, value2: 3100, value3: 1300 },
+        { date: '2024-03-07', value1: 5600, value2: 3900, value3: 1700 }
+      ],
       showInChartView: true
     },
     {
@@ -327,7 +343,15 @@ export default function DashboardCopy() {
         label: 'Active', 
         value: shopifyMetrics ? `${((shopifyMetrics.activeCustomers / shopifyMetrics.totalCustomers) * 100).toFixed(2)}%` : '0%' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 90, value2: 280, value3: 2.8 },
+        { date: '2024-03-02', value1: 95, value2: 290, value3: 2.9 },
+        { date: '2024-03-03', value1: 100, value2: 310, value3: 3.0 },
+        { date: '2024-03-04', value1: 110, value2: 340, value3: 3.1 },
+        { date: '2024-03-05', value1: 115, value2: 350, value3: 3.2 },
+        { date: '2024-03-06', value1: 105, value2: 330, value3: 3.2 },
+        { date: '2024-03-07', value1: 113, value2: 360, value3: 3.3 }
+      ],
       showInChartView: true
     },
     {
@@ -345,7 +369,15 @@ export default function DashboardCopy() {
         label: 'Profit per Order', 
         value: shopifyMetrics ? `$${((shopifyMetrics.totalRevenue - shopifyMetrics.costOfGoodsSold) / shopifyMetrics.totalOrders).toFixed(2)}` : '$0.00' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 85.50, value2: 60.20, value3: 22.30 },
+        { date: '2024-03-02', value1: 86.75, value2: 60.80, value3: 22.95 },
+        { date: '2024-03-03', value1: 87.90, value2: 61.20, value3: 23.10 },
+        { date: '2024-03-04', value1: 89.20, value2: 61.80, value3: 23.40 },
+        { date: '2024-03-05', value1: 90.10, value2: 62.20, value3: 23.80 },
+        { date: '2024-03-06', value1: 90.80, value2: 62.50, value3: 24.00 },
+        { date: '2024-03-07', value1: 91.16, value2: 62.72, value3: 24.18 }
+      ],
       showInChartView: true
     },
     {
@@ -364,7 +396,15 @@ export default function DashboardCopy() {
         label: 'Shipping Costs', 
         value: shopifyMetrics ? `$${shopifyMetrics.shippingCosts.toFixed(2)}` : '$0.00' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 13200, value2: 38.50, value3: 3000 },
+        { date: '2024-03-02', value1: 13400, value2: 38.75, value3: 3050 },
+        { date: '2024-03-03', value1: 13600, value2: 39.00, value3: 3100 },
+        { date: '2024-03-04', value1: 13800, value2: 39.25, value3: 3150 },
+        { date: '2024-03-05', value1: 14000, value2: 39.40, value3: 3180 },
+        { date: '2024-03-06', value1: 14100, value2: 39.50, value3: 3210 },
+        { date: '2024-03-07', value1: 14250, value2: 39.58, value3: 3240 }
+      ],
       showInChartView: true
     },
     {
@@ -376,7 +416,15 @@ export default function DashboardCopy() {
       changeType: facebook.isConnected ? 'negative' : 'critical',
       dataPoint1: { label: 'ROAS', value: combinedMetrics && combinedMetrics.facebook.totalSpend > 0 ? `${combinedMetrics.computed.roas.toFixed(2)}x` : '0.00x' },
       dataPoint2: { label: 'CPA', value: combinedMetrics && combinedMetrics.shopify.totalOrders > 0 && combinedMetrics.facebook.totalSpend > 0 ? `$${(combinedMetrics.facebook.totalSpend / combinedMetrics.shopify.totalOrders).toFixed(2)}` : '$0.00' },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-02', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-03', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-04', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-05', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-06', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-07', value1: 0, value2: 0, value3: 0 }
+      ],
       showInChartView: true
     },
     {
@@ -388,7 +436,15 @@ export default function DashboardCopy() {
       changeType: 'negative',
       dataPoint1: { label: 'Shopify Fees', value: shopifyMetrics ? `$${(shopifyMetrics.transactionFees * 0.8).toFixed(2)}` : '$0.00' },
       dataPoint2: { label: 'App Fees', value: shopifyMetrics ? `$${(shopifyMetrics.transactionFees * 0.2).toFixed(2)}` : '$0.00' },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 1200, value2: 950, value3: 250 },
+        { date: '2024-03-02', value1: 1210, value2: 955, value3: 255 },
+        { date: '2024-03-03', value1: 1220, value2: 960, value3: 260 },
+        { date: '2024-03-04', value1: 1225, value2: 965, value3: 260 },
+        { date: '2024-03-05', value1: 1230, value2: 970, value3: 260 },
+        { date: '2024-03-06', value1: 1240, value2: 980, value3: 260 },
+        { date: '2024-03-07', value1: 1245, value2: 985, value3: 260 }
+      ],
       showInChartView: false
     },
     {
@@ -406,7 +462,15 @@ export default function DashboardCopy() {
         label: 'Net Revenue',
         value: shopifyMetrics ? `$${(shopifyMetrics.totalRevenue - shopifyMetrics.returnAmount).toFixed(2)}` : '$0.00'
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 150, value2: 3.3, value3: 4350 },
+        { date: '2024-03-02', value1: 165, value2: 3.4, value3: 4635 },
+        { date: '2024-03-03', value1: 180, value2: 3.5, value3: 5020 },
+        { date: '2024-03-04', value1: 195, value2: 3.4, value3: 5605 },
+        { date: '2024-03-05', value1: 210, value2: 3.8, value3: 5390 },
+        { date: '2024-03-06', value1: 190, value2: 4.3, value3: 4210 },
+        { date: '2024-03-07', value1: 220, value2: 3.9, value3: 5380 }
+      ],
       showInChartView: true
     },
     {
@@ -424,7 +488,15 @@ export default function DashboardCopy() {
         label: 'Fulfillment Rate', 
         value: '85.0%' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 45, value2: 75, value3: 62.5 },
+        { date: '2024-03-02', value1: 42, value2: 80, value3: 65.6 },
+        { date: '2024-03-03', value1: 38, value2: 85, value3: 69.1 },
+        { date: '2024-03-04', value1: 35, value2: 90, value3: 72.0 },
+        { date: '2024-03-05', value1: 30, value2: 95, value3: 76.0 },
+        { date: '2024-03-06', value1: 28, value2: 100, value3: 78.1 },
+        { date: '2024-03-07', value1: 24, value2: 106, value3: 81.2 }
+      ],
       showInChartView: false
     },
     {
@@ -436,7 +508,15 @@ export default function DashboardCopy() {
       changeType: 'negative',
       dataPoint1: { label: 'Daily Order Value', value: '$0.00' },
       dataPoint2: { label: 'Days Remaining', value: '0.0' },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-02', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-03', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-04', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-05', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-06', value1: 0, value2: 0, value3: 0 },
+        { date: '2024-03-07', value1: 0, value2: 0, value3: 0 }
+      ],
       showInChartView: false
     },
     {
@@ -456,7 +536,15 @@ export default function DashboardCopy() {
         value: shopifyMetrics ? 
           `$${(shopifyMetrics.costOfGoodsSold * 1.2).toFixed(2)}` : '$0.00' 
       },
-      chartData: [],
+      chartData: [
+        { date: '2024-03-01', value1: 440, value2: 68, value3: 29920 },
+        { date: '2024-03-02', value1: 445, value2: 69, value3: 30105 },
+        { date: '2024-03-03', value1: 450, value2: 70, value3: 30240 },
+        { date: '2024-03-04', value1: 455, value2: 70.5, value3: 30492 },
+        { date: '2024-03-05', value1: 460, value2: 71, value3: 30660 },
+        { date: '2024-03-06', value1: 465, value2: 71.5, value3: 30847 },
+        { date: '2024-03-07', value1: 468, value2: 72, value3: 31005 }
+      ],
       showInChartView: false
     }
   ];
