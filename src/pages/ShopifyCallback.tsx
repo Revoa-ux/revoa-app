@@ -98,6 +98,16 @@ export default function ShopifyCallback() {
         }
 
         console.log('[Callback] Calling shopify-proxy edge function...');
+        const requestBody = {
+          action: 'complete-oauth',
+          shop,
+          code,
+          state,
+          hmac
+        };
+        console.log('[Callback] Request body:', requestBody);
+        console.log('[Callback] Has Authorization header:', !!session.access_token);
+
         const response = await fetch(`${supabaseUrl}/functions/v1/shopify-proxy`, {
           method: 'POST',
           headers: {
@@ -105,14 +115,11 @@ export default function ShopifyCallback() {
             'Authorization': `Bearer ${session.access_token}`,
             'apikey': supabaseAnonKey
           },
-          body: JSON.stringify({
-            action: 'complete-oauth',
-            shop,
-            code,
-            state,
-            hmac
-          })
+          body: JSON.stringify(requestBody)
         });
+
+        console.log('[Callback] Response status:', response.status);
+        console.log('[Callback] Response headers:', Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
           const error = await response.json();
@@ -141,13 +148,14 @@ export default function ShopifyCallback() {
           }));
         }
 
-        setTimeout(() => {
-          if (window.opener && !window.opener.closed) {
-            window.close();
-          } else {
-            navigate('/settings');
-          }
-        }, 1500);
+        // Keep window open for debugging - comment out auto-close
+        // setTimeout(() => {
+        //   if (window.opener && !window.opener.closed) {
+        //     window.close();
+        //   } else {
+        //     navigate('/settings');
+        //   }
+        // }, 1500);
 
       } catch (error) {
         console.error('[Callback] OAuth callback error:', error);
@@ -171,13 +179,14 @@ export default function ShopifyCallback() {
           }));
         }
 
-        setTimeout(() => {
-          if (window.opener && !window.opener.closed) {
-            window.close();
-          } else {
-            navigate('/settings');
-          }
-        }, 5000);
+        // Keep window open for debugging - comment out auto-close
+        // setTimeout(() => {
+        //   if (window.opener && !window.opener.closed) {
+        //     window.close();
+        //   } else {
+        //     navigate('/settings');
+        //   }
+        // }, 5000);
       }
     };
 
@@ -207,9 +216,15 @@ export default function ShopifyCallback() {
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">
               Installation Complete!
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               Your Shopify store has been connected successfully.
             </p>
+            <button
+              onClick={() => window.close()}
+              className="px-6 py-2 bg-gradient-to-r from-rose-600 via-pink-500 to-orange-400 text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Close Window
+            </button>
           </>
         )}
 
@@ -225,12 +240,18 @@ export default function ShopifyCallback() {
               {errorMessage || 'Something went wrong. Please try again.'}
             </p>
             {errorMessage && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-left">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-left mb-4">
                 <p className="text-sm text-red-800 dark:text-red-200 font-mono break-all">
                   {errorMessage}
                 </p>
               </div>
             )}
+            <button
+              onClick={() => window.close()}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Close Window
+            </button>
           </>
         )}
       </div>
