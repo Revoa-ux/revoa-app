@@ -822,13 +822,18 @@ const SettingsPage = () => {
                   <button
                     onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
                     disabled={shopifyConnecting}
-                    className={`px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                       integrationStatus.shopify
                         ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                        : 'text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-sm'
+                        : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
-                    {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : 'Connect'}
+                    {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
+                      <>
+                        Connect
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -874,9 +879,14 @@ const SettingsPage = () => {
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {facebookConnecting ? 'Connecting...' : 'Connect'}
+                      {facebookConnecting ? 'Connecting...' : (
+                        <>
+                          Connect
+                          <ChevronRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
