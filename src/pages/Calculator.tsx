@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, BarChart3, DollarSign, CreditCard, RefreshCw, AlertTriangle } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getCalculatorMetrics, ShopifyCalculatorMetrics } from '../lib/shopify/api';
@@ -26,9 +26,17 @@ interface Metrics {
 export default function Calculator() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+
+  // Initialize date range for 7 days (same as Dashboard)
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 7);
+  initialStartDate.setHours(0, 0, 0, 0);
+
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-    endDate: new Date()
+    startDate: initialStartDate,
+    endDate: initialEndDate
   });
   const [metrics, setMetrics] = useState<Metrics>({
     profit: 0,
@@ -46,13 +54,95 @@ export default function Calculator() {
   // Use centralized connection store
   const { shopify, facebook } = useConnectionStore();
 
-  useEffect(() => {
-    fetchCalculatorData();
-  }, [selectedTime]);
-
-  const handleTimeChange = (time: TimeOption) => {
+  const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
-  };
+
+    const now = new Date();
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (time) {
+      case 'today':
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setDate(endDate.getDate() - 1);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '7d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '14d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 14);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '30d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '60d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 60);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '90d':
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 90);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'this_month':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'last_month':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        // Don't update date range for custom - user will set it manually
+        return;
+      default:
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    console.log('[Calculator] Time changed to:', time, 'Range:', startDate.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0]);
+    setDateRange({ startDate, endDate });
+  }, []);
 
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
@@ -64,17 +154,24 @@ export default function Calculator() {
 
   const fetchCalculatorData = async () => {
     try {
+      console.log('[Calculator] Fetching metrics for:', dateRange.startDate.toISOString().split('T')[0], 'to', dateRange.endDate.toISOString().split('T')[0]);
       setIsLoading(true);
       setError(null);
 
-      // Fetch combined metrics from Shopify + Facebook
-      const combined = await getCombinedDashboardMetrics();
+      // Format dates as ISO strings for the API (same as Dashboard)
+      const startDateStr = dateRange.startDate.toISOString();
+      const endDateStr = dateRange.endDate.toISOString();
+
+      // Fetch combined metrics from Shopify + Facebook with date range
+      const combined = await getCombinedDashboardMetrics(startDateStr, endDateStr);
       console.log('[Calculator] Received combined metrics:', combined);
 
       // Also fetch detailed calculator metrics
       let timeframe = '7d';
       switch (selectedTime) {
         case '24h':
+        case 'today':
+        case 'yesterday':
           timeframe = '1d';
           break;
         case '7d':
@@ -84,9 +181,12 @@ export default function Calculator() {
         case '30d':
         case '60d':
         case '90d':
+        case 'this_month':
+        case 'last_month':
           timeframe = '30d';
           break;
         case 'custom':
+        case 'ytd':
           timeframe = 'custom';
           break;
       }
@@ -115,6 +215,11 @@ export default function Calculator() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCalculatorData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   const renderChangeIndicator = (change: number) => {
     const isPositive = change > 0;
