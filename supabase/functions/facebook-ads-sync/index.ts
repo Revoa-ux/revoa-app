@@ -89,34 +89,52 @@ Deno.serve(async (req: Request) => {
     let adsCount = 0;
     let metricsCount = 0;
 
-    const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&access_token=${accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v18.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=100&access_token=${accessToken}`;
     console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
 
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
 
     console.log('[facebook-ads-sync] Campaigns response status:', campaignsResponse.status);
+    console.log('[facebook-ads-sync] Campaigns response headers:', Object.fromEntries(campaignsResponse.headers.entries()));
     console.log('[facebook-ads-sync] Campaigns data:', JSON.stringify(campaignsData, null, 2));
 
     if (!campaignsResponse.ok || campaignsData.error) {
       console.error('[facebook-ads-sync] Error fetching campaigns:', campaignsData.error);
+      console.error('[facebook-ads-sync] Full error details:', JSON.stringify(campaignsData, null, 2));
       return new Response(
-        JSON.stringify({ success: false, error: campaignsData.error?.message || 'Failed to fetch campaigns' }),
+        JSON.stringify({
+          success: false,
+          error: campaignsData.error?.message || 'Failed to fetch campaigns',
+          errorDetails: campaignsData.error,
+          accountId,
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     console.log('[facebook-ads-sync] Number of campaigns found:', campaignsData.data?.length || 0);
+    console.log('[facebook-ads-sync] Has paging?', campaignsData.paging ? 'yes' : 'no');
 
     // If no campaigns, try to get account-level insights anyway
     if (!campaignsData.data || campaignsData.data.length === 0) {
       console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
 
       const accountInsightsUrl = `https://graph.facebook.com/v18.0/${accountId}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,account_name&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+      console.log('[facebook-ads-sync] Fetching account insights for date range:', startDate, 'to', endDate);
       const accountInsightsResponse = await fetch(accountInsightsUrl);
       const accountInsightsData = await accountInsightsResponse.json();
 
+      console.log('[facebook-ads-sync] Account insights response status:', accountInsightsResponse.status);
       console.log('[facebook-ads-sync] Account insights response:', JSON.stringify(accountInsightsData, null, 2));
+
+      if (accountInsightsData.error) {
+        console.error('[facebook-ads-sync] Error fetching account insights:', accountInsightsData.error);
+        console.error('[facebook-ads-sync] This might mean:');
+        console.error('[facebook-ads-sync]   - No ad spend in this date range');
+        console.error('[facebook-ads-sync]   - Missing permissions for insights');
+        console.error('[facebook-ads-sync]   - Account has no historical data');
+      }
 
       if (accountInsightsResponse.ok && accountInsightsData.data && accountInsightsData.data.length > 0) {
         const insights = accountInsightsData.data[0];
