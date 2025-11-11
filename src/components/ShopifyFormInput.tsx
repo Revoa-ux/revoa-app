@@ -74,17 +74,6 @@ const ShopifyFormInput = React.forwardRef<HTMLInputElement, ShopifyFormInputProp
               className
             )}
           />
-          
-          {/* Validation indicator */}
-          <div className={cn(
-            "absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200",
-            filled && !error ? "opacity-100" : "opacity-0"
-          )}>
-            <div className={cn(
-              "h-2 w-2 rounded-full transition-colors duration-200",
-              focused ? "bg-green-500" : "bg-gray-400 dark:bg-gray-600"
-            )} />
-          </div>
         </div>
         
         {error && (
