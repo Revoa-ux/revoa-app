@@ -105,10 +105,6 @@ export interface Order {
       };
     }>;
   };
-  customer: {
-    id: string;
-    email: string | null;
-  } | null;
 }
 
 export interface Return {
@@ -315,10 +311,6 @@ export const ORDERS_QUERY = `
                 }
               }
             }
-          }
-          customer {
-            id
-            email
           }
         }
         cursor
