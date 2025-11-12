@@ -133,7 +133,30 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             )}
 
             <div className="aspect-[4/5] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative mb-4">
-              {(creative.url || creative.thumbnail) ? (
+              {creative.type === 'video' && creative.videoUrl ? (
+                <div className="relative w-full h-full">
+                  <video
+                    ref={videoRef}
+                    src={creative.videoUrl}
+                    poster={creative.thumbnail}
+                    className="w-full h-full object-cover"
+                    controls
+                    muted={isMuted}
+                    playsInline
+                    preload="metadata"
+                  />
+                  <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="absolute bottom-3 right-3 p-2 bg-black/60 hover:bg-black/80 rounded-full transition-colors"
+                  >
+                    {isMuted ? (
+                      <VolumeX className="w-4 h-4 text-white" />
+                    ) : (
+                      <Volume2 className="w-4 h-4 text-white" />
+                    )}
+                  </button>
+                </div>
+              ) : (creative.url || creative.thumbnail) ? (
                 <img
                   src={creative.url || creative.thumbnail}
                   alt={creative.adName || 'Ad creative'}
@@ -176,7 +199,7 @@ export const CreativePreviewModal: React.FC<CreativePreviewModalProps> = ({
             {creative.platform === 'facebook' && creative.id && creative.adAccountId && (
               <div className="mb-4">
                 <a
-                  href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId}&selected_ad_ids=${creative.id}`}
+                  href={`https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-full px-4 py-3 bg-white dark:bg-gray-700 border-2 border-[#1877F2] text-[#1877F2] dark:text-[#1877F2] text-sm font-semibold rounded-lg hover:bg-[#1877F2]/5 transition-colors"
