@@ -1,92 +1,148 @@
 import React from 'react';
 import type { PricingTier } from '@/types/pricing';
-import { Check } from 'lucide-react';
 
-export const pricingTier: PricingTier = {
-  id: 'standard',
-  name: 'Standard Plan',
-  price: 29,
-  trialDays: 14,
-  interval: 'monthly',
-  features: [
-    'Complete profit tracking and analytics',
-    'Shopify store integration',
-    'Facebook Ads performance monitoring',
-    'Product catalog management',
-    'AI-powered product discovery',
-    'Supplier communication tools',
-    'Return rate tracking',
-    'Unlimited products',
-    'Priority email support',
-    'Access to exclusive community'
-  ]
+export const pricingTiers: PricingTier[] = [
+  {
+    id: 'startup',
+    name: 'Startup',
+    revenueRange: '$0-$5k/month',
+    revenueMin: 0,
+    revenueMax: 5000,
+    monthlyFee: 29,
+    trialDays: 14,
+    features: [
+      'Email support',
+      '14-day free trial',
+      'All features included',
+      'No revenue share',
+      'Cancel anytime'
+    ]
+  },
+  {
+    id: 'momentum',
+    name: 'Momentum',
+    revenueRange: '$5k-$25k/month',
+    revenueMin: 5000,
+    revenueMax: 25000,
+    monthlyFee: 99,
+    features: [
+      'Priority support',
+      'All Startup features',
+      'Access to exclusive community',
+      'No revenue share',
+      'Advanced analytics'
+    ]
+  },
+  {
+    id: 'scale',
+    name: 'Scale',
+    revenueRange: '$25k-$75k/month',
+    revenueMin: 25000,
+    revenueMax: 75000,
+    monthlyFee: 299,
+    features: [
+      'Dedicated 7-8 figure ecommerce coach',
+      'Access to our CRO and Ad Specialists',
+      'All Momentum features',
+      'No revenue share',
+      'White-glove onboarding'
+    ]
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    revenueRange: '$75k+/month',
+    revenueMin: 75000,
+    revenueMax: Infinity,
+    monthlyFee: 599,
+    features: [
+      'Custom packaging',
+      'Store inventory in our warehouse for free',
+      'Advanced supply-chain logistics',
+      'All Scale features',
+      'Dedicated account manager'
+    ]
+  }
+];
+
+export const getTierForRevenue = (monthlyRevenue: number): PricingTier => {
+  return pricingTiers.find(
+    tier => monthlyRevenue >= tier.revenueMin && monthlyRevenue < tier.revenueMax
+  ) || pricingTiers[pricingTiers.length - 1];
 };
 
 interface PricingTiersProps {
-  onSubscribe?: () => void;
+  selectedTier?: PricingTier['id'];
+  onTierSelect?: (tier: PricingTier['id']) => void;
+  currentRevenue?: number;
 }
 
-export const PricingTiers: React.FC<PricingTiersProps> = ({ onSubscribe }) => {
+export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTierSelect, currentRevenue }) => {
+  const activeTier = currentRevenue !== undefined ? getTierForRevenue(currentRevenue) : null;
+
   return (
-    <div className="max-w-lg mx-auto">
-      <div className="relative p-8 rounded-2xl border-2 border-primary-500 bg-gradient-to-br from-white to-primary-50 dark:from-gray-800 dark:to-primary-900/20 shadow-xl">
-        {/* Trial Badge */}
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <span className="bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg">
-            {pricingTier.trialDays}-Day Free Trial
-          </span>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {pricingTiers.map((tier) => {
+        const isSelected = selectedTier === tier.id;
+        const isActive = activeTier?.id === tier.id;
+        const isClickable = onTierSelect !== undefined;
 
-        {/* Plan Name */}
-        <div className="text-center mb-6 mt-2">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            {pricingTier.name}
-          </h3>
-          <div className="flex items-baseline justify-center">
-            <span className="text-5xl font-bold text-gray-900 dark:text-white">
-              ${pricingTier.price}
-            </span>
-            <span className="text-xl text-gray-600 dark:text-gray-400 ml-2">
-              /month
-            </span>
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Cancel anytime • No long-term contracts
-          </p>
-        </div>
-
-        {/* Subscribe Button */}
-        {onSubscribe && (
-          <button
-            onClick={onSubscribe}
-            className="w-full py-4 px-6 mb-6 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors shadow-lg hover:shadow-xl"
+        return (
+          <div
+            key={tier.id}
+            onClick={() => isClickable && onTierSelect?.(tier.id)}
+            className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${
+              isClickable ? 'cursor-pointer' : ''
+            } ${
+              isSelected || isActive
+                ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 shadow-lg shadow-primary-500/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 hover:bg-gradient-to-br hover:from-primary-50/50 hover:to-transparent dark:hover:from-primary-900/10 dark:hover:to-transparent'
+            }`}
           >
-            Start Free Trial
-          </button>
-        )}
+            {isActive && (
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-primary-600 to-primary-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                  Current Tier
+                </span>
+              </div>
+            )}
 
-        {/* Features */}
-        <div className="space-y-3">
-          <p className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
-            Everything you need to grow:
-          </p>
-          {pricingTier.features.map((feature, index) => (
-            <div key={index} className="flex items-start">
-              <Check className="w-5 h-5 text-primary-600 dark:text-primary-400 mr-3 flex-shrink-0 mt-0.5" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {feature}
-              </span>
+            {tier.trialDays && (
+              <div className="absolute -top-3 right-4">
+                <span className="bg-gradient-to-r from-green-600 to-green-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                  {tier.trialDays}-Day Trial
+                </span>
+              </div>
+            )}
+
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              {tier.name}
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              {tier.revenueRange}
+            </p>
+
+            <div className="mb-4">
+              <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                ${tier.monthlyFee}
+                <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/mo</span>
+              </div>
+              <div className="text-sm text-green-600 dark:text-green-400 mt-1 font-medium">
+                0% revenue share
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Bottom Note */}
-        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-center text-gray-600 dark:text-gray-400">
-            Billed monthly through Shopify • Includes all future features
-          </p>
-        </div>
-      </div>
+            <ul className="space-y-2">
+              {tier.features.map((feature, index) => (
+                <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
+                  <span className="text-primary-500 mr-2">✓</span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </div>
   );
 };

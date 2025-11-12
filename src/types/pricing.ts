@@ -1,8 +1,10 @@
 export interface PricingTier {
-  id: 'standard';
+  id: 'startup' | 'momentum' | 'scale' | 'enterprise';
   name: string;
-  price: number;
-  trialDays: number;
+  revenueRange: string;
+  revenueMin: number;
+  revenueMax: number;
+  monthlyFee: number;
+  trialDays?: number;
   features: string[];
-  interval: 'monthly' | 'annual';
 }
