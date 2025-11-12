@@ -109,7 +109,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
 
             {tier.trialDays && (
               <div className="absolute -top-3 right-4">
-                <span className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                   {tier.trialDays}-Day Trial
                 </span>
               </div>
