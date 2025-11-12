@@ -35,3 +35,12 @@ dev_store_url = "revoatest.myshopify.com"
 
 [extension_directories]
 extensions = "extensions/*"
+
+# Pricing Configuration
+# Revoa uses Shopify's native billing API for subscriptions
+# Monthly subscription: $29/month with 14-day free trial
+# No revenue share or commission on sales
+[pricing]
+enabled = true
+trial_days = 14
+billing_url = "https://members.revoa.app/billing"

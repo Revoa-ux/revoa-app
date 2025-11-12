@@ -139,20 +139,25 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Payments and Fees</h2>
+            <h2 className="text-2xl font-semibold text-slate-900 mb-4">Payments and Billing</h2>
             <div className="space-y-3">
               <p className="text-slate-700 leading-relaxed">
-                Access to certain features may require payment. You agree to:
+                Revoa operates on a simple subscription model. You agree to:
               </p>
               <ul className="list-disc list-inside text-slate-700 ml-4 space-y-1">
-                <li>Pay all applicable fees as described in our pricing page</li>
-                <li>Provide accurate payment information</li>
-                <li>Pay a 2% commission on product sales facilitated through our platform</li>
-                <li>Allow us to charge your payment method for all fees</li>
+                <li>Pay a monthly subscription fee of $29/month</li>
+                <li>Allow billing to be processed through Shopify's billing system</li>
+                <li>Take advantage of the 14-day free trial period before being charged</li>
+                <li>Cancel your subscription at any time with no penalty</li>
               </ul>
               <p className="text-slate-700 leading-relaxed mt-3">
-                All fees are non-refundable unless otherwise stated. We reserve the right to change our fees
-                with 30 days' notice.
+                <strong>No Revenue Share or Commissions:</strong> We do not charge any commission or percentage
+                of your sales. Your subscription fee includes unlimited products, orders, and full access to all features.
+              </p>
+              <p className="text-slate-700 leading-relaxed mt-3">
+                <strong>Refund Policy:</strong> Monthly subscription fees are non-refundable. However, you may cancel
+                at any time and will not be charged for subsequent months. We reserve the right to modify our pricing
+                with 30 days' notice to existing subscribers.
               </p>
             </div>
           </section>
