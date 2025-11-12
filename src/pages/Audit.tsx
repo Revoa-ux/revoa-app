@@ -23,13 +23,12 @@ interface DateRange {
 }
 
 export default function Audit() {
-  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('today');
 
-  // Initialize date range for 7 days
+  // Initialize date range for today
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
-  initialStartDate.setDate(initialStartDate.getDate() - 7);
   initialStartDate.setHours(0, 0, 0, 0);
 
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -155,7 +154,7 @@ export default function Audit() {
       case '7d': return 'Last 7 days';
       case '14d': return 'Last 14 days';
       case '28d': return 'Last 28 days';
-      default: return 'Last 7 days';
+      default: return 'Today';
     }
   };
 
@@ -179,8 +178,8 @@ export default function Audit() {
               <span>Refresh</span>
             </button>
             <AdReportsTimeSelector
-              value={selectedTime}
-              onChange={handleTimeChange}
+              selectedTime={selectedTime}
+              onTimeChange={handleTimeChange}
             />
           </div>
         </div>
