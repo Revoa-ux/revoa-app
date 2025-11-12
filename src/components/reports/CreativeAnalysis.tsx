@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Search, 
+import {
+  Search,
   X,
   Package,
   ExternalLink,
@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { SortField, SortDirection } from '@/types/products';
-import { CreativePreviewModal } from './CreativePreviewModal';
 
 interface CreativeAnalysisProps {
   creatives?: any[];
@@ -33,7 +32,6 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [selectedCreative, setSelectedCreative] = useState<unknown | null>(null);
   const [sortConfig, setSortConfig] = useState<{
     field: SortField;
     direction: SortDirection;
@@ -68,36 +66,44 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
   }, []);
 
   const columns: Column[] = [
-    { 
+    {
       id: 'creative',
       label: 'Creative',
       width: 80,
-      render: (_, creative) => (
-        <div className="flex items-center">
-          <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
-            {creative.thumbnail || creative.url ? (
-              <img
-                src={creative.thumbnail || creative.url}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="w-5 h-5 text-gray-400" />
-              </div>
-            )}
-            <button
-              className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedCreative(creative);
-              }}
-            >
-              <ExternalLink className="w-5 h-5 text-white" />
-            </button>
+      render: (_, creative) => {
+        const adsManagerUrl = creative.platform === 'facebook' && creative.id && creative.adAccountId
+          ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
+          : null;
+
+        return (
+          <div className="flex items-center">
+            <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
+              {creative.thumbnail || creative.url ? (
+                <img
+                  src={creative.thumbnail || creative.url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="w-5 h-5 text-gray-400" />
+                </div>
+              )}
+              {adsManagerUrl && (
+                <a
+                  href={adsManagerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <ExternalLink className="w-5 h-5 text-white" />
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     { id: 'adName', label: 'Ad Name', width: 200, sortable: true },
     { id: 'performance', label: 'Performance', width: 150, sortable: true },
@@ -306,12 +312,6 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
         </div>
       </div>
 
-      {selectedCreative && (
-        <CreativePreviewModal
-          creative={selectedCreative}
-          onClose={() => setSelectedCreative(null)}
-        />
-      )}
     </div>
   );
 };
