@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { facebookAdsService } from './facebookAds';
+import { getAdConversionMetrics, syncShopifyOrders } from './attributionService';
 
 // Function to return Facebook thumbnail URLs without modification
 // Facebook CDN URLs are signed and must be used exactly as provided
@@ -7,6 +8,9 @@ function getHighQualityFacebookImageUrl(url: string): string {
   // Return URL as-is - Facebook CDN URLs are signed and any modification breaks them
   return url;
 }
+
+// Export sync function for UI to call
+export { syncShopifyOrders };
 
 export interface AdReportMetrics {
   roas: {
@@ -34,6 +38,8 @@ export interface CreativePerformance {
   type: 'image' | 'video';
   url: string;
   thumbnail?: string;
+  videoUrl?: string;
+  videoId?: string;
   headline: string;
   description: string;
   adCopy: string;
@@ -45,6 +51,7 @@ export interface CreativePerformance {
     cpa: number;
     spend: number;
     conversions: number;
+    cvr?: number;
     roas: number;
     cpc: number;
   };
@@ -52,6 +59,8 @@ export interface CreativePerformance {
   fatigueScore: number;
   adName: string;
   platform: string;
+  adAccountId?: string;
+  hasRealConversionData?: boolean;
   pageProfile: {
     name: string;
     imageUrl: string;
@@ -175,7 +184,7 @@ export async function getAdReportsMetrics(
 }
 
 /**
- * Fetch creative performance data
+ * Fetch creative performance data with REAL conversion data from Shopify
  */
 export async function getCreativePerformance(
   startDate: string,
@@ -187,13 +196,18 @@ export async function getCreativePerformance(
       throw new Error('User not authenticated');
     }
 
+    console.log('[AdReportsService] === FETCHING CREATIVE PERFORMANCE WITH ATTRIBUTION ===');
+    console.log('[AdReportsService] Date range:', { startDate, endDate });
+
     // Get user's ad accounts
     const accounts = await facebookAdsService.getAdAccounts('facebook');
     if (accounts.length === 0) {
+      console.log('[AdReportsService] No ad accounts found');
       return [];
     }
 
     const accountIds = accounts.map(acc => acc.id);
+    console.log('[AdReportsService] Found', accountIds.length, 'ad accounts');
 
     // Get campaigns for these accounts
     const { data: campaigns, error: campaignsError } = await supabase
@@ -204,6 +218,7 @@ export async function getCreativePerformance(
     if (campaignsError) throw campaignsError;
 
     if (!campaigns || campaigns.length === 0) {
+      console.log('[AdReportsService] No campaigns found');
       return [];
     }
 
@@ -213,11 +228,12 @@ export async function getCreativePerformance(
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('id')
-      .in('ad_campaign_id', campaignIds);
+      .in('campaign_id', campaignIds);
 
     if (adSetsError) throw adSetsError;
 
     if (!adSets || adSets.length === 0) {
+      console.log('[AdReportsService] No ad sets found');
       return [];
     }
 
@@ -235,10 +251,13 @@ export async function getCreativePerformance(
     if (error) throw error;
 
     if (!ads || ads.length === 0) {
+      console.log('[AdReportsService] No ads found');
       return [];
     }
 
-    // Fetch metrics for these ads (using the ad's database ID, not platform ID)
+    console.log('[AdReportsService] Found', ads.length, 'ads');
+
+    // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
     const adIds = ads.map(ad => ad.id);
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
@@ -249,6 +268,22 @@ export async function getCreativePerformance(
       .lte('date', endDate);
 
     if (metricsError) throw metricsError;
+
+    // IMPORTANT: Get REAL conversion data from our attribution system
+    console.log('[AdReportsService] Fetching real conversion data from attribution system...');
+    const attributionMetrics = await getAdConversionMetrics(
+      user.id,
+      accountIds,
+      startDate,
+      endDate
+    );
+
+    console.log('[AdReportsService] Attribution system returned', attributionMetrics.length, 'ads with conversions');
+
+    // Create a map of attribution metrics by ad_id
+    const attributionMap = new Map(
+      attributionMetrics.map(m => [m.ad_id, m])
+    );
 
     // Aggregate metrics by ad
     const adMetricsMap = new Map<string, typeof metrics[0][]>();
@@ -264,8 +299,12 @@ export async function getCreativePerformance(
       const totalSpend = adMetrics.reduce((sum, m) => sum + (m.spend || 0), 0);
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
-      const totalConversions = adMetrics.reduce((sum, m) => sum + (m.conversions || 0), 0);
-      const totalValue = adMetrics.reduce((sum, m) => sum + (m.conversion_value || 0), 0);
+
+      // Use REAL conversion data from attribution system if available
+      const attribution = attributionMap.get(ad.id);
+      const totalConversions = attribution?.total_conversions || 0;
+      const totalValue = attribution?.conversion_value || 0;
+      const conversionRate = attribution?.conversion_rate || 0;
 
       const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const cpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
@@ -316,8 +355,9 @@ export async function getCreativePerformance(
           ctr,
           cpa,
           spend: totalSpend,
-          conversions: totalConversions,
-          roas,
+          conversions: totalConversions, // REAL DATA from Shopify!
+          cvr: conversionRate, // REAL CVR from Shopify!
+          roas,  // REAL ROAS based on actual order values!
           cpc
         },
         performance,
@@ -325,12 +365,16 @@ export async function getCreativePerformance(
         adName: ad.name,
         platform: ad.platform || 'facebook',
         adAccountId: ad.ad_account?.platform_account_id || undefined,
+        hasRealConversionData: !!attribution, // Flag to show user which ads have real data
         pageProfile: {
           name: 'Facebook Page',
           imageUrl: ''
         }
       };
     });
+
+    const adsWithRealData = creatives.filter(c => c.hasRealConversionData).length;
+    console.log('[AdReportsService] ✓ Returned', creatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
 
     return creatives;
   } catch (error) {
