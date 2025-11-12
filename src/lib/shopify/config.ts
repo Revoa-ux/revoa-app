@@ -24,10 +24,10 @@ export const SHOPIFY_CONFIG = {
   ].join(','),
 
   // API version - using latest stable version
-  API_VERSION: '2025-01',
+  API_VERSION: '2025-07',
 
   // Webhook configuration
-  WEBHOOK_VERSION: '2025-01',
+  WEBHOOK_VERSION: '2025-07',
   WEBHOOK_TOPICS: [
     'app/uninstalled',
     'orders/create',

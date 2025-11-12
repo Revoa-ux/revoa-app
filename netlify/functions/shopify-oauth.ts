@@ -242,7 +242,7 @@ export const handler: Handler = async (event) => {
     // Register webhooks
     try {
       const webhookUrl = `https://members.revoa.app/.netlify/functions/shopify-webhook`;
-      const webhookResponse = await fetch(`https://${shop}/admin/api/2025-01/webhooks.json`, {
+      const webhookResponse = await fetch(`https://${shop}/admin/api/2025-07/webhooks.json`, {
         method: 'POST',
         headers: {
           'X-Shopify-Access-Token': access_token,
