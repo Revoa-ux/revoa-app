@@ -23,7 +23,9 @@ import Modal from '@/components/Modal';
 import { Message } from '@/types/chat';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { useAuth } from '@/contexts/AuthContext';
-import { chatService, Chat as ChatType } from '@/lib/chatService';
+import { chatService, Chat as ChatType, ChatFilters } from '@/lib/chatService';
+import { ConversationFilters } from '@/components/chat/ConversationFilters';
+import { ConversationListItem } from '@/components/chat/ConversationListItem';
 import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
@@ -84,6 +86,12 @@ const AdminChat = () => {
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [messageActionsOpen, setMessageActionsOpen] = useState<string | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const [conversationFilters, setConversationFilters] = useState<ChatFilters>({
+    status: 'all',
+    userType: 'all',
+    sortBy: 'recent',
+  });
+  const [conversationSearch, setConversationSearch] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -99,16 +107,20 @@ const AdminChat = () => {
 
     const loadChats = async () => {
       setIsLoading(true);
-      const adminChats = await chatService.getAdminChats(user.id);
+      const filterParams: ChatFilters = {
+        ...conversationFilters,
+        search: conversationSearch,
+      };
+      const adminChats = await chatService.getAdminChats(user.id, filterParams);
       setChats(adminChats);
-      if (adminChats.length > 0) {
+      if (adminChats.length > 0 && !selectedChat) {
         setSelectedChat(adminChats[0]);
       }
       setIsLoading(false);
     };
 
     loadChats();
-  }, [user]);
+  }, [user, conversationFilters, conversationSearch]);
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -277,6 +289,10 @@ const AdminChat = () => {
 
   const userName = selectedChat?.user_profile?.name || 'User';
   const userEmail = selectedChat?.user_profile?.email || '';
+  const totalTransactions = selectedChat?.user_assignment?.total_transactions || 0;
+  const totalInvoices = selectedChat?.user_assignment?.total_invoices || 0;
+  const userCreatedAt = selectedChat?.user_profile?.created_at;
+  const lastInteraction = selectedChat?.user_assignment?.last_interaction_at;
 
   return (
     <div className="p-8">
@@ -294,6 +310,12 @@ const AdminChat = () => {
         <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
           <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden">
+            <ConversationFilters
+              filters={conversationFilters}
+              onFiltersChange={setConversationFilters}
+              searchTerm={conversationSearch}
+              onSearchChange={setConversationSearch}
+            />
             <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <LoadingSpinner />
@@ -304,34 +326,12 @@ const AdminChat = () => {
             </div>
           ) : (
             chats.map((chat) => (
-              <button
+              <ConversationListItem
                 key={chat.id}
+                chat={chat}
+                isSelected={selectedChat?.id === chat.id}
                 onClick={() => setSelectedChat(chat)}
-                className={`w-full p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left ${
-                  selectedChat?.id === chat.id ? 'bg-gray-50 dark:bg-gray-700' : ''
-                }`}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                        {chat.user_profile?.name || 'User'}
-                      </h3>
-                      {chat.unread_count_admin > 0 && (
-                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full">
-                          {chat.unread_count_admin}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                      {chat.user_profile?.email}
-                    </p>
-                  </div>
-                </div>
-              </button>
+              />
             ))
           )}
         </div>
@@ -344,12 +344,31 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                  {userName !== 'User' ? (
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                    </span>
+                  ) : (
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  )}
                 </div>
                 <div>
                   <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{userEmail}</p>
+                  <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {totalTransactions > 0 && (
+                      <span title="Total transaction volume">
+                        ${totalTransactions.toLocaleString()} volume
+                      </span>
+                    )}
+                    {totalInvoices > 0 && (
+                      <span>{totalInvoices} invoices</span>
+                    )}
+                    {userCreatedAt && (
+                      <span>Joined {new Date(userCreatedAt).toLocaleDateString()}</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-4">

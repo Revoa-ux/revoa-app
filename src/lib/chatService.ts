@@ -42,11 +42,25 @@ export interface Chat {
   user_profile?: {
     name: string | null;
     email: string;
+    created_at?: string;
   };
   admin_profile?: {
     name: string | null;
     email: string;
   };
+  user_assignment?: {
+    total_transactions?: number;
+    total_invoices?: number;
+    last_interaction_at?: string;
+  };
+  last_message_preview?: string;
+}
+
+export interface ChatFilters {
+  search?: string;
+  status?: 'all' | 'unread' | 'archived' | 'flagged';
+  userType?: 'all' | 'new' | 'active' | 'inactive';
+  sortBy?: 'recent' | 'oldest' | 'volume' | 'messages' | 'alphabetical';
 }
 
 export const chatService = {
@@ -171,12 +185,57 @@ export const chatService = {
     return this.getOrCreateChat(userId, assignment.admin_id);
   },
 
-  async getAdminChats(adminId: string): Promise<Chat[]> {
-    const { data: chats, error } = await supabase
+  async getAdminChats(adminId: string, filters?: ChatFilters): Promise<Chat[]> {
+    // First, get assigned user IDs for this admin
+    const { data: assignments, error: assignmentError } = await supabase
+      .from('user_assignments')
+      .select('user_id, total_transactions, total_invoices, last_interaction_at')
+      .eq('admin_id', adminId);
+
+    if (assignmentError) {
+      console.error('Error fetching user assignments:', assignmentError);
+      return [];
+    }
+
+    // If admin has no assigned users, return empty
+    if (!assignments || assignments.length === 0) {
+      return [];
+    }
+
+    const assignedUserIds = assignments.map(a => a.user_id);
+    const assignmentMap = new Map(
+      assignments.map(a => [a.user_id, {
+        total_transactions: a.total_transactions || 0,
+        total_invoices: a.total_invoices || 0,
+        last_interaction_at: a.last_interaction_at
+      }])
+    );
+
+    // Fetch chats for assigned users only
+    let query = supabase
       .from('chats')
       .select('*')
-      .eq('admin_id', adminId)
-      .order('last_message_at', { ascending: false });
+      .in('user_id', assignedUserIds);
+
+    // Apply filters
+    if (filters?.status === 'unread') {
+      query = query.gt('unread_count_admin', 0);
+    }
+
+    // Default sort by most recent
+    let sortField = 'last_message_at';
+    let sortAscending = false;
+
+    if (filters?.sortBy === 'oldest') {
+      sortAscending = true;
+    } else if (filters?.sortBy === 'alphabetical') {
+      sortField = 'user_id';
+      sortAscending = true;
+    }
+
+    query = query.order(sortField, { ascending: sortAscending });
+
+    const { data: chats, error } = await query;
 
     if (error) {
       console.error('Error fetching admin chats:', error);
@@ -191,7 +250,7 @@ export const chatService = {
     const userIds = chats.map(c => c.user_id);
     const { data: userProfiles } = await supabase
       .from('user_profiles')
-      .select('user_id, name, email')
+      .select('user_id, name, email, created_at')
       .in('user_id', userIds);
 
     // Fetch admin profile
@@ -201,16 +260,92 @@ export const chatService = {
       .eq('user_id', adminId)
       .maybeSingle();
 
+    // Fetch last message for each chat
+    const chatIds = chats.map(c => c.id);
+    const { data: lastMessages } = await supabase
+      .from('messages')
+      .select('chat_id, content, type')
+      .in('chat_id', chatIds)
+      .is('deleted_at', null)
+      .order('timestamp', { ascending: false });
+
+    // Create a map of last messages
+    const lastMessageMap = new Map<string, string>();
+    lastMessages?.forEach(msg => {
+      if (!lastMessageMap.has(msg.chat_id)) {
+        const preview = msg.type === 'text'
+          ? msg.content
+          : msg.type === 'image'
+          ? '📷 Image'
+          : msg.type === 'file'
+          ? '📎 File'
+          : msg.content;
+        lastMessageMap.set(msg.chat_id, preview.length > 50 ? preview.substring(0, 50) + '...' : preview);
+      }
+    });
+
     // Map profiles to chats
     const userProfileMap = new Map(
-      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email }])
+      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email, created_at: p.created_at }])
     );
 
-    return chats.map(chat => ({
+    let enrichedChats = chats.map(chat => ({
       ...chat,
       user_profile: userProfileMap.get(chat.user_id) || null,
       admin_profile: adminProfile ? { name: adminProfile.name, email: adminProfile.email } : null,
+      user_assignment: assignmentMap.get(chat.user_id) || null,
+      last_message_preview: lastMessageMap.get(chat.id) || 'No messages yet'
     }));
+
+    // Apply search filter
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      enrichedChats = enrichedChats.filter(chat =>
+        chat.user_profile?.name?.toLowerCase().includes(searchLower) ||
+        chat.user_profile?.email?.toLowerCase().includes(searchLower) ||
+        chat.last_message_preview?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply user type filter
+    if (filters?.userType && filters.userType !== 'all') {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      enrichedChats = enrichedChats.filter(chat => {
+        const createdAt = chat.user_profile?.created_at ? new Date(chat.user_profile.created_at) : null;
+        const lastInteraction = chat.user_assignment?.last_interaction_at ? new Date(chat.user_assignment.last_interaction_at) : null;
+
+        if (filters.userType === 'new') {
+          return createdAt && createdAt > sevenDaysAgo;
+        } else if (filters.userType === 'active') {
+          return lastInteraction && lastInteraction > sevenDaysAgo;
+        } else if (filters.userType === 'inactive') {
+          return !lastInteraction || lastInteraction < thirtyDaysAgo;
+        }
+        return true;
+      });
+    }
+
+    // Apply custom sorting after filters
+    if (filters?.sortBy === 'volume') {
+      enrichedChats.sort((a, b) =>
+        (b.user_assignment?.total_transactions || 0) - (a.user_assignment?.total_transactions || 0)
+      );
+    } else if (filters?.sortBy === 'messages') {
+      enrichedChats.sort((a, b) =>
+        (b.unread_count_admin || 0) - (a.unread_count_admin || 0)
+      );
+    } else if (filters?.sortBy === 'alphabetical') {
+      enrichedChats.sort((a, b) => {
+        const nameA = a.user_profile?.name || a.user_profile?.email || '';
+        const nameB = b.user_profile?.name || b.user_profile?.email || '';
+        return nameA.localeCompare(nameB);
+      });
+    }
+
+    return enrichedChats;
   },
 
   async getChatMessages(chatId: string): Promise<Message[]> {
