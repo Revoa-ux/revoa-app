@@ -458,50 +458,215 @@ export async function getAdConversionMetrics(
 // ============================================================================
 
 /**
- * Fetch orders from Shopify REST API
- * The REST API includes landing_site and referring_site which contain UTM parameters
+ * GraphQL query for orders with UTM tracking data
+ * Includes customer email and customAttributes which may contain UTM parameters
  */
-async function fetchShopifyOrdersREST(
+const ORDERS_WITH_UTM_QUERY = `
+  query GetOrdersWithUTM($first: Int!, $after: String, $query: String) {
+    orders(first: $first, after: $after, query: $query) {
+      edges {
+        node {
+          id
+          name
+          createdAt
+          totalPriceSet {
+            shopMoney {
+              amount
+              currencyCode
+            }
+          }
+          customer {
+            id
+            email
+          }
+          customAttributes {
+            key
+            value
+          }
+          customerJourneySummary {
+            firstVisit {
+              landingPage
+              referrerUrl
+              source
+              sourceType
+              utmParameters {
+                campaign
+                content
+                medium
+                source
+                term
+              }
+            }
+          }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`;
+
+interface OrderWithUTM {
+  id: string;
+  name: string;
+  createdAt: string;
+  totalPriceSet: {
+    shopMoney: {
+      amount: string;
+      currencyCode: string;
+    };
+  };
+  customer?: {
+    id: string;
+    email: string;
+  };
+  customAttributes: Array<{
+    key: string;
+    value: string;
+  }>;
+  customerJourneySummary?: {
+    firstVisit?: {
+      landingPage?: string;
+      referrerUrl?: string;
+      source?: string;
+      sourceType?: string;
+      utmParameters?: {
+        campaign?: string;
+        content?: string;
+        medium?: string;
+        source?: string;
+        term?: string;
+      };
+    };
+  };
+}
+
+/**
+ * Execute GraphQL query for orders with UTM data
+ */
+async function executeOrdersGraphQL(
+  query: string,
+  variables: Record<string, any>
+): Promise<{ orders: { edges: Array<{ node: OrderWithUTM; cursor: string }>; pageInfo: { hasNextPage: boolean; endCursor: string } } }> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    throw new Error('Not authenticated');
+  }
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const url = `${supabaseUrl}/functions/v1/shopify-proxy?endpoint=/graphql.json`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`GraphQL request failed (${response.status}): ${errorText}`);
+  }
+
+  const result = await response.json();
+
+  if (result.errors) {
+    throw new Error(`GraphQL error: ${result.errors[0].message}`);
+  }
+
+  if (!result.data) {
+    throw new Error('No data returned from GraphQL query');
+  }
+
+  return result.data;
+}
+
+/**
+ * Fetch orders from Shopify using GraphQL
+ * Now uses GraphQL API instead of deprecated REST API
+ */
+async function fetchShopifyOrdersGraphQL(
   limit = 250,
   createdAtMin?: string
 ): Promise<any[]> {
   try {
-    // Build query parameters
-    const params = new URLSearchParams({
-      limit: Math.min(limit, 250).toString(),
-      status: 'any',
-      fields: 'id,name,created_at,total_price,currency,customer,landing_site,referring_site,email',
-    });
+    console.log('[Attribution] Fetching orders via GraphQL');
 
+    const allOrders: any[] = [];
+    let hasNextPage = true;
+    let cursor: string | null = null;
+
+    // Build query string for date filtering
+    let queryString = '';
     if (createdAtMin) {
-      params.append('created_at_min', createdAtMin);
+      const minDate = new Date(createdAtMin).toISOString().split('T')[0];
+      queryString = `created_at:>='${minDate}'`;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error('Not authenticated');
+    while (hasNextPage && allOrders.length < limit) {
+      const variables: any = {
+        first: Math.min(250, limit - allOrders.length),
+        after: cursor,
+      };
+
+      if (queryString) {
+        variables.query = queryString;
+      }
+
+      const response = await executeOrdersGraphQL(ORDERS_WITH_UTM_QUERY, variables);
+
+      const orders = response.orders.edges.map(edge => {
+        const node = edge.node;
+
+        // Extract UTM parameters from customerJourneySummary if available
+        const utmParams = node.customerJourneySummary?.firstVisit?.utmParameters || {};
+        const landingPage = node.customerJourneySummary?.firstVisit?.landingPage || '';
+        const referrerUrl = node.customerJourneySummary?.firstVisit?.referrerUrl || '';
+
+        // Also check customAttributes for UTM data (fallback)
+        const customAttrs: Record<string, string> = {};
+        node.customAttributes?.forEach(attr => {
+          if (attr.key.startsWith('utm_')) {
+            customAttrs[attr.key] = attr.value;
+          }
+        });
+
+        return {
+          id: node.id.replace('gid://shopify/Order/', ''),
+          name: node.name,
+          created_at: node.createdAt,
+          total_price: node.totalPriceSet.shopMoney.amount,
+          currency: node.totalPriceSet.shopMoney.currencyCode,
+          customer: node.customer,
+          email: node.customer?.email,
+          landing_site: landingPage,
+          referring_site: referrerUrl,
+          // Combine UTM from journey summary and custom attributes
+          utm_source: utmParams.source || customAttrs.utm_source,
+          utm_medium: utmParams.medium || customAttrs.utm_medium,
+          utm_campaign: utmParams.campaign || customAttrs.utm_campaign,
+          utm_term: utmParams.term || customAttrs.utm_term,
+          utm_content: utmParams.content || customAttrs.utm_content,
+        };
+      });
+
+      allOrders.push(...orders);
+      hasNextPage = response.orders.pageInfo.hasNextPage;
+      cursor = response.orders.pageInfo.endCursor;
     }
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const url = `${supabaseUrl}/functions/v1/shopify-proxy?endpoint=/admin/api/2024-01/orders.json&${params.toString()}`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Shopify API error (${response.status}): ${errorText}`);
-    }
-
-    const data = await response.json();
-    return data.orders || [];
+    console.log('[Attribution] Fetched', allOrders.length, 'orders via GraphQL');
+    return allOrders;
   } catch (error) {
-    console.error('[Attribution] Error fetching Shopify orders:', error);
+    console.error('[Attribution] Error fetching Shopify orders via GraphQL:', error);
     throw error;
   }
 }
@@ -523,8 +688,8 @@ export async function syncShopifyOrders(
     const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
     const createdAtMin = startDate.toISOString();
 
-    // Fetch orders from Shopify REST API
-    const orders = await fetchShopifyOrdersREST(250, createdAtMin);
+    // Fetch orders from Shopify using GraphQL
+    const orders = await fetchShopifyOrdersGraphQL(250, createdAtMin);
     console.log('[Attribution] Fetched', orders.length, 'orders from Shopify');
 
     if (orders.length === 0) {
