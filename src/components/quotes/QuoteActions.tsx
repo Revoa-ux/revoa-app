@@ -1,20 +1,24 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag } from 'lucide-react';
+import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag, AlertTriangle } from 'lucide-react';
 import { Quote } from '@/types/quotes';
+import Modal from '../Modal';
 
 interface QuoteActionsProps {
   quote: Quote;
   onAcceptQuote?: (quote: Quote) => void;
   onConnectShopify?: (quote: Quote) => void;
+  onDeleteQuote?: (quoteId: string) => void;
 }
 
 export const QuoteActions: React.FC<QuoteActionsProps> = ({
   quote,
   onAcceptQuote,
-  onConnectShopify
+  onConnectShopify,
+  onDeleteQuote
 }) => {
   const [showMenu, setShowMenu] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0, openUpward: false });
 
@@ -117,11 +121,8 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm('Are you sure you want to delete this quote?')) {
-                  // Handle delete
-                  console.log('Delete quote:', quote.id);
-                }
                 setShowMenu(false);
+                setShowDeleteModal(true);
               }}
               className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
             >
@@ -142,6 +143,46 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
       </button>
       {menuContent && createPortal(menuContent, document.body)}
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        maxWidth="max-w-md"
+      >
+        <div className="text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+            <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+          </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+              Delete Quote
+            </h3>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Are you sure you want to delete this quote? This action cannot be undone.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={() => setShowDeleteModal(false)}
+            className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (onDeleteQuote) {
+                onDeleteQuote(quote.id);
+              }
+              setShowDeleteModal(false);
+            }}
+            className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </Modal>
     </>
   );
 };

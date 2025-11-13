@@ -9,7 +9,8 @@ import {
   createQuoteRequest,
   getUserQuotes,
   acceptQuote,
-  updateShopifySync
+  updateShopifySync,
+  deleteQuote
 } from '@/lib/quotes';
 
 export default function ProductQuotes() {
@@ -99,6 +100,17 @@ export default function ProductQuotes() {
     }
   };
 
+  const handleDeleteQuote = async (quoteId: string) => {
+    try {
+      await deleteQuote(quoteId);
+      setQuotes(prev => prev.filter(q => q.id !== quoteId));
+      toast.success('Quote deleted successfully');
+    } catch (error) {
+      console.error('Error deleting quote:', error);
+      toast.error('Failed to delete quote');
+    }
+  };
+
   const filteredQuotes = quotes.filter(quote => {
     const matchesSearch = 
       quote.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -168,6 +180,7 @@ export default function ProductQuotes() {
             setSelectedQuote(quote);
             setShowShopifyModal(true);
           }}
+          onDeleteQuote={handleDeleteQuote}
         />
       </div>
 

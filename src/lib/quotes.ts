@@ -160,6 +160,26 @@ export const updateShopifySync = async (
   return mapDbQuoteToQuote(quote);
 };
 
+// Delete a quote
+export const deleteQuote = async (quoteId: string): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { error } = await supabase
+    .from('product_quotes')
+    .delete()
+    .eq('id', quoteId)
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.error('Error deleting quote:', error);
+    throw error;
+  }
+};
+
 // Helper function to map database quote to Quote type
 function mapDbQuoteToQuote(dbQuote: any): Quote {
   const now = new Date();

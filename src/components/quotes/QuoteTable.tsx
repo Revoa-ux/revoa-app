@@ -10,6 +10,7 @@ interface QuoteTableProps {
   onToggleExpand: (quoteId: string) => void;
   onAcceptQuote: (quote: Quote) => void;
   onConnectShopify: (quote: Quote) => void;
+  onDeleteQuote?: (quoteId: string) => void;
 }
 
 export const QuoteTable: React.FC<QuoteTableProps> = ({
@@ -17,7 +18,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   expandedQuotes,
   onToggleExpand,
   onAcceptQuote,
-  onConnectShopify
+  onConnectShopify,
+  onDeleteQuote
 }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -97,6 +99,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                         quote={quote}
                         onAcceptQuote={onAcceptQuote}
                         onConnectShopify={onConnectShopify}
+                        onDeleteQuote={onDeleteQuote}
                       />
                     </div>
                   </td>
