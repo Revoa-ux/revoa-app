@@ -1,9 +1,8 @@
-{/* Full updated Users.tsx content */}
-import React, { useState, useRef } from 'react';
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Search,
+  Filter,
+  ChevronDown,
   Check,
   X,
   UserPlus
@@ -12,6 +11,8 @@ import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TableRowSkeletonProps {
   index: number;
@@ -19,7 +20,8 @@ interface TableRowSkeletonProps {
 
 interface User {
   id: string;
-  name: string;
+  user_id: string;
+  name: string | null;
   email: string;
   registrationDate: string;
   transactions: number;
@@ -27,7 +29,7 @@ interface User {
   isAssigned: boolean;
   assignedTo?: {
     id: string;
-    name: string;
+    name: string | null;
     email: string;
   };
   volume: number;
@@ -47,8 +49,8 @@ const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
     </td>
     {Array.from({ length: 4 }).map((_, i) => (
       <td key={i} className="px-4 py-4">
-        <div 
-          className="h-4 bg-gray-200 rounded w-16 animate-pulse" 
+        <div
+          className="h-4 bg-gray-200 rounded w-16 animate-pulse"
           style={{ animationDelay: `${i * 0.1}s` }}
         ></div>
       </td>
@@ -56,28 +58,13 @@ const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
   </tr>
 );
 
-const mockUsers: User[] = Array.from({ length: 5 }).map((_, index) => ({
-  id: `user-${index}`,
-  name: `John Doe ${index + 1}`,
-  email: `john${index + 1}@example.com`,
-  registrationDate: '2024-03-15',
-  transactions: 15678.90,
-  invoices: 12,
-  isAssigned: index % 2 === 0,
-  assignedTo: index % 2 === 0 ? {
-    id: 'admin-1',
-    name: 'Sarah Wilson',
-    email: 'sarah@revoa.app'
-  } : undefined,
-  volume: 45678.90,
-  storeRevenue: 89123.45
-}));
-
 export default function Users() {
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -103,6 +90,84 @@ export default function Users() {
     { value: 'invoices', label: 'Invoices' }
   ];
 
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+
+      // Fetch all user profiles (non-admins only)
+      const { data: profiles, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('user_id, name, email, created_at, is_admin')
+        .eq('is_admin', false);
+
+      if (profilesError) throw profilesError;
+
+      if (!profiles || profiles.length === 0) {
+        setUsers([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const userIds = profiles.map(p => p.user_id);
+
+      // Fetch user assignments
+      const { data: assignments } = await supabase
+        .from('user_assignments')
+        .select('user_id, admin_id, total_transactions, total_invoices')
+        .in('user_id', userIds);
+
+      // Fetch admin profiles for assigned admins
+      const adminIds = Array.from(new Set(assignments?.map(a => a.admin_id) || []));
+      const { data: adminProfiles } = await supabase
+        .from('user_profiles')
+        .select('user_id, name, email')
+        .in('user_id', adminIds);
+
+      // Create maps for quick lookup
+      const assignmentMap = new Map(
+        (assignments || []).map(a => [a.user_id, a])
+      );
+      const adminMap = new Map(
+        (adminProfiles || []).map(a => [a.user_id, a])
+      );
+
+      // Transform to User interface
+      const transformedUsers: User[] = profiles.map(profile => {
+        const assignment = assignmentMap.get(profile.user_id);
+        const admin = assignment ? adminMap.get(assignment.admin_id) : null;
+
+        return {
+          id: profile.user_id,
+          user_id: profile.user_id,
+          name: profile.name,
+          email: profile.email,
+          registrationDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A',
+          transactions: assignment?.total_transactions || 0,
+          invoices: assignment?.total_invoices || 0,
+          isAssigned: !!assignment,
+          assignedTo: admin ? {
+            id: admin.user_id,
+            name: admin.name,
+            email: admin.email
+          } : undefined,
+          volume: assignment?.total_transactions || 0,
+          storeRevenue: 0
+        };
+      });
+
+      setUsers(transformedUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };
@@ -116,7 +181,7 @@ export default function Users() {
     if (selectAll) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(mockUsers.map(user => user.id));
+      setSelectedUsers(filteredUsers.map(user => user.id));
     }
     setSelectAll(!selectAll);
   };
@@ -139,10 +204,10 @@ export default function Users() {
     }));
   };
 
-  const getSortedUsers = (users: typeof mockUsers) => {
-    return [...users].sort((a, b) => {
+  const getSortedUsers = (usersToSort: User[]) => {
+    return [...usersToSort].sort((a, b) => {
       const direction = sortBy.direction === 'asc' ? 1 : -1;
-      
+
       switch (sortBy.field) {
         case 'registrationDate':
           return (new Date(a.registrationDate).getTime() - new Date(b.registrationDate).getTime()) * direction;
@@ -160,20 +225,40 @@ export default function Users() {
     });
   };
 
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredUsers = users.filter(user => {
+    const matchesSearch =
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = 
+
+    const matchesFilter =
       selectedFilter === 'all' ||
       (selectedFilter === 'assigned' && user.isAssigned) ||
       (selectedFilter === 'unassigned' && !user.isAssigned);
-    
+
     return matchesSearch && matchesFilter;
   });
 
   const sortedUsers = getSortedUsers(filteredUsers);
+
+  const handleAssignUsers = async (userId: string, adminId: string) => {
+    try {
+      // Assign user to admin
+      const { error } = await supabase
+        .from('user_assignments')
+        .upsert({
+          user_id: userId,
+          admin_id: adminId
+        });
+
+      if (error) throw error;
+
+      toast.success('User assigned successfully');
+      fetchUsers();
+    } catch (error) {
+      console.error('Error assigning user:', error);
+      toast.error('Failed to assign user');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -213,13 +298,13 @@ export default function Users() {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             >
               <Filter className="w-4 h-4 text-gray-400" />
               <span>Filter: {selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
-            
+
             {showFilterDropdown && (
               <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {[
@@ -230,7 +315,7 @@ export default function Users() {
                   <button
                     key={filter.value}
                     onClick={() => handleFilter(filter.value as typeof selectedFilter)}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
                     <span>{filter.label}</span>
                     {selectedFilter === filter.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
@@ -243,12 +328,12 @@ export default function Users() {
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             >
               <span>Sort by: {sortOptions.find(opt => opt.value === sortBy.field)?.label}</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
-            
+
             {showSortDropdown && (
               <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {sortOptions.map((option) => (
@@ -258,7 +343,7 @@ export default function Users() {
                       handleSort(option.value as keyof User);
                       setShowSortDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
                     <span>{option.label}</span>
                     {sortBy.field === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
@@ -300,7 +385,6 @@ export default function Users() {
                 <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Registration</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Volume</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Store Revenue</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Invoices</th>
@@ -312,6 +396,12 @@ export default function Users() {
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRowSkeleton key={index} index={index} />
                 ))
+              ) : sortedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No users found
+                  </td>
+                </tr>
               ) : (
                 sortedUsers.map((user, index) => (
                   <tr key={user.id} className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-900/30'}>
@@ -327,7 +417,7 @@ export default function Users() {
                     </td>
                     <td className="px-4 py-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || 'N/A'}</div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
                       </div>
                     </td>
@@ -335,12 +425,9 @@ export default function Users() {
                     <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
                       ${user.volume.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
-                      ${user.storeRevenue.toLocaleString()}
-                    </td>
                     <td className="px-4 py-4">
                       {user.assignedTo ? (
-                        <span className="text-sm text-gray-900 dark:text-gray-100">{user.assignedTo.name}</span>
+                        <span className="text-sm text-gray-900 dark:text-gray-100">{user.assignedTo.name || user.assignedTo.email}</span>
                       ) : (
                         <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
                       )}
@@ -366,8 +453,21 @@ export default function Users() {
                          onToggleStatus={(_, active) => {
                             toast.success(`User ${active ? 'enabled' : 'disabled'} successfully`);
                           }}
-                         onRemoveAssignment={() => {
-                            toast.success('User assignment removed');
+                         onRemoveAssignment={async () => {
+                            try {
+                              const { error } = await supabase
+                                .from('user_assignments')
+                                .delete()
+                                .eq('user_id', user.id);
+
+                              if (error) throw error;
+
+                              toast.success('User assignment removed');
+                              fetchUsers();
+                            } catch (error) {
+                              console.error('Error removing assignment:', error);
+                              toast.error('Failed to remove assignment');
+                            }
                           }}
                         />
                       </div>
@@ -382,10 +482,14 @@ export default function Users() {
 
       {showAssignModal && (
         <UserAssignmentModal
-          onClose={() => setShowAssignModal(false)}
+          onClose={() => {
+            setShowAssignModal(false);
+            setSelectedUsers([]);
+          }}
           onAssign={async (userId, adminId) => {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            toast.success('User assigned successfully');
+            await handleAssignUsers(userId, adminId);
+            setShowAssignModal(false);
+            setSelectedUsers([]);
           }}
           selectedUsers={selectedUsers}
         />
