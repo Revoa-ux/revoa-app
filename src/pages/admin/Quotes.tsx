@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Search, 
   Filter, 
@@ -232,7 +232,43 @@ export default function AdminQuotes() {
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
 
-  const mockQuotes: Quote[] = [
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
+
+  useEffect(() => {
+    fetchQuotes();
+  }, []);
+
+  const fetchQuotes = async () => {
+    try {
+      setIsLoadingQuotes(true);
+      const { data, error } = await supabase
+        .from('product_quotes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const transformedQuotes: Quote[] = (data || []).map(quote => ({
+        id: quote.id,
+        productUrl: quote.product_url || '',
+        platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+        productName: quote.product_name || 'Unknown Product',
+        requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
+        status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+        variants: []
+      }));
+
+      setQuotes(transformedQuotes);
+    } catch (error) {
+      console.error('Error fetching quotes:', error);
+      toast.error('Failed to load quotes');
+    } finally {
+      setIsLoadingQuotes(false);
+    }
+  };
+
+  const _mockQuotes: Quote[] = [
     {
       id: 'QT-2024-001',
       productUrl: 'https://www.aliexpress.com/item/123456789.html',
@@ -264,7 +300,7 @@ export default function AdminQuotes() {
     setSelectedQuote(null);
   };
 
-  const filteredQuotes = mockQuotes.filter(quote => {
+  const filteredQuotes = quotes.filter(quote => {
     const matchesSearch = 
       quote.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.id.toLowerCase().includes(searchTerm.toLowerCase());

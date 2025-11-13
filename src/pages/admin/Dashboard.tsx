@@ -83,8 +83,18 @@ export default function AdminDashboard() {
     startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     endDate: new Date()
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [onlineUsers, setOnlineUsers] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalUsers: 0,
+    newUsersToday: 0,
+    activeUsers: 0,
+    totalRevenue: 0,
+    totalOrders: 0,
+    completedOrders: 0,
+    pendingOrders: 0,
+    activeQuotes: 0
+  });
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
@@ -136,6 +146,8 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
+    fetchDashboardStats();
+
     const subscription = supabase
       .channel('admin-dashboard')
       .on('presence', { event: 'sync' }, () => {
@@ -148,6 +160,57 @@ export default function AdminDashboard() {
       subscription.unsubscribe();
     };
   }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      setIsLoading(true);
+
+      // Fetch total users (non-admins)
+      const { count: totalUsers } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_admin', false);
+
+      // Fetch users created today
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count: newUsersToday } = await supabase
+        .from('user_profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_admin', false)
+        .gte('created_at', todayStart.toISOString());
+
+      // Fetch product quotes count
+      const { count: activeQuotes } = await supabase
+        .from('product_quotes')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['pending', 'quoted']);
+
+      // Calculate active users percentage (users with assignments)
+      const { count: assignedUsers } = await supabase
+        .from('user_assignments')
+        .select('*', { count: 'exact', head: true });
+
+      const activePercentage = totalUsers && totalUsers > 0
+        ? Math.round((assignedUsers || 0) / totalUsers * 100)
+        : 0;
+
+      setDashboardStats({
+        totalUsers: totalUsers || 0,
+        newUsersToday: newUsersToday || 0,
+        activeUsers: activePercentage,
+        totalRevenue: 0,
+        totalOrders: 0,
+        completedOrders: 0,
+        pendingOrders: 0,
+        activeQuotes: activeQuotes || 0
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
@@ -182,37 +245,37 @@ export default function AdminDashboard() {
         id: 'users',
         title: 'Total Users',
         icon: <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-        value: '342',
-        change: 12.5,
-        metric1: { label: 'New Today', value: '12' },
-        metric2: { label: 'Active', value: '89%' }
+        value: dashboardStats.totalUsers.toLocaleString(),
+        change: 0,
+        metric1: { label: 'New Today', value: dashboardStats.newUsersToday.toString() },
+        metric2: { label: 'Active', value: `${dashboardStats.activeUsers}%` }
       },
       {
         id: 'revenue',
         title: 'Total Revenue',
         icon: <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-        value: '$32,621',
-        change: 8.2,
-        metric1: { label: 'MRR', value: '$12.5k' },
-        metric2: { label: 'ARR', value: '$150k' }
+        value: `$${dashboardStats.totalRevenue.toLocaleString()}`,
+        change: 0,
+        metric1: { label: 'MRR', value: '$0' },
+        metric2: { label: 'ARR', value: '$0' }
       },
       {
         id: 'orders',
         title: 'Total Orders',
         icon: <ShoppingCart className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-        value: '1,203',
-        change: -3.4,
-        metric1: { label: 'Completed', value: '1,180' },
-        metric2: { label: 'Pending', value: '23' }
+        value: dashboardStats.totalOrders.toLocaleString(),
+        change: 0,
+        metric1: { label: 'Completed', value: dashboardStats.completedOrders.toString() },
+        metric2: { label: 'Pending', value: dashboardStats.pendingOrders.toString() }
       },
       {
         id: 'quotes',
         title: 'Active Quotes',
         icon: <FileText className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
-        value: '45',
-        change: 15.8,
-        metric1: { label: 'Acceptance Rate', value: '92%' },
-        metric2: { label: 'Avg Value', value: '$2.8k' }
+        value: dashboardStats.activeQuotes.toString(),
+        change: 0,
+        metric1: { label: 'Acceptance Rate', value: 'N/A' },
+        metric2: { label: 'Avg Value', value: 'N/A' }
       }
     ];
 
