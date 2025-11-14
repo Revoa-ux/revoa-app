@@ -24,7 +24,11 @@ redirect_urls = [
 
 [webhooks]
 api_version = "2025-01"
-compliance_url = "https://api.revoa.app/webhooks/shopify"
+
+# GDPR Compliance webhooks (customers/redact, customers/data_request, shop/redact)
+[[webhooks.subscriptions]]
+topics = ["customers/data_request", "customers/redact", "shop/redact"]
+uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/data-deletion-callback"
 
 [[webhooks.subscriptions]]
 topics = ["app/uninstalled"]
