@@ -255,6 +255,16 @@ inspector_port = 8083
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 # entrypoint = "./functions/MY_FUNCTION_NAME/index.ts"
 
+# Webhook endpoints - disable JWT verification for Shopify webhooks
+[functions.data-deletion-callback]
+verify_jwt = false
+
+[functions.shopify-uninstall-webhook]
+verify_jwt = false
+
+[functions.shopify-order-webhook]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
