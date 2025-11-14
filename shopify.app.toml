@@ -26,6 +26,14 @@ redirect_urls = [
 api_version = "2025-01"
 compliance_url = "https://api.revoa.app/webhooks/shopify"
 
+[[webhooks.subscriptions]]
+topics = ["app/uninstalled"]
+uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/shopify-uninstall-webhook"
+
+[[webhooks.subscriptions]]
+topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
+uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/shopify-order-webhook"
+
 [pos]
 embedded = false
 
