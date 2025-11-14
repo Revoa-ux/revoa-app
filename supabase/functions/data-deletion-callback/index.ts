@@ -68,11 +68,13 @@ Deno.serve(async (req: Request) => {
 
       // If HMAC is present, verify it (Shopify webhook)
       if (hmac) {
-        const secret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
+        const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET');
         if (!secret) {
-          console.error('[Data Deletion] Missing SHOPIFY_CLIENT_SECRET');
-          throw new Error('Server configuration error');
+          console.error('[Data Deletion] Missing SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET');
+          throw new Error('Server configuration error: Webhook secret not configured');
         }
+
+        console.log('[Data Deletion] Using webhook secret for HMAC verification');
 
         const isValid = await verifyWebhookHmac(rawBody, hmac, secret);
         if (!isValid) {

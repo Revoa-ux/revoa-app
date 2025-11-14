@@ -56,11 +56,13 @@ Deno.serve(async (req: Request) => {
     const body = await req.text();
     console.log('[Uninstall Webhook] Body received, length:', body.length);
 
-    const secret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
+    const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET');
     if (!secret) {
-      console.error('[Uninstall Webhook] Missing SHOPIFY_CLIENT_SECRET');
-      throw new Error('Server configuration error');
+      console.error('[Uninstall Webhook] Missing SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET');
+      throw new Error('Server configuration error: Webhook secret not configured');
     }
+
+    console.log('[Uninstall Webhook] Using webhook secret for HMAC verification');
 
     const isValid = await verifyWebhookHmac(body, hmac, secret);
     if (!isValid) {
