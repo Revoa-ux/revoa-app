@@ -28,15 +28,15 @@ api_version = "2025-01"
 # GDPR Compliance webhooks (customers/redact, customers/data_request, shop/redact)
 [[webhooks.subscriptions]]
 topics = ["customers/data_request", "customers/redact", "shop/redact"]
-uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/data-deletion-callback"
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/data-deletion-callback"
 
 [[webhooks.subscriptions]]
 topics = ["app/uninstalled"]
-uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/shopify-uninstall-webhook"
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-uninstall-webhook"
 
 [[webhooks.subscriptions]]
 topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
-uri = "https://kctxoqrvhpldlxhbgvpk.supabase.co/functions/v1/shopify-order-webhook"
+uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-order-webhook"
 
 [pos]
 embedded = false
