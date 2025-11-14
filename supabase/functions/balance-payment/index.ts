@@ -179,24 +179,29 @@ Deno.serve(async (req: Request) => {
       );
     } else if (payment_method === 'wire') {
       // Handle wire transfer
-      // Generate unique reference number
+      // User wires FULL amount to supplier
+      // Platform fee tracked internally for monthly invoicing to supplier
+
       const referenceNumber = `WIRE-${Date.now()}-${user.id.slice(0, 8)}`;
 
       // Create payment intent record (pending admin confirmation)
+      // Note: User wires 'amount', platform fee tracked for supplier invoice
       const { data: paymentRecord, error: paymentError } = await supabaseClient
         .from('payment_intents')
         .insert({
           user_id: user.id,
           supplier_id: supplier.id,
           payment_method: 'wire',
-          amount,
-          platform_fee: platformFee,
-          supplier_amount: supplierAmount,
+          amount, // Full amount user wires to supplier
+          platform_fee: platformFee, // Hidden from user, invoiced to supplier monthly
+          supplier_amount: supplierAmount, // What supplier keeps after fee
           status: 'pending',
           wire_reference_number: referenceNumber,
           invoice_ids: invoice_ids || [],
           metadata: {
             type: 'balance_topup',
+            fee_hidden_from_user: true,
+            fee_invoiced_to_supplier: true,
           },
         })
         .select()
@@ -207,7 +212,11 @@ Deno.serve(async (req: Request) => {
         throw new Error('Failed to create payment record');
       }
 
-      console.log('[Balance Payment] Wire transfer initiated:', referenceNumber);
+      console.log('[Balance Payment] Wire transfer initiated:', {
+        reference: referenceNumber,
+        amount,
+        hidden_platform_fee: platformFee,
+      });
 
       return new Response(
         JSON.stringify({
@@ -220,9 +229,7 @@ Deno.serve(async (req: Request) => {
             bankName: 'Wise',
             swiftCode: 'CMFGUS33',
           },
-          amount,
-          platformFee,
-          supplierAmount,
+          amount, // User sees full amount only, no fee breakdown
         }),
         {
           status: 200,
