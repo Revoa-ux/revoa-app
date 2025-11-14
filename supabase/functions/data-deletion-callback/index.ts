@@ -55,7 +55,6 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     if (req.method === "POST") {
-      // Verify HMAC signature for Shopify webhooks
       const hmac = req.headers.get('X-Shopify-Hmac-Sha256');
       const shop = req.headers.get('X-Shopify-Shop-Domain');
       const topic = req.headers.get('X-Shopify-Topic');
@@ -63,10 +62,8 @@ Deno.serve(async (req: Request) => {
 
       console.log('[Data Deletion] Headers:', { shop, topic, hasHmac: !!hmac, webhookId });
 
-      // Read raw body for HMAC verification
       const rawBody = await req.text();
 
-      // If HMAC is present, verify it (Shopify webhook)
       if (hmac) {
         const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET');
         if (!secret) {
@@ -90,7 +87,6 @@ Deno.serve(async (req: Request) => {
 
         console.log('[Data Deletion] HMAC verified successfully');
 
-        // Check for duplicate webhook
         if (webhookId) {
           const { data: existingWebhook } = await supabase
             .from('webhook_logs')
@@ -109,7 +105,6 @@ Deno.serve(async (req: Request) => {
             );
           }
 
-          // Log this webhook
           await supabase.from('webhook_logs').insert({
             webhook_id: webhookId,
             topic: topic || 'data_deletion',
