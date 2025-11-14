@@ -481,6 +481,8 @@ async function handleWebhook(req: Request, supabaseClient: any) {
     switch (event.type) {
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object;
+
+        // Update marketplace transactions (old flow)
         await supabaseClient
           .from('marketplace_transactions')
           .update({
@@ -488,6 +490,62 @@ async function handleWebhook(req: Request, supabaseClient: any) {
             stripe_transfer_id: paymentIntent.transfer,
           })
           .eq('stripe_payment_intent_id', paymentIntent.id);
+
+        // Update payment_intents table (new balance flow)
+        const { data: paymentRecord } = await supabaseClient
+          .from('payment_intents')
+          .select('*')
+          .eq('stripe_payment_intent_id', paymentIntent.id)
+          .maybeSingle();
+
+        if (paymentRecord) {
+          // Update payment status
+          await supabaseClient
+            .from('payment_intents')
+            .update({ status: 'succeeded' })
+            .eq('id', paymentRecord.id);
+
+          // Credit merchant balance
+          const { data: currentAccount } = await supabaseClient
+            .from('balance_accounts')
+            .select('current_balance')
+            .eq('user_id', paymentRecord.user_id)
+            .maybeSingle();
+
+          const newBalance = (currentAccount?.current_balance || 0) + paymentRecord.amount;
+
+          await supabaseClient
+            .from('balance_accounts')
+            .update({
+              current_balance: newBalance,
+              last_transaction_at: new Date().toISOString(),
+            })
+            .eq('user_id', paymentRecord.user_id);
+
+          // Record transaction
+          await supabaseClient
+            .from('balance_transactions')
+            .insert({
+              user_id: paymentRecord.user_id,
+              type: 'payment',
+              amount: paymentRecord.amount,
+              balance_after: newBalance,
+              description: `Balance top-up via Stripe - $${paymentRecord.amount.toFixed(2)}`,
+              reference_type: 'payment_intent',
+              reference_id: paymentRecord.id,
+              metadata: {
+                payment_method: 'stripe',
+                platform_fee: paymentRecord.platform_fee,
+                stripe_payment_intent_id: paymentIntent.id,
+              },
+            });
+
+          console.log('[Webhook] Balance credited:', {
+            user_id: paymentRecord.user_id,
+            amount: paymentRecord.amount,
+            new_balance: newBalance,
+          });
+        }
         break;
       }
       case 'payment_intent.payment_failed': {

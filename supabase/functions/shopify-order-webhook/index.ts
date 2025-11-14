@@ -76,6 +76,145 @@ function parseClickIDsFromURL(url: string): Record<string, string> {
   }
 }
 
+/**
+ * Process order line items, calculate COGS, and debit merchant balance
+ */
+async function processOrderCOGS(
+  supabase: any,
+  userId: string,
+  orderData: any,
+  storedOrderId: string
+) {
+  console.log('[Order Webhook] Processing COGS for order:', orderData.name);
+
+  const lineItems = orderData.line_items || [];
+  if (lineItems.length === 0) {
+    console.log('[Order Webhook] No line items in order');
+    return;
+  }
+
+  let totalCOGS = 0;
+  const orderLineItemsToInsert = [];
+
+  // Process each line item
+  for (const item of lineItems) {
+    // Try to find matching product by Shopify product ID or SKU
+    const { data: product } = await supabase
+      .from('products')
+      .select('id, name, cogs_cost, supplier_id')
+      .or(`shopify_product_id.eq.${item.product_id},sku.eq.${item.sku}`)
+      .maybeSingle();
+
+    const unitCost = product?.cogs_cost || 0;
+    const totalCost = unitCost * item.quantity;
+    totalCOGS += totalCost;
+
+    orderLineItemsToInsert.push({
+      user_id: userId,
+      shopify_order_id: orderData.id.toString(),
+      product_id: product?.id || null,
+      product_name: item.name || item.title || 'Unknown Product',
+      variant_name: item.variant_title,
+      quantity: item.quantity,
+      unit_cost: unitCost,
+      total_cost: totalCost,
+      fulfillment_status: 'pending',
+    });
+
+    console.log('[Order Webhook] Line item:', {
+      product: item.name,
+      quantity: item.quantity,
+      unit_cost: unitCost,
+      total_cost: totalCost,
+    });
+  }
+
+  // Insert order line items
+  const { error: lineItemsError } = await supabase
+    .from('order_line_items')
+    .insert(orderLineItemsToInsert);
+
+  if (lineItemsError) {
+    console.error('[Order Webhook] Error inserting line items:', lineItemsError);
+    throw new Error(`Failed to insert order line items: ${lineItemsError.message}`);
+  }
+
+  console.log('[Order Webhook] Inserted', orderLineItemsToInsert.length, 'line items');
+
+  // Only debit balance if there's a cost
+  if (totalCOGS > 0) {
+    // Get or create balance account
+    const { data: balanceAccount } = await supabase
+      .from('balance_accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (!balanceAccount) {
+      // Create balance account if it doesn't exist
+      await supabase
+        .from('balance_accounts')
+        .insert({
+          user_id: userId,
+          current_balance: 0,
+          currency: 'USD',
+        });
+    }
+
+    // Get current balance
+    const { data: currentAccount } = await supabase
+      .from('balance_accounts')
+      .select('current_balance')
+      .eq('user_id', userId)
+      .single();
+
+    const newBalance = (currentAccount?.current_balance || 0) - totalCOGS;
+
+    // Update balance account
+    const { error: balanceUpdateError } = await supabase
+      .from('balance_accounts')
+      .update({
+        current_balance: newBalance,
+        last_transaction_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId);
+
+    if (balanceUpdateError) {
+      console.error('[Order Webhook] Error updating balance:', balanceUpdateError);
+      throw new Error(`Failed to update balance: ${balanceUpdateError.message}`);
+    }
+
+    // Record transaction
+    const { error: transactionError } = await supabase
+      .from('balance_transactions')
+      .insert({
+        user_id: userId,
+        type: 'order_charge',
+        amount: -totalCOGS,
+        balance_after: newBalance,
+        description: `Order ${orderData.name || orderData.order_number} - ${orderLineItemsToInsert.length} items`,
+        reference_type: 'order',
+        reference_id: storedOrderId,
+        metadata: {
+          shopify_order_id: orderData.id.toString(),
+          order_name: orderData.name,
+          line_items_count: orderLineItemsToInsert.length,
+        },
+      });
+
+    if (transactionError) {
+      console.error('[Order Webhook] Error recording transaction:', transactionError);
+    }
+
+    console.log('[Order Webhook] Balance debited:', {
+      amount: totalCOGS,
+      newBalance: newBalance,
+    });
+  } else {
+    console.log('[Order Webhook] No COGS to charge for this order');
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -237,6 +376,9 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log('[Order Webhook] Order stored:', storedOrder.id);
+
+    // Calculate COGS and debit merchant balance for this order
+    await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
 
     // If we have UTM data, try to match to ads
     if (utmParams.utm_source && utmParams.utm_term) {

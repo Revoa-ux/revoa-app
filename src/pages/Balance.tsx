@@ -19,6 +19,8 @@ import { InvoiceTable } from '@/components/balance/InvoiceTable';
 import { TransactionTable } from '@/components/balance/TransactionTable';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { COGSProjection } from '@/components/balance/COGSProjection';
+import { balanceService } from '@/lib/balanceService';
+import type { BalanceAccount, BalanceTransaction, Invoice as DBInvoice } from '@/lib/balanceService';
 
 interface BankDetails {
   accountHolder: string;
@@ -43,7 +45,7 @@ interface Invoice {
 interface Transaction {
   id: string;
   date: string;
-  type: 'payment' | 'refund' | 'adjustment' | 'top_up';
+  type: 'payment' | 'refund' | 'adjustment' | 'top_up' | 'order_charge' | 'cancellation';
   amount: number;
   payment_method: string;
   status: string;
@@ -58,7 +60,7 @@ export default function Balance() {
   const [searchTerm, setSearchTerm] = useState('');  
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'unpaid' | 'pending'>('all');  
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState<'all' | 'payment' | 'refund' | 'adjustment' | 'top_up'>('all');
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState<'all' | 'payment' | 'refund' | 'adjustment' | 'top_up' | 'order_charge' | 'cancellation'>('all');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '14d' | '30d'>('7d');
   
@@ -86,8 +88,14 @@ export default function Balance() {
   }, [searchParams, setSearchParams]);
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [balanceAccount, setBalanceAccount] = useState<BalanceAccount | null>(null);
+  const [cogsProjectionData, setCogsProjectionData] = useState<Record<'7d' | '14d' | '30d', any>>({
+    '7d': { period: '7d', total: 0, percentageChange: 0 },
+    '14d': { period: '14d', total: 0, percentageChange: 0 },
+    '30d': { period: '30d', total: 0, percentageChange: 0 },
+  });
+  const [loading, setLoading] = useState(true);
 
   const bankDetails: BankDetails = {
     accountHolder: "Hangzhou Jiaming Yichang Technology",
@@ -97,28 +105,61 @@ export default function Balance() {
     swiftCode: "CMFGUS33"
   };
 
-  const currentBalance = 0;
-  const projectedExpenses = 0;
-  const suggestedBalance = 0;
-  const suggestedTopUp = 0;
+  // Load balance data
+  useEffect(() => {
+    loadBalanceData();
+  }, []);
 
-  const cogsProjectionData = {
-    '7d': {
-      period: '7d',
-      total: 0,
-      percentageChange: 0
-    },
-    '14d': {
-      period: '14d',
-      total: 0,
-      percentageChange: 0
-    },
-    '30d': {
-      period: '30d',
-      total: 0,
-      percentageChange: 0
+  const loadBalanceData = async () => {
+    try {
+      setLoading(true);
+
+      // Load balance account
+      const account = await balanceService.getBalanceAccount();
+      setBalanceAccount(account);
+
+      // Load transactions
+      const txs = await balanceService.getTransactions(50);
+      const formattedTransactions: Transaction[] = txs.map(tx => ({
+        id: tx.id,
+        date: tx.created_at,
+        type: tx.type as Transaction['type'],
+        amount: Math.abs(tx.amount),
+        payment_method: tx.type === 'payment' ? 'stripe' : '',
+        status: 'completed',
+        reference: tx.description,
+      }));
+      setTransactions(formattedTransactions);
+
+      // Load invoices
+      const invs = await balanceService.getInvoices();
+      const formattedInvoices: Invoice[] = invs.map(inv => ({
+        id: inv.id,
+        date: inv.created_at,
+        invoice_number: inv.invoice_number || `INV-${inv.id.slice(0, 8)}`,
+        product_cost: inv.total_amount || inv.amount || 0,
+        shipping_cost: 0,
+        total_cost: inv.total_amount || inv.amount || 0,
+        status: inv.status as Invoice['status'],
+        file_url: inv.file_url || '',
+      }));
+      setInvoices(formattedInvoices);
+
+      // Load COGS projections
+      const projections = await balanceService.getCOGSProjections();
+      setCogsProjectionData(projections);
+    } catch (error) {
+      console.error('Error loading balance data:', error);
+      toast.error('Failed to load balance data');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const currentBalance = balanceAccount?.current_balance || 0;
+  const projectedExpenses = cogsProjectionData[selectedPeriod]?.total || 0;
+  const suggestedBalance = projectedExpenses * 1.5; // 1.5x projected as buffer
+  const suggestedTopUp = Math.max(0, suggestedBalance - currentBalance);
 
 
   const handleAutoTopUpSave = async (config: { enabled: boolean; threshold: number; amount: number }) => {
@@ -349,7 +390,14 @@ export default function Balance() {
             </div>
           </div>
         </div>
-        <InvoiceTable data={filteredInvoices} />
+        {loading ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading invoices...</p>
+          </div>
+        ) : (
+          <InvoiceTable data={filteredInvoices} />
+        )}
       </div>
 
       <div className="space-y-4">
@@ -438,12 +486,39 @@ export default function Balance() {
                     <span>Top Up</span>
                     {transactionTypeFilter === 'top_up' && <Check className="w-4 h-4 text-primary-500" />}
                   </button>
+                  <button
+                    onClick={() => {
+                      setTransactionTypeFilter('order_charge');
+                      setShowTypeDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <span>Order Charge</span>
+                    {transactionTypeFilter === 'order_charge' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTransactionTypeFilter('cancellation');
+                      setShowTypeDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <span>Cancellation</span>
+                    {transactionTypeFilter === 'cancellation' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
                 </div>
               )}
             </div>
           </div>
         </div>
-        <TransactionTable data={filteredTransactions} />
+        {loading ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading transactions...</p>
+          </div>
+        ) : (
+          <TransactionTable data={filteredTransactions} />
+        )}
       </div>
 
       {showStripeTopUpModal && (
