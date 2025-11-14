@@ -20,6 +20,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminQuotes from './pages/admin/Quotes';
 import AdminInvoices from './pages/admin/Invoices';
+import AdminFinances from './pages/admin/Finances';
 import AdminSettings from './pages/admin/Settings';
 import AdminManage from './pages/admin/Admins';
 import SignUpNew from './pages/SignUpNew';
@@ -56,6 +57,31 @@ const AdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // If trying to access admin routes without admin privileges
   if (!isAdmin) {
     return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// Protected route component for super admin routes
+const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  const { isAdmin, isSuperAdmin, loading: adminLoading } = useAdmin();
+
+  if (isLoading || adminLoading) {
+    return <LoadingPage />;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
+  // If admin but not super admin, redirect to admin dashboard
+  if (!isSuperAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -110,6 +136,11 @@ function App() {
               <Route path="product-import" element={<AdminProductImport />} />
               <Route path="ai-import" element={<AdminAIImport />} />
               <Route path="invoices" element={<AdminInvoices />} />
+              <Route path="finances" element={
+                <SuperAdminProtectedRoute>
+                  <AdminFinances />
+                </SuperAdminProtectedRoute>
+              } />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
