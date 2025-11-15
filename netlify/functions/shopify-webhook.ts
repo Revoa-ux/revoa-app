@@ -35,9 +35,9 @@ export const handler: Handler = async (event) => {
     };
   }
 
-  const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
+  const clientSecret = process.env.SHOPIFY_API_SECRET;
   if (!clientSecret) {
-    console.error('[Webhook] SHOPIFY_CLIENT_SECRET not configured');
+    console.error('[Webhook] SHOPIFY_API_SECRET not configured');
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Server configuration error' }),

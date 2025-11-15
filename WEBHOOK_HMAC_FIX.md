@@ -178,7 +178,7 @@ SHOPIFY_CLIENT_SECRET=your_client_secret_here
 
 **Your Current Value (from .env):**
 ```bash
-SHOPIFY_WEBHOOK_SECRET=your_shopify_client_secret_here
+SHOPIFY_WEBHOOK_SECRET=8b8630af8cead966607dddb7ab5abee0
 ```
 
 ---
