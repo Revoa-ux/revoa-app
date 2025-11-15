@@ -12,6 +12,97 @@ const corsHeaders = {
 
 const SHOPIFY_API_VERSION = '2025-07';
 
+interface WebhookRegistration {
+  topic: string;
+  address: string;
+  format: 'json';
+}
+
+async function registerWebhooks(shop: string, accessToken: string): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  if (!supabaseUrl) {
+    throw new Error('SUPABASE_URL not configured');
+  }
+
+  const webhooks: WebhookRegistration[] = [
+    // Order webhooks
+    {
+      topic: 'orders/create',
+      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
+      format: 'json'
+    },
+    {
+      topic: 'orders/paid',
+      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
+      format: 'json'
+    },
+    {
+      topic: 'orders/fulfilled',
+      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
+      format: 'json'
+    },
+    {
+      topic: 'orders/cancelled',
+      address: `${supabaseUrl}/functions/v1/shopify-order-webhook`,
+      format: 'json'
+    },
+    // Uninstall webhook
+    {
+      topic: 'app/uninstalled',
+      address: `${supabaseUrl}/functions/v1/shopify-uninstall-webhook`,
+      format: 'json'
+    },
+    // GDPR compliance webhooks
+    {
+      topic: 'customers/data_request',
+      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
+      format: 'json'
+    },
+    {
+      topic: 'customers/redact',
+      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
+      format: 'json'
+    },
+    {
+      topic: 'shop/redact',
+      address: `${supabaseUrl}/functions/v1/data-deletion-callback`,
+      format: 'json'
+    }
+  ];
+
+  console.log(`[Webhooks] Registering ${webhooks.length} webhooks for shop: ${shop}`);
+
+  for (const webhook of webhooks) {
+    try {
+      const response = await fetch(
+        `https://${shop}/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Access-Token': accessToken,
+          },
+          body: JSON.stringify({ webhook }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error(`[Webhooks] Failed to register ${webhook.topic}:`, error);
+        // Don't throw - continue registering other webhooks
+      } else {
+        const result = await response.json();
+        console.log(`[Webhooks] ✓ Registered ${webhook.topic} (ID: ${result.webhook?.id})`);
+      }
+    } catch (error) {
+      console.error(`[Webhooks] Error registering ${webhook.topic}:`, error);
+      // Continue with other webhooks
+    }
+  }
+
+  console.log('[Webhooks] Webhook registration complete');
+}
+
 async function handleOAuthCompletion(req: Request, supabase: any) {
   const body = await req.json();
   const { shop, code, state } = body;
@@ -76,6 +167,10 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
 
   const { access_token, scope } = await tokenResponse.json();
   console.log('[OAuth] Access token obtained successfully');
+
+  // Register webhooks after getting access token
+  console.log('[OAuth] Registering webhooks with Shopify');
+  await registerWebhooks(shop, access_token);
 
   // Save installation to both tables for backwards compatibility
   console.log('[OAuth] Saving installation to database');
