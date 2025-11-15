@@ -242,6 +242,7 @@ export const handler: Handler = async (event) => {
           status: "installed",
           installed_at: new Date().toISOString(),
           last_auth_at: new Date().toISOString(),
+          uninstalled_at: null,
           metadata: {
             install_count: 1,
             last_install: new Date().toISOString(),

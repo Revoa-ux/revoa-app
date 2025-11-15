@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Calendar as CalendarIcon, ChevronDown, Check } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 
-export type TimeOption = 'today' | 'yesterday' | '7d' | '14d' | '28d';
+export type TimeOption = 'today' | 'yesterday' | '7d' | '14d' | '28d' | 'thisMonth' | 'lastMonth' | 'last3Months' | 'ytd' | 'custom';
 
 interface DateRange {
   startDate: Date;
@@ -50,6 +50,11 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       case '7d': return 'Last 7 days';
       case '14d': return 'Last 14 days';
       case '28d': return 'Last 28 days';
+      case 'thisMonth': return 'This Month';
+      case 'lastMonth': return 'Last Month';
+      case 'last3Months': return 'Last 3 Months';
+      case 'ytd': return 'Year to Date';
+      case 'custom': return 'Custom Date';
       default: return 'Today';
     }
   };
@@ -59,7 +64,12 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     'yesterday',
     '7d',
     '14d',
-    '28d'
+    '28d',
+    'thisMonth',
+    'lastMonth',
+    'last3Months',
+    'ytd',
+    'custom'
   ];
 
   const handleTimeSelect = (time: TimeOption) => {
@@ -93,6 +103,34 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(23, 59, 59, 999);
         break;
+      case 'thisMonth':
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'lastMonth': {
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        startDate.setFullYear(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setFullYear(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'last3Months':
+        startDate.setMonth(startDate.getMonth() - 3);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        startDate.setMonth(0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        // Don't close dropdown for custom - let user pick dates
+        onTimeChange(time);
+        return;
     }
 
     onDateRangeChange({ startDate, endDate });

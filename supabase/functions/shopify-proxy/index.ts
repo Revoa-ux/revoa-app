@@ -196,6 +196,16 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
   }
 
   // Also save to shopify_installations for backwards compatibility
+  // Check if installation already exists to preserve install count
+  const { data: existing } = await supabase
+    .from('shopify_installations')
+    .select('metadata')
+    .eq('user_id', userId)
+    .eq('store_url', shop)
+    .maybeSingle();
+
+  const installCount = (existing?.metadata as any)?.install_count || 0;
+
   const { error: installError } = await supabase
     .from('shopify_installations')
     .upsert({
@@ -208,11 +218,11 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
       last_auth_at: new Date().toISOString(),
       uninstalled_at: null,
       metadata: {
-        install_count: 1,
+        install_count: installCount + 1,
         last_install: new Date().toISOString(),
       },
     }, {
-      onConflict: 'store_url'
+      onConflict: 'user_id,store_url'
     });
 
   if (installError) {
