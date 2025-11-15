@@ -162,43 +162,76 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to store order: ${orderError.message}`);
     }
     console.log('[Order Webhook] Order stored:', storedOrder.id);
-    await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
-    if (utmParams.utm_source && utmParams.utm_term) {
-      console.log('[Order Webhook] Attempting to match order to ads...');
-      const { data: matchingAds } = await supabase.from('ads').select(`id,platform_ad_id,name,ad_sets!inner(campaign_id,ad_campaigns!inner(ad_account_id,ad_accounts!inner(user_id)))`).eq('ad_sets.ad_campaigns.ad_accounts.user_id', userId);
-      if (matchingAds && matchingAds.length > 0) {
-        const utmTerm = utmParams.utm_term.toLowerCase().trim();
-        let matchedAd = matchingAds.find(ad => ad.platform_ad_id === utmParams.utm_term);
-        let confidenceScore = matchedAd ? 1.0 : 0;
-        let attributionMethod = 'utm_match';
-        if (!matchedAd) {
-          matchedAd = matchingAds.find(ad => ad.name.toLowerCase().trim() === utmTerm);
-          if (matchedAd) {
-            confidenceScore = 0.95;
-            attributionMethod = 'ad_name_match';
-          }
-        }
-        if (!matchedAd) {
-          matchedAd = matchingAds.find(ad => ad.name.toLowerCase().includes(utmTerm));
-          if (matchedAd) {
-            confidenceScore = 0.8;
-            attributionMethod = 'ad_name_match';
-          }
-        }
-        if (matchedAd) {
-          console.log('[Order Webhook] Matched to ad:', matchedAd.name);
-          const { error: conversionError } = await supabase.from('ad_conversions').upsert({user_id: userId, ad_id: matchedAd.id, order_id: storedOrder.id, platform: utmParams.utm_source, conversion_value: parseFloat(orderData.total_price || orderData.current_total_price || '0'), attribution_method: attributionMethod, confidence_score: confidenceScore, converted_at: orderData.created_at || new Date().toISOString()}, {onConflict: 'order_id,ad_id', ignoreDuplicates: true});
-          if (conversionError) {
-            console.error('[Order Webhook] Error creating conversion:', conversionError);
-          } else {
-            console.log('[Order Webhook] Conversion recorded');
-          }
-        } else {
-          console.log('[Order Webhook] No matching ad found for utm_term:', utmTerm);
-        }
+
+    // IMPORTANT: Return 200 OK immediately to Shopify (within 5 seconds)
+    // Process COGS and attribution in background to avoid timeout
+    const responsePromise = new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Order received',
+        order_id: storedOrder.id,
+        timestamp: new Date().toISOString()
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
+    );
+
+    // Process in background (non-blocking)
+    // This ensures Shopify gets 200 OK response within 5 seconds
+    const backgroundProcessing = (async () => {
+      try {
+        await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
+
+        if (utmParams.utm_source && utmParams.utm_term) {
+          console.log('[Order Webhook] Attempting to match order to ads...');
+          const { data: matchingAds } = await supabase.from('ads').select(`id,platform_ad_id,name,ad_sets!inner(campaign_id,ad_campaigns!inner(ad_account_id,ad_accounts!inner(user_id)))`).eq('ad_sets.ad_campaigns.ad_accounts.user_id', userId);
+          if (matchingAds && matchingAds.length > 0) {
+            const utmTerm = utmParams.utm_term.toLowerCase().trim();
+            let matchedAd = matchingAds.find(ad => ad.platform_ad_id === utmParams.utm_term);
+            let confidenceScore = matchedAd ? 1.0 : 0;
+            let attributionMethod = 'utm_match';
+            if (!matchedAd) {
+              matchedAd = matchingAds.find(ad => ad.name.toLowerCase().trim() === utmTerm);
+              if (matchedAd) {
+                confidenceScore = 0.95;
+                attributionMethod = 'ad_name_match';
+              }
+            }
+            if (!matchedAd) {
+              matchedAd = matchingAds.find(ad => ad.name.toLowerCase().includes(utmTerm));
+              if (matchedAd) {
+                confidenceScore = 0.8;
+                attributionMethod = 'ad_name_match';
+              }
+            }
+            if (matchedAd) {
+              console.log('[Order Webhook] Matched to ad:', matchedAd.name);
+              const { error: conversionError } = await supabase.from('ad_conversions').upsert({user_id: userId, ad_id: matchedAd.id, order_id: storedOrder.id, platform: utmParams.utm_source, conversion_value: parseFloat(orderData.total_price || orderData.current_total_price || '0'), attribution_method: attributionMethod, confidence_score: confidenceScore, converted_at: orderData.created_at || new Date().toISOString()}, {onConflict: 'order_id,ad_id', ignoreDuplicates: true});
+              if (conversionError) {
+                console.error('[Order Webhook] Error creating conversion:', conversionError);
+              } else {
+                console.log('[Order Webhook] Conversion recorded');
+              }
+            } else {
+              console.log('[Order Webhook] No matching ad found for utm_term:', utmTerm);
+            }
+          }
+        }
+        console.log('[Order Webhook] Background processing completed');
+      } catch (bgError) {
+        console.error('[Order Webhook] Background processing error:', bgError);
+      }
+    })();
+
+    // If EdgeRuntime.waitUntil is available, use it for proper background processing
+    // Otherwise, the promise will complete after the response is sent
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+      EdgeRuntime.waitUntil(backgroundProcessing);
     }
-    return new Response(JSON.stringify({success: true, message: 'Order processed successfully', order_id: storedOrder.id, timestamp: new Date().toISOString()}), {status: 200, headers: {...corsHeaders, 'Content-Type': 'application/json'}});
+
+    return responsePromise;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('[Order Webhook] Error:', errorMessage);
