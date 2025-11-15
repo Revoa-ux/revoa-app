@@ -45,50 +45,11 @@ export default function Audit() {
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
+    // Date range will be updated by AdReportsTimeSelector via onDateRangeChange
+  };
 
-    const now = new Date();
-    let startDate = new Date();
-    let endDate = new Date();
-
-    switch (time) {
-      case 'today':
-        startDate = new Date(now);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'yesterday':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setDate(endDate.getDate() - 1);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case '7d':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 7);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case '14d':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 14);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case '28d':
-        startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 28);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-    }
-
-    setDateRange({ startDate, endDate });
+  const handleDateRangeChange = (range: DateRange) => {
+    setDateRange(range);
   };
 
   const refreshData = async (showSuccessToast = false) => {
@@ -180,6 +141,8 @@ export default function Audit() {
             <AdReportsTimeSelector
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
+              dateRange={dateRange}
+              onDateRangeChange={handleDateRangeChange}
             />
           </div>
         </div>
