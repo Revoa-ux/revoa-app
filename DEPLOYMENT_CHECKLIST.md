@@ -35,9 +35,9 @@ Check that these are set in Supabase:
 
 ```bash
 # Should all have the same value from Shopify Partner Dashboard
-SHOPIFY_WEBHOOK_SECRET=8b8630af8cead966607dddb7ab5abee0
-SHOPIFY_API_SECRET=8b8630af8cead966607dddb7ab5abee0
-SHOPIFY_CLIENT_SECRET=8b8630af8cead966607dddb7ab5abee0
+SHOPIFY_WEBHOOK_SECRET=your_shopify_client_secret_here
+SHOPIFY_API_SECRET=your_shopify_client_secret_here
+SHOPIFY_CLIENT_SECRET=your_shopify_client_secret_here
 ```
 
 - [ ] SHOPIFY_WEBHOOK_SECRET is set
