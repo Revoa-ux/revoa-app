@@ -38,7 +38,7 @@ function timingSafeEqual(a: string, b: string): boolean {
  *
  * @param body - The raw webhook body as a string (must not be parsed as JSON first)
  * @param hmacHeader - The X-Shopify-Hmac-Sha256 header value (base64 encoded)
- * @param secret - The Shopify webhook secret (SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET)
+ * @param secret - The Shopify webhook secret (SHOPIFY_WEBHOOK_SECRET or SHOPIFY_CLIENT_SECRET)
  * @returns True if the HMAC is valid, false otherwise
  */
 export async function verifyShopifyWebhook(
@@ -113,15 +113,14 @@ export async function verifyShopifyWebhookHex(
 
 /**
  * Gets the webhook secret from environment variables
- * Tries SHOPIFY_WEBHOOK_SECRET first, falls back to SHOPIFY_API_SECRET
+ * Tries SHOPIFY_WEBHOOK_SECRET first, falls back to SHOPIFY_CLIENT_SECRET
  */
 export function getWebhookSecret(): string {
   const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') ||
-                 Deno.env.get('SHOPIFY_API_SECRET') ||
                  Deno.env.get('SHOPIFY_CLIENT_SECRET');
 
   if (!secret) {
-    throw new Error('Missing webhook secret: Set SHOPIFY_WEBHOOK_SECRET, SHOPIFY_API_SECRET, or SHOPIFY_CLIENT_SECRET');
+    throw new Error('Missing webhook secret: Set SHOPIFY_WEBHOOK_SECRET or SHOPIFY_CLIENT_SECRET');
   }
 
   return secret;
