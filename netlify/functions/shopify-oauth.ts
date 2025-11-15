@@ -197,36 +197,60 @@ export const handler: Handler = async (event) => {
 
     const { access_token, scope } = await response.json();    
 
-    // Save tokenData.access_token securely for future API calls
-    // Delete any existing record with matching user_id and store_url
-    const { error: deleteError } = await supabase
-    .from("shopify_installations")
-    .delete()
-    .eq("user_id", oauthSession.user_id)
-    .eq("store_url", shop);
+    // Check if there's an existing installation (including uninstalled ones)
+    const { data: existingInstallation } = await supabase
+      .from("shopify_installations")
+      .select("id, metadata, status")
+      .eq("user_id", oauthSession.user_id)
+      .eq("store_url", shop)
+      .maybeSingle();
 
-    if (deleteError) { 
-      const errorText = `Error deleting existing installation: ${deleteError ?? 'Unknown error'}`;
-      console.error(errorText);
-      await updateErrorByState(supabase, state, errorText);
+    let installError;
+
+    if (existingInstallation) {
+      // Update existing installation (handles reinstalls)
+      const installCount = (existingInstallation.metadata as any)?.install_count || 0;
+      const { error } = await supabase
+        .from("shopify_installations")
+        .update({
+          access_token,
+          scopes: scope.split(","),
+          status: "installed",
+          installed_at: new Date().toISOString(),
+          last_auth_at: new Date().toISOString(),
+          uninstalled_at: null,
+          metadata: {
+            ...(existingInstallation.metadata as any),
+            install_count: installCount + 1,
+            last_install: new Date().toISOString(),
+            reinstalled: existingInstallation.status === 'uninstalled',
+          },
+        })
+        .eq("id", existingInstallation.id);
+
+      installError = error;
+      console.log(`[OAuth] Updated existing installation (reinstall count: ${installCount + 1})`);
+    } else {
+      // Create new installation
+      const { error } = await supabase
+        .from("shopify_installations")
+        .insert({
+          user_id: oauthSession.user_id,
+          store_url: shop,
+          access_token,
+          scopes: scope.split(","),
+          status: "installed",
+          installed_at: new Date().toISOString(),
+          last_auth_at: new Date().toISOString(),
+          metadata: {
+            install_count: 1,
+            last_install: new Date().toISOString(),
+          },
+        });
+
+      installError = error;
+      console.log('[OAuth] Created new installation');
     }
-
-    // Now insert the new installation record
-    const { error: installError } = await supabase
-    .from("shopify_installations")
-    .insert({
-      user_id: oauthSession.user_id,
-      store_url: shop,
-      access_token,
-      scopes: scope.split(","),
-      status: "installed",
-      installed_at: new Date().toISOString(),
-      last_auth_at: new Date().toISOString(),
-      metadata: {
-        install_count: 1,
-        last_install: new Date().toISOString(),
-      },
-    });
 
     if (installError) {
       const errorText = `Error saving Shopify installation: ${installError ?? 'Unknown error'}`;
