@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
+import { verifyShopifyWebhook, getWebhookSecret } from '../_shared/shopify-hmac.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,26 +10,6 @@ const corsHeaders = {
   'X-Frame-Options': 'DENY',
 };
 
-async function verifyWebhookHmac(body: string, hmac: string, secret: string): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(body)
-  );
-
-  const calculatedHmac = btoa(String.fromCharCode(...new Uint8Array(signature)));
-
-  return calculatedHmac === hmac;
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -56,15 +37,17 @@ Deno.serve(async (req: Request) => {
     const body = await req.text();
     console.log('[Uninstall Webhook] Body received, length:', body.length);
 
-    const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET');
-    if (!secret) {
-      console.error('[Uninstall Webhook] Missing SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET');
+    let secret: string;
+    try {
+      secret = getWebhookSecret();
+    } catch (error) {
+      console.error('[Uninstall Webhook] Error getting webhook secret:', error);
       throw new Error('Server configuration error: Webhook secret not configured');
     }
 
     console.log('[Uninstall Webhook] Using webhook secret for HMAC verification');
 
-    const isValid = await verifyWebhookHmac(body, hmac, secret);
+    const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
       console.error('[Uninstall Webhook] Invalid HMAC signature');
       throw new Error('Invalid HMAC signature');
