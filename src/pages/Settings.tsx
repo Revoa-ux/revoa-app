@@ -170,9 +170,13 @@ const SettingsPage = () => {
         setShopifyConnecting(false);
         setShowShopifyModal(false);
 
+        // Small delay to ensure database has fully updated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         // Refetch status from connection store
         await refreshShopifyStatus();
 
+        toast.success('Shopify store connected successfully!');
         localStorage.removeItem('shopify_oauth_success');
       } else if (event.data?.type === 'shopify:error') {
         console.log('[Settings] Shopify connection error:', event.data.error);
