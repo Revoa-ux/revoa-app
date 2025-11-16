@@ -52,17 +52,14 @@ const CallbackHandler: React.FC = () => {
             window.opener.postMessage({ type: 'shopify:success', shop }, '*');
             console.log('Sent success message to parent window');
 
-            // Also try to trigger a reload on the parent
-            if (window.opener.location) {
-              window.opener.location.reload();
-            }
+            // Close the popup after a short delay to ensure message is received
+            setTimeout(() => {
+              console.log('Closing OAuth popup window...');
+              window.close();
+            }, 1000);
           } catch (error) {
             console.error('Error communicating with parent window:', error);
           }
-
-          // DON'T CLOSE - Let user see console and close manually
-          console.log('=== SUCCESS - Window will stay open for debugging ===');
-          console.log('Close this window manually when done reviewing logs');
         } else {
           // Navigate to next step
           navigate('/onboarding/ads', { replace: true });
