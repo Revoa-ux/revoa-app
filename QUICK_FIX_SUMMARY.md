@@ -65,7 +65,7 @@ supabase functions deploy data-deletion-callback
 Make sure `SHOPIFY_CLIENT_SECRET` is set in Supabase Dashboard:
 - Go to: Settings → Edge Functions → Secrets
 - Variable: `SHOPIFY_CLIENT_SECRET`
-- Value: `8b8630af8cead966607dddb7ab5abee0` (from your .env)
+- Value: Your Shopify Client Secret (from Shopify Partner Dashboard → API credentials → Client secret)
 
 ### Test the Fix:
 

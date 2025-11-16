@@ -172,7 +172,7 @@ Ensure `SHOPIFY_CLIENT_SECRET` is set in your Supabase project:
 ```bash
 # This should be set in Supabase Dashboard → Settings → Edge Functions → Secrets
 # Value should match: Shopify Partner Dashboard → API credentials → Client secret
-SHOPIFY_CLIENT_SECRET=8b8630af8cead966607dddb7ab5abee0
+SHOPIFY_CLIENT_SECRET=your_shopify_client_secret_here
 ```
 
 ### Step 2: Deploy Updated Functions
@@ -323,7 +323,7 @@ curl -X POST https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-unins
 **Solution:**
 1. Go to Supabase Dashboard
 2. Navigate to Settings → Edge Functions → Secrets
-3. Add `SHOPIFY_CLIENT_SECRET` with value: `8b8630af8cead966607dddb7ab5abee0`
+3. Add `SHOPIFY_CLIENT_SECRET` with your Shopify Client Secret from Partner Dashboard
 4. Redeploy functions
 
 ### Issue: Still failing after deployment
