@@ -1049,8 +1049,16 @@ const SettingsPage = () => {
         setShopifyConnecting(false);
         setShowShopifyModal(false);
 
+        // Show success toast immediately
+        toast.success('Shopify store connected successfully!');
+
         // Refetch status from connection store
         await refreshShopifyStatus();
+
+        // Force a second refresh after delay to ensure store propagation
+        setTimeout(() => {
+          refreshShopifyStatus();
+        }, 500);
 
         localStorage.removeItem('shopify_oauth_success');
       } else if (event.data?.type === 'shopify:error') {
@@ -1063,7 +1071,16 @@ const SettingsPage = () => {
         console.log('[Settings] Facebook OAuth success:', event.data);
         setFacebookConnecting(false);
 
+        // Show success toast immediately
+        toast.success('Facebook Ads connected successfully!');
+
+        // Refresh accounts to update UI
         await refreshFacebookAccounts();
+
+        // Force a small delay to ensure store update propagates
+        setTimeout(() => {
+          refreshFacebookAccounts();
+        }, 500);
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
@@ -1086,8 +1103,16 @@ const SettingsPage = () => {
           setShopifyConnecting(false);
           setShowShopifyModal(false);
 
+          // Show success toast immediately
+          toast.success('Shopify store connected successfully!');
+
           // Refetch status from connection store
           await refreshShopifyStatus();
+
+          // Force a second refresh after delay
+          setTimeout(() => {
+            refreshShopifyStatus();
+          }, 500);
 
           localStorage.removeItem('shopify_oauth_success');
         } catch (error) {
@@ -1113,7 +1138,17 @@ const SettingsPage = () => {
           console.log('[Settings] Detected Facebook OAuth success in localStorage:', data);
 
           setFacebookConnecting(false);
+
+          // Show success toast immediately
+          toast.success('Facebook Ads connected successfully!');
+
+          // Refresh accounts
           await refreshFacebookAccounts();
+
+          // Force a second refresh after delay
+          setTimeout(() => {
+            refreshFacebookAccounts();
+          }, 500);
 
           localStorage.removeItem('facebook_oauth_success');
         } catch (error) {
