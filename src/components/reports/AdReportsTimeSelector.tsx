@@ -231,9 +231,9 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       {showCustomPicker && (
         <div
           ref={customPickerRef}
-          className="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 z-50"
+          className="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">Select Date Range</h3>
             <button
               onClick={handleCancelCustomDate}
@@ -243,7 +243,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-center gap-2 mb-3">
             <button
               onClick={() => setSelectingStart(true)}
               className={`flex-1 px-3 py-2 text-xs rounded-lg border transition-colors ${
@@ -273,11 +273,13 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
           </div>
 
-          <div className="mb-4">
+          <div className="mb-3">
             <Calendar
               selectedDate={selectingStart ? tempStartDate : tempEndDate}
               maxDate={new Date()}
               onSelect={handleDateSelect}
+              startDate={tempStartDate}
+              endDate={tempEndDate}
             />
           </div>
 
@@ -290,7 +292,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
             <button
               onClick={handleApplyCustomDate}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-orange-400 hover:shadow-lg hover:shadow-rose-500/25 rounded-lg transition-all"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:shadow-lg hover:shadow-rose-500/25 rounded-lg transition-all"
             >
               Apply
             </button>
