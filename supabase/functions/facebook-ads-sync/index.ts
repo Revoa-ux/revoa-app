@@ -369,7 +369,7 @@ Deno.serve(async (req: Request) => {
                   if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
                 }
 
-                const { error: adError } = await supabase.from('ads').upsert(
+                const { data: dbAd, error: adError } = await supabase.from('ads').upsert(
                   {
                     platform_ad_id: ad.id,
                     name: ad.name,
@@ -384,15 +384,63 @@ Deno.serve(async (req: Request) => {
                     creative_data: creativeData,
                   },
                   { onConflict: 'ad_set_id,platform_ad_id' }
-                );
+                )
+                .select()
+                .single();
 
-                if (adError) {
+                if (adError || !dbAd) {
                   console.error('[facebook-ads-sync] Error upserting ad:', ad.id, ad.name);
                   console.error('[facebook-ads-sync] Ad error details:', JSON.stringify(adError, null, 2));
                   continue;
                 }
 
                 adsCount++;
+
+                // Fetch ad-level insights (CRITICAL FIX: This was missing!)
+                console.log('[facebook-ads-sync] Fetching ad-level insights for:', ad.name);
+                const adInsightsUrl = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+                const adInsightsResponse = await fetch(adInsightsUrl);
+                const adInsightsData = await adInsightsResponse.json();
+
+                if (adInsightsResponse.ok && adInsightsData.data && adInsightsData.data.length > 0) {
+                  console.log('[facebook-ads-sync] Found', adInsightsData.data.length, 'daily records for ad:', ad.name);
+                  for (const insights of adInsightsData.data) {
+                    const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+                    const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+                    const metricDate = insights.date_start || endDate;
+
+                    const { error: metricError } = await supabase.from('ad_metrics').upsert(
+                      {
+                        entity_id: dbAd.id,
+                        entity_type: 'ad',
+                        date: metricDate,
+                        impressions: parseInt(insights.impressions || '0'),
+                        clicks: parseInt(insights.clicks || '0'),
+                        spend: parseFloat(insights.spend || '0'),
+                        reach: parseInt(insights.reach || '0'),
+                        conversions: parseInt(conversions),
+                        conversion_value: parseFloat(conversionValue) * 10,
+                        cpc: parseFloat(insights.cpc || '0'),
+                        cpm: parseFloat(insights.cpm || '0'),
+                        ctr: parseFloat(insights.ctr || '0'),
+                        roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
+                      },
+                      { onConflict: 'entity_type,entity_id,date' }
+                    );
+
+                    if (!metricError) {
+                      metricsCount++;
+                    } else {
+                      console.error('[facebook-ads-sync] Error saving ad metrics for', ad.name, 'date:', metricDate);
+                      console.error('[facebook-ads-sync] Metric error:', metricError);
+                    }
+                  }
+                } else {
+                  console.log('[facebook-ads-sync] No insights data for ad:', ad.name);
+                  if (adInsightsData.error) {
+                    console.error('[facebook-ads-sync] Ad insights error:', adInsightsData.error);
+                  }
+                }
               }
 
               const insightsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
