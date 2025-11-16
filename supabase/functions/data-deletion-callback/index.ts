@@ -45,60 +45,74 @@ Deno.serve(async (req: Request) => {
 
       const rawBody = await req.text();
 
-      if (hmac) {
-        let secret: string;
-        try {
-          secret = getWebhookSecret();
-        } catch (error) {
-          console.error('[Data Deletion] Error getting webhook secret:', error);
-          throw new Error('Server configuration error: Webhook secret not configured');
-        }
+      // CRITICAL: Always require HMAC for security
+      if (!hmac) {
+        console.error('[Data Deletion] ❌ Missing HMAC header');
+        return new Response(
+          JSON.stringify({
+            error: "Unauthorized",
+            message: "Missing HMAC signature",
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
 
-        console.log('[Data Deletion] Using webhook secret for HMAC verification');
+      let secret: string;
+      try {
+        secret = getWebhookSecret();
+      } catch (error) {
+        console.error('[Data Deletion] Error getting webhook secret:', error);
+        throw new Error('Server configuration error: Webhook secret not configured');
+      }
 
-        const isValid = await verifyShopifyWebhook(rawBody, hmac, secret);
-        if (!isValid) {
-          console.error('[Data Deletion] ❌ Invalid HMAC signature');
+      console.log('[Data Deletion] Using webhook secret for HMAC verification');
+
+      const isValid = await verifyShopifyWebhook(rawBody, hmac, secret);
+      if (!isValid) {
+        console.error('[Data Deletion] ❌ Invalid HMAC signature');
+        return new Response(
+          JSON.stringify({
+            error: "Unauthorized",
+            message: "Invalid HMAC signature",
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      console.log('[Data Deletion] ✅ HMAC verified successfully');
+
+      if (webhookId) {
+        const { data: existingWebhook } = await supabase
+          .from('webhook_logs')
+          .select('id')
+          .eq('webhook_id', webhookId)
+          .maybeSingle();
+
+        if (existingWebhook) {
+          console.log('[Data Deletion] Duplicate webhook detected, skipping:', webhookId);
           return new Response(
-            JSON.stringify({
-              error: "Unauthorized",
-              message: "Invalid HMAC signature",
-              timestamp: new Date().toISOString(),
-            }),
+            JSON.stringify({ success: true, message: 'Webhook already processed' }),
             {
-              status: 401,
+              status: 200,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
             }
           );
         }
 
-        console.log('[Data Deletion] ✅ HMAC verified successfully');
-
-        if (webhookId) {
-          const { data: existingWebhook } = await supabase
-            .from('webhook_logs')
-            .select('id')
-            .eq('webhook_id', webhookId)
-            .maybeSingle();
-
-          if (existingWebhook) {
-            console.log('[Data Deletion] Duplicate webhook detected, skipping:', webhookId);
-            return new Response(
-              JSON.stringify({ success: true, message: 'Webhook already processed' }),
-              {
-                status: 200,
-                headers: { ...corsHeaders, "Content-Type": "application/json" },
-              }
-            );
-          }
-
-          await supabase.from('webhook_logs').insert({
-            webhook_id: webhookId,
-            topic: topic || 'data_deletion',
-            shop_domain: shop || 'unknown',
-            processed_at: new Date().toISOString(),
-          });
-        }
+        await supabase.from('webhook_logs').insert({
+          webhook_id: webhookId,
+          topic: topic || 'data_deletion',
+          shop_domain: shop || 'unknown',
+          processed_at: new Date().toISOString(),
+        });
       }
 
       const body: DataDeletionRequest = JSON.parse(rawBody);
