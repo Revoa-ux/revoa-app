@@ -196,59 +196,24 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
   }
 
   // Also save to shopify_installations for backwards compatibility
-  // Check if installation already exists to preserve install count
-  const { data: existing } = await supabase
+  const { error: installError } = await supabase
     .from('shopify_installations')
-    .select('id, metadata, status')
-    .eq('user_id', userId)
-    .eq('store_url', shop)
-    .maybeSingle();
-
-  let installError;
-
-  if (existing) {
-    // Update existing installation
-    const installCount = (existing.metadata as any)?.install_count || 0;
-    const { error } = await supabase
-      .from('shopify_installations')
-      .update({
-        access_token,
-        scopes: scope.split(','),
-        status: 'installed',
-        installed_at: new Date().toISOString(),
-        last_auth_at: new Date().toISOString(),
-        uninstalled_at: null,
-        metadata: {
-          ...(existing.metadata as any),
-          install_count: installCount + 1,
-          last_install: new Date().toISOString(),
-          reinstalled: existing.status === 'uninstalled',
-        },
-      })
-      .eq('id', existing.id);
-
-    installError = error;
-  } else {
-    // Create new installation
-    const { error } = await supabase
-      .from('shopify_installations')
-      .insert({
-        user_id: userId,
-        store_url: shop,
-        access_token,
-        scopes: scope.split(','),
-        status: 'installed',
-        installed_at: new Date().toISOString(),
-        last_auth_at: new Date().toISOString(),
-        uninstalled_at: null,
-        metadata: {
-          install_count: 1,
-          last_install: new Date().toISOString(),
-        },
-      });
-
-    installError = error;
-  }
+    .upsert({
+      user_id: userId,
+      store_url: shop,
+      access_token,
+      scopes: scope.split(','),
+      status: 'installed',
+      installed_at: new Date().toISOString(),
+      last_auth_at: new Date().toISOString(),
+      uninstalled_at: null,
+      metadata: {
+        install_count: 1,
+        last_install: new Date().toISOString(),
+      },
+    }, {
+      onConflict: 'store_url'
+    });
 
   if (installError) {
     console.error('[OAuth] Error saving installation:', installError);

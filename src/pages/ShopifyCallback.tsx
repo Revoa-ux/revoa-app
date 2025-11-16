@@ -134,9 +134,6 @@ export default function ShopifyCallback() {
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // Small delay to ensure database transaction is fully committed
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         if (window.opener && !window.opener.closed) {
           console.log('[Callback] Sending success message to parent window');
           window.opener.postMessage({

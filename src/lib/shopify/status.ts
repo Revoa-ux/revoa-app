@@ -51,60 +51,6 @@ export async function hasActiveShopifyStore(userId: string): Promise<boolean> {
 }
 
 /**
- * Get all uninstalled Shopify stores for a user
- */
-export async function getUninstalledShopifyStores(
-  userId: string
-): Promise<ShopifyInstallation[]> {
-  try {
-    const { data, error } = await supabase
-      .from('shopify_installations')
-      .select('id, store_url, status, uninstalled_at')
-      .eq('user_id', userId)
-      .eq('status', 'uninstalled')
-      .not('uninstalled_at', 'is', null)
-      .order('uninstalled_at', { ascending: false });
-
-    if (error) {
-      console.error('[ShopifyStatus] Error fetching uninstalled stores:', error);
-      return [];
-    }
-
-    return data || [];
-  } catch (err) {
-    console.error('[ShopifyStatus] Unexpected error:', err);
-    return [];
-  }
-}
-
-/**
- * Remove an uninstalled store record from the database
- */
-export async function removeUninstalledStore(
-  userId: string,
-  installationId: string
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const { error } = await supabase
-      .from('shopify_installations')
-      .delete()
-      .eq('id', installationId)
-      .eq('user_id', userId)
-      .eq('status', 'uninstalled');
-
-    if (error) {
-      console.error('[ShopifyStatus] Error removing uninstalled store:', error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (err) {
-    console.error('[ShopifyStatus] Unexpected error:', err);
-    return { success: false, error: String(err) };
-  }
-}
-
-/**
  * Subscribe to changes in Shopify installation status
  * Also immediately checks and calls callback with current status
  */

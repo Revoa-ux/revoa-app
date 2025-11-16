@@ -23,7 +23,6 @@ import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
-import { ShopifyIntegrationCard } from '@/components/settings/ShopifyIntegrationCard';
 import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -150,6 +149,886 @@ const SettingsPage = () => {
     };
     loadProfileAndCheckAdmin();
   }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
+  // Load user profile data and check admin status
+  useEffect(() => {
+    const loadProfileAndCheckAdmin = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: profileData } = await supabase
+          .from("user_profiles")
+          .select("is_admin, first_name, last_name, display_name, phone, company")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileData) {
+          if (profileData.first_name || profileData.last_name) {
+            setProfile(prev => ({
+              ...prev,
+              firstName: profileData.first_name || "",
+              lastName: profileData.last_name || ""
+            }));
+          } else if (profileData.display_name) {
+            const nameParts = profileData.display_name.trim().split(" ");
+            const firstName = nameParts[0] || "";
+            const lastName = nameParts.slice(1).join(" ") || "";
+            setProfile(prev => ({
+              ...prev,
+              firstName,
+              lastName
+            }));
+          }
+
+          if (profileData.is_admin) {
+            setIsAdmin(true);
+            const { data } = await supabase.auth.getSession();
+            if (data?.session?.access_token) {
+              setAdminToken(data.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+      }
+    };
+    loadProfileAndCheckAdmin();
+  }, [user?.id]);
 
   // Connection store is automatically initialized in Layout component
   // No need to initialize here, just refresh Facebook accounts if needed
@@ -170,13 +1049,9 @@ const SettingsPage = () => {
         setShopifyConnecting(false);
         setShowShopifyModal(false);
 
-        // Small delay to ensure database has fully updated
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
         // Refetch status from connection store
         await refreshShopifyStatus();
 
-        toast.success('Shopify store connected successfully!');
         localStorage.removeItem('shopify_oauth_success');
       } else if (event.data?.type === 'shopify:error') {
         console.log('[Settings] Shopify connection error:', event.data.error);
@@ -861,13 +1736,39 @@ const SettingsPage = () => {
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               <div className="px-6 py-4">
-                <ShopifyIntegrationCard
-                  isConnected={integrationStatus.shopify}
-                  storeName={shopifyStore}
-                  onConnect={handleConnectShopify}
-                  onDisconnect={handleDisconnectShopify}
-                  isLoading={shopifyConnecting}
-                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <img
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
+                        alt="Shopify"
+                        className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
+                      {shopifyStore && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{shopifyStore}</p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
+                    disabled={shopifyConnecting}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      integrationStatus.shopify
+                        ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                        : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
+                      <>
+                        Connect
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="px-6 py-4">
