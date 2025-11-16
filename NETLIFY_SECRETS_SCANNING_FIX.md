@@ -36,13 +36,13 @@ Additionally, the `.env` file (which should be gitignored) may have been committ
 
 **Changed in `QUICK_FIX_SUMMARY.md`:**
 ```diff
-- Value: `8b8630af8cead966607dddb7ab5abee0` (from your .env)
+- Value: `your_actual_secret_here` (exposed secret)
 + Value: Your Shopify Client Secret (from Shopify Partner Dashboard → API credentials → Client secret)
 ```
 
 **Changed in `WEBHOOK_HMAC_FINAL_FIX.md` (2 locations):**
 ```diff
-- SHOPIFY_CLIENT_SECRET=8b8630af8cead966607dddb7ab5abee0
+- SHOPIFY_CLIENT_SECRET=your_actual_secret_here
 + SHOPIFY_CLIENT_SECRET=your_shopify_client_secret_here
 ```
 
@@ -192,8 +192,8 @@ If secrets scanning still detects secrets:
 
 1. **Check for other files containing secrets:**
    ```bash
-   # Search for patterns that might be secrets
-   grep -r "8b8630af" . --exclude-dir=node_modules --exclude-dir=dist
+   # Search for patterns that might be secrets (use first few chars of your secret)
+   grep -r "your_secret_pattern" . --exclude-dir=node_modules --exclude-dir=dist
    ```
 
 2. **Use Netlify's scanning exclusions:**
