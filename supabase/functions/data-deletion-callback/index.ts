@@ -58,9 +58,13 @@ Deno.serve(async (req: Request) => {
 
         const isValid = await verifyShopifyWebhook(rawBody, hmac, secret);
         if (!isValid) {
-          console.error('[Data Deletion] Invalid HMAC signature');
+          console.error('[Data Deletion] ❌ Invalid HMAC signature');
           return new Response(
-            JSON.stringify({ error: "Invalid HMAC signature" }),
+            JSON.stringify({
+              error: "Unauthorized",
+              message: "Invalid HMAC signature",
+              timestamp: new Date().toISOString(),
+            }),
             {
               status: 401,
               headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -68,7 +72,7 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-        console.log('[Data Deletion] HMAC verified successfully');
+        console.log('[Data Deletion] ✅ HMAC verified successfully');
 
         if (webhookId) {
           const { data: existingWebhook } = await supabase

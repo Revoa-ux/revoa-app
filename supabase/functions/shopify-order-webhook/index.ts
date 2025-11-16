@@ -123,10 +123,21 @@ Deno.serve(async (req: Request) => {
     console.log('[Order Webhook] Using webhook secret for HMAC verification');
     const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
-      console.error('[Order Webhook] Invalid HMAC signature');
-      throw new Error('Invalid HMAC signature');
+      console.error('[Order Webhook] ❌ Invalid HMAC signature');
+      // Return 401 Unauthorized for invalid HMAC (important for automated checks)
+      return new Response(
+        JSON.stringify({
+          error: 'Unauthorized',
+          message: 'Invalid HMAC signature',
+          timestamp: new Date().toISOString(),
+        }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
-    console.log('[Order Webhook] HMAC verified successfully');
+    console.log('[Order Webhook] ✅ HMAC verified successfully');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!supabaseUrl || !supabaseKey) {

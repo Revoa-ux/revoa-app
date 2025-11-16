@@ -49,11 +49,25 @@ Deno.serve(async (req: Request) => {
 
     const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
-      console.error('[Uninstall Webhook] Invalid HMAC signature');
-      throw new Error('Invalid HMAC signature');
+      console.error('[Uninstall Webhook] ❌ Invalid HMAC signature');
+      // Return 401 Unauthorized for invalid HMAC (important for automated checks)
+      return new Response(
+        JSON.stringify({
+          error: 'Unauthorized',
+          message: 'Invalid HMAC signature',
+          timestamp: new Date().toISOString(),
+        }),
+        {
+          status: 401,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
-    console.log('[Uninstall Webhook] HMAC verified successfully');
+    console.log('[Uninstall Webhook] ✅ HMAC verified successfully');
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -65,68 +79,12 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (webhookId) {
-      const { data: existingWebhook } = await supabase
-        .from('webhook_logs')
-        .select('id')
-        .eq('webhook_id', webhookId)
-        .maybeSingle();
-
-      if (existingWebhook) {
-        console.log('[Uninstall Webhook] Duplicate webhook detected, skipping:', webhookId);
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: 'Webhook already processed',
-            shop,
-            timestamp: new Date().toISOString(),
-          }),
-          {
-            status: 200,
-            headers: {
-              ...corsHeaders,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
-
-      await supabase.from('webhook_logs').insert({
-        webhook_id: webhookId,
-        topic: 'app/uninstalled',
-        shop_domain: shop,
-        processed_at: new Date().toISOString(),
-      });
-    }
-
-    console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
-
-    const { data, error } = await supabase
-      .from('shopify_installations')
-      .update({
-        status: 'uninstalled',
-        uninstalled_at: new Date().toISOString(),
-        metadata: supabase.rpc('jsonb_set', {
-          target: 'metadata',
-          path: '{uninstall_reason}',
-          new_value: JSON.stringify('app_uninstalled_webhook'),
-        }),
-      })
-      .eq('store_url', shop)
-      .eq('status', 'installed')
-      .select();
-
-    if (error) {
-      console.error('[Uninstall Webhook] Database error:', error);
-      throw new Error(`Database error: ${error.message}`);
-    }
-
-    console.log('[Uninstall Webhook] Success:', data);
-
-    return new Response(
+    // CRITICAL: Return 200 OK immediately (Shopify requires response within 5 seconds)
+    // Process the actual uninstall logic in background
+    const responsePromise = new Response(
       JSON.stringify({
         success: true,
-        message: 'App uninstalled successfully',
+        message: 'Webhook received and verified',
         shop,
         timestamp: new Date().toISOString(),
       }),
@@ -138,6 +96,59 @@ Deno.serve(async (req: Request) => {
         },
       }
     );
+
+    // Background processing (non-blocking)
+    const backgroundProcessing = (async () => {
+      try {
+        // Check for duplicate webhooks
+        if (webhookId) {
+          const { data: existingWebhook } = await supabase
+            .from('webhook_logs')
+            .select('id')
+            .eq('webhook_id', webhookId)
+            .maybeSingle();
+
+          if (existingWebhook) {
+            console.log('[Uninstall Webhook] Duplicate webhook detected, skipping:', webhookId);
+            return;
+          }
+
+          await supabase.from('webhook_logs').insert({
+            webhook_id: webhookId,
+            topic: 'app/uninstalled',
+            shop_domain: shop,
+            processed_at: new Date().toISOString(),
+          });
+        }
+
+        console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
+
+        const { data, error } = await supabase
+          .from('shopify_installations')
+          .update({
+            status: 'uninstalled',
+            uninstalled_at: new Date().toISOString(),
+          })
+          .eq('store_url', shop)
+          .eq('status', 'installed')
+          .select();
+
+        if (error) {
+          console.error('[Uninstall Webhook] Database error:', error);
+        } else {
+          console.log('[Uninstall Webhook] ✅ Success:', data);
+        }
+      } catch (bgError) {
+        console.error('[Uninstall Webhook] Background processing error:', bgError);
+      }
+    })();
+
+    // If EdgeRuntime.waitUntil is available, use it for proper background processing
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+      EdgeRuntime.waitUntil(backgroundProcessing);
+    }
+
+    return responsePromise;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('[Uninstall Webhook] Error:', errorMessage);
