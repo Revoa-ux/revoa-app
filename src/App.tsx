@@ -110,7 +110,19 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const ThemedToaster = () => {
   const { effectiveTheme } = useTheme();
-  return <Toaster position="top-right" theme={effectiveTheme} />;
+  return (
+    <Toaster
+      position="top-right"
+      theme={effectiveTheme}
+      toastOptions={{
+        style: {
+          background: effectiveTheme === 'dark' ? '#1f2937' : '#fff',
+          color: effectiveTheme === 'dark' ? '#f9fafb' : '#1f2937',
+          border: effectiveTheme === 'dark' ? '1px solid #374151' : '1px solid #e5e7eb',
+        },
+      }}
+    />
+  );
 };
 
 function App() {

@@ -13,12 +13,26 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: #f9fafb;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(128, 128, 128, 0.04) 1px, transparent 1px),
+                  linear-gradient(to bottom, rgba(128, 128, 128, 0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(circle at center, transparent, black 30%, transparent);
+      -webkit-mask-image: radial-gradient(circle at center, transparent, black 30%, transparent);
+      pointer-events: none;
     }
 
     .container {
@@ -29,6 +43,8 @@
       text-align: center;
       max-width: 500px;
       width: 100%;
+      position: relative;
+      z-index: 1;
     }
 
     .spinner {
