@@ -79,29 +79,29 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg w-full min-w-[380px]">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={handlePrevMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
+          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
         >
-          <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
-        <div className="text-sm font-medium text-gray-900 dark:text-white">
+        <div className="text-lg font-semibold text-gray-900 dark:text-white">
           {MONTHS[currentMonth.getMonth()]} {currentMonth.getFullYear()}
         </div>
         <button
           onClick={handleNextMonth}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
+          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none"
         >
-          <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <ChevronRight className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2">
         {DAYS.map(day => (
           <div
             key={day}
-            className="text-xs font-medium text-gray-500 dark:text-gray-400 text-center py-1"
+            className="text-xs font-semibold text-gray-500 dark:text-gray-400 text-center py-2"
           >
             {day}
           </div>
@@ -110,23 +110,23 @@ const Calendar: React.FC<CalendarProps> = ({
           const isSelected = date.toDateString() === selectedDate.toDateString();
           const isDisabled = isDateDisabled(date);
           const isToday = date.toDateString() === new Date().toDateString();
-          
+
           return (
             <button
               key={index}
               onClick={() => !isDisabled && onSelect(date)}
               disabled={isDisabled}
               className={`
-                text-sm p-1 rounded-lg transition-colors relative focus:outline-none
+                text-sm p-3 rounded-lg transition-all relative focus:outline-none font-medium
                 ${isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
                 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-                ${isSelected ? 'bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600' : ''}
-                ${isToday && !isSelected ? 'font-medium' : ''}
+                ${isSelected ? 'bg-gradient-to-r from-rose-500 to-orange-400 text-white shadow-md' : ''}
+                ${isToday && !isSelected ? 'font-semibold ring-2 ring-rose-500/50' : ''}
               `}
             >
               {date.getDate()}
               {isToday && !isSelected && (
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary-500 rounded-full" />
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-rose-500 rounded-full" />
               )}
             </button>
           );

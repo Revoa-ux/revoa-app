@@ -290,7 +290,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
             <button
               onClick={handleApplyCustomDate}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-600 via-pink-500 to-orange-400 hover:shadow-lg hover:shadow-rose-500/25 rounded-lg transition-all"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-orange-400 hover:shadow-lg hover:shadow-rose-500/25 rounded-lg transition-all"
             >
               Apply
             </button>
