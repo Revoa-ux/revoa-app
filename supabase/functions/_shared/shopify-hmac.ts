@@ -38,7 +38,7 @@ function timingSafeEqual(a: string, b: string): boolean {
  *
  * @param body - The raw webhook body as a string (must not be parsed as JSON first)
  * @param hmacHeader - The X-Shopify-Hmac-Sha256 header value (base64 encoded)
- * @param secret - The Shopify webhook secret (SHOPIFY_WEBHOOK_SECRET or SHOPIFY_CLIENT_SECRET)
+ * @param secret - The Shopify Client Secret (from SHOPIFY_CLIENT_SECRET environment variable)
  * @returns True if the HMAC is valid, false otherwise
  */
 export async function verifyShopifyWebhook(
@@ -113,15 +113,22 @@ export async function verifyShopifyWebhookHex(
 
 /**
  * Gets the webhook secret from environment variables
- * Tries SHOPIFY_WEBHOOK_SECRET first, falls back to SHOPIFY_CLIENT_SECRET
+ *
+ * IMPORTANT: Shopify uses the Client Secret for BOTH OAuth token exchange
+ * AND webhook HMAC verification. There is no separate "webhook secret".
+ *
+ * @returns The Shopify Client Secret used for webhook verification
+ * @throws Error if SHOPIFY_CLIENT_SECRET is not set
  */
 export function getWebhookSecret(): string {
-  const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') ||
-                 Deno.env.get('SHOPIFY_CLIENT_SECRET');
+  const secret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
 
   if (!secret) {
-    throw new Error('Missing webhook secret: Set SHOPIFY_WEBHOOK_SECRET or SHOPIFY_CLIENT_SECRET');
+    console.error('[HMAC] SHOPIFY_CLIENT_SECRET environment variable is not set');
+    console.error('[HMAC] This variable must be configured in your Supabase project settings');
+    throw new Error('Missing required environment variable: SHOPIFY_CLIENT_SECRET');
   }
 
+  console.log('[HMAC] Using SHOPIFY_CLIENT_SECRET for webhook verification');
   return secret;
 }

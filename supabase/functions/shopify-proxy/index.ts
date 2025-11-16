@@ -141,9 +141,12 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
   const clientSecret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
 
   if (!clientId || !clientSecret) {
-    console.error('[OAuth] Missing Shopify credentials');
-    throw new Error('Server configuration error');
+    console.error('[OAuth] Missing required Shopify environment variables');
+    console.error('[OAuth] SHOPIFY_CLIENT_ID and SHOPIFY_CLIENT_SECRET must be configured');
+    throw new Error('Server configuration error: Missing Shopify credentials');
   }
+
+  console.log('[OAuth] Using SHOPIFY_CLIENT_SECRET for token exchange');
 
   // Exchange code for access token
   console.log('[OAuth] Exchanging code for access token');

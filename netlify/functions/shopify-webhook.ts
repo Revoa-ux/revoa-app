@@ -35,23 +35,31 @@ export const handler: Handler = async (event) => {
     };
   }
 
+  // IMPORTANT: Use SHOPIFY_CLIENT_SECRET for webhook HMAC verification
+  // Shopify uses the same Client Secret for both OAuth and webhook verification
   const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
   if (!clientSecret) {
-    console.error('[Webhook] SHOPIFY_CLIENT_SECRET not configured');
+    console.error('[Webhook] SHOPIFY_CLIENT_SECRET environment variable is not configured');
+    console.error('[Webhook] This variable must be set in Netlify dashboard under Site settings > Environment variables');
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Server configuration error' }),
+      body: JSON.stringify({ error: 'Server configuration error: SHOPIFY_CLIENT_SECRET not set' }),
     };
   }
+
+  console.log('[Webhook] Using SHOPIFY_CLIENT_SECRET for HMAC verification');
 
   const body = event.body || '';
   const isValid = verifyShopifyWebhook(body, shopifyHmac, clientSecret);
 
   if (!isValid) {
-    console.error('[Webhook] Invalid HMAC signature');
+    console.error('[Webhook] Invalid HMAC signature for topic:', shopifyTopic);
+    console.error('[Webhook] Shop:', shopifyDomain);
+    console.error('[Webhook] Body length:', body.length);
+    console.error('[Webhook] Verify that SHOPIFY_CLIENT_SECRET matches your Shopify app\'s Client Secret');
     return {
       statusCode: 401,
-      body: JSON.stringify({ error: 'Invalid signature' }),
+      body: JSON.stringify({ error: 'Invalid HMAC signature' }),
     };
   }
 

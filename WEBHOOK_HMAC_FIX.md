@@ -27,7 +27,7 @@ Your Shopify app was failing the automated security check for webhook HMAC verif
 - ✅ Proper Web Crypto API usage
 - ✅ Base64 encoding matching Shopify's format
 - ✅ Comprehensive error handling
-- ✅ Fallback secret resolution (SHOPIFY_WEBHOOK_SECRET → SHOPIFY_API_SECRET → SHOPIFY_CLIENT_SECRET)
+- ✅ Uses SHOPIFY_CLIENT_SECRET for webhook verification (Shopify uses the same secret for OAuth and webhooks)
 - ✅ Alternative hex-based verification for debugging
 
 **Key Security Improvement:**
@@ -161,25 +161,21 @@ deno run --allow-all supabase/functions/_shared/shopify-hmac.test.ts
 
 ## Environment Variables
 
-Your webhooks use the following environment variables (in priority order):
+**IMPORTANT UPDATE (November 2025):** Shopify webhook verification now uses a single environment variable:
 
 ```bash
-# 1. Dedicated webhook secret (recommended)
-SHOPIFY_WEBHOOK_SECRET=your_secret_here
-
-# 2. API secret (fallback)
-SHOPIFY_API_SECRET=your_api_secret_here
-
-# 3. Client secret (fallback)
-SHOPIFY_CLIENT_SECRET=your_client_secret_here
+# Use your Shopify App's Client Secret (also called API Secret Key)
+SHOPIFY_CLIENT_SECRET=your_shopify_client_secret_here
 ```
 
-**Important:** All three should have the same value from your Shopify Partner Dashboard under "API credentials" → "Client secret"
+**Key Points:**
+- Shopify uses the **same Client Secret** for both OAuth token exchange AND webhook HMAC verification
+- There is **NO separate "webhook secret"** in Shopify
+- The old variable names `SHOPIFY_WEBHOOK_SECRET` and `SHOPIFY_API_SECRET` have been removed to eliminate confusion
+- Get this value from your Shopify Partner Dashboard under "API credentials" → "Client secret"
 
-**Your Current Value (from .env):**
-```bash
-SHOPIFY_WEBHOOK_SECRET=your_shopify_client_secret_here
-```
+**Netlify Configuration:**
+If you previously set `SHOPIFY_API_SECRET` in your Netlify dashboard, rename it to `SHOPIFY_CLIENT_SECRET` (or add the new variable with the same value)
 
 ---
 

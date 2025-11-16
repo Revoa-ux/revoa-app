@@ -31,18 +31,23 @@ supabase functions deploy data-deletion-callback
 
 ### 2. Verify Environment Variables
 
-Check that these are set in Supabase:
+**UPDATED:** Only one Shopify secret variable is needed.
+
+Check that this is set in Supabase:
 
 ```bash
-# Should all have the same value from Shopify Partner Dashboard
-SHOPIFY_WEBHOOK_SECRET=your_shopify_client_secret_here
-SHOPIFY_API_SECRET=your_shopify_client_secret_here
+# Get this from Shopify Partner Dashboard → API credentials → Client secret
 SHOPIFY_CLIENT_SECRET=your_shopify_client_secret_here
 ```
 
-- [ ] SHOPIFY_WEBHOOK_SECRET is set
-- [ ] Value matches Shopify Partner Dashboard Client Secret
-- [ ] All three secrets have same value
+- [ ] SHOPIFY_CLIENT_SECRET is set in Supabase project settings
+- [ ] Value matches Shopify Partner Dashboard Client Secret exactly
+- [ ] Old variables (SHOPIFY_WEBHOOK_SECRET, SHOPIFY_API_SECRET) are NOT set (to avoid confusion)
+
+Check that this is set in Netlify:
+
+- [ ] SHOPIFY_CLIENT_SECRET is set in Netlify dashboard (Site settings → Environment variables)
+- [ ] If you have SHOPIFY_API_SECRET in Netlify, rename it to SHOPIFY_CLIENT_SECRET
 
 ### 3. Test Webhook Endpoints
 
@@ -201,10 +206,11 @@ Common issues and solutions:
 
 | Issue | Solution |
 |-------|----------|
-| Invalid HMAC signature | Verify SHOPIFY_WEBHOOK_SECRET matches Shopify Client Secret |
+| Invalid HMAC signature | Verify SHOPIFY_CLIENT_SECRET matches Shopify Client Secret exactly |
 | Webhook timeout | Check database query performance, optimize if needed |
 | Function not found | Redeploy function: `supabase functions deploy [name]` |
-| Environment variable missing | Set in Supabase Dashboard → Edge Functions → Secrets |
+| Environment variable missing | Set SHOPIFY_CLIENT_SECRET in Supabase Dashboard → Edge Functions → Secrets |
+| Still using old variables | Remove SHOPIFY_WEBHOOK_SECRET and SHOPIFY_API_SECRET to avoid confusion |
 
 ## Final Submission Checklist
 

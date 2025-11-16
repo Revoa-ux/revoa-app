@@ -74,9 +74,12 @@ The timing-safe comparison ensures that checking the HMAC takes the same amount 
 
 1. **Check environment variables:**
    ```bash
-   # Should match your Shopify Client Secret
-   echo $SHOPIFY_WEBHOOK_SECRET
+   # UPDATED: Now uses SHOPIFY_CLIENT_SECRET only
+   # Should match your Shopify Client Secret from Partner Dashboard
+   echo $SHOPIFY_CLIENT_SECRET
    ```
+
+   **Important:** The old variable names (SHOPIFY_WEBHOOK_SECRET, SHOPIFY_API_SECRET) are no longer used. Shopify uses the same Client Secret for both OAuth and webhook verification.
 
 2. **Check function logs:**
    ```bash
