@@ -12,7 +12,12 @@ const verifyShopifyWebhook = (body: string, hmacHeader: string, secret: string):
     .createHmac('sha256', secret)
     .update(body, 'utf8')
     .digest('base64');
-  return hash === hmacHeader;
+
+  // Use timing-safe comparison to prevent timing attacks
+  return crypto.timingSafeEqual(
+    Buffer.from(hash, 'utf8'),
+    Buffer.from(hmacHeader, 'utf8')
+  );
 };
 
 export const handler: Handler = async (event) => {
