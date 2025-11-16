@@ -296,3 +296,114 @@ body.modal-open {
   background-size: 200% 200%;
   animation: gradient 3s ease infinite;
 }
+
+/* Toast Notifications */
+/* Light Mode Toasts */
+.light-toast {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.light-toast-success {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-left: 3px solid #10b981 !important;
+}
+
+.light-toast-error {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+.light-toast-warning {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-left: 3px solid #f59e0b !important;
+}
+
+.light-toast-info {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-left: 3px solid #3b82f6 !important;
+}
+
+/* Dark Mode Toasts */
+.dark-toast {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark-toast-success {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-left: 3px solid #10b981 !important;
+}
+
+.dark-toast-error {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-left: 3px solid #ef4444 !important;
+}
+
+.dark-toast-warning {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-left: 3px solid #f59e0b !important;
+}
+
+.dark-toast-info {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border-left: 3px solid #3b82f6 !important;
+}
+
+/* Toast icon colors */
+[data-sonner-toast] [data-icon] {
+  color: inherit !important;
+}
+
+/* Toast close button */
+[data-sonner-toast] [data-close-button] {
+  background: transparent !important;
+  border: none !important;
+  color: inherit !important;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1;
+}
+
+/* Dark mode specific overrides for sonner */
+.dark-toast [data-icon],
+.dark-toast [data-close-button] {
+  color: #f3f4f6 !important;
+}
+
+/* Success icon color override */
+.dark-toast-success [data-icon],
+.light-toast-success [data-icon] {
+  color: #10b981 !important;
+}
+
+/* Error icon color override */
+.dark-toast-error [data-icon],
+.light-toast-error [data-icon] {
+  color: #ef4444 !important;
+}
+
+/* Warning icon color override */
+.dark-toast-warning [data-icon],
+.light-toast-warning [data-icon] {
+  color: #f59e0b !important;
+}
+
+/* Info icon color override */
+.dark-toast-info [data-icon],
+.light-toast-info [data-icon] {
+  color: #3b82f6 !important;
+}

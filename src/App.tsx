@@ -115,10 +115,20 @@ const ThemedToaster = () => {
       position="top-right"
       theme={effectiveTheme}
       toastOptions={{
+        className: effectiveTheme === 'dark' ? 'dark-toast' : 'light-toast',
         style: {
-          background: effectiveTheme === 'dark' ? '#1f2937' : '#fff',
-          color: effectiveTheme === 'dark' ? '#f9fafb' : '#1f2937',
+          background: effectiveTheme === 'dark' ? '#1f2937' : '#ffffff',
+          color: effectiveTheme === 'dark' ? '#f3f4f6' : '#111827',
           border: effectiveTheme === 'dark' ? '1px solid #374151' : '1px solid #e5e7eb',
+          boxShadow: effectiveTheme === 'dark'
+            ? '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
+            : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        },
+        classNames: {
+          success: effectiveTheme === 'dark' ? 'dark-toast-success' : 'light-toast-success',
+          error: effectiveTheme === 'dark' ? 'dark-toast-error' : 'light-toast-error',
+          warning: effectiveTheme === 'dark' ? 'dark-toast-warning' : 'light-toast-warning',
+          info: effectiveTheme === 'dark' ? 'dark-toast-info' : 'light-toast-info',
         },
       }}
     />
