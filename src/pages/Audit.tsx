@@ -23,12 +23,13 @@ interface DateRange {
 }
 
 export default function Audit() {
-  const [selectedTime, setSelectedTime] = useState<TimeOption>('today');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
 
-  // Initialize date range for today
+  // Initialize date range for last 28 days
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 28);
   initialStartDate.setHours(0, 0, 0, 0);
 
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -86,6 +87,38 @@ export default function Audit() {
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
+      case 'thisMonth':
+        startDate = new Date(now);
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'lastMonth': {
+        const lastMonth = new Date(now);
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+        startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'last3Months':
+        startDate = new Date(now);
+        startDate.setMonth(startDate.getMonth() - 3);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'ytd':
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        // For custom, don't update dates - they'll be set by the calendar
+        return;
     }
 
     setDateRange({ startDate, endDate });
@@ -180,6 +213,9 @@ export default function Audit() {
             <AdReportsTimeSelector
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onApply={refreshData}
             />
           </div>
         </div>
