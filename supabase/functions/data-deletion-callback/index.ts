@@ -129,40 +129,29 @@ Deno.serve(async (req: Request) => {
 
       console.log('[Data Deletion] Using webhook secret for HMAC verification');
 
-      const body: DataDeletionRequest = JSON.parse(rawBody);
-
-      // Check if this is a Shopify compliance test webhook
-      const isComplianceTest = shop?.includes('test') ||
-                               body.shop_domain?.includes('test') ||
-                               (body.customer?.email?.includes('test') ?? false);
-
-      console.log('[Data Deletion] Compliance test detected:', isComplianceTest);
-
       const isValid = await verifyShopifyWebhook(rawBody, hmac, secret);
 
-      // For compliance tests, log the failure but don't reject
+      // CRITICAL: Shopify requires 401 for ALL invalid HMACs (including test webhooks)
+      // This is part of their automated compliance testing
       if (!isValid) {
-        console.error('[Data Deletion] Invalid HMAC signature');
-
-        // If not a compliance test, reject the request
-        if (!isComplianceTest) {
-          return new Response(
-            JSON.stringify({
-              error: "Unauthorized",
-              message: "Invalid HMAC signature",
-              timestamp: new Date().toISOString(),
-            }),
-            {
-              status: 401,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            }
-          );
-        }
-
-        console.log('[Data Deletion] Allowing compliance test despite HMAC failure');
-      } else {
-        console.log('[Data Deletion] HMAC verified successfully');
+        console.error('[Data Deletion] ❌ HMAC verification FAILED');
+        console.log('[HMAC] Verification details: { bodyLength:', rawBody.length, ', hmacHeaderLength:', hmac.length, ', calcPreview: ...', '}');
+        return new Response(
+          JSON.stringify({
+            error: "Unauthorized",
+            message: "Invalid HMAC signature",
+            timestamp: new Date().toISOString(),
+          }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
+
+      console.log('[Data Deletion] ✅ HMAC verified successfully');
+
+      const body: DataDeletionRequest = JSON.parse(rawBody);
 
       if (webhookId) {
         const { data: existingWebhook } = await supabase
