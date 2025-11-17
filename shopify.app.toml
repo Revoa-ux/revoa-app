@@ -1,58 +1,38 @@
-# Configuration for Shopify CLI 3.0+
-name = "Revoa"
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
 client_id = "21f747d6719351a523236f5481e5a60c"
-application_url = "https://members.revoa.app"
+name = "Revoa"
+application_url = "https://members.revoa.app/"
 embedded = false
-
-[access_scopes]
-# Core scopes for profit tracking and analytics
-# 1. read_all_orders - Access ALL order data including protected customer data
-# 2. read_fulfillments - Monitor order fulfillment status
-# 3. read_inventory - Track inventory levels
-# 4. read_orders - Access order data for profit calculations
-# 5. read_products - View product catalog and pricing
-# 6. write_products - Create and update products
-# 7. read_returns - Track returns for accurate net revenue calculations
-scopes = "read_all_orders,read_fulfillments,read_inventory,read_orders,read_products,write_products,read_returns"
-
-
-[auth]
-redirect_urls = [
-  "https://members.revoa.app/shopify-callback",
-  "http://localhost:5173/shopify-callback"
-]
+handle = "revoa"
 
 [webhooks]
 api_version = "2025-01"
 
-# GDPR Compliance webhooks (customers/redact, customers/data_request, shop/redact)
+# GDPR Compliance webhooks
 [[webhooks.subscriptions]]
 compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
 uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/data-deletion-callback"
 
+# App lifecycle webhook
 [[webhooks.subscriptions]]
 topics = ["app/uninstalled"]
 uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-uninstall-webhook"
 
+# Order webhooks
 [[webhooks.subscriptions]]
 topics = ["orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled"]
 uri = "https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/shopify-order-webhook"
 
-[pos]
-embedded = false
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_all_orders,read_fulfillments,read_inventory,read_orders,read_products,write_products,read_returns"
+optional_scopes = [ ]
+use_legacy_install_flow = false
 
-[build]
-automatically_update_urls_on_dev = true
-dev_store_url = "revoatest.myshopify.com"
-
-[extension_directories]
-extensions = "extensions/*"
-
-# Pricing Configuration
-# Revoa uses Shopify's native billing API for subscriptions
-# Monthly subscription: $29/month with 14-day free trial
-# No revenue share or commission on sales
-[pricing]
-enabled = true
-trial_days = 14
-billing_url = "https://members.revoa.app/billing"
+[auth]
+redirect_urls = [
+  "https://members.revoa.app/shopify-callback",
+  "http://localhost:5173/shopify-callback",
+  "https://members.revoa.app/shopify-callback.html"
+]
