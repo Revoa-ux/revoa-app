@@ -1,21 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Facebook,
-  Search,
-  AlertTriangle,
-  X,
-  ChevronDown,
-  Check,
-  GitBranch as BrandTiktok,
-  RefreshCw,
-  Sparkles,
-  ChevronRight
-} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Facebook, AlertTriangle, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { AdAccount, AdInsight, AdCheckItem } from '@/types/ads';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
-import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { getAdReportsMetrics, getCreativePerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -27,8 +14,6 @@ interface DateRange {
 
 export default function Audit() {
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
-
-  // Initialize date range for last 28 days
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
@@ -42,15 +27,11 @@ export default function Audit() {
   const [isLoading, setIsLoading] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [creatives, setCreatives] = useState<any[]>([]);
-  const [hasRealData, setHasRealData] = useState(false);
-  const [showInsights, setShowInsights] = useState(true);
 
-  // Use centralized connection store
   const { facebook } = useConnectionStore();
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
-
     const now = new Date();
     let startDate = new Date();
     let endDate = new Date();
@@ -91,37 +72,7 @@ export default function Audit() {
         endDate = new Date(now);
         endDate.setHours(23, 59, 59, 999);
         break;
-      case 'thisMonth':
-        startDate = new Date(now);
-        startDate.setDate(1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'lastMonth': {
-        const lastMonth = new Date(now);
-        lastMonth.setMonth(lastMonth.getMonth() - 1);
-        startDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 0);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'last3Months':
-        startDate = new Date(now);
-        startDate.setMonth(startDate.getMonth() - 3);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case 'ytd':
-        startDate = new Date(now.getFullYear(), 0, 1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        break;
       case 'custom':
-        // For custom, don't update dates - they'll be set by the calendar
         return;
     }
 
@@ -130,7 +81,6 @@ export default function Audit() {
 
   const refreshData = async (showSuccessToast = false) => {
     if (!facebook.isConnected) {
-      console.log('[Audit] Facebook not connected, skipping data fetch');
       return;
     }
 
@@ -139,21 +89,14 @@ export default function Audit() {
       const startDate = dateRange.startDate.toISOString().split('T')[0];
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 
-      console.log('[Audit] Fetching data for date range:', { startDate, endDate });
-
-      // Fetch real metrics and creatives
       const [metrics, creativesData] = await Promise.all([
         getAdReportsMetrics(startDate, endDate),
         getCreativePerformance(startDate, endDate)
       ]);
 
-      console.log('[Audit] Received data:', { metrics, creativesCount: creativesData.length });
-
       setPerformanceData(metrics);
       setCreatives(creativesData);
-      setHasRealData(creativesData.length > 0);
 
-      // Only show success toast if explicitly requested (e.g., manual refresh)
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
       }
@@ -165,55 +108,27 @@ export default function Audit() {
     }
   };
 
-  // Load data on mount and when Facebook is connected
   useEffect(() => {
     if (facebook.isConnected) {
       refreshData();
     }
-  }, [facebook.isConnected]);
-
-  // Refresh data when date range changes
-  useEffect(() => {
-    if (facebook.isConnected) {
-      refreshData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
-
-  const handleConnectPlatform = (platform: 'facebook' | 'tiktok') => {
-    console.log('Connecting to', platform);
-  };
-
-  const getTimePeriodText = (time: TimeOption): string => {
-    switch (time) {
-      case 'today': return 'Today';
-      case 'yesterday': return 'Yesterday';
-      case '7d': return 'Last 7 days';
-      case '14d': return 'Last 14 days';
-      case '28d': return 'Last 28 days';
-      default: return 'Today';
-    }
-  };
+  }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="flex-1 overflow-y-auto">
-      <div className="space-y-6 p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 p-6 max-w-[1800px] mx-auto">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ad Performance Audit</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Comprehensive analysis of your advertising campaigns
-            </p>
+            <h1 className="text-3xl font-bold mb-2">Ad Performance Analytics</h1>
+            <p className="text-blue-100">Real-time insights from your advertising campaigns</p>
           </div>
           <div className="flex items-center space-x-3">
             <button
               onClick={() => refreshData(true)}
               disabled={isLoading || !facebook.isConnected}
-              className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center space-x-2 px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
             </button>
             <AdReportsTimeSelector
@@ -228,26 +143,23 @@ export default function Audit() {
       </div>
 
       {!facebook.isConnected && (
-        <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-white dark:bg-gray-700 rounded-lg">
-                <AlertTriangle className="w-5 h-5 text-yellow-500" />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Connect Facebook Ads</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Connect your Facebook Ads account to view performance insights</p>
-              </div>
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg">
+              <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => handleConnectPlatform('facebook')}
-                className="px-4 py-2 text-sm text-white bg-[#1877F2] rounded-lg hover:bg-[#1877F2]/90 transition-colors flex items-center whitespace-nowrap"
-              >
-                <Facebook className="w-4 h-4 mr-2" />
-                Connect Facebook
-              </button>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                Connect Your Ad Platforms
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Connect Facebook to start tracking your ad performance
+              </p>
             </div>
+            <button className="px-6 py-3 bg-[#1877F2] text-white rounded-lg hover:bg-[#1877F2]/90 transition-colors font-medium flex items-center space-x-2">
+              <Facebook className="w-5 h-5" />
+              <span>Connect Now</span>
+            </button>
           </div>
         </div>
       )}
@@ -265,31 +177,7 @@ export default function Audit() {
               onTimeChange={handleTimeChange}
             />
           </div>
-
-          {showInsights && creatives.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1">
-              <button
-                onClick={() => setShowInsights(false)}
-                className="w-full text-left px-5 py-3 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors flex items-center justify-between"
-              >
-                <span className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
-                  <span>AI Insights available</span>
-                </span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          )}
         </>
-      )}
-      </div>
-      </div>
-      {showInsights && creatives.length > 0 && facebook.isConnected && (
-        <AIInsightsSidebar
-          creatives={creatives}
-          isOpen={showInsights}
-          onClose={() => setShowInsights(false)}
-        />
       )}
     </div>
   );
