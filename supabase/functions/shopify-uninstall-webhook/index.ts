@@ -118,11 +118,13 @@ Deno.serve(async (req: Request) => {
 
         console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
 
+        // Mark as uninstalled and clear the access token (security best practice)
         const { data, error } = await supabase
           .from('shopify_installations')
           .update({
             status: 'uninstalled',
             uninstalled_at: new Date().toISOString(),
+            access_token: null, // Clear access token on uninstall
           })
           .eq('store_url', shop)
           .eq('status', 'installed')
@@ -133,6 +135,20 @@ Deno.serve(async (req: Request) => {
         } else {
           console.log('[Uninstall Webhook] ✅ Success:', data);
         }
+
+        // Also update the stores table
+        await supabase
+          .from('stores')
+          .update({
+            status: 'inactive',
+            access_token: null,
+            disconnected_at: new Date().toISOString(),
+          })
+          .eq('store_url', shop)
+          .eq('platform', 'shopify')
+          .eq('status', 'active');
+
+        console.log('[Uninstall Webhook] Note: Complete data deletion will occur after 48 hours via shop/redact webhook');
       } catch (bgError) {
         console.error('[Uninstall Webhook] Background processing error:', bgError);
       }

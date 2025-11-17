@@ -66,13 +66,17 @@ const corsHeaders = {
 interface DataDeletionRequest {
   user_id?: string;
   signed_request?: string;
-  shop_id?: string;
+  shop_id?: string | number;
   shop_domain?: string;
-  orders_requested?: string[];
+  orders_requested?: number[];
+  orders_to_redact?: number[];
   customer?: {
-    id: string;
+    id: string | number;
     email: string;
     phone?: string;
+  };
+  data_request?: {
+    id: number;
   };
 }
 
@@ -186,13 +190,15 @@ Deno.serve(async (req: Request) => {
         });
       }
 
-      const userId = body.user_id;
+      const shopDomain = body.shop_domain || shop;
+      const shopId = body.shop_id;
 
-      if (!userId) {
+      if (!shopDomain) {
+        console.error('[Data Deletion] Missing shop_domain in payload');
         return new Response(
           JSON.stringify({
-            error: "user_id is required",
-            message: "Please provide a user_id to delete data for"
+            error: "shop_domain is required",
+            message: "Missing shop_domain in webhook payload"
           }),
           {
             status: 400,
@@ -201,8 +207,50 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const confirmationCode = `${Date.now()}-${userId}`;
+      console.log('[Data Deletion] Processing for shop:', shopDomain, 'Shop ID:', shopId);
 
+      // Find the user_id associated with this shop
+      const { data: installation, error: installError } = await supabase
+        .from('shopify_installations')
+        .select('user_id')
+        .eq('store_url', shopDomain)
+        .maybeSingle();
+
+      if (installError) {
+        console.error('[Data Deletion] Error finding installation:', installError);
+        return new Response(
+          JSON.stringify({
+            error: "Failed to find installation",
+            message: "Could not locate shop installation"
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      if (!installation) {
+        console.log('[Data Deletion] No installation found for shop:', shopDomain);
+        // Return success even if no data exists (idempotent)
+        return new Response(
+          JSON.stringify({
+            message: "No data found for shop",
+            shop_domain: shopDomain
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      const userId = installation.user_id;
+      console.log('[Data Deletion] Found user_id:', userId, 'for shop:', shopDomain);
+
+      const confirmationCode = `${Date.now()}-${userId}-${shopId}`;
+
+      // Log the deletion request
       const { error: logError } = await supabase
         .from('data_deletion_requests')
         .insert({
@@ -213,29 +261,89 @@ Deno.serve(async (req: Request) => {
         });
 
       if (logError) {
-        console.error('Error logging deletion request:', logError);
+        console.error('[Data Deletion] Error logging deletion request:', logError);
       }
 
-      const { error: deleteError } = await supabase
-        .from('user_profiles')
-        .delete()
-        .eq('id', userId);
+      // Handle different webhook topics
+      if (topic === 'shop/redact') {
+        console.log('[Data Deletion] shop/redact - Deleting ALL data for shop:', shopDomain);
 
-      if (deleteError) {
-        console.error('Error deleting user data:', deleteError);
+        // Delete all shop-related data
+        // 1. Delete shopify installations
+        await supabase
+          .from('shopify_installations')
+          .delete()
+          .eq('store_url', shopDomain);
 
-        return new Response(
-          JSON.stringify({
-            error: "Failed to delete user data",
-            confirmation_code: confirmationCode,
-            url: `${supabaseUrl}/data-deletion?status_id=${confirmationCode}`
-          }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          }
-        );
+        // 2. Delete from stores table
+        await supabase
+          .from('stores')
+          .delete()
+          .eq('store_url', shopDomain)
+          .eq('platform', 'shopify');
+
+        // 3. Delete shopify orders
+        await supabase
+          .from('shopify_orders')
+          .delete()
+          .eq('user_id', userId);
+
+        // 4. If user has no other stores, delete user profile
+        const { data: otherStores } = await supabase
+          .from('shopify_installations')
+          .select('id')
+          .eq('user_id', userId)
+          .limit(1);
+
+        if (!otherStores || otherStores.length === 0) {
+          console.log('[Data Deletion] No other stores found, deleting user profile');
+          await supabase
+            .from('user_profiles')
+            .delete()
+            .eq('id', userId);
+        }
+
+      } else if (topic === 'customers/redact') {
+        console.log('[Data Deletion] customers/redact - Redacting customer data');
+
+        const customerId = body.customer?.id;
+        const customerEmail = body.customer?.email;
+        const ordersToRedact = body.orders_to_redact || [];
+
+        console.log('[Data Deletion] Customer ID:', customerId, 'Email:', customerEmail, 'Orders:', ordersToRedact.length);
+
+        // Redact customer information from orders
+        for (const orderId of ordersToRedact) {
+          await supabase
+            .from('shopify_orders')
+            .update({
+              customer_email: '[REDACTED]',
+              updated_at: new Date().toISOString()
+            })
+            .eq('shopify_order_id', orderId.toString())
+            .eq('user_id', userId);
+        }
+
+      } else if (topic === 'customers/data_request') {
+        console.log('[Data Deletion] customers/data_request - Data request received');
+
+        // This is just a request to provide data, not delete it
+        // Log it but don't delete anything
+        const customerId = body.customer?.id;
+        const ordersRequested = body.orders_requested || [];
+
+        console.log('[Data Deletion] Data request for customer:', customerId, 'Orders:', ordersRequested.length);
+        console.log('[Data Deletion] Note: App stores minimal customer data. Respond to merchant directly if needed.');
       }
+
+      // Mark deletion request as completed
+      await supabase
+        .from('data_deletion_requests')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('confirmation_code', confirmationCode);
 
       return new Response(
         JSON.stringify({
