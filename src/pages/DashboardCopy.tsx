@@ -531,12 +531,12 @@ export default function DashboardCopy() {
 
   if (error) {
     return (
-      <div className="max-w-[1050px] mx-auto">
+      <div>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
           <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-medium text-gray-900 dark:text-white mb-2">Error Loading Dashboard</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
-          <button 
+          <button
             onClick={fetchShopifyData}
             className="px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
           >
@@ -549,7 +549,7 @@ export default function DashboardCopy() {
   }
 
   return (
-    <div className="max-w-[1050px] mx-auto">
+    <div>
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Hi {userName || 'there'}, welcome to Revoa👋

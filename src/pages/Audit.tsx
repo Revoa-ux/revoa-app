@@ -117,7 +117,7 @@ export default function Audit() {
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   return (
-    <div className="space-y-6 max-w-[1800px] mx-auto">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Performance Analytics</h1>
@@ -181,8 +181,10 @@ export default function Audit() {
             <PerformanceOverview metrics={performanceData} />
           </div>
 
-          <div className="flex gap-6">
-            <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="flex gap-6 transition-all duration-300">
+            <div className={`flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 ${
+              showAIInsights ? '' : 'max-w-full'
+            }`}>
               <CreativeAnalysisEnhanced
                 creatives={creatives}
                 selectedTime={selectedTime}
@@ -190,11 +192,13 @@ export default function Audit() {
               />
             </div>
             {showAIInsights && (
-              <AIInsightsSidebar
-                creatives={creatives}
-                isOpen={showAIInsights}
-                onClose={() => setShowAIInsights(false)}
-              />
+              <div className="flex-shrink-0 transition-all duration-300">
+                <AIInsightsSidebar
+                  creatives={creatives}
+                  isOpen={showAIInsights}
+                  onClose={() => setShowAIInsights(false)}
+                />
+              </div>
             )}
           </div>
         </>
