@@ -31,6 +31,24 @@ export interface AdReportMetrics {
     change: number;
     data: Array<{ date: string; value: number }>;
   };
+  spend: {
+    name: string;
+    value: number;
+    change: number;
+    data: Array<{ date: string; value: number }>;
+  };
+  conversions: {
+    name: string;
+    value: number;
+    change: number;
+    data: Array<{ date: string; value: number }>;
+  };
+  cvr: {
+    name: string;
+    value: number;
+    change: number;
+    data: Array<{ date: string; value: number }>;
+  };
 }
 
 export interface CreativePerformance {
@@ -157,6 +175,23 @@ export async function getAdReportsMetrics(
       value: m.impressions > 0 ? (m.clicks / m.impressions) * 100 : 0
     }));
 
+    const spendData = Array.from(dateMetrics.entries()).map(([date, m]) => ({
+      date,
+      value: m.spend
+    }));
+
+    const conversionsData = Array.from(dateMetrics.entries()).map(([date, m]) => ({
+      date,
+      value: m.conversions
+    }));
+
+    const cvrData = Array.from(dateMetrics.entries()).map(([date, m]) => ({
+      date,
+      value: m.clicks > 0 ? (m.conversions / m.clicks) * 100 : 0
+    }));
+
+    const avgCVR = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
+
     return {
       roas: {
         name: 'ROAS',
@@ -175,6 +210,24 @@ export async function getAdReportsMetrics(
         value: avgCTR,
         change: 0, // TODO: Calculate vs previous period
         data: ctrData
+      },
+      spend: {
+        name: 'Spend',
+        value: totalSpend,
+        change: 0, // TODO: Calculate vs previous period
+        data: spendData
+      },
+      conversions: {
+        name: 'Conversions',
+        value: totalConversions,
+        change: 0, // TODO: Calculate vs previous period
+        data: conversionsData
+      },
+      cvr: {
+        name: 'CVR',
+        value: avgCVR,
+        change: 0, // TODO: Calculate vs previous period
+        data: cvrData
       }
     };
   } catch (error) {
@@ -399,6 +452,24 @@ function getEmptyMetrics(): AdReportMetrics {
     },
     ctr: {
       name: 'CTR',
+      value: 0,
+      change: 0,
+      data: []
+    },
+    spend: {
+      name: 'Spend',
+      value: 0,
+      change: 0,
+      data: []
+    },
+    conversions: {
+      name: 'Conversions',
+      value: 0,
+      change: 0,
+      data: []
+    },
+    cvr: {
+      name: 'CVR',
       value: 0,
       change: 0,
       data: []

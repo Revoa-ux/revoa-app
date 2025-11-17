@@ -7,12 +7,15 @@ import {
   ChevronDown,
   Check,
   GitBranch as BrandTiktok,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdAccount, AdInsight, AdCheckItem } from '@/types/ads';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
+import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { getAdReportsMetrics, getCreativePerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -40,6 +43,7 @@ export default function Audit() {
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [creatives, setCreatives] = useState<any[]>([]);
   const [hasRealData, setHasRealData] = useState(false);
+  const [showInsights, setShowInsights] = useState(true);
 
   // Use centralized connection store
   const { facebook } = useConnectionStore();
@@ -192,7 +196,9 @@ export default function Audit() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+      <div className="space-y-6 p-6">
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -259,7 +265,31 @@ export default function Audit() {
               onTimeChange={handleTimeChange}
             />
           </div>
+
+          {showInsights && creatives.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-1">
+              <button
+                onClick={() => setShowInsights(false)}
+                className="w-full text-left px-5 py-3 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-colors flex items-center justify-between"
+              >
+                <span className="flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  <span>AI Insights available</span>
+                </span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </>
+      )}
+      </div>
+      </div>
+      {showInsights && creatives.length > 0 && facebook.isConnected && (
+        <AIInsightsSidebar
+          creatives={creatives}
+          isOpen={showInsights}
+          onClose={() => setShowInsights(false)}
+        />
       )}
     </div>
   );

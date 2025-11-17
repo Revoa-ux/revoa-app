@@ -106,16 +106,18 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
       }
     },
     { id: 'adName', label: 'Ad Name', width: 200, sortable: true },
-    { id: 'performance', label: 'Performance', width: 150, sortable: true },
+    { id: 'platform', label: 'Platform', width: 100, sortable: true },
+    { id: 'performance', label: 'Performance', width: 120, sortable: true },
+    { id: 'fatigueScore', label: 'Fatigue', width: 100, sortable: true },
     { id: 'impressions', label: 'Impressions', width: 120, sortable: true },
-    { id: 'clicks', label: 'Clicks', width: 120, sortable: true },
-    { id: 'ctr', label: 'CTR', width: 120, sortable: true },
-    { id: 'cpc', label: 'CPC', width: 120, sortable: true },
-    { id: 'spend', label: 'Spend', width: 120, sortable: true },
-    { id: 'conversions', label: 'Conversions', width: 120, sortable: true },
-    { id: 'cvr', label: 'CVR', width: 120, sortable: true },
-    { id: 'cpa', label: 'CPA', width: 120, sortable: true },
-    { id: 'roas', label: 'ROAS', width: 120, sortable: true }
+    { id: 'clicks', label: 'Clicks', width: 100, sortable: true },
+    { id: 'ctr', label: 'CTR', width: 80, sortable: true },
+    { id: 'cpc', label: 'CPC', width: 80, sortable: true },
+    { id: 'spend', label: 'Spend', width: 100, sortable: true },
+    { id: 'conversions', label: 'Conv.', width: 80, sortable: true },
+    { id: 'cvr', label: 'CVR', width: 80, sortable: true },
+    { id: 'cpa', label: 'CPA', width: 80, sortable: true },
+    { id: 'roas', label: 'ROAS', width: 80, sortable: true }
   ];
 
   const totalWidth = columns.reduce((sum, column) => sum + column.width, 0);
@@ -268,6 +270,10 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                     >
                       {column.render ? (
                         column.render(null, creative)
+                      ) : column.id === 'platform' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
+                          {creative.platform || 'facebook'}
+                        </span>
                       ) : column.id === 'performance' ? (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
@@ -276,8 +282,26 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                         }`}>
                           {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
                         </span>
+                      ) : column.id === 'fatigueScore' ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full transition-all ${
+                                creative.fatigueScore < 30 ? 'bg-green-500' :
+                                creative.fatigueScore < 60 ? 'bg-yellow-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${creative.fatigueScore}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 w-8">
+                            {Math.round(creative.fatigueScore)}
+                          </span>
+                        </div>
                       ) : column.id === 'adName' ? (
-                        creative.adName || '-'
+                        <div className="truncate" title={creative.adName}>
+                          {creative.adName || '-'}
+                        </div>
                       ) : column.id === 'impressions' ? (
                         creative.metrics.impressions.toLocaleString()
                       ) : column.id === 'clicks' ? (
@@ -289,13 +313,17 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                       ) : column.id === 'spend' ? (
                         `$${creative.metrics.spend.toFixed(2)}`
                       ) : column.id === 'conversions' ? (
-                        creative.metrics.conversions.toString()
+                        <span className={creative.hasRealConversionData ? 'font-semibold text-green-600 dark:text-green-400' : ''}>
+                          {creative.metrics.conversions}
+                        </span>
                       ) : column.id === 'cvr' ? (
                         `${creative.metrics.cvr?.toFixed(2) || '0.00'}%`
                       ) : column.id === 'cpa' ? (
                         `$${creative.metrics.cpa.toFixed(2)}`
                       ) : column.id === 'roas' ? (
-                        `${creative.metrics.roas?.toFixed(2) || '0.00'}x`
+                        <span className={creative.hasRealConversionData ? 'font-semibold' : ''}>
+                          {creative.metrics.roas?.toFixed(2) || '0.00'}x
+                        </span>
                       ) : null}
                     </div>
                   ))}
