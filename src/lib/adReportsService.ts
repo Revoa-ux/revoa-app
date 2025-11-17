@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { facebookAdsService } from './facebookAds';
 import { getAdConversionMetrics, syncShopifyOrders } from './attributionService';
+import { calculateProfitMetrics } from './profitCalculationService';
 
 // Function to return Facebook thumbnail URLs without modification
 // Facebook CDN URLs are signed and must be used exactly as provided
@@ -49,6 +50,18 @@ export interface AdReportMetrics {
     change: number;
     data: Array<{ date: string; value: number }>;
   };
+  profit: {
+    name: string;
+    value: number;
+    change: number;
+    data: Array<{ date: string; value: number }>;
+  };
+  netROAS: {
+    name: string;
+    value: number;
+    change: number;
+    data: Array<{ date: string; value: number }>;
+  };
 }
 
 export interface CreativePerformance {
@@ -72,6 +85,9 @@ export interface CreativePerformance {
     cvr?: number;
     roas: number;
     cpc: number;
+    profit?: number;
+    profitMargin?: number;
+    netROAS?: number;
   };
   performance: 'high' | 'medium' | 'low';
   fatigueScore: number;
@@ -192,6 +208,31 @@ export async function getAdReportsMetrics(
 
     const avgCVR = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
+    // Get profit metrics
+    const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
+
+    // Calculate profit data points by date
+    const profitData = Array.from(dateMetrics.entries()).map(([date, m]) => {
+      const dayRevenue = m.value;
+      const daySpend = m.spend;
+      const dayCOGS = dayRevenue * (profitMetrics.totalCOGS / profitMetrics.totalRevenue || 0);
+      return {
+        date,
+        value: dayRevenue - dayCOGS - daySpend
+      };
+    });
+
+    const netROASData = Array.from(dateMetrics.entries()).map(([date, m]) => {
+      const dayRevenue = m.value;
+      const daySpend = m.spend;
+      const dayCOGS = dayRevenue * (profitMetrics.totalCOGS / profitMetrics.totalRevenue || 0);
+      const dayProfit = dayRevenue - dayCOGS - daySpend;
+      return {
+        date,
+        value: daySpend > 0 ? dayProfit / daySpend : 0
+      };
+    });
+
     return {
       roas: {
         name: 'ROAS',
@@ -228,6 +269,18 @@ export async function getAdReportsMetrics(
         value: avgCVR,
         change: 0, // TODO: Calculate vs previous period
         data: cvrData
+      },
+      profit: {
+        name: 'Profit',
+        value: profitMetrics.totalProfit,
+        change: 0, // TODO: Calculate vs previous period
+        data: profitData
+      },
+      netROAS: {
+        name: 'Net ROAS',
+        value: profitMetrics.netROAS,
+        change: 0, // TODO: Calculate vs previous period
+        data: netROASData
       }
     };
   } catch (error) {
@@ -364,6 +417,13 @@ export async function getCreativePerformance(
       const cpc = totalClicks > 0 ? totalSpend / totalClicks : 0;
       const roas = totalSpend > 0 ? totalValue / totalSpend : 0;
 
+      // Calculate profit metrics (revenue - COGS - ad spend)
+      // Estimate COGS at 40% of revenue if not available
+      const estimatedCOGS = totalValue * 0.4;
+      const profit = totalValue - estimatedCOGS - totalSpend;
+      const profitMargin = totalValue > 0 ? (profit / totalValue) * 100 : 0;
+      const netROAS = totalSpend > 0 ? profit / totalSpend : 0;
+
       // Determine performance level based on ROAS
       let performance: 'high' | 'medium' | 'low' = 'low';
       if (roas >= 2.5) performance = 'high';
@@ -411,7 +471,10 @@ export async function getCreativePerformance(
           conversions: totalConversions, // REAL DATA from Shopify!
           cvr: conversionRate, // REAL CVR from Shopify!
           roas,  // REAL ROAS based on actual order values!
-          cpc
+          cpc,
+          profit, // Net profit after COGS and ad spend
+          profitMargin, // Profit margin percentage
+          netROAS // Profit / Ad Spend ratio
         },
         performance,
         fatigueScore,
@@ -470,6 +533,18 @@ function getEmptyMetrics(): AdReportMetrics {
     },
     cvr: {
       name: 'CVR',
+      value: 0,
+      change: 0,
+      data: []
+    },
+    profit: {
+      name: 'Profit',
+      value: 0,
+      change: 0,
+      data: []
+    },
+    netROAS: {
+      name: 'Net ROAS',
       value: 0,
       change: 0,
       data: []

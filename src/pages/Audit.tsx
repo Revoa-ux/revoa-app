@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Facebook, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
-import { CreativeAnalysis } from '@/components/reports/CreativeAnalysis';
+import { CreativeAnalysisEnhanced } from '@/components/reports/CreativeAnalysisEnhanced';
+import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { getAdReportsMetrics, getCreativePerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -27,6 +28,7 @@ export default function Audit() {
   const [isLoading, setIsLoading] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [creatives, setCreatives] = useState<any[]>([]);
+  const [showAIInsights, setShowAIInsights] = useState(true);
 
   const { facebook } = useConnectionStore();
 
@@ -115,30 +117,39 @@ export default function Audit() {
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
   return (
-    <div className="space-y-6 p-6 max-w-[1800px] mx-auto">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Ad Performance Analytics</h1>
-            <p className="text-blue-100">Real-time insights from your advertising campaigns</p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => refreshData(true)}
-              disabled={isLoading || !facebook.isConnected}
-              className="flex items-center space-x-2 px-4 py-2.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
-            >
-              <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
-            <AdReportsTimeSelector
-              selectedTime={selectedTime}
-              onTimeChange={handleTimeChange}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              onApply={refreshData}
-            />
-          </div>
+    <div className="space-y-6 max-w-[1800px] mx-auto">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Performance Analytics</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Real-time insights from your advertising campaigns</p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setShowAIInsights(!showAIInsights)}
+            className={`flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg transition-colors ${
+              showAIInsights
+                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>AI Insights</span>
+          </button>
+          <button
+            onClick={() => refreshData(true)}
+            disabled={isLoading || !facebook.isConnected}
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={refreshData}
+          />
         </div>
       </div>
 
@@ -170,12 +181,21 @@ export default function Audit() {
             <PerformanceOverview metrics={performanceData} />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <CreativeAnalysis
-              creatives={creatives}
-              selectedTime={selectedTime}
-              onTimeChange={handleTimeChange}
-            />
+          <div className="flex gap-6">
+            <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <CreativeAnalysisEnhanced
+                creatives={creatives}
+                selectedTime={selectedTime}
+                onTimeChange={handleTimeChange}
+              />
+            </div>
+            {showAIInsights && (
+              <AIInsightsSidebar
+                creatives={creatives}
+                isOpen={showAIInsights}
+                onClose={() => setShowAIInsights(false)}
+              />
+            )}
           </div>
         </>
       )}

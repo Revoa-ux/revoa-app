@@ -1,6 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown } from 'lucide-react';
 
 interface Metric {
   name: string;
@@ -20,6 +20,8 @@ interface PerformanceOverviewProps {
     spend: Metric;
     conversions: Metric;
     cvr: Metric;
+    profit: Metric;
+    netROAS: Metric;
   } | null;
 }
 
@@ -50,6 +52,10 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
         return <ShoppingCart className="w-4 h-4" />;
       case 'cvr':
         return <Percent className="w-4 h-4" />;
+      case 'profit':
+        return <Banknote className="w-4 h-4" />;
+      case 'net roas':
+        return <TrendingDown className="w-4 h-4" />;
       default:
         return <TrendingUp className="w-4 h-4" />;
     }
@@ -85,7 +91,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     const value = metric.value;
     const name = metric.name.toLowerCase();
 
-    if (name === 'spend') {
+    if (name === 'spend' || name === 'profit') {
       return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     } else if (name === 'conversions') {
       return Math.round(value).toLocaleString();
@@ -93,6 +99,8 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
       return `${value.toFixed(2)}%`;
     } else if (name === 'cpa') {
       return `$${value.toFixed(2)}`;
+    } else if (name === 'net roas') {
+      return `${value.toFixed(2)}x`;
     } else {
       return value.toFixed(2);
     }
@@ -181,13 +189,15 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">Performance Overview</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {renderMetricCard(metrics.roas)}
         {renderMetricCard(metrics.cpa)}
         {renderMetricCard(metrics.ctr)}
         {renderMetricCard(metrics.spend)}
         {renderMetricCard(metrics.conversions)}
         {renderMetricCard(metrics.cvr)}
+        {renderMetricCard(metrics.profit)}
+        {renderMetricCard(metrics.netROAS)}
       </div>
     </div>
   );
