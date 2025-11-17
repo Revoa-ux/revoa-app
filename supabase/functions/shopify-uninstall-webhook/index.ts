@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
-import { verifyShopifyWebhook, getWebhookSecret } from '../_shared/shopify-hmac.ts';
+import { verifyShopifyWebhook, getWebhookSecret } from './_shared/shopify-hmac.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -118,13 +118,12 @@ Deno.serve(async (req: Request) => {
 
         console.log('[Uninstall Webhook] Marking installation as uninstalled for shop:', shop);
 
-        // Mark as uninstalled and clear the access token (security best practice)
         const { data, error } = await supabase
           .from('shopify_installations')
           .update({
             status: 'uninstalled',
             uninstalled_at: new Date().toISOString(),
-            access_token: null, // Clear access token on uninstall
+            access_token: null,
           })
           .eq('store_url', shop)
           .eq('status', 'installed')
@@ -136,7 +135,6 @@ Deno.serve(async (req: Request) => {
           console.log('[Uninstall Webhook] ✅ Success:', data);
         }
 
-        // Also update the stores table
         await supabase
           .from('stores')
           .update({

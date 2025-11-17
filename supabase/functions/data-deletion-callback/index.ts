@@ -50,9 +50,9 @@ async function verifyShopifyWebhook(
 }
 
 function getWebhookSecret(): string {
-  const secret = Deno.env.get('SHOPIFY_CLIENT_SECRET');
+  const secret = Deno.env.get('SHOPIFY_API_SECRET') || Deno.env.get('SHOPIFY_CLIENT_SECRET');
   if (!secret) {
-    throw new Error('Missing required environment variable: SHOPIFY_CLIENT_SECRET');
+    throw new Error('Missing required environment variable: SHOPIFY_API_SECRET');
   }
   return secret;
 }
