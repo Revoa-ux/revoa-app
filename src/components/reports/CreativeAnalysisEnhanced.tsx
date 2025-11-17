@@ -58,6 +58,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const [showPerformanceFilter, setShowPerformanceFilter] = useState(false);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
@@ -84,6 +86,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     tableElement.addEventListener('scroll', handleScroll);
     return () => tableElement.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    // Initialize loading state for all creatives with images
+    const creativesWithImages = creatives
+      .filter(c => c.thumbnail || c.url)
+      .map(c => c.id);
+    setImageLoading(new Set(creativesWithImages));
+    setImageErrors(new Set());
+  }, [creatives]);
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
@@ -129,15 +140,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
           : null;
 
-        const [imageError, setImageError] = useState(false);
-        const [imageLoading, setImageLoading] = useState(true);
+        const hasImageError = imageErrors.has(creative.id);
+        const isImageLoading = imageLoading.has(creative.id);
 
         return (
           <div className="flex items-center">
             <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
-              {(creative.thumbnail || creative.url) && !imageError ? (
+              {(creative.thumbnail || creative.url) && !hasImageError ? (
                 <>
-                  {imageLoading && (
+                  {isImageLoading && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
                     </div>
@@ -146,10 +157,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     src={creative.thumbnail || creative.url}
                     alt=""
                     className="w-full h-full object-cover"
-                    onLoad={() => setImageLoading(false)}
+                    onLoad={() => {
+                      setImageLoading(prev => {
+                        const next = new Set(prev);
+                        next.delete(creative.id);
+                        return next;
+                      });
+                    }}
                     onError={() => {
-                      setImageError(true);
-                      setImageLoading(false);
+                      setImageErrors(prev => new Set([...prev, creative.id]));
+                      setImageLoading(prev => {
+                        const next = new Set(prev);
+                        next.delete(creative.id);
+                        return next;
+                      });
                     }}
                   />
                 </>
@@ -158,7 +179,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <Package className="w-5 h-5 text-gray-400" />
                 </div>
               )}
-              {adsManagerUrl && !imageLoading && (
+              {adsManagerUrl && !isImageLoading && (
                 <a
                   href={adsManagerUrl}
                   target="_blank"
