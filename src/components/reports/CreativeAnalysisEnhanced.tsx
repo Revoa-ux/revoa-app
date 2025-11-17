@@ -12,16 +12,22 @@ import {
   Check,
   Facebook,
   Play,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Sparkles,
+  TrendingUp,
+  AlertTriangle,
+  Target
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
+  showAIInsights?: boolean;
 }
 
 interface Column {
@@ -35,7 +41,8 @@ interface Column {
 type SortDirection = 'asc' | 'desc';
 
 export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> = ({
-  creatives = []
+  creatives = [],
+  showAIInsights = true
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
@@ -98,8 +105,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       label: '',
       width: 50,
       render: (_, creative) => (
-        <input
-          type="checkbox"
+        <CustomCheckbox
           checked={selectedCreatives.has(creative.id)}
           onChange={(e) => {
             e.stopPropagation();
@@ -111,7 +117,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             }
             setSelectedCreatives(newSelected);
           }}
-          className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
         />
       )
     },
@@ -124,21 +129,36 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
           : null;
 
+        const [imageError, setImageError] = useState(false);
+        const [imageLoading, setImageLoading] = useState(true);
+
         return (
           <div className="flex items-center">
             <div className="w-10 h-10 relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group">
-              {creative.thumbnail || creative.url ? (
-                <img
-                  src={creative.thumbnail || creative.url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+              {(creative.thumbnail || creative.url) && !imageError ? (
+                <>
+                  {imageLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  <img
+                    src={creative.thumbnail || creative.url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => {
+                      setImageError(true);
+                      setImageLoading(false);
+                    }}
+                  />
+                </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <Package className="w-5 h-5 text-gray-400" />
                 </div>
               )}
-              {adsManagerUrl && (
+              {adsManagerUrl && !imageLoading && (
                 <a
                   href={adsManagerUrl}
                   target="_blank"
@@ -380,8 +400,121 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     activeFilters.push(`${selectedPerformance.length} performance tier(s)`);
   }
 
+  // Generate AI Insights
+  const generateInsights = () => {
+    const insights: any[] = [];
+
+    if (creatives.length === 0 || !showAIInsights) {
+      return insights;
+    }
+
+    // Find top performer
+    const topPerformer = [...creatives].sort((a, b) =>
+      (b.metrics.roas || 0) - (a.metrics.roas || 0)
+    )[0];
+
+    if (topPerformer && topPerformer.metrics.roas > 1) {
+      insights.push({
+        id: 'top-performer',
+        type: 'top_performer',
+        title: 'Top Performer Detected',
+        description: `"${topPerformer.adName}" is delivering ${topPerformer.metrics.roas.toFixed(2)}x ROAS with ${topPerformer.metrics.conversions} conversions.`,
+        metric: `${topPerformer.metrics.roas.toFixed(2)}x ROAS`,
+        confidence: 'high'
+      });
+    }
+
+    // Find creatives needing attention
+    const needsAttention = creatives.filter(c =>
+      c.fatigueScore > 70 || (c.metrics.spend > 100 && c.performance === 'low')
+    );
+
+    if (needsAttention.length > 0) {
+      insights.push({
+        id: 'needs-attention',
+        type: 'needs_attention',
+        title: 'Creatives Need Attention',
+        description: `${needsAttention.length} ${needsAttention.length === 1 ? 'creative shows' : 'creatives show'} signs of fatigue or underperformance. Consider refreshing or pausing.`,
+        confidence: 'high'
+      });
+    }
+
+    // Budget recommendation
+    const highPerformers = creatives.filter(c => c.metrics.roas > 2 && c.metrics.conversions > 5);
+    if (highPerformers.length > 0) {
+      const totalHighPerformerSpend = highPerformers.reduce((sum, c) => sum + c.metrics.spend, 0);
+      const totalSpend = creatives.reduce((sum, c) => sum + c.metrics.spend, 0);
+      const percentage = (totalHighPerformerSpend / totalSpend) * 100;
+
+      if (percentage < 60) {
+        insights.push({
+          id: 'budget-recommendation',
+          type: 'budget',
+          title: 'Scale High Performers',
+          description: `Only ${percentage.toFixed(0)}% of budget is going to ads with 2x+ ROAS. Consider reallocating budget to your ${highPerformers.length} top performers.`,
+          confidence: 'high'
+        });
+      }
+    }
+
+    return insights;
+  };
+
+  const insights = generateInsights();
+  const [dismissedInsights, setDismissedInsights] = useState<Set<string>>(new Set());
+  const visibleInsights = insights.filter(i => !dismissedInsights.has(i.id));
+
+  const handleDismissInsight = (insightId: string) => {
+    setDismissedInsights(prev => new Set([...prev, insightId]));
+  };
+
   return (
     <div className="space-y-4">
+      {showAIInsights && visibleInsights.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center space-x-2 mb-3">
+            <Sparkles className="w-5 h-5 text-red-500" />
+            <h3 className="font-semibold text-gray-900 dark:text-white">AI Insights</h3>
+            <span className="text-xs text-gray-500 dark:text-gray-400">AI-detected patterns and recommendations</span>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {visibleInsights.map((insight) => (
+              <div
+                key={insight.id}
+                className="relative bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+              >
+                <button
+                  onClick={() => handleDismissInsight(insight.id)}
+                  className="absolute top-3 right-3 p-1 hover:bg-red-100 dark:hover:bg-red-900/40 rounded transition-colors"
+                  title="Dismiss insight"
+                >
+                  <X className="w-4 h-4 text-red-600 dark:text-red-400" />
+                </button>
+                <div className="flex items-start space-x-3 pr-8">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                    {insight.type === 'top_performer' && <TrendingUp className="w-5 h-5 text-white" />}
+                    {insight.type === 'needs_attention' && <AlertTriangle className="w-5 h-5 text-white" />}
+                    {insight.type === 'budget' && <Target className="w-5 h-5 text-white" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                      {insight.title}
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                      {insight.description}
+                    </p>
+                    {insight.metric && (
+                      <div className="inline-flex items-center px-2.5 py-1 bg-white dark:bg-gray-800 rounded text-xs font-mono font-medium text-gray-900 dark:text-white">
+                        {insight.metric}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">Creative Performance</h2>
         <div className="flex items-center space-x-3">
@@ -528,11 +661,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     style={{ width: column.width }}
                   >
                     {column.id === 'select' ? (
-                      <input
-                        type="checkbox"
+                      <CustomCheckbox
                         checked={selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0}
                         onChange={handleSelectAll}
-                        className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-500"
                       />
                     ) : column.sortable ? (
                       <button

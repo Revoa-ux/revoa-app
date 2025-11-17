@@ -128,7 +128,7 @@ export default function Audit() {
             onClick={() => setShowAIInsights(!showAIInsights)}
             className={`flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg transition-colors ${
               showAIInsights
-                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
+                ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
                 : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             }`}
           >
@@ -181,25 +181,13 @@ export default function Audit() {
             <PerformanceOverview metrics={performanceData} />
           </div>
 
-          <div className="flex gap-6 transition-all duration-300">
-            <div className={`flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 ${
-              showAIInsights ? '' : 'max-w-full'
-            }`}>
-              <CreativeAnalysisEnhanced
-                creatives={creatives}
-                selectedTime={selectedTime}
-                onTimeChange={handleTimeChange}
-              />
-            </div>
-            {showAIInsights && (
-              <div className="flex-shrink-0 transition-all duration-300">
-                <AIInsightsSidebar
-                  creatives={creatives}
-                  isOpen={showAIInsights}
-                  onClose={() => setShowAIInsights(false)}
-                />
-              </div>
-            )}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <CreativeAnalysisEnhanced
+              creatives={creatives}
+              selectedTime={selectedTime}
+              onTimeChange={handleTimeChange}
+              showAIInsights={showAIInsights}
+            />
           </div>
         </>
       )}
