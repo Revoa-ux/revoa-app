@@ -101,7 +101,7 @@ Deno.serve(async (req: Request) => {
       const rawBody = await req.text();
 
       if (!hmac) {
-        console.error('[Data Deletion] ❌ Missing HMAC header');
+        console.error('[Data Deletion] Missing HMAC header');
         return new Response(
           JSON.stringify({
             error: "Unauthorized",
@@ -138,7 +138,7 @@ Deno.serve(async (req: Request) => {
 
       // For compliance tests, log the failure but don't reject
       if (!isValid) {
-        console.error('[Data Deletion] ❌ Invalid HMAC signature');
+        console.error('[Data Deletion] Invalid HMAC signature');
 
         // If not a compliance test, reject the request
         if (!isComplianceTest) {
@@ -155,9 +155,9 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-        console.log('[Data Deletion] ⚠️  Allowing compliance test despite HMAC failure');
+        console.log('[Data Deletion] Allowing compliance test despite HMAC failure');
       } else {
-        console.log('[Data Deletion] ✅ HMAC verified successfully');
+        console.log('[Data Deletion] HMAC verified successfully');
       }
 
       if (webhookId) {
