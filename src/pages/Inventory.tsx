@@ -307,7 +307,7 @@ export default function Inventory() {
   }
 
   return (
-    <div className="max-w-[1050px] mx-auto">
+    <div className="max-w-[1400px] mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Inventory Management
