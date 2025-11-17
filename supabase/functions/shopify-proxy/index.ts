@@ -10,7 +10,7 @@ const corsHeaders = {
   'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:",
 };
 
-const SHOPIFY_API_VERSION = '2025-07';
+const SHOPIFY_API_VERSION = '2025-01';
 
 interface WebhookRegistration {
   topic: string;
