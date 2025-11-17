@@ -45,7 +45,6 @@ Deno.serve(async (req: Request) => {
 
       const rawBody = await req.text();
 
-      // CRITICAL: Always require HMAC for security
       if (!hmac) {
         console.error('[Data Deletion] ❌ Missing HMAC header');
         return new Response(

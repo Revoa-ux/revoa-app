@@ -124,7 +124,6 @@ Deno.serve(async (req: Request) => {
     const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
       console.error('[Order Webhook] ❌ Invalid HMAC signature');
-      // Return 401 Unauthorized for invalid HMAC (important for automated checks)
       return new Response(
         JSON.stringify({
           error: 'Unauthorized',
@@ -174,8 +173,6 @@ Deno.serve(async (req: Request) => {
     }
     console.log('[Order Webhook] Order stored:', storedOrder.id);
 
-    // IMPORTANT: Return 200 OK immediately to Shopify (within 5 seconds)
-    // Process COGS and attribution in background to avoid timeout
     const responsePromise = new Response(
       JSON.stringify({
         success: true,
@@ -189,8 +186,6 @@ Deno.serve(async (req: Request) => {
       }
     );
 
-    // Process in background (non-blocking)
-    // This ensures Shopify gets 200 OK response within 5 seconds
     const backgroundProcessing = (async () => {
       try {
         await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
@@ -236,8 +231,6 @@ Deno.serve(async (req: Request) => {
       }
     })();
 
-    // If EdgeRuntime.waitUntil is available, use it for proper background processing
-    // Otherwise, the promise will complete after the response is sent
     if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
       EdgeRuntime.waitUntil(backgroundProcessing);
     }

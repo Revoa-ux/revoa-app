@@ -50,7 +50,6 @@ Deno.serve(async (req: Request) => {
     const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
       console.error('[Uninstall Webhook] ❌ Invalid HMAC signature');
-      // Return 401 Unauthorized for invalid HMAC (important for automated checks)
       return new Response(
         JSON.stringify({
           error: 'Unauthorized',
@@ -79,8 +78,6 @@ Deno.serve(async (req: Request) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // CRITICAL: Return 200 OK immediately (Shopify requires response within 5 seconds)
-    // Process the actual uninstall logic in background
     const responsePromise = new Response(
       JSON.stringify({
         success: true,
@@ -97,10 +94,8 @@ Deno.serve(async (req: Request) => {
       }
     );
 
-    // Background processing (non-blocking)
     const backgroundProcessing = (async () => {
       try {
-        // Check for duplicate webhooks
         if (webhookId) {
           const { data: existingWebhook } = await supabase
             .from('webhook_logs')
@@ -143,7 +138,6 @@ Deno.serve(async (req: Request) => {
       }
     })();
 
-    // If EdgeRuntime.waitUntil is available, use it for proper background processing
     if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
       EdgeRuntime.waitUntil(backgroundProcessing);
     }
