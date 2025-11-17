@@ -46,7 +46,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
-  const [selectedPerformance, setSelectedPerformance] = useState<string[]>(['all']);
   const [selectedCreatives, setSelectedCreatives] = useState<Set<string>>(new Set());
   const [sortConfig, setSortConfig] = useState<{
     field: string;
@@ -57,19 +56,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   });
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
-  const [showPerformanceFilter, setShowPerformanceFilter] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
-  const performanceFilterRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
-  useClickOutside(performanceFilterRef, () => setShowPerformanceFilter(false));
 
   useEffect(() => {
     const tableElement = tableRef.current;
@@ -103,12 +99,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'google', name: 'Google Ads', icon: ImageIcon }
   ];
 
-  const performanceTiers = [
-    { id: 'all', name: 'All Performance' },
-    { id: 'high', name: 'High (ROAS > 2.5)' },
-    { id: 'medium', name: 'Medium (ROAS 1.5-2.5)' },
-    { id: 'low', name: 'Low (ROAS < 1.5)' }
-  ];
 
   const columns: Column[] = [
     {
@@ -234,19 +224,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     }
   };
 
-  const handlePerformanceFilter = (perfId: string) => {
-    if (perfId === 'all') {
-      setSelectedPerformance(['all']);
-    } else {
-      const newPerf = selectedPerformance.filter(p => p !== 'all');
-      if (newPerf.includes(perfId)) {
-        const filtered = newPerf.filter(p => p !== perfId);
-        setSelectedPerformance(filtered.length === 0 ? ['all'] : filtered);
-      } else {
-        setSelectedPerformance([...newPerf, perfId]);
-      }
-    }
-  };
 
   const handleSelectAll = () => {
     if (selectedCreatives.size === filteredCreatives.length) {
@@ -395,11 +372,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       selectedPlatforms.includes('all') ||
       selectedPlatforms.includes(creative.platform || 'facebook');
 
-    const matchesPerformance =
-      selectedPerformance.includes('all') ||
-      selectedPerformance.includes(creative.performance);
-
-    return matchesSearch && matchesPlatform && matchesPerformance;
+    return matchesSearch && matchesPlatform;
   });
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
@@ -416,9 +389,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const activeFilters = [];
   if (!selectedPlatforms.includes('all')) {
     activeFilters.push(`${selectedPlatforms.length} platform(s)`);
-  }
-  if (!selectedPerformance.includes('all')) {
-    activeFilters.push(`${selectedPerformance.length} performance tier(s)`);
   }
 
   // Generate AI Insights
@@ -567,7 +537,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               )}
             </button>
             {showPlatformFilter && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
                 {platforms.map((platform) => (
                   <button
                     key={platform.id}
@@ -587,36 +557,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             )}
           </div>
 
-          <div className="relative" ref={performanceFilterRef}>
-            <button
-              onClick={() => setShowPerformanceFilter(!showPerformanceFilter)}
-              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Performance</span>
-              {!selectedPerformance.includes('all') && (
-                <span className="px-1.5 py-0.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-full">
-                  {selectedPerformance.length}
-                </span>
-              )}
-            </button>
-            {showPerformanceFilter && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
-                {performanceTiers.map((tier) => (
-                  <button
-                    key={tier.id}
-                    onClick={() => handlePerformanceFilter(tier.id)}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
-                  >
-                    <span>{tier.name}</span>
-                    {(selectedPerformance.includes(tier.id) || (tier.id === 'all' && selectedPerformance.includes('all'))) && (
-                      <Check className="w-4 h-4" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
 
           <button
             onClick={handleExportCSV}
@@ -655,7 +595,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <button
             onClick={() => {
               setSelectedPlatforms(['all']);
-              setSelectedPerformance(['all']);
             }}
             className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 underline"
           >
