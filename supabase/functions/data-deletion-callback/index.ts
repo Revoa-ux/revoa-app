@@ -50,10 +50,12 @@ async function verifyShopifyWebhook(
 }
 
 function getWebhookSecret(): string {
-  const secret = Deno.env.get('SHOPIFY_API_SECRET') || Deno.env.get('SHOPIFY_CLIENT_SECRET');
+  // Try webhook-specific secret first, then fall back to API secret
+  const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET') || Deno.env.get('SHOPIFY_CLIENT_SECRET');
   if (!secret) {
-    throw new Error('Missing required environment variable: SHOPIFY_API_SECRET');
+    throw new Error('Missing required environment variable: SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET');
   }
+  console.log('[HMAC] Using secret from:', Deno.env.get('SHOPIFY_WEBHOOK_SECRET') ? 'SHOPIFY_WEBHOOK_SECRET' : (Deno.env.get('SHOPIFY_API_SECRET') ? 'SHOPIFY_API_SECRET' : 'SHOPIFY_CLIENT_SECRET'));
   return secret;
 }
 

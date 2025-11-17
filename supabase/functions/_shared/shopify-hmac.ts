@@ -126,12 +126,14 @@ export async function verifyShopifyWebhookHex(
 }
 
 export function getWebhookSecret(): string {
-  const secret = Deno.env.get('SHOPIFY_API_SECRET') || Deno.env.get('SHOPIFY_CLIENT_SECRET');
+  // Try webhook-specific secret first, then fall back to API secret
+  const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') || Deno.env.get('SHOPIFY_API_SECRET') || Deno.env.get('SHOPIFY_CLIENT_SECRET');
   if (!secret) {
-    console.error('[HMAC] SHOPIFY_API_SECRET environment variable is not set');
-    console.error('[HMAC] This variable must be configured in your Supabase project settings');
-    throw new Error('Missing required environment variable: SHOPIFY_API_SECRET');
+    console.error('[HMAC] No Shopify secret environment variable is set');
+    console.error('[HMAC] Required: SHOPIFY_WEBHOOK_SECRET (preferred) or SHOPIFY_API_SECRET');
+    throw new Error('Missing required environment variable: SHOPIFY_WEBHOOK_SECRET or SHOPIFY_API_SECRET');
   }
-  console.log('[HMAC] Using SHOPIFY_API_SECRET for webhook verification');
+  const secretSource = Deno.env.get('SHOPIFY_WEBHOOK_SECRET') ? 'SHOPIFY_WEBHOOK_SECRET' : (Deno.env.get('SHOPIFY_API_SECRET') ? 'SHOPIFY_API_SECRET' : 'SHOPIFY_CLIENT_SECRET');
+  console.log(`[HMAC] Using ${secretSource} for webhook verification`);
   return secret;
 }
