@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Facebook, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
-import { CreativeAnalysisEnhanced } from '@/components/reports/CreativeAnalysisEnhanced';
+import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
 import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
-import { getAdReportsMetrics, getCreativePerformance } from '@/lib/adReportsService';
+import { getAdReportsMetrics, getCreativePerformance, getCampaignPerformance, getAdSetPerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
 
 interface DateRange {
@@ -28,6 +28,8 @@ export default function Audit() {
   const [isLoading, setIsLoading] = useState(false);
   const [performanceData, setPerformanceData] = useState<any>(null);
   const [creatives, setCreatives] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [adSets, setAdSets] = useState<any[]>([]);
   const [showAIInsights, setShowAIInsights] = useState(true);
 
   const { facebook } = useConnectionStore();
@@ -91,13 +93,17 @@ export default function Audit() {
       const startDate = dateRange.startDate.toISOString().split('T')[0];
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 
-      const [metrics, creativesData] = await Promise.all([
+      const [metrics, creativesData, campaignsData, adSetsData] = await Promise.all([
         getAdReportsMetrics(startDate, endDate),
-        getCreativePerformance(startDate, endDate)
+        getCreativePerformance(startDate, endDate),
+        getCampaignPerformance(startDate, endDate),
+        getAdSetPerformance(startDate, endDate)
       ]);
 
       setPerformanceData(metrics);
       setCreatives(creativesData);
+      setCampaigns(campaignsData);
+      setAdSets(adSetsData);
 
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
@@ -120,8 +126,8 @@ export default function Audit() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Performance Analytics</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Real-time insights from your advertising campaigns</p>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Unified Ad Manager</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -182,8 +188,10 @@ export default function Audit() {
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <CreativeAnalysisEnhanced
+            <UnifiedAdManager
               creatives={creatives}
+              campaigns={campaigns}
+              adSets={adSets}
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
               showAIInsights={showAIInsights}

@@ -551,3 +551,270 @@ function getEmptyMetrics(): AdReportMetrics {
     }
   };
 }
+
+/**
+ * Fetch campaigns with aggregated metrics
+ */
+export async function getCampaignPerformance(
+  startDate: string,
+  endDate: string
+): Promise<any[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Get user's ad accounts
+    const accounts = await facebookAdsService.getAdAccounts('facebook');
+    if (accounts.length === 0) {
+      return [];
+    }
+
+    const accountIds = accounts.map(acc => acc.id);
+
+    // Get all campaigns for these accounts
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('ad_campaigns')
+      .select('*')
+      .in('ad_account_id', accountIds);
+
+    if (campaignsError) throw campaignsError;
+
+    if (!campaigns || campaigns.length === 0) {
+      return [];
+    }
+
+    const campaignIds = campaigns.map(c => c.id);
+
+    // Fetch campaign-level metrics
+    const { data: metrics, error: metricsError } = await supabase
+      .from('ad_metrics')
+      .select('*')
+      .eq('entity_type', 'campaign')
+      .in('entity_id', campaignIds)
+      .gte('date', startDate)
+      .lte('date', endDate);
+
+    if (metricsError) throw metricsError;
+
+    // Group metrics by campaign
+    const campaignMetrics = new Map<string, any>();
+
+    metrics?.forEach(m => {
+      const existing = campaignMetrics.get(m.entity_id) || {
+        spend: 0,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        conversion_value: 0
+      };
+
+      campaignMetrics.set(m.entity_id, {
+        spend: existing.spend + (m.spend || 0),
+        impressions: existing.impressions + (m.impressions || 0),
+        clicks: existing.clicks + (m.clicks || 0),
+        conversions: existing.conversions + (m.conversions || 0),
+        conversion_value: existing.conversion_value + (m.conversion_value || 0)
+      });
+    });
+
+    // Get profit data for conversion tracking
+    const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
+    const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
+
+    // Map campaigns with their metrics
+    const campaignsWithMetrics = campaigns.map(campaign => {
+      const m = campaignMetrics.get(campaign.id) || {
+        spend: 0,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        conversion_value: 0
+      };
+
+      const ctr = m.impressions > 0 ? (m.clicks / m.impressions) * 100 : 0;
+      const cpa = m.conversions > 0 ? m.spend / m.conversions : 0;
+      const roas = m.spend > 0 ? m.conversion_value / m.spend : 0;
+      const cogs = m.conversion_value * cogsRatio;
+      const profit = m.conversion_value - cogs - m.spend;
+      const profitMargin = m.conversion_value > 0 ? (profit / m.conversion_value) * 100 : 0;
+      const netROAS = m.spend > 0 ? profit / m.spend : 0;
+
+      // Determine performance rating
+      let performance: 'high' | 'medium' | 'low' = 'medium';
+      if (netROAS > 1) performance = 'high';
+      else if (netROAS < 0) performance = 'low';
+
+      return {
+        id: campaign.id,
+        name: campaign.name,
+        status: campaign.status,
+        platform: campaign.platform || 'facebook',
+        objective: campaign.objective,
+        budget: campaign.daily_budget || campaign.lifetime_budget,
+        campaignId: campaign.id,
+        metrics: {
+          impressions: Math.round(m.impressions),
+          clicks: Math.round(m.clicks),
+          ctr: parseFloat(ctr.toFixed(2)),
+          spend: parseFloat(m.spend.toFixed(2)),
+          conversions: Math.round(m.conversions),
+          cpa: parseFloat(cpa.toFixed(2)),
+          roas: parseFloat(roas.toFixed(2)),
+          profit: parseFloat(profit.toFixed(2)),
+          profitMargin: parseFloat(profitMargin.toFixed(2)),
+          netROAS: parseFloat(netROAS.toFixed(2))
+        },
+        performance,
+        fatigueScore: 0 // Campaigns don't have fatigue scores
+      };
+    });
+
+    return campaignsWithMetrics;
+  } catch (error) {
+    console.error('[adReportsService] Error fetching campaign performance:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch ad sets with aggregated metrics
+ */
+export async function getAdSetPerformance(
+  startDate: string,
+  endDate: string
+): Promise<any[]> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Get user's ad accounts
+    const accounts = await facebookAdsService.getAdAccounts('facebook');
+    if (accounts.length === 0) {
+      return [];
+    }
+
+    const accountIds = accounts.map(acc => acc.id);
+
+    // Get all campaigns for these accounts
+    const { data: campaigns, error: campaignsError } = await supabase
+      .from('ad_campaigns')
+      .select('id')
+      .in('ad_account_id', accountIds);
+
+    if (campaignsError) throw campaignsError;
+
+    if (!campaigns || campaigns.length === 0) {
+      return [];
+    }
+
+    const campaignIds = campaigns.map(c => c.id);
+
+    // Get all ad sets for these campaigns
+    const { data: adSets, error: adSetsError } = await supabase
+      .from('ad_sets')
+      .select('*')
+      .in('campaign_id', campaignIds);
+
+    if (adSetsError) throw adSetsError;
+
+    if (!adSets || adSets.length === 0) {
+      return [];
+    }
+
+    const adSetIds = adSets.map(a => a.id);
+
+    // Fetch ad set-level metrics
+    const { data: metrics, error: metricsError } = await supabase
+      .from('ad_metrics')
+      .select('*')
+      .eq('entity_type', 'ad_set')
+      .in('entity_id', adSetIds)
+      .gte('date', startDate)
+      .lte('date', endDate);
+
+    if (metricsError) throw metricsError;
+
+    // Group metrics by ad set
+    const adSetMetrics = new Map<string, any>();
+
+    metrics?.forEach(m => {
+      const existing = adSetMetrics.get(m.entity_id) || {
+        spend: 0,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        conversion_value: 0
+      };
+
+      adSetMetrics.set(m.entity_id, {
+        spend: existing.spend + (m.spend || 0),
+        impressions: existing.impressions + (m.impressions || 0),
+        clicks: existing.clicks + (m.clicks || 0),
+        conversions: existing.conversions + (m.conversions || 0),
+        conversion_value: existing.conversion_value + (m.conversion_value || 0)
+      });
+    });
+
+    // Get profit data
+    const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
+    const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
+
+    // Map ad sets with their metrics
+    const adSetsWithMetrics = adSets.map(adSet => {
+      const m = adSetMetrics.get(adSet.id) || {
+        spend: 0,
+        impressions: 0,
+        clicks: 0,
+        conversions: 0,
+        conversion_value: 0
+      };
+
+      const ctr = m.impressions > 0 ? (m.clicks / m.impressions) * 100 : 0;
+      const cpa = m.conversions > 0 ? m.spend / m.conversions : 0;
+      const roas = m.spend > 0 ? m.conversion_value / m.spend : 0;
+      const cogs = m.conversion_value * cogsRatio;
+      const profit = m.conversion_value - cogs - m.spend;
+      const profitMargin = m.conversion_value > 0 ? (profit / m.conversion_value) * 100 : 0;
+      const netROAS = m.spend > 0 ? profit / m.spend : 0;
+
+      // Determine performance rating
+      let performance: 'high' | 'medium' | 'low' = 'medium';
+      if (netROAS > 1) performance = 'high';
+      else if (netROAS < 0) performance = 'low';
+
+      return {
+        id: adSet.id,
+        name: adSet.name,
+        status: adSet.status,
+        platform: adSet.platform || 'facebook',
+        campaignId: adSet.campaign_id,
+        targeting: adSet.targeting,
+        budget: adSet.daily_budget || adSet.lifetime_budget,
+        adSetId: adSet.id,
+        metrics: {
+          impressions: Math.round(m.impressions),
+          clicks: Math.round(m.clicks),
+          ctr: parseFloat(ctr.toFixed(2)),
+          spend: parseFloat(m.spend.toFixed(2)),
+          conversions: Math.round(m.conversions),
+          cpa: parseFloat(cpa.toFixed(2)),
+          roas: parseFloat(roas.toFixed(2)),
+          profit: parseFloat(profit.toFixed(2)),
+          profitMargin: parseFloat(profitMargin.toFixed(2)),
+          netROAS: parseFloat(netROAS.toFixed(2))
+        },
+        performance,
+        fatigueScore: 0 // Ad sets don't have fatigue scores
+      };
+    });
+
+    return adSetsWithMetrics;
+  } catch (error) {
+    console.error('[adReportsService] Error fetching ad set performance:', error);
+    return [];
+  }
+}

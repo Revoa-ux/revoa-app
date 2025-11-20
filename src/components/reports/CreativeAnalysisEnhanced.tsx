@@ -28,6 +28,8 @@ interface CreativeAnalysisEnhancedProps {
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
   showAIInsights?: boolean;
+  viewLevel?: 'campaigns' | 'adsets' | 'ads';
+  onDrillDown?: (item: any) => void;
 }
 
 interface Column {
@@ -42,7 +44,9 @@ type SortDirection = 'asc' | 'desc';
 
 export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> = ({
   creatives = [],
-  showAIInsights = true
+  showAIInsights = true,
+  viewLevel = 'ads',
+  onDrillDown
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
@@ -185,7 +189,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         );
       }
     },
-    { id: 'adName', label: 'Ad Name', width: 200, sortable: true },
+    {
+      id: 'adName',
+      label: viewLevel === 'campaigns' ? 'Campaign Name' : viewLevel === 'adsets' ? 'Ad Set Name' : 'Ad Name',
+      width: 200,
+      sortable: true
+    },
     { id: 'platform', label: 'Platform', width: 100, sortable: true },
     { id: 'performance', label: 'Performance', width: 120, sortable: true },
     { id: 'fatigueScore', label: 'Fatigue', width: 100, sortable: true },
@@ -653,9 +662,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               {sortedCreatives.map((creative, index) => (
                 <div
                   key={creative.id}
+                  onClick={() => onDrillDown && onDrillDown(creative)}
                   className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
-                  }`}
+                  } ${onDrillDown ? 'cursor-pointer' : ''}`}
                 >
                   {columns.map((column, colIndex) => (
                     <div
