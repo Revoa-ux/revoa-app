@@ -164,7 +164,7 @@ export const AIInsightsSidebar: React.FC<AIInsightsSidebarProps> = ({
       case 'needs_attention':
         return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20';
       case 'pattern':
-        return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20';
+        return 'text-red-600 dark:text-red-400 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20';
       case 'timing':
         return 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20';
       case 'budget':

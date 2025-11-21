@@ -158,7 +158,7 @@ const AutomationRules: React.FC = () => {
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all"
           >
             <Plus className="w-4 h-4" />
             Create Rule
@@ -179,7 +179,7 @@ const AutomationRules: React.FC = () => {
         <GlassCard className="p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 dark:text-gray-400 text-sm">Total Executions</span>
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+            <TrendingUp className="w-5 h-5 text-red-500" />
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white">
             {totalExecutions.toLocaleString()}
@@ -212,13 +212,13 @@ const AutomationRules: React.FC = () => {
 
       {loading ? (
         <GlassCard className="p-12 flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
         </GlassCard>
       ) : rules.length === 0 ? (
         <GlassCard className="p-12">
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               No Automation Rules Yet
@@ -237,7 +237,7 @@ const AutomationRules: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowRuleBuilder(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all"
               >
                 <Plus className="w-4 h-4" />
                 Create Custom Rule
@@ -340,7 +340,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
   const statusColors = {
     active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
     paused: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400',
-    draft: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    draft: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
 
   return (
@@ -474,9 +474,9 @@ const RuleCard: React.FC<RuleCardProps> = ({
       )}
 
       {rule.status === 'active' && !rule.dry_run && rule.conditions.some(c => ['profit', 'profit_margin', 'net_roas'].includes(c.metric_type)) && (
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-blue-600 dark:text-blue-400">
+        <div className="mt-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+          <Sparkles className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-red-600 dark:text-red-400">
             This rule uses profit-aware metrics powered by your real supplier COGS data
           </p>
         </div>

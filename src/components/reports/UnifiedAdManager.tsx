@@ -120,7 +120,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               onClick={() => handleTabChange(tab.id)}
               className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
                 isActive
-                  ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                  ? 'border-red-600 text-red-600 dark:text-red-400'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
@@ -129,7 +129,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               <span
                 className={`px-2 py-0.5 text-xs rounded-full ${
                   isActive
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}
               >
@@ -145,7 +145,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         <div className="flex items-center gap-2 text-sm">
           <button
             onClick={() => handleBreadcrumbClick('campaigns')}
-            className="text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-red-600 dark:text-red-400 hover:underline"
           >
             All Campaigns
           </button>
@@ -155,7 +155,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               {selectedAdSet ? (
                 <button
                   onClick={() => handleBreadcrumbClick('adsets')}
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-red-600 dark:text-red-400 hover:underline"
                 >
                   {campaigns.find(c => c.id === selectedCampaign)?.name || 'Campaign'}
                 </button>
