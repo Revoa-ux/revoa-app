@@ -22,6 +22,9 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import { RexSuggestionBadge } from './RexSuggestionBadge';
+import { RexSuggestionModal } from './RexSuggestionModal';
+import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];
@@ -30,6 +33,10 @@ interface CreativeAnalysisEnhancedProps {
   showAIInsights?: boolean;
   viewLevel?: 'campaigns' | 'adsets' | 'ads';
   onDrillDown?: (item: any) => void;
+  rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
+  onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
+  onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
 }
 
 interface Column {
@@ -46,7 +53,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   creatives = [],
   showAIInsights = true,
   viewLevel = 'ads',
-  onDrillDown
+  onDrillDown,
+  rexSuggestions = new Map(),
+  onViewSuggestion,
+  onAcceptSuggestion,
+  onDismissSuggestion
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
@@ -62,6 +73,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
+  const [selectedSuggestion, setSelectedSuggestion] = useState<RexSuggestionWithPerformance | null>(null);
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
@@ -207,7 +221,30 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'roas', label: 'ROAS', width: 80, sortable: true },
     { id: 'profit', label: 'Profit', width: 100, sortable: true },
     { id: 'profitMargin', label: 'Margin %', width: 100, sortable: true },
-    { id: 'netROAS', label: 'Net ROAS', width: 100, sortable: true }
+    { id: 'netROAS', label: 'Net ROAS', width: 100, sortable: true },
+    {
+      id: 'rex',
+      label: 'Rex',
+      width: 140,
+      render: (_, creative) => {
+        const suggestion = rexSuggestions.get(creative.id);
+        if (!suggestion) return null;
+        return (
+          <RexSuggestionBadge
+            status={suggestion.status}
+            priorityScore={suggestion.priority_score}
+            isImproving={suggestion.performance?.is_improving}
+            onClick={() => {
+              setSelectedSuggestion(suggestion);
+              setShowSuggestionModal(true);
+              if (onViewSuggestion) {
+                onViewSuggestion(suggestion);
+              }
+            }}
+          />
+        );
+      }
+    }
   ];
 
   const totalWidth = columns.reduce((sum, column) => sum + column.width, 0);
@@ -381,7 +418,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       selectedPlatforms.includes('all') ||
       selectedPlatforms.includes(creative.platform || 'facebook');
 
-    return matchesSearch && matchesPlatform;
+    const matchesRexFilter = (() => {
+      if (rexFilter === 'all') return true;
+      const suggestion = rexSuggestions.get(creative.id);
+      if (!suggestion) return false;
+      if (rexFilter === 'suggestions') {
+        return suggestion.status === 'pending' || suggestion.status === 'viewed';
+      }
+      if (rexFilter === 'rules_active') {
+        return suggestion.status === 'applied' || suggestion.status === 'monitoring';
+      }
+      return true;
+    })();
+
+    return matchesSearch && matchesPlatform && matchesRexFilter;
   });
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
@@ -568,6 +618,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             )}
           </div>
 
+          {rexSuggestions.size > 0 && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  if (rexFilter === 'all') setRexFilter('suggestions');
+                  else if (rexFilter === 'suggestions') setRexFilter('rules_active');
+                  else setRexFilter('all');
+                }}
+                className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>
+                  {rexFilter === 'all' ? 'All Items' : rexFilter === 'suggestions' ? 'Rex Suggestions' : 'Rex Rules Active'}
+                </span>
+                {rexFilter !== 'all' && (
+                  <span className="px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full">
+                    {filteredCreatives.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
 
           <button
             onClick={handleExportCSV}
@@ -661,13 +733,26 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             style={{ maxHeight: 'calc(100vh - 400px)' }}
           >
             <div style={{ width: `${totalWidth}px`, minWidth: '100%' }}>
-              {sortedCreatives.map((creative, index) => (
+              {sortedCreatives.map((creative, index) => {
+                const suggestion = rexSuggestions.get(creative.id);
+                const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
+                const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
+
+                return (
                 <div
                   key={creative.id}
                   onClick={() => onDrillDown && onDrillDown(creative)}
                   className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
-                  } ${onDrillDown ? 'cursor-pointer' : ''}`}
+                  } ${onDrillDown ? 'cursor-pointer' : ''} ${
+                    hasPendingSuggestion ? 'relative border-2 border-transparent bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20' : ''
+                  } ${
+                    hasActiveRule && suggestion?.performance?.is_improving ? 'relative border-l-4 border-green-500' : ''
+                  }`}
+                  style={hasPendingSuggestion ? {
+                    boxShadow: '0 0 0 2px transparent, 0 0 0 4px rgba(239, 68, 68, 0.2)',
+                    background: index % 2 === 0 ? 'linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%)'
+                  } : {}}
                 >
                   {columns.map((column, colIndex) => (
                     <div
@@ -754,7 +839,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     </div>
                   ))}
                 </div>
-              ))}
+              );
+              })}
 
               {sortedCreatives.length === 0 && (
                 <div className="text-center py-12">
@@ -765,6 +851,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
         </div>
       </div>
+
+      {/* Rex Suggestion Modal */}
+      {selectedSuggestion && (
+        <RexSuggestionModal
+          isOpen={showSuggestionModal}
+          onClose={() => {
+            setShowSuggestionModal(false);
+            setSelectedSuggestion(null);
+          }}
+          suggestion={selectedSuggestion}
+          onAccept={async () => {
+            if (onAcceptSuggestion) {
+              await onAcceptSuggestion(selectedSuggestion);
+            }
+          }}
+          onDismiss={async (reason) => {
+            if (onDismissSuggestion) {
+              await onDismissSuggestion(selectedSuggestion, reason);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
