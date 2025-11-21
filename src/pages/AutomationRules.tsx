@@ -190,7 +190,7 @@ const AutomationRules: React.FC = () => {
         <GlassCard className="p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 dark:text-gray-400 text-sm">Actions Taken</span>
-            <Sparkles className="w-5 h-5 text-purple-500" />
+            <Sparkles className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white">
             {totalActionsTaken.toLocaleString()}
@@ -358,7 +358,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
               </span>
             )}
             {rule.require_approval && (
-              <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 rounded">
+              <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
                 Needs Approval
               </span>
             )}

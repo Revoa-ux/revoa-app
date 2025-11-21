@@ -105,7 +105,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                   onDragStart={() => handleDragStart(metric.id)}
                   onDragOver={(e) => handleDragOver(e, metric.id)}
                   onDragEnd={handleDragEnd}
-                  className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:border-red-300 dark:hover:border-red-600 transition-all ${
+                  className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:border-gray-400 dark:hover:border-gray-500 transition-all ${
                     draggedItem === metric.id ? 'opacity-50 scale-95' : ''
                   }`}
                 >
@@ -125,7 +125,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                     onClick={() => toggleMetric(metric.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       isVisible
-                        ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                        ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
                         : 'bg-gray-50 dark:bg-gray-700 text-gray-400'
                     }`}
                   >
@@ -158,7 +158,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
+              className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
             >
               Save Changes
             </button>

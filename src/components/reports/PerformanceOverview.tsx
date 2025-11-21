@@ -29,6 +29,7 @@ interface PerformanceOverviewProps {
     netROAS: Metric;
   } | null;
   userId?: string;
+  isLoading?: boolean;
 }
 
 const ALL_METRICS: MetricDefinition[] = [
@@ -104,7 +105,7 @@ const ALL_METRICS: MetricDefinition[] = [
   },
 ];
 
-export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics, userId }) => {
+export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics, userId, isLoading = false }) => {
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [visibleMetrics, setVisibleMetrics] = useState<string[]>(
@@ -216,7 +217,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     .map(id => ALL_METRICS.find(m => m.id === id))
     .filter(Boolean) as MetricDefinition[];
 
-  if (!metrics) {
+  if (!metrics && !isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
         <div className="text-gray-400 dark:text-gray-600 text-center">
@@ -226,6 +227,19 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
       </div>
     );
   }
+
+  const renderSkeletonCard = () => (
+    <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+        </div>
+      </div>
+      <div className="h-8 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
+      <div className="h-32 bg-gray-100 dark:bg-gray-700/50 rounded animate-pulse" />
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -260,14 +274,22 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
 
       {!isCollapsed && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayedMetrics.map((metricDef) => {
+          {isLoading ? (
+            <>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <React.Fragment key={i}>{renderSkeletonCard()}</React.Fragment>
+              ))}
+            </>
+          ) : (
+            <>
+              {displayedMetrics.map((metricDef) => {
             const metricData = getMetricData(metricDef.id);
             if (!metricData) return null;
 
             const Icon = metricDef.icon;
 
             return (
-              <GlassCard key={metricDef.id}>
+              <div key={metricDef.id} className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     <div className={`p-2 ${metricDef.iconBgColor} rounded-lg ${metricDef.iconColor}`}>
@@ -341,9 +363,11 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                     No data
                   </div>
                 )}
-              </GlassCard>
+              </div>
             );
           })}
+            </>
+          )}
         </div>
       )}
 
