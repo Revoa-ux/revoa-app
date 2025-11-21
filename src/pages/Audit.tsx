@@ -7,6 +7,11 @@ import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { getAdReportsMetrics, getCreativePerformance, getCampaignPerformance, getAdSetPerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { rexSuggestionService } from '@/lib/rexSuggestionService';
+import { rexIntelligence } from '@/lib/rexIntelligence';
+import { automationRulesService } from '@/lib/automationRulesService';
+import { useAuth } from '@/contexts/AuthContext';
+import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
   startDate: Date;
@@ -14,6 +19,7 @@ interface DateRange {
 }
 
 export default function Audit() {
+  const { user } = useAuth();
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
@@ -31,8 +37,224 @@ export default function Audit() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [adSets, setAdSets] = useState<any[]>([]);
   const [showAIInsights, setShowAIInsights] = useState(true);
+  const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
+  const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
 
   const { facebook } = useConnectionStore();
+
+  // Load existing Rex suggestions from database
+  const loadRexSuggestions = async () => {
+    if (!user) return;
+
+    try {
+      const suggestions = await rexSuggestionService.getSuggestions(user.id);
+      const suggestionsMap = new Map<string, RexSuggestionWithPerformance>();
+
+      // Get performance data for each suggestion
+      await Promise.all(
+        suggestions.map(async (suggestion) => {
+          const performance = await rexSuggestionService.getPerformance(suggestion.id);
+          suggestionsMap.set(suggestion.entity_id, {
+            ...suggestion,
+            performance: performance || undefined
+          });
+        })
+      );
+
+      setRexSuggestions(suggestionsMap);
+
+      // Generate new suggestions for items without suggestions
+      await generateRexSuggestions(suggestionsMap);
+    } catch (error) {
+      console.error('[Audit] Error loading Rex suggestions:', error);
+    }
+  };
+
+  // Generate new Rex suggestions for ads/campaigns/ad sets
+  const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
+    if (!user || isGeneratingSuggestions) return;
+
+    setIsGeneratingSuggestions(true);
+    try {
+      const newSuggestions: any[] = [];
+
+      // Generate suggestions for ads
+      for (const creative of creatives) {
+        if (!existingSuggestions.has(creative.id)) {
+          const entityData = {
+            id: creative.id,
+            name: creative.adName || creative.name,
+            platform: creative.platform || 'facebook',
+            metrics: {
+              spend: creative.metrics.spend,
+              revenue: creative.metrics.revenue || creative.metrics.conversions * creative.metrics.cpa,
+              profit: creative.metrics.profit || 0,
+              roas: creative.metrics.roas || 0,
+              conversions: creative.metrics.conversions,
+              cpa: creative.metrics.cpa,
+              impressions: creative.metrics.impressions,
+              clicks: creative.metrics.clicks,
+              ctr: creative.metrics.ctr,
+              fatigueScore: creative.fatigueScore
+            },
+            performance: creative.performance
+          };
+
+          const suggestions = rexIntelligence.analyzeEntity(user.id, 'ad', entityData);
+          newSuggestions.push(...suggestions);
+        }
+      }
+
+      // Generate suggestions for campaigns
+      for (const campaign of campaigns) {
+        if (!existingSuggestions.has(campaign.id)) {
+          const entityData = {
+            id: campaign.id,
+            name: campaign.name,
+            platform: campaign.platform || 'facebook',
+            metrics: {
+              spend: campaign.metrics?.spend || 0,
+              revenue: campaign.metrics?.revenue || 0,
+              profit: campaign.metrics?.profit || 0,
+              roas: campaign.metrics?.roas || 0,
+              conversions: campaign.metrics?.conversions || 0,
+              cpa: campaign.metrics?.cpa || 0,
+              impressions: campaign.metrics?.impressions || 0,
+              clicks: campaign.metrics?.clicks || 0,
+              ctr: campaign.metrics?.ctr || 0
+            },
+            performance: campaign.performance
+          };
+
+          const suggestions = rexIntelligence.analyzeEntity(user.id, 'campaign', entityData);
+          newSuggestions.push(...suggestions);
+        }
+      }
+
+      // Generate suggestions for ad sets
+      for (const adSet of adSets) {
+        if (!existingSuggestions.has(adSet.id)) {
+          const entityData = {
+            id: adSet.id,
+            name: adSet.name,
+            platform: adSet.platform || 'facebook',
+            metrics: {
+              spend: adSet.metrics?.spend || 0,
+              revenue: adSet.metrics?.revenue || 0,
+              profit: adSet.metrics?.profit || 0,
+              roas: adSet.metrics?.roas || 0,
+              conversions: adSet.metrics?.conversions || 0,
+              cpa: adSet.metrics?.cpa || 0,
+              impressions: adSet.metrics?.impressions || 0,
+              clicks: adSet.metrics?.clicks || 0,
+              ctr: adSet.metrics?.ctr || 0
+            },
+            performance: adSet.performance
+          };
+
+          const suggestions = rexIntelligence.analyzeEntity(user.id, 'ad_set', entityData);
+          newSuggestions.push(...suggestions);
+        }
+      }
+
+      // Create suggestions in database
+      if (newSuggestions.length > 0) {
+        const createdSuggestions = await Promise.all(
+          newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
+        );
+
+        // Add to map
+        const updatedMap = new Map(existingSuggestions);
+        createdSuggestions.forEach(suggestion => {
+          updatedMap.set(suggestion.entity_id, suggestion);
+        });
+        setRexSuggestions(updatedMap);
+
+        if (createdSuggestions.length > 0) {
+          toast.success(`Rex found ${createdSuggestions.length} optimization ${createdSuggestions.length === 1 ? 'opportunity' : 'opportunities'}!`);
+        }
+      }
+    } catch (error) {
+      console.error('[Audit] Error generating Rex suggestions:', error);
+    } finally {
+      setIsGeneratingSuggestions(false);
+    }
+  };
+
+  // Handle accepting a suggestion (create automation rule)
+  const handleAcceptSuggestion = async (suggestion: RexSuggestionWithPerformance) => {
+    if (!user || !suggestion.recommended_rule) return;
+
+    try {
+      // Create the automation rule
+      const rule = await automationRulesService.createRule(user.id, suggestion.recommended_rule);
+
+      // Link suggestion to rule and mark as applied
+      await rexSuggestionService.linkToAutomationRule(suggestion.id, rule.id);
+
+      // Create performance baseline
+      const entityData = [...creatives, ...campaigns, ...adSets].find(e => e.id === suggestion.entity_id);
+      if (entityData && entityData.metrics) {
+        await rexSuggestionService.createPerformanceBaseline(suggestion.id, {
+          spend: entityData.metrics.spend,
+          revenue: entityData.metrics.revenue || entityData.metrics.conversions * entityData.metrics.cpa,
+          profit: entityData.metrics.profit || 0,
+          roas: entityData.metrics.roas || 0,
+          conversions: entityData.metrics.conversions,
+          cpa: entityData.metrics.cpa,
+          impressions: entityData.metrics.impressions,
+          clicks: entityData.metrics.clicks,
+          ctr: entityData.metrics.ctr,
+          periodStart: dateRange.startDate,
+          periodEnd: dateRange.endDate
+        });
+      }
+
+      // Log interaction
+      await rexSuggestionService.logInteraction(suggestion.id, user.id, 'rule_created', {
+        rule_id: rule.id,
+        rule_name: rule.name
+      });
+
+      // Reload suggestions
+      await loadRexSuggestions();
+
+      toast.success(`Rex's automation rule "${rule.name}" is now active!`);
+    } catch (error) {
+      console.error('[Audit] Error accepting suggestion:', error);
+      toast.error('Failed to create automation rule');
+    }
+  };
+
+  // Handle dismissing a suggestion
+  const handleDismissSuggestion = async (suggestion: RexSuggestionWithPerformance, reason?: string) => {
+    if (!user) return;
+
+    try {
+      await rexSuggestionService.dismissSuggestion(suggestion.id, user.id, reason);
+
+      // Remove from map
+      const updatedMap = new Map(rexSuggestions);
+      updatedMap.delete(suggestion.entity_id);
+      setRexSuggestions(updatedMap);
+
+      toast.success('Suggestion dismissed');
+    } catch (error) {
+      console.error('[Audit] Error dismissing suggestion:', error);
+      toast.error('Failed to dismiss suggestion');
+    }
+  };
+
+  // Handle viewing a suggestion (mark as viewed)
+  const handleViewSuggestion = async (suggestion: RexSuggestionWithPerformance) => {
+    if (!user) return;
+
+    try {
+      await rexSuggestionService.markAsViewed(suggestion.id, user.id);
+    } catch (error) {
+      console.error('[Audit] Error marking suggestion as viewed:', error);
+    }
+  };
 
   const handleTimeChange = (time: TimeOption) => {
     setSelectedTime(time);
@@ -105,6 +327,9 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
+      // Load existing suggestions and generate new ones
+      await loadRexSuggestions();
+
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
       }
@@ -121,6 +346,22 @@ export default function Audit() {
       refreshData();
     }
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
+
+  // Expire old suggestions periodically
+  useEffect(() => {
+    if (!user) return;
+
+    const expireInterval = setInterval(async () => {
+      try {
+        await rexSuggestionService.expireOldSuggestions();
+        await loadRexSuggestions();
+      } catch (error) {
+        console.error('[Audit] Error expiring suggestions:', error);
+      }
+    }, 60000 * 60); // Every hour
+
+    return () => clearInterval(expireInterval);
+  }, [user]);
 
   return (
     <div className="space-y-6">
@@ -195,6 +436,10 @@ export default function Audit() {
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
               showAIInsights={showAIInsights}
+              rexSuggestions={rexSuggestions}
+              onViewSuggestion={handleViewSuggestion}
+              onAcceptSuggestion={handleAcceptSuggestion}
+              onDismissSuggestion={handleDismissSuggestion}
             />
           </div>
         </>

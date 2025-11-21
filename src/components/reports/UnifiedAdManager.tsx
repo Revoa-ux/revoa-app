@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Layers, Target, Zap } from 'lucide-react';
+import { Layers, Target, Zap, X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
+import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface UnifiedAdManagerProps {
   creatives?: any[];
@@ -9,6 +10,10 @@ interface UnifiedAdManagerProps {
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
   showAIInsights?: boolean;
+  rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
+  onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
+  onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
 }
 
 type ViewLevel = 'campaigns' | 'adsets' | 'ads';
@@ -19,7 +24,11 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   adSets = [],
   selectedTime,
   onTimeChange,
-  showAIInsights = true
+  showAIInsights = true,
+  rexSuggestions = new Map(),
+  onViewSuggestion,
+  onAcceptSuggestion,
+  onDismissSuggestion
 }) => {
   const [viewLevel, setViewLevel] = useState<ViewLevel>('ads');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
@@ -203,6 +212,10 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         showAIInsights={false}
         viewLevel={viewLevel}
         onDrillDown={handleDrillDown}
+        rexSuggestions={rexSuggestions}
+        onViewSuggestion={onViewSuggestion}
+        onAcceptSuggestion={onAcceptSuggestion}
+        onDismissSuggestion={onDismissSuggestion}
       />
     </div>
   );
