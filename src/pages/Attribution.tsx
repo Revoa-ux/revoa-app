@@ -200,7 +200,7 @@ export default function Attribution() {
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium"
+            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Sync Orders'}</span>

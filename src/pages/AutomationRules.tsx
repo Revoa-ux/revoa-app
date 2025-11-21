@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { automationRulesService } from '@/lib/automationRulesService';
 import RuleBuilderModal from '@/components/automation/RuleBuilderModal';
@@ -151,14 +151,14 @@ const AutomationRules: React.FC = () => {
         <div className="flex gap-3">
           <button
             onClick={() => setShowTemplates(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+            className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
           >
-            <Sparkles className="w-4 h-4" />
+            <LayoutGrid className="w-4 h-4" />
             Templates
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
+            className="flex items-center gap-2 h-[39px] px-4 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
           >
             <Plus className="w-4 h-4" />
             Create Rule
@@ -232,14 +232,14 @@ const AutomationRules: React.FC = () => {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setShowTemplates(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
+                className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
               >
-                <Sparkles className="w-4 h-4" />
+                <LayoutGrid className="w-4 h-4" />
                 Start with Template
               </button>
               <button
                 onClick={() => setShowRuleBuilder(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
+                className="flex items-center gap-2 h-[39px] px-4 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
               >
                 <Plus className="w-4 h-4" />
                 Create Custom Rule
