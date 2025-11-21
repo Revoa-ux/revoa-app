@@ -241,6 +241,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 onViewSuggestion(suggestion);
               }
             }}
+            onDismiss={(e) => {
+              e.stopPropagation();
+              if (onDismissSuggestion) {
+                onDismissSuggestion(suggestion, 'user_dismissed');
+              }
+            }}
           />
         );
       }
@@ -745,14 +751,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${onDrillDown ? 'cursor-pointer' : ''} ${
-                    hasPendingSuggestion ? 'relative border-2 border-transparent bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20' : ''
+                    hasPendingSuggestion ? 'ring-1 ring-red-200 dark:ring-red-800' : ''
                   } ${
-                    hasActiveRule && suggestion?.performance?.is_improving ? 'relative border-l-4 border-green-500' : ''
+                    hasActiveRule && suggestion?.performance?.is_improving ? 'ring-1 ring-green-200 dark:ring-green-800' : ''
                   }`}
-                  style={hasPendingSuggestion ? {
-                    boxShadow: '0 0 0 2px transparent, 0 0 0 4px rgba(239, 68, 68, 0.2)',
-                    background: index % 2 === 0 ? 'linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%)' : 'linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%)'
-                  } : {}}
                 >
                   {columns.map((column, colIndex) => (
                     <div
