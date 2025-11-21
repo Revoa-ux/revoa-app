@@ -5,21 +5,14 @@ import {
   ShoppingCart,
   Target,
   RefreshCw,
-  Settings,
-  ChevronDown,
-  ChevronUp,
   Percent,
-  Users,
-  Package,
-  CreditCard,
-  TrendingDown
+  Package
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { syncShopifyOrders } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';
-import { MetricCard, MetricDefinition } from '@/components/attribution/MetricCard';
-import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetricsModal';
+import { GlassCard } from '@/components/GlassCard';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -33,108 +26,6 @@ interface AttributionMetrics {
   totalPixelEvents: number;
   uniqueSessions: number;
 }
-
-const ALL_METRICS: MetricDefinition[] = [
-  {
-    id: 'total_orders',
-    label: 'Total Orders',
-    icon: ShoppingCart,
-    iconColor: 'text-blue-600 dark:text-blue-400',
-    iconBgColor: 'bg-blue-100 dark:bg-blue-900/30',
-    format: 'number',
-    getValue: (metrics) => metrics.totalOrders,
-    getSubtext: (metrics) => `${new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(metrics.totalRevenue)} revenue`,
-  },
-  {
-    id: 'attributed_orders',
-    label: 'Attributed Orders',
-    icon: Target,
-    iconColor: 'text-green-600 dark:text-green-400',
-    iconBgColor: 'bg-green-100 dark:bg-green-900/30',
-    format: 'number',
-    getValue: (metrics) => metrics.attributedOrders,
-    getSubtext: (metrics) => `${new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(metrics.attributedRevenue)} revenue`,
-  },
-  {
-    id: 'attribution_rate',
-    label: 'Attribution Rate',
-    icon: Percent,
-    iconColor: 'text-purple-600 dark:text-purple-400',
-    iconBgColor: 'bg-purple-100 dark:bg-purple-900/30',
-    format: 'percentage',
-    getValue: (metrics) => metrics.attributionRate,
-    getSubtext: (metrics) => `${new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(metrics.averageOrderValue)} AOV`,
-  },
-  {
-    id: 'unattributed_orders',
-    label: 'Unattributed Orders',
-    icon: TrendingDown,
-    iconColor: 'text-orange-600 dark:text-orange-400',
-    iconBgColor: 'bg-orange-100 dark:bg-orange-900/30',
-    format: 'number',
-    getValue: (metrics) => metrics.unattributedOrders,
-    getSubtext: (metrics) => `${new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(metrics.unattributedRevenue)} revenue`,
-  },
-  {
-    id: 'total_revenue',
-    label: 'Total Revenue',
-    icon: DollarSign,
-    iconColor: 'text-emerald-600 dark:text-emerald-400',
-    iconBgColor: 'bg-emerald-100 dark:bg-emerald-900/30',
-    format: 'currency',
-    getValue: (metrics) => metrics.totalRevenue,
-    getSubtext: (metrics) => `${metrics.totalOrders} orders`,
-  },
-  {
-    id: 'attributed_revenue',
-    label: 'Attributed Revenue',
-    icon: CreditCard,
-    iconColor: 'text-teal-600 dark:text-teal-400',
-    iconBgColor: 'bg-teal-100 dark:bg-teal-900/30',
-    format: 'currency',
-    getValue: (metrics) => metrics.attributedRevenue,
-    getSubtext: (metrics) => `${metrics.attributedOrders} orders`,
-  },
-  {
-    id: 'average_order_value',
-    label: 'Average Order Value',
-    icon: Package,
-    iconColor: 'text-indigo-600 dark:text-indigo-400',
-    iconBgColor: 'bg-indigo-100 dark:bg-indigo-900/30',
-    format: 'currency',
-    getValue: (metrics) => metrics.averageOrderValue,
-  },
-  {
-    id: 'pixel_events',
-    label: 'Pixel Events',
-    icon: TrendingUp,
-    iconColor: 'text-pink-600 dark:text-pink-400',
-    iconBgColor: 'bg-pink-100 dark:bg-pink-900/30',
-    format: 'number',
-    getValue: (metrics) => metrics.totalPixelEvents,
-    getSubtext: (metrics) => `${metrics.uniqueSessions} sessions`,
-  },
-];
 
 export default function Attribution() {
   const { user } = useAuth();
@@ -154,78 +45,12 @@ export default function Attribution() {
   });
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState('30');
-  const [showCustomizeModal, setShowCustomizeModal] = useState(false);
-  const [isOverviewCollapsed, setIsOverviewCollapsed] = useState(false);
-  const [visibleMetrics, setVisibleMetrics] = useState<string[]>(
-    ALL_METRICS.slice(0, 6).map(m => m.id)
-  );
-  const [metricOrder, setMetricOrder] = useState<string[]>(
-    ALL_METRICS.map(m => m.id)
-  );
 
   useEffect(() => {
     if (user?.id) {
-      loadDashboardPreferences();
       loadAttributionMetrics();
     }
   }, [user?.id, dateRange]);
-
-  const loadDashboardPreferences = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('dashboard_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('dashboard_type', 'attribution')
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        if (data.visible_metrics && Array.isArray(data.visible_metrics)) {
-          setVisibleMetrics(data.visible_metrics);
-        }
-        if (data.metric_order && Array.isArray(data.metric_order)) {
-          setMetricOrder(data.metric_order);
-        }
-        if (data.view_settings?.isCollapsed !== undefined) {
-          setIsOverviewCollapsed(data.view_settings.isCollapsed);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading dashboard preferences:', error);
-    }
-  };
-
-  const saveDashboardPreferences = async (
-    newVisibleMetrics: string[],
-    newMetricOrder: string[],
-    newCollapsed?: boolean
-  ) => {
-    if (!user?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('dashboard_preferences')
-        .upsert({
-          user_id: user.id,
-          dashboard_type: 'attribution',
-          visible_metrics: newVisibleMetrics,
-          metric_order: newMetricOrder,
-          view_settings: {
-            isCollapsed: newCollapsed ?? isOverviewCollapsed,
-          },
-        });
-
-      if (error) throw error;
-      toast.success('Dashboard preferences saved');
-    } catch (error) {
-      console.error('Error saving dashboard preferences:', error);
-      toast.error('Failed to save preferences');
-    }
-  };
 
   const loadAttributionMetrics = async () => {
     if (!user?.id) return;
@@ -333,16 +158,13 @@ export default function Attribution() {
     }
   };
 
-  const handleSaveCustomization = (newVisible: string[], newOrder: string[]) => {
-    setVisibleMetrics(newVisible);
-    setMetricOrder(newOrder);
-    saveDashboardPreferences(newVisible, newOrder);
-  };
-
-  const toggleOverviewCollapse = () => {
-    const newCollapsed = !isOverviewCollapsed;
-    setIsOverviewCollapsed(newCollapsed);
-    saveDashboardPreferences(visibleMetrics, metricOrder, newCollapsed);
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
@@ -353,11 +175,6 @@ export default function Attribution() {
       minute: '2-digit',
     });
   };
-
-  const displayedMetrics = metricOrder
-    .filter(id => visibleMetrics.includes(id))
-    .map(id => ALL_METRICS.find(m => m.id === id))
-    .filter(Boolean) as MetricDefinition[];
 
   return (
     <div className="space-y-6">
@@ -372,7 +189,7 @@ export default function Attribution() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
           >
             <option value="7">Last 7 days</option>
             <option value="14">Last 14 days</option>
@@ -383,7 +200,7 @@ export default function Attribution() {
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Sync Orders'}</span>
@@ -397,52 +214,108 @@ export default function Attribution() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div
-          className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          onClick={toggleOverviewCollapse}
-        >
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Performance Overview
-            </h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {displayedMetrics.length} metrics
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowCustomizeModal(true);
-              }}
-              className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              title="Customize metrics"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-            {isOverviewCollapsed ? (
-              <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            ) : (
-              <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            )}
-          </div>
-        </div>
-
-        {!isOverviewCollapsed && (
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedMetrics.map((metric) => (
-                <MetricCard
-                  key={metric.id}
-                  metric={metric}
-                  data={metrics}
-                  isLoading={isLoading}
-                />
-              ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-        )}
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? '...' : formatCurrency(metrics.totalRevenue)} revenue
+            </p>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Target className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Attributed Orders</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? '...' : formatCurrency(metrics.attributedRevenue)} revenue
+            </p>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Percent className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Attribution Rate</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? '...' : `${formatCurrency(metrics.averageOrderValue)} AOV`}
+            </p>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? '...' : `${metrics.totalOrders} orders`}
+            </p>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Package className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Average Order Value</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Per order
+            </p>
+          </div>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Pixel Events</p>
+            <p className="text-3xl font-semibold text-gray-900 dark:text-white">
+              {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {isLoading ? '...' : `${metrics.uniqueSessions} sessions`}
+            </p>
+          </div>
+        </GlassCard>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
@@ -451,8 +324,8 @@ export default function Attribution() {
         </h2>
         <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">1</span>
+            <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">1</span>
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-white mb-1">UTM Tracking</p>
@@ -460,8 +333,8 @@ export default function Attribution() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-green-600 dark:text-green-400">2</span>
+            <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">2</span>
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-white mb-1">Order Syncing</p>
@@ -469,8 +342,8 @@ export default function Attribution() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">3</span>
+            <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">3</span>
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-white mb-1">Ad Matching</p>
@@ -478,8 +351,8 @@ export default function Attribution() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">4</span>
+            <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">4</span>
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-white mb-1">CAPI Enhancement</p>
@@ -509,15 +382,6 @@ export default function Attribution() {
           </div>
         </div>
       )}
-
-      <CustomizeMetricsModal
-        isOpen={showCustomizeModal}
-        onClose={() => setShowCustomizeModal(false)}
-        allMetrics={ALL_METRICS}
-        visibleMetrics={visibleMetrics}
-        metricOrder={metricOrder}
-        onSave={handleSaveCustomization}
-      />
     </div>
   );
 }

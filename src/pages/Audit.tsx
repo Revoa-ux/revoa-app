@@ -413,7 +413,7 @@ export default function Audit() {
       {facebook.isConnected && (
         <>
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <PerformanceOverview metrics={performanceData} />
+            <PerformanceOverview metrics={performanceData} userId={user?.id} />
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
