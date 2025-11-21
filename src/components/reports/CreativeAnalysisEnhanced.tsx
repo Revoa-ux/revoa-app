@@ -221,37 +221,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'roas', label: 'ROAS', width: 80, sortable: true },
     { id: 'profit', label: 'Profit', width: 100, sortable: true },
     { id: 'profitMargin', label: 'Margin %', width: 100, sortable: true },
-    { id: 'netROAS', label: 'Net ROAS', width: 100, sortable: true },
-    {
-      id: 'rex',
-      label: 'Rex',
-      width: 140,
-      render: (_, creative) => {
-        const suggestion = rexSuggestions.get(creative.id);
-        if (!suggestion) return null;
-        return (
-          <RexSuggestionBadge
-            status={suggestion.status}
-            priorityScore={suggestion.priority_score}
-            isImproving={suggestion.performance?.is_improving}
-            onClick={() => {
-              setSelectedSuggestion(suggestion);
-              setShowSuggestionModal(true);
-              if (onViewSuggestion) {
-                onViewSuggestion(suggestion);
-              }
-            }}
-            onDismiss={(e) => {
-              e.stopPropagation();
-              if (onDismissSuggestion) {
-                onDismissSuggestion(suggestion, 'user_dismissed');
-              }
-            }}
-          />
-        );
-      }
+    { id: 'netROAS', label: 'Net ROAS', width: 100, sortable: true }
+  ].filter(col => {
+    if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
+      return false;
     }
-  ];
+    return true;
+  });
 
   const totalWidth = columns.reduce((sum, column) => sum + column.width, 0);
 
@@ -748,12 +724,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div
                   key={creative.id}
                   onClick={() => onDrillDown && onDrillDown(creative)}
-                  className={`flex border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
+                  className={`flex items-center border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${onDrillDown ? 'cursor-pointer' : ''} ${
-                    hasPendingSuggestion ? 'ring-1 ring-red-200 dark:ring-red-800' : ''
+                    hasPendingSuggestion ? 'ring-1 ring-inset ring-red-300 dark:ring-red-700' : ''
                   } ${
-                    hasActiveRule && suggestion?.performance?.is_improving ? 'ring-1 ring-green-200 dark:ring-green-800' : ''
+                    hasActiveRule && suggestion?.performance?.is_improving ? 'ring-1 ring-inset ring-green-300 dark:ring-green-700' : ''
                   }`}
                 >
                   {columns.map((column, colIndex) => (
@@ -840,6 +816,29 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ) : null}
                     </div>
                   ))}
+
+                  {suggestion && (
+                    <div className="flex items-center px-4 py-4">
+                      <RexSuggestionBadge
+                        status={suggestion.status}
+                        priorityScore={suggestion.priority_score}
+                        isImproving={suggestion.performance?.is_improving}
+                        onClick={() => {
+                          setSelectedSuggestion(suggestion);
+                          setShowSuggestionModal(true);
+                          if (onViewSuggestion) {
+                            onViewSuggestion(suggestion);
+                          }
+                        }}
+                        onDismiss={(e) => {
+                          e.stopPropagation();
+                          if (onDismissSuggestion) {
+                            onDismissSuggestion(suggestion, 'user_dismissed');
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               );
               })}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, TrendingUp, TrendingDown, X } from 'lucide-react';
+import { ChevronRight, TrendingUp, TrendingDown, X } from 'lucide-react';
 import type { RexSuggestionStatus } from '@/types/rex';
 
 interface RexSuggestionBadgeProps {
@@ -22,7 +22,7 @@ export const RexSuggestionBadge: React.FC<RexSuggestionBadgeProps> = ({
       case 'pending':
       case 'viewed':
         return {
-          icon: Sparkles,
+          icon: ChevronRight,
           iconColor: 'text-red-500',
           bgColor: 'bg-red-50 dark:bg-red-900/10',
           hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900/20',
@@ -30,7 +30,7 @@ export const RexSuggestionBadge: React.FC<RexSuggestionBadgeProps> = ({
         };
       case 'accepted':
         return {
-          icon: Sparkles,
+          icon: ChevronRight,
           iconColor: 'text-blue-500',
           bgColor: 'bg-blue-50 dark:bg-blue-900/10',
           hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900/20',
@@ -47,7 +47,7 @@ export const RexSuggestionBadge: React.FC<RexSuggestionBadgeProps> = ({
         };
       case 'completed':
         return {
-          icon: Sparkles,
+          icon: ChevronRight,
           iconColor: 'text-gray-500',
           bgColor: 'bg-gray-50 dark:bg-gray-900/10',
           hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900/20',

@@ -28,7 +28,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   onAcceptSuggestion,
   onDismissSuggestion
 }) => {
-  const [viewLevel, setViewLevel] = useState<ViewLevel>('ads');
+  const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [selectedAdSet, setSelectedAdSet] = useState<string | null>(null);
 
