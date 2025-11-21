@@ -98,7 +98,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
         {/* Header */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-normal text-gray-900 dark:text-white">
               Rule Templates
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -131,7 +131,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-all ${
                   selectedCategory === category
                     ? 'bg-gray-800 dark:bg-gray-700 text-white shadow-sm'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
@@ -163,7 +163,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
                     <div className="w-8 h-8 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg flex items-center justify-center">
                       <Sparkles className="w-4 h-4 text-red-500" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-normal text-gray-900 dark:text-white">
                       Featured Templates
                     </h3>
                   </div>
@@ -182,7 +182,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
               {otherTemplates.length > 0 && (
                 <div>
                   {featuredTemplates.length > 0 && (
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-4">
                       All Templates
                     </h3>
                   )}
@@ -222,7 +222,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
             {categoryIcons[template.category]}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
+            <h4 className="font-normal text-gray-900 dark:text-white text-sm">
               {template.name}
             </h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -239,7 +239,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
 
       <div className="flex items-center gap-2 flex-wrap mt-auto">
         <span
-          className={`px-2 py-1 text-xs font-medium rounded ${
+          className={`px-2 py-1 text-xs rounded ${
             difficultyColors[template.difficulty_level]
           }`}
         >
@@ -247,13 +247,13 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
         </span>
 
         {template.success_rate && (
-          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">
+          <span className="px-2 py-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">
             {Math.round(template.success_rate * 100)}% success
           </span>
         )}
 
         {template.estimated_impact && (
-          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
+          <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
             {template.estimated_impact}
           </span>
         )}

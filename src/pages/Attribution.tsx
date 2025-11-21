@@ -319,43 +319,43 @@ export default function Attribution() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <h2 className="text-lg font-normal text-gray-900 dark:text-white mb-4">
           How Attribution Works
         </h2>
         <div className="space-y-4 text-sm text-gray-600 dark:text-gray-400">
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">1</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">1</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white mb-1">UTM Tracking</p>
+              <p className="font-normal text-gray-900 dark:text-white mb-1">UTM Tracking</p>
               <p>When users click your ads, UTM parameters (especially utm_term with ad ID) are captured and stored in cookies.</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">2</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">2</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white mb-1">Order Syncing</p>
+              <p className="font-normal text-gray-900 dark:text-white mb-1">Order Syncing</p>
               <p>Shopify orders are synced with UTM data automatically via webhooks and the pixel.</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">3</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">3</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white mb-1">Ad Matching</p>
+              <p className="font-normal text-gray-900 dark:text-white mb-1">Ad Matching</p>
               <p>Orders are matched to specific ads using utm_term, ad names, and click IDs (fbclid, gclid).</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <div className="w-6 h-6 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">4</span>
+              <span className="text-xs text-gray-600 dark:text-gray-400">4</span>
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white mb-1">CAPI Enhancement</p>
+              <p className="font-normal text-gray-900 dark:text-white mb-1">CAPI Enhancement</p>
               <p>Matched conversions are sent back to ad platforms via CAPI to improve algorithm learning and targeting.</p>
             </div>
           </div>

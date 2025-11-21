@@ -366,7 +366,7 @@ export default function Audit() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Unified Ad Manager</h1>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
         </div>
         <div className="flex items-center space-x-3">

@@ -151,14 +151,14 @@ const AutomationRules: React.FC = () => {
         <div className="flex gap-3">
           <button
             onClick={() => setShowTemplates(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
           >
             <Sparkles className="w-4 h-4" />
-            Browse Templates
+            Templates
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
           >
             <Plus className="w-4 h-4" />
             Create Rule
@@ -172,7 +172,7 @@ const AutomationRules: React.FC = () => {
             <span className="text-gray-600 dark:text-gray-400 text-sm">Active Rules</span>
             <Play className="w-5 h-5 text-green-500" />
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">{activeRules}</div>
+          <div className="text-3xl font-normal text-gray-900 dark:text-white">{activeRules}</div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">of {rules.length} total</div>
         </GlassCard>
 
@@ -181,7 +181,7 @@ const AutomationRules: React.FC = () => {
             <span className="text-gray-600 dark:text-gray-400 text-sm">Total Executions</span>
             <TrendingUp className="w-5 h-5 text-red-500" />
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="text-3xl font-normal text-gray-900 dark:text-white">
             {totalExecutions.toLocaleString()}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">All time</div>
@@ -194,7 +194,7 @@ const AutomationRules: React.FC = () => {
               <Sparkles className="w-4 h-4 text-red-500" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="text-3xl font-normal text-gray-900 dark:text-white">
             {totalActionsTaken.toLocaleString()}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Automated changes</div>
@@ -205,7 +205,7 @@ const AutomationRules: React.FC = () => {
             <span className="text-gray-600 dark:text-gray-400 text-sm">Est. Cost Saved</span>
             <TrendingUp className="w-5 h-5 text-green-500" />
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-white">
+          <div className="text-3xl font-normal text-gray-900 dark:text-white">
             ${totalCostSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total savings</div>
@@ -222,7 +222,7 @@ const AutomationRules: React.FC = () => {
             <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-2">
               No Automation Rules Yet
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
@@ -232,14 +232,14 @@ const AutomationRules: React.FC = () => {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={() => setShowTemplates(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
               >
                 <Sparkles className="w-4 h-4" />
                 Start with Template
               </button>
               <button
                 onClick={() => setShowRuleBuilder(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
               >
                 <Plus className="w-4 h-4" />
                 Create Custom Rule
@@ -350,17 +350,17 @@ const RuleCard: React.FC<RuleCardProps> = ({
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{rule.name}</h3>
-            <span className={`px-2 py-1 text-xs font-medium rounded ${statusColors[rule.status]}`}>
+            <h3 className="text-lg font-normal text-gray-900 dark:text-white">{rule.name}</h3>
+            <span className={`px-2 py-1 text-xs rounded ${statusColors[rule.status]}`}>
               {rule.status}
             </span>
             {rule.dry_run && (
-              <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded">
+              <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded">
                 Test Mode
               </span>
             )}
             {rule.require_approval && (
-              <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
+              <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
                 Needs Approval
               </span>
             )}
@@ -450,25 +450,25 @@ const RuleCard: React.FC<RuleCardProps> = ({
         <div className="grid grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Executions</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="text-lg font-normal text-gray-900 dark:text-white">
               {metrics.total_executions.toLocaleString()}
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Actions Taken</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="text-lg font-normal text-gray-900 dark:text-white">
               {metrics.total_actions_taken.toLocaleString()}
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Success Rate</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+            <div className="text-lg font-normal text-gray-900 dark:text-white">
               {metrics.success_rate.toFixed(1)}%
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cost Saved</div>
-            <div className="text-lg font-semibold text-green-600 dark:text-green-400">
+            <div className="text-lg font-normal text-green-600 dark:text-green-400">
               ${metrics.total_cost_saved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>

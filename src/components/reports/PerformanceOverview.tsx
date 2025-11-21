@@ -310,7 +310,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                     </div>
                   )}
                 </div>
-                <div className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                <div className="text-2xl font-normal text-gray-900 dark:text-white mb-4">
                   {formatMetricValue(metricDef.id, metricData.value)}
                 </div>
                 {metricData.data.length > 0 ? (
