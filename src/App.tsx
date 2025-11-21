@@ -9,6 +9,7 @@ import Chat from './pages/Chat';
 import Inventory from './pages/Inventory';
 import Balance from './pages/Balance';
 import Audit from './pages/Audit';
+import Attribution from './pages/Attribution';
 import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
 import AutomationRules from './pages/AutomationRules';
@@ -213,6 +214,7 @@ function App() {
               <Route path="inventory" element={<Inventory />} />
               <Route path="balance" element={<Balance />} />
               <Route path="audit" element={<Audit />} />
+              <Route path="attribution" element={<Attribution />} />
               <Route path="calculator" element={<Calculator />} />
               <Route path="automation" element={<AutomationRules />} />
               <Route path="settings" element={<SettingsPage />} />

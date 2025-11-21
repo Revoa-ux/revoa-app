@@ -19,7 +19,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Plug,
-  Zap
+  Zap,
+  Target
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -35,6 +36,7 @@ const navigation = [
   { name: 'Inventory', href: '/inventory', icon: Package },
   { name: 'Balance', href: '/balance', icon: Wallet },
   { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
+  { name: 'Attribution', href: '/attribution', icon: Target },
   { name: 'Automation', href: '/automation', icon: Zap },
   { name: 'Calculator', href: '/calculator', icon: Calculator },
   { name: 'Pricing', href: '/pricing', icon: CreditCard }

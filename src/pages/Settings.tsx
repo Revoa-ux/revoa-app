@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';
 import { useClickOutside } from '@/lib/useClickOutside';
 import ProfileForm from '@/components/settings/ProfileForm';
+import { PixelInstallation } from '@/components/settings/PixelInstallation';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
@@ -2020,6 +2021,18 @@ const SettingsPage = () => {
               </div>
             </div>
           )}
+
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Tracking Pixel</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Install the Revoa pixel for accurate attribution and conversion tracking
+              </p>
+            </div>
+            <div className="p-6">
+              {user?.id && <PixelInstallation userId={user.id} />}
+            </div>
+          </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
