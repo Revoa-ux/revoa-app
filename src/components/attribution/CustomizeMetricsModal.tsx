@@ -125,7 +125,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
                     onClick={() => toggleMetric(metric.id)}
                     className={`p-2 rounded-lg transition-colors ${
                       isVisible
-                        ? 'bg-gray-800 dark:bg-gray-600 text-white'
+                        ? 'bg-gray-700 dark:bg-gray-600 text-white'
                         : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
                     }`}
                   >
@@ -158,7 +158,7 @@ export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+              className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
             >
               Save Changes
             </button>

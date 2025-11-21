@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, TrendingUp, Shield, Zap, Target, ChevronRight, Sparkles } from 'lucide-react';
 import { automationRulesService } from '@/lib/automationRulesService';
 import type { RuleTemplate, TemplateCategory } from '@/types/automation';
+import Modal from '@/components/Modal';
 
 interface RuleTemplatesModalProps {
   isOpen: boolean;
@@ -11,13 +12,13 @@ interface RuleTemplatesModalProps {
 }
 
 const categoryIcons: Record<TemplateCategory, React.ReactNode> = {
-  profit_protection: <Shield className="w-5 h-5" />,
-  scale_winners: <TrendingUp className="w-5 h-5" />,
-  pause_losers: <Target className="w-5 h-5" />,
-  budget_optimization: <Zap className="w-5 h-5" />,
-  creative_management: <Sparkles className="w-5 h-5" />,
-  audience_optimization: <Target className="w-5 h-5" />,
-  custom: <Zap className="w-5 h-5" />,
+  profit_protection: <Shield className="w-4 h-4" />,
+  scale_winners: <TrendingUp className="w-4 h-4" />,
+  pause_losers: <Target className="w-4 h-4" />,
+  budget_optimization: <Zap className="w-4 h-4" />,
+  creative_management: <Sparkles className="w-4 h-4" />,
+  audience_optimization: <Target className="w-4 h-4" />,
+  custom: <Zap className="w-4 h-4" />,
 };
 
 const categoryLabels: Record<TemplateCategory, string> = {
@@ -33,7 +34,7 @@ const categoryLabels: Record<TemplateCategory, string> = {
 const difficultyColors = {
   beginner: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   intermediate: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  advanced: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+  advanced: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
 };
 
 const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
@@ -94,6 +95,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
         <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -111,56 +113,61 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
           </button>
         </div>
 
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-          <div className="relative">
+        {/* Search and Filters */}
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search templates..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-400 focus:border-transparent transition-all"
             />
           </div>
 
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
             {categories.map((category) => (
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                   selectedCategory === category
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    ? 'bg-gray-800 dark:bg-gray-700 text-white shadow-sm'
+                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50'
                 }`}
               >
                 {category !== 'all' && categoryIcons[category as TemplateCategory]}
-                {category === 'all' ? 'All Templates' : categoryLabels[category as TemplateCategory]}
+                <span>{category === 'all' ? 'All' : categoryLabels[category as TemplateCategory]}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        {/* Templates Grid */}
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900/30">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-gray-800 dark:border-gray-700 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : filteredTemplates.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">No templates found</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your search or filters</p>
             </div>
           ) : (
             <div className="space-y-8">
               {featuredTemplates.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="w-5 h-5 text-yellow-500" />
+                    <div className="w-8 h-8 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-red-500" />
+                    </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Featured Templates
                     </h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {featuredTemplates.map((template) => (
                       <TemplateCard
                         key={template.id}
@@ -179,7 +186,7 @@ const RuleTemplatesModal: React.FC<RuleTemplatesModalProps> = ({
                       All Templates
                     </h3>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {otherTemplates.map((template) => (
                       <TemplateCard
                         key={template.id}
@@ -207,15 +214,15 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
   return (
     <button
       onClick={onSelect}
-      className="group text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:shadow-lg transition-all bg-white dark:bg-gray-800"
+      className="group text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all bg-white dark:bg-gray-800 h-full flex flex-col"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start gap-3 flex-1">
-          <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex-shrink-0">
+          <div className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg flex-shrink-0">
             {categoryIcons[template.category]}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
               {template.name}
             </h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -223,20 +230,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
             </p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 flex-shrink-0 transition-colors" />
+        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 flex-shrink-0 transition-colors mt-1" />
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2 flex-1">
         {template.description}
       </p>
 
-      {template.use_case_description && (
-        <p className="text-xs text-gray-500 dark:text-gray-500 mb-3 line-clamp-2">
-          {template.use_case_description}
-        </p>
-      )}
-
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center gap-2 flex-wrap mt-auto">
         <span
           className={`px-2 py-1 text-xs font-medium rounded ${
             difficultyColors[template.difficulty_level]
@@ -247,24 +248,16 @@ const TemplateCard: React.FC<TemplateCardProps> = ({ template, onSelect }) => {
 
         {template.success_rate && (
           <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded">
-            {Math.round(template.success_rate * 100)}% success rate
+            {Math.round(template.success_rate * 100)}% success
           </span>
         )}
 
         {template.estimated_impact && (
-          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
+          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded">
             {template.estimated_impact}
           </span>
         )}
       </div>
-
-      {template.recommended_for && template.recommended_for.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            <span className="font-medium">Best for:</span> {template.recommended_for.join(', ')}
-          </p>
-        </div>
-      )}
     </button>
   );
 };

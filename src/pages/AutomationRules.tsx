@@ -190,7 +190,9 @@ const AutomationRules: React.FC = () => {
         <GlassCard className="p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 dark:text-gray-400 text-sm">Actions Taken</span>
-            <Sparkles className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <div className="w-8 h-8 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-red-500" />
+            </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-white">
             {totalActionsTaken.toLocaleString()}
