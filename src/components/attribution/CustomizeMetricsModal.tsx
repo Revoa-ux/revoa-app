@@ -1,0 +1,170 @@
+import React, { useState } from 'react';
+import { X, GripVertical, Eye, EyeOff } from 'lucide-react';
+import Modal from '@/components/Modal';
+import { MetricDefinition } from './MetricCard';
+
+interface CustomizeMetricsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  allMetrics: MetricDefinition[];
+  visibleMetrics: string[];
+  metricOrder: string[];
+  onSave: (visibleMetrics: string[], metricOrder: string[]) => void;
+}
+
+export const CustomizeMetricsModal: React.FC<CustomizeMetricsModalProps> = ({
+  isOpen,
+  onClose,
+  allMetrics,
+  visibleMetrics: initialVisible,
+  metricOrder: initialOrder,
+  onSave,
+}) => {
+  const [visibleMetrics, setVisibleMetrics] = useState(initialVisible);
+  const [metricOrder, setMetricOrder] = useState(initialOrder);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+
+  const orderedMetrics = metricOrder
+    .map(id => allMetrics.find(m => m.id === id))
+    .filter(Boolean) as MetricDefinition[];
+
+  const unorderedMetrics = allMetrics.filter(
+    m => !metricOrder.includes(m.id)
+  );
+
+  const sortedMetrics = [...orderedMetrics, ...unorderedMetrics];
+
+  const toggleMetric = (metricId: string) => {
+    setVisibleMetrics(prev =>
+      prev.includes(metricId)
+        ? prev.filter(id => id !== metricId)
+        : [...prev, metricId]
+    );
+  };
+
+  const handleDragStart = (metricId: string) => {
+    setDraggedItem(metricId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedItem || draggedItem === targetId) return;
+
+    const newOrder = [...metricOrder];
+    const draggedIndex = newOrder.indexOf(draggedItem);
+    const targetIndex = newOrder.indexOf(targetId);
+
+    if (draggedIndex === -1) {
+      newOrder.push(draggedItem);
+    } else {
+      newOrder.splice(draggedIndex, 1);
+    }
+
+    if (targetIndex === -1) {
+      newOrder.push(draggedItem);
+    } else {
+      newOrder.splice(targetIndex, 0, draggedItem);
+    }
+
+    setMetricOrder(newOrder);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItem(null);
+  };
+
+  const handleSave = () => {
+    onSave(visibleMetrics, metricOrder);
+    onClose();
+  };
+
+  const handleReset = () => {
+    const defaultVisible = allMetrics.slice(0, 6).map(m => m.id);
+    const defaultOrder = allMetrics.map(m => m.id);
+    setVisibleMetrics(defaultVisible);
+    setMetricOrder(defaultOrder);
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Customize Metrics">
+      <div className="space-y-6">
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Choose which metrics to display and drag to reorder them.
+          </p>
+
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {sortedMetrics.map((metric) => {
+              const Icon = metric.icon;
+              const isVisible = visibleMetrics.includes(metric.id);
+
+              return (
+                <div
+                  key={metric.id}
+                  draggable
+                  onDragStart={() => handleDragStart(metric.id)}
+                  onDragOver={(e) => handleDragOver(e, metric.id)}
+                  onDragEnd={handleDragEnd}
+                  className={`flex items-center gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg cursor-move hover:border-blue-300 dark:hover:border-blue-600 transition-all ${
+                    draggedItem === metric.id ? 'opacity-50 scale-95' : ''
+                  }`}
+                >
+                  <GripVertical className="w-5 h-5 text-gray-400 flex-shrink-0" />
+
+                  <div className={`w-8 h-8 ${metric.iconBgColor} rounded-lg flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-4 h-4 ${metric.iconColor}`} />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {metric.label}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => toggleMetric(metric.id)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      isVisible
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                        : 'bg-gray-50 dark:bg-gray-700 text-gray-400'
+                    }`}
+                  >
+                    {isVisible ? (
+                      <Eye className="w-4 h-4" />
+                    ) : (
+                      <EyeOff className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            Reset to Default
+          </button>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
