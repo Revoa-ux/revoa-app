@@ -36,7 +36,6 @@ export default function Audit() {
   const [creatives, setCreatives] = useState<any[]>([]);
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [adSets, setAdSets] = useState<any[]>([]);
-  const [showAIInsights, setShowAIInsights] = useState(true);
   const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
 
@@ -372,17 +371,6 @@ export default function Audit() {
         </div>
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => setShowAIInsights(!showAIInsights)}
-            className={`flex items-center space-x-2 px-3 py-2 text-sm border rounded-lg transition-colors ${
-              showAIInsights
-                ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
-                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-            }`}
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>AI Insights</span>
-          </button>
-          <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
             className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -435,7 +423,6 @@ export default function Audit() {
               adSets={adSets}
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
-              showAIInsights={showAIInsights}
               rexSuggestions={rexSuggestions}
               onViewSuggestion={handleViewSuggestion}
               onAcceptSuggestion={handleAcceptSuggestion}

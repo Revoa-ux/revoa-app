@@ -9,7 +9,6 @@ interface UnifiedAdManagerProps {
   adSets?: any[];
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
-  showAIInsights?: boolean;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
@@ -24,7 +23,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   adSets = [],
   selectedTime,
   onTimeChange,
-  showAIInsights = true,
   rexSuggestions = new Map(),
   onViewSuggestion,
   onAcceptSuggestion,
@@ -109,33 +107,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     }
   };
 
-  // Get current data for AI insights
-  const currentData = getFilteredData();
-  const needsAttentionCount = currentData.filter(item => item.performance === 'low').length;
-
   return (
     <div className="space-y-4">
-      {/* AI Insights - Above everything */}
-      {showAIInsights && needsAttentionCount > 0 && (
-        <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                {viewLevel === 'campaigns' ? 'Campaigns' : viewLevel === 'adsets' ? 'Ad Sets' : 'Ads'} Need Attention
-              </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300">
-                {needsAttentionCount} {viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'creatives'} show signs of underperformance or negative profitability. Consider pausing or optimizing.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Level Tabs */}
       <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => {
