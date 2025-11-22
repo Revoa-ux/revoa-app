@@ -23,7 +23,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { RexSuggestionBadge } from './RexSuggestionBadge';
-import { RexSuggestionModal } from './RexSuggestionModal';
+import { ExpandedSuggestionRow } from './ExpandedSuggestionRow';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface CreativeAnalysisEnhancedProps {
@@ -34,6 +34,7 @@ interface CreativeAnalysisEnhancedProps {
   viewLevel?: 'campaigns' | 'adsets' | 'ads';
   onDrillDown?: (item: any) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
@@ -55,6 +56,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   viewLevel = 'ads',
   onDrillDown,
   rexSuggestions = new Map(),
+  topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion
@@ -73,8 +75,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
-  const [selectedSuggestion, setSelectedSuggestion] = useState<RexSuggestionWithPerformance | null>(null);
-  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
@@ -719,15 +720,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
                 const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
+                const isTopSuggestion = topDisplayedSuggestionIds.has(creative.id);
+                const shouldHighlight = isTopSuggestion && hasPendingSuggestion;
 
                 return (
-                <div
-                  key={creative.id}
-                  onClick={() => onDrillDown && onDrillDown(creative)}
-                  className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
+                <div key={creative.id}>
+                  <div
+                    onClick={() => onDrillDown && onDrillDown(creative)}
+                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${onDrillDown ? 'cursor-pointer' : ''} ${
-                    hasPendingSuggestion
+                    shouldHighlight
                       ? 'ring-2 ring-inset ring-red-400/50 dark:ring-red-500/50 bg-red-50/40 dark:bg-red-900/10 rounded-lg my-1 shadow-sm hover:shadow-md hover:ring-red-500/70 dark:hover:ring-red-400/70 border-l-4 border-l-red-500'
                       : ''
                   } ${
@@ -735,7 +738,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ? 'ring-2 ring-inset ring-green-400/50 dark:ring-green-500/50 bg-green-50/40 dark:bg-green-900/10 rounded-lg my-1 shadow-sm border-l-4 border-l-green-500'
                       : ''
                   } ${
-                    suggestion?.priority_score >= 95 && hasPendingSuggestion ? 'animate-pulse' : ''
+                    suggestion?.priority_score >= 95 && shouldHighlight ? 'animate-pulse' : ''
                   }`}
                 >
                   {columns.map((column, colIndex) => (
@@ -823,17 +826,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     </div>
                   ))}
 
-                  {suggestion && (
+                  {suggestion && isTopSuggestion && (
                     <div className="flex items-center px-4 py-4">
                       <RexSuggestionBadge
                         status={suggestion.status}
                         priorityScore={suggestion.priority_score}
                         isImproving={suggestion.performance?.is_improving}
                         onClick={() => {
-                          setSelectedSuggestion(suggestion);
-                          setShowSuggestionModal(true);
-                          if (onViewSuggestion) {
-                            onViewSuggestion(suggestion);
+                          if (expandedRowId === creative.id) {
+                            setExpandedRowId(null);
+                          } else {
+                            setExpandedRowId(creative.id);
+                            if (onViewSuggestion) {
+                              onViewSuggestion(suggestion);
+                            }
                           }
                         }}
                         onDismiss={(e) => {
@@ -844,6 +850,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         }}
                       />
                     </div>
+                  )}
+                  </div>
+
+                  {/* Expanded Suggestion Row */}
+                  {expandedRowId === creative.id && suggestion && (
+                    <ExpandedSuggestionRow
+                      suggestion={suggestion}
+                      onAccept={async () => {
+                        if (onAcceptSuggestion) {
+                          await onAcceptSuggestion(suggestion);
+                        }
+                        setExpandedRowId(null);
+                      }}
+                      onDismiss={async (reason) => {
+                        if (onDismissSuggestion) {
+                          await onDismissSuggestion(suggestion, reason);
+                        }
+                        setExpandedRowId(null);
+                      }}
+                      onClose={() => setExpandedRowId(null)}
+                    />
                   )}
                 </div>
               );
@@ -859,27 +886,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       </div>
 
-      {/* Rex Suggestion Modal */}
-      {selectedSuggestion && (
-        <RexSuggestionModal
-          isOpen={showSuggestionModal}
-          onClose={() => {
-            setShowSuggestionModal(false);
-            setSelectedSuggestion(null);
-          }}
-          suggestion={selectedSuggestion}
-          onAccept={async () => {
-            if (onAcceptSuggestion) {
-              await onAcceptSuggestion(selectedSuggestion);
-            }
-          }}
-          onDismiss={async (reason) => {
-            if (onDismissSuggestion) {
-              await onDismissSuggestion(selectedSuggestion, reason);
-            }
-          }}
-        />
-      )}
     </div>
   );
 };

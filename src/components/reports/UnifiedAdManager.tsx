@@ -10,6 +10,7 @@ interface UnifiedAdManagerProps {
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
@@ -24,6 +25,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   selectedTime,
   onTimeChange,
   rexSuggestions = new Map(),
+  topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion
@@ -186,6 +188,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         viewLevel={viewLevel}
         onDrillDown={handleDrillDown}
         rexSuggestions={rexSuggestions}
+        topDisplayedSuggestionIds={topDisplayedSuggestionIds}
         onViewSuggestion={onViewSuggestion}
         onAcceptSuggestion={onAcceptSuggestion}
         onDismissSuggestion={onDismissSuggestion}

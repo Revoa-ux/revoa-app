@@ -37,9 +37,20 @@ export default function Audit() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [adSets, setAdSets] = useState<any[]>([]);
   const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
+  const [topDisplayedSuggestionIds, setTopDisplayedSuggestionIds] = useState<Set<string>>(new Set());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
 
   const { facebook } = useConnectionStore();
+
+  // Helper: Get top 3 pending suggestions for display
+  const getTopPendingSuggestions = (allSuggestions: Map<string, RexSuggestionWithPerformance>): Set<string> => {
+    const pendingSuggestions = Array.from(allSuggestions.values())
+      .filter(s => s.status === 'pending' || s.status === 'viewed')
+      .sort((a, b) => b.priority_score - a.priority_score)
+      .slice(0, 3);
+
+    return new Set(pendingSuggestions.map(s => s.entity_id));
+  };
 
   // Load existing Rex suggestions from database
   const loadRexSuggestions = async () => {
@@ -61,6 +72,10 @@ export default function Audit() {
       );
 
       setRexSuggestions(suggestionsMap);
+
+      // Update top 3 displayed suggestions
+      const topIds = getTopPendingSuggestions(suggestionsMap);
+      setTopDisplayedSuggestionIds(topIds);
 
       // Generate new suggestions for items without suggestions
       await generateRexSuggestions(suggestionsMap);
@@ -280,6 +295,10 @@ export default function Audit() {
       updatedMap.delete(suggestion.entity_id);
       setRexSuggestions(updatedMap);
 
+      // Update top 3 displayed suggestions (next one will surface)
+      const topIds = getTopPendingSuggestions(updatedMap);
+      setTopDisplayedSuggestionIds(topIds);
+
       toast.success('Suggestion dismissed');
     } catch (error) {
       console.error('[Audit] Error dismissing suggestion:', error);
@@ -467,6 +486,7 @@ export default function Audit() {
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
               rexSuggestions={rexSuggestions}
+              topDisplayedSuggestionIds={topDisplayedSuggestionIds}
               onViewSuggestion={handleViewSuggestion}
               onAcceptSuggestion={handleAcceptSuggestion}
               onDismissSuggestion={handleDismissSuggestion}
