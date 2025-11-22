@@ -129,28 +129,14 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   return (
     <div
       ref={contentRef}
-      className={`ai-suggestion-glow transition-all duration-300 ease-in-out overflow-hidden ${
+      className={`transition-all duration-300 ease-in-out overflow-hidden ${
         isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <div className="relative bg-white dark:bg-gray-900 border-l-4 border-l-red-500 rounded-b-lg shadow-xl">
-        {/* Dismiss Button - Top Right */}
-        {canDismiss && !showDismissReason && (
-          <div className="absolute top-4 right-4 z-10">
-            <button
-              onClick={() => setShowDismissReason(true)}
-              disabled={isDismissing}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-              title="Dismiss suggestion"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        )}
-
+      <div className="relative bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-b-lg shadow-xl">
         {/* Dismiss Reason Prompt */}
         {showDismissReason && (
-          <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -182,6 +168,18 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
 
         {/* Main Content */}
         <div className="p-6 space-y-6">
+          {/* Dismiss Link at Top */}
+          {canDismiss && !showDismissReason && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowDismissReason(true)}
+                disabled={isDismissing}
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline transition-colors"
+              >
+                Dismiss suggestion
+              </button>
+            </div>
+          )}
           {/* Top Stats Row */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3">

@@ -408,50 +408,35 @@ body.modal-open {
   color: #3b82f6 !important;
 }
 
-/* AI Suggestion Row Animation - Circular rotating gradient ring */
-@keyframes ai-ring-rotate {
-  0% {
-    transform: rotate(0deg);
+/* AI Suggestion Row Animation - Pulsing red ring border */
+@keyframes ai-ring-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
   }
-  100% {
-    transform: rotate(360deg);
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
   }
 }
 
 .ai-suggestion-glow {
   position: relative;
   border-radius: 0.5rem;
-  padding: 2px;
 }
 
 .ai-suggestion-glow::before {
   content: '';
   position: absolute;
-  inset: -2px;
+  inset: 0;
   border-radius: 0.5rem;
-  padding: 2px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    rgba(248, 113, 113, 0.6) 10%,
-    rgba(255, 255, 255, 0.8) 20%,
-    transparent 30%,
-    transparent 100%
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: ai-ring-rotate 2s linear infinite;
+  border: 2px solid;
+  border-color: rgba(239, 68, 68, 0.6);
+  animation: ai-ring-pulse 2s ease-in-out infinite;
   pointer-events: none;
+  z-index: 1;
 }
 
 .dark .ai-suggestion-glow::before {
-  background: conic-gradient(
-    from 0deg,
-    transparent 0%,
-    rgba(239, 68, 68, 0.7) 10%,
-    rgba(255, 255, 255, 0.6) 20%,
-    transparent 30%,
-    transparent 100%
-  );
+  border-color: rgba(248, 113, 113, 0.7);
 }

@@ -866,14 +866,37 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const shouldHighlight = isTopSuggestion && hasPendingSuggestion;
 
                 return (
-                <div key={creative.id} className={shouldHighlight ? 'ai-suggestion-glow' : ''}>
+                <div key={creative.id} className={`relative ${shouldHighlight ? 'ai-suggestion-glow' : ''}`}>
+                  {/* AI Badge - Overlaid on left edge */}
+                  {suggestion && isTopSuggestion && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-20">
+                      <RexSuggestionBadge
+                        status={suggestion.status}
+                        priorityScore={suggestion.priority_score}
+                        isImproving={suggestion.performance?.is_improving}
+                        isExpanded={expandedRowId === creative.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (expandedRowId === creative.id) {
+                            setExpandedRowId(null);
+                          } else {
+                            setExpandedRowId(creative.id);
+                            if (onViewSuggestion) {
+                              onViewSuggestion(suggestion);
+                            }
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+
                   <div
                     onClick={() => onDrillDown && onDrillDown(creative)}
                     className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${onDrillDown ? 'cursor-pointer' : ''} ${
                     shouldHighlight
-                      ? 'bg-red-50/40 dark:bg-red-900/10 rounded-lg shadow-sm hover:shadow-md border-l-4 border-l-red-500'
+                      ? 'bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-lg shadow-sm hover:shadow-md'
                       : ''
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
@@ -967,28 +990,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     </div>
                     );
                   })}
-
-                  {suggestion && isTopSuggestion && (
-                    <div className="flex items-center px-4 py-4">
-                      <RexSuggestionBadge
-                        status={suggestion.status}
-                        priorityScore={suggestion.priority_score}
-                        isImproving={suggestion.performance?.is_improving}
-                        isExpanded={expandedRowId === creative.id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (expandedRowId === creative.id) {
-                            setExpandedRowId(null);
-                          } else {
-                            setExpandedRowId(creative.id);
-                            if (onViewSuggestion) {
-                              onViewSuggestion(suggestion);
-                            }
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
                   </div>
 
                   {/* Expanded Suggestion Row */}
