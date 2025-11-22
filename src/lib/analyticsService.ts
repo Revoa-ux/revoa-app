@@ -66,10 +66,10 @@ export async function getAllMetricCards(): Promise<MetricCardMetadata[]> {
 
 // Fetch metric cards for a specific template
 export async function getTemplateMetricCards(template: TemplateType): Promise<MetricCardMetadata[]> {
+  // Fetch all cards and filter on client side since JSONB array contains is tricky
   const { data, error } = await supabase
     .from('metric_cards_metadata')
     .select('*')
-    .contains('available_in_templates', [template])
     .eq('default_visibility', true)
     .order('sort_order');
 
@@ -78,7 +78,14 @@ export async function getTemplateMetricCards(template: TemplateType): Promise<Me
     throw error;
   }
 
-  return data || [];
+  // Filter cards that include this template
+  const filtered = (data || []).filter(card =>
+    card.available_in_templates &&
+    Array.isArray(card.available_in_templates) &&
+    card.available_in_templates.includes(template)
+  );
+
+  return filtered;
 }
 
 // Fetch user's analytics preferences

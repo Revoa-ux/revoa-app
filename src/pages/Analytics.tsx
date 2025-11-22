@@ -17,6 +17,7 @@ import {
   switchTemplate,
   toggleCardVisibility,
   computeMetricCardData,
+  getTemplateMetricCards,
   MetricCardData
 } from '../lib/analyticsService';
 
@@ -100,11 +101,38 @@ export default function Analytics() {
 
         // Initialize if no preferences exist
         if (!prefs) {
+          console.log('[Analytics] No preferences found, initializing...');
           prefs = await initializeUserAnalyticsPreferences(user.id, 'executive');
         }
 
+        console.log('[Analytics] Loaded preferences:', prefs);
+
         setCurrentTemplate(prefs.active_template);
-        setVisibleCards(prefs.visible_cards || []);
+
+        // Handle visible_cards - ensure it's an array
+        let cards = prefs.visible_cards || [];
+        if (typeof cards === 'string') {
+          cards = JSON.parse(cards);
+        }
+
+        console.log('[Analytics] Setting visible cards:', cards);
+        setVisibleCards(Array.isArray(cards) ? cards : []);
+
+        // If no cards visible, this might be a fresh account - manually load template cards
+        if (!cards || cards.length === 0) {
+          console.log('[Analytics] No visible cards, loading template defaults...');
+          const templateCards = await getTemplateMetricCards(prefs.active_template);
+          const cardIds = templateCards.map(c => c.id);
+          console.log('[Analytics] Got template cards:', cardIds);
+
+          if (cardIds.length > 0) {
+            // Update the preferences with these cards
+            await updateUserAnalyticsPreferences(user.id, {
+              visible_cards: cardIds
+            });
+            setVisibleCards(cardIds);
+          }
+        }
       } catch (error) {
         console.error('Error loading preferences:', error);
         toast.error('Failed to load analytics preferences');
