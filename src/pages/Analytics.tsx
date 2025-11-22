@@ -430,8 +430,8 @@ setCurrentTemplate(template);
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Hi {userName || 'there'}, welcome to Revoa👋
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+          Performance Analytics Dashboard
         </h1>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center space-x-2">

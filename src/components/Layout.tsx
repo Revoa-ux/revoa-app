@@ -12,7 +12,7 @@ import {
   MessageSquare,
   LayoutGrid,
   BarChart3,
-  CreditCard,
+  Sparkles,
   Mail,
   Package,
   ChevronLeft,
@@ -244,7 +244,7 @@ export default function Layout() {
               </Link>
               <Link
                 to="/pricing"
-                title={isCollapsed ? 'Pricing' : undefined}
+                title={isCollapsed ? 'Plans and Pricing' : undefined}
                 className={cn(
                   'flex items-center text-[13px] rounded-lg transition-colors',
                   isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
@@ -253,8 +253,8 @@ export default function Layout() {
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 )}
               >
-                <CreditCard className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Pricing'}
+                <Sparkles className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                {!isCollapsed && 'Plans and Pricing'}
               </Link>
               <button
                 onClick={() => setShowHelpModal(true)}
