@@ -208,7 +208,7 @@ const AdminInvoices: React.FC = () => {
           Bulk Invoices
         </h1>
         <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Upload and process invoices in bulk
           </p>

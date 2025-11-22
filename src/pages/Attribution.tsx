@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { syncShopifyOrders } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';
 import { GlassCard } from '@/components/GlassCard';
+import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -44,7 +45,19 @@ export default function Attribution() {
     uniqueSessions: 0,
   });
   const [lastSync, setLastSync] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState('30');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('30d');
+
+  // Initialize date range for 30 days
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 30);
+  initialStartDate.setHours(0, 0, 0, 0);
+
+  const [dateRange, setDateRange] = useState({
+    startDate: initialStartDate,
+    endDate: initialEndDate
+  });
 
   useEffect(() => {
     if (user?.id) {
@@ -57,17 +70,12 @@ export default function Attribution() {
 
     setIsLoading(true);
     try {
-      const daysBack = parseInt(dateRange);
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysBack);
-      const endDate = new Date();
-
       const { data: orders, error: ordersError } = await supabase
         .from('shopify_orders')
         .select('id, total_price, utm_source')
         .eq('user_id', user.id)
-        .gte('ordered_at', startDate.toISOString())
-        .lte('ordered_at', endDate.toISOString());
+        .gte('ordered_at', dateRange.startDate.toISOString())
+        .lte('ordered_at', dateRange.endDate.toISOString());
 
       if (ordersError) throw ordersError;
 
@@ -75,8 +83,8 @@ export default function Attribution() {
         .from('ad_conversions')
         .select('conversion_value')
         .eq('user_id', user.id)
-        .gte('converted_at', startDate.toISOString())
-        .lte('converted_at', endDate.toISOString());
+        .gte('converted_at', dateRange.startDate.toISOString())
+        .lte('converted_at', dateRange.endDate.toISOString());
 
       if (conversionsError) throw conversionsError;
 
@@ -84,8 +92,8 @@ export default function Attribution() {
         .from('pixel_events')
         .select('session_id')
         .eq('user_id', user.id)
-        .gte('event_time', startDate.toISOString())
-        .lte('event_time', endDate.toISOString());
+        .gte('event_time', dateRange.startDate.toISOString())
+        .lte('event_time', dateRange.endDate.toISOString());
 
       if (pixelError) throw pixelError;
 
@@ -132,6 +140,48 @@ export default function Attribution() {
     }
   };
 
+  const handleTimeChange = (time: TimeOption) => {
+    setSelectedTime(time);
+
+    const now = new Date();
+    let startDate = new Date();
+    let endDate = new Date();
+
+    switch (time) {
+      case 'today':
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '7d':
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '30d':
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 30);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case '90d':
+        startDate = new Date(now);
+        startDate.setDate(now.getDate() - 90);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        return;
+    }
+
+    setDateRange({ startDate, endDate });
+  };
+
   const handleSync = async () => {
     if (!user?.id) return;
 
@@ -139,7 +189,8 @@ export default function Attribution() {
     try {
       toast.loading('Syncing orders from Shopify...');
 
-      const result = await syncShopifyOrders(user.id, parseInt(dateRange));
+      const daysDiff = Math.ceil((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / (1000 * 60 * 60 * 24));
+      const result = await syncShopifyOrders(user.id, daysDiff);
 
       toast.dismiss();
 
@@ -180,32 +231,32 @@ export default function Attribution() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Attribution</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
           Track conversions with accurate first-party data
         </p>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <select
-            value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
-            className="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="14">Last 14 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="60">Last 60 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
+        <div className="flex items-center gap-3"></div>
+
+        <div className="flex items-center gap-3 sm:flex-shrink-0">
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium whitespace-nowrap"
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Sync Orders'}</span>
           </button>
+
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={loadAttributionMetrics}
+          />
         </div>
       </div>
 

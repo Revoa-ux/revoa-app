@@ -140,7 +140,7 @@ export default function AdminManage() {
             Admin Team
           </h1>
           <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Manage your admin team and monitor performance
             </p>

@@ -429,7 +429,10 @@ export default function Audit() {
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+          Cross-platform campaign management and performance insights
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 flex-shrink-0">

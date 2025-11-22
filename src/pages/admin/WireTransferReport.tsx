@@ -181,7 +181,7 @@ export default function WireTransferReport() {
           Wire Transfer Commission Report
         </h1>
         <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Monthly wire transfer totals for supplier invoicing
           </p>
