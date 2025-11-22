@@ -39,7 +39,7 @@ export default function Audit() {
   const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
   const [topDisplayedSuggestionIds, setTopDisplayedSuggestionIds] = useState<Set<string>>(new Set());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
-  const [auditView, setAuditView] = useState<'performance' | 'admanager'>('performance');
+  const [auditView, setAuditView] = useState<'performance' | 'admanager'>('admanager');
 
   const { facebook } = useConnectionStore();
 
@@ -426,7 +426,7 @@ export default function Audit() {
   }, [user]);
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="space-y-6 pb-6 overflow-x-hidden max-w-full">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
@@ -508,7 +508,7 @@ export default function Audit() {
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden w-full max-w-full">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}

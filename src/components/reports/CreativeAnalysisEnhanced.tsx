@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Search,
   X,
@@ -16,7 +16,8 @@ import {
   Sparkles,
   TrendingUp,
   AlertTriangle,
-  Target
+  Target,
+  GripVertical
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -81,6 +82,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
   const [itemsToShow, setItemsToShow] = useState(10);
   const [showAllItems, setShowAllItems] = useState(false);
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
@@ -114,6 +118,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     setImageLoading(new Set(creativesWithImages));
     setImageErrors(new Set());
   }, [creatives]);
+
+  // Column resize handler
+  const handleColumnResize = useCallback((columnId: string, startX: number, startWidth: number) => {
+    setIsResizing(true);
+    setResizingColumnId(columnId);
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const delta = e.clientX - startX;
+      const newWidth = Math.max(50, startWidth + delta); // Minimum width of 50px
+      setColumnWidths(prev => ({ ...prev, [columnId]: newWidth }));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      setResizingColumnId(null);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, []);
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
@@ -730,39 +756,55 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               style={{ overflow: 'hidden' }}
             >
               <div className="flex w-full">
-                {columns.map((column, index) => (
-                  <div
-                    key={column.id}
-                    className={`flex items-center h-12 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
-                      index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
-                    }`}
-                    style={{
-                      minWidth: column.width,
-                      flexGrow: column.flexGrow || 0,
-                      flexShrink: column.flexShrink || 0,
-                      flexBasis: column.width
-                    }}
-                  >
-                    {column.id === 'select' ? (
-                      <CustomCheckbox
-                        checked={selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0}
-                        onChange={handleSelectAll}
-                      />
-                    ) : column.sortable ? (
-                      <button
-                        onClick={() => handleSort(column.id)}
-                        className="group inline-flex items-center space-x-1"
-                      >
-                        <span>{column.label}</span>
-                        <span className="text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400">
-                          {getSortIcon(column.id)}
-                        </span>
-                      </button>
-                    ) : (
-                      column.label
-                    )}
-                  </div>
-                ))}
+                {columns.map((column, index) => {
+                  const customWidth = columnWidths[column.id];
+                  const columnStyle = customWidth
+                    ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
+                    : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+
+                  return (
+                    <div
+                      key={column.id}
+                      className={`relative flex items-center h-12 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
+                        index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
+                      }`}
+                      style={columnStyle}
+                    >
+                      {column.id === 'select' ? (
+                        <CustomCheckbox
+                          checked={selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0}
+                          onChange={handleSelectAll}
+                        />
+                      ) : column.sortable ? (
+                        <button
+                          onClick={() => handleSort(column.id)}
+                          className="group inline-flex items-center space-x-1"
+                        >
+                          <span>{column.label}</span>
+                          <span className="text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400">
+                            {getSortIcon(column.id)}
+                          </span>
+                        </button>
+                      ) : (
+                        column.label
+                      )}
+                      {index < columns.length - 1 && (
+                        <div
+                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 dark:hover:bg-blue-400 group z-10"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            const currentWidth = customWidth || column.width;
+                            handleColumnResize(column.id, e.clientX, currentWidth);
+                          }}
+                        >
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <GripVertical className="w-3 h-3 text-blue-500 dark:text-blue-400" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -798,17 +840,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     suggestion?.priority_score >= 95 && shouldHighlight ? 'animate-pulse' : ''
                   }`}
                 >
-                  {columns.map((column, colIndex) => (
-                    <div
-                      key={column.id}
-                      className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
-                      style={{
-                        minWidth: column.width,
-                        flexGrow: column.flexGrow || 0,
-                        flexShrink: column.flexShrink || 0,
-                        flexBasis: column.width
-                      }}
-                    >
+                  {columns.map((column, colIndex) => {
+                    const customWidth = columnWidths[column.id];
+                    const columnStyle = customWidth
+                      ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
+                      : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+
+                    return (
+                      <div
+                        key={column.id}
+                        className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
+                        style={columnStyle}
+                      >
                       {column.render ? (
                         column.render(null, creative)
                       ) : column.id === 'platform' ? (
@@ -881,7 +924,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         </span>
                       ) : null}
                     </div>
-                  ))}
+                    );
+                  })}
 
                   {suggestion && isTopSuggestion && (
                     <div className="flex items-center px-4 py-4">
@@ -943,17 +987,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               {sortedCreatives.length > 0 && (
                 <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                   <div className="flex items-center min-h-[56px] w-full">
-                    {columns.map((column) => (
-                      <div
-                        key={column.id}
-                        className="flex items-center px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white"
-                        style={{
-                          minWidth: column.width,
-                          flexGrow: column.flexGrow || 0,
-                          flexShrink: column.flexShrink || 0,
-                          flexBasis: column.width
-                        }}
-                      >
+                    {columns.map((column) => {
+                      const customWidth = columnWidths[column.id];
+                      const columnStyle = customWidth
+                        ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
+                        : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+
+                      return (
+                        <div
+                          key={column.id}
+                          className="flex items-center px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white"
+                          style={columnStyle}
+                        >
                         {column.id === 'select' ? (
                           <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
                             {sortedCreatives.length} total
@@ -1000,7 +1045,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           ''
                         )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -1016,7 +1062,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               {!showAllItems ? (
                 <button
                   onClick={() => setShowAllItems(true)}
-                  className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg transition-colors"
                 >
                   View All
                 </button>
