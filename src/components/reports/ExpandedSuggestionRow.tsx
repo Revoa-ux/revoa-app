@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, TrendingUp, AlertTriangle, Target, DollarSign, CheckCircle2, XCircle, Zap, Pause, TrendingDown, Copy, Settings } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Target, DollarSign, CheckCircle2, Zap, Pause, TrendingDown, Copy, Settings, X } from 'lucide-react';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface ExpandedSuggestionRowProps {
@@ -24,10 +24,7 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Trigger expansion animation
     setTimeout(() => setIsExpanded(true), 10);
-
-    // Scroll into view
     if (contentRef.current) {
       contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -48,14 +45,12 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   const handleDismiss = async () => {
     setIsDismissing(true);
     try {
-      await onDismiss(dismissReason);
+      await onDismiss(dismissReason || undefined);
       onClose();
     } catch (error) {
       console.error('Error dismissing suggestion:', error);
     } finally {
       setIsDismissing(false);
-      setShowDismissReason(false);
-      setDismissReason('');
     }
   };
 
@@ -83,6 +78,7 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
       reallocate_budget: { label: 'Reallocate', icon: Zap },
       test_new_creative: { label: 'Start Test', icon: Zap },
       optimize_schedule: { label: 'Optimize', icon: Settings },
+      pause_entity: { label: 'Pause Now', icon: Pause },
     };
 
     const action = actionMap[suggestion.suggestion_type];
@@ -93,29 +89,12 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
       <button
         onClick={handleImmediateAction}
         disabled={isExecutingAction}
-        className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+        className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
       >
         <Icon className="w-4 h-4" />
         <span>{isExecutingAction ? 'Executing...' : action.label}</span>
       </button>
     );
-  };
-
-  const getFinancialImpactContext = () => {
-    const typeMap: Record<string, string> = {
-      pause_underperforming: 'If you pause this underperforming ad',
-      scale_high_performer: 'If you scale this high-performing ad',
-      refresh_creative: 'If you refresh this creative',
-      adjust_targeting: 'If you adjust targeting',
-      reduce_budget: 'If you reduce budget',
-      increase_budget: 'If you increase budget',
-      pause_negative_roi: 'If you pause this negative ROI ad',
-      reallocate_budget: 'If you reallocate budget',
-      test_new_creative: 'If you test new creative',
-      optimize_schedule: 'If you optimize schedule',
-    };
-
-    return typeMap[suggestion.suggestion_type] || 'If you implement this suggestion';
   };
 
   const formatMetricLabel = (key: string): string => {
@@ -150,296 +129,281 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
   return (
     <div
       ref={contentRef}
-      className={`transition-all duration-300 ease-in-out overflow-hidden ${
+      className={`ai-suggestion-glow transition-all duration-300 ease-in-out overflow-hidden ${
         isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
       }`}
     >
-      <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l-4 border-l-red-500 border-r border-r-gray-200 dark:border-r-gray-700 border-b border-b-gray-200 dark:border-b-gray-700 rounded-b-xl shadow-lg p-6 my-1">
-        {/* Header with Close Button */}
-        <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            AI Suggestion Details
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* 2-Column Layout on Desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column */}
-          <div className="space-y-5">
-            {/* AI Intelligence Analysis with Action Button */}
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-              <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
-                AI Intelligence Analysis
-              </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                {suggestion.message}
-              </p>
-              {canAccept && getActionButton()}
-            </div>
-
-            {/* Confidence & Priority */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="w-4 h-4 text-gray-400" />
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    AI Confidence
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-2xl font-bold ${confidence.color}`}>
-                    {suggestion.confidence_score}%
-                  </span>
-                  <span className={`text-sm ${confidence.color}`}>
-                    {confidence.label}
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-gray-400" />
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Priority Score
-                  </span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {suggestion.priority_score}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    / 100
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Projected Financial Impact */}
-            {suggestion.estimated_impact && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-white">
-                    Projected Financial Impact
-                  </h4>
-                  <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
-                    {suggestion.estimated_impact.timeframeDays}d forecast
-                  </span>
-                </div>
-
-                <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-lg">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    {getFinancialImpactContext()}:
-                  </p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {suggestion.estimated_impact.breakdown}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {suggestion.estimated_impact.expectedSavings !== undefined && (
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Potential Savings</div>
-                      <div className="text-lg font-bold text-red-600 dark:text-red-400">
-                        ${suggestion.estimated_impact.expectedSavings.toFixed(2)}
-                      </div>
-                    </div>
-                  )}
-                  {suggestion.estimated_impact.expectedRevenue !== undefined && (
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Revenue</div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        ${suggestion.estimated_impact.expectedRevenue.toFixed(2)}
-                      </div>
-                    </div>
-                  )}
-                  {suggestion.estimated_impact.expectedProfit !== undefined && (
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Profit</div>
-                      <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        ${suggestion.estimated_impact.expectedProfit.toFixed(2)}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Pattern Recognition */}
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-              <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
-                Algorithmic Pattern Recognition
-              </h4>
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                {suggestion.reasoning.analysis}
-              </p>
-
-              <div className="grid grid-cols-3 gap-3">
-                {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-                      {formatMetricLabel(key)}
-                    </div>
-                    <div className="text-base font-bold text-gray-900 dark:text-white">
-                      {typeof value === 'number' ?
-                        (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('score') || key.toLowerCase().includes('ctr') ?
-                          `${value.toFixed(1)}%` :
-                          key.toLowerCase().includes('spend') || key.toLowerCase().includes('profit') || key.toLowerCase().includes('revenue') ?
-                            `$${value.toFixed(2)}` :
-                            value.toLocaleString())
-                        : value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      <div className="relative bg-white dark:bg-gray-900 border-l-4 border-l-red-500 rounded-b-lg shadow-xl">
+        {/* Dismiss Button - Top Right */}
+        {canDismiss && !showDismissReason && (
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={() => setShowDismissReason(true)}
+              disabled={isDismissing}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+              title="Dismiss suggestion"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
+        )}
 
-          {/* Right Column */}
-          <div className="space-y-5">
-            {/* Performance Tracking */}
-            {suggestion.performance && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <TrendingUp className="w-4 h-4 text-gray-400" />
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-white">
-                    Real-Time Performance Impact
-                  </h4>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ml-auto ${
-                    suggestion.performance.is_improving
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-                  }`}>
-                    {suggestion.performance.is_improving ? 'Improving' : 'Declining'}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit Change</div>
-                    <div className={`text-lg font-bold ${
-                      suggestion.performance.profit_delta > 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {suggestion.performance.profit_delta > 0 ? '+' : ''}${suggestion.performance.profit_delta.toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ROAS Change</div>
-                    <div className={`text-lg font-bold ${
-                      suggestion.performance.roas_delta > 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {suggestion.performance.roas_delta > 0 ? '+' : ''}{suggestion.performance.roas_delta.toFixed(2)}x
-                    </div>
-                  </div>
-                  {suggestion.performance.performance_change_percent && (
-                    <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Overall Change</div>
-                      <div className={`text-lg font-bold ${
-                        suggestion.performance.performance_change_percent > 0
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {suggestion.performance.performance_change_percent > 0 ? '+' : ''}{suggestion.performance.performance_change_percent.toFixed(1)}%
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Recommended Automated Rule with Button */}
-            {suggestion.recommended_rule && canAccept && (
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
-                  Recommended Automated Rule
-                </h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                  {suggestion.recommended_rule.description}
-                </p>
-                <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
-                  <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
-                    <Zap className="w-3 h-3" />
-                    <span>Every {suggestion.recommended_rule.check_frequency_minutes}min</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
-                    <Target className="w-3 h-3" />
-                    <span>Max {suggestion.recommended_rule.max_daily_actions}/day</span>
-                  </div>
-                  {suggestion.recommended_rule.require_approval && (
-                    <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
-                      <AlertTriangle className="w-3 h-3" />
-                      <span>Requires approval</span>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleAccept}
-                  disabled={isAccepting}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md w-full justify-center"
-                >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isAccepting ? 'Creating...' : 'Create New Automated Rule'}</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-          {showDismissReason ? (
+        {/* Dismiss Reason Prompt */}
+        {showDismissReason && (
+          <div className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center gap-3">
               <input
                 type="text"
                 placeholder="Why are you dismissing this? (optional)"
                 value={dismissReason}
                 onChange={(e) => setDismissReason(e.target.value)}
-                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-500"
+                className="flex-1 px-4 py-2 text-sm bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400"
+                autoFocus
               />
               <button
                 onClick={() => {
                   setShowDismissReason(false);
                   setDismissReason('');
                 }}
-                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDismiss}
                 disabled={isDismissing}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <XCircle className="w-4 h-4" />
-                <span>{isDismissing ? 'Dismissing...' : 'Confirm'}</span>
+                {isDismissing ? 'Dismissing...' : 'Confirm'}
               </button>
             </div>
-          ) : (
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="p-6 space-y-6">
+          {/* Top Stats Row */}
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
-              {canDismiss && (
-                <button
-                  onClick={() => setShowDismissReason(true)}
-                  disabled={isDismissing}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Dismiss
-                </button>
-              )}
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20">
+                <Target className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  AI Confidence
+                </div>
+                <div className="flex items-baseline gap-2 mt-0.5">
+                  <span className={`text-xl font-bold ${confidence.color}`}>
+                    {suggestion.confidence_score}%
+                  </span>
+                  <span className={`text-xs ${confidence.color}`}>
+                    {confidence.label}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20">
+                <AlertTriangle className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Priority Score
+                </div>
+                <div className="flex items-baseline gap-2 mt-0.5">
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">
+                    {suggestion.priority_score}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    / 100
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+          {/* Recommended Action Section */}
+          {canAccept && (
+            <div className="space-y-3">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Recommended Action
+              </h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                <span className="font-medium">AI recommends:</span> {suggestion.description}
+              </p>
+              <div className="pt-2">
+                {getActionButton()}
+              </div>
+            </div>
+          )}
+
+          {/* Pattern Recognition */}
+          <div className="space-y-3">
+            <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+              Analysis
+            </h4>
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              {suggestion.reasoning.analysis}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
+                <div key={key} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
+                    {formatMetricLabel(key)}
+                  </div>
+                  <div className="text-base font-bold text-gray-900 dark:text-white">
+                    {typeof value === 'number' ?
+                      (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('score') || key.toLowerCase().includes('ctr') ?
+                        `${value.toFixed(1)}%` :
+                        key.toLowerCase().includes('spend') || key.toLowerCase().includes('profit') || key.toLowerCase().includes('revenue') ?
+                          `$${value.toFixed(2)}` :
+                          value.toLocaleString())
+                      : value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Financial Impact */}
+          {suggestion.estimated_impact && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Financial Impact
+                </h4>
+                <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium">
+                  {suggestion.estimated_impact.timeframeDays}d forecast
+                </span>
+              </div>
+
+              <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-lg">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {suggestion.estimated_impact.breakdown}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {suggestion.estimated_impact.expectedSavings !== undefined && (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Savings</div>
+                    <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                      ${suggestion.estimated_impact.expectedSavings.toFixed(2)}
+                    </div>
+                  </div>
+                )}
+                {suggestion.estimated_impact.expectedRevenue !== undefined && (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Revenue</div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      ${suggestion.estimated_impact.expectedRevenue.toFixed(2)}
+                    </div>
+                  </div>
+                )}
+                {suggestion.estimated_impact.expectedProfit !== undefined && (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit</div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      ${suggestion.estimated_impact.expectedProfit.toFixed(2)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Performance Tracking */}
+          {suggestion.performance && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Performance Impact
+                </h4>
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  suggestion.performance.is_improving
+                    ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                    : 'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
+                }`}>
+                  {suggestion.performance.is_improving ? 'Improving' : 'Declining'}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit Change</div>
+                  <div className={`text-lg font-bold ${
+                    suggestion.performance.profit_delta > 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {suggestion.performance.profit_delta > 0 ? '+' : ''}${suggestion.performance.profit_delta.toFixed(2)}
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ROAS Change</div>
+                  <div className={`text-lg font-bold ${
+                    suggestion.performance.roas_delta > 0
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {suggestion.performance.roas_delta > 0 ? '+' : ''}{suggestion.performance.roas_delta.toFixed(2)}x
+                  </div>
+                </div>
+                {suggestion.performance.performance_change_percent && (
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Overall</div>
+                    <div className={`text-lg font-bold ${
+                      suggestion.performance.performance_change_percent > 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {suggestion.performance.performance_change_percent > 0 ? '+' : ''}{suggestion.performance.performance_change_percent.toFixed(1)}%
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Automated Rule Section */}
+          {suggestion.recommended_rule && canAccept && (
+            <div className="space-y-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Set Up Automation
+              </h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                <span className="font-medium">Let AI manage this automatically:</span> {suggestion.recommended_rule.description}
+              </p>
+              <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                  <Zap className="w-3 h-3" />
+                  <span>Every {suggestion.recommended_rule.check_frequency_minutes}min</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                  <Target className="w-3 h-3" />
+                  <span>Max {suggestion.recommended_rule.max_daily_actions}/day</span>
+                </div>
+                {suggestion.recommended_rule.require_approval && (
+                  <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>Requires approval</span>
+                  </div>
+                )}
+              </div>
+
               <button
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                onClick={handleAccept}
+                disabled={isAccepting}
+                className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-lg"
               >
-                Close
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isAccepting ? 'Creating...' : 'Create Automated Rule'}</span>
               </button>
             </div>
           )}

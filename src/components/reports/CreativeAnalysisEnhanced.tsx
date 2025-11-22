@@ -974,6 +974,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         status={suggestion.status}
                         priorityScore={suggestion.priority_score}
                         isImproving={suggestion.performance?.is_improving}
+                        isExpanded={expandedRowId === creative.id}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (expandedRowId === creative.id) {
@@ -983,12 +984,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             if (onViewSuggestion) {
                               onViewSuggestion(suggestion);
                             }
-                          }
-                        }}
-                        onDismiss={(e) => {
-                          e.stopPropagation();
-                          if (onDismissSuggestion) {
-                            onDismissSuggestion(suggestion, 'user_dismissed');
                           }
                         }}
                       />
