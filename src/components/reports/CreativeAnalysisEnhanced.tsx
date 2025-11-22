@@ -209,7 +209,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     {
       id: 'adName',
       label: viewLevel === 'campaigns' ? 'Campaign Name' : viewLevel === 'adsets' ? 'Ad Set Name' : 'Ad Name',
-      width: 200,
+      width: viewLevel === 'ads' ? 200 : 280,
       sortable: true
     },
     { id: 'platform', label: 'Platform', width: 100, sortable: true },
@@ -723,7 +723,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               className="overflow-x-auto scrollbar-thin"
               style={{ overflow: 'hidden' }}
             >
-              <div style={{ width: `${totalWidth}px`, minWidth: '100%' }} className="flex">
+              <div style={{ minWidth: '100%' }} className="flex">
                 {columns.map((column, index) => (
                   <div
                     key={column.id}
@@ -759,9 +759,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin"
-            style={{ height: '640px' }}
+            style={{ height: '600px' }}
           >
-            <div style={{ width: `${totalWidth}px`, minWidth: '100%' }}>
+            <div style={{ minWidth: '100%' }}>
               {displayedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
@@ -925,19 +925,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t-2 border-gray-300 dark:border-gray-600">
-                  <div className="flex items-center min-h-[60px] font-semibold">
+                <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                  <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => (
                       <div
                         key={column.id}
-                        className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
+                        className="flex items-center px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white"
                         style={{ width: column.width }}
                       >
                         {column.id === 'select' ? (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
-                            Results from {sortedCreatives.length} {viewLevel}
+                          <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                            {sortedCreatives.length} total
                           </span>
-                        ) : column.id === 'thumbnail' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                        ) : column.id === 'creative' || column.id === 'adName' ? (
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            Total Results
+                          </span>
+                        ) : column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
                           ''
                         ) : column.id === 'impressions' ? (
                           totals.impressions.toLocaleString()
@@ -954,19 +958,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         ) : column.id === 'roas' ? (
                           `${totals.roas.toFixed(2)}x`
                         ) : column.id === 'profit' ? (
-                          <span className={`${
+                          <span className={`font-bold ${
                             totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                           }`}>
                             ${totals.profit.toFixed(2)}
                           </span>
                         ) : column.id === 'profitMargin' ? (
-                          <span className={`${
+                          <span className={`font-bold ${
                             totals.profitMargin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                           }`}>
                             {totals.profitMargin.toFixed(1)}%
                           </span>
                         ) : column.id === 'netROAS' ? (
-                          <span className={`${
+                          <span className={`font-bold ${
                             totals.netROAS > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                           }`}>
                             {totals.netROAS.toFixed(2)}x
@@ -983,30 +987,31 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
 
           {/* Pagination Info and View More Button */}
-          {sortedCreatives.length > itemsToShow && !showAllItems && (
-            <div className="mt-4 flex items-center justify-center">
-              <button
-                onClick={() => setShowAllItems(true)}
-                className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
-              >
-                View More ({displayedCreatives.length} of {sortedCreatives.length} shown)
-              </button>
-            </div>
-          )}
-
-          {showAllItems && sortedCreatives.length > itemsToShow && (
-            <div className="mt-4 flex items-center justify-center">
-              <button
-                onClick={() => {
-                  setShowAllItems(false);
-                  if (tableRef.current) {
-                    tableRef.current.scrollTop = 0;
-                  }
-                }}
-                className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
-              >
-                Show Less (Viewing all {sortedCreatives.length})
-              </button>
+          {sortedCreatives.length > itemsToShow && (
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing <span className="font-medium text-gray-900 dark:text-white">{displayedCreatives.length}</span> of <span className="font-medium text-gray-900 dark:text-white">{sortedCreatives.length}</span> {viewLevel}
+              </div>
+              {!showAllItems ? (
+                <button
+                  onClick={() => setShowAllItems(true)}
+                  className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                >
+                  View All
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowAllItems(false);
+                    if (tableRef.current) {
+                      tableRef.current.scrollTop = 0;
+                    }
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  Show Less
+                </button>
+              )}
             </div>
           )}
         </div>
