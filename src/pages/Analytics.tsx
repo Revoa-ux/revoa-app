@@ -431,7 +431,7 @@ setCurrentTemplate(template);
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Real-Time Performance Intelligence
+          Real-Time Analytics and Performance Insights
         </h1>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center space-x-2">
