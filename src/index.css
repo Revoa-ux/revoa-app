@@ -407,3 +407,43 @@ body.modal-open {
 .light-toast-info [data-icon] {
   color: #3b82f6 !important;
 }
+
+/* AI Suggestion Row Animation - Circular gradient border */
+@keyframes ai-suggestion-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.ai-suggestion-glow {
+  position: relative;
+  background: linear-gradient(90deg,
+    rgba(248, 113, 113, 0.3) 0%,
+    rgba(255, 255, 255, 0.5) 25%,
+    rgba(248, 113, 113, 0.3) 50%,
+    rgba(255, 255, 255, 0.5) 75%,
+    rgba(248, 113, 113, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  animation: ai-suggestion-border 3s linear infinite;
+  border-radius: 0.5rem;
+  padding: 2px;
+}
+
+.dark .ai-suggestion-glow {
+  background: linear-gradient(90deg,
+    rgba(239, 68, 68, 0.4) 0%,
+    rgba(255, 255, 255, 0.3) 25%,
+    rgba(239, 68, 68, 0.4) 50%,
+    rgba(255, 255, 255, 0.3) 75%,
+    rgba(239, 68, 68, 0.4) 100%
+  );
+  background-size: 200% 100%;
+  animation: ai-suggestion-border 3s linear infinite;
+}

@@ -6,7 +6,7 @@ interface RexSuggestionBadgeProps {
   status: RexSuggestionStatus;
   priorityScore?: number;
   isImproving?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   onDismiss?: (e: React.MouseEvent) => void;
 }
 

@@ -866,21 +866,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const shouldHighlight = isTopSuggestion && hasPendingSuggestion;
 
                 return (
-                <div key={creative.id}>
+                <div key={creative.id} className={shouldHighlight ? 'ai-suggestion-glow' : ''}>
                   <div
                     onClick={() => onDrillDown && onDrillDown(creative)}
                     className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${onDrillDown ? 'cursor-pointer' : ''} ${
                     shouldHighlight
-                      ? 'ring-2 ring-inset ring-red-400/50 dark:ring-red-500/50 bg-red-50/40 dark:bg-red-900/10 rounded-lg my-1 shadow-sm hover:shadow-md hover:ring-red-500/70 dark:hover:ring-red-400/70 border-l-4 border-l-red-500'
+                      ? 'bg-red-50/40 dark:bg-red-900/10 rounded-lg shadow-sm hover:shadow-md border-l-4 border-l-red-500'
                       : ''
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'ring-2 ring-inset ring-green-400/50 dark:ring-green-500/50 bg-green-50/40 dark:bg-green-900/10 rounded-lg my-1 shadow-sm border-l-4 border-l-green-500'
                       : ''
-                  } ${
-                    suggestion?.priority_score >= 95 && shouldHighlight ? 'animate-pulse' : ''
                   }`}
                 >
                   {columns.map((column, colIndex) => {
@@ -976,7 +974,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         status={suggestion.status}
                         priorityScore={suggestion.priority_score}
                         isImproving={suggestion.performance?.is_improving}
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           if (expandedRowId === creative.id) {
                             setExpandedRowId(null);
                           } else {
