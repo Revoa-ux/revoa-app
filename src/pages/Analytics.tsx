@@ -43,6 +43,8 @@ export default function Analytics() {
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'card' | 'chart'>('card');
   const [selectedChartCard, setSelectedChartCard] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -291,23 +293,44 @@ setCurrentTemplate(template);
   };
 
   const handleToggleEditMode = async () => {
+    if (!user?.id) return;
+
     if (isEditMode) {
-      // Save and exit edit mode
-      if (user?.id) {
+      // Save the current order when exiting edit mode
+      if (hasUnsavedChanges) {
         try {
-await updateUserAnalyticsPreferences(user.id, {
+          await updateUserAnalyticsPreferences(user.id, {
+            visible_cards: visibleCards,
+            is_editing: false
+          });
+          toast.success('Layout saved successfully');
+          setHasUnsavedChanges(false);
+        } catch (error) {
+          console.error('Error saving layout:', error);
+          toast.error('Failed to save layout');
+        }
+      } else {
+        try {
+          await updateUserAnalyticsPreferences(user.id, {
             is_editing: false
           });
         } catch (error) {
-          console.error('Error saving layout:', error);
+          console.error('Error exiting edit mode:', error);
         }
       }
+    } else {
+      // Store original order when entering edit mode
+      setOriginalCardOrder([...visibleCards]);
+      setHasUnsavedChanges(false);
     }
+
     setIsEditMode(!isEditMode);
   };
 
   const handleToggleCard = async (cardId: string, visible: boolean) => {
     if (!user?.id) return;
+
+    setHasUnsavedChanges(true);
 
     try {
       await toggleCardVisibility(user.id, cardId, visible);
@@ -351,15 +374,7 @@ await updateUserAnalyticsPreferences(user.id, {
 
     setVisibleCards(newCards);
     setDraggedCard(null);
-
-    // Save to backend
-    if (user?.id) {
-      updateUserAnalyticsPreferences(user.id, {
-        visible_cards: newCards
-}).catch(error => {
-        console.error('Error saving card order:', error);
-      });
-    }
+    setHasUnsavedChanges(true);
   };
 
   const handleDragEnd = () => {
@@ -532,14 +547,20 @@ await updateUserAnalyticsPreferences(user.id, {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setShowCardSelector(true)}
-                className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                disabled={viewType === 'chart'}
+                className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Metrics</span>
               </button>
               <button
                 onClick={handleToggleEditMode}
-                className="flex items-center space-x-2 px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                disabled={!hasUnsavedChanges}
+                className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
+                  hasUnsavedChanges
+                    ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] text-white hover:opacity-90'
+                    : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
+                }`}
               >
                 <Save className="w-4 h-4" />
                 <span>Save Layout</span>
@@ -554,7 +575,8 @@ await updateUserAnalyticsPreferences(user.id, {
           ) : (
             <button
               onClick={handleToggleEditMode}
-              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              disabled={viewType === 'chart'}
+              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Edit3 className="w-4 h-4" />
               <span>Customize</span>
@@ -591,11 +613,14 @@ await updateUserAnalyticsPreferences(user.id, {
       </div>
 
       {/* Metric Cards Grid */}
-      {isEditMode && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Drag and drop cards to rearrange them. Click "Add Metrics" to show/hide cards.
-          </p>
+      {isEditMode && viewType === 'card' && (
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <Info className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-red-700 dark:text-red-300">
+              Drag and drop cards to rearrange them. Click "Add Metrics" to show/hide cards.
+            </p>
+          </div>
         </div>
       )}
 
