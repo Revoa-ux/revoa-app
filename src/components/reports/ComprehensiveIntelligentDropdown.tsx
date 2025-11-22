@@ -69,8 +69,8 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
 
   return (
     <div
-      className={`transition-all duration-300 ease-in-out overflow-hidden ${
-        isExpanded ? 'max-h-[700px] opacity-100' : 'max-h-0 opacity-0'
+      className={`transition-all duration-300 ease-in-out ${
+        isExpanded ? 'max-h-[2000px] opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'
       }`}
     >
       <div className="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700">
