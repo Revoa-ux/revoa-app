@@ -358,6 +358,177 @@ export class RexInsightGenerator {
       directActions
     };
   }
+
+  /**
+   * Detect high-performing placement opportunities
+   */
+  detectPlacementOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+    const topPlacement = analysis.placements[0];
+    if (!topPlacement || topPlacement.roas < 3) return null;
+
+    const avgRoas = analysis.avgRoas;
+    const roasMultiplier = topPlacement.roas / avgRoas;
+
+    if (roasMultiplier < 1.5) return null;
+
+    const paragraphs = [
+      `Your ${topPlacement.segment} placement is delivering exceptional ${topPlacement.roas.toFixed(1)}x ROAS, significantly outperforming your ${avgRoas.toFixed(1)}x average. This placement has generated $${topPlacement.revenue.toFixed(2)} from ${topPlacement.conversions} conversions.`,
+      `Analysis of ${analysis.dataPointsAnalyzed.toLocaleString()} data points shows this placement represents ${topPlacement.contribution.toFixed(0)}% of revenue with a CPA of just $${topPlacement.cpa.toFixed(2)}.`,
+      `Consider allocating more budget specifically to this placement to maximize returns.`
+    ];
+
+    return {
+      title: `Scale High-Performing ${topPlacement.segment} Placement`,
+      primaryInsight: `${topPlacement.segment} delivering ${topPlacement.roas.toFixed(1)}x ROAS`,
+      analysisParagraphs: paragraphs,
+      confidence: 85,
+      priority: 80,
+      reasoning: {
+        triggeredBy: ['high_roas_placement'],
+        primaryInsight: paragraphs[0],
+        metrics: { placement: topPlacement.segment, roas: topPlacement.roas },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'low',
+        dataPointsAnalyzed: analysis.dataPointsAnalyzed,
+        analysisDepth: 'deep',
+        patternType: 'obvious',
+        urgency: 'medium'
+      },
+      recommendedRule: {
+        name: `Protect ${topPlacement.segment} Performance`,
+        description: 'Monitor placement performance',
+        entity_type: 'ad',
+        condition_logic: 'AND',
+        check_frequency_minutes: 360,
+        max_daily_actions: 2,
+        require_approval: false,
+        dry_run: false,
+        conditions: [],
+        actions: []
+      },
+      estimatedImpact: {
+        expectedRevenue: topPlacement.revenue * 1.5,
+        timeframeDays: 30,
+        confidence: 'high',
+        breakdown: 'Scale placement budget'
+      },
+      directActions: []
+    };
+  }
+
+  /**
+   * Detect geographic opportunities
+   */
+  detectGeographicOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+    const topGeo = analysis.geographic[0];
+    if (!topGeo || topGeo.roas < 3) return null;
+
+    const avgRoas = analysis.avgRoas;
+    const roasMultiplier = topGeo.roas / avgRoas;
+
+    if (roasMultiplier < 1.5) return null;
+
+    const paragraphs = [
+      `${topGeo.segment} is your top-performing region with ${topGeo.roas.toFixed(1)}x ROAS, outperforming your ${avgRoas.toFixed(1)}x average by ${roasMultiplier.toFixed(1)}x.`,
+      `This region has generated ${topGeo.conversions} conversions and represents ${topGeo.contribution.toFixed(0)}% of revenue.`,
+      `Consider expanding reach in this geographic area or creating region-specific campaigns.`
+    ];
+
+    return {
+      title: `Expand in High-Performing ${topGeo.segment}`,
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 82,
+      priority: 75,
+      reasoning: {
+        triggeredBy: ['high_roas_geographic'],
+        primaryInsight: paragraphs[0],
+        metrics: { region: topGeo.segment, roas: topGeo.roas },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'low',
+        dataPointsAnalyzed: analysis.dataPointsAnalyzed,
+        analysisDepth: 'deep',
+        patternType: 'obvious',
+        urgency: 'medium'
+      },
+      recommendedRule: {
+        name: `Monitor ${topGeo.segment} Performance`,
+        description: 'Track geographic performance',
+        entity_type: 'campaign',
+        condition_logic: 'AND',
+        check_frequency_minutes: 360,
+        max_daily_actions: 2,
+        require_approval: false,
+        dry_run: false,
+        conditions: [],
+        actions: []
+      },
+      estimatedImpact: {
+        expectedRevenue: topGeo.revenue * 1.5,
+        timeframeDays: 30,
+        confidence: 'high',
+        breakdown: 'Expand geographic targeting'
+      },
+      directActions: []
+    };
+  }
+
+  /**
+   * Detect temporal/dayparting opportunities
+   */
+  detectTemporalOpportunity(analysis: DeepAnalysisResult): GeneratedInsight | null {
+    const topTime = analysis.temporal[0];
+    if (!topTime || topTime.conversions < 5) return null;
+
+    const avgRoas = analysis.avgRoas;
+    const roasMultiplier = topTime.roas / avgRoas;
+
+    if (roasMultiplier < 1.5) return null;
+
+    const paragraphs = [
+      `${topTime.segment} is your peak performance window with ${topTime.roas.toFixed(1)}x ROAS, significantly outperforming your ${avgRoas.toFixed(1)}x average.`,
+      `This time period accounts for ${topTime.contribution.toFixed(0)}% of revenue with ${topTime.conversions} conversions.`,
+      `Consider implementing dayparting to concentrate spend during these high-performing hours.`
+    ];
+
+    return {
+      title: `Optimize Ad Schedule for ${topTime.segment}`,
+      primaryInsight: paragraphs[0],
+      analysisParagraphs: paragraphs,
+      confidence: 80,
+      priority: 70,
+      reasoning: {
+        triggeredBy: ['temporal_pattern'],
+        primaryInsight: paragraphs[0],
+        metrics: { period: topTime.segment, roas: topTime.roas },
+        analysis: paragraphs.join('\n\n'),
+        riskLevel: 'low',
+        dataPointsAnalyzed: analysis.dataPointsAnalyzed,
+        analysisDepth: 'deep',
+        patternType: 'hidden',
+        urgency: 'medium'
+      },
+      recommendedRule: {
+        name: `Dayparting for ${topTime.segment}`,
+        description: 'Optimize ad scheduling',
+        entity_type: 'ad_set',
+        condition_logic: 'AND',
+        check_frequency_minutes: 1440,
+        max_daily_actions: 1,
+        require_approval: false,
+        dry_run: false,
+        conditions: [],
+        actions: []
+      },
+      estimatedImpact: {
+        expectedRevenue: topTime.revenue * 1.3,
+        timeframeDays: 30,
+        confidence: 'medium',
+        breakdown: 'Concentrate spend during peak hours'
+      },
+      directActions: []
+    };
+  }
 }
 
 export const rexInsightGenerator = new RexInsightGenerator();
