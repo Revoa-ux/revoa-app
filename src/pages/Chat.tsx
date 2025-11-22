@@ -79,13 +79,6 @@ const Chat = () => {
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-
-  // Load mute status from chat metadata
-  useEffect(() => {
-    if (chat?.metadata?.muted) {
-      setIsMuted(chat.metadata.muted);
-    }
-  }, [chat]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -356,25 +349,10 @@ const Chat = () => {
               {showMoreMenu && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                   <button
-                    onClick={async () => {
-                      if (!chat) return;
-                      const newMuteStatus = !isMuted;
-                      setIsMuted(newMuteStatus);
+                    onClick={() => {
+                      setIsMuted(!isMuted);
                       setShowMoreMenu(false);
-
-                      // Persist to database
-                      try {
-                        const { error } = await chatService.updateChatMetadata(chat.id, {
-                          ...chat.metadata,
-                          muted: newMuteStatus
-                        });
-                        if (error) throw error;
-                        toast.success(newMuteStatus ? 'Notifications muted' : 'Notifications unmuted');
-                      } catch (error) {
-                        console.error('Error updating mute status:', error);
-                        setIsMuted(!newMuteStatus); // Revert on error
-                        toast.error('Failed to update notification settings');
-                      }
+                      toast.success(isMuted ? 'Notifications unmuted' : 'Notifications muted');
                     }}
                     className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
@@ -393,9 +371,17 @@ const Chat = () => {
                   <button
                     onClick={() => {
                       setShowMoreMenu(false);
-                      // Send report email
-                      window.location.href = `mailto:help@revoa.app?subject=Chat Issue Report&body=Chat ID: ${chat?.id}%0D%0A%0D%0APlease describe the issue:`;
-                      toast.success('Opening email to report issue');
+                      toast.success('Chat archived');
+                    }}
+                    className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <Archive className="w-4 h-4 mr-3" />
+                    Archive Chat
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowMoreMenu(false);
+                      toast.success('Report submitted');
                     }}
                     className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
@@ -403,6 +389,16 @@ const Chat = () => {
                     Report Issue
                   </button>
                   <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
+                  <button
+                    onClick={() => {
+                      setShowMoreMenu(false);
+                      toast.success('Chat history exported');
+                    }}
+                    className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    <Download className="w-4 h-4 mr-3" />
+                    Export Chat
+                  </button>
                   <button
                     onClick={() => {
                       if (window.confirm('Are you sure you want to clear all messages? This cannot be undone.')) {

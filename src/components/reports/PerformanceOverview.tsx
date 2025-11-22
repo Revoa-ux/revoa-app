@@ -114,7 +114,8 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   const [metricOrder, setMetricOrder] = useState<string[]>(
     ALL_METRICS.map(m => m.id)
   );
-  const [draggedMetricId, setDraggedMetricId] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (userId) {
@@ -185,42 +186,43 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     savePreferences(newVisible, newOrder);
   };
 
-  const handleDragStart = (metricId: string) => (e: React.DragEvent) => {
-    setDraggedMetricId(metricId);
-    e.dataTransfer.effectAllowed = 'move';
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    if (draggedIndex === null) return;
+    setDragOverIndex(index);
   };
 
-  const handleDrop = (targetMetricId: string) => (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-    if (!draggedMetricId || draggedMetricId === targetMetricId) {
-      setDraggedMetricId(null);
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
       return;
     }
 
     const newOrder = [...metricOrder];
-    const draggedIndex = newOrder.indexOf(draggedMetricId);
-    const targetIndex = newOrder.indexOf(targetMetricId);
+    const draggedId = displayedMetrics[draggedIndex].id;
+    const targetId = displayedMetrics[dropIndex].id;
 
-    if (draggedIndex === -1 || targetIndex === -1) {
-      setDraggedMetricId(null);
-      return;
-    }
+    const draggedOrderIndex = newOrder.indexOf(draggedId);
+    const targetOrderIndex = newOrder.indexOf(targetId);
 
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(targetIndex, 0, draggedMetricId);
+    newOrder.splice(draggedOrderIndex, 1);
+    newOrder.splice(targetOrderIndex, 0, draggedId);
 
     setMetricOrder(newOrder);
     savePreferences(visibleMetrics, newOrder);
-    setDraggedMetricId(null);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const handleDragEnd = () => {
-    setDraggedMetricId(null);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const toggleCollapse = () => {
@@ -321,23 +323,26 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
             </>
           ) : (
             <>
-              {displayedMetrics.map((metricDef) => {
+              {displayedMetrics.map((metricDef, index) => {
             const metricData = getMetricData(metricDef.id);
             if (!metricData) return null;
 
             const Icon = metricDef.icon;
-            const isDragging = draggedMetricId === metricDef.id;
+            const isDragging = draggedIndex === index;
+            const isOver = dragOverIndex === index;
 
             return (
               <div
                 key={metricDef.id}
                 draggable
-                onDragStart={handleDragStart(metricDef.id)}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop(metricDef.id)}
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
                 className={`bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700 cursor-move transition-all duration-200 ${
                   isDragging ? 'opacity-50 scale-95' : ''
+                } ${
+                  isOver && !isDragging ? 'ring-2 ring-red-400 dark:ring-red-500 scale-105' : ''
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">

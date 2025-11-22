@@ -511,14 +511,5 @@ export const chatService = {
         }
       )
       .subscribe();
-  },
-
-  async updateChatMetadata(chatId: string, metadata: any): Promise<{ error: any }> {
-    const { error } = await supabase
-      .from('chats')
-      .update({ metadata })
-      .eq('id', chatId);
-
-    return { error };
   }
 };

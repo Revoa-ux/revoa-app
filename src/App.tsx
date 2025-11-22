@@ -113,8 +113,7 @@ const ThemedToaster = () => {
   const { effectiveTheme } = useTheme();
   return (
     <Toaster
-      position="bottom-right"
-      dir="ltr"
+      position="top-right"
       theme={effectiveTheme}
       toastOptions={{
         className: effectiveTheme === 'dark' ? 'dark-toast' : 'light-toast',

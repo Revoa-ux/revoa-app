@@ -23,6 +23,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import { RexSuggestionBadge } from './RexSuggestionBadge';
 import { ExpandedSuggestionRow } from './ExpandedSuggestionRow';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
@@ -34,6 +35,7 @@ interface CreativeAnalysisEnhancedProps {
   viewLevel?: 'campaigns' | 'adsets' | 'ads';
   onDrillDown?: (item: any) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
@@ -57,6 +59,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   viewLevel = 'ads',
   onDrillDown,
   rexSuggestions = new Map(),
+  topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion
@@ -76,6 +79,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
   const [itemsToShow, setItemsToShow] = useState(20);
   const [showAllItems, setShowAllItems] = useState(false);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
@@ -157,36 +161,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'google', name: 'Google Ads', icon: ImageIcon }
   ];
 
-  // Helper function to determine which metrics should glow based on trigger conditions
-  const getGlowingMetrics = (suggestion: RexSuggestionWithPerformance): Set<string> => {
-    const glowMetrics = new Set<string>();
-    const triggers = suggestion.reasoning.triggeredBy || [];
-
-    triggers.forEach(trigger => {
-      const lowerTrigger = trigger.toLowerCase();
-
-      // Map trigger conditions to metric column IDs
-      if (lowerTrigger.includes('roas')) glowMetrics.add('roas');
-      if (lowerTrigger.includes('net roas')) glowMetrics.add('netROAS');
-      if (lowerTrigger.includes('cpa') || lowerTrigger.includes('cost per')) glowMetrics.add('cpa');
-      if (lowerTrigger.includes('ctr') || lowerTrigger.includes('click')) glowMetrics.add('ctr');
-      if (lowerTrigger.includes('profit') || lowerTrigger.includes('margin')) {
-        glowMetrics.add('profit');
-        glowMetrics.add('profitMargin');
-      }
-      if (lowerTrigger.includes('spend')) glowMetrics.add('spend');
-      if (lowerTrigger.includes('conversion')) glowMetrics.add('conversions');
-      if (lowerTrigger.includes('impression')) glowMetrics.add('impressions');
-    });
-
-    // If no specific metrics identified, default to profit and ROAS as primary indicators
-    if (glowMetrics.size === 0) {
-      glowMetrics.add('profit');
-      glowMetrics.add('roas');
-    }
-
-    return glowMetrics;
-  };
 
   const columns: Column[] = [
     {
@@ -474,7 +448,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       selectedPlatforms.includes('all') ||
       selectedPlatforms.includes(creative.platform || 'facebook');
 
-    return matchesSearch && matchesPlatform;
+    const matchesRexFilter = (() => {
+      if (rexFilter === 'all') return true;
+      const suggestion = rexSuggestions.get(creative.id);
+      if (!suggestion) return false;
+      if (rexFilter === 'suggestions') {
+        return suggestion.status === 'pending' || suggestion.status === 'viewed';
+      }
+      if (rexFilter === 'rules_active') {
+        return suggestion.status === 'applied' || suggestion.status === 'monitoring';
+      }
+      return true;
+    })();
+
+    return matchesSearch && matchesPlatform && matchesRexFilter;
   });
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
@@ -707,6 +694,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             )}
           </div>
 
+          {rexSuggestions.size > 0 && (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  if (rexFilter === 'all') setRexFilter('suggestions');
+                  else if (rexFilter === 'suggestions') setRexFilter('rules_active');
+                  else setRexFilter('all');
+                }}
+                className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>
+                  {rexFilter === 'all' ? 'All Items' : rexFilter === 'suggestions' ? 'Rex Suggestions' : 'Rex Rules Active'}
+                </span>
+                {rexFilter !== 'all' && (
+                  <span className="px-1.5 py-0.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full">
+                    {filteredCreatives.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
 
           <button
             onClick={handleExportCSV}
@@ -853,32 +862,25 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
                 const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
-                const glowingMetrics = suggestion ? getGlowingMetrics(suggestion) : new Set<string>();
-
-                const handleMetricClick = (e: React.MouseEvent) => {
-                  if (suggestion) {
-                    e.stopPropagation();
-                    if (expandedRowId === creative.id) {
-                      setExpandedRowId(null);
-                    } else {
-                      setExpandedRowId(creative.id);
-                      if (onViewSuggestion) {
-                        onViewSuggestion(suggestion);
-                      }
-                    }
-                  }
-                };
+                const isTopSuggestion = topDisplayedSuggestionIds.has(creative.id);
+                const shouldHighlight = isTopSuggestion && hasPendingSuggestion;
 
                 return (
-                <div key={creative.id} className="relative">
+                <div key={creative.id}>
                   <div
-                    onClick={() => onDrillDown && !suggestion && onDrillDown(creative)}
+                    onClick={() => onDrillDown && onDrillDown(creative)}
                     className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
-                  } ${onDrillDown && !suggestion ? 'cursor-pointer' : ''} ${
+                  } ${onDrillDown ? 'cursor-pointer' : ''} ${
+                    shouldHighlight
+                      ? 'ring-2 ring-inset ring-red-400/50 dark:ring-red-500/50 bg-red-50/40 dark:bg-red-900/10 rounded-lg my-1 shadow-sm hover:shadow-md hover:ring-red-500/70 dark:hover:ring-red-400/70 border-l-4 border-l-red-500'
+                      : ''
+                  } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'ring-2 ring-inset ring-green-400/50 dark:ring-green-500/50 bg-green-50/40 dark:bg-green-900/10 rounded-lg my-1 shadow-sm border-l-4 border-l-green-500'
                       : ''
+                  } ${
+                    suggestion?.priority_score >= 95 && shouldHighlight ? 'animate-pulse' : ''
                   }`}
                 >
                   {columns.map((column, colIndex) => {
@@ -887,77 +889,112 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
                       : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
 
-                    const isGlowing = glowingMetrics.has(column.id);
-                    const metricContent = column.render ? (
-                      column.render(null, creative)
-                    ) : column.id === 'platform' ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
-                        {creative.platform || 'facebook'}
-                      </span>
-                    ) : column.id === 'performance' ? (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                        creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                        'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                      }`}>
-                        {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
-                      </span>
-                    ) : column.id === 'fatigueScore' ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full transition-all ${
-                              creative.fatigueScore < 30 ? 'bg-green-500' :
-                              creative.fatigueScore < 60 ? 'bg-yellow-500' :
-                              'bg-red-500'
-                            }`}
-                            style={{ width: `${creative.fatigueScore}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 w-8">
-                          {Math.round(creative.fatigueScore)}
-                        </span>
-                      </div>
-                    ) : column.id === 'adName' ? (
-                      <div className="truncate" title={creative.adName}>
-                        {creative.adName || '-'}
-                      </div>
-                    ) : column.id === 'impressions' ? (
-                      creative.metrics.impressions.toLocaleString()
-                    ) : column.id === 'clicks' ? (
-                      creative.metrics.clicks.toLocaleString()
-                    ) : column.id === 'ctr' ? (
-                      `${creative.metrics.ctr.toFixed(2)}%`
-                    ) : column.id === 'spend' ? (
-                      `$${creative.metrics.spend.toFixed(2)}`
-                    ) : column.id === 'conversions' ? (
-                      creative.metrics.conversions
-                    ) : column.id === 'cpa' ? (
-                      `$${creative.metrics.cpa.toFixed(2)}`
-                    ) : column.id === 'roas' ? (
-                      `${creative.metrics.roas?.toFixed(2) || '0.00'}x`
-                    ) : column.id === 'profit' ? (
-                      `$${creative.metrics.profit?.toFixed(2) || '0.00'}`
-                    ) : column.id === 'profitMargin' ? (
-                      `${creative.metrics.profitMargin?.toFixed(1) || '0.0'}%`
-                    ) : column.id === 'netROAS' ? (
-                      `${creative.metrics.netROAS?.toFixed(2) || '0.00'}x`
-                    ) : null;
-
                     return (
                       <div
                         key={column.id}
                         className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
                         style={columnStyle}
-                        onClick={isGlowing ? handleMetricClick : undefined}
-                        title={isGlowing ? 'AI suggestion available - click for details' : undefined}
                       >
-                        <span className={isGlowing ? 'ai-metric-glow' : ''}>
-                          {metricContent}
+                      {column.render ? (
+                        column.render(null, creative)
+                      ) : column.id === 'platform' ? (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
+                          {creative.platform || 'facebook'}
                         </span>
-                      </div>
+                      ) : column.id === 'performance' ? (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                          creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                          'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                        }`}>
+                          {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
+                        </span>
+                      ) : column.id === 'fatigueScore' ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full transition-all ${
+                                creative.fatigueScore < 30 ? 'bg-green-500' :
+                                creative.fatigueScore < 60 ? 'bg-yellow-500' :
+                                'bg-red-500'
+                              }`}
+                              style={{ width: `${creative.fatigueScore}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400 w-8">
+                            {Math.round(creative.fatigueScore)}
+                          </span>
+                        </div>
+                      ) : column.id === 'adName' ? (
+                        <div className="truncate" title={creative.adName}>
+                          {creative.adName || '-'}
+                        </div>
+                      ) : column.id === 'impressions' ? (
+                        creative.metrics.impressions.toLocaleString()
+                      ) : column.id === 'clicks' ? (
+                        creative.metrics.clicks.toLocaleString()
+                      ) : column.id === 'ctr' ? (
+                        `${creative.metrics.ctr.toFixed(2)}%`
+                      ) : column.id === 'spend' ? (
+                        `$${creative.metrics.spend.toFixed(2)}`
+                      ) : column.id === 'conversions' ? (
+                        <span className={creative.hasRealConversionData ? 'font-semibold text-green-600 dark:text-green-400' : ''}>
+                          {creative.metrics.conversions}
+                        </span>
+                      ) : column.id === 'cpa' ? (
+                        `$${creative.metrics.cpa.toFixed(2)}`
+                      ) : column.id === 'roas' ? (
+                        <span className={creative.hasRealConversionData ? 'font-semibold' : ''}>
+                          {creative.metrics.roas?.toFixed(2) || '0.00'}x
+                        </span>
+                      ) : column.id === 'profit' ? (
+                        <span className={`font-medium ${
+                          (creative.metrics.profit || 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          ${creative.metrics.profit?.toFixed(2) || '0.00'}
+                        </span>
+                      ) : column.id === 'profitMargin' ? (
+                        <span className={`${
+                          (creative.metrics.profitMargin || 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {creative.metrics.profitMargin?.toFixed(1) || '0.0'}%
+                        </span>
+                      ) : column.id === 'netROAS' ? (
+                        <span className={`font-medium ${
+                          (creative.metrics.netROAS || 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                        }`}>
+                          {creative.metrics.netROAS?.toFixed(2) || '0.00'}x
+                        </span>
+                      ) : null}
+                    </div>
                     );
                   })}
+
+                  {suggestion && isTopSuggestion && (
+                    <div className="flex items-center px-4 py-4">
+                      <RexSuggestionBadge
+                        status={suggestion.status}
+                        priorityScore={suggestion.priority_score}
+                        isImproving={suggestion.performance?.is_improving}
+                        onClick={() => {
+                          if (expandedRowId === creative.id) {
+                            setExpandedRowId(null);
+                          } else {
+                            setExpandedRowId(creative.id);
+                            if (onViewSuggestion) {
+                              onViewSuggestion(suggestion);
+                            }
+                          }
+                        }}
+                        onDismiss={(e) => {
+                          e.stopPropagation();
+                          if (onDismissSuggestion) {
+                            onDismissSuggestion(suggestion, 'user_dismissed');
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
                   </div>
 
                   {/* Expanded Suggestion Row */}
