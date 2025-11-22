@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid } from 'lucide-react';
+import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid, Cpu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { automationRulesService } from '@/lib/automationRulesService';
 import RuleBuilderModal from '@/components/automation/RuleBuilderModal';
@@ -190,9 +190,7 @@ const AutomationRules: React.FC = () => {
         <GlassCard className="p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 dark:text-gray-400 text-sm">Actions Taken</span>
-            <div className="w-8 h-8 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-red-500" />
-            </div>
+            <Sparkles className="w-5 h-5 text-red-500" />
           </div>
           <div className="text-3xl font-normal text-gray-900 dark:text-white">
             {totalActionsTaken.toLocaleString()}
@@ -220,7 +218,7 @@ const AutomationRules: React.FC = () => {
         <GlassCard className="p-12">
           <div className="text-center">
             <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Sparkles className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <Cpu className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
             <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-2">
               No Automation Rules Yet
