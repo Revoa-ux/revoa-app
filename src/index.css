@@ -408,8 +408,8 @@ body.modal-open {
   color: #3b82f6 !important;
 }
 
-/* AI Suggestion Row Animation - Animated gradient border */
-@keyframes ai-ring-pulse {
+/* AI Metric Glow Animation - Flowing gradient text */
+@keyframes ai-metric-flow {
   0% {
     background-position: 0% 50%;
   }
@@ -421,41 +421,52 @@ body.modal-open {
   }
 }
 
-.ai-suggestion-glow {
-  position: relative;
-  padding: 3px;
-  border-radius: 0.75rem;
+@keyframes ai-metric-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
 }
 
-.ai-suggestion-glow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 0.75rem;
-  padding: 3px;
-  background: linear-gradient(135deg,
-    rgba(239, 68, 68, 0.9) 0%,
-    rgba(248, 113, 113, 0.7) 25%,
-    rgba(252, 165, 165, 0.5) 50%,
-    rgba(248, 113, 113, 0.7) 75%,
-    rgba(239, 68, 68, 0.9) 100%
+.ai-metric-glow {
+  font-weight: 700;
+  background: linear-gradient(
+    90deg,
+    #EF4444 0%,
+    #F87171 25%,
+    #EC4899 50%,
+    #F87171 75%,
+    #EF4444 100%
   );
-  background-size: 200% 200%;
-  animation: ai-ring-pulse 4s ease-in-out infinite;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  z-index: 1;
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ai-metric-flow 3s ease-in-out infinite;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.dark .ai-suggestion-glow::before {
-  background: linear-gradient(135deg,
-    rgba(248, 113, 113, 1) 0%,
-    rgba(252, 165, 165, 0.8) 25%,
-    rgba(254, 202, 202, 0.6) 50%,
-    rgba(252, 165, 165, 0.8) 75%,
-    rgba(248, 113, 113, 1) 100%
+.ai-metric-glow:hover {
+  animation: ai-metric-flow 3s ease-in-out infinite, ai-metric-pulse 1.5s ease-in-out infinite;
+  transform: scale(1.05);
+}
+
+.dark .ai-metric-glow {
+  background: linear-gradient(
+    90deg,
+    #F87171 0%,
+    #FCA5A5 25%,
+    #F9A8D4 50%,
+    #FCA5A5 75%,
+    #F87171 100%
   );
-  background-size: 200% 200%;
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
