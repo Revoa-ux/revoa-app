@@ -119,6 +119,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     setImageErrors(new Set());
   }, [creatives]);
 
+  // Helper function to get abbreviated column label
+  const getColumnLabel = (label: string, width: number): string => {
+    // Define the threshold where we start abbreviating (considering sort icon space)
+    const abbreviationThreshold = 90;
+
+    if (width < abbreviationThreshold && label.length > 6) {
+      // Return first 4 letters + period
+      return label.substring(0, 4) + '.';
+    }
+    return label;
+  };
+
   // Column resize handler
   const handleColumnResize = useCallback((columnId: string, startX: number, startWidth: number, minWidth: number) => {
     setIsResizing(true);
@@ -779,19 +791,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ) : column.sortable ? (
                         <button
                           onClick={() => handleSort(column.id)}
-                          className="group inline-flex items-center space-x-1"
+                          className="group inline-flex items-center space-x-1 pr-2"
                         >
-                          <span>{column.label}</span>
+                          <span>{getColumnLabel(column.label, customWidth || column.width)}</span>
                           <span className="text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400">
                             {getSortIcon(column.id)}
                           </span>
                         </button>
                       ) : (
-                        column.label
+                        getColumnLabel(column.label, customWidth || column.width)
                       )}
                       {index < columns.length - 1 && (
                         <div
-                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors group z-10"
+                          className="absolute right-[-2px] top-0 bottom-0 w-1 cursor-col-resize hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors group z-10"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             const currentWidth = customWidth || column.width;
