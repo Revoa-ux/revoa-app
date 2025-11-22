@@ -306,8 +306,8 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-[1050px] mx-auto space-y-6">
-      <div>
+    <div className="flex flex-col h-full w-full max-w-[1050px] mx-auto">
+      <div className="mb-6 flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Supplier Chat
         </h1>
@@ -317,7 +317,7 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 h-[calc(100vh-7.6rem)] flex flex-col min-w-0">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col min-h-0">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
