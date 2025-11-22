@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/GlassCard';
 import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetricsModal';
 import { MetricDefinition } from '@/components/attribution/MetricCard';
@@ -114,6 +114,8 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   const [metricOrder, setMetricOrder] = useState<string[]>(
     ALL_METRICS.map(m => m.id)
   );
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (userId) {
@@ -182,6 +184,45 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     setVisibleMetrics(newVisible);
     setMetricOrder(newOrder);
     savePreferences(newVisible, newOrder);
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null) return;
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newOrder = [...metricOrder];
+    const draggedId = displayedMetrics[draggedIndex].id;
+    const targetId = displayedMetrics[dropIndex].id;
+
+    const draggedOrderIndex = newOrder.indexOf(draggedId);
+    const targetOrderIndex = newOrder.indexOf(targetId);
+
+    newOrder.splice(draggedOrderIndex, 1);
+    newOrder.splice(targetOrderIndex, 0, draggedId);
+
+    setMetricOrder(newOrder);
+    savePreferences(visibleMetrics, newOrder);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const toggleCollapse = () => {
@@ -282,14 +323,28 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
             </>
           ) : (
             <>
-              {displayedMetrics.map((metricDef) => {
+              {displayedMetrics.map((metricDef, index) => {
             const metricData = getMetricData(metricDef.id);
             if (!metricData) return null;
 
             const Icon = metricDef.icon;
+            const isDragging = draggedIndex === index;
+            const isOver = dragOverIndex === index;
 
             return (
-              <div key={metricDef.id} className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <div
+                key={metricDef.id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700 cursor-move transition-all duration-200 ${
+                  isDragging ? 'opacity-50 scale-95' : ''
+                } ${
+                  isOver && !isDragging ? 'ring-2 ring-red-400 dark:ring-red-500 scale-105' : ''
+                }`}
+              >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     <div className={`p-2 ${metricDef.iconBgColor} rounded-lg ${metricDef.iconColor}`}>
@@ -366,6 +421,19 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               </div>
             );
           })}
+
+              {/* Add Metric Card */}
+              <button
+                onClick={() => setShowCustomizeModal(true)}
+                className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center min-h-[280px] group"
+              >
+                <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
+                  <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+                </div>
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                  Add Metric
+                </span>
+              </button>
             </>
           )}
         </div>
