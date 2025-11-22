@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Edit3, Save, X, Plus, Info, Clock } from 'lucide-react';
+import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TemplateSelector from '../components/analytics/TemplateSelector';
 import MetricCard from '../components/analytics/MetricCard';
@@ -39,7 +39,7 @@ export default function Analytics() {
   const [cardData, setCardData] = useState<Record<string, MetricCardData>>({});
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
-  const [emptyStateDismissed, setEmptyStateDismissed] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -82,13 +82,10 @@ export default function Analytics() {
     fetchUserName();
   }, []);
 
-  // Load empty state dismissed preference
+  // Track last sync time
   useEffect(() => {
-    const dismissed = localStorage.getItem('analytics-empty-state-dismissed');
-    if (dismissed === 'true') {
-      setEmptyStateDismissed(true);
-    }
-  }, []);
+    setLastSyncTime(new Date());
+  }, [cardData]);
 
   // Load user preferences and initialize if needed
   useEffect(() => {
@@ -342,9 +339,46 @@ await updateUserAnalyticsPreferences(user.id, {
     setDraggedCard(null);
   };
 
-  const handleDismissEmptyState = () => {
-    localStorage.setItem('analytics-empty-state-dismissed', 'true');
-    setEmptyStateDismissed(true);
+  // Check if data is stale (over 24 hours old)
+  const isDataStale = () => {
+    if (!lastSyncTime) return false;
+    const hoursSinceSync = (new Date().getTime() - lastSyncTime.getTime()) / (1000 * 60 * 60);
+    return hoursSinceSync > 24;
+  };
+
+  // Get contextual notification
+  const getNotification = () => {
+    // Priority 1: Shopify disconnected
+    if (!shopify.isConnected && shopify.lastConnectedAt) {
+      return {
+        type: 'error' as const,
+        icon: WifiOff,
+        message: 'Shopify connection lost.',
+        action: { text: 'Reconnect', href: '/settings' }
+      };
+    }
+
+    // Priority 2: Facebook Ads disconnected
+    if (!facebook.isConnected && facebook.lastConnectedAt) {
+      return {
+        type: 'warning' as const,
+        icon: AlertCircle,
+        message: 'Facebook Ads disconnected.',
+        action: { text: 'Reconnect', href: '/settings' }
+      };
+    }
+
+    // Priority 3: Stale data
+    if (isDataStale()) {
+      return {
+        type: 'info' as const,
+        icon: RefreshCw,
+        message: 'Data sync paused.',
+        action: { text: 'Refresh', onClick: handleApplyDateRange }
+      };
+    }
+
+    return null;
   };
 
   if (isLoading) {
@@ -376,26 +410,61 @@ await updateUserAnalyticsPreferences(user.id, {
       </div>
 
 
-{/* Empty State */}
-      {!shopify.isConnected && !isLoading && !emptyStateDismissed && (
-        <div className="mb-6 p-3.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg relative">
-          <button
-            onClick={handleDismissEmptyState}
-            className="absolute top-2.5 right-2.5 p-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-md transition-colors"
-            aria-label="Dismiss"
-          >
-            <X className="w-4 h-4" />
-          </button>
-          <div className="flex items-center space-x-3 pr-8">
-            <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <div>
-              <p className="text-sm text-amber-900 dark:text-amber-100">
-                Connect your Shopify store in <a href="/settings" className="font-medium underline hover:text-amber-700 dark:hover:text-amber-300">Settings</a> to view your analytics dashboard.
-              </p>
+{/* Smart Status Notifications */}
+      {(() => {
+        const notification = getNotification();
+        if (!notification || isLoading) return null;
+
+        const NotificationIcon = notification.icon;
+        const bgColors = {
+          error: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+          warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+          info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        };
+        const textColors = {
+          error: 'text-red-600 dark:text-red-400',
+          warning: 'text-amber-600 dark:text-amber-400',
+          info: 'text-blue-600 dark:text-blue-400'
+        };
+        const messageColors = {
+          error: 'text-red-900 dark:text-red-100',
+          warning: 'text-amber-900 dark:text-amber-100',
+          info: 'text-blue-900 dark:text-blue-100'
+        };
+        const linkColors = {
+          error: 'text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200',
+          warning: 'text-amber-700 dark:text-amber-300 hover:text-amber-800 dark:hover:text-amber-200',
+          info: 'text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200'
+        };
+
+        return (
+          <div className={`mb-6 p-3.5 border rounded-lg ${bgColors[notification.type]}`}>
+            <div className="flex items-center space-x-3">
+              <NotificationIcon className={`w-5 h-5 ${textColors[notification.type]} flex-shrink-0`} />
+              <div className="flex-1 flex items-center justify-between">
+                <p className={`text-sm ${messageColors[notification.type]}`}>
+                  {notification.message}
+                </p>
+                {notification.action.href ? (
+                  <a
+                    href={notification.action.href}
+                    className={`ml-4 text-sm font-medium underline ${linkColors[notification.type]} transition-colors`}
+                  >
+                    {notification.action.text}
+                  </a>
+                ) : (
+                  <button
+                    onClick={notification.action.onClick}
+                    className={`ml-4 text-sm font-medium underline ${linkColors[notification.type]} transition-colors`}
+                  >
+                    {notification.action.text}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
