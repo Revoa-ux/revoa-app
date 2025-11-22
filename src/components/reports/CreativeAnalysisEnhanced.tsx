@@ -77,6 +77,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
+  const [itemsToShow, setItemsToShow] = useState(10);
+  const [showAllItems, setShowAllItems] = useState(false);
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const platformFilterRef = useRef<HTMLDivElement>(null);
@@ -419,6 +421,50 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
 
+  // Pagination logic
+  const displayedCreatives = showAllItems ? sortedCreatives : sortedCreatives.slice(0, itemsToShow);
+
+  // Calculate totals for all sorted creatives
+  const totals = sortedCreatives.reduce((acc, creative) => {
+    return {
+      impressions: acc.impressions + (creative.metrics?.impressions || 0),
+      clicks: acc.clicks + (creative.metrics?.clicks || 0),
+      spend: acc.spend + (creative.metrics?.spend || 0),
+      conversions: acc.conversions + (creative.metrics?.conversions || 0),
+      cpa: 0, // Will calculate after
+      profit: acc.profit + (creative.metrics?.profit || 0),
+      profitMargin: 0, // Will calculate after
+      roas: 0, // Will calculate after
+      netROAS: 0, // Will calculate after
+      ctr: 0, // Will calculate after
+    };
+  }, {
+    impressions: 0,
+    clicks: 0,
+    spend: 0,
+    conversions: 0,
+    cpa: 0,
+    profit: 0,
+    profitMargin: 0,
+    roas: 0,
+    netROAS: 0,
+    ctr: 0,
+  });
+
+  // Calculate derived metrics
+  if (totals.conversions > 0) {
+    totals.cpa = totals.spend / totals.conversions;
+  }
+  if (totals.impressions > 0) {
+    totals.ctr = (totals.clicks / totals.impressions) * 100;
+  }
+  if (totals.spend > 0) {
+    const revenue = totals.conversions * 50; // Assuming average order value, adjust as needed
+    totals.roas = revenue / totals.spend;
+    totals.profitMargin = (totals.profit / totals.spend) * 100;
+    totals.netROAS = (totals.profit + totals.spend) / totals.spend;
+  }
+
   const getSortIcon = (field: string) => {
     if (sortConfig.field !== field) {
       return <ArrowUpDown className="w-4 h-4 text-gray-300 dark:text-gray-600" />;
@@ -716,7 +762,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             style={{ height: '640px' }}
           >
             <div style={{ width: `${totalWidth}px`, minWidth: '100%' }}>
-              {sortedCreatives.map((creative, index) => {
+              {displayedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
                 const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
@@ -744,12 +790,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {columns.map((column, colIndex) => (
                     <div
                       key={column.id}
-                      className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
-                        index === sortedCreatives.length - 1 ? (
-                          colIndex === 0 ? 'rounded-bl-xl' :
-                          colIndex === columns.length - 1 ? 'rounded-br-xl' : ''
-                        ) : ''
-                      }`}
+                      className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
                       style={{ width: column.width }}
                     >
                       {column.render ? (
@@ -881,8 +922,93 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <p className="text-gray-500 dark:text-gray-400">No creatives found matching your filters.</p>
                 </div>
               )}
+
+              {/* Sticky Totals Footer */}
+              {sortedCreatives.length > 0 && (
+                <div className="sticky bottom-0 left-0 right-0 bg-gray-50 dark:bg-gray-900 border-t-2 border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center min-h-[60px] font-semibold">
+                    {columns.map((column) => (
+                      <div
+                        key={column.id}
+                        className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
+                        style={{ width: column.width }}
+                      >
+                        {column.id === 'select' ? (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Results from {sortedCreatives.length} {viewLevel}
+                          </span>
+                        ) : column.id === 'thumbnail' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                          ''
+                        ) : column.id === 'impressions' ? (
+                          totals.impressions.toLocaleString()
+                        ) : column.id === 'clicks' ? (
+                          totals.clicks.toLocaleString()
+                        ) : column.id === 'ctr' ? (
+                          `${totals.ctr.toFixed(2)}%`
+                        ) : column.id === 'spend' ? (
+                          `$${totals.spend.toFixed(2)}`
+                        ) : column.id === 'conversions' ? (
+                          totals.conversions.toLocaleString()
+                        ) : column.id === 'cpa' ? (
+                          `$${totals.cpa.toFixed(2)}`
+                        ) : column.id === 'roas' ? (
+                          `${totals.roas.toFixed(2)}x`
+                        ) : column.id === 'profit' ? (
+                          <span className={`${
+                            totals.profit > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            ${totals.profit.toFixed(2)}
+                          </span>
+                        ) : column.id === 'profitMargin' ? (
+                          <span className={`${
+                            totals.profitMargin > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {totals.profitMargin.toFixed(1)}%
+                          </span>
+                        ) : column.id === 'netROAS' ? (
+                          <span className={`${
+                            totals.netROAS > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                          }`}>
+                            {totals.netROAS.toFixed(2)}x
+                          </span>
+                        ) : (
+                          ''
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Pagination Info and View More Button */}
+          {sortedCreatives.length > itemsToShow && !showAllItems && (
+            <div className="mt-4 flex items-center justify-center">
+              <button
+                onClick={() => setShowAllItems(true)}
+                className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+              >
+                View More ({displayedCreatives.length} of {sortedCreatives.length} shown)
+              </button>
+            </div>
+          )}
+
+          {showAllItems && sortedCreatives.length > itemsToShow && (
+            <div className="mt-4 flex items-center justify-center">
+              <button
+                onClick={() => {
+                  setShowAllItems(false);
+                  if (tableRef.current) {
+                    tableRef.current.scrollTop = 0;
+                  }
+                }}
+                className="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium"
+              >
+                Show Less (Viewing all {sortedCreatives.length})
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
