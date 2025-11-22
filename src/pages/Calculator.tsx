@@ -237,7 +237,7 @@ export default function Calculator() {
 
   if (error) {
     return (
-      <div className="max-w-[1050px] mx-auto">
+      <div>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 text-center">
           <div className="text-red-500 mb-4">
             <AlertTriangle className="w-12 h-12 mx-auto" />
@@ -257,7 +257,7 @@ export default function Calculator() {
   }
 
   return (
-    <div className="max-w-[1050px] mx-auto space-y-12">
+    <div className="space-y-12">
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Profit & Expenses Calculator
