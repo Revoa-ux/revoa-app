@@ -694,8 +694,8 @@ await updateUserAnalyticsPreferences(user.id, {
                   <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-600">
                     <div className="text-center">
                       <LineChart className="w-16 h-16 mx-auto mb-4" />
-                      <p className="text-lg font-medium">Chart visualization coming soon</p>
-                      <p className="text-sm mt-2">Historical data tracking will be available in the next update</p>
+                      <p className="text-lg font-medium">Your data will appear here</p>
+                      <p className="text-sm mt-2">Connect your store and sync data to see historical trends</p>
                     </div>
                   </div>
                   {/* <ResponsiveContainer width="100%" height="100%">
