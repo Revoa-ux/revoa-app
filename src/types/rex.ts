@@ -20,17 +20,155 @@ export type RexSuggestionType =
   | 'pause_negative_roi'
   | 'reallocate_budget'
   | 'test_new_creative'
-  | 'optimize_schedule';
+  | 'optimize_schedule'
+  | 'optimize_demographics'
+  | 'optimize_placements'
+  | 'optimize_geographic'
+  | 'enable_dayparting'
+  | 'target_high_ltv_segment'
+  | 'refresh_fatigued_placement'
+  | 'scale_hidden_winner'
+  | 'test_similar_demographic'
+  | 'expand_winning_region'
+  | 'pause_entity';
 
 export type RexEntityType = 'campaign' | 'ad_set' | 'ad';
 
+// Breakdown Data Interfaces
+export interface DemographicBreakdown {
+  topPerforming: Array<{
+    ageRange: string;
+    gender: string;
+    roas: number;
+    conversions: number;
+    spend: number;
+    ctr: number;
+    improvement: number; // vs average
+  }>;
+  underperforming: Array<{
+    ageRange: string;
+    gender: string;
+    roas: number;
+    wasted_spend: number;
+  }>;
+  insights: string[];
+}
+
+export interface PlacementBreakdown {
+  topPerforming: Array<{
+    placementType: string;
+    deviceType: string;
+    platform: string;
+    roas: number;
+    conversions: number;
+    spend: number;
+    ctr: number;
+    engagement: number;
+    improvement: number;
+  }>;
+  underperforming: Array<{
+    placementType: string;
+    deviceType: string;
+    roas: number;
+    wasted_spend: number;
+  }>;
+  insights: string[];
+}
+
+export interface GeographicBreakdown {
+  topPerforming: Array<{
+    country: string;
+    region?: string;
+    city?: string;
+    roas: number;
+    conversions: number;
+    spend: number;
+    averageOrderValue: number;
+    improvement: number;
+  }>;
+  untapped: Array<{
+    country: string;
+    potential: string;
+    similarMarkets: string[];
+  }>;
+  insights: string[];
+}
+
+export interface TemporalPattern {
+  bestPerforming: Array<{
+    dayOfWeek: string;
+    hourRange: string;
+    roas: number;
+    conversions: number;
+    spend: number;
+    improvement: number;
+  }>;
+  worstPerforming: Array<{
+    dayOfWeek: string;
+    hourRange: string;
+    roas: number;
+    wasted_spend: number;
+  }>;
+  insights: string[];
+}
+
+export interface CustomerInsights {
+  newVsReturning: {
+    new: { conversions: number; revenue: number; averageOrderValue: number; cpa: number };
+    returning: { conversions: number; revenue: number; averageOrderValue: number; cpa: number };
+  };
+  lifetimeValue: {
+    average: number;
+    top10Percent: number;
+    repeatPurchaseRate: number;
+  };
+  behaviors: string[];
+  insights: string[];
+}
+
+export interface MetricProjections {
+  spend?: number;
+  revenue?: number;
+  profit?: number;
+  roas?: number;
+  conversions?: number;
+  timeframe: string;
+}
+
 export interface RexSuggestionReasoning {
   triggeredBy: string[];
+  primaryInsight: string;
   metrics: {
     [key: string]: number | string;
   };
   analysis: string;
   riskLevel: 'low' | 'medium' | 'high';
+
+  // Enhanced breakdown data
+  supportingData?: {
+    demographics?: DemographicBreakdown;
+    placements?: PlacementBreakdown;
+    geographic?: GeographicBreakdown;
+    temporal?: TemporalPattern;
+    customerBehavior?: CustomerInsights;
+  };
+
+  // Analysis metadata
+  dataPointsAnalyzed?: number;
+  analysisDepth?: 'surface' | 'moderate' | 'deep';
+  patternType?: 'obvious' | 'hidden' | 'anomaly';
+  urgency?: 'low' | 'medium' | 'high' | 'critical';
+
+  // Projections
+  projections?: {
+    ifImplemented?: MetricProjections;
+    ifIgnored?: MetricProjections;
+  };
+
+  // Evidence
+  sampleDataPoints?: any[];
+  methodology?: string;
+  confidenceIntervals?: Record<string, { lower: number; upper: number }>;
 }
 
 export interface RexRecommendedRule {
