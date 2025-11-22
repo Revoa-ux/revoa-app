@@ -307,8 +307,8 @@ export default function Inventory() {
   }
 
   return (
-    <div>
-      <div className="mb-6">
+    <div className="w-full max-w-[1050px] mx-auto space-y-6">
+      <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Inventory Management
         </h1>
@@ -320,11 +320,9 @@ export default function Inventory() {
         </div>
       </div>
 
-      <div className="relative mb-6">
-        <div className="overflow-x-auto hide-scrollbar">
-          <div className="inline-flex gap-4 pb-4 px-0.5">
-            {/* Inventory Status Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Inventory Status Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -355,8 +353,8 @@ export default function Inventory() {
               </div>
             </div>
 
-            {/* Order Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        {/* Order Metrics Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -387,8 +385,8 @@ export default function Inventory() {
               </div>
             </div>
 
-            {/* Time Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        {/* Time Metrics Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -419,8 +417,8 @@ export default function Inventory() {
               </div>
             </div>
 
-            {/* Financial Metrics Card */}
-            <div className="w-[320px] flex-none h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        {/* Financial Metrics Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -450,8 +448,6 @@ export default function Inventory() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
       </div>
 
       <div className="space-y-4">
