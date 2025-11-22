@@ -389,8 +389,79 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
+      // Add 3 mock AI suggestions for testing
+      if (creativesData.length > 0 || campaignsData.length > 0) {
+        const mockSuggestions = new Map<string, RexSuggestionWithPerformance>();
+
+        // Mock suggestion 1: Budget increase for high-performing campaign
+        if (campaignsData.length > 0) {
+          mockSuggestions.set('mock-1', {
+            id: 'mock-1',
+            entity_type: 'campaign',
+            entity_id: campaignsData[0].id,
+            entity_name: campaignsData[0].name,
+            suggestion_type: 'increase_budget',
+            title: 'Increase Budget for Top Performer',
+            description: 'This campaign is showing strong ROAS (3.2x) and low CPA. Increasing the budget by 30% could generate $2,400 more in revenue while maintaining profitability.',
+            priority_score: 95,
+            impact_estimate: 'high',
+            confidence_score: 88,
+            suggested_action: 'Increase daily budget from $150 to $195',
+            reasoning: 'Campaign is consistently profitable with room for scaling. Current spend is below optimal threshold based on ad set performance.',
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            user_id: user?.id || ''
+          });
+        }
+
+        // Mock suggestion 2: Pause underperforming ad set
+        if (adSets.length > 0) {
+          mockSuggestions.set('mock-2', {
+            id: 'mock-2',
+            entity_type: 'adset',
+            entity_id: adSets[0].id,
+            entity_name: adSets[0].name,
+            suggestion_type: 'pause_entity',
+            title: 'Pause Underperforming Ad Set',
+            description: 'This ad set has a CTR below 0.5% and CPA 65% higher than account average. Pausing it would save approximately $45/day in wasted spend.',
+            priority_score: 82,
+            impact_estimate: 'medium',
+            confidence_score: 92,
+            suggested_action: 'Pause ad set and reallocate budget to better performers',
+            reasoning: 'Consistently underperforming across all metrics for 7+ days. Audience fatigue and creative fatigue detected.',
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            user_id: user?.id || ''
+          });
+        }
+
+        // Mock suggestion 3: Creative refresh needed
+        if (creativesData.length > 0) {
+          mockSuggestions.set('mock-3', {
+            id: 'mock-3',
+            entity_type: 'ad',
+            entity_id: creativesData[0].id,
+            entity_name: creativesData[0].name,
+            suggestion_type: 'refresh_creative',
+            title: 'Creative Fatigue Detected',
+            description: 'CTR has declined 45% over the past 14 days while frequency increased to 4.2. A creative refresh is needed to restore engagement and prevent further performance decline.',
+            priority_score: 78,
+            impact_estimate: 'medium',
+            confidence_score: 85,
+            suggested_action: 'Test 3-5 new creative variations with similar messaging but fresh visuals',
+            reasoning: 'Classic signs of creative fatigue: declining CTR, rising frequency, stable reach. Audience has seen this creative too many times.',
+            status: 'pending',
+            created_at: new Date().toISOString(),
+            user_id: user?.id || ''
+          });
+        }
+
+        setRexSuggestions(mockSuggestions);
+        setTopDisplayedSuggestionIds(new Set(['mock-1', 'mock-2', 'mock-3']));
+      }
+
       // Load existing suggestions and generate new ones
-      await loadRexSuggestions();
+      // await loadRexSuggestions();
 
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
