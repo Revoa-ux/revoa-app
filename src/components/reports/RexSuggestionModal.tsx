@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, TrendingUp, AlertTriangle, Target, DollarSign, CheckCircle2, XCircle, Zap, Pause, TrendingDown, Copy, Settings } from 'lucide-react';
+import { X, TrendingUp, AlertTriangle, Target, DollarSign, CheckCircle2, XCircle, Zap, Pause, TrendingDown, Copy, Settings } from 'lucide-react';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface RexSuggestionModalProps {
@@ -83,12 +83,49 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
       <button
         onClick={handleImmediateAction}
         disabled={isExecutingAction}
-        className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+        className="flex items-center gap-2 px-4 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
       >
         <Icon className="w-4 h-4" />
         <span>{isExecutingAction ? 'Executing...' : action.label}</span>
       </button>
     );
+  };
+
+  const getFinancialImpactContext = () => {
+    const typeMap: Record<string, string> = {
+      pause_underperforming: 'If you pause this underperforming ad',
+      scale_high_performer: 'If you scale this high-performing ad',
+      refresh_creative: 'If you refresh this creative',
+      adjust_targeting: 'If you adjust targeting',
+      reduce_budget: 'If you reduce budget',
+      increase_budget: 'If you increase budget',
+      pause_negative_roi: 'If you pause this negative ROI ad',
+      reallocate_budget: 'If you reallocate budget',
+      test_new_creative: 'If you test new creative',
+      optimize_schedule: 'If you optimize schedule',
+    };
+
+    return typeMap[suggestion.suggestion_type] || 'If you implement this suggestion';
+  };
+
+  const formatMetricLabel = (key: string): string => {
+    // Abbreviation map for common metrics
+    const abbreviations: Record<string, string> = {
+      ctr: 'CTR',
+      cpa: 'CPA',
+      roas: 'ROAS',
+      roi: 'ROI',
+      cpc: 'CPC',
+      cpm: 'CPM',
+    };
+
+    const lowerKey = key.toLowerCase();
+    if (abbreviations[lowerKey]) {
+      return abbreviations[lowerKey];
+    }
+
+    // Otherwise, capitalize each word
+    return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   };
 
   const getRiskLevelColor = (level: string) => {
@@ -123,34 +160,29 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
 
       <div className="min-h-full flex items-center justify-center p-4">
         <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-start justify-between">
-            <div className="flex items-start gap-3 flex-1">
-              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1.5">
-                  {suggestion.title}
-                </h2>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {suggestion.entity_type === 'campaign' ? 'Campaign' : suggestion.entity_type === 'ad_set' ? 'Ad Set' : 'Ad'}: {suggestion.entity_name}
+          {/* Header - No Icon */}
+          <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1.5">
+                {suggestion.title}
+              </h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {suggestion.entity_type === 'campaign' ? 'Campaign' : suggestion.entity_type === 'ad_set' ? 'Ad Set' : 'Ad'}: {suggestion.entity_name}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRiskLevelColor(suggestion.reasoning.riskLevel)}`}>
+                  {suggestion.reasoning.riskLevel} risk
+                </span>
+                {suggestion.priority_score >= 85 && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    High Priority
                   </span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getRiskLevelColor(suggestion.reasoning.riskLevel)}`}>
-                    {suggestion.reasoning.riskLevel} risk
-                  </span>
-                  {suggestion.priority_score >= 85 && (
-                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                      High Priority
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all ml-3"
             >
               <X className="w-5 h-5" />
             </button>
@@ -161,12 +193,9 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
             <div className="space-y-5">
               {/* AI Intelligence Analysis Card with Action Button */}
               <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <div className="flex items-start gap-2 mb-3">
-                  <Sparkles className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                    AI Intelligence Analysis
-                  </h3>
-                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
+                  AI Intelligence Analysis
+                </h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                   {suggestion.message}
                 </p>
@@ -210,37 +239,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                 </div>
               </div>
 
-              {/* Pattern Recognition */}
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
-                  Algorithmic Pattern Recognition
-                </h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                  {suggestion.reasoning.analysis}
-                </p>
-
-                {/* Performance Metrics Grid */}
-                <div className="grid grid-cols-3 gap-3">
-                  {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
-                    <div key={key} className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 capitalize font-medium">
-                        {key.replace(/_/g, ' ')}
-                      </div>
-                      <div className="text-base font-bold text-gray-900 dark:text-white">
-                        {typeof value === 'number' ?
-                          (key.includes('percentage') || key.includes('score') || key.includes('ctr') ?
-                            `${value.toFixed(1)}%` :
-                            key.includes('spend') || key.includes('profit') || key.includes('revenue') ?
-                              `$${value.toFixed(2)}` :
-                              value.toLocaleString())
-                          : value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Estimated Impact */}
+              {/* Projected Financial Impact - MOVED UP */}
               {suggestion.estimated_impact && (
                 <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                   <div className="flex items-center gap-2 mb-3">
@@ -252,9 +251,17 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                       {suggestion.estimated_impact.timeframeDays}d forecast
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
-                    {suggestion.estimated_impact.breakdown}
-                  </p>
+
+                  {/* Context Explanation - More Prominent */}
+                  <div className="mb-4 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-lg">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
+                      {getFinancialImpactContext()}:
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {suggestion.estimated_impact.breakdown}
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-3 gap-3">
                     {suggestion.estimated_impact.expectedSavings !== undefined && (
                       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
@@ -283,6 +290,36 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   </div>
                 </div>
               )}
+
+              {/* Pattern Recognition */}
+              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
+                  Algorithmic Pattern Recognition
+                </h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                  {suggestion.reasoning.analysis}
+                </p>
+
+                {/* Performance Metrics Grid */}
+                <div className="grid grid-cols-3 gap-3">
+                  {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
+                    <div key={key} className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
+                        {formatMetricLabel(key)}
+                      </div>
+                      <div className="text-base font-bold text-gray-900 dark:text-white">
+                        {typeof value === 'number' ?
+                          (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('score') || key.toLowerCase().includes('ctr') ?
+                            `${value.toFixed(1)}%` :
+                            key.toLowerCase().includes('spend') || key.toLowerCase().includes('profit') || key.toLowerCase().includes('revenue') ?
+                              `$${value.toFixed(2)}` :
+                              value.toLocaleString())
+                          : value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Performance Tracking */}
               {suggestion.performance && (
@@ -337,16 +374,16 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                 </div>
               )}
 
-              {/* Recommended Automation Rule */}
+              {/* Recommended Automated Rule - WITH BUTTON */}
               {suggestion.recommended_rule && canAccept && (
                 <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
                   <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
-                    Recommended Automation Rule
+                    Recommended Automated Rule
                   </h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
                     {suggestion.recommended_rule.description}
                   </p>
-                  <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
                       <Zap className="w-3 h-3" />
                       <span>Every {suggestion.recommended_rule.check_frequency_minutes}min</span>
@@ -362,12 +399,22 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                       </div>
                     )}
                   </div>
+
+                  {/* Button Moved Here */}
+                  <button
+                    onClick={handleAccept}
+                    disabled={isAccepting}
+                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{isAccepting ? 'Creating...' : 'Create New Automated Rule'}</span>
+                  </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Footer - Actions */}
+          {/* Footer - Only Dismiss/Close */}
           <div className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
             {showDismissReason ? (
               <div className="flex items-center gap-3">
@@ -397,35 +444,22 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                 </button>
               </div>
             ) : (
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  {canDismiss && (
-                    <button
-                      onClick={() => setShowDismissReason(true)}
-                      disabled={isDismissing}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Dismiss
-                    </button>
-                  )}
+              <div className="flex items-center gap-3">
+                {canDismiss && (
                   <button
-                    onClick={onClose}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                    onClick={() => setShowDismissReason(true)}
+                    disabled={isDismissing}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Close
-                  </button>
-                </div>
-
-                {canAccept && (
-                  <button
-                    onClick={handleAccept}
-                    disabled={isAccepting}
-                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-md"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>{isAccepting ? 'Creating...' : 'Create New Automated Rule'}</span>
+                    Dismiss
                   </button>
                 )}
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  Close
+                </button>
               </div>
             )}
           </div>
