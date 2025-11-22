@@ -408,35 +408,54 @@ body.modal-open {
   color: #3b82f6 !important;
 }
 
-/* AI Suggestion Row Animation - Pulsing red ring border */
+/* AI Suggestion Row Animation - Animated gradient border */
 @keyframes ai-ring-pulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  0% {
+    background-position: 0% 50%;
   }
   50% {
-    opacity: 0.8;
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 
 .ai-suggestion-glow {
   position: relative;
-  border-radius: 0.5rem;
+  padding: 3px;
+  border-radius: 0.75rem;
 }
 
 .ai-suggestion-glow::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 0.5rem;
-  border: 2px solid;
-  border-color: rgba(239, 68, 68, 0.6);
-  animation: ai-ring-pulse 2s ease-in-out infinite;
+  border-radius: 0.75rem;
+  padding: 3px;
+  background: linear-gradient(135deg,
+    rgba(239, 68, 68, 0.9) 0%,
+    rgba(248, 113, 113, 0.7) 25%,
+    rgba(252, 165, 165, 0.5) 50%,
+    rgba(248, 113, 113, 0.7) 75%,
+    rgba(239, 68, 68, 0.9) 100%
+  );
+  background-size: 200% 200%;
+  animation: ai-ring-pulse 4s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
   pointer-events: none;
   z-index: 1;
 }
 
 .dark .ai-suggestion-glow::before {
-  border-color: rgba(248, 113, 113, 0.7);
+  background: linear-gradient(135deg,
+    rgba(248, 113, 113, 1) 0%,
+    rgba(252, 165, 165, 0.8) 25%,
+    rgba(254, 202, 202, 0.6) 50%,
+    rgba(252, 165, 165, 0.8) 75%,
+    rgba(248, 113, 113, 1) 100%
+  );
+  background-size: 200% 200%;
 }
