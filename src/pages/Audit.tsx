@@ -426,7 +426,7 @@ export default function Audit() {
   }, [user]);
 
   return (
-    <div className="space-y-6 pb-6">
+    <div className="h-full flex flex-col space-y-6 overflow-hidden">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
@@ -506,13 +506,13 @@ export default function Audit() {
       {facebook.isConnected && (
         <>
           {auditView === 'performance' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 overflow-auto">
               <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
             </div>
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}

@@ -592,8 +592,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     setDismissedInsights(prev => new Set([...prev, insightId]));
   };
 
+  const isLoading = creatives.length === 0;
+
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col space-y-4">
       {showAIInsights && visibleInsights.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center space-x-2 mb-3">
@@ -760,8 +762,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="relative">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0">
+        <div className="relative flex-1 flex flex-col min-h-0">
           <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <div
               ref={headerRef}
@@ -820,11 +822,43 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
           <div
             ref={tableRef}
-            className="overflow-x-auto overflow-y-auto scrollbar-thin"
-            style={{ maxHeight: 'calc(100vh - 26rem)', minHeight: '300px' }}
+            className="overflow-x-auto overflow-y-auto scrollbar-thin flex-1"
           >
             <div className="w-full">
-              {displayedCreatives.map((creative, index) => {
+              {isLoading ? (
+                // Skeleton loading rows
+                Array.from({ length: 8 }).map((_, index) => (
+                  <div
+                    key={`skeleton-${index}`}
+                    className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"
+                  >
+                    {columns.map((column) => {
+                      const columnStyle = columnWidths[column.id]
+                        ? { width: columnWidths[column.id], minWidth: columnWidths[column.id], flexGrow: 0, flexShrink: 0 }
+                        : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+
+                      return (
+                        <div key={column.id} className="px-4 py-3" style={columnStyle}>
+                          {column.id === 'select' ? (
+                            <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          ) : column.id === 'creative' ? (
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                              <div className="space-y-2">
+                                <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                                <div className="h-2 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))
+              ) : (
+                displayedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
                 const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
@@ -984,9 +1018,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   )}
                 </div>
               );
-              })}
+              })
+              )}
 
-              {sortedCreatives.length === 0 && (
+              {!isLoading && sortedCreatives.length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-gray-500 dark:text-gray-400">No creatives found matching your filters.</p>
                 </div>

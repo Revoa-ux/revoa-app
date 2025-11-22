@@ -110,7 +110,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   };
 
   return (
-    <div className="space-y-4 p-4 sm:p-6">
+    <div className="h-full flex flex-col space-y-4 p-4 sm:p-6">
       {/* Title */}
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
         Ad Manager
@@ -185,7 +185,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       )}
 
       {/* Data Table */}
-      <CreativeAnalysisEnhanced
+      <div className="flex-1 min-h-0">
+        <CreativeAnalysisEnhanced
         creatives={getFilteredData()}
         selectedTime={selectedTime}
         onTimeChange={onTimeChange}
@@ -198,6 +199,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         onAcceptSuggestion={onAcceptSuggestion}
         onDismissSuggestion={onDismissSuggestion}
       />
+      </div>
     </div>
   );
 };
