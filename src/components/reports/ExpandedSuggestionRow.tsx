@@ -104,7 +104,11 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
       high: { color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700', label: 'High Risk' }
     };
 
-    const config = riskConfig[suggestion.reasoning.riskLevel];
+    const riskLevel = suggestion.reasoning?.riskLevel || 'medium';
+    const config = riskConfig[riskLevel];
+
+    if (!config) return null;
+
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border ${config.color}`}>
         <Activity className="w-3.5 h-3.5" />
