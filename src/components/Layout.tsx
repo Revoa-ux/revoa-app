@@ -36,8 +36,7 @@ const navigation = [
   { name: 'Balance', href: '/balance', icon: Wallet },
   { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
   { name: 'Attribution', href: '/attribution', icon: Target },
-  { name: 'Automation', href: '/automation', icon: Zap },
-  { name: 'Pricing', href: '/pricing', icon: CreditCard }
+  { name: 'Automation', href: '/automation', icon: Zap }
 ];
 
 export default function Layout() {
@@ -242,6 +241,20 @@ export default function Layout() {
               >
                 <Settings className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
                 {!isCollapsed && 'Settings'}
+              </Link>
+              <Link
+                to="/pricing"
+                title={isCollapsed ? 'Pricing' : undefined}
+                className={cn(
+                  'flex items-center text-[13px] rounded-lg transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+                  location.pathname === '/pricing'
+                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                )}
+              >
+                <CreditCard className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                {!isCollapsed && 'Pricing'}
               </Link>
               <button
                 onClick={() => setShowHelpModal(true)}

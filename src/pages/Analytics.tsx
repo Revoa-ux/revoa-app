@@ -259,29 +259,6 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     setDateRange({ ...dateRange });
   };
 
-  // Generate mock chart data for visualization
-  const generateChartData = (cardId: string) => {
-    const days = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const data = [];
-
-    for (let i = 0; i <= days; i++) {
-      const date = new Date(dateRange.startDate);
-      date.setDate(date.getDate() + i);
-
-      // Generate semi-realistic data based on card type
-      const baseValue = Math.random() * 1000 + 500;
-      const trend = i * 10; // Slight upward trend
-
-      data.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        value1: Math.floor(baseValue + trend + Math.random() * 200),
-        value2: Math.floor(baseValue * 0.7 + trend + Math.random() * 150),
-        value3: Math.floor(baseValue * 0.5 + trend + Math.random() * 100)
-      });
-    }
-
-    return data;
-  };
 
   // Get chart labels for selected card
   const getChartLabels = (cardId: string) => {
@@ -714,9 +691,16 @@ await updateUserAnalyticsPreferences(user.id, {
                 </div>
 
                 <div className="h-[400px]">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-600">
+                    <div className="text-center">
+                      <LineChart className="w-16 h-16 mx-auto mb-4" />
+                      <p className="text-lg font-medium">Chart visualization coming soon</p>
+                      <p className="text-sm mt-2">Historical data tracking will be available in the next update</p>
+                    </div>
+                  </div>
+                  {/* <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                      data={generateChartData(selectedChartCard)}
+                      data={[]}
                       margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
@@ -767,7 +751,7 @@ await updateUserAnalyticsPreferences(user.id, {
                         fillOpacity={0.2}
                       />
                     </AreaChart>
-                  </ResponsiveContainer>
+                  </ResponsiveContainer> */}
                 </div>
               </div>
             </div>
