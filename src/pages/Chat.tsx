@@ -306,8 +306,8 @@ const Chat = () => {
   };
 
   return (
-    <div className="max-w-[1050px] mx-auto">
-      <div>
+    <>
+      <div className="max-w-[1050px] mx-auto">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Supplier Chat
         </h1>
@@ -317,7 +317,7 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 h-[calc(100vh-7.6rem)] flex flex-col mt-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 h-[calc(100vh-7.6rem)] flex flex-col mt-6 -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-12">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-4">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
@@ -788,8 +788,7 @@ const Chat = () => {
           </div>
         </Modal>
       )}
-
-    </div>
+    </>
   );
 };
 
