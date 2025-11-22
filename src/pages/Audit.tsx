@@ -437,17 +437,6 @@ export default function Audit() {
           {/* View Toggle */}
           <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
             <button
-              onClick={() => setAuditView('performance')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-                auditView === 'performance'
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4 mr-1.5" />
-              Performance
-            </button>
-            <button
               onClick={() => setAuditView('admanager')}
               className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                 auditView === 'admanager'
@@ -458,8 +447,21 @@ export default function Audit() {
               <Layers className="w-4 h-4 mr-1.5" />
               Ad Manager
             </button>
+            <button
+              onClick={() => setAuditView('performance')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
+                auditView === 'performance'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 mr-1.5" />
+              Performance
+            </button>
           </div>
+        </div>
 
+        <div className="flex items-center gap-3 sm:flex-shrink-0">
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
@@ -468,9 +470,7 @@ export default function Audit() {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
           </button>
-        </div>
 
-        <div className="sm:flex-shrink-0">
           <AdReportsTimeSelector
             selectedTime={selectedTime}
             onTimeChange={handleTimeChange}
