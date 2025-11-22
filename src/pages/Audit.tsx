@@ -69,16 +69,38 @@ export default function Audit() {
     }
   };
 
+  // Helper function to check if entity has valid data
+  const hasValidData = (metrics: any) => {
+    return (
+      metrics.impressions > 0 ||
+      metrics.clicks > 0 ||
+      metrics.spend > 0
+    );
+  };
+
   // Generate new Rex suggestions for ads/campaigns/ad sets
   const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
     if (!user || isGeneratingSuggestions) return;
 
+    // Check if we have valid ad account with last_synced_at
+    if (facebook.adAccounts.length === 0 || !facebook.adAccounts[0].last_synced_at) {
+      console.log('[Audit] Skipping Rex suggestions - no data sync completed yet');
+      return;
+    }
+
     setIsGeneratingSuggestions(true);
     try {
       const newSuggestions: any[] = [];
+      let skippedCount = 0;
 
       // Generate suggestions for ads
       for (const creative of creatives) {
+        // Skip if no valid data
+        if (!hasValidData(creative.metrics)) {
+          skippedCount++;
+          continue;
+        }
+
         if (!existingSuggestions.has(creative.id)) {
           const entityData = {
             id: creative.id,
@@ -106,6 +128,12 @@ export default function Audit() {
 
       // Generate suggestions for campaigns
       for (const campaign of campaigns) {
+        // Skip if no valid data
+        if (!hasValidData(campaign.metrics || {})) {
+          skippedCount++;
+          continue;
+        }
+
         if (!existingSuggestions.has(campaign.id)) {
           const entityData = {
             id: campaign.id,
@@ -132,6 +160,12 @@ export default function Audit() {
 
       // Generate suggestions for ad sets
       for (const adSet of adSets) {
+        // Skip if no valid data
+        if (!hasValidData(adSet.metrics || {})) {
+          skippedCount++;
+          continue;
+        }
+
         if (!existingSuggestions.has(adSet.id)) {
           const entityData = {
             id: adSet.id,
@@ -162,16 +196,25 @@ export default function Audit() {
           newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
         );
 
-        // Add to map
+        // Sort by priority and take top 3
+        const sortedSuggestions = createdSuggestions.sort((a, b) => b.priority_score - a.priority_score);
+        const top3Suggestions = sortedSuggestions.slice(0, 3);
+
+        // Add only top 3 to map
         const updatedMap = new Map(existingSuggestions);
-        createdSuggestions.forEach(suggestion => {
+        top3Suggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
         });
         setRexSuggestions(updatedMap);
 
-        if (createdSuggestions.length > 0) {
-          toast.success(`Rex found ${createdSuggestions.length} optimization ${createdSuggestions.length === 1 ? 'opportunity' : 'opportunities'}!`);
+        if (top3Suggestions.length > 0) {
+          const message = sortedSuggestions.length > 3
+            ? `Rex found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
+            : `Rex found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
+          toast.success(message);
         }
+      } else if (skippedCount > 0) {
+        console.log(`[Audit] Skipped ${skippedCount} entities without valid data`);
       }
     } catch (error) {
       console.error('[Audit] Error generating Rex suggestions:', error);
