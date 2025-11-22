@@ -23,7 +23,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
-import { ExpandedSuggestionRow } from './ExpandedSuggestionRow';
+import { IntelligentSuggestionModal } from './IntelligentSuggestionModal';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface CreativeAnalysisEnhancedProps {
@@ -960,25 +960,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   })}
                   </div>
 
-                  {/* Expanded Suggestion Row */}
-                  {expandedRowId === creative.id && suggestion && (
-                    <ExpandedSuggestionRow
-                      suggestion={suggestion}
-                      onAccept={async () => {
-                        if (onAcceptSuggestion) {
-                          await onAcceptSuggestion(suggestion);
-                        }
-                        setExpandedRowId(null);
-                      }}
-                      onDismiss={async (reason) => {
-                        if (onDismissSuggestion) {
-                          await onDismissSuggestion(suggestion, reason);
-                        }
-                        setExpandedRowId(null);
-                      }}
-                      onClose={() => setExpandedRowId(null)}
-                    />
-                  )}
                 </div>
               );
               })
@@ -1091,6 +1072,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       </div>
 
+      {/* Intelligent Suggestion Modal */}
+      {expandedRowId && rexSuggestions.get(expandedRowId) && (
+        <IntelligentSuggestionModal
+          isOpen={true}
+          suggestion={rexSuggestions.get(expandedRowId)!}
+          onClose={() => setExpandedRowId(null)}
+          onAccept={async () => {
+            const suggestion = rexSuggestions.get(expandedRowId);
+            if (suggestion && onAcceptSuggestion) {
+              await onAcceptSuggestion(suggestion);
+            }
+            setExpandedRowId(null);
+          }}
+          onDismiss={async (reason) => {
+            const suggestion = rexSuggestions.get(expandedRowId);
+            if (suggestion && onDismissSuggestion) {
+              await onDismissSuggestion(suggestion, reason);
+            }
+            setExpandedRowId(null);
+          }}
+        />
+      )}
     </div>
   );
 };
