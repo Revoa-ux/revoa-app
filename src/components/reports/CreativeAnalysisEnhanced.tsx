@@ -23,7 +23,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
-import { ComprehensiveIntelligentDropdown } from './ComprehensiveIntelligentDropdown';
+import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';
 import { RexIntroductionModal } from './RexIntroductionModal';
 import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -82,6 +82,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [openInsightModal, setOpenInsightModal] = useState<{ creativeId: string; insight: GeneratedInsight; creative: any } | null>(null);
   const [itemsToShow, setItemsToShow] = useState(20);
   const [showAllItems, setShowAllItems] = useState(false);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
@@ -640,6 +641,81 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         />
       )}
 
+      {/* Comprehensive Rex Insights Modal */}
+      {openInsightModal && (
+        <ComprehensiveRexInsightsModal
+          isOpen={!!openInsightModal}
+          insight={openInsightModal.insight}
+          entityName={openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed'}
+          platform={openInsightModal.creative.platform || 'facebook'}
+          onExecuteAction={async (actionType, parameters) => {
+            if (!user?.id) {
+              toast.error('User not authenticated');
+              return;
+            }
+            const orchestration = new RexOrchestrationService(user.id);
+            const entity = {
+              id: openInsightModal.creative.id,
+              platformId: openInsightModal.creative.platformId || openInsightModal.creative.id,
+              platform: openInsightModal.creative.platform || 'facebook',
+              name: openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
+              type: viewLevel === 'campaigns' ? 'campaign' as const :
+                    viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
+              status: openInsightModal.creative.status || 'active',
+              dailyBudget: openInsightModal.creative.budget,
+              spend: openInsightModal.creative.spend,
+              revenue: openInsightModal.creative.revenue,
+              conversions: openInsightModal.creative.conversions,
+              roas: openInsightModal.creative.roas,
+              cpa: openInsightModal.creative.cpa
+            };
+            const result = await orchestration.executeAction(entity, actionType, parameters);
+            if (result.success) {
+              toast.success(result.message);
+            } else {
+              toast.error(result.message);
+            }
+          }}
+          onCreateRule={async () => {
+            if (!user?.id) {
+              toast.error('User not authenticated');
+              return;
+            }
+            const orchestration = new RexOrchestrationService(user.id);
+            const entity = {
+              id: openInsightModal.creative.id,
+              platformId: openInsightModal.creative.platformId || openInsightModal.creative.id,
+              platform: openInsightModal.creative.platform || 'facebook',
+              name: openInsightModal.creative.name || openInsightModal.creative.title || 'Unnamed',
+              type: viewLevel === 'campaigns' ? 'campaign' as const :
+                    viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
+              status: openInsightModal.creative.status || 'active',
+              dailyBudget: openInsightModal.creative.budget,
+              spend: openInsightModal.creative.spend,
+              revenue: openInsightModal.creative.revenue,
+              conversions: openInsightModal.creative.conversions,
+              roas: openInsightModal.creative.roas,
+              cpa: openInsightModal.creative.cpa
+            };
+            const result = await orchestration.createAutomatedRule(entity, openInsightModal.insight);
+            if (result.success) {
+              toast.success('Automated rule created successfully');
+            } else {
+              toast.error('Failed to create automated rule');
+            }
+          }}
+          onDismiss={async (reason) => {
+            setOpenInsightModal(null);
+            setExpandedRowId(null);
+            toast.info('Insight dismissed');
+          }}
+          onClose={() => {
+            setOpenInsightModal(null);
+            setExpandedRowId(null);
+          }}
+        />
+      )}
+
       <div className="h-full flex flex-col gap-4 overflow-hidden">
       {showAIInsights && visibleInsights.length > 0 && (
         <div className="flex-shrink-0">
@@ -894,6 +970,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       setExpandedRowId(null);
                     } else {
                       setExpandedRowId(creative.id);
+                      // Open modal with the first insight
+                      const insights = generatedInsights.get(creative.id);
+                      if (insights && insights.length > 0) {
+                        setOpenInsightModal({
+                          creativeId: creative.id,
+                          insight: insights[0],
+                          creative
+                        });
+                      }
                       if (onViewSuggestion) {
                         onViewSuggestion(suggestion);
                       }
@@ -1037,80 +1122,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   })}
                   </div>
 
-                  {/* Comprehensive AI Insights Dropdown */}
-                  {expandedRowId === creative.id && generatedInsights.has(creative.id) && (
-                    <>
-                      {generatedInsights.get(creative.id)?.map((insight, idx) => (
-                        <ComprehensiveIntelligentDropdown
-                          key={idx}
-                          insight={insight}
-                          entityName={creative.name || creative.title || 'Unnamed'}
-                          platform={creative.platform || 'facebook'}
-                          onExecuteAction={async (actionType, parameters) => {
-                            if (!user?.id) {
-                              toast.error('User not authenticated');
-                              return;
-                            }
-                            const orchestration = new RexOrchestrationService(user.id);
-                            const entity = {
-                              id: creative.id,
-                              platformId: creative.platformId || creative.id,
-                              platform: creative.platform || 'facebook',
-                              name: creative.name || creative.title || 'Unnamed',
-                              type: viewLevel === 'campaigns' ? 'campaign' as const :
-                                    viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
-                              status: creative.status || 'active',
-                              dailyBudget: creative.budget,
-                              spend: creative.spend,
-                              revenue: creative.revenue,
-                              conversions: creative.conversions,
-                              roas: creative.roas,
-                              cpa: creative.cpa
-                            };
-                            const result = await orchestration.executeAction(entity, actionType, parameters);
-                            if (result.success) {
-                              toast.success(result.message);
-                            } else {
-                              toast.error(result.message);
-                            }
-                          }}
-                          onCreateRule={async () => {
-                            if (!user?.id) {
-                              toast.error('User not authenticated');
-                              return;
-                            }
-                            const orchestration = new RexOrchestrationService(user.id);
-                            const entity = {
-                              id: creative.id,
-                              platformId: creative.platformId || creative.id,
-                              platform: creative.platform || 'facebook',
-                              name: creative.name || creative.title || 'Unnamed',
-                              type: viewLevel === 'campaigns' ? 'campaign' as const :
-                                    viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
-                              status: creative.status || 'active',
-                              dailyBudget: creative.budget,
-                              spend: creative.spend,
-                              revenue: creative.revenue,
-                              conversions: creative.conversions,
-                              roas: creative.roas,
-                              cpa: creative.cpa
-                            };
-                            const result = await orchestration.createAutomatedRule(entity, insight);
-                            if (result.success) {
-                              toast.success('Automated rule created successfully');
-                            } else {
-                              toast.error('Failed to create automated rule');
-                            }
-                          }}
-                          onDismiss={async (reason) => {
-                            setExpandedRowId(null);
-                            toast.info('Insight dismissed');
-                          }}
-                          onClose={() => setExpandedRowId(null)}
-                        />
-                      ))}
-                    </>
-                  )}
+                  {/* Modal is rendered outside the table */}
 
                   {/* Loading state while analyzing */}
                   {expandedRowId === creative.id && isAnalyzing && (
