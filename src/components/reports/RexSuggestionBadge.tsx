@@ -75,16 +75,10 @@ export const RexSuggestionBadge: React.FC<RexSuggestionBadgeProps> = ({
           group relative inline-flex items-center justify-center w-8 h-8 rounded-lg
           ${badgeStyle.bgColor} ${badgeStyle.iconColor}
           ${isClickable ? `cursor-pointer transition-all duration-200 ${badgeStyle.hoverBg}` : 'cursor-default'}
-          ${badgeStyle.pulse ? 'animate-pulse' : ''}
         `}
         title={isClickable ? 'View suggestion' : undefined}
       >
         <Icon className="w-4 h-4" />
-
-        {priorityScore && priorityScore >= 90 && status === 'pending' && (
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-yellow-400 rounded-full border border-white dark:border-gray-800"
-                title="High priority" />
-        )}
       </button>
 
       {showDismiss && (

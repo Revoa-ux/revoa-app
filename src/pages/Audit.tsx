@@ -405,11 +405,19 @@ export default function Audit() {
             suggestion_type: 'increase_budget',
             title: 'Increase Budget for Top Performer',
             description: 'This campaign is showing strong ROAS (3.2x) and low CPA. Increasing the budget by 30% could generate $2,400 more in revenue while maintaining profitability.',
-            priority_score: 95,
+            priority_score: 85,
             impact_estimate: 'high',
             confidence_score: 88,
             suggested_action: 'Increase daily budget from $150 to $195',
-            reasoning: 'Campaign is consistently profitable with room for scaling. Current spend is below optimal threshold based on ad set performance.',
+            reasoning: {
+              analysis: 'Campaign is consistently profitable with room for scaling. Current spend is below optimal threshold based on ad set performance.',
+              metrics: {
+                current_roas: 3.2,
+                current_cpa: 45.0,
+                daily_spend: 150.0,
+                potential_revenue: 2400.0
+              }
+            },
             status: 'pending',
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
@@ -432,7 +440,15 @@ export default function Audit() {
             impact_estimate: 'medium',
             confidence_score: 92,
             suggested_action: 'Pause ad set and reallocate budget to better performers',
-            reasoning: 'Consistently underperforming across all metrics for 7+ days. Audience fatigue and creative fatigue detected.',
+            reasoning: {
+              analysis: 'Consistently underperforming across all metrics for 7+ days. Audience fatigue and creative fatigue detected.',
+              metrics: {
+                ctr: 0.42,
+                cpa: 165.0,
+                account_avg_cpa: 100.0,
+                daily_waste: 45.0
+              }
+            },
             status: 'pending',
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
@@ -455,7 +471,15 @@ export default function Audit() {
             impact_estimate: 'medium',
             confidence_score: 85,
             suggested_action: 'Test 3-5 new creative variations with similar messaging but fresh visuals',
-            reasoning: 'Classic signs of creative fatigue: declining CTR, rising frequency, stable reach. Audience has seen this creative too many times.',
+            reasoning: {
+              analysis: 'Classic signs of creative fatigue: declining CTR, rising frequency, stable reach. Audience has seen this creative too many times.',
+              metrics: {
+                ctr_decline: 45.0,
+                frequency: 4.2,
+                days_running: 14,
+                engagement_drop: 38.0
+              }
+            },
             status: 'pending',
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
