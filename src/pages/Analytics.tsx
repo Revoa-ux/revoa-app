@@ -99,13 +99,10 @@ export default function Analytics() {
         setIsLoading(true);
         let prefs = await getUserAnalyticsPreferences(user.id);
 
-        // Initialize if no preferences exist
+// Initialize if no preferences exist
         if (!prefs) {
-          console.log('[Analytics] No preferences found, initializing...');
           prefs = await initializeUserAnalyticsPreferences(user.id, 'executive');
         }
-
-        console.log('[Analytics] Loaded preferences:', prefs);
 
         setCurrentTemplate(prefs.active_template);
 
@@ -115,15 +112,12 @@ export default function Analytics() {
           cards = JSON.parse(cards);
         }
 
-        console.log('[Analytics] Setting visible cards:', cards);
-        setVisibleCards(Array.isArray(cards) ? cards : []);
+setVisibleCards(Array.isArray(cards) ? cards : []);
 
-        // If no cards visible, this might be a fresh account - manually load template cards
+// If no cards visible, this might be a fresh account - manually load template cards
         if (!cards || cards.length === 0) {
-          console.log('[Analytics] No visible cards, loading template defaults...');
           const templateCards = await getTemplateMetricCards(prefs.active_template);
           const cardIds = templateCards.map(c => c.id);
-          console.log('[Analytics] Got template cards:', cardIds);
 
           if (cardIds.length > 0) {
             // Update the preferences with these cards
@@ -133,9 +127,8 @@ export default function Analytics() {
             setVisibleCards(cardIds);
           }
         }
-      } catch (error) {
+} catch (error) {
         console.error('Error loading preferences:', error);
-        toast.error('Failed to load analytics preferences');
       } finally {
         setIsLoading(false);
       }
@@ -154,9 +147,8 @@ export default function Analytics() {
         const endDateStr = dateRange.endDate.toISOString();
         const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr);
         setCardData(data);
-      } catch (error) {
+} catch (error) {
         console.error('Error fetching card data:', error);
-        toast.error('Failed to fetch metrics data');
       }
     };
 
@@ -265,10 +257,9 @@ export default function Analytics() {
 
     try {
       const prefs = await switchTemplate(user.id, template);
-      setCurrentTemplate(template);
+setCurrentTemplate(template);
       setVisibleCards(prefs.visible_cards || []);
       setIsEditMode(false);
-      toast.success(`Switched to ${template} template`);
     } catch (error) {
       console.error('Error switching template:', error);
       toast.error('Failed to switch template');
@@ -280,13 +271,11 @@ export default function Analytics() {
       // Save and exit edit mode
       if (user?.id) {
         try {
-          await updateUserAnalyticsPreferences(user.id, {
+await updateUserAnalyticsPreferences(user.id, {
             is_editing: false
           });
-          toast.success('Layout saved');
         } catch (error) {
           console.error('Error saving layout:', error);
-          toast.error('Failed to save layout');
         }
       }
     }
@@ -301,9 +290,8 @@ export default function Analytics() {
       setVisibleCards(prev =>
         visible ? [...prev, cardId] : prev.filter(id => id !== cardId)
       );
-    } catch (error) {
+} catch (error) {
       console.error('Error toggling card visibility:', error);
-      toast.error('Failed to update card visibility');
     }
   };
 
@@ -344,9 +332,8 @@ export default function Analytics() {
     if (user?.id) {
       updateUserAnalyticsPreferences(user.id, {
         visible_cards: newCards
-      }).catch(error => {
+}).catch(error => {
         console.error('Error saving card order:', error);
-        toast.error('Failed to save card order');
       });
     }
   };
@@ -388,41 +375,22 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Facebook Ads Sync Info */}
-      {facebook.isConnected && !isLoading && (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div className="flex items-start space-x-3">
-            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                Facebook Ads Connected
-              </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                Your ad performance metrics are being synced automatically.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Empty State */}
+{/* Empty State */}
       {!shopify.isConnected && !isLoading && !emptyStateDismissed && (
-        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg relative">
+        <div className="mb-6 p-3.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg relative">
           <button
             onClick={handleDismissEmptyState}
-            className="absolute top-3 right-3 p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors"
+            className="absolute top-2.5 right-2.5 p-1 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-md transition-colors"
             aria-label="Dismiss"
           >
             <X className="w-4 h-4" />
           </button>
-          <div className="flex items-start space-x-3 pr-8">
-            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+          <div className="flex items-center space-x-3 pr-8">
+            <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                Get Started with Analytics
-              </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                Connect your Shopify store in Settings to see real-time analytics and customize your dashboard with the metrics that matter most to you.
+              <p className="text-sm text-amber-900 dark:text-amber-100">
+                Connect your Shopify store in <a href="/settings" className="font-medium underline hover:text-amber-700 dark:hover:text-amber-300">Settings</a> to view your analytics dashboard.
               </p>
             </div>
           </div>

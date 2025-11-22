@@ -62,11 +62,11 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       // If no active but we have recent installations, log the problem
       if (!installation && allInstallations && allInstallations.length > 0) {
         const recent = allInstallations[0];
-        console.error('[ConnectionStore] ⚠️  FOUND SHOPIFY INSTALLATION BUT IT\'S NOT ACTIVE!');
-        console.error('[ConnectionStore] Store:', recent.store_url);
-        console.error('[ConnectionStore] Status:', recent.status);
-        console.error('[ConnectionStore] Uninstalled at:', recent.uninstalled_at);
-        console.error('[ConnectionStore] Problem: uninstalled_at should be NULL for active stores');
+        console.log('[ConnectionStore] ⚠️  FOUND SHOPIFY INSTALLATION BUT IT\'S NOT ACTIVE!');
+        console.log('[ConnectionStore] Store:', recent.store_url);
+        console.log('[ConnectionStore] Status:', recent.status);
+        console.log('[ConnectionStore] Uninstalled at:', recent.uninstalled_at);
+        console.log('[ConnectionStore] Problem: uninstalled_at should be NULL for active stores');
       }
 
       set({
