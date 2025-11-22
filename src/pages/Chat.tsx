@@ -420,8 +420,51 @@ const Chat = () => {
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <LoadingSpinner />
+            <div className="space-y-4 animate-pulse">
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
+                    <div className="h-4 w-48 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
+                  <div className="h-4 w-32 bg-gray-300 dark:bg-gray-600 rounded" />
+                </div>
+              </div>
+
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
+                    <div className="h-4 w-64 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
+                    <div className="h-4 w-40 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
+                  <div className="h-4 w-56 bg-gray-300 dark:bg-gray-600 rounded" />
+                </div>
+              </div>
+
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3">
+                    <div className="h-4 w-44 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
             </div>
           ) : messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
