@@ -659,7 +659,7 @@ const Products: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <div className="flex items-center space-x-3 mb-2">
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white">

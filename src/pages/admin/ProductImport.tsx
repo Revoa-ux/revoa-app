@@ -382,7 +382,7 @@ export default function ProductImport() {
 
   return (
     <div className="p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-[1050px] mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">Import Products</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">

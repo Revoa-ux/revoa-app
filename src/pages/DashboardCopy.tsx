@@ -624,7 +624,33 @@ export default function DashboardCopy() {
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <button 
+          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setViewType('card')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                viewType === 'card'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4 mr-1.5" />
+              Card View
+            </button>
+            <button
+              onClick={() => setViewType('chart')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                viewType === 'chart'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <LineChart className="w-4 h-4 mr-1.5" />
+              Chart View
+            </button>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <button
             className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
             onClick={handleApplyDateRange}
             disabled={isLoading}
@@ -641,32 +667,6 @@ export default function DashboardCopy() {
               </>
             )}
           </button>
-        </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-            <button
-              onClick={() => setViewType('card')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                viewType === 'card' 
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4 mr-1.5" />
-              Card View
-            </button>
-            <button
-              onClick={() => setViewType('chart')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                viewType === 'chart' 
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <LineChart className="w-4 h-4 mr-1.5" />
-              Chart View
-            </button>
-          </div>
           <AdReportsTimeSelector
             selectedTime={selectedTime}
             onTimeChange={handleTimeChange}

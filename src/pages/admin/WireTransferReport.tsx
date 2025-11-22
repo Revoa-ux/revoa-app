@@ -175,7 +175,7 @@ export default function WireTransferReport() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Wire Transfer Commission Report

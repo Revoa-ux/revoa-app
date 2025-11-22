@@ -3,7 +3,7 @@ import { PricingTiers } from '@/components/pricing/PricingTiers';
 
 export default function Pricing() {
   return (
-    <div className="max-w-[1000px] mx-auto space-y-12">
+    <div className="max-w-[1050px] mx-auto space-y-12">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Simple pricing that scales with you</h1>
         <div className="flex items-center space-x-2">
