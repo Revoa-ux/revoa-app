@@ -139,15 +139,16 @@ const AutomationRules: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+          Automation Rules
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Automate your ad management with profit-aware rules
+        </p>
+      </div>
+
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Automation Rules
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Automate your ad management with profit-aware rules
-          </p>
-        </div>
         <div className="flex gap-3">
           <button
             onClick={() => setShowTemplates(true)}

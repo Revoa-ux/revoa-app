@@ -178,13 +178,14 @@ export default function Attribution() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Attribution</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Track conversions with accurate first-party data
+        </p>
+      </div>
+
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Attribution</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Track conversions with accurate first-party data
-          </p>
-        </div>
         <div className="flex items-center gap-3">
           <select
             value={dateRange}

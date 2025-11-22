@@ -427,12 +427,13 @@ export default function Audit() {
 
   return (
     <div className="space-y-6 pb-6 overflow-x-hidden max-w-full">
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
+      </div>
+
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
-        </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           {/* View Toggle */}
           <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1">
             <button
@@ -467,14 +468,15 @@ export default function Audit() {
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            onApply={refreshData}
-          />
         </div>
+
+        <AdReportsTimeSelector
+          selectedTime={selectedTime}
+          onTimeChange={handleTimeChange}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onApply={refreshData}
+        />
       </div>
 
       {!facebook.isConnected && (
