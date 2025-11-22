@@ -283,6 +283,19 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     return data;
   };
 
+  // Get chart labels for selected card
+  const getChartLabels = (cardId: string) => {
+    const card = cardData[cardId];
+    if (!card) return { label1: 'Value 1', label2: 'Value 2', label3: 'Value 3' };
+
+    // Return the actual data point labels from the card
+    return {
+      label1: card.dataPoint1.label,
+      label2: card.dataPoint2.label,
+      label3: card.title // Use the main metric title as the third label
+    };
+  };
+
   const handleTemplateChange = async (template: TemplateType) => {
     if (!user?.id) return;
 
@@ -513,10 +526,10 @@ await updateUserAnalyticsPreferences(user.id, {
           />
 
           {/* View Type Toggle */}
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
             <button
               onClick={() => setViewType('card')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                 viewType === 'card'
                   ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -527,7 +540,7 @@ await updateUserAnalyticsPreferences(user.id, {
             </button>
             <button
               onClick={() => setViewType('chart')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                 viewType === 'chart'
                   ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -687,15 +700,15 @@ await updateUserAnalyticsPreferences(user.id, {
                   <div className="flex items-center space-x-6">
                     <div className="flex items-center">
                       <div className="w-3 h-3 rounded-full bg-[#F43F5E] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 1</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label1}</span>
                     </div>
                     <div className="flex items-center">
                       <div className="w-3 h-3 rounded-full bg-[#E8795A] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 2</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label2}</span>
                     </div>
                     <div className="flex items-center">
                       <div className="w-3 h-3 rounded-full bg-[#EC4899] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 3</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label3}</span>
                     </div>
                   </div>
                 </div>
