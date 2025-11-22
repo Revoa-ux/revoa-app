@@ -29,6 +29,7 @@ import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 import { useAuth } from '@/contexts/AuthContext';
+import { createDemoInsight } from '@/lib/demoInsight';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];
@@ -924,80 +925,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                           if (insights.length === 0) {
                             console.warn('[CreativeAnalysis] No insights generated - using demo insight');
-                            // Create a demo insight for testing when no real data exists
-                            const demoInsight: any = {
-                              title: 'High-Performing Demographic Discovered',
-                              primaryInsight: 'Your ads are performing exceptionally well with a specific demographic segment. This segment shows 8.2x better ROAS compared to your average performance and represents a significant growth opportunity.',
-                              supportingContext: 'Over the last 30 days, this demographic segment has converted at a much lower cost per acquisition ($18.50 vs your average $67) while maintaining higher order values. These customers are also 3.2x more likely to become repeat buyers.',
-                              rootCause: 'The pattern emerged primarily on mobile devices during evening hours (7-9 PM), with the strongest performance coming from Instagram Stories placements.',
-                              topDemographics: [
-                                { segment: 'Women 25-34', roas: 8.2, cpa: 18.50, conversions: 487, repeatRate: 0.43, ltv: 487, spend: 9018.50, revenue: 73951.70 },
-                                { segment: 'Men 35-44', roas: 3.1, cpa: 45.20, conversions: 124, repeatRate: 0.18, ltv: 231, spend: 5604.80, revenue: 17374.88 },
-                                { segment: 'Women 35-44', roas: 2.8, cpa: 52.10, conversions: 98, repeatRate: 0.22, ltv: 198, spend: 5105.80, revenue: 14296.24 }
-                              ],
-                              topPlacements: [
-                                { placement: 'Instagram Stories', device: 'Mobile (iPhone)', roas: 8.2, revenuePercent: 73, conversions: 487 },
-                                { placement: 'Instagram Feed', device: 'Mobile', roas: 2.1, revenuePercent: 18, conversions: 124 }
-                              ],
-                              topGeographic: [
-                                { location: 'New York, NY', roas: 9.1, cpa: 16.20, aov: 520, conversions: 127 },
-                                { location: 'Los Angeles, CA', roas: 7.8, cpa: 22.10, aov: 445, conversions: 98 }
-                              ],
-                              topTimes: [
-                                { timeWindow: 'Tuesday 7-9 PM', roas: 8.9, conversions: 127, avgLtv: 487 },
-                                { timeWindow: 'Thursday 8-10 PM', roas: 7.2, conversions: 94, avgLtv: 445 }
-                              ],
-                              customerInsights: {
-                                firstTimeBuyers: { percent: 57, cpa: 18.50, aov: 245, repeatRate: 0.28 },
-                                repeatCustomers: { percent: 43, cpa: 12.20, aov: 387, avgOrders: 2.3 },
-                                timeToConversion: { avgHours: 3.2, sameDayPercent: 68 }
-                              },
-                              productMargins: {
-                                topProduct: 'Summer Dress Blue',
-                                units: 243,
-                                margin: 0.62,
-                                aov: 89,
-                                netProfitPerOrder: 47.30,
-                                segmentMargin: 0.68,
-                                avgMargin: 0.45
-                              },
-                              financialProjections: {
-                                implemented: {
-                                  revenue: 12400,
-                                  profit: 5890,
-                                  roasImprovement: '2.1x → 5.8x',
-                                  newCustomers: 487,
-                                  repeatValue: 2340
-                                },
-                                ignored: {
-                                  wastedSpend: -3200,
-                                  missedRevenue: -9800,
-                                  lostCustomers: -345,
-                                  competitiveRisk: 'High'
-                                },
-                                methodology: 'Projections based on 30-day rolling performance with 87% confidence.'
-                              },
-                              recommendedActions: [
-                                {
-                                  type: 'increase_budget',
-                                  title: 'Increase Budget for Women 25-34',
-                                  description: 'Scale from $500/day to $1,250/day',
-                                  parameters: { currentBudget: 500, newBudget: 1250, increasePercent: 150 }
-                                }
-                              ],
-                              recommendedRule: {
-                                name: 'Protect High-Performing Women 25-34 Segment',
-                                conditions: ['ROAS falls below 5.0x', 'Daily spend exceeds $1,500'],
-                                actions: ['Reduce budget by 30%', 'Send alert'],
-                                frequency: 'Every 6 hours',
-                                safety: 'Max 2 changes per day'
-                              },
-                              confidence: 88,
-                              priority: 85,
-                              dataPointsAnalyzed: 14287,
-                              timePeriod: 'Last 30 days',
-                              reasoning: 'High confidence based on 30 days of consistent performance.'
-                            };
+                            const demoInsight = createDemoInsight();
                             insights.push(demoInsight);
                           }
 
