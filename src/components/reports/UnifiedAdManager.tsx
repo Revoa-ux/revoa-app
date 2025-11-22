@@ -111,6 +111,11 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Title */}
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        Ad Manager
+      </h2>
+
       {/* Level Tabs */}
       <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => {

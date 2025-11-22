@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Facebook, AlertTriangle, RefreshCw, Sparkles } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Sparkles, BarChart3, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
@@ -39,6 +39,7 @@ export default function Audit() {
   const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
   const [topDisplayedSuggestionIds, setTopDisplayedSuggestionIds] = useState<Set<string>>(new Set());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
+  const [auditView, setAuditView] = useState<'performance' | 'admanager'>('performance');
 
   const { facebook } = useConnectionStore();
 
@@ -432,6 +433,32 @@ export default function Audit() {
           <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
         </div>
         <div className="flex items-center space-x-3">
+          {/* View Toggle */}
+          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1">
+            <button
+              onClick={() => setAuditView('performance')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                auditView === 'performance'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 mr-1.5" />
+              Performance
+            </button>
+            <button
+              onClick={() => setAuditView('admanager')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                auditView === 'admanager'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <Layers className="w-4 h-4 mr-1.5" />
+              Ad Manager
+            </button>
+          </div>
+
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
@@ -474,24 +501,28 @@ export default function Audit() {
 
       {facebook.isConnected && (
         <>
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
-          </div>
+          {auditView === 'performance' && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
+            </div>
+          )}
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <UnifiedAdManager
-              creatives={creatives}
-              campaigns={campaigns}
-              adSets={adSets}
-              selectedTime={selectedTime}
-              onTimeChange={handleTimeChange}
-              rexSuggestions={rexSuggestions}
-              topDisplayedSuggestionIds={topDisplayedSuggestionIds}
-              onViewSuggestion={handleViewSuggestion}
-              onAcceptSuggestion={handleAcceptSuggestion}
-              onDismissSuggestion={handleDismissSuggestion}
-            />
-          </div>
+          {auditView === 'admanager' && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <UnifiedAdManager
+                creatives={creatives}
+                campaigns={campaigns}
+                adSets={adSets}
+                selectedTime={selectedTime}
+                onTimeChange={handleTimeChange}
+                rexSuggestions={rexSuggestions}
+                topDisplayedSuggestionIds={topDisplayedSuggestionIds}
+                onViewSuggestion={handleViewSuggestion}
+                onAcceptSuggestion={handleAcceptSuggestion}
+                onDismissSuggestion={handleDismissSuggestion}
+              />
+            </div>
+          )}
         </>
       )}
     </div>
