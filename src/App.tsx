@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
-import Analytics from './pages/Analytics';
+import DashboardCopy from './pages/DashboardCopy';
 import ProductQuotes from './pages/ProductQuotes';
 import Chat from './pages/Chat';
 import Inventory from './pages/Inventory';
@@ -207,7 +207,7 @@ function App() {
                 <Layout />
               </UserProtectedRoute>
             }>
-              <Route index element={<Analytics />} />
+              <Route index element={<DashboardCopy />} />
               <Route path="products" element={<Products />} />
               <Route path="quotes" element={<ProductQuotes />} />
               <Route path="chat" element={<Chat />} />
@@ -219,7 +219,7 @@ function App() {
               <Route path="automation" element={<AutomationRules />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />
-              <Route path="*" element={<Analytics />} />
+              <Route path="*" element={<DashboardCopy />} />
             </Route>
             </Routes>
             <ThemedToaster />

@@ -13,7 +13,6 @@ import {
   LayoutGrid,
   Calculator,
   BarChart3,
-  LineChart,
   CreditCard,
   Mail,
   Package,
@@ -30,13 +29,13 @@ import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 
 const navigation = [
-  { name: 'Analytics', href: '/', icon: BarChart3 },
+  { name: 'Dashboard', href: '/', icon: Home },
   { name: 'Find Products', href: '/products', icon: LayoutGrid },
   { name: 'Get Quotes', href: '/quotes', icon: ArrowRightLeft },
   { name: 'Supplier Chat', href: '/chat', icon: MessageSquare },
   { name: 'Inventory', href: '/inventory', icon: Package },
   { name: 'Balance', href: '/balance', icon: Wallet },
-  { name: 'Ad Reports', href: '/audit', icon: LineChart },
+  { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
   { name: 'Attribution', href: '/attribution', icon: Target },
   { name: 'Automation', href: '/automation', icon: Zap },
   { name: 'Calculator', href: '/calculator', icon: Calculator },

@@ -1,14 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
+import { TrendingUp, BarChart3, DollarSign, CreditCard, RefreshCw, AlertTriangle } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import { getCalculatorMetrics, ShopifyCalculatorMetrics } from '../lib/shopify/api';
 import { CalculatorSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
+import { getCombinedDashboardMetrics } from '../lib/dashboardMetrics';
 import { useConnectionStore } from '../lib/connectionStore';
 
 interface DateRange {
   startDate: Date;
   endDate: Date;
+}
+
+interface Metrics {
+  profit: number;
+  profitChange: number;
+  totalRevenue: number;
+  revenueChange: number;
+  avgOrderValue: number;
+  avgOrderChange: number;
+  totalAdSpend: number;
+  adSpendChange: number;
 }
 
 export default function Calculator() {
@@ -25,6 +37,16 @@ export default function Calculator() {
   const [dateRange, setDateRange] = useState({
     startDate: initialStartDate,
     endDate: initialEndDate
+  });
+  const [metrics, setMetrics] = useState<Metrics>({
+    profit: 0,
+    profitChange: 0,
+    totalRevenue: 0,
+    revenueChange: 0,
+    avgOrderValue: 0,
+    avgOrderChange: 0,
+    totalAdSpend: 0,
+    adSpendChange: 0
   });
   const [calculatorMetrics, setCalculatorMetrics] = useState<ShopifyCalculatorMetrics | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +162,9 @@ export default function Calculator() {
       const startDateStr = dateRange.startDate.toISOString();
       const endDateStr = dateRange.endDate.toISOString();
 
+      // Fetch combined metrics from Shopify + Facebook with date range
+      const combined = await getCombinedDashboardMetrics(startDateStr, endDateStr);
+      console.log('[Calculator] Received combined metrics:', combined);
 
       // Also fetch detailed calculator metrics
       let timeframe = '7d';
@@ -168,6 +193,18 @@ export default function Calculator() {
 
       const data = await getCalculatorMetrics(timeframe);
       setCalculatorMetrics(data);
+
+      // Update metrics state with REAL calculated values from combined data
+      setMetrics({
+        profit: combined.computed.profit,
+        profitChange: 0, // TODO: Calculate historical comparison
+        totalRevenue: combined.shopify.totalRevenue,
+        revenueChange: 0, // TODO: Calculate historical comparison
+        avgOrderValue: combined.shopify.averageOrderValue,
+        avgOrderChange: 0, // TODO: Calculate historical comparison
+        totalAdSpend: combined.facebook.totalSpend,
+        adSpendChange: 0 // TODO: Calculate historical comparison
+      });
     } catch (error) {
       console.error('Error fetching calculator data:', error);
       setError('Failed to fetch calculator data');
@@ -220,8 +257,8 @@ export default function Calculator() {
   }
 
   return (
-    <div className="w-full max-w-[1050px] mx-auto space-y-6">
-      <div>
+    <div className="space-y-12">
+      <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Profit & Expenses Calculator
         </h1>
@@ -233,7 +270,7 @@ export default function Calculator() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <button 
             className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
@@ -264,7 +301,52 @@ export default function Calculator() {
         </div>
       </div>
 
-      <div>
+      <div className="grid grid-cols-4 gap-6">
+        {/* Overview Cards - All same height with flex column justify-between */}
+        {[
+          {
+            icon: <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+            label: "Profit",
+            value: metrics.profit,
+            change: metrics.profitChange
+          },
+          {
+            icon: <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+            label: "Total Revenue",
+            value: metrics.totalRevenue,
+            change: metrics.revenueChange
+          },
+          {
+            icon: <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+            label: "Avg Order Value",
+            value: metrics.avgOrderValue,
+            change: metrics.avgOrderChange
+          },
+          {
+            icon: <CreditCard className="w-4 h-4 text-gray-600 dark:text-gray-400" />,
+            label: "Total Ad Spend",
+            value: metrics.totalAdSpend,
+            change: metrics.adSpendChange
+          }
+        ].map((card, index) => (
+          <div key={index} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 h-[140px] flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                {card.icon}
+              </div>
+              {renderChangeIndicator(card.change)}
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">{card.label}</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-0.5">
+                ${card.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-16">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Incoming Revenue</h2>
         <div className="grid grid-cols-4 gap-6">
           {/* Incoming Revenue Cards */}
@@ -305,7 +387,7 @@ export default function Calculator() {
         </div>
       </div>
 
-      <div>
+      <div className="mt-16">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Outgoing Expenses</h2>
         <div className="grid grid-cols-4 gap-6">
           {/* Outgoing Expenses Cards */}
@@ -344,8 +426,8 @@ export default function Calculator() {
         </div>
       </div>
 
-      <div>
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">Performance Metrics</h2>
+      <div className="mt-16">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-6">More Metrics</h2>
         <div className="grid grid-cols-4 gap-6">
           {/* More Metrics Cards */}
           {[
