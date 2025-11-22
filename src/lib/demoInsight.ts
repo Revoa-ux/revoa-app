@@ -34,187 +34,89 @@ export const createDemoInsight = (): GeneratedInsight => ({
     analysis: 'Statistical significance confirmed with p-value < 0.01 across 30-day rolling window. Pattern shows consistent performance with minimal variance.',
     riskLevel: 'low',
     supportingData: {
-      demographics: {
-        topPerforming: [
-          {
-            ageRange: '25-34',
-            gender: 'Female',
-            roas: 8.2,
-            conversions: 487,
-            spend: 9018.50,
-            ctr: 2.8,
-            improvement: 290
-          },
-          {
-            ageRange: '35-44',
-            gender: 'Male',
-            roas: 3.1,
-            conversions: 124,
-            spend: 5604.80,
-            ctr: 1.4,
-            improvement: 48
-          },
-          {
-            ageRange: '35-44',
-            gender: 'Female',
-            roas: 2.8,
-            conversions: 98,
-            spend: 5105.80,
-            ctr: 1.2,
-            improvement: 33
-          }
-        ],
-        underperforming: [
-          {
-            ageRange: '45-54',
-            gender: 'Male',
-            roas: 0.8,
-            wasted_spend: 3200
-          }
-        ],
-        insights: [
-          'Women 25-34 outperform all other demographics by 3.9x',
-          'Strong repeat buyer behavior in this segment (43% vs 13% average)',
-          'Mobile-first audience with 89% of conversions on smartphones'
-        ]
-      },
-      placements: {
-        topPerforming: [
-          {
-            placementType: 'Instagram Stories',
-            deviceType: 'Mobile (iPhone)',
-            platform: 'Instagram',
-            roas: 8.2,
-            conversions: 487,
-            spend: 9018.50,
-            ctr: 3.2,
-            engagement: 4.8,
-            improvement: 290
-          },
-          {
-            placementType: 'Instagram Feed',
-            deviceType: 'Mobile',
-            platform: 'Instagram',
-            roas: 2.1,
-            conversions: 124,
-            spend: 5604.80,
-            ctr: 1.8,
-            engagement: 2.4,
-            improvement: 0
-          },
-          {
-            placementType: 'Facebook Feed',
-            deviceType: 'Desktop',
-            platform: 'Facebook',
-            roas: 1.4,
-            conversions: 67,
-            spend: 4200.00,
-            ctr: 0.9,
-            engagement: 1.2,
-            improvement: -33
-          }
-        ],
-        underperforming: [
-          {
-            placementType: 'Audience Network',
-            deviceType: 'Mobile',
-            roas: 0.4,
-            wasted_spend: 2100
-          }
-        ],
-        insights: [
-          'Instagram Stories on iPhone drives 73% of revenue',
-          'Mobile placements outperform desktop by 5.9x',
-          'Story format resonates strongly with target demographic'
-        ]
-      },
-      geographic: {
-        topPerforming: [
-          {
-            country: 'United States',
-            region: 'New York',
-            city: 'New York City',
-            roas: 9.1,
-            conversions: 127,
-            spend: 7000.00,
-            averageOrderValue: 520,
-            improvement: 333
-          },
-          {
-            country: 'United States',
-            region: 'California',
-            city: 'Los Angeles',
-            roas: 7.8,
-            conversions: 98,
-            spend: 5600.00,
-            averageOrderValue: 445,
-            improvement: 271
-          },
-          {
-            country: 'United States',
-            region: 'Illinois',
-            city: 'Chicago',
-            roas: 6.2,
-            conversions: 76,
-            spend: 4500.00,
-            averageOrderValue: 398,
-            improvement: 195
-          }
-        ],
-        untapped: [
-          {
-            country: 'United States',
-            potential: 'Boston, Seattle, San Francisco show similar demographics',
-            similarMarkets: ['Boston', 'Seattle', 'San Francisco']
-          }
-        ],
-        insights: [
-          'Major metro areas drive 89% of conversions',
-          'NYC shows highest AOV at $520',
-          'Similar demographics in Boston/Seattle remain untapped'
-        ]
-      },
-      temporal: {
-        bestPerforming: [
-          {
-            dayOfWeek: 'Tuesday',
-            hourRange: '7-9 PM',
-            roas: 8.9,
-            conversions: 127,
-            spend: 2800.00,
-            improvement: 324
-          },
-          {
-            dayOfWeek: 'Thursday',
-            hourRange: '8-10 PM',
-            roas: 7.2,
-            conversions: 94,
-            spend: 2100.00,
-            improvement: 243
-          },
-          {
-            dayOfWeek: 'Sunday',
-            hourRange: '6-8 PM',
-            roas: 5.8,
-            conversions: 78,
-            spend: 1800.00,
-            improvement: 176
-          }
-        ],
-        worstPerforming: [
-          {
-            dayOfWeek: 'Monday',
-            hourRange: '6-8 AM',
-            roas: 0.6,
-            wasted_spend: 1200
-          }
-        ],
-        insights: [
-          'Evening hours (7-9 PM) drive 68% of conversions',
-          'Weekday evenings outperform weekends by 2.3x',
-          'Morning hours show poor performance across all days'
-        ]
-      },
+      demographics: [
+        {
+          segment: 'Women 25-34',
+          roas: 8.2,
+          cpa: 18.50,
+          conversions: 487,
+          contribution: 67
+        },
+        {
+          segment: 'Men 35-44',
+          roas: 3.1,
+          cpa: 45.20,
+          conversions: 124,
+          contribution: 18
+        },
+        {
+          segment: 'Women 35-44',
+          roas: 2.8,
+          cpa: 52.10,
+          conversions: 98,
+          contribution: 11
+        }
+      ],
+      placements: [
+        {
+          placement: 'Instagram Stories (Mobile)',
+          roas: 8.2,
+          conversions: 487,
+          contribution: 73
+        },
+        {
+          placement: 'Instagram Feed (Mobile)',
+          roas: 2.1,
+          conversions: 124,
+          contribution: 18
+        },
+        {
+          placement: 'Facebook Feed (Desktop)',
+          roas: 1.4,
+          conversions: 67,
+          contribution: 9
+        }
+      ],
+      geographic: [
+        {
+          region: 'New York, NY',
+          roas: 9.1,
+          averageOrderValue: 520,
+          conversions: 127
+        },
+        {
+          region: 'Los Angeles, CA',
+          roas: 7.8,
+          averageOrderValue: 445,
+          conversions: 98
+        },
+        {
+          region: 'Chicago, IL',
+          roas: 6.2,
+          averageOrderValue: 398,
+          conversions: 76
+        }
+      ],
+      temporal: [
+        {
+          period: 'Tuesday 7-9 PM',
+          roas: 8.9,
+          conversions: 127,
+          contribution: 28
+        },
+        {
+          period: 'Thursday 8-10 PM',
+          roas: 7.2,
+          conversions: 94,
+          contribution: 21
+        },
+        {
+          period: 'Sunday 6-8 PM',
+          roas: 5.8,
+          conversions: 78,
+          contribution: 17
+        }
+      ],
       customerBehavior: {
         newVsReturning: {
           new: { conversions: 278, revenue: 42170.00, averageOrderValue: 245, cpa: 18.50 },
