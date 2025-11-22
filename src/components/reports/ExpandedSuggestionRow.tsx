@@ -262,7 +262,7 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
               <div>
                 <div className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-0.5">Triggered By</div>
                 <div className="text-lg font-black text-gray-900 dark:text-white">
-                  {suggestion.reasoning.triggeredBy.length} Rule{suggestion.reasoning.triggeredBy.length !== 1 ? 's' : ''}
+                  {suggestion.reasoning?.triggeredBy?.length || 0} Rule{(suggestion.reasoning?.triggeredBy?.length || 0) !== 1 ? 's' : ''}
                 </div>
               </div>
             </div>
@@ -289,25 +289,27 @@ export const ExpandedSuggestionRow: React.FC<ExpandedSuggestionRowProps> = ({
                   <h4 className="text-lg font-bold text-gray-900 dark:text-white">Deep Analysis</h4>
                 </div>
                 <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-5">
-                  {suggestion.reasoning.analysis}
+                  {suggestion.reasoning?.analysis || 'No detailed analysis available.'}
                 </p>
 
-                <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
-                    Triggered Conditions
+                {suggestion.reasoning?.triggeredBy && suggestion.reasoning.triggeredBy.length > 0 && (
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      Triggered Conditions
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestion.reasoning.triggeredBy.map((condition, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-xs font-semibold border border-red-200 dark:border-red-800"
+                        >
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          {condition}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestion.reasoning.triggeredBy.map((condition, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-xs font-semibold border border-red-200 dark:border-red-800"
-                      >
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                        {condition}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                )}
               </div>
 
               {suggestion.estimated_impact && (
