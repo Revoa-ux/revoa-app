@@ -80,7 +80,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [rexFilter, setRexFilter] = useState<'all' | 'suggestions' | 'rules_active'>('all');
-  const [itemsToShow, setItemsToShow] = useState(10);
+  const [itemsToShow, setItemsToShow] = useState(20);
   const [showAllItems, setShowAllItems] = useState(false);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [isResizing, setIsResizing] = useState(false);
@@ -120,13 +120,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   }, [creatives]);
 
   // Column resize handler
-  const handleColumnResize = useCallback((columnId: string, startX: number, startWidth: number) => {
+  const handleColumnResize = useCallback((columnId: string, startX: number, startWidth: number, minWidth: number) => {
     setIsResizing(true);
     setResizingColumnId(columnId);
 
     const handleMouseMove = (e: MouseEvent) => {
       const delta = e.clientX - startX;
-      const newWidth = Math.max(50, startWidth + delta); // Minimum width of 50px
+      // Use the column's defined width as minimum to prevent header text overlap
+      const newWidth = Math.max(minWidth, startWidth + delta);
       setColumnWidths(prev => ({ ...prev, [columnId]: newWidth }));
     };
 
@@ -794,7 +795,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           onMouseDown={(e) => {
                             e.preventDefault();
                             const currentWidth = customWidth || column.width;
-                            handleColumnResize(column.id, e.clientX, currentWidth);
+                            handleColumnResize(column.id, e.clientX, currentWidth, column.width);
                           }}
                         />
                       )}
@@ -808,7 +809,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin"
-            style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}
+            style={{ maxHeight: 'calc(100vh - 420px)', minHeight: '500px' }}
           >
             <div className="w-full">
               {displayedCreatives.map((creative, index) => {
