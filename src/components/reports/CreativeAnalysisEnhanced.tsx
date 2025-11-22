@@ -790,17 +790,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       )}
                       {index < columns.length - 1 && (
                         <div
-                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-500 dark:hover:bg-blue-400 group z-10"
+                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors group z-10"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             const currentWidth = customWidth || column.width;
                             handleColumnResize(column.id, e.clientX, currentWidth);
                           }}
-                        >
-                          <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <GripVertical className="w-3 h-3 text-blue-500 dark:text-blue-400" />
-                          </div>
-                        </div>
+                        />
                       )}
                     </div>
                   );
@@ -812,7 +808,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin"
-            style={{ height: '600px' }}
+            style={{ height: 'calc(100vh - 400px)', minHeight: '500px' }}
           >
             <div className="w-full">
               {displayedCreatives.map((creative, index) => {
@@ -1003,11 +999,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
                             {sortedCreatives.length} total
                           </span>
-                        ) : column.id === 'creative' || column.id === 'adName' ? (
+                        ) : column.id === 'creative' ? (
                           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                             Total Results
                           </span>
-                        ) : column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                        ) : column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
                           ''
                         ) : column.id === 'impressions' ? (
                           totals.impressions.toLocaleString()
