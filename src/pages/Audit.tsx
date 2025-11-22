@@ -389,16 +389,18 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
-      // Add 3 mock AI suggestions for testing
-      if (creativesData.length > 0 || campaignsData.length > 0) {
+      // Add 3 mock AI suggestions for testing - keyed by entity ID
+      if (creativesData.length > 0 || campaignsData.length > 0 || adSetsData.length > 0) {
         const mockSuggestions = new Map<string, RexSuggestionWithPerformance>();
+        const topIds = new Set<string>();
 
         // Mock suggestion 1: Budget increase for high-performing campaign
         if (campaignsData.length > 0) {
-          mockSuggestions.set('mock-1', {
-            id: 'mock-1',
+          const campaignId = campaignsData[0].id;
+          mockSuggestions.set(campaignId, {
+            id: `suggestion-campaign-${campaignId}`,
             entity_type: 'campaign',
-            entity_id: campaignsData[0].id,
+            entity_id: campaignId,
             entity_name: campaignsData[0].name,
             suggestion_type: 'increase_budget',
             title: 'Increase Budget for Top Performer',
@@ -412,15 +414,17 @@ export default function Audit() {
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
           });
+          topIds.add(campaignId);
         }
 
         // Mock suggestion 2: Pause underperforming ad set
-        if (adSets.length > 0) {
-          mockSuggestions.set('mock-2', {
-            id: 'mock-2',
+        if (adSetsData.length > 0) {
+          const adSetId = adSetsData[0].id;
+          mockSuggestions.set(adSetId, {
+            id: `suggestion-adset-${adSetId}`,
             entity_type: 'adset',
-            entity_id: adSets[0].id,
-            entity_name: adSets[0].name,
+            entity_id: adSetId,
+            entity_name: adSetsData[0].name,
             suggestion_type: 'pause_entity',
             title: 'Pause Underperforming Ad Set',
             description: 'This ad set has a CTR below 0.5% and CPA 65% higher than account average. Pausing it would save approximately $45/day in wasted spend.',
@@ -433,14 +437,16 @@ export default function Audit() {
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
           });
+          topIds.add(adSetId);
         }
 
         // Mock suggestion 3: Creative refresh needed
         if (creativesData.length > 0) {
-          mockSuggestions.set('mock-3', {
-            id: 'mock-3',
+          const adId = creativesData[0].id;
+          mockSuggestions.set(adId, {
+            id: `suggestion-ad-${adId}`,
             entity_type: 'ad',
-            entity_id: creativesData[0].id,
+            entity_id: adId,
             entity_name: creativesData[0].name,
             suggestion_type: 'refresh_creative',
             title: 'Creative Fatigue Detected',
@@ -454,10 +460,12 @@ export default function Audit() {
             created_at: new Date().toISOString(),
             user_id: user?.id || ''
           });
+          topIds.add(adId);
         }
 
         setRexSuggestions(mockSuggestions);
-        setTopDisplayedSuggestionIds(new Set(['mock-1', 'mock-2', 'mock-3']));
+        setTopDisplayedSuggestionIds(topIds);
+        console.log('[Audit] Mock suggestions created:', mockSuggestions, 'Top IDs:', topIds);
       }
 
       // Load existing suggestions and generate new ones
