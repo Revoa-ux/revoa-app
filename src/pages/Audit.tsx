@@ -426,19 +426,19 @@ export default function Audit() {
   }, [user]);
 
   return (
-    <div className="space-y-6 pb-6 overflow-x-hidden max-w-full">
+    <div className="space-y-6 pb-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-3 overflow-x-auto">
           {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
             <button
               onClick={() => setAuditView('performance')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                 auditView === 'performance'
                   ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -449,7 +449,7 @@ export default function Audit() {
             </button>
             <button
               onClick={() => setAuditView('admanager')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
                 auditView === 'admanager'
                   ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -463,20 +463,22 @@ export default function Audit() {
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
 
-        <AdReportsTimeSelector
-          selectedTime={selectedTime}
-          onTimeChange={handleTimeChange}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-          onApply={refreshData}
-        />
+        <div className="sm:flex-shrink-0">
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={refreshData}
+          />
+        </div>
       </div>
 
       {!facebook.isConnected && (
@@ -510,7 +512,7 @@ export default function Audit() {
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden w-full max-w-full">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}

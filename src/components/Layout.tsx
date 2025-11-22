@@ -295,7 +295,7 @@ export default function Layout() {
       <div className={`flex-1 transition-all duration-300 ease-in-out ${
         isCollapsed ? 'pl-[70px]' : 'pl-[280px]'
       }`}>
-        <div className="w-full px-6 sm:px-8 lg:px-12 py-6 max-w-[1800px] mx-auto">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 max-w-[1800px] mx-auto">
           <Outlet />
         </div>
       </div>

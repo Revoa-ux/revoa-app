@@ -110,14 +110,14 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   };
 
   return (
-    <div className="space-y-4 p-6">
+    <div className="space-y-4 p-4 sm:p-6">
       {/* Title */}
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
         Ad Manager
       </h2>
 
       {/* Level Tabs */}
-      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-thin">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = viewLevel === tab.id;
@@ -125,7 +125,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-3 border-b-2 transition-colors whitespace-nowrap ${
                 isActive
                   ? 'border-red-600 text-red-600 dark:text-red-400'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
@@ -149,7 +149,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
       {/* Breadcrumb Navigation */}
       {(selectedCampaign || selectedAdSet) && (
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm flex-wrap">
           <button
             onClick={() => handleBreadcrumbClick('campaigns')}
             className="text-red-600 dark:text-red-400 hover:underline"

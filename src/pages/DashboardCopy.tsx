@@ -554,7 +554,7 @@ export default function DashboardCopy() {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Hi {userName || 'there'}, welcome to Revoa👋
         </h1>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
           <div className="flex items-center space-x-2">
             <div className={`w-1.5 h-1.5 rounded-full ${
               shopifyMetrics && (shopifyMetrics.totalOrders > 0 || shopifyMetrics.totalRevenue > 0)

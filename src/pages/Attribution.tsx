@@ -185,7 +185,7 @@ export default function Attribution() {
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <select
             value={dateRange}
@@ -201,7 +201,7 @@ export default function Attribution() {
           <button
             onClick={handleSync}
             disabled={isSyncing}
-            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium"
+            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 hover:bg-gray-800 disabled:opacity-50 text-white rounded-lg transition-all text-sm font-medium whitespace-nowrap"
           >
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? 'Syncing...' : 'Sync Orders'}</span>
@@ -215,7 +215,7 @@ export default function Attribution() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <GlassCard>
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">

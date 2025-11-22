@@ -148,14 +148,14 @@ const AutomationRules: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex gap-3">
           <button
             onClick={() => setShowTemplates(true)}
             className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
           >
             <LayoutGrid className="w-4 h-4" />
-            Templates
+            <span className="hidden sm:inline">Templates</span>
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
@@ -167,7 +167,7 @@ const AutomationRules: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <GlassCard className="p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-gray-600 dark:text-gray-400 text-sm">Active Rules</span>

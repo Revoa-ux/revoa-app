@@ -821,7 +821,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin"
-            style={{ height: 'calc(100vh - 28rem)', minHeight: '400px' }}
+            style={{ maxHeight: 'calc(100vh - 26rem)', minHeight: '300px' }}
           >
             <div className="w-full">
               {displayedCreatives.map((creative, index) => {
