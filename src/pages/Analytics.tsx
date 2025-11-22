@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff } from 'lucide-react';
+import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff, LayoutGrid, LineChart } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TemplateSelector from '../components/analytics/TemplateSelector';
 import MetricCard from '../components/analytics/MetricCard';
@@ -40,6 +40,7 @@ export default function Analytics() {
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [viewType, setViewType] = useState<'card' | 'chart'>('card');
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -475,6 +476,32 @@ await updateUserAnalyticsPreferences(user.id, {
             disabled={isEditMode}
           />
 
+          {/* View Type Toggle */}
+          <div className="flex items-center bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+            <button
+              onClick={() => setViewType('card')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                viewType === 'card'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4 mr-1.5" />
+              Card View
+            </button>
+            <button
+              onClick={() => setViewType('chart')}
+              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                viewType === 'chart'
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+              }`}
+            >
+              <LineChart className="w-4 h-4 mr-1.5" />
+              Chart View
+            </button>
+          </div>
+
           {isEditMode ? (
             <div className="flex items-center space-x-2">
               <button
@@ -546,24 +573,83 @@ await updateUserAnalyticsPreferences(user.id, {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleCards.map((cardId) => {
-          const data = cardData[cardId];
-          if (!data) return null;
+      {viewType === 'card' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {visibleCards.map((cardId) => {
+            const data = cardData[cardId];
+            if (!data) return null;
 
-          return (
-            <MetricCard
-              key={cardId}
-              data={data}
-              isDragging={draggedCard === cardId}
-              onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-              onDragEnd={isEditMode ? handleDragEnd : undefined}
-              onDragOver={isEditMode ? handleDragOver : undefined}
-              onDrop={isEditMode ? handleDrop(cardId) : undefined}
-            />
-          );
-        })}
-      </div>
+            return (
+              <MetricCard
+                key={cardId}
+                data={data}
+                isDragging={draggedCard === cardId}
+                onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                onDragEnd={isEditMode ? handleDragEnd : undefined}
+                onDragOver={isEditMode ? handleDragOver : undefined}
+                onDrop={isEditMode ? handleDrop(cardId) : undefined}
+              />
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Chart View - Coming Soon */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+            <div className="text-center">
+              <LineChart className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Chart View Coming Soon
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                We're working on bringing you detailed chart visualizations for your metrics.
+              </p>
+            </div>
+          </div>
+
+          {/* Show cards in list format for now */}
+          <div className="grid grid-cols-1 gap-4">
+            {visibleCards.map((cardId) => {
+              const data = cardData[cardId];
+              if (!data) return null;
+
+              return (
+                <div
+                  key={cardId}
+                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                        {data.title}
+                      </h3>
+                      <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                        {data.mainValue}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`flex items-center text-sm mb-2 ${
+                        data.changeType === 'positive' ? 'text-green-500' :
+                        data.changeType === 'critical' ? 'text-red-500' : 'text-red-500'
+                      }`}>
+                        {data.change}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {data.dataPoint1.label}: <span className="font-medium text-gray-900 dark:text-white">{data.dataPoint1.value}</span>
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {data.dataPoint2.label}: <span className="font-medium text-gray-900 dark:text-white">{data.dataPoint2.value}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Empty state when no cards */}
       {visibleCards.length === 0 && (
