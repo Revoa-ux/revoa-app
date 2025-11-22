@@ -3,14 +3,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
-import DashboardCopy from './pages/DashboardCopy';
+import Analytics from './pages/Analytics';
 import ProductQuotes from './pages/ProductQuotes';
 import Chat from './pages/Chat';
 import Inventory from './pages/Inventory';
 import Balance from './pages/Balance';
 import Audit from './pages/Audit';
 import Attribution from './pages/Attribution';
-import Calculator from './pages/Calculator';
 import SettingsPage from './pages/Settings';
 import AutomationRules from './pages/AutomationRules';
 import Auth from './pages/Auth';
@@ -207,7 +206,7 @@ function App() {
                 <Layout />
               </UserProtectedRoute>
             }>
-              <Route index element={<DashboardCopy />} />
+              <Route index element={<Analytics />} />
               <Route path="products" element={<Products />} />
               <Route path="quotes" element={<ProductQuotes />} />
               <Route path="chat" element={<Chat />} />
@@ -215,11 +214,10 @@ function App() {
               <Route path="balance" element={<Balance />} />
               <Route path="audit" element={<Audit />} />
               <Route path="attribution" element={<Attribution />} />
-              <Route path="calculator" element={<Calculator />} />
               <Route path="automation" element={<AutomationRules />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />
-              <Route path="*" element={<DashboardCopy />} />
+              <Route path="*" element={<Analytics />} />
             </Route>
             </Routes>
             <ThemedToaster />

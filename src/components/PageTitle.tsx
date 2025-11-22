@@ -18,8 +18,8 @@ export const PageTitle: React.FC<PageTitleProps> = ({
   // Generate title based on route if not provided
   const getDefaultTitle = () => {
     const path = location.pathname;
-    if (path === '/') return 'Dashboard';
-    return path.split('/')[1]?.charAt(0).toUpperCase() + path.split('/')[1]?.slice(1) || 'Dashboard';
+    if (path === '/') return 'Analytics';
+    return path.split('/')[1]?.charAt(0).toUpperCase() + path.split('/')[1]?.slice(1) || 'Analytics';
   };
 
   const pageTitle = title || getDefaultTitle();

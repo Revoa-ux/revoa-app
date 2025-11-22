@@ -11,7 +11,6 @@ import {
   LogOut,
   MessageSquare,
   LayoutGrid,
-  Calculator,
   BarChart3,
   CreditCard,
   Mail,
@@ -29,7 +28,7 @@ import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'Analytics', href: '/', icon: Home },
   { name: 'Find Products', href: '/products', icon: LayoutGrid },
   { name: 'Get Quotes', href: '/quotes', icon: ArrowRightLeft },
   { name: 'Supplier Chat', href: '/chat', icon: MessageSquare },
@@ -38,7 +37,6 @@ const navigation = [
   { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
   { name: 'Attribution', href: '/attribution', icon: Target },
   { name: 'Automation', href: '/automation', icon: Zap },
-  { name: 'Calculator', href: '/calculator', icon: Calculator },
   { name: 'Pricing', href: '/pricing', icon: CreditCard }
 ];
 
