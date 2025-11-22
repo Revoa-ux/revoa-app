@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff, LayoutGrid, LineChart } from 'lucide-react';
+import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff, LayoutGrid, LineChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TemplateSelector from '../components/analytics/TemplateSelector';
 import MetricCard from '../components/analytics/MetricCard';
@@ -41,6 +42,7 @@ export default function Analytics() {
   const [userName, setUserName] = useState<string>('');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'card' | 'chart'>('card');
+  const [selectedChartCard, setSelectedChartCard] = useState<string | null>(null);
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -134,6 +136,13 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
     loadPreferences();
   }, [user?.id]);
+
+  // Initialize selected chart card when visible cards change
+  useEffect(() => {
+    if (visibleCards.length > 0 && !selectedChartCard) {
+      setSelectedChartCard(visibleCards[0]);
+    }
+  }, [visibleCards]);
 
   // Fetch card data whenever visible cards or date range changes
   useEffect(() => {
@@ -250,8 +259,35 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     setDateRange({ ...dateRange });
   };
 
+  // Generate mock chart data for visualization
+  const generateChartData = (cardId: string) => {
+    const days = Math.floor((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const data = [];
+
+    for (let i = 0; i <= days; i++) {
+      const date = new Date(dateRange.startDate);
+      date.setDate(date.getDate() + i);
+
+      // Generate semi-realistic data based on card type
+      const baseValue = Math.random() * 1000 + 500;
+      const trend = i * 10; // Slight upward trend
+
+      data.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value1: Math.floor(baseValue + trend + Math.random() * 200),
+        value2: Math.floor(baseValue * 0.7 + trend + Math.random() * 150),
+        value3: Math.floor(baseValue * 0.5 + trend + Math.random() * 100)
+      });
+    }
+
+    return data;
+  };
+
   const handleTemplateChange = async (template: TemplateType) => {
     if (!user?.id) return;
+
+    // Reset selected chart card when template changes
+    setSelectedChartCard(null);
 
     try {
       const prefs = await switchTemplate(user.id, template);
@@ -593,61 +629,136 @@ await updateUserAnalyticsPreferences(user.id, {
           })}
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Chart View - Coming Soon */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-            <div className="text-center">
-              <LineChart className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                Chart View Coming Soon
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                We're working on bringing you detailed chart visualizations for your metrics.
-              </p>
+        <div className="space-y-4">
+          {/* Metric Selector Buttons */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 p-4">
+              {visibleCards.map((cardId) => {
+                const data = cardData[cardId];
+                if (!data) return null;
+
+                const isSelected = selectedChartCard === cardId;
+                const Icon = data.icon as any;
+
+                return (
+                  <button
+                    key={cardId}
+                    onClick={() => setSelectedChartCard(cardId)}
+                    className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                      isSelected
+                        ? 'bg-gray-900 dark:bg-gray-700 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="truncate">{data.title}</span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Show cards in list format for now */}
-          <div className="grid grid-cols-1 gap-4">
-            {visibleCards.map((cardId) => {
-              const data = cardData[cardId];
-              if (!data) return null;
-
-              return (
-                <div
-                  key={cardId}
-                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                        {data.title}
-                      </h3>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {data.mainValue}
-                      </p>
+          {/* Chart Display */}
+          {selectedChartCard && cardData[selectedChartCard] && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-4">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                      {cardData[selectedChartCard].title}
+                    </h3>
+                    <div className={`flex items-center space-x-1 text-sm ${
+                      cardData[selectedChartCard].changeType === 'positive'
+                        ? 'text-green-500'
+                        : cardData[selectedChartCard].changeType === 'critical'
+                        ? 'text-red-500'
+                        : 'text-red-500'
+                    }`}>
+                      {cardData[selectedChartCard].changeType === 'positive' ? (
+                        <ArrowUpRight className="w-4 h-4" />
+                      ) : (
+                        <ArrowDownRight className="w-4 h-4" />
+                      )}
+                      <span>{cardData[selectedChartCard].change}</span>
                     </div>
-                    <div className="text-right">
-                      <div className={`flex items-center text-sm mb-2 ${
-                        data.changeType === 'positive' ? 'text-green-500' :
-                        data.changeType === 'critical' ? 'text-red-500' : 'text-red-500'
-                      }`}>
-                        {data.change}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {data.dataPoint1.label}: <span className="font-medium text-gray-900 dark:text-white">{data.dataPoint1.value}</span>
-                        </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {data.dataPoint2.label}: <span className="font-medium text-gray-900 dark:text-white">{data.dataPoint2.value}</span>
-                        </div>
-                      </div>
+                  </div>
+
+                  <div className="flex items-center space-x-6">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-[#F43F5E] mr-2"></div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 1</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-[#E8795A] mr-2"></div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 2</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-[#EC4899] mr-2"></div>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Value 3</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                <div className="h-[400px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={generateChartData(selectedChartCard)}
+                      margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
+                      <XAxis
+                        dataKey="date"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: '#6B7280' }}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12, fill: '#6B7280' }}
+                        tickFormatter={(value) => {
+                          if (value >= 1000) {
+                            return `$${(value / 1000).toFixed(1)}k`;
+                          }
+                          return `$${value}`;
+                        }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1F2937',
+                          border: 'none',
+                          borderRadius: '8px',
+                          color: '#fff'
+                        }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value1"
+                        stroke="#F43F5E"
+                        fill="#F43F5E"
+                        fillOpacity={0.6}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value2"
+                        stroke="#E8795A"
+                        fill="#E8795A"
+                        fillOpacity={0.4}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="value3"
+                        stroke="#EC4899"
+                        fill="#EC4899"
+                        fillOpacity={0.2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
