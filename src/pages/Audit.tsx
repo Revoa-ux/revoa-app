@@ -508,7 +508,7 @@ export default function Audit() {
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}

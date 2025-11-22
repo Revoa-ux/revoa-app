@@ -110,7 +110,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-6">
       {/* Title */}
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
         Ad Manager

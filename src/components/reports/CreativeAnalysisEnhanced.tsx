@@ -44,6 +44,8 @@ interface Column {
   id: string;
   label: string;
   width: number;
+  flexGrow?: number;
+  flexShrink?: number;
   sortable?: boolean;
   render?: (value: any, item: any) => React.ReactNode;
 }
@@ -126,6 +128,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       id: 'select',
       label: '',
       width: 50,
+      flexGrow: 0,
+      flexShrink: 0,
       render: (_, creative) => (
         <CustomCheckbox
           checked={selectedCreatives.has(creative.id)}
@@ -146,6 +150,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       id: 'creative',
       label: 'Creative',
       width: 80,
+      flexGrow: 0,
+      flexShrink: 0,
       render: (_, creative) => {
         const adsManagerUrl = creative.platform === 'facebook' && creative.id && creative.adAccountId
           ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
@@ -209,30 +215,30 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     {
       id: 'adName',
       label: viewLevel === 'campaigns' ? 'Campaign Name' : viewLevel === 'adsets' ? 'Ad Set Name' : 'Ad Name',
-      width: viewLevel === 'ads' ? 200 : 280,
+      width: 200,
+      flexGrow: 2,
+      flexShrink: 1,
       sortable: true
     },
-    { id: 'platform', label: 'Platform', width: 100, sortable: true },
-    { id: 'performance', label: 'Performance', width: 120, sortable: true },
-    { id: 'fatigueScore', label: 'Fatigue', width: 100, sortable: true },
-    { id: 'impressions', label: 'Impressions', width: 120, sortable: true },
-    { id: 'clicks', label: 'Clicks', width: 100, sortable: true },
-    { id: 'ctr', label: 'CTR', width: 80, sortable: true },
-    { id: 'spend', label: 'Spend', width: 100, sortable: true },
-    { id: 'conversions', label: 'Conv.', width: 80, sortable: true },
-    { id: 'cpa', label: 'CPA', width: 80, sortable: true },
-    { id: 'roas', label: 'ROAS', width: 80, sortable: true },
-    { id: 'profit', label: 'Profit', width: 100, sortable: true },
-    { id: 'profitMargin', label: 'Margin %', width: 100, sortable: true },
-    { id: 'netROAS', label: 'Net ROAS', width: 100, sortable: true }
+    { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'fatigueScore', label: 'Fatigue', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'impressions', label: 'Impressions', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'clicks', label: 'Clicks', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'ctr', label: 'CTR', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'spend', label: 'Spend', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'conversions', label: 'Conv.', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'cpa', label: 'CPA', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'roas', label: 'ROAS', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'profit', label: 'Profit', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'profitMargin', label: 'Margin %', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'netROAS', label: 'Net ROAS', width: 100, flexGrow: 1, flexShrink: 1, sortable: true }
   ].filter(col => {
     if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
       return false;
     }
     return true;
   });
-
-  const totalWidth = columns.reduce((sum, column) => sum + column.width, 0);
 
   const handleSort = (field: string) => {
     setSortConfig(prev => ({
@@ -723,14 +729,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               className="overflow-x-auto scrollbar-thin"
               style={{ overflow: 'hidden' }}
             >
-              <div style={{ minWidth: '100%' }} className="flex">
+              <div className="flex w-full">
                 {columns.map((column, index) => (
                   <div
                     key={column.id}
                     className={`flex items-center h-12 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
                       index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
                     }`}
-                    style={{ width: column.width }}
+                    style={{
+                      minWidth: column.width,
+                      flexGrow: column.flexGrow || 0,
+                      flexShrink: column.flexShrink || 0,
+                      flexBasis: column.width
+                    }}
                   >
                     {column.id === 'select' ? (
                       <CustomCheckbox
@@ -761,7 +772,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             className="overflow-x-auto overflow-y-auto scrollbar-thin"
             style={{ height: '600px' }}
           >
-            <div style={{ minWidth: '100%' }}>
+            <div className="w-full">
               {displayedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
@@ -791,7 +802,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     <div
                       key={column.id}
                       className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
-                      style={{ width: column.width }}
+                      style={{
+                        minWidth: column.width,
+                        flexGrow: column.flexGrow || 0,
+                        flexShrink: column.flexShrink || 0,
+                        flexBasis: column.width
+                      }}
                     >
                       {column.render ? (
                         column.render(null, creative)
@@ -926,12 +942,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
                 <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                  <div className="flex items-center min-h-[56px]">
+                  <div className="flex items-center min-h-[56px] w-full">
                     {columns.map((column) => (
                       <div
                         key={column.id}
                         className="flex items-center px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white"
-                        style={{ width: column.width }}
+                        style={{
+                          minWidth: column.width,
+                          flexGrow: column.flexGrow || 0,
+                          flexShrink: column.flexShrink || 0,
+                          flexBasis: column.width
+                        }}
                       >
                         {column.id === 'select' ? (
                           <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
