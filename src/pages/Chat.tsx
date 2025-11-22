@@ -317,22 +317,22 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 h-[calc(100vh-7.6rem)] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600">
+      <div className="w-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 h-[calc(100vh-7.6rem)] flex flex-col min-w-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
               <img
                 src={adminAvatar}
                 alt={adminName}
                 className="w-full h-full object-contain"
               />
             </div>
-            <div>
-              <h2 className="text-base font-medium text-gray-900 dark:text-white">{adminName}</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Online</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Online</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
             <button 
               onClick={() => setShowSearchModal(true)}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -418,7 +418,7 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <LoadingSpinner />
@@ -447,8 +447,8 @@ const Chat = () => {
                 ref={el => messageRefs.current[message.id] = el}
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                  <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-md'} ${
+                <div className={`flex ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-full`}>
+                  <div className={`${message.type === 'text' ? 'max-w-[85%] sm:max-w-[75%] md:max-w-[65%]' : 'max-w-full sm:max-w-md'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
                       : 'message-bubble-team text-gray-900 dark:text-white'
@@ -524,7 +524,7 @@ const Chat = () => {
                   ) : (
                     <div className="flex flex-col">
                       <div className="px-3 pt-2 pb-1.5">
-                        <p className="text-sm whitespace-nowrap">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                       </div>
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
@@ -604,7 +604,7 @@ const Chat = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
             <div className="min-h-[44px] p-3">
               {replyToMessage && (
