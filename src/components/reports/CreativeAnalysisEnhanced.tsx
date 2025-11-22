@@ -595,9 +595,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const isLoading = creatives.length === 0;
 
   return (
-    <div className="h-full flex flex-col space-y-4">
+    <div className="h-full flex flex-col gap-4 overflow-hidden">
       {showAIInsights && visibleInsights.length > 0 && (
-        <div className="mb-6">
+        <div className="flex-shrink-0">
           <div className="flex items-center space-x-2 mb-3">
             <Sparkles className="w-5 h-5 text-red-500" />
             <h3 className="font-semibold text-gray-900 dark:text-white">AI Insights</h3>
@@ -641,7 +641,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-shrink-0">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">
           {viewLevel === 'campaigns' ? 'Campaign Manager' : viewLevel === 'adsets' ? 'Ad Set Manager' : 'Ad Manager'}
         </h2>
@@ -748,7 +748,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       </div>
 
       {activeFilters.length > 0 && (
-        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
           <span>Active filters:</span>
           <span className="font-medium">{activeFilters.join(', ')}</span>
           <button
@@ -762,9 +762,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0">
-        <div className="relative flex-1 flex flex-col min-h-0">
-          <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+        <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+          <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
               ref={headerRef}
               className="overflow-x-auto scrollbar-thin"
@@ -1099,7 +1099,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
           {/* Pagination Info and View More Button */}
           {sortedCreatives.length > itemsToShow && (
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between">
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between flex-shrink-0">
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 Showing <span className="font-medium text-gray-900 dark:text-white">{displayedCreatives.length}</span> of <span className="font-medium text-gray-900 dark:text-white">{sortedCreatives.length}</span> {viewLevel}
               </div>

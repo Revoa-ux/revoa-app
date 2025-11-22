@@ -426,13 +426,13 @@ export default function Audit() {
   }, [user]);
 
   return (
-    <div className="h-full flex flex-col space-y-6 overflow-hidden">
-      <div>
+    <div className="h-full flex flex-col gap-6 overflow-hidden">
+      <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">Cross-platform campaign management and performance insights</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 flex-shrink-0">
         <div className="flex items-center gap-3 overflow-x-auto">
           {/* View Toggle */}
           <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
@@ -482,7 +482,7 @@ export default function Audit() {
       </div>
 
       {!facebook.isConnected && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 flex-shrink-0">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg">
               <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
@@ -506,13 +506,15 @@ export default function Audit() {
       {facebook.isConnected && (
         <>
           {auditView === 'performance' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 overflow-auto">
-              <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
+              <div className="overflow-auto flex-1">
+                <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
+              </div>
             </div>
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}

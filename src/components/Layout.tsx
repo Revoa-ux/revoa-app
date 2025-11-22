@@ -292,10 +292,10 @@ export default function Layout() {
       </div>
 
       {/* Main content area */}
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${
+      <div className={`flex-1 transition-all duration-300 ease-in-out overflow-hidden h-screen flex flex-col ${
         isCollapsed ? 'pl-[70px]' : 'pl-[280px]'
       }`}>
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 max-w-[1800px] mx-auto">
+        <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 xl:px-12 py-4 sm:py-6 max-w-[1800px] mx-auto overflow-hidden flex flex-col min-h-0">
           <Outlet />
         </div>
       </div>
