@@ -53,7 +53,7 @@ export default function Audit() {
     return new Set(pendingSuggestions.map(s => s.entity_id));
   };
 
-  // Load existing Rex suggestions from database
+  // Load existing AI suggestions from database
   const loadRexSuggestions = async () => {
     if (!user) return;
 
@@ -81,7 +81,7 @@ export default function Audit() {
       // Generate new suggestions for items without suggestions
       await generateRexSuggestions(suggestionsMap);
     } catch (error) {
-      console.error('[Audit] Error loading Rex suggestions:', error);
+      console.error('[Audit] Error loading AI suggestions:', error);
     }
   };
 
@@ -94,13 +94,13 @@ export default function Audit() {
     );
   };
 
-  // Generate new Rex suggestions for ads/campaigns/ad sets
+  // Generate new AI suggestions for ads/campaigns/ad sets
   const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
     if (!user || isGeneratingSuggestions) return;
 
     // Check if we have valid ad account with last_synced_at
     if (facebook.adAccounts.length === 0 || !facebook.adAccounts[0].last_synced_at) {
-      console.log('[Audit] Skipping Rex suggestions - no data sync completed yet');
+      console.log('[Audit] Skipping AI suggestions - no data sync completed yet');
       return;
     }
 
@@ -225,15 +225,15 @@ export default function Audit() {
 
         if (top3Suggestions.length > 0) {
           const message = sortedSuggestions.length > 3
-            ? `Rex found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
-            : `Rex found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
+            ? `Revoa AI found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
+            : `Revoa AI found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
           toast.success(message);
         }
       } else if (skippedCount > 0) {
         console.log(`[Audit] Skipped ${skippedCount} entities without valid data`);
       }
     } catch (error) {
-      console.error('[Audit] Error generating Rex suggestions:', error);
+      console.error('[Audit] Error generating AI suggestions:', error);
     } finally {
       setIsGeneratingSuggestions(false);
     }
@@ -277,7 +277,7 @@ export default function Audit() {
       // Reload suggestions
       await loadRexSuggestions();
 
-      toast.success(`Rex's automation rule "${rule.name}" is now active!`);
+      toast.success(`Revoa AI automation rule "${rule.name}" is now active!`);
     } catch (error) {
       console.error('[Audit] Error accepting suggestion:', error);
       toast.error('Failed to create automation rule');
@@ -427,7 +427,7 @@ export default function Audit() {
               breakdown: "If you increase the daily budget by $45 (30%), I am projecting you will maintain the same 3.2x ROAS, which means for every extra dollar spent, you are getting $3.20 back. Over 30 days, that is an additional $2,400 in revenue and about $1,200 in profit."
             },
             recommended_rule: {
-              name: `Rex: Auto-scale ${campaignsData[0].name}`,
+              name: `Revoa AI: Auto-scale ${campaignsData[0].name}`,
               description: 'Automatically increase budget by 20% when ROAS stays above 3.0x for 3 consecutive days',
               entity_type: 'campaign',
               condition_logic: 'AND',
@@ -452,7 +452,7 @@ export default function Audit() {
               actions: [
                 {
                   action_type: 'increase_budget',
-                  parameters: { percentage: 20, reason: 'Rex auto-scale: High ROAS detected' }
+                  parameters: { percentage: 20, reason: 'Revoa AI auto-scale: High ROAS detected' }
                 }
               ]
             },
@@ -495,7 +495,7 @@ export default function Audit() {
               breakdown: "By pausing this underperforming ad set, you will immediately stop the $45/day in wasted spend. Over the next 30 days, that is $1,350 saved. Plus, you can reallocate that budget to your top performers for even better results."
             },
             recommended_rule: {
-              name: `Rex: Pause low performers`,
+              name: `Revoa AI: Pause low performers`,
               description: 'Automatically pause ad sets when CPA exceeds account average by 50% for 5 consecutive days',
               entity_type: 'ad_set',
               condition_logic: 'AND',
@@ -520,7 +520,7 @@ export default function Audit() {
               actions: [
                 {
                   action_type: 'pause',
-                  parameters: { reason: 'Rex auto-pause: Consistently high CPA' }
+                  parameters: { reason: 'Revoa AI auto-pause: Consistently high CPA' }
                 }
               ]
             },
@@ -564,7 +564,7 @@ export default function Audit() {
               breakdown: "If you refresh this creative with 3-5 new variations (keeping the messaging that works but with fresh visuals), I am expecting you will restore the CTR to near its original levels. Based on your historical performance, that should generate an additional $800 in revenue over the next two weeks as engagement recovers."
             },
             recommended_rule: {
-              name: `Rex: Auto-detect creative fatigue`,
+              name: `Revoa AI: Auto-detect creative fatigue`,
               description: 'Automatically flag ads when CTR declines by 30% and frequency exceeds 3.5',
               entity_type: 'ad',
               condition_logic: 'AND',
@@ -589,7 +589,7 @@ export default function Audit() {
               actions: [
                 {
                   action_type: 'notify',
-                  parameters: { message: 'Rex alert: Creative fatigue detected, refresh recommended' }
+                  parameters: { message: 'Revoa AI alert: Creative fatigue detected, refresh recommended' }
                 }
               ]
             },

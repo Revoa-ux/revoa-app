@@ -77,7 +77,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const netGainProfit = (insight.reasoning.projections?.ifImplemented?.profit || 0) - (insight.reasoning.projections?.ifIgnored?.profit || 0);
   const netGainConversions = (insight.reasoning.projections?.ifImplemented?.conversions || 0) - (insight.reasoning.projections?.ifIgnored?.conversions || 0);
 
-  // Determine Rex's emotion based on insight type
+  // Determine bot's emotion based on insight type
   const isPrimaryActionProtective = insight.directActions[0]?.type === 'pause' || insight.directActions[0]?.type === 'decrease_budget';
   const isScaling = insight.directActions[0]?.type === 'increase_budget' || insight.directActions[0]?.type === 'duplicate';
 
@@ -85,9 +85,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
   // Determine dynamic title
   const getInsightTitle = () => {
-    if (isPrimaryActionProtective) return 'Rex detected a performance issue';
-    if (isScaling) return 'Rex found a winning opportunity';
-    return 'Rex spotted an optimization';
+    if (isPrimaryActionProtective) return 'Revoa AI detected a performance issue';
+    if (isScaling) return 'Revoa AI found a winning opportunity';
+    return 'Revoa AI spotted an optimization';
   };
 
   const DataCard = ({
@@ -136,12 +136,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
   return (
     <>
-      {/* Rex Character - positioned outside modal */}
+      {/* Revoa Bot Character - positioned outside modal */}
       {isOpen && (
         <div className="fixed left-8 top-1/2 -translate-y-1/2 z-50 hidden lg:block pointer-events-none">
           <RexCharacter emotion={rexEmotion} />
 
-          {/* Connection line from Rex to modal */}
+          {/* Connection line from bot to modal */}
           <div className="absolute top-1/2 left-full w-12 h-0.5 bg-gradient-to-r from-rose-500/50 to-transparent"></div>
         </div>
       )}
@@ -154,17 +154,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Small Rex avatar in header for mobile */}
+                  {/* Small bot avatar in header for mobile */}
                   <div className="lg:hidden">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 flex items-center justify-center border-2 border-white dark:border-gray-900 shadow-lg">
-                      <svg viewBox="0 0 100 100" className="w-6 h-6 text-white" fill="currentColor">
-                        <rect x="25" y="30" width="50" height="45" rx="8" opacity="0.9" />
-                        <circle cx="38" cy="45" r="3" fill="white" />
-                        <circle cx="62" cy="45" r="3" fill="white" />
-                        <line x1="50" y1="30" x2="50" y2="22" stroke="currentColor" strokeWidth="2.5" />
-                        <circle cx="50" cy="20" r="3" />
-                      </svg>
-                    </div>
+                    <img
+                      src="/Revoa-Bot.gif"
+                      alt="Revoa AI Bot"
+                      className="w-10 h-10 object-contain"
+                    />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
@@ -218,7 +214,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
           <div className="px-6 py-5 space-y-6">
 
-            {/* Hero Statement - What Rex Found */}
+            {/* Hero Statement - What Revoa AI Found */}
             <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
               <div className="flex items-start gap-3">
                 <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
@@ -232,9 +228,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {viewMode === 'flow' && (
               <div>
                 <SectionHeader
-                  title="Rex's Analytical Process"
+                  title="Revoa AI's Analytical Process"
                   icon={Activity}
-                  analysis="See how Rex analyzed your data to generate this insight"
+                  analysis="See how Revoa AI analyzed your data to generate this insight"
                 />
                 <RexFlowDiagram insight={insight} />
               </div>

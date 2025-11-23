@@ -36,7 +36,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
     setTimeout(() => setShowGreeting(false), 3000);
   }, [isOpen]);
 
-  // Rex stays calm with a single friendly expression - no changes based on scroll
+  // Bot stays calm with a single friendly expression - no changes based on scroll
 
   const handleAccept = async () => {
     setIsAccepting(true);
@@ -234,7 +234,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
             </button>
           </div>
 
-          {/* Left Side - Rex Character */}
+          {/* Left Side - Revoa Bot Character */}
           <div className="relative w-full md:w-[380px] bg-gradient-to-br from-red-500 via-pink-500 to-orange-500 p-8 flex flex-col items-center justify-center overflow-hidden md:min-h-0 min-h-[300px]">
             {/* Animated Background Particles - 8 varied particles */}
             <div className="absolute inset-0 opacity-10">
@@ -248,9 +248,13 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
               <div className="absolute bottom-[40%] right-[8%] w-22 h-22 bg-white rounded-full blur-3xl animate-[pulse_17s_ease-in-out_infinite_7s]" />
             </div>
 
-            {/* Rex Character - Calm and Static */}
+            {/* Revoa Bot Character - Calm and Static */}
             <div className="relative z-10">
-              <AnimatedRex size="large" />
+              <img
+                src="/Revoa-Bot.gif"
+                alt="Revoa AI Bot"
+                className="w-48 h-48 object-contain"
+              />
             </div>
 
             {/* Speech Bubble Greeting */}
@@ -293,7 +297,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
             {/* Scrollable Content */}
             <div ref={contentRef} className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-6">
 
-              {/* Rex's Message - Conversation Bubble */}
+              {/* Revoa AI's Message - Conversation Bubble */}
               <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20 border-l-4 border-red-500 rounded-r-2xl p-6 shadow-sm">
                 <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                   {suggestion.message}
@@ -590,54 +594,3 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
   );
 };
 
-// Calm Rex Character Component - Single friendly expression
-interface AnimatedRexProps {
-  size?: 'small' | 'medium' | 'large';
-}
-
-const AnimatedRex: React.FC<AnimatedRexProps> = ({ size = 'large' }) => {
-  const sizeClasses = {
-    small: 'w-16 h-16',
-    medium: 'w-32 h-32',
-    large: 'w-48 h-48'
-  };
-
-  return (
-    <div className="relative">
-      {/* Gentle Glow Effect - No animation */}
-      <div className="absolute inset-0 bg-white rounded-full blur-3xl opacity-20" />
-
-      {/* Rex Character - Calm and Static */}
-      <div className={`relative ${sizeClasses[size]}`}>
-        <div className="w-full h-full rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/50 flex items-center justify-center shadow-2xl">
-          <svg
-            viewBox="0 0 100 100"
-            className="w-3/4 h-3/4 text-white drop-shadow-2xl"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Robot head */}
-            <rect x="20" y="25" width="60" height="55" rx="10" fill="currentColor" opacity="0.95" />
-
-            {/* Eyes - Friendly and Calm */}
-            <circle cx="35" cy="42" r="4.5" fill="white" />
-            <circle cx="65" cy="42" r="4.5" fill="white" />
-            <circle cx="35" cy="42" r="2.2" fill="currentColor" />
-            <circle cx="65" cy="42" r="2.2" fill="currentColor" />
-
-            {/* Mouth - Gentle Smile */}
-            <path d="M 32 60 Q 50 68 68 60" stroke="white" strokeWidth="3" fill="none" />
-
-            {/* Antenna */}
-            <line x1="50" y1="25" x2="50" y2="15" stroke="currentColor" strokeWidth="3" />
-            <circle cx="50" cy="12" r="4" fill="currentColor" />
-            <circle cx="50" cy="12" r="2" fill="white" opacity="0.8" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-};
