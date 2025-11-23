@@ -457,53 +457,90 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Data Visualization Views */}
             {viewMode !== 'conversation' && (
               <>
-                {/* SIMPLE VIEW */}
-                {viewMode === 'simple' && (demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
-                  <div>
-                    <SectionHeader
-                      title="Here's what the data shows"
-                      icon={BarChart3}
-                      analysis={insight.analysisParagraphs[0]}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {demographics.slice(0, 1).map((demo: any, idx) => (
-                        <DataCard
-                          key={idx}
-                          title={demo.segment}
-                          icon={Users}
-                          highlight
-                          data={[
-                            { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                            { label: 'Revenue', value: formatCurrency(demo.revenue || 0) },
-                            { label: 'Conversions', value: demo.conversions }
-                          ]}
-                        />
-                      ))}
-                      {geographic.slice(0, 1).map((geo: any, idx) => (
-                        <DataCard
-                          key={idx}
-                          title={geo.region}
-                          icon={MapPin}
-                          data={[
-                            { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                            { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                            { label: 'Conversions', value: geo.conversions }
-                          ]}
-                        />
-                      ))}
-                      {placements.slice(0, 1).map((placement: any, idx) => (
-                        <DataCard
-                          key={`p-${idx}`}
-                          title={placement.placement}
-                          icon={Smartphone}
-                          data={[
-                            { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                            { label: 'Conversions', value: placement.conversions },
-                            { label: 'CPA', value: formatCurrency(placement.cpa || 0) }
-                          ]}
-                        />
-                      ))}
+                {/* SIMPLE VIEW - Version 812 Style */}
+                {viewMode === 'simple' && (
+                  <div className="space-y-6">
+                    {/* Primary Insight */}
+                    <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
+                      <div className="flex items-start gap-3">
+                        <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
+                          {insight.primaryInsight}
+                        </p>
+                      </div>
                     </div>
+
+                    {/* Quick Actions */}
+                    <div>
+                      <SectionHeader title="What you should do" icon={Zap} />
+                      <div className="space-y-3">
+                        {insight.directActions.slice(0, 2).map((action, idx) => {
+                          const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                      action.type === 'decrease_budget' ? TrendingDown :
+                                      action.type === 'pause' ? Pause :
+                                      action.type === 'duplicate' ? Copy :
+                                      Zap;
+
+                          const isPrimary = idx === 0;
+
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => handleAction(action.type, action.parameters)}
+                              disabled={isProcessing}
+                              className={`
+                                w-full flex items-center gap-4 p-4 text-left
+                                bg-white dark:bg-gray-800
+                                border-2 ${isPrimary ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700'}
+                                rounded-xl
+                                hover:shadow-lg transition-all
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                              `}
+                            >
+                              <div className={`p-2.5 rounded-lg ${isPrimary ? 'bg-gradient-to-br from-rose-500 to-pink-500' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                                <Icon className={`w-5 h-5 ${isPrimary ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
+                              </div>
+                              <div className="flex-1">
+                                <div className={`font-bold mb-1 ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'}`}>
+                                  {action.label}
+                                </div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
+                                  {action.description}
+                                </div>
+                              </div>
+                              <ChevronRight className={`w-5 h-5 ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'}`} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Key Metrics */}
+                    {insight.reasoning.projections && (
+                      <div>
+                        <SectionHeader title="Expected Impact" icon={TrendingUp} />
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Revenue Gain</div>
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {formatCurrency(netGainRevenue)}
+                            </div>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Profit Gain</div>
+                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                              {formatCurrency(netGainProfit)}
+                            </div>
+                          </div>
+                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Conversions</div>
+                            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                              +{formatNumber(netGainConversions)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -645,13 +682,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         </div>
                       </div>
                     )}
-                  </div>
-                )}
-              </>
-            )}
 
-            {/* Recommended Actions - Vertical List */}
-            <div>
+                    {/* All Actions for Detailed View */}
+                    <div>
               <SectionHeader title="What you should do" icon={Zap} />
               <div className="space-y-3">
                 {insight.directActions.map((action, idx) => {
@@ -734,49 +767,53 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               </div>
             </div>
 
-            {/* Optional Automation Callout */}
-            {insight.recommendedRule && (
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
-                    <Zap className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                  </div>
-                  <div className="flex-1">
-                    <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                      Want me to watch for this automatically?
-                    </h5>
-                    <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {isPrimaryActionProtective
-                        ? "I can monitor this and protect your budget if performance deteriorates."
-                        : isScaling
-                        ? "I can watch for similar opportunities and scale them automatically."
-                        : "I can maintain optimal performance and adjust based on real-time data."}
-                    </p>
-                  </div>
-                </div>
+                    {/* Automation Offer for Detailed View */}
+                    {insight.recommendedRule && (
+                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
+                            <Zap className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                          </div>
+                          <div className="flex-1">
+                            <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                              Want me to watch for this automatically?
+                            </h5>
+                            <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {isPrimaryActionProtective
+                                ? "I can monitor this and protect your budget if performance deteriorates."
+                                : isScaling
+                                ? "I can watch for similar opportunities and scale them automatically."
+                                : "I can maintain optimal performance and adjust based on real-time data."}
+                            </p>
+                          </div>
+                        </div>
 
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    {insight.recommendedRule.name}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                    <span>{insight.recommendedRule.conditions.length} conditions</span>
-                    <span>•</span>
-                    <span>{insight.recommendedRule.actions.length} actions</span>
-                    <span>•</span>
-                    <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
-                  </div>
-                </div>
+                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                            {insight.recommendedRule.name}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                            <span>{insight.recommendedRule.conditions.length} conditions</span>
+                            <span>•</span>
+                            <span>{insight.recommendedRule.actions.length} actions</span>
+                            <span>•</span>
+                            <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
+                          </div>
+                        </div>
 
-                <button
-                  onClick={onCreateRule}
-                  disabled={isProcessing}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-semibold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
-                >
-                  <span>Create Automation Rule</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+                        <button
+                          onClick={onCreateRule}
+                          disabled={isProcessing}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-semibold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
+                        >
+                          <span>Create Automation Rule</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
 
             {/* Subtle Dismiss Link */}
