@@ -50,7 +50,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onClose
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [viewMode, setViewMode] = useState<'simple' | 'detailed' | 'flow'>('simple');
+  const [viewMode, setViewMode] = useState<'conversation' | 'simple' | 'detailed'>('conversation');
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
@@ -171,6 +171,16 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               <div className="flex items-center gap-2">
                 <div className="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
                   <button
+                    onClick={() => setViewMode('conversation')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      viewMode === 'conversation'
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Conversation
+                  </button>
+                  <button
                     onClick={() => setViewMode('simple')}
                     className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                       viewMode === 'simple'
@@ -190,16 +200,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   >
                     Detailed
                   </button>
-                  <button
-                    onClick={() => setViewMode('flow')}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                      viewMode === 'flow'
-                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                    }`}
-                  >
-                    Flow
-                  </button>
                 </div>
                 <button
                   onClick={onClose}
@@ -214,30 +214,248 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
           <div className="px-6 py-5 space-y-6">
 
-            {/* Hero Statement - What Revoa AI Found */}
-            <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-                <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
-                  {insight.primaryInsight}
-                </p>
-              </div>
-            </div>
+            {/* Conversation View */}
+            {viewMode === 'conversation' && (
+              <div className="space-y-4">
+                {/* AI Message - Primary Insight */}
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0 pt-1">
+                    <img
+                      src="/Revoa-AI-Bot.png"
+                      alt="Revoa AI"
+                      className="w-10 h-10 object-contain"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border border-rose-200 dark:border-rose-800 rounded-2xl rounded-tl-sm p-5">
+                      <p className="text-base text-gray-900 dark:text-white leading-relaxed">
+                        {insight.primaryInsight}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Flow Diagram View */}
-            {viewMode === 'flow' && (
-              <div>
-                <SectionHeader
-                  title="Revoa AI's Analytical Process"
-                  icon={Activity}
-                  analysis="See how Revoa AI analyzed your data to generate this insight"
-                />
-                <RexFlowDiagram insight={insight} />
+                {/* AI Message - Analysis */}
+                {insight.analysisParagraphs && insight.analysisParagraphs.length > 0 && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <img
+                        src="/Revoa-AI-Bot.png"
+                        alt="Revoa AI"
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm p-5 space-y-3">
+                        {insight.analysisParagraphs.map((paragraph, idx) => (
+                          <p key={idx} className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Message - Data Highlights */}
+                {(demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <img
+                        src="/Revoa-AI-Bot.png"
+                        alt="Revoa AI"
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm p-5">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                          Here's what stood out in the data:
+                        </p>
+                        <div className="space-y-3">
+                          {demographics.slice(0, 1).map((demo: any, idx) => (
+                            <div key={idx} className="bg-gradient-to-r from-rose-50/50 to-transparent dark:from-rose-950/20 border-l-2 border-rose-500 pl-4 py-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Users className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                                <span className="font-semibold text-gray-900 dark:text-white text-sm">{demo.segment}</span>
+                              </div>
+                              <div className="flex gap-4 text-xs text-gray-600 dark:text-gray-400">
+                                <span>{demo.roas?.toFixed(1)}x ROAS</span>
+                                <span>•</span>
+                                <span>{formatCurrency(demo.revenue || 0)} revenue</span>
+                                <span>•</span>
+                                <span>{demo.conversions} conversions</span>
+                              </div>
+                            </div>
+                          ))}
+                          {geographic.slice(0, 1).map((geo: any, idx) => (
+                            <div key={idx} className="bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/20 border-l-2 border-blue-500 pl-4 py-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                                <span className="font-semibold text-gray-900 dark:text-white text-sm">{geo.region}</span>
+                              </div>
+                              <div className="flex gap-4 text-xs text-gray-600 dark:text-gray-400">
+                                <span>{geo.roas?.toFixed(1)}x ROAS</span>
+                                <span>•</span>
+                                <span>{formatCurrency(geo.averageOrderValue || 0)} AOV</span>
+                                <span>•</span>
+                                <span>{geo.conversions} conversions</span>
+                              </div>
+                            </div>
+                          ))}
+                          {placements.slice(0, 1).map((placement: any, idx) => (
+                            <div key={idx} className="bg-gradient-to-r from-purple-50/50 to-transparent dark:from-purple-950/20 border-l-2 border-purple-500 pl-4 py-2">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Smartphone className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                <span className="font-semibold text-gray-900 dark:text-white text-sm">{placement.placement}</span>
+                              </div>
+                              <div className="flex gap-4 text-xs text-gray-600 dark:text-gray-400">
+                                <span>{placement.roas?.toFixed(1)}x ROAS</span>
+                                <span>•</span>
+                                <span>{placement.conversions} conversions</span>
+                                <span>•</span>
+                                <span>{formatCurrency(placement.cpa || 0)} CPA</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Message - Projections */}
+                {insight.reasoning.projections && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <img
+                        src="/Revoa-AI-Bot.png"
+                        alt="Revoa AI"
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm p-5">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                          Based on this data, here's what I project over the next 30 days:
+                        </p>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="text-center p-3 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-200 dark:border-green-800">
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium mb-1">Revenue Gain</div>
+                            <div className="text-lg font-bold text-green-700 dark:text-green-300">
+                              {formatCurrency(netGainRevenue)}
+                            </div>
+                          </div>
+                          <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Profit Gain</div>
+                            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
+                              {formatCurrency(netGainProfit)}
+                            </div>
+                          </div>
+                          <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/10 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">New Conversions</div>
+                            <div className="text-lg font-bold text-purple-700 dark:text-purple-300">
+                              +{formatNumber(netGainConversions)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Message - Recommended Action */}
+                {insight.directActions && insight.directActions.length > 0 && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <img
+                        src="/Revoa-AI-Bot.png"
+                        alt="Revoa AI"
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border border-rose-200 dark:border-rose-800 rounded-2xl rounded-tl-sm p-5">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                          Here's what I recommend you do:
+                        </p>
+                        <div className="space-y-3">
+                          {insight.directActions.map((action, idx) => {
+                            const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                        action.type === 'decrease_budget' ? TrendingDown :
+                                        action.type === 'pause' ? Pause :
+                                        action.type === 'duplicate' ? Copy :
+                                        Zap;
+
+                            const isPrimary = idx === 0;
+
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => handleAction(action.type, action.parameters)}
+                                disabled={isProcessing}
+                                className={`
+                                  w-full flex items-center gap-3 p-4 text-left
+                                  bg-white dark:bg-gray-800
+                                  border-2 ${isPrimary ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700'}
+                                  rounded-xl
+                                  hover:shadow-lg transition-all
+                                  disabled:opacity-50 disabled:cursor-not-allowed
+                                `}
+                              >
+                                <div className={`p-2 rounded-lg ${isPrimary ? 'bg-gradient-to-br from-rose-500 to-pink-500' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                                  <Icon className={`w-5 h-5 ${isPrimary ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className={`font-semibold ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'}`}>
+                                    {action.label}
+                                  </div>
+                                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                                    {action.description}
+                                  </div>
+                                </div>
+                                <ChevronRight className={`w-5 h-5 ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'}`} />
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Message - Automation Offer */}
+                {insight.recommendedRule && (
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 pt-1">
+                      <img
+                        src="/Revoa-AI-Bot.png"
+                        alt="Revoa AI"
+                        className="w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-tl-sm p-5">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                          Want me to watch for this automatically? I can create an automation rule to {isPrimaryActionProtective ? 'protect your budget if performance deteriorates' : isScaling ? 'scale similar opportunities automatically' : 'maintain optimal performance'}.
+                        </p>
+                        <button
+                          onClick={onCreateRule}
+                          disabled={isProcessing}
+                          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-semibold transition-all disabled:opacity-50 shadow-sm hover:shadow-md"
+                        >
+                          <Zap className="w-4 h-4" />
+                          <span>Create Automation Rule</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Data Visualization Views */}
-            {viewMode !== 'flow' && (
+            {viewMode !== 'conversation' && (
               <>
                 {/* SIMPLE VIEW */}
                 {viewMode === 'simple' && (demographics.length > 0 || geographic.length > 0 || placements.length > 0) && (
