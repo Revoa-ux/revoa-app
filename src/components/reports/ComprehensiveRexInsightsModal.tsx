@@ -916,8 +916,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       </div>
                     )}
 
-                    {/* Old sections removed - data now shows only when filtered */}
-                    {false && demographics.length > 0 && (
+                    {/* Data sections with paragraphs and + buttons for building custom actions */}
+                    {demographics.length > 0 && (
                       <div>
                         <SectionHeader
                           title="Top Performing Segments"
@@ -1064,12 +1064,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 )}
               </>
 
-            {/* Recommended Actions */}
-            <div>
-              <SectionHeader title="What you should do" icon={Zap} />
-
-              {/* Simple View - Original Design */}
-              {viewMode === 'simple' && (
+            {/* Recommended Actions - Only for Simple View */}
+            {viewMode === 'simple' && (
+              <div>
+                <SectionHeader title="What you should do" icon={Zap} />
                 <div className="space-y-3">
                   {insight.directActions.map((action, idx) => {
                     const Icon = action.type === 'increase_budget' ? TrendingUp :
@@ -1149,10 +1147,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     );
                   })}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Expert View - Expandable Cards */}
-              {viewMode === 'expert' && (
+              {/* Expert View actions are now inline in the Expert view above, removed from here */}
+              {false && viewMode === 'expert' && (
                 <div className="space-y-3">
                   {insight.directActions.map((action, idx) => {
                     const Icon = action.type === 'increase_budget' ? TrendingUp :
@@ -1322,83 +1321,38 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   })}
                 </div>
               )}
-            </div>
 
-            {/* Smart Automation Rules - Simple View Only */}
+            {/* Smart Automation Rules - Simple View (matches Expert style) */}
             {viewMode === 'simple' && insight.recommendedRule && (
-              <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                {/* Rule Category Header - Consistent Branding */}
-                <div className="px-5 py-3 bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 border-b border-rose-200 dark:border-rose-800">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      {isPrimaryActionProtective ? '🛡️ Safeguarding Rule' : '📈 Scaling Rule'}
-                    </span>
+              <div>
+                <SectionHeader title="Smart Automation" icon={Zap} />
+                <button
+                  onClick={onCreateRule}
+                  disabled={isProcessing}
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                >
+                  <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
+                    {isPrimaryActionProtective ? (
+                      <Pause className="w-4 h-4 text-white" />
+                    ) : (
+                      <TrendingUp className="w-4 h-4 text-white" />
+                    )}
                   </div>
-                </div>
-
-                <div className="p-5 space-y-4">
-                  {/* Smart Description */}
-                  <div>
-                    <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
-                      {isPrimaryActionProtective
-                        ? 'Protect your ad spend automatically'
-                        : 'Scale winning opportunities automatically'}
-                    </h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {isPrimaryActionProtective
-                        ? `Revoa AI will monitor performance and automatically ${insight.directActions[0]?.type === 'pause' ? 'pause' : 'reduce budget on'} underperforming segments to prevent wasted spend. This rule activates when ROAS drops below ${(insight.reasoning.projections?.ifIgnored?.roas || 0).toFixed(1)}x or spend exceeds safe thresholds.`
-                        : `Revoa AI will identify similar high-performing opportunities and automatically ${insight.directActions[0]?.type === 'increase_budget' ? 'increase budgets' : 'duplicate campaigns'} to maximize returns. This rule finds segments matching ${demographics[0]?.segment || 'winning patterns'} performance criteria.`}
-                    </p>
-                  </div>
-
-                  {/* Rule Details Card */}
-                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
-                          {insight.recommendedRule.name}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {insight.recommendedRule.description}
-                        </div>
-                      </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
+                      {insight.recommendedRule.name}
                     </div>
-
-                    {/* Rule Metrics */}
-                    <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Conditions</div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {insight.recommendedRule.conditions.length}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Actions</div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                          {insight.recommendedRule.actions.length}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Check Frequency</div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Every {insight.recommendedRule.check_frequency_minutes / 60}h
-                        </div>
-                      </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                      {insight.recommendedRule.description}
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                      <span>{insight.recommendedRule.conditions.length} conditions</span>
+                      <span>{insight.recommendedRule.actions.length} actions</span>
+                      <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
                     </div>
                   </div>
-
-                  {/* Action Button */}
-                  <button
-                    onClick={onCreateRule}
-                    disabled={isProcessing}
-                    className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50 shadow-md hover:shadow-lg"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>Enable {isPrimaryActionProtective ? 'Safeguarding' : 'Scaling'} Rule</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                </button>
               </div>
             )}
 
