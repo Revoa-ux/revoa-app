@@ -22,6 +22,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
   const [isExecutingAction, setIsExecutingAction] = useState(false);
   const [showDismissReason, setShowDismissReason] = useState(false);
   const [dismissReason, setDismissReason] = useState('');
+  const [viewMode, setViewMode] = useState<'simple' | 'detailed'>('detailed');
 
   const handleAccept = async () => {
     setIsAccepting(true);
@@ -158,9 +159,22 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
+      {/* Revoa Bot Character - positioned outside modal on the left */}
+      {isOpen && (
+        <div className="fixed left-8 top-1/2 -translate-y-1/2 z-50 hidden lg:block pointer-events-none">
+          <img
+            src="/Revoa-AI-Bot.png"
+            alt="Revoa AI Bot"
+            className="w-24 h-24 object-contain drop-shadow-2xl"
+          />
+          {/* Connection line from bot to modal */}
+          <div className="absolute top-1/2 left-full w-12 h-0.5 bg-gradient-to-r from-rose-500/50 to-transparent"></div>
+        </div>
+      )}
+
       <div className="min-h-full flex items-center justify-center p-4">
         <div className="relative bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-          {/* Header - No Icon */}
+          {/* Header with Toggle */}
           <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1.5">
@@ -180,27 +194,145 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                 )}
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all ml-3"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2 ml-3">
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-100 dark:bg-gray-900 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => setViewMode('simple')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    viewMode === 'simple'
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Simple
+                </button>
+                <button
+                  onClick={() => setViewMode('detailed')}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                    viewMode === 'detailed'
+                      ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  Detailed
+                </button>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto px-6 py-5">
-            <div className="space-y-5">
-              {/* AI Intelligence Analysis Card with Action Button */}
-              <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
-                  AI Intelligence Analysis
-                </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                  {suggestion.message}
-                </p>
-                {canAccept && getActionButton()}
+            {/* SIMPLE VIEW */}
+            {viewMode === 'simple' && (
+              <div className="space-y-5">
+                {/* Main Message */}
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border-l-4 border-red-500 dark:border-red-600 rounded-lg p-5">
+                  <p className="text-base text-gray-900 dark:text-white leading-relaxed">
+                    {suggestion.message}
+                  </p>
+                </div>
+
+                {/* Action Button */}
+                {canAccept && getActionButton() && (
+                  <div className="flex justify-center">
+                    {getActionButton()}
+                  </div>
+                )}
+
+                {/* Expected Impact */}
+                {suggestion.estimated_impact && (
+                  <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                      Here is what this could mean for your wallet...
+                    </h4>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                      {suggestion.estimated_impact.breakdown}
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {suggestion.estimated_impact.expectedRevenue !== undefined && (
+                        <div className="text-center">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Revenue</div>
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                            ${suggestion.estimated_impact.expectedRevenue.toFixed(2)}
+                          </div>
+                        </div>
+                      )}
+                      {suggestion.estimated_impact.expectedProfit !== undefined && (
+                        <div className="text-center">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Expected Profit</div>
+                          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                            ${suggestion.estimated_impact.expectedProfit.toFixed(2)}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Metrics */}
+                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                    Here is what caught my attention...
+                  </h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                    {suggestion.reasoning.analysis}
+                  </p>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    Complete metric breakdown:
+                  </div>
+                  <div className="grid grid-cols-4 gap-3 mt-3">
+                    {Object.entries(suggestion.reasoning.metrics).slice(0, 4).map(([key, value]) => (
+                      <div key={key} className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{formatMetricLabel(key)}</div>
+                        <div className="text-base font-bold text-gray-900 dark:text-white">
+                          {typeof value === 'number' ?
+                            (key.toLowerCase().includes('percentage') || key.toLowerCase().includes('score') || key.toLowerCase().includes('ctr') ?
+                              `${value.toFixed(1)}%` :
+                              key.toLowerCase().includes('spend') || key.toLowerCase().includes('profit') || key.toLowerCase().includes('revenue') || key.toLowerCase().includes('cpa') ?
+                                `$${value.toFixed(2)}` :
+                                value.toLocaleString())
+                            : value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Technical Details */}
+                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                    Technical Details
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600 dark:text-gray-400">Confidence Score</span>
+                      <span className="font-bold text-gray-900 dark:text-white">{suggestion.confidence_score}%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            )}
+
+            {/* DETAILED VIEW */}
+            {viewMode === 'detailed' && (
+              <div className="space-y-5">
+                {/* AI Intelligence Analysis Card with Action Button */}
+                <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl p-5">
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-3">
+                    AI Intelligence Analysis
+                  </h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                    {suggestion.message}
+                  </p>
+                  {canAccept && getActionButton()}
+                </div>
 
               {/* Confidence & Priority */}
               <div className="grid grid-cols-2 gap-4">
@@ -411,7 +543,8 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
                   </button>
                 </div>
               )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Footer - Only Dismiss/Close */}
