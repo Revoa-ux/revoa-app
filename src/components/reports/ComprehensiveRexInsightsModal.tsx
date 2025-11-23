@@ -157,7 +157,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
         </div>
-        {viewMode === 'expert' && onAddRule && (
+        {viewMode === 'advanced' && onAddRule && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -194,16 +194,23 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
       </div>
       {analysis && (
         <div className="relative group">
-          <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">{analysis}</p>
-          {viewMode === 'expert' && onAddAction && (
-            <button
-              onClick={onAddAction}
-              className="absolute -right-2 top-0 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-md"
-              title="Create action from this insight"
-            >
-              <Plus className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-            </button>
-          )}
+          <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+            {analysis}
+            {viewMode === 'advanced' && onAddAction && (
+              <>
+                {' '}
+                <span className="text-gray-500 dark:text-gray-500">Consider building a custom action.</span>
+                {' '}
+                <button
+                  onClick={onAddAction}
+                  className="inline-flex items-center justify-center w-5 h-5 rounded bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-rose-400 dark:hover:border-rose-500 transition-all group/btn shadow-sm"
+                  title="Build custom action from this insight"
+                >
+                  <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400 group-hover/btn:text-rose-600 dark:group-hover/btn:text-rose-400" />
+                </button>
+              </>
+            )}
+          </p>
         </div>
       )}
     </div>
