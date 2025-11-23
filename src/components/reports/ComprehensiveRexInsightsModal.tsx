@@ -47,7 +47,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   onClose
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [viewMode, setViewMode] = useState<'simple' | 'expert'>('simple');
+  const [viewMode, setViewMode] = useState<'simple' | 'expert' | 'advanced'>('simple');
   const [queuedActions, setQueuedActions] = useState<Array<{ type: 'action' | 'rule'; data: any; source: string }>>([]);
   const [expandedActionIndex, setExpandedActionIndex] = useState<number | null>(null);
   const [selectedActionIndex, setSelectedActionIndex] = useState<number | null>(null);
@@ -251,6 +251,16 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   >
                     Expert
                   </button>
+                  <button
+                    onClick={() => setViewMode('advanced')}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                      viewMode === 'advanced'
+                        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    Advanced
+                  </button>
                 </div>
                 <button
                   onClick={onClose}
@@ -329,8 +339,154 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   </div>
                 )}
 
-                {/* EXPERT VIEW - Restructured with Actions First */}
+                {/* EXPERT VIEW - Classic Data Display */}
                 {viewMode === 'expert' && (
+                  <div className="space-y-6">
+                    {demographics.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Users className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Top Performing Segments
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {demographics.map((demo: any, idx) => (
+                            <DataCard
+                              key={idx}
+                              title={demo.segment}
+                              icon={Users}
+                              highlight={demo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
+                              data={[
+                                { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
+                                { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
+                                { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
+                              ]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {geographic.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Globe className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Geographic Performance
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {geographic.map((geo: any, idx) => (
+                            <DataCard
+                              key={idx}
+                              title={geo.region}
+                              icon={MapPin}
+                              highlight={geo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
+                              data={[
+                                { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
+                                { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
+                                { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
+                              ]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {placements.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Smartphone className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Platform & Placement
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {placements.map((placement: any, idx) => (
+                            <DataCard
+                              key={idx}
+                              title={placement.placement}
+                              icon={Tv}
+                              highlight={placement.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
+                              data={[
+                                { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
+                                { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
+                                { label: 'Share', value: formatPercent(placement.contribution || 0) }
+                              ]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {temporal.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Clock className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Best Times to Advertise
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {temporal.map((time: any, idx) => (
+                            <DataCard
+                              key={idx}
+                              title={time.period}
+                              icon={Calendar}
+                              highlight={time.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
+                              data={[
+                                { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
+                                { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
+                                { label: 'Share', value: formatPercent(time.contribution || 0) }
+                              ]}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {customerBehavior && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Customer Behavior
+                          </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <DataCard
+                            title="New Customers"
+                            icon={Users}
+                            data={[
+                              {
+                                label: 'Share',
+                                value: formatPercent((customerBehavior.newVsReturning.new.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
+                              },
+                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.new.averageOrderValue || 0) },
+                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.new.cpa || 0) }
+                            ]}
+                          />
+                          <DataCard
+                            title="Returning Customers"
+                            icon={Repeat}
+                            data={[
+                              {
+                                label: 'Share',
+                                value: formatPercent((customerBehavior.newVsReturning.returning.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
+                              },
+                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.returning.averageOrderValue || 0) },
+                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.returning.cpa || 0) }
+                            ]}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ADVANCED VIEW - Interactive Build Mode with Actions First */}
+                {viewMode === 'advanced' && (
                   <div className="space-y-6">
                     {/* AI SUGGESTIONS SECTION - TOP */}
                     <div>
@@ -447,7 +603,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       </div>
                     </div>
 
-                    {/* AUTOMATION RULE SECTION - IN EXPERT VIEW */}
+                    {/* AUTOMATION RULE SECTION - IN ADVANCED VIEW */}
                     {insight.recommendedRule && (
                       <div>
                         <div className="flex items-center gap-2 mb-4">
