@@ -405,7 +405,7 @@ export default function Audit() {
             platform: 'facebook',
             suggestion_type: 'increase_budget',
             title: 'Increase Budget for Top Performer',
-            message: `Hey! I've been watching "${campaignsData[0].name}" and it is absolutely crushing it. Your ROAS is sitting at 3.2x with a CPA of just $45 - that is fantastic! I think we should scale this up by 30% while it is hot. Based on the current performance, this could bring in an extra $2,400 in revenue without hurting your margins.`,
+            message: `Hey! I have been watching "${campaignsData[0].name}" and it is absolutely crushing it. Your ROAS is sitting at 3.2x with a CPA of just $45 - that is fantastic! This is performing way above your account average and I think we should scale this up by 30% while it is hot.`,
             priority_score: 85,
             confidence_score: 88,
             reasoning: {
