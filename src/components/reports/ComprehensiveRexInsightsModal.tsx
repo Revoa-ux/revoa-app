@@ -23,7 +23,6 @@ import {
   ChevronUp
 } from 'lucide-react';
 import Modal from '@/components/Modal';
-import { RexCharacter } from './RexCharacter';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 
 interface ComprehensiveRexInsightsModalProps {
@@ -77,17 +76,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const netGainProfit = (insight.reasoning.projections?.ifImplemented?.profit || 0) - (insight.reasoning.projections?.ifIgnored?.profit || 0);
   const netGainConversions = (insight.reasoning.projections?.ifImplemented?.conversions || 0) - (insight.reasoning.projections?.ifIgnored?.conversions || 0);
 
-  // Determine Rex's emotion based on insight type
+  // Determine insight type
   const isPrimaryActionProtective = insight.directActions[0]?.type === 'pause' || insight.directActions[0]?.type === 'decrease_budget';
   const isScaling = insight.directActions[0]?.type === 'increase_budget' || insight.directActions[0]?.type === 'duplicate';
 
-  const rexEmotion = isPrimaryActionProtective ? 'concerned' : isScaling ? 'excited' : 'thoughtful';
-
   // Determine dynamic title
   const getInsightTitle = () => {
-    if (isPrimaryActionProtective) return 'Rex detected a performance issue';
-    if (isScaling) return 'Rex found a winning opportunity';
-    return 'Rex spotted an optimization';
+    if (isPrimaryActionProtective) return 'Revoa AI detected a performance issue';
+    if (isScaling) return 'Revoa AI found a winning opportunity';
+    return 'Revoa AI spotted an optimization';
   };
 
   const handleAddToQueue = (type: 'action' | 'rule', data: any, source: string) => {
@@ -111,10 +108,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     highlight?: boolean;
     onAddRule?: () => void;
   }) => (
-    <div className={`relative bg-white dark:bg-gray-800 rounded-xl p-4 transition-all duration-200 group ${
+    <div className={`relative bg-white dark:bg-gray-800 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
-        ? 'border-2 border-transparent bg-gradient-to-br from-white via-white to-rose-50 dark:from-gray-800 dark:via-gray-800 dark:to-rose-950/20 shadow-lg hover:shadow-xl [background-clip:padding-box] before:absolute before:inset-0 before:rounded-xl before:p-[2px] before:bg-gradient-to-br before:from-rose-400 before:via-pink-400 before:to-orange-400 before:-z-10'
-        : 'border border-gray-200 dark:border-gray-700 hover:shadow-lg'
+        ? 'border-2 border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:border-rose-500 dark:hover:border-rose-500'
+        : 'border-gray-200 dark:border-gray-700 hover:shadow-lg'
     }`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
@@ -175,16 +172,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
   return (
     <>
-      {/* Rex Character - positioned outside modal */}
-      {isOpen && (
-        <div className="fixed left-8 top-1/2 -translate-y-1/2 z-50 hidden lg:block pointer-events-none">
-          <RexCharacter emotion={rexEmotion} />
-
-          {/* Connection line from Rex to modal */}
-          <div className="absolute top-1/2 left-full w-12 h-0.5 bg-gradient-to-r from-rose-500/50 to-transparent"></div>
-        </div>
-      )}
-
       <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
         <div className="max-h-[85vh] overflow-y-auto" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
 
@@ -193,17 +180,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Small Rex avatar in header for mobile */}
-                  <div className="lg:hidden">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 flex items-center justify-center border-2 border-white dark:border-gray-900 shadow-lg">
-                      <svg viewBox="0 0 100 100" className="w-6 h-6 text-white" fill="currentColor">
-                        <rect x="25" y="30" width="50" height="45" rx="8" opacity="0.9" />
-                        <circle cx="38" cy="45" r="3" fill="white" />
-                        <circle cx="62" cy="45" r="3" fill="white" />
-                        <line x1="50" y1="30" x2="50" y2="22" stroke="currentColor" strokeWidth="2.5" />
-                        <circle cx="50" cy="20" r="3" />
-                      </svg>
-                    </div>
+                  {/* Revoa AI Badge */}
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
+                    <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
@@ -247,15 +226,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
           <div className="px-6 py-5 space-y-6">
 
-            {/* Hero Statement - What Rex Found */}
-            <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-                <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
-                  {insight.primaryInsight}
-                </p>
+            {/* Hero Statement - What Revoa AI Found (Simple view only) */}
+            {viewMode === 'simple' && (
+              <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
+                    {insight.primaryInsight}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Data Visualization Views */}
             <>
@@ -459,59 +440,161 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 )}
               </>
 
-            {/* Recommended Actions - Expandable Template-Style Cards */}
+            {/* Recommended Actions */}
             <div>
               <SectionHeader title="What you should do" icon={Zap} />
-              <div className="space-y-3">
-                {insight.directActions.map((action, idx) => {
-                  const Icon = action.type === 'increase_budget' ? TrendingUp :
-                              action.type === 'decrease_budget' ? TrendingDown :
-                              action.type === 'pause' ? Pause :
-                              action.type === 'duplicate' ? Copy :
-                              Zap;
 
-                  const isPrimary = idx === 0;
-                  const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-                  const isExpanded = expandedActionIndex === idx;
+              {/* Simple View - Original Design */}
+              {viewMode === 'simple' && (
+                <div className="space-y-3">
+                  {insight.directActions.map((action, idx) => {
+                    const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                action.type === 'decrease_budget' ? TrendingDown :
+                                action.type === 'pause' ? Pause :
+                                action.type === 'duplicate' ? Copy :
+                                Zap;
 
-                  // Get relevant supporting data for this action
-                  const getRelevantData = () => {
-                    if (action.type === 'increase_budget' && demographics.length > 0) {
-                      return demographics.slice(0, 3);
-                    }
-                    if (action.type === 'duplicate' && placements.length > 0) {
-                      return placements.slice(0, 3);
-                    }
-                    if (action.type === 'pause' && demographics.length > 0) {
-                      return demographics.filter((d: any) => d.roas < (insight.reasoning.projections?.ifIgnored?.roas || 0)).slice(0, 3);
-                    }
-                    return geographic.slice(0, 3);
-                  };
+                    const isPrimary = idx === 0;
+                    const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
 
-                  const relevantData = getRelevantData();
-
-                  return (
-                    <div
-                      key={idx}
-                      className={`
-                        relative w-full
-                        bg-white dark:bg-gray-800
-                        border-2 ${isPrimary
-                          ? 'border-transparent bg-gradient-to-br from-white via-white to-rose-50 dark:from-gray-800 dark:via-gray-800 dark:to-rose-950/20 shadow-lg [background-clip:padding-box] before:absolute before:inset-0 before:rounded-xl before:p-[2px] before:bg-gradient-to-br before:from-rose-400 before:via-pink-400 before:to-orange-400 before:-z-10'
-                          : isDestructive
-                          ? 'border-red-300 dark:border-red-800'
-                          : 'border-gray-200 dark:border-gray-700'
-                        }
-                        rounded-xl
-                        transition-all duration-200
-                        ${ isExpanded ? 'shadow-xl' : 'hover:shadow-lg' }
-                      `}
-                    >
+                    return (
                       <button
-                        onClick={() => setExpandedActionIndex(isExpanded ? null : idx)}
+                        key={idx}
+                        onClick={() => handleAction(action.type, action.parameters)}
                         disabled={isProcessing}
-                        className="w-full flex flex-col items-start gap-3 p-5 text-left disabled:opacity-50"
+                        className={`
+                          group relative w-full
+                          flex flex-col items-start gap-3 p-5 text-left
+                          bg-white dark:bg-gray-800
+                          border-2 ${isPrimary
+                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10'
+                            : isDestructive
+                            ? 'border-red-300 dark:border-red-800'
+                            : 'border-gray-200 dark:border-gray-700'
+                          }
+                          rounded-xl
+                          transition-all duration-200
+                          disabled:opacity-50 disabled:cursor-not-allowed
+                          hover:shadow-xl hover:-translate-y-0.5
+                        `}
                       >
+                        <div className="flex items-center gap-3 w-full">
+                          <div className={`p-2.5 rounded-lg ${
+                            isPrimary
+                              ? 'bg-gradient-to-br from-rose-500 to-pink-500'
+                              : isDestructive
+                              ? 'bg-red-50 dark:bg-red-900/20'
+                              : 'bg-gray-100 dark:bg-gray-700'
+                          }`}>
+                            <Icon className={`w-5 h-5 ${
+                              isPrimary ? 'text-white' :
+                              isDestructive ? 'text-red-600 dark:text-red-400' :
+                              'text-gray-600 dark:text-gray-300'
+                            }`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-base font-bold mb-1 ${
+                              isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                            }`}>
+                              {action.label}
+                            </div>
+                            <div className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                              {action.description}
+                            </div>
+                          </div>
+                          <ChevronRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${
+                            isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
+                          }`} />
+                        </div>
+
+                        {/* Impact metrics */}
+                        <div className="w-full pt-3 border-t border-gray-100 dark:border-gray-700">
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-4">
+                              <span className="text-green-600 dark:text-green-400 font-semibold">
+                                +{formatCurrency(netGainRevenue)} revenue
+                              </span>
+                              <span className="text-gray-500 dark:text-gray-500">
+                                +{formatNumber(netGainConversions)} conversions
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-400">30-day projection</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Expert View - Expandable Cards */}
+              {viewMode === 'expert' && (
+                <div className="space-y-3">
+                  {insight.directActions.map((action, idx) => {
+                    const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                action.type === 'decrease_budget' ? TrendingDown :
+                                action.type === 'pause' ? Pause :
+                                action.type === 'duplicate' ? Copy :
+                                Zap;
+
+                    const isPrimary = idx === 0;
+                    const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
+                    const isExpanded = expandedActionIndex === idx;
+
+                    // Get relevant supporting data for this action - match to highlighted cards
+                    const getRelevantData = () => {
+                      const avgRoas = insight.reasoning.projections?.ifIgnored?.roas || 0;
+
+                      if (action.type === 'increase_budget' || action.type === 'duplicate') {
+                        // Show top performers (highlighted cards)
+                        if (demographics.length > 0) {
+                          return demographics.filter((d: any) => d.roas > avgRoas * 1.5).slice(0, 3);
+                        }
+                        if (placements.length > 0) {
+                          return placements.filter((p: any) => p.roas > avgRoas * 1.5).slice(0, 3);
+                        }
+                        if (geographic.length > 0) {
+                          return geographic.filter((g: any) => g.roas > avgRoas * 1.5).slice(0, 3);
+                        }
+                      }
+
+                      if (action.type === 'decrease_budget' || action.type === 'pause') {
+                        // Show underperformers (non-highlighted)
+                        if (demographics.length > 0) {
+                          return demographics.filter((d: any) => d.roas < avgRoas).slice(0, 3);
+                        }
+                        if (placements.length > 0) {
+                          return placements.filter((p: any) => p.roas < avgRoas).slice(0, 3);
+                        }
+                      }
+
+                      return [];
+                    };
+
+                    const relevantData = getRelevantData();
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`
+                          relative w-full
+                          bg-white dark:bg-gray-800
+                          border-2 ${isPrimary
+                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20'
+                            : isDestructive
+                            ? 'border-red-300 dark:border-red-800'
+                            : 'border-gray-200 dark:border-gray-700'
+                          }
+                          rounded-xl
+                          transition-all duration-200
+                          ${ isExpanded ? 'shadow-xl' : 'hover:shadow-lg' }
+                        `}
+                      >
+                        <button
+                          onClick={() => setExpandedActionIndex(isExpanded ? null : idx)}
+                          disabled={isProcessing}
+                          className="w-full flex flex-col items-start gap-3 p-5 text-left disabled:opacity-50"
+                        >
                         <div className="flex items-center gap-3 w-full">
                           <div className={`p-2.5 rounded-lg ${
                             isPrimary
@@ -563,95 +646,143 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         </div>
                       </button>
 
-                      {/* Expanded content with supporting data */}
-                      {isExpanded && relevantData.length > 0 && (
-                        <div className="px-5 pb-5 space-y-3 border-t border-gray-100 dark:border-gray-700 pt-4">
-                          <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                            Supporting data for this recommendation:
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            {relevantData.map((item: any, dataIdx: number) => (
-                              <div
-                                key={dataIdx}
-                                className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
-                              >
-                                <div className="text-xs font-semibold text-gray-900 dark:text-white mb-2">
-                                  {item.segment || item.region || item.placement || item.period}
-                                </div>
-                                <div className="space-y-1.5">
-                                  <div className="flex justify-between text-xs">
-                                    <span className="text-gray-600 dark:text-gray-400">ROAS</span>
-                                    <span className="font-semibold text-gray-900 dark:text-white">{item.roas?.toFixed(1)}x</span>
+                        {/* Expanded content with supporting data */}
+                        {isExpanded && relevantData.length > 0 && (
+                          <div className="px-5 pb-5 space-y-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {action.type === 'pause' || action.type === 'decrease_budget' ? 'Underperforming segments:' : 'Top performing segments:'}
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {relevantData.map((item: any, dataIdx: number) => (
+                                <div
+                                  key={dataIdx}
+                                  className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                >
+                                  <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                                    {item.segment || item.region || item.placement || item.period}
                                   </div>
-                                  <div className="flex justify-between text-xs">
-                                    <span className="text-gray-600 dark:text-gray-400">Conversions</span>
-                                    <span className="font-semibold text-gray-900 dark:text-white">{item.conversions}</span>
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600 dark:text-gray-400">ROAS</span>
+                                      <span className="text-sm font-bold text-gray-900 dark:text-white">{item.roas?.toFixed(1)}x</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-gray-600 dark:text-gray-400">Conversions</span>
+                                      <span className="text-sm font-bold text-gray-900 dark:text-white">{item.conversions}</span>
+                                    </div>
+                                    {item.revenue && (
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">Revenue</span>
+                                        <span className="text-sm font-bold text-gray-900 dark:text-white">{formatCurrency(item.revenue)}</span>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAction(action.type, action.parameters);
+                              }}
+                              disabled={isProcessing}
+                              className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50"
+                            >
+                              {action.label}
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAction(action.type, action.parameters);
-                            }}
-                            disabled={isProcessing}
-                            className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-medium transition-all disabled:opacity-50 shadow-md hover:shadow-lg"
-                          >
-                            Execute This Action
-                            <ChevronRight className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Optional Automation Callout */}
+            {/* Smart Automation Rules */}
             {insight.recommendedRule && (
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
-                    <Zap className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+              <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                {/* Rule Category Header */}
+                <div className={`px-5 py-3 ${
+                  isPrimaryActionProtective
+                    ? 'bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-b border-orange-200 dark:border-orange-800'
+                    : 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-b border-green-200 dark:border-green-800'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    {isPrimaryActionProtective ? (
+                      <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
+                    ) : (
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    )}
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {isPrimaryActionProtective ? '🛡️ Safeguarding Rule' : '📈 Scaling Rule'}
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                      Want me to watch for this automatically?
-                    </h5>
-                    <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                </div>
+
+                <div className="p-5 space-y-4">
+                  {/* Smart Description */}
+                  <div>
+                    <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
                       {isPrimaryActionProtective
-                        ? "I can monitor this and protect your budget if performance deteriorates."
-                        : isScaling
-                        ? "I can watch for similar opportunities and scale them automatically."
-                        : "I can maintain optimal performance and adjust based on real-time data."}
+                        ? 'Protect your ad spend automatically'
+                        : 'Scale winning opportunities automatically'}
+                    </h5>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {isPrimaryActionProtective
+                        ? `Revoa AI will monitor performance and automatically ${insight.directActions[0]?.type === 'pause' ? 'pause' : 'reduce budget on'} underperforming segments to prevent wasted spend. This rule activates when ROAS drops below ${(insight.reasoning.projections?.ifIgnored?.roas || 0).toFixed(1)}x or spend exceeds safe thresholds.`
+                        : `Revoa AI will identify similar high-performing opportunities and automatically ${insight.directActions[0]?.type === 'increase_budget' ? 'increase budgets' : 'duplicate campaigns'} to maximize returns. This rule finds segments matching ${demographics[0]?.segment || 'winning patterns'} performance criteria.`}
                     </p>
                   </div>
-                </div>
 
-                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-                  <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                    {insight.recommendedRule.name}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                    <span>{insight.recommendedRule.conditions.length} conditions</span>
-                    <span>•</span>
-                    <span>{insight.recommendedRule.actions.length} actions</span>
-                    <span>•</span>
-                    <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
-                  </div>
-                </div>
+                  {/* Rule Details Card */}
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                          {insight.recommendedRule.name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {insight.recommendedRule.description}
+                        </div>
+                      </div>
+                    </div>
 
-                <button
-                  onClick={onCreateRule}
-                  disabled={isProcessing}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-semibold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
-                >
-                  <span>Create Automation Rule</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                    {/* Rule Metrics */}
+                    <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Conditions</div>
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {insight.recommendedRule.conditions.length}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Actions</div>
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {insight.recommendedRule.actions.length}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Check Frequency</div>
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Every {insight.recommendedRule.check_frequency_minutes / 60}h
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={onCreateRule}
+                    disabled={isProcessing}
+                    className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all disabled:opacity-50 shadow-md hover:shadow-lg"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>Enable {isPrimaryActionProtective ? 'Safeguarding' : 'Scaling'} Rule</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             )}
 
