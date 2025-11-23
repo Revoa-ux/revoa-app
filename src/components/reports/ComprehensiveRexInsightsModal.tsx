@@ -92,20 +92,20 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     data: { label: string; value: string | number; secondary?: string }[];
     highlight?: boolean;
   }) => (
-    <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:shadow-md transition-all ${highlight ? 'ring-2 ring-rose-500/30' : ''}`}>
-      <div className="flex items-center gap-1.5 mb-2.5">
-        <Icon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
-        <h5 className="text-xs font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
+    <div className={`bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3.5 hover:shadow-md transition-all ${highlight ? 'ring-2 ring-rose-500/30' : ''}`}>
+      <div className="flex items-center gap-2 mb-3">
+        <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        <h5 className="text-sm font-semibold text-gray-900 dark:text-white truncate">{title}</h5>
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {data.map((item, idx) => (
-          <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded p-2 border border-gray-100 dark:border-gray-800">
+          <div key={idx} className="bg-gray-50 dark:bg-gray-900/50 rounded p-2.5 border border-gray-100 dark:border-gray-800">
             <div className="flex justify-between items-center">
-              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
-              <span className="text-xs font-bold text-gray-900 dark:text-white">{item.value}</span>
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
+              <span className="text-sm font-bold text-gray-900 dark:text-white">{item.value}</span>
             </div>
             {item.secondary && (
-              <div className="text-[10px] text-gray-500 dark:text-gray-500 mt-0.5">{item.secondary}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">{item.secondary}</div>
             )}
           </div>
         ))}
@@ -117,29 +117,32 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     <div className="mb-3">
       <div className="flex items-center gap-2 mb-2">
         <Icon className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h4>
+        <h4 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h4>
       </div>
       {analysis && (
-        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{analysis}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{analysis}</p>
       )}
     </div>
   );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
-      <div className="max-h-[85vh] overflow-y-auto">
+      <div className="max-h-[85vh] overflow-y-auto font-sans">
 
         {/* Header */}
         <div className="border-b border-gray-200 dark:border-gray-700 px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="p-1.5 bg-gradient-to-br from-rose-500 via-pink-500 to-cyan-500 rounded-lg">
-                  <Bot className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-3 mb-1.5">
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 rounded-xl blur-sm group-hover:blur-md transition-all opacity-60 animate-pulse"></div>
+                  <div className="relative p-2.5 bg-gradient-to-br from-red-500 via-rose-500 to-orange-500 rounded-xl transform group-hover:scale-110 transition-transform">
+                    <Bot className="w-5 h-5 text-white drop-shadow-lg" />
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Rex Insight</h3>
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 {entityName} • {platform.charAt(0).toUpperCase() + platform.slice(1)} • {formatNumber(insight.reasoning.dataPointsAnalyzed || 0)} data points
               </div>
             </div>
@@ -180,12 +183,12 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
         <div className="px-5 py-4 space-y-4">
 
           {/* Analysis with Info Icon */}
-          <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3.5">
-            <div className="flex gap-2">
+          <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <div className="flex gap-2.5">
               <Info className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" />
-              <div className="space-y-2 text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+              <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                 {viewMode === 'simple'
-                  ? insight.analysisParagraphs.slice(0, 2).map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
+                  ? <p>{insight.analysisParagraphs[0]}</p>
                   : insight.analysisParagraphs.map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
                 }
               </div>
@@ -456,11 +459,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
                       }`} />
                     </div>
-                    <span className="text-[11px] text-gray-600 dark:text-gray-400 leading-snug">{action.description}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400 leading-snug">{action.description}</span>
 
                     {/* Inline Impact */}
                     <div className="w-full pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="flex items-center justify-between text-[10px]">
+                      <div className="flex items-center justify-between text-xs">
                         <span className="text-green-600 dark:text-green-400 font-semibold">
                           +{formatCurrency(netGainRevenue)}
                         </span>
@@ -478,10 +481,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           {/* Automated Rule - Right After Actions */}
           {insight.recommendedRule && (
             <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-              <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-2">
                 Automate This with a Rule
               </h5>
-              <p className="text-xs text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">
                 {isPrimaryActionProtective
                   ? "Create an automated rule to protect your budget and prevent wasteful spending when performance deteriorates."
                   : isScaling
@@ -489,10 +492,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   : "Create an automated rule to maintain optimal performance and automatically adjust based on real-time data."}
               </p>
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-3">
-                <div className="text-xs font-medium text-gray-900 dark:text-white mb-2">
+                <div className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                   {insight.recommendedRule.name}
                 </div>
-                <div className="flex items-center gap-4 text-[10px] text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-xs text-gray-600 dark:text-gray-400">
                   <span>{insight.recommendedRule.conditions.length} conditions</span>
                   <span>•</span>
                   <span>{insight.recommendedRule.actions.length} actions</span>
@@ -503,10 +506,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               <button
                 onClick={onCreateRule}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-medium transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-medium transition-colors disabled:opacity-50"
               >
                 <span>Create Rule</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -515,7 +518,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <button
             onClick={() => onDismiss()}
             disabled={isProcessing}
-            className="w-full px-4 py-2.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg font-medium transition-all disabled:opacity-50"
+            className="w-full px-4 py-2.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg font-medium transition-all disabled:opacity-50"
           >
             Not Now
           </button>
