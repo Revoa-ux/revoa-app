@@ -283,17 +283,6 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
           <div className="px-6 py-5 space-y-6">
 
             {/* Hero Statement - What Revoa AI Found (Simple view only) */}
-            {viewMode === 'simple' && (
-              <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
-                    {insight.primaryInsight}
-                  </p>
-                </div>
-              </div>
-            )}
-
             {/* Data Visualization Views */}
             <>
                 {/* SIMPLE VIEW */}
