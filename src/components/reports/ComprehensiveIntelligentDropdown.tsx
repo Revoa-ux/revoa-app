@@ -168,7 +168,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
         <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-blue-50/30 dark:bg-blue-900/10">
           <div className="flex items-center gap-2 mb-4">
             <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <h4 className="text-base font-bold text-gray-900 dark:text-white">What Revoa AI Found</h4>
+            <h4 className="text-base font-bold text-gray-900 dark:text-white">What Rex Found</h4>
           </div>
           <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
             {insight.analysisParagraphs.map((paragraph, idx) => (
