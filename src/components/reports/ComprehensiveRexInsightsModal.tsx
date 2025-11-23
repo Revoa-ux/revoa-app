@@ -21,7 +21,13 @@ import {
   LayoutGrid,
   Link2,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Brain,
+  Eye,
+  Target,
+  AlertTriangle,
+  DollarSign,
+  CheckCircle2
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { RexCharacter } from './RexCharacter';
@@ -461,356 +467,369 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 {viewMode === 'simple' && (
                   <div className="space-y-6">
                     {/* Primary Insight */}
-                    <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/20 dark:to-orange-950/20 border-2 border-rose-200 dark:border-rose-800 rounded-xl p-5">
-                      <div className="flex items-start gap-3">
-                        <Sparkles className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-lg font-semibold text-gray-900 dark:text-white leading-relaxed">
-                          {insight.primaryInsight}
-                        </p>
+                    <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-xl p-5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Brain className="w-5 h-5 text-red-600 dark:text-red-400" />
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">What I Found</h3>
+                      </div>
+                      <p className="text-gray-900 dark:text-white leading-relaxed font-medium">
+                        {insight.primaryInsight}
+                      </p>
+                      {insight.reasoning.dataPointsAnalyzed && (
+                        <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                          <Eye className="w-4 h-4" />
+                          <span>{insight.reasoning.dataPointsAnalyzed} data points analyzed</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Confidence & Priority */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Target className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <h4 className="font-semibold text-gray-900 dark:text-white">AI Confidence</h4>
+                        </div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                          {insight.confidence}%
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {insight.confidence >= 90 ? 'Very High' : insight.confidence >= 75 ? 'High' : 'Moderate'}
+                        </div>
+                      </div>
+
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <h4 className="font-semibold text-gray-900 dark:text-white">Priority</h4>
+                        </div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                          {insight.priority}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">/ 100</div>
                       </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    <div>
-                      <SectionHeader title="What you should do" icon={Zap} />
-                      <div className="space-y-3">
-                        {insight.directActions.slice(0, 2).map((action, idx) => {
-                          const Icon = action.type === 'increase_budget' ? TrendingUp :
-                                      action.type === 'decrease_budget' ? TrendingDown :
-                                      action.type === 'pause' ? Pause :
-                                      action.type === 'duplicate' ? Copy :
-                                      Zap;
-
-                          const isPrimary = idx === 0;
-
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => handleAction(action.type, action.parameters)}
-                              disabled={isProcessing}
-                              className={`
-                                w-full flex items-center gap-4 p-4 text-left
-                                bg-white dark:bg-gray-800
-                                border-2 ${isPrimary ? 'border-rose-400 dark:border-rose-600' : 'border-gray-200 dark:border-gray-700'}
-                                rounded-xl
-                                hover:shadow-lg transition-all
-                                disabled:opacity-50 disabled:cursor-not-allowed
-                              `}
-                            >
-                              <div className={`p-2.5 rounded-lg ${isPrimary ? 'bg-gradient-to-br from-rose-500 to-pink-500' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                                <Icon className={`w-5 h-5 ${isPrimary ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
-                              </div>
-                              <div className="flex-1">
-                                <div className={`font-bold mb-1 ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'}`}>
-                                  {action.label}
-                                </div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">
-                                  {action.description}
-                                </div>
-                              </div>
-                              <ChevronRight className={`w-5 h-5 ${isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'}`} />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Key Metrics */}
-                    {insight.reasoning.projections && (
-                      <div>
-                        <SectionHeader title="Expected Impact" icon={TrendingUp} />
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Revenue Gain</div>
-                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                              {formatCurrency(netGainRevenue)}
+                    {/* Financial Impact */}
+                    {insight.estimatedImpact && (
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+                        <div className="flex items-center gap-2 mb-4">
+                          <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Financial Impact</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                            <div className="text-xs font-medium text-green-700 dark:text-green-400 mb-1">If Implemented</div>
+                            <div className="text-2xl font-bold text-green-900 dark:text-green-200 mb-1">
+                              {formatCurrency(insight.estimatedImpact.expectedProfit || 0)}
+                            </div>
+                            <div className="text-xs text-green-700 dark:text-green-400">
+                              Projected profit • {insight.estimatedImpact.timeframeDays}d
                             </div>
                           </div>
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Profit Gain</div>
-                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                              {formatCurrency(netGainProfit)}
+                          <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <div className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">If Ignored</div>
+                            <div className="text-2xl font-bold text-red-900 dark:text-red-200 mb-1">
+                              {formatCurrency(insight.estimatedImpact.expectedSavings || 0)}
                             </div>
-                          </div>
-                          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Conversions</div>
-                            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                              +{formatNumber(netGainConversions)}
+                            <div className="text-xs text-red-700 dark:text-red-400">
+                              Lost opportunity • {insight.estimatedImpact.timeframeDays}d
                             </div>
                           </div>
                         </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                          {insight.estimatedImpact.breakdown}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Automation Rule */}
+                    {insight.recommendedRule && (
+                      <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          Automated Rule
+                        </h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                          {insight.recommendedRule.description}
+                        </p>
+                        <button
+                          onClick={onCreateRule}
+                          disabled={isProcessing}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>{isProcessing ? 'Creating...' : 'Create Automated Rule'}</span>
+                        </button>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* DETAILED VIEW */}
+                {/* DETAILED VIEW - Version 812 Style (3-Column Grid) */}
                 {viewMode === 'detailed' && (
-                  <div className="space-y-6">
-                    {demographics.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Top Performing Segments"
-                          icon={Users}
-                          analysis={insight.analysisParagraphs[0]}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {demographics.map((demo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={demo.segment}
-                              icon={Users}
-                              highlight={demo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${demo.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: demo.conversions, secondary: `${formatCurrency(demo.cpa || 0)} CPA` },
-                                { label: 'Revenue', value: formatCurrency(demo.revenue || 0), secondary: `${formatPercent(demo.contribution || 0)} of total` }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {geographic.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Geographic Performance"
-                          icon={Globe}
-                          analysis={`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {geographic.map((geo: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={geo.region}
-                              icon={MapPin}
-                              highlight={geo.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${geo.roas?.toFixed(1)}x` },
-                                { label: 'AOV', value: formatCurrency(geo.averageOrderValue || 0) },
-                                { label: 'Conversions', value: geo.conversions, secondary: `${formatCurrency(geo.spend || 0)} spent` }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {placements.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Platform & Placement"
-                          icon={Smartphone}
-                          analysis={`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {placements.map((placement: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={placement.placement}
-                              icon={Tv}
-                              highlight={placement.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${placement.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: placement.conversions, secondary: `${formatCurrency(placement.cpa || 0)} CPA` },
-                                { label: 'Share', value: formatPercent(placement.contribution || 0) }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {temporal.length > 0 && (
-                      <div>
-                        <SectionHeader
-                          title="Best Times to Advertise"
-                          icon={Clock}
-                          analysis={`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {temporal.map((time: any, idx) => (
-                            <DataCard
-                              key={idx}
-                              title={time.period}
-                              icon={Calendar}
-                              highlight={time.roas > (insight.reasoning.projections?.ifIgnored?.roas || 0) * 1.5}
-                              data={[
-                                { label: 'ROAS', value: `${time.roas?.toFixed(1)}x` },
-                                { label: 'Conversions', value: time.conversions, secondary: `${formatCurrency(time.spend || 0)} spent` },
-                                { label: 'Share', value: formatPercent(time.contribution || 0) }
-                              ]}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {customerBehavior && (
-                      <div>
-                        <SectionHeader
-                          title="Customer Behavior"
-                          icon={ShoppingBag}
-                          analysis="Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies."
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <DataCard
-                            title="New Customers"
-                            icon={Users}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.new.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.new.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.new.cpa || 0) }
-                            ]}
-                          />
-                          <DataCard
-                            title="Returning Customers"
-                            icon={Repeat}
-                            data={[
-                              {
-                                label: 'Share',
-                                value: formatPercent((customerBehavior.newVsReturning.returning.conversions / (customerBehavior.newVsReturning.new.conversions + customerBehavior.newVsReturning.returning.conversions)) * 100)
-                              },
-                              { label: 'AOV', value: formatCurrency(customerBehavior.newVsReturning.returning.averageOrderValue || 0) },
-                              { label: 'CPA', value: formatCurrency(customerBehavior.newVsReturning.returning.cpa || 0) }
-                            ]}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {/* All Actions for Detailed View */}
-                    <div>
-              <SectionHeader title="What you should do" icon={Zap} />
-              <div className="space-y-3">
-                {insight.directActions.map((action, idx) => {
-                  const Icon = action.type === 'increase_budget' ? TrendingUp :
-                              action.type === 'decrease_budget' ? TrendingDown :
-                              action.type === 'pause' ? Pause :
-                              action.type === 'duplicate' ? Copy :
-                              Zap;
-
-                  const isPrimary = idx === 0;
-                  const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
-
-                  return (
-                    <button
-                      key={idx}
-                      onClick={() => handleAction(action.type, action.parameters)}
-                      disabled={isProcessing}
-                      className={`
-                        group relative w-full
-                        flex flex-col items-start gap-3 p-5 text-left
-                        bg-white dark:bg-gray-800
-                        border-2 ${isPrimary
-                          ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10'
-                          : isDestructive
-                          ? 'border-red-300 dark:border-red-800'
-                          : 'border-gray-200 dark:border-gray-700'
-                        }
-                        rounded-xl
-                        transition-all duration-200
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                        hover:shadow-xl hover:-translate-y-0.5
-                      `}
-                    >
-                      <div className="flex items-center gap-3 w-full">
-                        <div className={`p-2.5 rounded-lg ${
-                          isPrimary
-                            ? 'bg-gradient-to-br from-rose-500 to-pink-500'
-                            : isDestructive
-                            ? 'bg-red-50 dark:bg-red-900/20'
-                            : 'bg-gray-100 dark:bg-gray-700'
-                        }`}>
-                          <Icon className={`w-5 h-5 ${
-                            isPrimary ? 'text-white' :
-                            isDestructive ? 'text-red-600 dark:text-red-400' :
-                            'text-gray-600 dark:text-gray-300'
-                          }`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className={`text-base font-bold mb-1 ${
-                            isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                          }`}>
-                            {action.label}
-                          </div>
-                          <div className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                            {action.description}
-                          </div>
-                        </div>
-                        <ChevronRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${
-                          isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                        }`} />
-                      </div>
-
-                      {/* Impact metrics */}
-                      <div className="w-full pt-3 border-t border-gray-100 dark:border-gray-700">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-4">
-                            <span className="text-green-600 dark:text-green-400 font-semibold">
-                              +{formatCurrency(netGainRevenue)} revenue
+                  <div className="grid grid-cols-3 gap-6">
+                    {/* Left Side - 2 Columns */}
+                    <div className="col-span-2 space-y-6">
+                      {/* Primary Insight */}
+                      <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200/50 dark:border-red-800/50 rounded-xl p-5">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Brain className="w-5 h-5 text-red-600 dark:text-red-400" />
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">What I Found</h3>
+                          {insight.reasoning.supportingData?.crossDimensionalPattern && (
+                            <span className="px-2 py-0.5 text-xs font-medium bg-red-600 text-white rounded-full">
+                              Hidden Pattern
                             </span>
-                            <span className="text-gray-500 dark:text-gray-500">
-                              +{formatNumber(netGainConversions)} conversions
-                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-900 dark:text-white leading-relaxed font-medium">
+                          {insight.primaryInsight}
+                        </p>
+                        {insight.reasoning.dataPointsAnalyzed && (
+                          <div className="mt-3 flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-1.5">
+                              <Eye className="w-4 h-4" />
+                              <span>{insight.reasoning.dataPointsAnalyzed} data points analyzed</span>
+                            </div>
+                            {insight.reasoning.supportingData?.methodology && (
+                              <div className="flex items-center gap-1.5">
+                                <Target className="w-4 h-4" />
+                                <span>Deep analysis</span>
+                              </div>
+                            )}
                           </div>
-                          <span className="text-xs text-gray-400">30-day projection</span>
+                        )}
+                      </div>
+
+                      {/* Deep Data Grid */}
+                      {(demographics.length > 0 || placements.length > 0 || geographic.length > 0 || temporal.length > 0) && (
+                        <div className="grid grid-cols-2 gap-4">
+                          {demographics.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Top Demographics</h4>
+                              </div>
+                              <div className="space-y-2">
+                                {demographics.slice(0, 3).map((demo: any, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                      {demo.segment}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-gray-900 dark:text-white">
+                                        {demo.roas.toFixed(1)}x
+                                      </span>
+                                      <span className="text-green-600 dark:text-green-400 text-xs">
+                                        +{demo.improvement_vs_average?.toFixed(0)}%
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {geographic.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <MapPin className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Top Regions</h4>
+                              </div>
+                              <div className="space-y-2">
+                                {geographic.slice(0, 3).map((geo: any, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                      {geo.region}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-gray-900 dark:text-white">
+                                        {geo.roas.toFixed(1)}x
+                                      </span>
+                                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        {formatCurrency(geo.averageOrderValue || 0)} AOV
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {placements.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Top Placements</h4>
+                              </div>
+                              <div className="space-y-2">
+                                {placements.slice(0, 3).map((placement: any, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-700 dark:text-gray-300 truncate">
+                                      {placement.placement}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-gray-900 dark:text-white">
+                                        {placement.roas.toFixed(1)}x
+                                      </span>
+                                      <span className="text-green-600 dark:text-green-400 text-xs">
+                                        {placement.conversions} conv
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {temporal.length > 0 && (
+                            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                              <div className="flex items-center gap-2 mb-3">
+                                <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                                <h4 className="font-semibold text-gray-900 dark:text-white">Best Times</h4>
+                              </div>
+                              <div className="space-y-2">
+                                {temporal.slice(0, 3).map((time: any, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                      {time.period}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-bold text-gray-900 dark:text-white">
+                                        {time.roas.toFixed(1)}x
+                                      </span>
+                                      <span className="text-green-600 dark:text-green-400 text-xs">
+                                        {time.conversions} conv
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Financial Impact */}
+                      {insight.estimatedImpact && (
+                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+                          <div className="flex items-center gap-2 mb-4">
+                            <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Financial Impact</h3>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                              <div className="text-xs font-medium text-green-700 dark:text-green-400 mb-1">If Implemented</div>
+                              <div className="text-2xl font-bold text-green-900 dark:text-green-200 mb-1">
+                                {formatCurrency(insight.estimatedImpact.expectedProfit || 0)}
+                              </div>
+                              <div className="text-xs text-green-700 dark:text-green-400">
+                                Projected profit • {insight.estimatedImpact.timeframeDays}d
+                              </div>
+                            </div>
+                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                              <div className="text-xs font-medium text-red-700 dark:text-red-400 mb-1">If Ignored</div>
+                              <div className="text-2xl font-bold text-red-900 dark:text-red-200 mb-1">
+                                {formatCurrency(insight.estimatedImpact.expectedSavings || 0)}
+                              </div>
+                              <div className="text-xs text-red-700 dark:text-red-400">
+                                Lost opportunity • {insight.estimatedImpact.timeframeDays}d
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {insight.estimatedImpact.breakdown}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Sidebar - 1 Column */}
+                    <div className="space-y-4">
+                      {/* Confidence */}
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Target className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <h4 className="font-semibold text-gray-900 dark:text-white">AI Confidence</h4>
+                        </div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                          {insight.confidence}%
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {insight.confidence >= 90 ? 'Very High' : insight.confidence >= 75 ? 'High' : 'Moderate'}
                         </div>
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
 
-                    {/* Automation Offer for Detailed View */}
-                    {insight.recommendedRule && (
-                      <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-                        <div className="flex items-start gap-3 mb-4">
-                          <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700">
-                            <Zap className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                          </div>
-                          <div className="flex-1">
-                            <h5 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
-                              Want me to watch for this automatically?
-                            </h5>
-                            <p className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                              {isPrimaryActionProtective
-                                ? "I can monitor this and protect your budget if performance deteriorates."
-                                : isScaling
-                                ? "I can watch for similar opportunities and scale them automatically."
-                                : "I can maintain optimal performance and adjust based on real-time data."}
-                            </p>
-                          </div>
+                      {/* Priority */}
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                          <h4 className="font-semibold text-gray-900 dark:text-white">Priority</h4>
                         </div>
-
-                        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                            {insight.recommendedRule.name}
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
-                            <span>{insight.recommendedRule.conditions.length} conditions</span>
-                            <span>•</span>
-                            <span>{insight.recommendedRule.actions.length} actions</span>
-                            <span>•</span>
-                            <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
-                          </div>
+                        <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                          {insight.priority}
                         </div>
-
-                        <button
-                          onClick={onCreateRule}
-                          disabled={isProcessing}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-semibold transition-all disabled:opacity-50 shadow-lg hover:shadow-xl"
-                        >
-                          <span>Create Automation Rule</span>
-                          <ChevronRight className="w-4 h-4" />
-                        </button>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">/ 100</div>
                       </div>
-                    )}
+
+                      {/* Key Metrics */}
+                      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Key Metrics</h4>
+                        <div className="space-y-2 text-sm">
+                          {insight.reasoning.projections?.ifImplemented?.roas && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">ROAS</span>
+                              <span className="font-bold text-gray-900 dark:text-white">
+                                {insight.reasoning.projections.ifImplemented.roas.toFixed(1)}x
+                              </span>
+                            </div>
+                          )}
+                          {netGainRevenue > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">Revenue Gain</span>
+                              <span className="font-bold text-gray-900 dark:text-white">
+                                {formatCurrency(netGainRevenue)}
+                              </span>
+                            </div>
+                          )}
+                          {netGainProfit > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">Profit Gain</span>
+                              <span className="font-bold text-gray-900 dark:text-white">
+                                {formatCurrency(netGainProfit)}
+                              </span>
+                            </div>
+                          )}
+                          {netGainConversions > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-gray-600 dark:text-gray-400">Conversions</span>
+                              <span className="font-bold text-gray-900 dark:text-white">
+                                +{formatNumber(netGainConversions)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Automation Rule */}
+                      {insight.recommendedRule && (
+                        <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                            Automated Rule
+                          </h4>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                            {insight.recommendedRule.description}
+                          </p>
+                          <button
+                            onClick={onCreateRule}
+                            disabled={isProcessing}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                          >
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>{isProcessing ? 'Creating...' : 'Create Automated Rule'}</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </>
