@@ -339,17 +339,20 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   </div>
                 )}
 
-                {/* EXPERT VIEW - Classic Data Display */}
+                {/* EXPERT VIEW - Classic Data Display with Analysis */}
                 {viewMode === 'expert' && (
                   <div className="space-y-6">
                     {demographics.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
                           <Users className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Top Performing Segments
                           </h3>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                          {insight.analysisParagraphs?.[0] || `${demographics[0].segment} leads with ${demographics[0].roas?.toFixed(1)}x ROAS and ${demographics[0].conversions} conversions, significantly outperforming other segments.`}
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {demographics.map((demo: any, idx) => (
                             <DataCard
@@ -370,12 +373,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {geographic.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
                           <Globe className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Geographic Performance
                           </h3>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                          {`${geographic[0].region} leads with ${geographic[0].roas?.toFixed(1)}x ROAS and ${formatCurrency(geographic[0].averageOrderValue || 0)} average order value, showing strong regional performance.`}
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {geographic.map((geo: any, idx) => (
                             <DataCard
@@ -396,12 +402,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {placements.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
                           <Smartphone className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Platform & Placement
                           </h3>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                          {`${placements[0].placement} is your top placement with ${placements[0].roas?.toFixed(1)}x ROAS across ${placements[0].conversions} conversions.`}
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {placements.map((placement: any, idx) => (
                             <DataCard
@@ -422,12 +431,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {temporal.length > 0 && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
                           <Clock className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Best Times to Advertise
                           </h3>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                          {`Peak performance occurs during ${temporal[0].period} with ${temporal[0].roas?.toFixed(1)}x ROAS. Time your campaigns accordingly.`}
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {temporal.map((time: any, idx) => (
                             <DataCard
@@ -448,12 +460,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {customerBehavior && (
                       <div>
-                        <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
                           <ShoppingBag className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Customer Behavior
                           </h3>
                         </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                          Understanding new vs returning customer patterns helps optimize your acquisition and retention strategies.
+                        </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <DataCard
                             title="New Customers"
@@ -480,6 +495,125 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                             ]}
                           />
                         </div>
+                      </div>
+                    )}
+
+                    {/* RECOMMENDED ACTIONS - in Expert View */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          Recommended Actions
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {insight.directActions.slice(0, 4).map((action, idx) => {
+                          const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                      action.type === 'decrease_budget' ? TrendingDown :
+                                      action.type === 'pause' ? Pause :
+                                      action.type === 'duplicate' ? Copy :
+                                      Zap;
+
+                          const isPrimary = idx === 0;
+                          const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
+
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => handleAction(action.type, action.parameters)}
+                              disabled={isProcessing}
+                              className={`
+                                group relative w-full
+                                flex items-start gap-3 p-4 text-left
+                                bg-white dark:bg-gray-800
+                                border-2 ${isPrimary
+                                  ? 'border-rose-400 dark:border-rose-500 shadow-md shadow-rose-500/10'
+                                  : isDestructive
+                                  ? 'border-red-200 dark:border-red-800'
+                                  : 'border-gray-200 dark:border-gray-700'
+                                }
+                                rounded-lg
+                                transition-all duration-200
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                                hover:shadow-lg hover:-translate-y-0.5
+                              `}
+                            >
+                              <div className={`p-2 rounded-lg shrink-0 ${
+                                isPrimary
+                                  ? 'bg-gradient-to-br from-rose-500 to-pink-500'
+                                  : isDestructive
+                                  ? 'bg-red-50 dark:bg-red-900/20'
+                                  : 'bg-gray-100 dark:bg-gray-700'
+                              }`}>
+                                <Icon className={`w-4 h-4 ${
+                                  isPrimary ? 'text-white' :
+                                  isDestructive ? 'text-red-600 dark:text-red-400' :
+                                  'text-gray-600 dark:text-gray-300'
+                                }`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`text-sm font-bold mb-1 ${
+                                  isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                }`}>
+                                  {action.label}
+                                </div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                                  {action.description}
+                                </div>
+                                <div className="flex items-center gap-3 text-xs">
+                                  <span className="text-green-600 dark:text-green-400 font-semibold">
+                                    +{formatCurrency(netGainRevenue)}
+                                  </span>
+                                  <span className="text-gray-500">
+                                    +{formatNumber(netGainConversions)} conv
+                                  </span>
+                                </div>
+                              </div>
+                              <ChevronRight className={`w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 ${
+                                isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
+                              }`} />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* AUTOMATION RULE - in Expert View */}
+                    {insight.recommendedRule && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <Zap className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Smart Automation
+                          </h3>
+                        </div>
+                        <button
+                          onClick={onCreateRule}
+                          disabled={isProcessing}
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                        >
+                          <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
+                            {isPrimaryActionProtective ? (
+                              <Pause className="w-4 h-4 text-white" />
+                            ) : (
+                              <TrendingUp className="w-4 h-4 text-white" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
+                              {insight.recommendedRule.name}
+                            </div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+                              {insight.recommendedRule.description}
+                            </div>
+                            <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                              <span>{insight.recommendedRule.conditions.length} conditions</span>
+                              <span>{insight.recommendedRule.actions.length} actions</span>
+                              <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                        </button>
                       </div>
                     )}
                   </div>
