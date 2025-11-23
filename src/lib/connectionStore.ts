@@ -13,6 +13,7 @@ interface ConnectionState {
   facebook: {
     isConnected: boolean;
     accounts: AdAccount[];
+    adAccounts: AdAccount[]; // Alias for backwards compatibility
     loading: boolean;
   };
   initialized: boolean;
@@ -34,6 +35,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   facebook: {
     isConnected: false,
     accounts: [],
+    adAccounts: [], // Alias for backwards compatibility
     loading: true,
   },
   initialized: false,
@@ -103,6 +105,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         facebook: {
           isConnected: result.connected,
           accounts: result.accounts,
+          adAccounts: result.accounts, // Alias for backwards compatibility
           loading: false,
         },
       });
@@ -112,6 +115,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         facebook: {
           isConnected: false,
           accounts: [],
+          adAccounts: [], // Alias for backwards compatibility
           loading: false,
         },
       });
@@ -176,6 +180,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         facebook: {
           isConnected: result.connected,
           accounts: result.accounts,
+          adAccounts: result.accounts, // Alias for backwards compatibility
           loading: false,
         },
       });
@@ -198,6 +203,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       facebook: {
         isConnected: false,
         accounts: [],
+        adAccounts: [], // Alias for backwards compatibility
         loading: true,
       },
       initialized: false,
