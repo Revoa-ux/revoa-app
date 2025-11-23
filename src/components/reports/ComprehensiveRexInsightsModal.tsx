@@ -329,10 +329,305 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                   </div>
                 )}
 
-                {/* EXPERT VIEW */}
+                {/* EXPERT VIEW - Restructured with Actions First */}
                 {viewMode === 'expert' && (
                   <div className="space-y-6">
-                    {demographics.length > 0 && (
+                    {/* AI SUGGESTIONS SECTION - TOP */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles className="w-5 h-5 text-rose-500" />
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                          AI Recommendations
+                        </h3>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          Select to view supporting data
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {insight.directActions.map((action, idx) => {
+                          const Icon = action.type === 'increase_budget' ? TrendingUp :
+                                      action.type === 'decrease_budget' ? TrendingDown :
+                                      action.type === 'pause' ? Pause :
+                                      action.type === 'duplicate' ? Copy :
+                                      Zap;
+
+                          const isPrimary = idx === 0;
+                          const isSelected = selectedActionIndex === idx;
+                          const isDestructive = action.type === 'decrease_budget' || action.type === 'pause';
+
+                          // Count supporting data segments
+                          const relevantData = getRelevantDataForAction(idx);
+
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                setSelectedActionIndex(isSelected ? null : idx);
+                                setShowAutomationRule(false);
+                              }}
+                              disabled={isProcessing}
+                              className={`
+                                w-full text-left p-5 rounded-xl transition-all
+                                ${
+                                  isSelected
+                                    ? 'bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                    : isPrimary
+                                    ? 'bg-white dark:bg-gray-800 border-2 border-rose-300 dark:border-rose-600 hover:border-rose-400 dark:hover:border-rose-500'
+                                    : isDestructive
+                                    ? 'bg-white dark:bg-gray-800 border-2 border-red-200 dark:border-red-800 hover:border-red-300'
+                                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                }
+                              `}
+                            >
+                              <div className="flex items-start gap-4">
+                                <div className={`p-2.5 rounded-lg ${
+                                  isPrimary
+                                    ? 'bg-gradient-to-br from-rose-500 to-pink-500'
+                                    : isDestructive
+                                    ? 'bg-red-50 dark:bg-red-900/20'
+                                    : 'bg-gray-100 dark:bg-gray-700'
+                                }`}>
+                                  <Icon className={`w-5 h-5 ${
+                                    isPrimary ? 'text-white' :
+                                    isDestructive ? 'text-red-600 dark:text-red-400' :
+                                    'text-gray-600 dark:text-gray-300'
+                                  }`} />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h4 className={`text-base font-bold ${
+                                      isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
+                                    }`}>
+                                      {action.label}
+                                    </h4>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                      {isSelected ? '✓ Viewing data below' : 'Click to view →'}
+                                    </span>
+                                  </div>
+
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                    {action.description}
+                                  </p>
+
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4 text-sm">
+                                      <span className="text-green-600 dark:text-green-400 font-semibold">
+                                        +{formatCurrency(netGainRevenue)} revenue
+                                      </span>
+                                      <span className="text-gray-500">
+                                        +{formatNumber(netGainConversions)} conversions
+                                      </span>
+                                    </div>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                      Based on {relevantData.length} segments
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {isSelected && (
+                                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAction(action.type, action.parameters);
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all"
+                                  >
+                                    {action.label}
+                                    <ChevronRight className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* AUTOMATION RULE SECTION - IN EXPERT VIEW */}
+                    {insight.recommendedRule && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Zap className="w-5 h-5 text-rose-500" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            Automation Rule
+                          </h3>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            Set it and forget it
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setShowAutomationRule(!showAutomationRule);
+                            setSelectedActionIndex(null);
+                          }}
+                          className={`
+                            w-full text-left p-5 rounded-xl transition-all
+                            ${
+                              showAutomationRule
+                                ? 'bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                : 'bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600'
+                            }
+                          `}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className="p-2.5 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500">
+                              {isPrimaryActionProtective ? (
+                                <Pause className="w-5 h-5 text-white" />
+                              ) : (
+                                <TrendingUp className="w-5 h-5 text-white" />
+                              )}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-base font-bold text-rose-600 dark:text-rose-400">
+                                  {isPrimaryActionProtective ? '🛡️ ' : '📈 '}
+                                  {insight.recommendedRule.name}
+                                </h4>
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {showAutomationRule ? '✓ Viewing conditions' : 'Click to view →'}
+                                </span>
+                              </div>
+
+                              {/* IF/THEN Logic Display */}
+                              <div className="space-y-3 mb-4">
+                                {/* IF Section */}
+                                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-0.5 rounded">
+                                      IF
+                                    </span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Trigger Conditions</span>
+                                  </div>
+                                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                                    {insight.recommendedRule.conditions.map((condition: any, idx: number) => (
+                                      <li key={idx} className="flex items-start gap-2">
+                                        <span className="text-rose-500 mt-0.5">•</span>
+                                        <span>
+                                          {condition.metric_type?.replace('_', ' ') || 'metric'} {condition.operator || '<'} {condition.threshold_value || '0'}{condition.metric_type?.includes('roas') ? 'x' : condition.metric_type?.includes('spend') ? '' : '%'}
+                                          {condition.time_window_days && ` for ${condition.time_window_days} days`}
+                                        </span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+
+                                {/* THEN Section */}
+                                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-100 dark:bg-rose-900/30 px-2 py-0.5 rounded">
+                                      THEN
+                                    </span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Automated Actions</span>
+                                  </div>
+                                  <ul className="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                                    {insight.recommendedRule.actions.map((action: any, idx: number) => (
+                                      <li key={idx} className="flex items-start gap-2">
+                                        <span className="text-rose-500 mt-0.5">•</span>
+                                        <span>
+                                          {action.action_type?.replace('_', ' ').replace('budget', 'budget by') || 'Take action'}
+                                          {action.value && ` ${action.value}%`}
+                                        </span>
+                                      </li>
+                                    ))}
+                                    <li className="flex items-start gap-2">
+                                      <span className="text-rose-500 mt-0.5">•</span>
+                                      <span>Send notification to you</span>
+                                    </li>
+                                    <li className="flex items-start gap-2">
+                                      <span className="text-rose-500 mt-0.5">•</span>
+                                      <span>Log decision in activity feed</span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </div>
+
+                              {/* Rule Frequency */}
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                Checks every {insight.recommendedRule.check_frequency_minutes / 60} hours
+                              </div>
+                            </div>
+                          </div>
+
+                          {showAutomationRule && (
+                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onCreateRule();
+                                }}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all"
+                              >
+                                <Zap className="w-4 h-4" />
+                                Enable {isPrimaryActionProtective ? 'Safeguarding' : 'Scaling'} Rule
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* FILTERED DATA CARDS SECTION */}
+                    {(selectedActionIndex !== null || showAutomationRule) && (
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              Supporting Data
+                            </h3>
+                          </div>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {selectedActionIndex !== null
+                              ? `Showing ${getRelevantDataForAction(selectedActionIndex).length} segments that ${insight.directActions[selectedActionIndex].type === 'pause' || insight.directActions[selectedActionIndex].type === 'decrease_budget' ? 'are underperforming' : 'triggered this opportunity'}`
+                              : 'Showing segments that match rule conditions'
+                            }
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {(selectedActionIndex !== null ? getRelevantDataForAction(selectedActionIndex) : []).map((item: any, idx: number) => {
+                            const Icon = item.icon || Users;
+                            const label = item.segment || item.region || item.placement || item.period || 'Segment';
+
+                            return (
+                              <DataCard
+                                key={idx}
+                                title={label}
+                                icon={Icon}
+                                highlight={true}
+                                data={[
+                                  { label: 'ROAS', value: `${item.roas?.toFixed(1)}x` },
+                                  { label: 'Conversions', value: item.conversions, secondary: item.cpa ? `${formatCurrency(item.cpa)} CPA` : undefined },
+                                  { label: 'Revenue', value: formatCurrency(item.revenue || 0), secondary: item.contribution ? `${formatPercent(item.contribution)} of total` : undefined }
+                                ]}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Empty state when nothing selected */}
+                    {selectedActionIndex === null && !showAutomationRule && (
+                      <div className="text-center py-12 px-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                          <ChevronUp className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 text-base">
+                          Select an AI recommendation above to view the supporting data
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Old sections removed - data now shows only when filtered */}
+                    {false && demographics.length > 0 && (
                       <div>
                         <SectionHeader
                           title="Top Performing Segments"
@@ -739,21 +1034,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               )}
             </div>
 
-            {/* Smart Automation Rules */}
-            {insight.recommendedRule && (
+            {/* Smart Automation Rules - Simple View Only */}
+            {viewMode === 'simple' && insight.recommendedRule && (
               <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                {/* Rule Category Header */}
-                <div className={`px-5 py-3 ${
-                  isPrimaryActionProtective
-                    ? 'bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20 border-b border-orange-200 dark:border-orange-800'
-                    : 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border-b border-green-200 dark:border-green-800'
-                }`}>
+                {/* Rule Category Header - Consistent Branding */}
+                <div className="px-5 py-3 bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-950/20 dark:to-pink-950/20 border-b border-rose-200 dark:border-rose-800">
                   <div className="flex items-center gap-2">
-                    {isPrimaryActionProtective ? (
-                      <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></div>
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    )}
+                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
                     <span className="text-sm font-semibold text-gray-900 dark:text-white">
                       {isPrimaryActionProtective ? '🛡️ Safeguarding Rule' : '📈 Scaling Rule'}
                     </span>
