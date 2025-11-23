@@ -113,6 +113,85 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
     }
   };
 
+  // Get dynamic greeting based on suggestion type and priority
+  const getGreeting = () => {
+    if (suggestion.priority_score >= 85) {
+      return "Hold on, I need to show you something...";
+    }
+    if (suggestion.estimated_impact?.expectedProfit && suggestion.estimated_impact.expectedProfit > 0) {
+      return "Hey! I found something exciting...";
+    }
+    if (suggestion.suggestion_type.includes('pause') || suggestion.suggestion_type.includes('negative')) {
+      return "Heads up, something's not looking right...";
+    }
+    return "I noticed something you should know about...";
+  };
+
+  // Get conversational context for financial impact
+  const getFinancialContext = () => {
+    const typeMap: Record<string, string> = {
+      pause_underperforming: 'If you pause this underperforming ad',
+      scale_high_performer: 'If you scale this high-performing ad',
+      refresh_creative: 'If you refresh this creative',
+      adjust_targeting: 'If you adjust targeting',
+      reduce_budget: 'If you reduce the budget',
+      increase_budget: 'If you increase the budget',
+      pause_negative_roi: 'If you pause this negative ROI ad',
+      reallocate_budget: 'If you reallocate the budget',
+      test_new_creative: 'If you test new creative',
+      optimize_schedule: 'If you optimize the schedule',
+    };
+
+    return typeMap[suggestion.suggestion_type] || 'If you implement this suggestion';
+  };
+
+  // Format metric values with proper symbols
+  const formatMetricValue = (key: string, value: any): string => {
+    if (typeof value !== 'number') return value;
+
+    const lowerKey = key.toLowerCase();
+
+    // Percentage values
+    if (lowerKey.includes('percentage') || lowerKey.includes('score') ||
+        lowerKey.includes('ctr') || lowerKey.includes('rate')) {
+      return `${value.toFixed(1)}%`;
+    }
+
+    // Currency values
+    if (lowerKey.includes('spend') || lowerKey.includes('profit') ||
+        lowerKey.includes('revenue') || lowerKey.includes('cpa') ||
+        lowerKey.includes('cpc') || lowerKey.includes('cpm')) {
+      return `$${value.toFixed(2)}`;
+    }
+
+    // ROAS (return on ad spend)
+    if (lowerKey.includes('roas')) {
+      return `${value.toFixed(2)}x`;
+    }
+
+    // Regular numbers
+    return value.toLocaleString();
+  };
+
+  // Format metric label
+  const formatMetricLabel = (key: string): string => {
+    const abbreviations: Record<string, string> = {
+      ctr: 'CTR',
+      cpa: 'CPA',
+      roas: 'ROAS',
+      roi: 'ROI',
+      cpc: 'CPC',
+      cpm: 'CPM',
+    };
+
+    const lowerKey = key.toLowerCase();
+    if (abbreviations[lowerKey]) {
+      return abbreviations[lowerKey];
+    }
+
+    return key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  };
+
   const getActionButton = () => {
     const actionMap: Record<string, { label: string; icon: any }> = {
       pause_underperforming: { label: 'Pause Now', icon: Pause },
@@ -183,7 +262,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
             {showGreeting && (
               <div className="relative z-10 mt-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <p className="text-white text-lg font-semibold">
-                  Hey there! I found something...
+                  {getGreeting()}
                 </p>
               </div>
             )}
@@ -217,47 +296,24 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
 
               {/* Rex's Message */}
               <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20 border-l-4 border-red-500 rounded-r-2xl p-6">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-bold">
+                    R
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">Rex here!</p>
+                  </div>
+                </div>
                 <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                   {suggestion.message}
                 </p>
-                <div className="mt-4">
-                  {canAccept && getActionButton()}
-                </div>
+                {canAccept && (
+                  <div className="mt-4">
+                    {getActionButton()}
+                  </div>
+                )}
               </div>
 
-              {/* Confidence & Priority Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Target className="w-5 h-5 text-red-500" />
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      AI Confidence
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-gray-900 dark:text-white">
-                      {suggestion.confidence_score}%
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <AlertTriangle className="w-5 h-5 text-orange-500" />
-                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Priority Score
-                    </span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-gray-900 dark:text-white">
-                      {suggestion.priority_score}
-                    </span>
-                    <span className="text-lg text-gray-500 dark:text-gray-400">
-                      / 100
-                    </span>
-                  </div>
-                </div>
-              </div>
 
               {/* Financial Impact */}
               {suggestion.estimated_impact && (
@@ -265,13 +321,16 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="w-5 h-5 text-green-500" />
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Financial Impact
+                      Here's what this could mean for your wallet...
                     </h3>
                     <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
-                      {suggestion.estimated_impact.timeframeDays}d forecast
+                      next {suggestion.estimated_impact.timeframeDays} days
                     </span>
                   </div>
 
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    <span className="font-medium">{getFinancialContext()}</span>, here's what I'm projecting:
+                  </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                     {suggestion.estimated_impact.breakdown}
                   </p>
@@ -308,21 +367,24 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
               {/* Analysis Details */}
               <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl p-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                  Why I'm Suggesting This
+                  Here's what caught my attention...
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                   {suggestion.reasoning.analysis}
                 </p>
 
                 {/* Metrics Grid */}
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 font-medium">
+                  The numbers that stood out:
+                </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {Object.entries(suggestion.reasoning.metrics).map(([key, value]) => (
                     <div key={key} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
                       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-                        {key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase())}
+                        {formatMetricLabel(key)}
                       </div>
                       <div className="text-lg font-bold text-gray-900 dark:text-white">
-                        {typeof value === 'number' ? value.toLocaleString() : value}
+                        {formatMetricValue(key, value)}
                       </div>
                     </div>
                   ))}
@@ -335,7 +397,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
                   <div className="flex items-center gap-2 mb-4">
                     <TrendingUp className="w-5 h-5 text-blue-500" />
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Performance Impact
+                      Update: How things have changed...
                     </h3>
                     <span className={`text-xs px-3 py-1 rounded-full font-medium ml-auto ${
                       suggestion.performance.is_improving
@@ -387,10 +449,13 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-6">
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                     <Zap className="w-5 h-5 text-purple-500" />
-                    Turn This Into an Automated Rule
+                    Want me to watch this for you?
                   </h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">
-                    {suggestion.recommended_rule.description}
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    I can keep an eye on this and take action automatically. {suggestion.recommended_rule.description}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+                    Don't worry, I'll notify you whenever I take action.
                   </p>
                   <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-1.5 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg">
@@ -409,7 +474,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
                     className="flex items-center gap-2 px-6 py-3 text-base font-semibold text-white bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:shadow-xl hover:scale-105"
                   >
                     <CheckCircle2 className="w-5 h-5" />
-                    <span>{isAccepting ? 'Creating...' : 'Create Automated Rule'}</span>
+                    <span>{isAccepting ? 'Setting it up...' : 'Yes, automate this for me'}</span>
                   </button>
                 </div>
               )}
