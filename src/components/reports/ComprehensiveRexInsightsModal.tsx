@@ -227,8 +227,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
                   {/* Revoa AI Bot Icon */}
-                  <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
-                    <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-cover" />
+                  <div className="w-10 h-10">
+                    <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-contain" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
