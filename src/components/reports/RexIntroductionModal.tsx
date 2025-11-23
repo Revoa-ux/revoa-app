@@ -26,12 +26,12 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
               <Brain className="w-8 h-8" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold">Meet Revoa AI</h2>
+              <h2 className="text-3xl font-bold">Meet Rex</h2>
               <p className="text-blue-100">Your AI Performance Analyst</p>
             </div>
           </div>
           <p className="text-lg text-blue-50">
-Revoa AI analyzes thousands of data points across every dimension of your ad campaigns to discover hidden optimization opportunities you'd never find manually.
+            Rex analyzes thousands of data points across every dimension of your ad campaigns to discover hidden optimization opportunities you'd never find manually.
           </p>
         </div>
 
@@ -40,7 +40,7 @@ Revoa AI analyzes thousands of data points across every dimension of your ad cam
           {/* What Rex Does */}
           <div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              What Revoa AI Does
+              What Rex Does
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
@@ -124,7 +124,7 @@ Revoa AI analyzes thousands of data points across every dimension of your ad cam
           {/* What Makes Rex Different */}
           <div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-              What Makes Revoa AI Different
+              What Makes Rex Different
             </h3>
             <div className="space-y-2">
               <div className="flex items-start gap-3">
@@ -163,7 +163,7 @@ Revoa AI analyzes thousands of data points across every dimension of your ad cam
               Start Discovering Insights
             </button>
             <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-3">
-              Revoa AI runs continuously in the background, analyzing your campaigns 24/7
+              Rex runs continuously in the background, analyzing your campaigns 24/7
             </p>
           </div>
         </div>
