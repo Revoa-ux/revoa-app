@@ -24,7 +24,7 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
   const [isExecutingAction, setIsExecutingAction] = useState(false);
   const [showDismissReason, setShowDismissReason] = useState(false);
   const [dismissReason, setDismissReason] = useState('');
-  const [viewMode, setViewMode] = useState<'simple' | 'detailed'>('simple');
+  const [viewMode, setViewMode] = useState<'simple' | 'detailed' | 'flow'>('simple');
   const [showGreeting, setShowGreeting] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -201,27 +201,37 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
 
           {/* Top Right Controls */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
-            {/* View Toggle */}
+            {/* View Toggle - Three modes */}
             <div className="flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setViewMode('simple')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                   viewMode === 'simple'
                     ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                Simple
+                Chat
               </button>
               <button
                 onClick={() => setViewMode('detailed')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                   viewMode === 'detailed'
                     ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 Detailed
+              </button>
+              <button
+                onClick={() => setViewMode('flow')}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  viewMode === 'flow'
+                    ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                Flow
               </button>
             </div>
 
@@ -248,23 +258,28 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
               <div className="absolute bottom-[40%] right-[8%] w-22 h-22 bg-white rounded-full blur-3xl animate-[pulse_17s_ease-in-out_infinite_7s]" />
             </div>
 
-            {/* Rex Character - Calm and Static */}
-            <div className="relative z-10">
+            {/* Rex Character - Gentle Float Animation */}
+            <div className="relative z-10 animate-[float_6s_ease-in-out_infinite]">
               <AnimatedRex size="large" />
             </div>
 
-            {/* Speech Bubble Greeting */}
-            {showGreeting && (
-              <div className="relative z-10 mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="relative bg-white rounded-2xl px-6 py-4 shadow-lg max-w-[280px]">
-                  {/* Speech bubble tail */}
-                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-white" />
-                  <p className="text-gray-900 text-sm font-medium text-center leading-relaxed">
-                    {getGreeting()}
-                  </p>
-                </div>
+            {/* Name Badge */}
+            <div className="relative z-10 mt-4">
+              <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg">
+                <p className="text-red-600 font-bold text-sm">Rex</p>
               </div>
-            )}
+            </div>
+
+            {/* Speech Bubble - Always visible, underneath name badge */}
+            <div className="relative z-10 mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="relative bg-white rounded-2xl px-6 py-4 shadow-lg max-w-[280px]">
+                {/* Speech bubble tail pointing up */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-white" />
+                <p className="text-gray-900 text-sm font-medium text-center leading-relaxed">
+                  {getGreeting()}
+                </p>
+              </div>
+            </div>
 
             {/* Speech Bubble Tail - Hidden on mobile, visible on desktop */}
             <div className="hidden md:block absolute -right-4 top-1/2 -translate-y-1/2 w-0 h-0 border-t-[20px] border-t-transparent border-l-[20px] border-l-red-500 border-b-[20px] border-b-transparent" />
@@ -291,97 +306,155 @@ export const ImmersiveRexExperience: React.FC<ImmersiveRexExperienceProps> = ({
             </div>
 
             {/* Scrollable Content */}
-            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-6">
+            <div ref={contentRef} className="flex-1 overflow-y-auto px-6 md:px-8 py-6 space-y-4">
 
-              {/* Rex's Message - Conversation Bubble */}
-              <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20 border-l-4 border-red-500 rounded-r-2xl p-6 shadow-sm">
-                <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {suggestion.message}
-                </p>
-                {canAccept && (
-                  <div className="mt-4">
-                    {getActionButton()}
-                  </div>
-                )}
-              </div>
-
-
-              {/* Financial Impact - Conversation Bubble */}
-              {suggestion.estimated_impact && (
-                <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 shadow-sm">
-                  <div className="flex items-center gap-2 mb-4">
-                    <DollarSign className="w-5 h-5 text-red-500" />
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Here is what this could mean for your wallet...
-                    </h3>
-                    <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full font-medium ml-auto">
-                      next {suggestion.estimated_impact.timeframeDays} days
-                    </span>
-                  </div>
-
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {suggestion.estimated_impact.breakdown}
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {suggestion.estimated_impact.expectedSavings !== undefined && (
-                      <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-xl p-4">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">Potential Savings</div>
-                        <div className="text-2xl font-black text-red-600 dark:text-red-400">
-                          ${suggestion.estimated_impact.expectedSavings.toFixed(2)}
-                        </div>
-                      </div>
-                    )}
-                    {suggestion.estimated_impact.expectedRevenue !== undefined && (
-                      <div className="bg-gray-100 dark:bg-gray-700/50 rounded-xl p-4">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">Expected Revenue</div>
-                        <div className="text-2xl font-black text-gray-900 dark:text-white">
-                          ${suggestion.estimated_impact.expectedRevenue.toFixed(2)}
-                        </div>
-                      </div>
-                    )}
-                    {suggestion.estimated_impact.expectedProfit !== undefined && (
-                      <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl p-4">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">Expected Profit</div>
-                        <div className="text-2xl font-black text-red-600 dark:text-red-400">
-                          ${suggestion.estimated_impact.expectedProfit.toFixed(2)}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Analysis Details - Simple View */}
+              {/* CHAT VIEW - Conversational Bubbles */}
               {viewMode === 'simple' && (
-                <div className="bg-gradient-to-r from-red-500/10 to-pink-500/10 dark:from-red-500/20 dark:to-pink-500/20 border-l-4 border-red-500 rounded-r-2xl p-6 shadow-sm">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                    Here is what caught my attention...
-                  </h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                    {suggestion.reasoning.analysis}
-                  </p>
-
-                  {/* Key Metrics - Limited to top metrics in simple view */}
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 font-medium">
-                    The numbers that stood out:
-                  </p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {Object.entries(suggestion.reasoning.metrics).slice(0, 6).map(([key, value]) => (
-                      <div key={key} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-                          {formatMetricLabel(key)}
+                <div className="space-y-4 max-w-4xl">
+                  {/* Rex's Message Bubble - Left aligned */}
+                  <div className="flex justify-start">
+                    <div className="max-w-[85%] bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 rounded-3xl rounded-tl-sm p-5 shadow-sm border border-red-200/50 dark:border-red-800/50">
+                      <p className="text-base text-gray-800 dark:text-gray-200 leading-relaxed">
+                        {suggestion.message}
+                      </p>
+                      {canAccept && (
+                        <div className="mt-4">
+                          {getActionButton()}
                         </div>
-                        <div className="text-lg font-bold text-gray-900 dark:text-white">
-                          {formatMetricValue(key, value)}
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Financial Impact Bubble - Right aligned (Your Response) */}
+                  {suggestion.estimated_impact && (
+                    <div className="flex justify-end">
+                      <div className="max-w-[85%] bg-white dark:bg-gray-800 rounded-3xl rounded-tr-sm p-5 shadow-sm border border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center gap-2 mb-3">
+                          <DollarSign className="w-4 h-4 text-red-500" />
+                          <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                            Here is what this could mean...
+                          </h4>
+                          <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full ml-auto">
+                            {suggestion.estimated_impact.timeframeDays}d
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          {suggestion.estimated_impact.breakdown}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {suggestion.estimated_impact.expectedSavings !== undefined && (
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-center">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Savings</div>
+                              <div className="text-lg font-black text-red-600 dark:text-red-400">
+                                ${suggestion.estimated_impact.expectedSavings.toFixed(0)}
+                              </div>
+                            </div>
+                          )}
+                          {suggestion.estimated_impact.expectedRevenue !== undefined && (
+                            <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Revenue</div>
+                              <div className="text-lg font-black text-gray-900 dark:text-white">
+                                ${suggestion.estimated_impact.expectedRevenue.toFixed(0)}
+                              </div>
+                            </div>
+                          )}
+                          {suggestion.estimated_impact.expectedProfit !== undefined && (
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-center">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Profit</div>
+                              <div className="text-lg font-black text-red-600 dark:text-red-400">
+                                ${suggestion.estimated_impact.expectedProfit.toFixed(0)}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  )}
+
+                  {/* Analysis Bubble - Left aligned (Rex continues) */}
+                  <div className="flex justify-start">
+                    <div className="max-w-[85%] bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 rounded-3xl rounded-tl-sm p-5 shadow-sm border border-red-200/50 dark:border-red-800/50">
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-3">
+                        Here is what caught my attention...
+                      </h4>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                        {suggestion.reasoning.analysis}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 font-medium">
+                        Key metrics:
+                      </p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(suggestion.reasoning.metrics).slice(0, 6).map(([key, value]) => (
+                          <div key={key} className="bg-white/60 dark:bg-gray-900/40 rounded-lg p-2">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatMetricLabel(key)}
+                            </div>
+                            <div className="text-sm font-bold text-gray-900 dark:text-white">
+                              {formatMetricValue(key, value)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Automation Offer Bubble - Left aligned (Rex offers help) */}
+                  {suggestion.recommended_rule && canAccept && (
+                    <div className="flex justify-start">
+                      <div className="max-w-[85%] bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 rounded-3xl rounded-tl-sm p-5 shadow-sm border border-red-200/50 dark:border-red-800/50">
+                        <h4 className="text-base font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-red-500" />
+                          Want me to watch this for you?
+                        </h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                          I can keep an eye on this and take action automatically. {suggestion.recommended_rule.description}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                          Do not worry, I will notify you whenever I take action.
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
+                          <div className="flex items-center gap-1.5 bg-white/60 dark:bg-gray-900/40 px-2 py-1 rounded-lg">
+                            <Zap className="w-3 h-3" />
+                            <span>Every {suggestion.recommended_rule.check_frequency_minutes}min</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 bg-white/60 dark:bg-gray-900/40 px-2 py-1 rounded-lg">
+                            <Target className="w-3 h-3" />
+                            <span>Max {suggestion.recommended_rule.max_daily_actions}/day</span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleAccept}
+                          disabled={isAccepting}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>{isAccepting ? 'Setting it up...' : 'Yes, automate this for me'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* FLOW VIEW - Visual Process Flow */}
+              {viewMode === 'flow' && (
+                <div className="max-w-5xl mx-auto">
+                  <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                      Rex's Recommendation Flow
+                    </h3>
+                    <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
+                      Flow diagram view coming soon - will show visual process of how Rex analyzed this suggestion
+                    </p>
+                    {/* Placeholder for flow diagram */}
+                    <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                      This will include: Data observation → Pattern detection → Impact calculation → Automation setup
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Analysis Details - Detailed View */}
+              {/* DETAILED VIEW - Comprehensive Analytics */}
               {viewMode === 'detailed' && (
                 <div className="space-y-6">
                   <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 shadow-sm">
@@ -604,37 +677,45 @@ const AnimatedRex: React.FC<AnimatedRexProps> = ({ size = 'large' }) => {
 
   return (
     <div className="relative">
-      {/* Gentle Glow Effect - No animation */}
-      <div className="absolute inset-0 bg-white rounded-full blur-3xl opacity-20" />
+      {/* Pulsing Glow Effect */}
+      <div className="absolute inset-0 bg-white rounded-full blur-3xl opacity-30 animate-[pulse_3s_ease-in-out_infinite]" />
 
-      {/* Rex Character - Calm and Static */}
-      <div className={`relative ${sizeClasses[size]}`}>
+      {/* Rex Character - with breathing animation */}
+      <div className={`relative ${sizeClasses[size]} animate-[breathe_4s_ease-in-out_infinite]`}>
         <div className="w-full h-full rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/50 flex items-center justify-center shadow-2xl">
           <svg
             viewBox="0 0 100 100"
             className="w-3/4 h-3/4 text-white drop-shadow-2xl"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
             {/* Robot head */}
-            <rect x="20" y="25" width="60" height="55" rx="10" fill="currentColor" opacity="0.95" />
+            <rect x="15" y="20" width="70" height="60" rx="12" fill="currentColor" opacity="0.98" />
 
-            {/* Eyes - Friendly and Calm */}
-            <circle cx="35" cy="42" r="4.5" fill="white" />
-            <circle cx="65" cy="42" r="4.5" fill="white" />
-            <circle cx="35" cy="42" r="2.2" fill="currentColor" />
-            <circle cx="65" cy="42" r="2.2" fill="currentColor" />
+            {/* Eyes - BIGGER and more visible */}
+            <circle cx="33" cy="40" r="7" fill="white" />
+            <circle cx="67" cy="40" r="7" fill="white" />
+            <circle cx="33" cy="40" r="3.5" fill="currentColor" className="animate-[blink_5s_ease-in-out_infinite]" />
+            <circle cx="67" cy="40" r="3.5" fill="currentColor" className="animate-[blink_5s_ease-in-out_infinite]" />
 
-            {/* Mouth - Gentle Smile */}
-            <path d="M 32 60 Q 50 68 68 60" stroke="white" strokeWidth="3" fill="none" />
+            {/* Eye Shine - makes eyes pop */}
+            <circle cx="31" cy="38" r="2" fill="white" opacity="0.8" />
+            <circle cx="65" cy="38" r="2" fill="white" opacity="0.8" />
 
-            {/* Antenna */}
-            <line x1="50" y1="25" x2="50" y2="15" stroke="currentColor" strokeWidth="3" />
-            <circle cx="50" cy="12" r="4" fill="currentColor" />
-            <circle cx="50" cy="12" r="2" fill="white" opacity="0.8" />
+            {/* Mouth - BIG prominent smile */}
+            <path d="M 25 58 Q 50 72 75 58" stroke="white" strokeWidth="4" fill="none" />
+
+            {/* Optional: Cheek marks for extra cartooniness */}
+            <circle cx="20" cy="52" r="3" fill="white" opacity="0.4" />
+            <circle cx="80" cy="52" r="3" fill="white" opacity="0.4" />
+
+            {/* Antenna with animated tip */}
+            <line x1="50" y1="20" x2="50" y2="8" stroke="currentColor" strokeWidth="3" />
+            <circle cx="50" cy="6" r="5" fill="currentColor" />
+            <circle cx="50" cy="6" r="2.5" fill="white" className="animate-[ping_2s_ease-in-out_infinite]" />
           </svg>
         </div>
       </div>

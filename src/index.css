@@ -470,3 +470,19 @@ body.modal-open {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Rex Character Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes blink {
+  0%, 48%, 52%, 100% { opacity: 1; }
+  50% { opacity: 0.1; }
+}
