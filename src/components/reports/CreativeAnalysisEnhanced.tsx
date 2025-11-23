@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';
 import { RexIntroductionModal } from './RexIntroductionModal';
+import { ImmersiveRexExperience } from './ImmersiveRexExperience';
 import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
@@ -83,6 +84,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [openInsightModal, setOpenInsightModal] = useState<{ creativeId: string; insight: GeneratedInsight; creative: any } | null>(null);
+  const [openRexSuggestion, setOpenRexSuggestion] = useState<RexSuggestionWithPerformance | null>(null);
   const [itemsToShow, setItemsToShow] = useState(20);
   const [showAllItems, setShowAllItems] = useState(false);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
@@ -716,6 +718,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         />
       )}
 
+      {/* Immersive Rex Experience */}
+      {openRexSuggestion && (
+        <ImmersiveRexExperience
+          isOpen={!!openRexSuggestion}
+          suggestion={openRexSuggestion}
+          onClose={() => setOpenRexSuggestion(null)}
+          onAccept={async () => {
+            if (onAcceptSuggestion) {
+              await onAcceptSuggestion(openRexSuggestion);
+              setOpenRexSuggestion(null);
+            }
+          }}
+          onDismiss={async (reason) => {
+            if (onDismissSuggestion) {
+              await onDismissSuggestion(openRexSuggestion, reason);
+              setOpenRexSuggestion(null);
+            }
+          }}
+        />
+      )}
+
       <div className="h-full flex flex-col gap-4 overflow-hidden">
       {showAIInsights && visibleInsights.length > 0 && (
         <div className="flex-shrink-0">
@@ -966,22 +989,28 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const handleMetricClick = async (e: React.MouseEvent) => {
                   if (suggestion) {
                     e.stopPropagation();
-                    if (expandedRowId === creative.id) {
-                      setExpandedRowId(null);
-                    } else {
-                      setExpandedRowId(creative.id);
-                      // Open modal with the first insight
-                      const insights = generatedInsights.get(creative.id);
-                      if (insights && insights.length > 0) {
-                        setOpenInsightModal({
-                          creativeId: creative.id,
-                          insight: insights[0],
-                          creative
-                        });
-                      }
-                      if (onViewSuggestion) {
-                        onViewSuggestion(suggestion);
-                      }
+                    // Open the immersive Rex experience for suggestions
+                    setOpenRexSuggestion(suggestion);
+                    if (onViewSuggestion) {
+                      onViewSuggestion(suggestion);
+                    }
+                    return;
+                  }
+
+                  // If no suggestion, handle the old insight modal flow
+                  if (expandedRowId === creative.id) {
+                    setExpandedRowId(null);
+                  } else {
+                    setExpandedRowId(creative.id);
+                    // Open modal with the first insight
+                    const insights = generatedInsights.get(creative.id);
+                    if (insights && insights.length > 0) {
+                      setOpenInsightModal({
+                        creativeId: creative.id,
+                        insight: insights[0],
+                        creative
+                      });
+                    }
 
                       // Trigger real AI analysis if not already done
                       if (!generatedInsights.has(creative.id) && user?.id) {
@@ -1028,7 +1057,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         }
                       }
                     }
-                  }
                 };
 
                 return (
