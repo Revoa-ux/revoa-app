@@ -50,6 +50,8 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   const [viewMode, setViewMode] = useState<'simple' | 'expert'>('simple');
   const [queuedActions, setQueuedActions] = useState<Array<{ type: 'action' | 'rule'; data: any; source: string }>>([]);
   const [expandedActionIndex, setExpandedActionIndex] = useState<number | null>(null);
+  const [selectedActionIndex, setSelectedActionIndex] = useState<number | null>(null);
+  const [showAutomationRule, setShowAutomationRule] = useState(false);
 
   const handleAction = async (actionType: string, parameters: any) => {
     setIsProcessing(true);
@@ -95,6 +97,43 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     setQueuedActions(queuedActions.filter((_, i) => i !== index));
   };
 
+  // Get relevant data for a specific action
+  const getRelevantDataForAction = (actionIndex: number) => {
+    const action = insight.directActions[actionIndex];
+    const avgRoas = insight.reasoning.projections?.ifIgnored?.roas || 0;
+    let relevantData: any[] = [];
+
+    if (action.type === 'increase_budget' || action.type === 'duplicate') {
+      // Show top performers only
+      const topDemographics = demographics.filter((d: any) => d.roas > avgRoas * 1.5);
+      const topGeographic = geographic.filter((g: any) => g.roas > avgRoas * 1.5);
+      const topPlacements = placements.filter((p: any) => p.roas > avgRoas * 1.5);
+      const topTemporal = temporal.filter((t: any) => t.roas > avgRoas * 1.5);
+
+      relevantData = [
+        ...topDemographics.map((d: any) => ({ ...d, type: 'demographic', icon: Users })),
+        ...topGeographic.map((g: any) => ({ ...g, type: 'geographic', icon: MapPin })),
+        ...topPlacements.map((p: any) => ({ ...p, type: 'placement', icon: Tv })),
+        ...topTemporal.map((t: any) => ({ ...t, type: 'temporal', icon: Calendar }))
+      ];
+    } else if (action.type === 'decrease_budget' || action.type === 'pause') {
+      // Show underperformers only
+      const underDemographics = demographics.filter((d: any) => d.roas < avgRoas);
+      const underGeographic = geographic.filter((g: any) => g.roas < avgRoas);
+      const underPlacements = placements.filter((p: any) => p.roas < avgRoas);
+      const underTemporal = temporal.filter((t: any) => t.roas < avgRoas);
+
+      relevantData = [
+        ...underDemographics.map((d: any) => ({ ...d, type: 'demographic', icon: Users })),
+        ...underGeographic.map((g: any) => ({ ...g, type: 'geographic', icon: MapPin })),
+        ...underPlacements.map((p: any) => ({ ...p, type: 'placement', icon: Tv })),
+        ...underTemporal.map((t: any) => ({ ...t, type: 'temporal', icon: Calendar }))
+      ];
+    }
+
+    return relevantData.sort((a, b) => Math.abs(b.roas - avgRoas) - Math.abs(a.roas - avgRoas)).slice(0, 6);
+  };
+
   const DataCard = ({
     title,
     icon: Icon,
@@ -110,7 +149,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
   }) => (
     <div className={`relative bg-white dark:bg-gray-800 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
-        ? 'border-2 border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:border-rose-500 dark:hover:border-rose-500'
+        ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30'
         : 'border-gray-200 dark:border-gray-700 hover:shadow-lg'
     }`}>
       <div className="flex items-center justify-between mb-3">
@@ -180,9 +219,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Revoa AI Badge */}
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
-                    <Sparkles className="w-5 h-5 text-white" />
+                  {/* Revoa AI Bot Icon */}
+                  <div className="w-10 h-10 rounded-lg overflow-hidden shadow-lg">
+                    <img src="/Revoa-AI-Bot.png" alt="Revoa AI" className="w-full h-full object-cover" />
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white">{getInsightTitle()}</h3>
                 </div>
