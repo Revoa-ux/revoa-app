@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';
 import { RexIntroductionModal } from './RexIntroductionModal';
+import { ImmersiveRexExperience } from './ImmersiveRexExperience';
 import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
@@ -83,13 +84,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [openInsightModal, setOpenInsightModal] = useState<{ creativeId: string; insight: GeneratedInsight; creative: any } | null>(null);
+  const [openRexSuggestion, setOpenRexSuggestion] = useState<RexSuggestionWithPerformance | null>(null);
   const [itemsToShow, setItemsToShow] = useState(20);
   const [showAllItems, setShowAllItems] = useState(false);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
 
-  // Rex AI state
+  // Revoa AI state
   const [generatedInsights, setGeneratedInsights] = useState<Map<string, GeneratedInsight[]>>(new Map());
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showRexIntro, setShowRexIntro] = useState(false);
@@ -622,7 +624,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   return (
     <>
-      {/* Rex Introduction Modal */}
+      {/* Revoa AI Introduction Modal */}
       {showRexIntro && (
         <RexIntroductionModal
           onClose={() => setShowRexIntro(false)}
@@ -635,13 +637,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 .from('user_profiles')
                 .update({ rex_intro_seen: true })
                 .eq('user_id', user.id)
-                .then(() => console.log('Rex intro marked as seen'));
+                .then(() => console.log('AI intro marked as seen'));
             }
           }}
         />
       )}
 
-      {/* Comprehensive Rex Insights Modal */}
+      {/* Comprehensive Revoa AI Insights Modal */}
       {openInsightModal && (
         <ComprehensiveRexInsightsModal
           isOpen={!!openInsightModal}
@@ -712,6 +714,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           onClose={() => {
             setOpenInsightModal(null);
             setExpandedRowId(null);
+          }}
+        />
+      )}
+
+      {/* Immersive Revoa AI Experience */}
+      {openRexSuggestion && (
+        <ImmersiveRexExperience
+          isOpen={!!openRexSuggestion}
+          suggestion={openRexSuggestion}
+          onClose={() => setOpenRexSuggestion(null)}
+          onAccept={async () => {
+            if (onAcceptSuggestion) {
+              await onAcceptSuggestion(openRexSuggestion);
+              setOpenRexSuggestion(null);
+            }
+          }}
+          onDismiss={async (reason) => {
+            if (onDismissSuggestion) {
+              await onDismissSuggestion(openRexSuggestion, reason);
+              setOpenRexSuggestion(null);
+            }
           }}
         />
       )}
@@ -966,28 +989,34 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const handleMetricClick = async (e: React.MouseEvent) => {
                   if (suggestion) {
                     e.stopPropagation();
-                    if (expandedRowId === creative.id) {
-                      setExpandedRowId(null);
-                    } else {
-                      setExpandedRowId(creative.id);
-                      // Open modal with the first insight
-                      const insights = generatedInsights.get(creative.id);
-                      if (insights && insights.length > 0) {
-                        setOpenInsightModal({
-                          creativeId: creative.id,
-                          insight: insights[0],
-                          creative
-                        });
-                      }
-                      if (onViewSuggestion) {
-                        onViewSuggestion(suggestion);
-                      }
+                    // Open the immersive AI experience for suggestions
+                    setOpenRexSuggestion(suggestion);
+                    if (onViewSuggestion) {
+                      onViewSuggestion(suggestion);
+                    }
+                    return;
+                  }
+
+                  // If no suggestion, handle the old insight modal flow
+                  if (expandedRowId === creative.id) {
+                    setExpandedRowId(null);
+                  } else {
+                    setExpandedRowId(creative.id);
+                    // Open modal with the first insight
+                    const insights = generatedInsights.get(creative.id);
+                    if (insights && insights.length > 0) {
+                      setOpenInsightModal({
+                        creativeId: creative.id,
+                        insight: insights[0],
+                        creative
+                      });
+                    }
 
                       // Trigger real AI analysis if not already done
                       if (!generatedInsights.has(creative.id) && user?.id) {
                         setIsAnalyzing(true);
                         try {
-                          console.log('[CreativeAnalysis] Starting Rex analysis for:', creative.id);
+                          console.log('[CreativeAnalysis] Starting AI analysis for:', creative.id);
                           const orchestration = new RexOrchestrationService(user.id);
                           const entity = {
                             id: creative.id,
@@ -1028,7 +1057,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         }
                       }
                     }
-                  }
                 };
 
                 return (
@@ -1130,7 +1158,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <div className="flex flex-col items-center justify-center gap-3">
                         <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Rex is analyzing thousands of data points...
+                          Revoa AI is analyzing thousands of data points...
                         </p>
                       </div>
                     </div>

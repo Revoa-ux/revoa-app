@@ -53,7 +53,7 @@ export default function Audit() {
     return new Set(pendingSuggestions.map(s => s.entity_id));
   };
 
-  // Load existing Rex suggestions from database
+  // Load existing AI suggestions from database
   const loadRexSuggestions = async () => {
     if (!user) return;
 
@@ -81,7 +81,7 @@ export default function Audit() {
       // Generate new suggestions for items without suggestions
       await generateRexSuggestions(suggestionsMap);
     } catch (error) {
-      console.error('[Audit] Error loading Rex suggestions:', error);
+      console.error('[Audit] Error loading AI suggestions:', error);
     }
   };
 
@@ -94,13 +94,13 @@ export default function Audit() {
     );
   };
 
-  // Generate new Rex suggestions for ads/campaigns/ad sets
+  // Generate new AI suggestions for ads/campaigns/ad sets
   const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
     if (!user || isGeneratingSuggestions) return;
 
     // Check if we have valid ad account with last_synced_at
     if (facebook.adAccounts.length === 0 || !facebook.adAccounts[0].last_synced_at) {
-      console.log('[Audit] Skipping Rex suggestions - no data sync completed yet');
+      console.log('[Audit] Skipping AI suggestions - no data sync completed yet');
       return;
     }
 
@@ -225,15 +225,15 @@ export default function Audit() {
 
         if (top3Suggestions.length > 0) {
           const message = sortedSuggestions.length > 3
-            ? `Rex found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
-            : `Rex found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
+            ? `Revoa AI found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
+            : `Revoa AI found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
           toast.success(message);
         }
       } else if (skippedCount > 0) {
         console.log(`[Audit] Skipped ${skippedCount} entities without valid data`);
       }
     } catch (error) {
-      console.error('[Audit] Error generating Rex suggestions:', error);
+      console.error('[Audit] Error generating AI suggestions:', error);
     } finally {
       setIsGeneratingSuggestions(false);
     }
@@ -277,7 +277,7 @@ export default function Audit() {
       // Reload suggestions
       await loadRexSuggestions();
 
-      toast.success(`Rex's automation rule "${rule.name}" is now active!`);
+      toast.success(`Revoa AI automation rule "${rule.name}" is now active!`);
     } catch (error) {
       console.error('[Audit] Error accepting suggestion:', error);
       toast.error('Failed to create automation rule');
@@ -402,21 +402,59 @@ export default function Audit() {
             entity_type: 'campaign',
             entity_id: campaignId,
             entity_name: campaignsData[0].name,
+            platform: 'facebook',
             suggestion_type: 'increase_budget',
             title: 'Increase Budget for Top Performer',
-            description: 'This campaign is showing strong ROAS (3.2x) and low CPA. Increasing the budget by 30% could generate $2,400 more in revenue while maintaining profitability.',
+            message: `Hey! I have been watching "${campaignsData[0].name}" and it is absolutely crushing it. Your ROAS is sitting at 3.2x with a CPA of just $45 - that is fantastic! This is performing way above your account average and I think we should scale this up by 30% while it is hot.`,
             priority_score: 85,
-            impact_estimate: 'high',
             confidence_score: 88,
-            suggested_action: 'Increase daily budget from $150 to $195',
             reasoning: {
-              analysis: 'Campaign is consistently profitable with room for scaling. Current spend is below optimal threshold based on ad set performance.',
+              triggeredBy: ['high_roas', 'low_cpa', 'consistent_performance'],
+              analysis: 'This campaign has been consistently profitable with strong metrics across the board. The current daily spend of $150 is actually below the optimal threshold based on your ad set performance data. There is clear headroom to scale without saturating the audience.',
               metrics: {
                 current_roas: 3.2,
                 current_cpa: 45.0,
                 daily_spend: 150.0,
                 potential_revenue: 2400.0
-              }
+              },
+              riskLevel: 'low'
+            },
+            estimated_impact: {
+              expectedRevenue: 2400.0,
+              expectedProfit: 1200.0,
+              timeframeDays: 30,
+              confidence: 'high',
+              breakdown: "If you increase the daily budget by $45 (30%), I am projecting you will maintain the same 3.2x ROAS, which means for every extra dollar spent, you are getting $3.20 back. Over 30 days, that is an additional $2,400 in revenue and about $1,200 in profit."
+            },
+            recommended_rule: {
+              name: `Revoa AI: Auto-scale ${campaignsData[0].name}`,
+              description: 'Automatically increase budget by 20% when ROAS stays above 3.0x for 3 consecutive days',
+              entity_type: 'campaign',
+              condition_logic: 'AND',
+              check_frequency_minutes: 1440,
+              max_daily_actions: 1,
+              require_approval: true,
+              dry_run: false,
+              conditions: [
+                {
+                  metric_type: 'roas',
+                  operator: 'greater_than',
+                  threshold_value: 3.0,
+                  time_window_days: 3
+                },
+                {
+                  metric_type: 'spend',
+                  operator: 'greater_than',
+                  threshold_value: 100,
+                  time_window_days: 1
+                }
+              ],
+              actions: [
+                {
+                  action_type: 'increase_budget',
+                  parameters: { percentage: 20, reason: 'Revoa AI auto-scale: High ROAS detected' }
+                }
+              ]
             },
             status: 'pending',
             created_at: new Date().toISOString(),
@@ -430,24 +468,61 @@ export default function Audit() {
           const adSetId = adSetsData[0].id;
           mockSuggestions.set(adSetId, {
             id: `suggestion-adset-${adSetId}`,
-            entity_type: 'adset',
+            entity_type: 'ad_set',
             entity_id: adSetId,
             entity_name: adSetsData[0].name,
-            suggestion_type: 'pause_entity',
+            platform: 'facebook',
+            suggestion_type: 'pause_underperforming',
             title: 'Pause Underperforming Ad Set',
-            description: 'This ad set has a CTR below 0.5% and CPA 65% higher than account average. Pausing it would save approximately $45/day in wasted spend.',
+            message: `Heads up, something's not looking right with "${adSetsData[0].name}". The CTR has dropped to 0.42% (that is pretty low), and the CPA is sitting at $165 - that is 65% higher than your account average of $100. This ad set has been struggling for over a week now, and it is costing you about $45 a day in wasted spend. I think it is time to pause this one and move that budget to your better performers.`,
             priority_score: 82,
-            impact_estimate: 'medium',
             confidence_score: 92,
-            suggested_action: 'Pause ad set and reallocate budget to better performers',
             reasoning: {
-              analysis: 'Consistently underperforming across all metrics for 7+ days. Audience fatigue and creative fatigue detected.',
+              triggeredBy: ['low_ctr', 'high_cpa', 'consistent_underperformance'],
+              analysis: 'This ad set has been consistently underperforming across all key metrics for 7+ consecutive days. I am seeing signs of both audience fatigue (they have seen these ads too many times) and creative fatigue (the messaging is not resonating anymore). The performance gap compared to your account average is significant and shows no signs of improvement.',
               metrics: {
                 ctr: 0.42,
                 cpa: 165.0,
                 account_avg_cpa: 100.0,
                 daily_waste: 45.0
-              }
+              },
+              riskLevel: 'medium'
+            },
+            estimated_impact: {
+              expectedSavings: 1350.0,
+              timeframeDays: 30,
+              confidence: 'high',
+              breakdown: "By pausing this underperforming ad set, you will immediately stop the $45/day in wasted spend. Over the next 30 days, that is $1,350 saved. Plus, you can reallocate that budget to your top performers for even better results."
+            },
+            recommended_rule: {
+              name: `Revoa AI: Pause low performers`,
+              description: 'Automatically pause ad sets when CPA exceeds account average by 50% for 5 consecutive days',
+              entity_type: 'ad_set',
+              condition_logic: 'AND',
+              check_frequency_minutes: 1440,
+              max_daily_actions: 2,
+              require_approval: false,
+              dry_run: false,
+              conditions: [
+                {
+                  metric_type: 'cpa',
+                  operator: 'greater_than_percentage',
+                  threshold_value: 150,
+                  time_window_days: 5
+                },
+                {
+                  metric_type: 'spend',
+                  operator: 'greater_than',
+                  threshold_value: 20,
+                  time_window_days: 1
+                }
+              ],
+              actions: [
+                {
+                  action_type: 'pause',
+                  parameters: { reason: 'Revoa AI auto-pause: Consistently high CPA' }
+                }
+              ]
             },
             status: 'pending',
             created_at: new Date().toISOString(),
@@ -464,21 +539,59 @@ export default function Audit() {
             entity_type: 'ad',
             entity_id: adId,
             entity_name: creativesData[0].name,
+            platform: 'facebook',
             suggestion_type: 'refresh_creative',
             title: 'Creative Fatigue Detected',
-            description: 'CTR has declined 45% over the past 14 days while frequency increased to 4.2. A creative refresh is needed to restore engagement and prevent further performance decline.',
+            message: `I noticed something with "${creativesData[0].name}" that needs attention. Your CTR has dropped 45% over the past two weeks - it went from really solid to just okay. At the same time, I am seeing your frequency climb to 4.2, which means people are seeing this ad a lot. Classic creative fatigue! Your audience has seen this creative too many times and they're starting to tune it out. Time for a refresh.`,
             priority_score: 78,
-            impact_estimate: 'medium',
             confidence_score: 85,
-            suggested_action: 'Test 3-5 new creative variations with similar messaging but fresh visuals',
             reasoning: {
-              analysis: 'Classic signs of creative fatigue: declining CTR, rising frequency, stable reach. Audience has seen this creative too many times.',
+              triggeredBy: ['declining_ctr', 'high_frequency', 'creative_fatigue'],
+              analysis: 'This is textbook creative fatigue. The CTR decline combined with rising frequency tells me your audience is getting tired of seeing the same creative. Your reach is staying stable, so it is not an audience size issue - it is that the people seeing your ads are not clicking anymore because they have already seen it multiple times. The engagement drop of 38% confirms people are actively ignoring this creative now.',
               metrics: {
                 ctr_decline: 45.0,
                 frequency: 4.2,
                 days_running: 14,
                 engagement_drop: 38.0
-              }
+              },
+              riskLevel: 'medium'
+            },
+            estimated_impact: {
+              expectedRevenue: 800.0,
+              expectedProfit: 400.0,
+              timeframeDays: 14,
+              confidence: 'medium',
+              breakdown: "If you refresh this creative with 3-5 new variations (keeping the messaging that works but with fresh visuals), I am expecting you will restore the CTR to near its original levels. Based on your historical performance, that should generate an additional $800 in revenue over the next two weeks as engagement recovers."
+            },
+            recommended_rule: {
+              name: `Revoa AI: Auto-detect creative fatigue`,
+              description: 'Automatically flag ads when CTR declines by 30% and frequency exceeds 3.5',
+              entity_type: 'ad',
+              condition_logic: 'AND',
+              check_frequency_minutes: 1440,
+              max_daily_actions: 3,
+              require_approval: true,
+              dry_run: false,
+              conditions: [
+                {
+                  metric_type: 'ctr_change',
+                  operator: 'less_than',
+                  threshold_value: -30,
+                  time_window_days: 14
+                },
+                {
+                  metric_type: 'frequency',
+                  operator: 'greater_than',
+                  threshold_value: 3.5,
+                  time_window_days: 7
+                }
+              ],
+              actions: [
+                {
+                  action_type: 'notify',
+                  parameters: { message: 'Revoa AI alert: Creative fatigue detected, refresh recommended' }
+                }
+              ]
             },
             status: 'pending',
             created_at: new Date().toISOString(),

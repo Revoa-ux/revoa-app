@@ -121,7 +121,7 @@ export const RexFlowDiagram: React.FC<RexFlowDiagramProps> = ({ insight }) => {
       {/* Timeline indicator */}
       <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-          <span>Rex's analytical process</span>
+          <span>Revoa AI's analytical process</span>
           <span>•</span>
           <span>Real-time analysis</span>
           <span>•</span>
