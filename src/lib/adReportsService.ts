@@ -649,6 +649,7 @@ export async function getCampaignPerformance(
       return {
         id: campaign.id,
         name: campaign.name,
+        adName: campaign.name, // Add for table compatibility
         status: campaign.status,
         platform: campaign.platform || 'facebook',
         objective: campaign.objective,
