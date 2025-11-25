@@ -790,6 +790,7 @@ export async function getAdSetPerformance(
       return {
         id: adSet.id,
         name: adSet.name,
+        adName: adSet.name, // Add for table compatibility
         status: adSet.status,
         platform: adSet.platform || 'facebook',
         campaignId: adSet.campaign_id,
