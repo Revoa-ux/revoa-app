@@ -5,8 +5,7 @@ import { IntelligentRexService } from './intelligentRexService';
 import { deepRexEngine } from './deepRexAnalysisEngine';
 import { ComprehensiveRexAnalysis } from './comprehensiveRexAnalysis';
 import { RexInsightGenerator } from './rexInsightGenerator';
-import { platformIntelligence, type CampaignContext, type BusinessGoals } from './platformIntelligenceEngine';
-import { queryPlatformKnowledge, getLearningPhaseKnowledge } from './platformKnowledgeBase';
+import { platformDataInterpreter } from './platformDataInterpreter';
 import type {
   RexEntityType,
   CreateRexSuggestionParams,
@@ -195,12 +194,22 @@ export class AdvancedRexIntelligence {
           }
         }
 
-        // Check learning phase status
+        // Use platform knowledge to INTERPRET learning phase data
+        const learningPhaseInterpretation = platformDataInterpreter.interpretLearningPhase(
+          entity.platform as 'facebook' | 'tiktok' | 'google',
+          {
+            conversions: entity.metrics.conversions,
+            daysSinceLaunchOrEdit: 7 // Would come from actual tracking
+          }
+        );
+
         const learningPhaseAnalysis = await this.campaignStructureIntel.analyzeLearningPhase(startDate, endDate);
 
         if (learningPhaseAnalysis && learningPhaseAnalysis.performanceImpact.improvement > 30) {
-          // Campaign might be in learning phase limbo
-          if (entity.metrics.conversions < 50 && entity.metrics.spend > 200) {
+          // YOUR LOGIC: Campaign might be in learning phase limbo
+          // Platform interpreter tells us what the numbers mean
+          if (learningPhaseInterpretation.status === 'LEARNING_LIMITED' ||
+              (learningPhaseInterpretation.status === 'LEARNING' && learningPhaseInterpretation.risk === 'high')) {
             suggestions.push({
               user_id: this.userId,
               entity_type: entityType,
@@ -211,17 +220,18 @@ export class AdvancedRexIntelligence {
               priority_score: 80,
               confidence_score: 85,
               title: 'Learning Phase Bottleneck Detected',
-              message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but only has ${entity.metrics.conversions} conversions. It needs 50 conversions to exit learning phase. Current ROAS of ${entity.metrics.roas.toFixed(2)}x could improve to ${learningPhaseAnalysis.performanceImpact.roasPostLearning.toFixed(2)}x once learning phase completes.`,
+              message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but only has ${entity.metrics.conversions} conversions. ${learningPhaseInterpretation.interpretation}. Current ROAS of ${entity.metrics.roas.toFixed(2)}x could improve to ${learningPhaseAnalysis.performanceImpact.roasPostLearning.toFixed(2)}x once learning phase completes.`,
               reasoning: {
                 triggeredBy: ['learning_phase_stuck', 'insufficient_conversions'],
                 metrics: {
                   current_conversions: entity.metrics.conversions,
-                  required_conversions: 50,
+                  required_conversions: learningPhaseInterpretation.conversionsNeeded,
+                  conversions_remaining: learningPhaseInterpretation.conversionsRemaining,
                   current_roas: entity.metrics.roas,
                   expected_post_learning_roas: learningPhaseAnalysis.performanceImpact.roasPostLearning,
                   improvement_potential: learningPhaseAnalysis.performanceImpact.improvement
                 },
-                analysis: `Based on historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase.`,
+                analysis: `Based on YOUR historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase. Platform data shows: ${learningPhaseInterpretation.interpretation}`,
                 riskLevel: 'medium'
               }
             });
@@ -505,71 +515,42 @@ export class AdvancedRexIntelligence {
   }
 
   /**
-   * Enrich suggestions with comprehensive platform knowledge
-   * This is where the AI demonstrates it knows MORE than any human expert
+   * Add platform context to YOUR suggestions (not override them)
+   * Platform knowledge helps YOU understand the data, doesn't dictate decisions
    */
   private enrichWithPlatformKnowledge(
     suggestion: CreateRexSuggestionParams,
     entity: EntityData
   ): CreateRexSuggestionParams {
     try {
-      // Get comprehensive platform knowledge for this platform
-      const learningKnowledge = getLearningPhaseKnowledge(
-        suggestion.platform as 'facebook' | 'tiktok' | 'google'
-      );
+      // Use platform knowledge to INTERPRET the data for YOUR business logic
+      // This doesn't change your suggestion - just adds context about what platform data means
 
-      // Add platform intelligence to reasoning
-      const platformInsights: string[] = [];
+      const interpretation = platformDataInterpreter.interpretCampaignContext({
+        platform: suggestion.platform as 'facebook' | 'tiktok' | 'google',
+        conversions: entity.metrics.conversions,
+        daysSinceLaunchOrEdit: 7, // Would come from actual data
+        dailyBudget: entity.metrics.spend,
+        roas: entity.metrics.roas,
+        frequency: 2.5 // Would come from actual data
+      });
 
-      // Budget scaling suggestions get platform constraints added
-      if (suggestion.suggestion_type === 'increase_budget') {
-        const scalingKnowledge = queryPlatformKnowledge({
-          platform: suggestion.platform as any,
-          topic: 'budget',
-          context: {
-            currentBudget: entity.metrics.spend
-          }
-        });
-
-        platformInsights.push(
-          `Platform Knowledge: ${suggestion.platform} allows up to ${scalingKnowledge.platform === 'facebook' ? '20% budget increases every 72 hours' : '20% daily'} without resetting learning phase.`
-        );
-
-        // Add learning phase context if relevant
-        if (entity.metrics.conversions < 50) {
-          platformInsights.push(
-            `Learning Phase Alert: This campaign has ${entity.metrics.conversions} conversions. It needs ${50 - entity.metrics.conversions} more to exit learning phase. Budget increases over 20% will RESET this progress.`
-          );
-        }
-      }
-
-      // Targeting suggestions get audience size validation
-      if (suggestion.suggestion_type.includes('targeting') || suggestion.suggestion_type.includes('demographic')) {
-        const targetingKnowledge = queryPlatformKnowledge({
-          platform: suggestion.platform as any,
-          topic: 'targeting'
-        });
-
-        platformInsights.push(
-          `Platform Best Practice: ${suggestion.platform} recommends minimum audience size of 50,000 for conversion campaigns. Smaller audiences often result in Learning Limited status.`
-        );
-      }
-
-      // Add platform insights to reasoning
-      if (platformInsights.length > 0 && suggestion.reasoning) {
+      // Add interpreted context to reasoning (doesn't override your logic)
+      if (suggestion.reasoning) {
         suggestion.reasoning = {
           ...suggestion.reasoning,
-          platformKnowledge: platformInsights
+          platformContext: {
+            learningPhaseStatus: interpretation.learningPhase.interpretation,
+            budgetConstraints: interpretation.budgetScaling.interpretation,
+            performanceContext: interpretation.roas.interpretation
+          }
         };
-
-        // Enhance message with key platform insight
-        suggestion.message = `${suggestion.message}\n\n💡 Platform Expert Knowledge: ${platformInsights[0]}`;
       }
 
       return suggestion;
     } catch (error) {
-      // If platform knowledge fails, return original suggestion
-      console.error('[AdvancedRexIntelligence] Error enriching with platform knowledge:', error);
+      // If interpretation fails, return YOUR original suggestion unchanged
+      console.error('[AdvancedRexIntelligence] Error adding platform context:', error);
       return suggestion;
     }
   }
