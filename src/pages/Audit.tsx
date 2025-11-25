@@ -79,7 +79,8 @@ export default function Audit() {
       setTopDisplayedSuggestionIds(topIds);
 
       // Generate new suggestions for items without suggestions
-      await generateRexSuggestions(suggestionsMap);
+      // Pass false = only generate for missing suggestions (not force regenerate)
+      await generateRexSuggestions(suggestionsMap, false);
     } catch (error) {
       console.error('[Audit] Error loading Rex suggestions:', error);
     }
@@ -95,14 +96,26 @@ export default function Audit() {
   };
 
   // Generate new Rex suggestions for ads/campaigns/ad sets using ADVANCED AI
-  const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
+  const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>, forceRegenerate: boolean = false) => {
     if (!user || isGeneratingSuggestions) return;
 
-    // Check if we have valid ad account with last_synced_at
-    if (facebook.adAccounts.length === 0 || !facebook.adAccounts[0].last_synced_at) {
-      console.log('[Audit] Skipping Rex suggestions - no data sync completed yet');
+    // Check if we have valid ad account
+    if (facebook.adAccounts.length === 0) {
+      console.log('[Audit] Skipping Rex suggestions - no ad accounts');
       return;
     }
+
+    // If we have creatives/campaigns/adSets data, we can analyze it regardless of sync status
+    const hasData = creatives.length > 0 || campaigns.length > 0 || adSets.length > 0;
+    if (!hasData) {
+      console.log('[Audit] Skipping Rex suggestions - no ad data available yet');
+      return;
+    }
+
+    console.log(`[Rex] Starting suggestion generation...`);
+    console.log(`[Rex] - Creatives: ${creatives.length}, Campaigns: ${campaigns.length}, Ad Sets: ${adSets.length}`);
+    console.log(`[Rex] - Existing suggestions: ${existingSuggestions.size}`);
+    console.log(`[Rex] - Force regenerate: ${forceRegenerate}`);
 
     setIsGeneratingSuggestions(true);
     try {
@@ -110,6 +123,7 @@ export default function Audit() {
       const advancedRex = new AdvancedRexIntelligence(user.id);
       const newSuggestions: any[] = [];
       let skippedCount = 0;
+      let regeneratedCount = 0;
 
       // Date range for analysis
       const startDate = dateRange.startDate.toISOString().split('T')[0];
@@ -123,7 +137,12 @@ export default function Audit() {
           continue;
         }
 
-        if (!existingSuggestions.has(creative.id)) {
+        // Generate if forcing regeneration OR if no existing suggestion
+        if (forceRegenerate || !existingSuggestions.has(creative.id)) {
+          if (forceRegenerate && existingSuggestions.has(creative.id)) {
+            regeneratedCount++;
+          }
+
           const entityData = {
             id: creative.id,
             name: creative.adName || creative.name,
@@ -157,7 +176,10 @@ export default function Audit() {
           continue;
         }
 
-        if (!existingSuggestions.has(campaign.id)) {
+        if (forceRegenerate || !existingSuggestions.has(campaign.id)) {
+          if (forceRegenerate && existingSuggestions.has(campaign.id)) {
+            regeneratedCount++;
+          }
           const entityData = {
             id: campaign.id,
             name: campaign.name,
@@ -191,7 +213,10 @@ export default function Audit() {
           continue;
         }
 
-        if (!existingSuggestions.has(adSet.id)) {
+        if (forceRegenerate || !existingSuggestions.has(adSet.id)) {
+          if (forceRegenerate && existingSuggestions.has(adSet.id)) {
+            regeneratedCount++;
+          }
           const entityData = {
             id: adSet.id,
             name: adSet.name,
@@ -218,21 +243,31 @@ export default function Audit() {
       }
 
       // Create suggestions in database
+      console.log(`[Rex] Analysis complete. Generated ${newSuggestions.length} suggestions`);
+      console.log(`[Rex] - Regenerated: ${regeneratedCount}, Skipped (no data): ${skippedCount}`);
+
       if (newSuggestions.length > 0) {
         const createdSuggestions = await Promise.all(
           newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
         );
 
-        // Sort by priority and take top 3
+        // Sort by priority and take ALL suggestions (not just top 3)
         const sortedSuggestions = createdSuggestions.sort((a, b) => b.priority_score - a.priority_score);
-        const top3Suggestions = sortedSuggestions.slice(0, 3);
 
-        // Add only top 3 to map
+        // Add ALL suggestions to map so any entity with a suggestion can show gradient
         const updatedMap = new Map(existingSuggestions);
-        top3Suggestions.forEach(suggestion => {
+        sortedSuggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
         });
         setRexSuggestions(updatedMap);
+
+        // But only TOP 3 get the special badge/highlight
+        const top3Suggestions = sortedSuggestions.slice(0, 3);
+        const topIds = new Set(top3Suggestions.map(s => s.entity_id));
+        setTopDisplayedSuggestionIds(topIds);
+
+        console.log(`[Rex] Suggestions map now has ${updatedMap.size} entries`);
+        console.log(`[Rex] Top 3 entity IDs:`, Array.from(topIds));
 
         if (top3Suggestions.length > 0) {
           const message = sortedSuggestions.length > 3
@@ -240,11 +275,12 @@ export default function Audit() {
             : `Rex found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
           toast.success(message);
         }
-      } else if (skippedCount > 0) {
-        console.log(`[Audit] Skipped ${skippedCount} entities without valid data`);
+      } else {
+        console.log(`[Rex] No new suggestions generated. Skipped ${skippedCount} entities without valid data`);
       }
     } catch (error) {
-      console.error('[Audit] Error generating Rex suggestions:', error);
+      console.error('[Rex] Error generating suggestions:', error);
+      toast.error('Failed to generate AI suggestions');
     } finally {
       setIsGeneratingSuggestions(false);
     }
