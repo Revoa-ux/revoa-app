@@ -433,6 +433,18 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
+      // DEBUG: Log what Audit receives and passes down
+      console.log('[DEBUG Audit] Fetched data:', {
+        creativesCount: creativesData.length,
+        campaignsCount: campaignsData.length,
+        adSetsCount: adSetsData.length,
+        sampleCreative: creativesData[0] ? {
+          id: creativesData[0].id,
+          name: creativesData[0].adName,
+          metrics: creativesData[0].metrics
+        } : null
+      });
+
       // Load existing suggestions and generate new ones from REAL data
       await loadRexSuggestions();
 

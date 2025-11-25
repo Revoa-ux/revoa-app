@@ -126,6 +126,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       .map(c => c.id);
     setImageLoading(new Set(creativesWithImages));
     setImageErrors(new Set());
+
+    // DEBUG: Log what CreativeAnalysis receives
+    console.log('[DEBUG CreativeAnalysis] Received', creatives.length, 'creatives');
+    if (creatives.length > 0) {
+      console.log('[DEBUG CreativeAnalysis] First 3 samples:', creatives.slice(0, 3).map(c => ({
+        id: c.id,
+        name: c.adName,
+        metrics: c.metrics,
+        hasMetrics: !!c.metrics
+      })));
+    }
   }, [creatives]);
 
   // Helper function to get abbreviated column label

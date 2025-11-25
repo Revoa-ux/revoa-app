@@ -492,6 +492,18 @@ export async function getCreativePerformance(
     const adsWithRealData = creatives.filter(c => c.hasRealConversionData).length;
     console.log('[AdReportsService] ✓ Returned', creatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
 
+    // DEBUG: Log first 3 creatives to see actual data
+    console.log('[DEBUG AdReportsService] First 3 creatives sample:', creatives.slice(0, 3).map(c => ({
+      id: c.id,
+      name: c.adName,
+      metrics: {
+        impressions: c.metrics.impressions,
+        clicks: c.metrics.clicks,
+        spend: c.metrics.spend,
+        conversions: c.metrics.conversions
+      }
+    })));
+
     return creatives;
   } catch (error) {
     console.error('[AdReportsService] Error fetching creative performance:', error);
