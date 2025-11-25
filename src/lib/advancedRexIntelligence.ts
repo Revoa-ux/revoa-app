@@ -159,7 +159,7 @@ export class AdvancedRexIntelligence {
     try {
       if (entityType === 'campaign') {
         // Analyze if this campaign should switch from ABO to CBO or vice versa
-        const cboAnalysis = await this.campaignStructureIntel.analyzeCBOEffectiveness(startDate, endDate);
+        const cboAnalysis = await this.campaignStructureIntel.analyzeCBOvsABO();
 
         if (cboAnalysis && entity.metrics.spend > 100) {
           const isCurrentlyCBO = entity.name.toLowerCase().includes('cbo');
@@ -301,7 +301,7 @@ export class AdvancedRexIntelligence {
 
     try {
       // Get profit report for this ad
-      const profitReport = await this.profitIntel.generateProfitIntelligenceReport(
+      const profitReport = await this.profitIntel.generateReport(
         this.userId,
         startDate,
         endDate

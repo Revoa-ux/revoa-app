@@ -87,13 +87,22 @@ export class FullFunnelAnalysisService {
     // Get ad details
     const { data: ad } = await supabase
       .from('ads')
-      .select('id, name, ad_account_id, ad_accounts(platform)')
+      .select('id, name, ad_account_id')
       .eq('id', adId)
-      .single();
+      .maybeSingle();
 
     if (!ad) {
       throw new Error('Ad not found');
     }
+
+    // Get platform from ad_accounts separately
+    const { data: adAccount } = await supabase
+      .from('ad_accounts')
+      .select('platform')
+      .eq('id', ad.ad_account_id)
+      .maybeSingle();
+
+    const platform = adAccount?.platform || 'facebook';
 
     // Get funnel metrics from database
     const { data: funnelData } = await supabase
