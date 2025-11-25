@@ -60,7 +60,7 @@ export class AdvancedRexIntelligence {
   constructor(userId: string) {
     this.userId = userId;
     this.campaignStructureIntel = new CampaignStructureIntelligenceEngine(userId);
-    this.profitIntel = new ProfitIntelligenceService();
+    this.profitIntel = new ProfitIntelligenceService(userId);
     this.funnelAnalysis = new FullFunnelAnalysisService(userId);
     this.intelligentRex = new IntelligentRexService();
     this.comprehensiveAnalysis = new ComprehensiveRexAnalysis(userId);
@@ -302,7 +302,6 @@ export class AdvancedRexIntelligence {
     try {
       // Get profit report for this ad
       const profitReport = await this.profitIntel.generateReport(
-        this.userId,
         startDate,
         endDate
       );
