@@ -82,11 +82,7 @@ export async function calculateProfitMetrics(
       .select(`
         conversion_value,
         shopify_orders!inner(
-          id,
-          order_line_items(
-            cost_per_item,
-            quantity
-          )
+          shopify_order_id
         )
       `)
       .eq('user_id', userId)
@@ -99,16 +95,29 @@ export async function calculateProfitMetrics(
 
     // Calculate COGS from line items
     let totalCOGS = 0;
-    if (attributedOrders) {
-      attributedOrders.forEach(conversion => {
-        const lineItems = conversion.shopify_orders?.order_line_items || [];
-        lineItems.forEach((item: any) => {
-          // Shopify stores cost per item in cents or as decimal
-          const costPerItem = item.cost_per_item || 0;
-          const quantity = item.quantity || 1;
-          totalCOGS += costPerItem * quantity;
-        });
-      });
+    if (attributedOrders && attributedOrders.length > 0) {
+      // Get unique Shopify order IDs
+      const shopifyOrderIds = [...new Set(
+        attributedOrders
+          .map(conv => conv.shopify_orders?.shopify_order_id)
+          .filter(Boolean)
+      )];
+
+      if (shopifyOrderIds.length > 0) {
+        // Fetch line items for these orders
+        const { data: lineItems } = await supabase
+          .from('order_line_items')
+          .select('shopify_order_id, unit_cost, quantity')
+          .in('shopify_order_id', shopifyOrderIds);
+
+        if (lineItems) {
+          lineItems.forEach((item: any) => {
+            const unitCost = item.unit_cost || 0;
+            const quantity = item.quantity || 1;
+            totalCOGS += unitCost * quantity;
+          });
+        }
+      }
     }
 
     // Calculate profit metrics
@@ -227,27 +236,39 @@ export async function calculateAdProfitBreakdown(
         .select(`
           conversion_value,
           shopify_orders!inner(
-            id,
-            order_line_items(
-              cost_per_item,
-              quantity
-            )
+            shopify_order_id
           )
         `)
         .eq('ad_id', ad.id)
         .gte('converted_at', startDate)
         .lte('converted_at', endDate);
 
-      if (!attribError && attributions) {
+      if (!attribError && attributions && attributions.length > 0) {
         let adCOGS = 0;
-        attributions.forEach(conversion => {
-          const lineItems = conversion.shopify_orders?.order_line_items || [];
-          lineItems.forEach((item: any) => {
-            const costPerItem = item.cost_per_item || 0;
-            const quantity = item.quantity || 1;
-            adCOGS += costPerItem * quantity;
-          });
-        });
+
+        // Get unique Shopify order IDs
+        const shopifyOrderIds = [...new Set(
+          attributions
+            .map(conv => conv.shopify_orders?.shopify_order_id)
+            .filter(Boolean)
+        )];
+
+        if (shopifyOrderIds.length > 0) {
+          // Fetch line items for these orders
+          const { data: lineItems } = await supabase
+            .from('order_line_items')
+            .select('shopify_order_id, unit_cost, quantity')
+            .in('shopify_order_id', shopifyOrderIds);
+
+          if (lineItems) {
+            lineItems.forEach((item: any) => {
+              const unitCost = item.unit_cost || 0;
+              const quantity = item.quantity || 1;
+              adCOGS += unitCost * quantity;
+            });
+          }
+        }
+
         adCOGSMap.set(ad.id, adCOGS);
       }
     }
