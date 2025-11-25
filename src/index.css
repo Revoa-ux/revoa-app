@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom animations for Rex suggestions */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.002);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 @supports (font-variation-settings: normal) {
   :root { 
     font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;

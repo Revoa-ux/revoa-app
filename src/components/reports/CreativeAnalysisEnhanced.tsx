@@ -1034,14 +1034,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 return (
                 <div key={creative.id} className="relative">
                   <div
-                    onClick={() => onDrillDown && !suggestion && onDrillDown(creative)}
-                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/80 transition-all duration-200 ${
+                    onClick={hasPendingSuggestion ? handleMetricClick : () => onDrillDown && onDrillDown(creative)}
+                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
-                  } ${onDrillDown && !suggestion ? 'cursor-pointer' : ''} ${
+                  } ${
+                    hasPendingSuggestion
+                      ? 'cursor-pointer hover:shadow-lg ring-2 ring-inset ring-red-400/60 dark:ring-red-500/60 bg-gradient-to-r from-red-50/80 via-pink-50/60 to-red-50/80 dark:from-red-900/20 dark:via-pink-900/15 dark:to-red-900/20 rounded-lg my-1 border-l-4 border-l-red-500 dark:border-l-red-400 animate-pulse-slow'
+                      : onDrillDown ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/80' : ''
+                  } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'ring-2 ring-inset ring-green-400/50 dark:ring-green-500/50 bg-green-50/40 dark:bg-green-900/10 rounded-lg my-1 shadow-sm border-l-4 border-l-green-500'
                       : ''
                   }`}
+                  title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
@@ -1049,7 +1054,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
                       : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
 
-                    const isGlowing = glowingMetrics.has(column.id);
+                    // No more individual metric glow - entire row glows now
                     const metricContent = column.render ? (
                       column.render(null, creative)
                     ) : column.id === 'platform' ? (
@@ -1113,10 +1118,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         }`}
                         style={columnStyle}
-                        onClick={isGlowing ? handleMetricClick : undefined}
-                        title={isGlowing ? 'AI suggestion available - click for details' : undefined}
                       >
-                        <span className={`${isGlowing ? 'ai-metric-glow' : ''} ${
+                        <span className={`${
                           column.id === 'adName' ? 'truncate block w-full' : ''
                         }`}>
                           {metricContent}

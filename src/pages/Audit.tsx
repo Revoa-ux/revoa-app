@@ -251,30 +251,27 @@ export default function Audit() {
           newSuggestions.map(s => rexSuggestionService.createSuggestion(s))
         );
 
-        // Sort by priority and take ALL suggestions (not just top 3)
+        // Sort by priority - ALL suggestions are displayed (no limit!)
         const sortedSuggestions = createdSuggestions.sort((a, b) => b.priority_score - a.priority_score);
 
-        // Add ALL suggestions to map so any entity with a suggestion can show gradient
+        // Add ALL suggestions to map - every entity with a suggestion gets the row gradient
         const updatedMap = new Map(existingSuggestions);
         sortedSuggestions.forEach(suggestion => {
           updatedMap.set(suggestion.entity_id, suggestion);
         });
         setRexSuggestions(updatedMap);
 
-        // But only TOP 3 get the special badge/highlight
-        const top3Suggestions = sortedSuggestions.slice(0, 3);
-        const topIds = new Set(top3Suggestions.map(s => s.entity_id));
-        setTopDisplayedSuggestionIds(topIds);
+        // No more "top 3 only" - all suggestions are treated equally
+        // topDisplayedSuggestionIds is deprecated (can remove later)
+        setTopDisplayedSuggestionIds(new Set());
 
         console.log(`[Rex] Suggestions map now has ${updatedMap.size} entries`);
-        console.log(`[Rex] Top 3 entity IDs:`, Array.from(topIds));
+        console.log(`[Rex] All ${updatedMap.size} entities will show row highlight`);
 
-        if (top3Suggestions.length > 0) {
-          const message = sortedSuggestions.length > 3
-            ? `Rex found ${top3Suggestions.length} top optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'} (${sortedSuggestions.length} total)`
-            : `Rex found ${top3Suggestions.length} optimization ${top3Suggestions.length === 1 ? 'opportunity' : 'opportunities'}!`;
-          toast.success(message);
-        }
+        const message = sortedSuggestions.length === 1
+          ? `Rex found 1 optimization opportunity!`
+          : `Rex found ${sortedSuggestions.length} optimization opportunities!`;
+        toast.success(message);
       } else {
         console.log(`[Rex] No new suggestions generated. Skipped ${skippedCount} entities without valid data`);
       }
