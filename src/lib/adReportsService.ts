@@ -375,6 +375,17 @@ export async function getCreativePerformance(
 
     if (metricsError) throw metricsError;
 
+    console.log('[AdReportsService] Fetched', metrics?.length || 0, 'ad_metrics rows');
+    console.log('[AdReportsService] First ad ID:', adIds[0]);
+    if (metrics && metrics.length > 0) {
+      console.log('[AdReportsService] First metric sample:', {
+        entity_id: metrics[0].entity_id,
+        spend: metrics[0].spend,
+        impressions: metrics[0].impressions,
+        clicks: metrics[0].clicks
+      });
+    }
+
     // IMPORTANT: Get REAL conversion data from our attribution system
     console.log('[AdReportsService] Fetching real conversion data from attribution system...');
     const attributionMetrics = await getAdConversionMetrics(
@@ -399,12 +410,27 @@ export async function getCreativePerformance(
       adMetricsMap.set(m.entity_id, existing);
     });
 
+    console.log('[AdReportsService] Aggregated metrics for', adMetricsMap.size, 'unique ads');
+    console.log('[AdReportsService] Attribution data for', attributionMap.size, 'unique ads');
+
     // Transform to creative performance format
-    const creatives: CreativePerformance[] = ads.map(ad => {
+    const creatives: CreativePerformance[] = ads.map((ad, index) => {
       const adMetrics = adMetricsMap.get(ad.id) || [];
       const totalSpend = adMetrics.reduce((sum, m) => sum + (m.spend || 0), 0);
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
+
+      // DEBUG: Log first ad to see what's happening
+      if (index === 0) {
+        console.log('[AdReportsService] First ad debug:', {
+          adId: ad.id,
+          adName: ad.name,
+          metricsFound: adMetrics.length,
+          totalSpend,
+          totalImpressions,
+          totalClicks
+        });
+      }
 
       // Use REAL conversion data from attribution system if available
       const attribution = attributionMap.get(ad.id);
