@@ -364,7 +364,7 @@ export async function getAdConversionMetrics(
         id,
         platform_ad_id,
         name,
-        ad_conversions!inner (
+        ad_conversions (
           id,
           conversion_value,
           converted_at
@@ -377,9 +377,7 @@ export async function getAdConversionMetrics(
         )
       `
       )
-      .in('ad_sets.ad_campaigns.ad_account_id', accountIds)
-      .gte('ad_conversions.converted_at', startDate)
-      .lte('ad_conversions.converted_at', endDate);
+      .in('ad_sets.ad_campaigns.ad_account_id', accountIds);
 
     if (error) {
       console.error('[Attribution] Error fetching ad conversions:', error);
@@ -387,9 +385,11 @@ export async function getAdConversionMetrics(
     }
 
     if (!adsWithConversions || adsWithConversions.length === 0) {
-      console.log('[Attribution] No ads with conversions found');
+      console.log('[Attribution] No ads found');
       return [];
     }
+
+    console.log('[Attribution] Found', adsWithConversions.length, 'ads to process');
 
     // Get ad metrics (clicks, spend, etc.) from ad_metrics table
     const adIds = adsWithConversions.map((ad) => ad.id);
@@ -417,7 +417,15 @@ export async function getAdConversionMetrics(
 
     // Calculate conversion metrics for each ad
     const results: AdConversionMetrics[] = adsWithConversions.map((ad) => {
-      const conversions = ad.ad_conversions || [];
+      // Filter conversions to date range
+      const allConversions = ad.ad_conversions || [];
+      const conversions = allConversions.filter((c: any) => {
+        const convertedAt = new Date(c.converted_at);
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        return convertedAt >= start && convertedAt <= end;
+      });
+
       const adMetrics = metricsMap.get(ad.id) || { clicks: 0, spend: 0 };
 
       const totalConversions = conversions.length;
