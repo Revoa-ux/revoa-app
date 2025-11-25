@@ -76,18 +76,22 @@ export async function calculateProfitMetrics(
     const totalConversions = metrics?.reduce((sum, m) => sum + (m.conversions || 0), 0) || 0;
     const totalRevenue = metrics?.reduce((sum, m) => sum + (m.conversion_value || 0), 0) || 0;
 
-    // Get COGS from attributed orders
+    // Get COGS from attributed orders via ad_conversions
     const { data: attributedOrders, error: ordersError } = await supabase
-      .from('order_attributions')
+      .from('ad_conversions')
       .select(`
-        order_value,
+        conversion_value,
         shopify_orders!inner(
-          line_items
+          id,
+          order_line_items(
+            cost_per_item,
+            quantity
+          )
         )
       `)
-      .in('ad_account_id', accountIds)
-      .gte('created_at', startDate)
-      .lte('created_at', endDate);
+      .eq('user_id', userId)
+      .gte('converted_at', startDate)
+      .lte('converted_at', endDate);
 
     if (ordersError) {
       console.error('[ProfitService] Error fetching attributed orders:', ordersError);
@@ -96,11 +100,11 @@ export async function calculateProfitMetrics(
     // Calculate COGS from line items
     let totalCOGS = 0;
     if (attributedOrders) {
-      attributedOrders.forEach(order => {
-        const lineItems = order.shopify_orders?.line_items || [];
+      attributedOrders.forEach(conversion => {
+        const lineItems = conversion.shopify_orders?.order_line_items || [];
         lineItems.forEach((item: any) => {
           // Shopify stores cost per item in cents or as decimal
-          const costPerItem = item.cost || 0;
+          const costPerItem = item.cost_per_item || 0;
           const quantity = item.quantity || 1;
           totalCOGS += costPerItem * quantity;
         });
@@ -219,23 +223,27 @@ export async function calculateAdProfitBreakdown(
 
     for (const ad of ads) {
       const { data: attributions, error: attribError } = await supabase
-        .from('order_attributions')
+        .from('ad_conversions')
         .select(`
-          order_value,
+          conversion_value,
           shopify_orders!inner(
-            line_items
+            id,
+            order_line_items(
+              cost_per_item,
+              quantity
+            )
           )
         `)
         .eq('ad_id', ad.id)
-        .gte('created_at', startDate)
-        .lte('created_at', endDate);
+        .gte('converted_at', startDate)
+        .lte('converted_at', endDate);
 
       if (!attribError && attributions) {
         let adCOGS = 0;
-        attributions.forEach(order => {
-          const lineItems = order.shopify_orders?.line_items || [];
+        attributions.forEach(conversion => {
+          const lineItems = conversion.shopify_orders?.order_line_items || [];
           lineItems.forEach((item: any) => {
-            const costPerItem = item.cost || 0;
+            const costPerItem = item.cost_per_item || 0;
             const quantity = item.quantity || 1;
             adCOGS += costPerItem * quantity;
           });
