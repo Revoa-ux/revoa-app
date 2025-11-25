@@ -371,7 +371,7 @@ export async function getAdConversionMetrics(
         ),
         ad_sets!inner (
           campaign_id,
-          ad_campaigns!inner (
+          ad_campaigns!ad_sets_campaign_id_fkey!inner (
             ad_account_id
           )
         )
