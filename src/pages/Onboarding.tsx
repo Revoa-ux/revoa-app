@@ -152,9 +152,14 @@ const Onboarding = () => {
   };
   
   const handleStoreConnected = useCallback((connected: boolean) => {
+    console.log('[Onboarding] ===== STORE CONNECTION CALLBACK =====');
     console.log('[Onboarding] handleStoreConnected called with:', connected);
+    console.log('[Onboarding] Current storeConnected state:', storeConnected);
+    console.log('[Onboarding] Setting storeConnected to:', connected);
     setStoreConnected(connected);
-  }, []);
+    console.log('[Onboarding] State update queued, React will re-render');
+    console.log('[Onboarding] =======================================');
+  }, [storeConnected]);
   
   const handleAdPlatformsConnected = useCallback((platforms: string[]) => {
     setAdPlatforms(platforms);
@@ -188,7 +193,13 @@ const Onboarding = () => {
     currentStep === 'products' ||
     (currentStep === 'complete' && completionFormValid);
 
-  console.log('[Onboarding] Render - currentStep:', currentStep, 'storeConnected:', storeConnected, 'canGoNext:', canGoNext);
+  console.log('[Onboarding] ===== RENDER =====');
+  console.log('[Onboarding] currentStep:', currentStep);
+  console.log('[Onboarding] storeConnected:', storeConnected);
+  console.log('[Onboarding] shopify.isConnected:', shopify.isConnected);
+  console.log('[Onboarding] canGoNext:', canGoNext);
+  console.log('[Onboarding] Next button should be:', canGoNext ? 'ENABLED (red gradient)' : 'DISABLED (gray)');
+  console.log('[Onboarding] ====================');
 
   return (
     <OnboardingLayout

@@ -138,7 +138,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   },
 
   refreshShopifyStatus: async () => {
-    console.log('[ConnectionStore] Refreshing Shopify status');
+    console.log('[ConnectionStore] ===== REFRESH SHOPIFY STATUS =====');
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
@@ -146,12 +146,17 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       return;
     }
 
+    console.log('[ConnectionStore] User ID:', user.id);
+
     set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
     try {
+      console.log('[ConnectionStore] Querying database for active installation...');
       const installation = await getActiveShopifyInstallation(user.id);
+      console.log('[ConnectionStore] Query result:', installation);
+
       set({
         shopify: {
           isConnected: installation !== null,
@@ -159,9 +164,11 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           loading: false,
         },
       });
-      console.log('[ConnectionStore] Shopify status refreshed:', { isConnected: installation !== null });
+      console.log('[ConnectionStore] \u2713 State updated - isConnected:', installation !== null);
+      console.log('[ConnectionStore] Store URL:', installation?.store_url);
+      console.log('[ConnectionStore] ====================================');
     } catch (error) {
-      console.error('[ConnectionStore] Error refreshing Shopify status:', error);
+      console.error('[ConnectionStore] \u2717 Error refreshing Shopify status:', error);
       set(state => ({
         shopify: { ...state.shopify, loading: false }
       }));
