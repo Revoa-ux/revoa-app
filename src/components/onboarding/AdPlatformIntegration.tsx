@@ -18,7 +18,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       name: 'Facebook',
       icon: <Facebook className="w-5 h-5" />,
       color: 'bg-[#1877F2]',
-      status: 'idle'
+      status: 'idle',
+      comingSoon: false
     },
     {
       id: 'google',
@@ -30,7 +31,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
       </svg>,
       color: 'bg-white',
-      status: 'idle'
+      status: 'idle',
+      comingSoon: true
     },
     {
       id: 'tiktok',
@@ -39,7 +41,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
       </svg>,
       color: 'bg-black',
-      status: 'idle'
+      status: 'idle',
+      comingSoon: true
     }
   ]);
 
@@ -158,6 +161,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   };
 
   const handleConnectPlatform = async (platformId: string) => {
+    // Check if platform is coming soon
+    const platform = platforms.find(p => p.id === platformId);
+    if (platform?.comingSoon) {
+      toast.info(`${platform.name} integration is coming soon!`);
+      return;
+    }
+
     setPlatforms(prev =>
       prev.map(p =>
         p.id === platformId
@@ -301,7 +311,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                   <div className="ml-3">
                     <h3 className="text-sm font-medium text-gray-900 dark:text-white">{platform.name}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {platform.status === 'idle' && 'Not connected'}
+                      {platform.status === 'idle' && (platform.comingSoon ? 'Coming soon' : 'Not connected')}
                       {platform.status === 'connecting' && 'Connecting...'}
                       {platform.status === 'connected' && 'Connected'}
                       {platform.status === 'error' && 'Connection error'}
@@ -313,9 +323,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                   {platform.status === 'idle' && (
                     <button
                       onClick={() => handleConnectPlatform(platform.id)}
-                      className="px-3 py-1.5 text-xs font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        platform.comingSoon
+                          ? 'text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 cursor-default'
+                          : 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 focus:ring-gray-500'
+                      }`}
                     >
-                      Connect
+                      {platform.comingSoon ? 'Coming Soon' : 'Connect'}
                     </button>
                   )}
                   
