@@ -1,0 +1,501 @@
+import { CampaignStructureIntelligenceEngine } from './campaignStructureIntelligence';
+import { ProfitIntelligenceService } from './profitIntelligenceService';
+import { FullFunnelAnalysisService } from './fullFunnelAnalysisService';
+import { IntelligentRexService } from './intelligentRexService';
+import { deepRexEngine } from './deepRexAnalysisEngine';
+import { ComprehensiveRexAnalysis } from './comprehensiveRexAnalysis';
+import { RexInsightGenerator } from './rexInsightGenerator';
+import type {
+  RexEntityType,
+  CreateRexSuggestionParams,
+  RexSuggestionReasoning,
+  RexEstimatedImpact
+} from '@/types/rex';
+
+/**
+ * Advanced Rex Intelligence Service
+ *
+ * This is the MASTER AI service that combines ALL intelligence engines:
+ * 1. Campaign Structure Intelligence (CBO/ABO, learning phase, bidding, account health)
+ * 2. Profit Intelligence (true profit ROAS with COGS, product margins, customer LTV)
+ * 3. Full Funnel Analysis (impression to purchase drop-offs, landing page friction)
+ * 4. Deep Rex Analysis Engine (multi-dimensional pattern recognition)
+ * 5. Comprehensive Rex Analysis (demographics, placements, geographic, temporal)
+ *
+ * This service determines which campaigns/ad sets/ads get the RED GRADIENT highlighting
+ * by using the same advanced AI logic that powers the modals.
+ */
+
+interface EntityMetrics {
+  spend: number;
+  revenue: number;
+  profit: number;
+  roas: number;
+  conversions: number;
+  cpa: number;
+  impressions: number;
+  clicks: number;
+  ctr: number;
+}
+
+interface EntityData {
+  id: string;
+  name: string;
+  platform: string;
+  platformId?: string;
+  metrics: EntityMetrics;
+  performance?: 'high' | 'medium' | 'low';
+}
+
+export class AdvancedRexIntelligence {
+  private userId: string;
+  private campaignStructureIntel: CampaignStructureIntelligenceEngine;
+  private profitIntel: ProfitIntelligenceService;
+  private funnelAnalysis: FullFunnelAnalysisService;
+  private intelligentRex: IntelligentRexService;
+  private comprehensiveAnalysis: ComprehensiveRexAnalysis;
+  private insightGenerator: RexInsightGenerator;
+
+  constructor(userId: string) {
+    this.userId = userId;
+    this.campaignStructureIntel = new CampaignStructureIntelligenceEngine(userId);
+    this.profitIntel = new ProfitIntelligenceService();
+    this.funnelAnalysis = new FullFunnelAnalysisService(userId);
+    this.intelligentRex = new IntelligentRexService();
+    this.comprehensiveAnalysis = new ComprehensiveRexAnalysis(userId);
+    this.insightGenerator = new RexInsightGenerator();
+  }
+
+  /**
+   * Analyze an entity using ALL advanced intelligence engines
+   * This is the function that determines which entities get red gradient highlighting
+   */
+  async analyzeEntity(
+    entityType: RexEntityType,
+    entity: EntityData,
+    startDate: string,
+    endDate: string
+  ): Promise<CreateRexSuggestionParams[]> {
+    console.log(`[AdvancedRexIntelligence] Analyzing ${entityType}:`, entity.name);
+
+    const suggestions: CreateRexSuggestionParams[] = [];
+
+    try {
+      // Run all intelligence engines in parallel for performance
+      const [
+        campaignStructureAnalysis,
+        profitAnalysis,
+        funnelAnalysis,
+        deepPatternAnalysis,
+        comprehensiveAnalysis
+      ] = await Promise.all([
+        // Campaign Structure Intelligence
+        this.analyzeCampaignStructure(entityType, entity, startDate, endDate),
+
+        // Profit Intelligence (true profit with COGS)
+        this.analyzeProfitIntelligence(entity, startDate, endDate),
+
+        // Full Funnel Analysis (impression → purchase drop-offs)
+        this.analyzeFunnel(entity.id, startDate, endDate),
+
+        // Deep Pattern Recognition (multi-dimensional insights)
+        entity.platformId ? deepRexEngine.generateDeepAnalysis(entity.id, startDate, endDate) : null,
+
+        // Comprehensive Analysis (demographics, placements, geo, temporal)
+        entity.platformId ? this.comprehensiveAnalysis.analyzeEntity(
+          entityType,
+          entity.id,
+          entity.platformId,
+          30 // 30 days
+        ) : null
+      ]);
+
+      // Generate suggestions based on Campaign Structure Intelligence
+      if (campaignStructureAnalysis) {
+        suggestions.push(...campaignStructureAnalysis);
+      }
+
+      // Generate suggestions based on Profit Intelligence
+      if (profitAnalysis) {
+        suggestions.push(...profitAnalysis);
+      }
+
+      // Generate suggestions based on Funnel Analysis
+      if (funnelAnalysis) {
+        suggestions.push(...funnelAnalysis);
+      }
+
+      // Generate suggestions based on Deep Pattern Analysis
+      if (deepPatternAnalysis && comprehensiveAnalysis) {
+        const deepSuggestions = this.createSuggestionsFromDeepAnalysis(
+          entity,
+          deepPatternAnalysis,
+          comprehensiveAnalysis
+        );
+        suggestions.push(...deepSuggestions);
+      }
+
+      // Sort by priority and return top suggestions
+      return suggestions.sort((a, b) => b.priority_score - a.priority_score);
+    } catch (error) {
+      console.error('[AdvancedRexIntelligence] Error analyzing entity:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Campaign Structure Intelligence Analysis
+   * Analyzes CBO vs ABO, learning phase, bidding strategy, budget scaling patterns
+   */
+  private async analyzeCampaignStructure(
+    entityType: RexEntityType,
+    entity: EntityData,
+    startDate: string,
+    endDate: string
+  ): Promise<CreateRexSuggestionParams[]> {
+    const suggestions: CreateRexSuggestionParams[] = [];
+
+    try {
+      if (entityType === 'campaign') {
+        // Analyze if this campaign should switch from ABO to CBO or vice versa
+        const cboAnalysis = await this.campaignStructureIntel.analyzeCBOEffectiveness(startDate, endDate);
+
+        if (cboAnalysis && entity.metrics.spend > 100) {
+          const isCurrentlyCBO = entity.name.toLowerCase().includes('cbo');
+          const shouldBeCBO = cboAnalysis.recommendation === 'cbo';
+
+          if (isCurrentlyCBO !== shouldBeCBO) {
+            suggestions.push({
+              user_id: this.userId,
+              entity_type: entityType,
+              entity_id: entity.id,
+              entity_name: entity.name,
+              platform: entity.platform,
+              suggestion_type: shouldBeCBO ? 'switch_to_cbo' : 'switch_to_abo',
+              priority_score: 75,
+              confidence_score: cboAnalysis.confidenceScore,
+              title: shouldBeCBO ? 'Switch to Campaign Budget Optimization' : 'Switch to Ad Set Budget Optimization',
+              message: cboAnalysis.reasoning,
+              reasoning: {
+                triggeredBy: ['campaign_structure_analysis', 'cbo_vs_abo_comparison'],
+                metrics: {
+                  current_roas: entity.metrics.roas,
+                  cbo_avg_roas: cboAnalysis.cboAverageRoas,
+                  abo_avg_roas: cboAnalysis.aboAverageRoas,
+                  potential_improvement: shouldBeCBO
+                    ? ((cboAnalysis.cboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
+                    : ((cboAnalysis.aboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
+                },
+                analysis: cboAnalysis.reasoning,
+                riskLevel: 'low'
+              }
+            });
+          }
+        }
+
+        // Check learning phase status
+        const learningPhaseAnalysis = await this.campaignStructureIntel.analyzeLearningPhase(startDate, endDate);
+
+        if (learningPhaseAnalysis && learningPhaseAnalysis.performanceImpact.improvement > 30) {
+          // Campaign might be in learning phase limbo
+          if (entity.metrics.conversions < 50 && entity.metrics.spend > 200) {
+            suggestions.push({
+              user_id: this.userId,
+              entity_type: entityType,
+              entity_id: entity.id,
+              entity_name: entity.name,
+              platform: entity.platform,
+              suggestion_type: 'learning_phase_optimization',
+              priority_score: 80,
+              confidence_score: 85,
+              title: 'Learning Phase Bottleneck Detected',
+              message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but only has ${entity.metrics.conversions} conversions. It needs 50 conversions to exit learning phase. Current ROAS of ${entity.metrics.roas.toFixed(2)}x could improve to ${learningPhaseAnalysis.performanceImpact.roasPostLearning.toFixed(2)}x once learning phase completes.`,
+              reasoning: {
+                triggeredBy: ['learning_phase_stuck', 'insufficient_conversions'],
+                metrics: {
+                  current_conversions: entity.metrics.conversions,
+                  required_conversions: 50,
+                  current_roas: entity.metrics.roas,
+                  expected_post_learning_roas: learningPhaseAnalysis.performanceImpact.roasPostLearning,
+                  improvement_potential: learningPhaseAnalysis.performanceImpact.improvement
+                },
+                analysis: `Based on historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase.`,
+                riskLevel: 'medium'
+              }
+            });
+          }
+        }
+      }
+
+      // Check for budget scaling opportunities with platform constraints
+      if (entity.metrics.roas > 2.5 && entity.metrics.profit > 0 && entity.metrics.spend > 50) {
+        const budgetScalingAnalysis = await this.campaignStructureIntel.analyzeBudgetScaling(startDate, endDate);
+
+        if (budgetScalingAnalysis) {
+          // Find optimal scaling percentage based on historical breakpoints
+          const safeScalePercentage = budgetScalingAnalysis.optimalScalePercentage || 15;
+          const projectedRevenue = entity.metrics.revenue * (1 + safeScalePercentage / 100);
+          const projectedProfit = (projectedRevenue - entity.metrics.spend * (1 + safeScalePercentage / 100));
+
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: entityType,
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            suggestion_type: 'increase_budget',
+            priority_score: 85,
+            confidence_score: budgetScalingAnalysis.confidence,
+            title: 'Safe Budget Scaling Opportunity',
+            message: `This ${entityType} is performing well at ${entity.metrics.roas.toFixed(2)}x ROAS with $${entity.metrics.profit.toFixed(2)} profit. Historical patterns show you can safely scale budget by ${safeScalePercentage}% without resetting learning phase or degrading performance.`,
+            reasoning: {
+              triggeredBy: ['high_roas', 'positive_profit', 'historical_scaling_success'],
+              metrics: {
+                current_roas: entity.metrics.roas,
+                current_profit: entity.metrics.profit,
+                safe_scale_percentage: safeScalePercentage,
+                projected_revenue: projectedRevenue,
+                projected_profit: projectedProfit
+              },
+              analysis: `Based on ${budgetScalingAnalysis.historicalScales.length} historical scaling attempts, ${safeScalePercentage}% is the optimal increase that maintains performance without learning phase reset.`,
+              riskLevel: 'low'
+            },
+            estimated_impact: {
+              expectedRevenue: projectedRevenue - entity.metrics.revenue,
+              expectedProfit: projectedProfit - entity.metrics.profit,
+              timeframe: '7-14 days'
+            }
+          });
+        }
+      }
+
+      return suggestions;
+    } catch (error) {
+      console.error('[AdvancedRexIntelligence] Campaign structure analysis error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Profit Intelligence Analysis
+   * Analyzes true profit ROAS (with COGS), product margins, customer LTV
+   */
+  private async analyzeProfitIntelligence(
+    entity: EntityData,
+    startDate: string,
+    endDate: string
+  ): Promise<CreateRexSuggestionParams[]> {
+    const suggestions: CreateRexSuggestionParams[] = [];
+
+    try {
+      // Get profit report for this ad
+      const profitReport = await this.profitIntel.generateProfitIntelligenceReport(
+        this.userId,
+        startDate,
+        endDate
+      );
+
+      const adProfitMetrics = profitReport.adProfitMetrics.find(pm => pm.adId === entity.id);
+
+      if (adProfitMetrics) {
+        // Check for high revenue but low margin opportunity
+        if (adProfitMetrics.revenueRoas > 2.5 && adProfitMetrics.profitRoas < 1.5) {
+          const marginDifference = profitReport.overallMetrics.averageMarginPercent - adProfitMetrics.averageMarginPercent;
+
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'ad',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            suggestion_type: 'optimize_product_mix',
+            priority_score: 78,
+            confidence_score: 88,
+            title: 'High Revenue but Low Margin Detected',
+            message: `This ad has strong revenue ROAS of ${adProfitMetrics.revenueRoas.toFixed(2)}x but profit ROAS is only ${adProfitMetrics.profitRoas.toFixed(2)}x due to ${adProfitMetrics.averageMarginPercent.toFixed(1)}% margin (vs account average of ${profitReport.overallMetrics.averageMarginPercent.toFixed(1)}%). Consider promoting higher-margin products to improve profitability.`,
+            reasoning: {
+              triggeredBy: ['low_profit_margin', 'high_cogs', 'product_mix_optimization'],
+              metrics: {
+                revenue_roas: adProfitMetrics.revenueRoas,
+                profit_roas: adProfitMetrics.profitRoas,
+                margin_percent: adProfitMetrics.averageMarginPercent,
+                account_avg_margin: profitReport.overallMetrics.averageMarginPercent,
+                margin_gap: marginDifference,
+                total_cogs: adProfitMetrics.totalCogs
+              },
+              analysis: `By switching to products with ${profitReport.overallMetrics.averageMarginPercent.toFixed(1)}% margin, you could improve profit ROAS by ${((profitReport.overallMetrics.averageMarginPercent / adProfitMetrics.averageMarginPercent - 1) * 100).toFixed(1)}%.`,
+              riskLevel: 'low'
+            }
+          });
+        }
+
+        // Check for margin opportunities
+        const marginOpportunity = profitReport.marginOpportunities.find(mo => mo.adId === entity.id);
+        if (marginOpportunity && marginOpportunity.potentialProfitIncrease > 100) {
+          suggestions.push({
+            user_id: this.userId,
+            entity_type: 'ad',
+            entity_id: entity.id,
+            entity_name: entity.name,
+            platform: entity.platform,
+            suggestion_type: 'product_margin_optimization',
+            priority_score: 82,
+            confidence_score: 90,
+            title: marginOpportunity.type === 'high_revenue_low_margin' ? 'Margin Optimization Opportunity' : 'Revenue Scaling Opportunity',
+            message: marginOpportunity.opportunity,
+            reasoning: {
+              triggeredBy: ['margin_analysis', 'product_performance_comparison'],
+              metrics: {
+                current_profit: adProfitMetrics.totalProfit,
+                potential_profit_increase: marginOpportunity.potentialProfitIncrease,
+                revenue_roas: adProfitMetrics.revenueRoas,
+                profit_roas: adProfitMetrics.profitRoas
+              },
+              analysis: marginOpportunity.action,
+              riskLevel: 'low'
+            },
+            estimated_impact: {
+              expectedProfit: marginOpportunity.potentialProfitIncrease,
+              timeframe: '30 days'
+            }
+          });
+        }
+      }
+
+      return suggestions;
+    } catch (error) {
+      console.error('[AdvancedRexIntelligence] Profit intelligence error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Full Funnel Analysis
+   * Identifies where customers drop off in the journey: Impression → Purchase
+   */
+  private async analyzeFunnel(
+    entityId: string,
+    startDate: string,
+    endDate: string
+  ): Promise<CreateRexSuggestionParams[]> {
+    const suggestions: CreateRexSuggestionParams[] = [];
+
+    try {
+      const funnelAnalysis = await this.funnelAnalysis.analyzeAdFunnel(entityId, startDate, endDate);
+
+      if (funnelAnalysis && funnelAnalysis.biggestDropOff.dropOffRate > 50) {
+        const dropOffStage = funnelAnalysis.biggestDropOff.stage;
+        let recommendation = '';
+        let suggestionType = 'optimize_funnel';
+        let triggeredBy: string[] = ['funnel_analysis', 'high_drop_off'];
+
+        // Provide specific recommendations based on drop-off point
+        if (dropOffStage.includes('click')) {
+          recommendation = `High drop-off between impression and click (${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}%). This suggests ad creative isn't compelling enough or targeting is off. Consider testing new creative angles or refining audience.`;
+          suggestionType = 'creative_refresh';
+          triggeredBy.push('low_ctr');
+        } else if (dropOffStage.includes('page_view')) {
+          recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% of clicks don't result in page views. This typically means landing page load issues, broken links, or ad-to-page mismatch. Check landing page speed and relevance.`;
+          suggestionType = 'landing_page_optimization';
+          triggeredBy.push('landing_page_issue');
+        } else if (dropOffStage.includes('add_to_cart')) {
+          recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% of page views don't add to cart. This suggests product page friction, unclear value prop, or price concerns. Consider product page optimization or promotional offers.`;
+          suggestionType = 'product_page_optimization';
+          triggeredBy.push('low_atc_rate');
+        } else if (dropOffStage.includes('checkout')) {
+          recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% cart abandonment. Checkout friction is your biggest issue. Consider simplifying checkout process, adding trust badges, or cart abandonment emails.`;
+          suggestionType = 'checkout_optimization';
+          triggeredBy.push('high_cart_abandonment');
+        }
+
+        suggestions.push({
+          user_id: this.userId,
+          entity_type: 'ad',
+          entity_id: entityId,
+          entity_name: funnelAnalysis.adName,
+          platform: funnelAnalysis.platform,
+          suggestion_type: suggestionType,
+          priority_score: 76,
+          confidence_score: 85,
+          title: `Funnel Drop-Off at ${dropOffStage}`,
+          message: recommendation,
+          reasoning: {
+            triggeredBy,
+            metrics: {
+              drop_off_stage: dropOffStage,
+              drop_off_rate: funnelAnalysis.biggestDropOff.dropOffRate,
+              lost_opportunities: funnelAnalysis.biggestDropOff.lostOpportunities,
+              overall_conversion_rate: funnelAnalysis.overallConversionRate
+            },
+            analysis: `Analyzing ${funnelAnalysis.funnelStages.length} funnel stages revealed ${dropOffStage} as the biggest leak. Fixing this could recover ${funnelAnalysis.biggestDropOff.lostOpportunities} lost opportunities.`,
+            riskLevel: 'medium'
+          }
+        });
+      }
+
+      return suggestions;
+    } catch (error) {
+      console.error('[AdvancedRexIntelligence] Funnel analysis error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Create suggestions from Deep Pattern Analysis
+   * Multi-dimensional pattern recognition across demographics, placements, geo, temporal
+   */
+  private createSuggestionsFromDeepAnalysis(
+    entity: EntityData,
+    deepAnalysis: any,
+    comprehensiveAnalysis: any
+  ): CreateRexSuggestionParams[] {
+    const suggestions: CreateRexSuggestionParams[] = [];
+
+    // Use the insight generator to detect opportunities
+    const demoInsight = this.insightGenerator.detectDemographicOpportunity(comprehensiveAnalysis);
+    if (demoInsight) {
+      suggestions.push(this.convertInsightToSuggestion(entity, demoInsight, 'demographic_optimization'));
+    }
+
+    const placementInsight = this.insightGenerator.detectPlacementOpportunity(comprehensiveAnalysis);
+    if (placementInsight) {
+      suggestions.push(this.convertInsightToSuggestion(entity, placementInsight, 'placement_optimization'));
+    }
+
+    const geoInsight = this.insightGenerator.detectGeographicOpportunity(comprehensiveAnalysis);
+    if (geoInsight) {
+      suggestions.push(this.convertInsightToSuggestion(entity, geoInsight, 'geographic_optimization'));
+    }
+
+    const temporalInsight = this.insightGenerator.detectTemporalOpportunity(comprehensiveAnalysis);
+    if (temporalInsight) {
+      suggestions.push(this.convertInsightToSuggestion(entity, temporalInsight, 'temporal_optimization'));
+    }
+
+    return suggestions;
+  }
+
+  /**
+   * Convert a generated insight to a Rex suggestion
+   */
+  private convertInsightToSuggestion(
+    entity: EntityData,
+    insight: any,
+    suggestionType: string
+  ): CreateRexSuggestionParams {
+    return {
+      user_id: this.userId,
+      entity_type: 'ad',
+      entity_id: entity.id,
+      entity_name: entity.name,
+      platform: entity.platform,
+      suggestion_type: suggestionType,
+      priority_score: insight.priority || 70,
+      confidence_score: insight.confidence || 75,
+      title: insight.title,
+      message: insight.primaryInsight,
+      reasoning: insight.reasoning,
+      estimated_impact: insight.estimatedImpact
+    };
+  }
+}

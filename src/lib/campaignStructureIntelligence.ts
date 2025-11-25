@@ -114,7 +114,7 @@ export interface BudgetScalingAnalysis {
   recommendation: string;
 }
 
-export interface AdvantageP lusAnalysis {
+export interface AdvantagePlusAnalysis {
   hasAdvantagePlus: boolean;
   advantagePlusRoas: number;
   manualCampaignRoas: number;

@@ -8,7 +8,7 @@ import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReport
 import { getAdReportsMetrics, getCreativePerformance, getCampaignPerformance, getAdSetPerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { rexSuggestionService } from '@/lib/rexSuggestionService';
-import { rexIntelligence } from '@/lib/rexIntelligence';
+import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
@@ -94,7 +94,7 @@ export default function Audit() {
     );
   };
 
-  // Generate new Rex suggestions for ads/campaigns/ad sets
+  // Generate new Rex suggestions for ads/campaigns/ad sets using ADVANCED AI
   const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>) => {
     if (!user || isGeneratingSuggestions) return;
 
@@ -106,10 +106,16 @@ export default function Audit() {
 
     setIsGeneratingSuggestions(true);
     try {
+      // Initialize Advanced Rex Intelligence with ALL AI engines
+      const advancedRex = new AdvancedRexIntelligence(user.id);
       const newSuggestions: any[] = [];
       let skippedCount = 0;
 
-      // Generate suggestions for ads
+      // Date range for analysis
+      const startDate = dateRange.startDate.toISOString().split('T')[0];
+      const endDate = dateRange.endDate.toISOString().split('T')[0];
+
+      // Generate suggestions for ads using ADVANCED AI
       for (const creative of creatives) {
         // Skip if no valid data
         if (!hasValidData(creative.metrics)) {
@@ -122,6 +128,7 @@ export default function Audit() {
             id: creative.id,
             name: creative.adName || creative.name,
             platform: creative.platform || 'facebook',
+            platformId: creative.platformId || creative.id,
             metrics: {
               spend: creative.metrics.spend,
               revenue: creative.metrics.revenue || creative.metrics.conversions * creative.metrics.cpa,
@@ -131,18 +138,18 @@ export default function Audit() {
               cpa: creative.metrics.cpa,
               impressions: creative.metrics.impressions,
               clicks: creative.metrics.clicks,
-              ctr: creative.metrics.ctr,
-              fatigueScore: creative.fatigueScore
+              ctr: creative.metrics.ctr
             },
             performance: creative.performance
           };
 
-          const suggestions = rexIntelligence.analyzeEntity(user.id, 'ad', entityData);
+          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+          const suggestions = await advancedRex.analyzeEntity('ad', entityData, startDate, endDate);
           newSuggestions.push(...suggestions);
         }
       }
 
-      // Generate suggestions for campaigns
+      // Generate suggestions for campaigns using ADVANCED AI
       for (const campaign of campaigns) {
         // Skip if no valid data
         if (!hasValidData(campaign.metrics || {})) {
@@ -155,6 +162,7 @@ export default function Audit() {
             id: campaign.id,
             name: campaign.name,
             platform: campaign.platform || 'facebook',
+            platformId: campaign.platformId || campaign.id,
             metrics: {
               spend: campaign.metrics?.spend || 0,
               revenue: campaign.metrics?.revenue || 0,
@@ -169,12 +177,13 @@ export default function Audit() {
             performance: campaign.performance
           };
 
-          const suggestions = rexIntelligence.analyzeEntity(user.id, 'campaign', entityData);
+          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+          const suggestions = await advancedRex.analyzeEntity('campaign', entityData, startDate, endDate);
           newSuggestions.push(...suggestions);
         }
       }
 
-      // Generate suggestions for ad sets
+      // Generate suggestions for ad sets using ADVANCED AI
       for (const adSet of adSets) {
         // Skip if no valid data
         if (!hasValidData(adSet.metrics || {})) {
@@ -187,6 +196,7 @@ export default function Audit() {
             id: adSet.id,
             name: adSet.name,
             platform: adSet.platform || 'facebook',
+            platformId: adSet.platformId || adSet.id,
             metrics: {
               spend: adSet.metrics?.spend || 0,
               revenue: adSet.metrics?.revenue || 0,
@@ -201,7 +211,8 @@ export default function Audit() {
             performance: adSet.performance
           };
 
-          const suggestions = rexIntelligence.analyzeEntity(user.id, 'ad_set', entityData);
+          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+          const suggestions = await advancedRex.analyzeEntity('ad_set', entityData, startDate, endDate);
           newSuggestions.push(...suggestions);
         }
       }
