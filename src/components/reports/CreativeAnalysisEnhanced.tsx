@@ -1109,12 +1109,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className="flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white"
+                        className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
+                          column.id === 'adName' ? 'overflow-hidden' : ''
+                        }`}
                         style={columnStyle}
                         onClick={isGlowing ? handleMetricClick : undefined}
                         title={isGlowing ? 'AI suggestion available - click for details' : undefined}
                       >
-                        <span className={isGlowing ? 'ai-metric-glow' : ''}>
+                        <span className={`${isGlowing ? 'ai-metric-glow' : ''} ${
+                          column.id === 'adName' ? 'truncate block w-full' : ''
+                        }`}>
                           {metricContent}
                         </span>
                       </div>
