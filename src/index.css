@@ -306,27 +306,27 @@ body.modal-open {
 }
 
 .light-toast-success {
-  background: #ffffff !important;
-  color: #111827 !important;
-  border-left: 3px solid #10b981 !important;
+  background: linear-gradient(135deg, #F43F5E 0%, #EC4899 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
 }
 
 .light-toast-error {
   background: #ffffff !important;
   color: #111827 !important;
-  border-left: 3px solid #ef4444 !important;
+  border-left: 3px solid #6b7280 !important;
 }
 
 .light-toast-warning {
   background: #ffffff !important;
   color: #111827 !important;
-  border-left: 3px solid #f59e0b !important;
+  border-left: 3px solid #6b7280 !important;
 }
 
 .light-toast-info {
   background: #ffffff !important;
   color: #111827 !important;
-  border-left: 3px solid #3b82f6 !important;
+  border-left: 3px solid #6b7280 !important;
 }
 
 /* Dark Mode Toasts */
@@ -337,27 +337,27 @@ body.modal-open {
 }
 
 .dark-toast-success {
-  background: #1f2937 !important;
-  color: #f3f4f6 !important;
-  border-left: 3px solid #10b981 !important;
+  background: linear-gradient(135deg, #F43F5E 0%, #EC4899 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
 }
 
 .dark-toast-error {
   background: #1f2937 !important;
   color: #f3f4f6 !important;
-  border-left: 3px solid #ef4444 !important;
+  border-left: 3px solid #9ca3af !important;
 }
 
 .dark-toast-warning {
   background: #1f2937 !important;
   color: #f3f4f6 !important;
-  border-left: 3px solid #f59e0b !important;
+  border-left: 3px solid #9ca3af !important;
 }
 
 .dark-toast-info {
   background: #1f2937 !important;
   color: #f3f4f6 !important;
-  border-left: 3px solid #3b82f6 !important;
+  border-left: 3px solid #9ca3af !important;
 }
 
 /* Toast icon colors */
@@ -384,28 +384,30 @@ body.modal-open {
   color: #f3f4f6 !important;
 }
 
-/* Success icon color override */
+/* Success - use white for gradient background */
 .dark-toast-success [data-icon],
-.light-toast-success [data-icon] {
-  color: #10b981 !important;
+.light-toast-success [data-icon],
+.dark-toast-success [data-close-button],
+.light-toast-success [data-close-button] {
+  color: #ffffff !important;
 }
 
-/* Error icon color override */
+/* Error - neutral gray */
 .dark-toast-error [data-icon],
 .light-toast-error [data-icon] {
-  color: #ef4444 !important;
+  color: #6b7280 !important;
 }
 
-/* Warning icon color override */
+/* Warning - neutral gray */
 .dark-toast-warning [data-icon],
 .light-toast-warning [data-icon] {
-  color: #f59e0b !important;
+  color: #6b7280 !important;
 }
 
-/* Info icon color override */
+/* Info - neutral gray */
 .dark-toast-info [data-icon],
 .light-toast-info [data-icon] {
-  color: #3b82f6 !important;
+  color: #6b7280 !important;
 }
 
 /* AI Metric Glow Animation - Flowing gradient text */
