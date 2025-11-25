@@ -5,6 +5,8 @@ import { IntelligentRexService } from './intelligentRexService';
 import { deepRexEngine } from './deepRexAnalysisEngine';
 import { ComprehensiveRexAnalysis } from './comprehensiveRexAnalysis';
 import { RexInsightGenerator } from './rexInsightGenerator';
+import { platformIntelligence, type CampaignContext, type BusinessGoals } from './platformIntelligenceEngine';
+import { queryPlatformKnowledge, getLearningPhaseKnowledge } from './platformKnowledgeBase';
 import type {
   RexEntityType,
   CreateRexSuggestionParams,
@@ -483,7 +485,8 @@ export class AdvancedRexIntelligence {
     insight: any,
     suggestionType: string
   ): CreateRexSuggestionParams {
-    return {
+    // Enrich with platform knowledge
+    const enrichedSuggestion = this.enrichWithPlatformKnowledge({
       user_id: this.userId,
       entity_type: 'ad',
       entity_id: entity.id,
@@ -496,6 +499,102 @@ export class AdvancedRexIntelligence {
       message: insight.primaryInsight,
       reasoning: insight.reasoning,
       estimated_impact: insight.estimatedImpact
-    };
+    }, entity);
+
+    return enrichedSuggestion;
+  }
+
+  /**
+   * Enrich suggestions with comprehensive platform knowledge
+   * This is where the AI demonstrates it knows MORE than any human expert
+   */
+  private enrichWithPlatformKnowledge(
+    suggestion: CreateRexSuggestionParams,
+    entity: EntityData
+  ): CreateRexSuggestionParams {
+    try {
+      // Get comprehensive platform knowledge for this platform
+      const learningKnowledge = getLearningPhaseKnowledge(
+        suggestion.platform as 'facebook' | 'tiktok' | 'google'
+      );
+
+      // Add platform intelligence to reasoning
+      const platformInsights: string[] = [];
+
+      // Budget scaling suggestions get platform constraints added
+      if (suggestion.suggestion_type === 'increase_budget') {
+        const scalingKnowledge = queryPlatformKnowledge({
+          platform: suggestion.platform as any,
+          topic: 'budget',
+          context: {
+            currentBudget: entity.metrics.spend
+          }
+        });
+
+        platformInsights.push(
+          `Platform Knowledge: ${suggestion.platform} allows up to ${scalingKnowledge.platform === 'facebook' ? '20% budget increases every 72 hours' : '20% daily'} without resetting learning phase.`
+        );
+
+        // Add learning phase context if relevant
+        if (entity.metrics.conversions < 50) {
+          platformInsights.push(
+            `Learning Phase Alert: This campaign has ${entity.metrics.conversions} conversions. It needs ${50 - entity.metrics.conversions} more to exit learning phase. Budget increases over 20% will RESET this progress.`
+          );
+        }
+      }
+
+      // Targeting suggestions get audience size validation
+      if (suggestion.suggestion_type.includes('targeting') || suggestion.suggestion_type.includes('demographic')) {
+        const targetingKnowledge = queryPlatformKnowledge({
+          platform: suggestion.platform as any,
+          topic: 'targeting'
+        });
+
+        platformInsights.push(
+          `Platform Best Practice: ${suggestion.platform} recommends minimum audience size of 50,000 for conversion campaigns. Smaller audiences often result in Learning Limited status.`
+        );
+      }
+
+      // Add platform insights to reasoning
+      if (platformInsights.length > 0 && suggestion.reasoning) {
+        suggestion.reasoning = {
+          ...suggestion.reasoning,
+          platformKnowledge: platformInsights
+        };
+
+        // Enhance message with key platform insight
+        suggestion.message = `${suggestion.message}\n\n💡 Platform Expert Knowledge: ${platformInsights[0]}`;
+      }
+
+      return suggestion;
+    } catch (error) {
+      // If platform knowledge fails, return original suggestion
+      console.error('[AdvancedRexIntelligence] Error enriching with platform knowledge:', error);
+      return suggestion;
+    }
+  }
+
+  /**
+   * Validate suggestion against platform constraints
+   * Returns null if suggestion violates platform rules
+   */
+  private validateAgainstPlatformRules(
+    suggestion: CreateRexSuggestionParams,
+    entity: EntityData
+  ): CreateRexSuggestionParams | null {
+    // Check if suggestion type is even possible on this platform
+    if (suggestion.suggestion_type === 'change_optimization_goal') {
+      // This is NEVER possible on any platform after launch
+      console.warn('[AdvancedRexIntelligence] Filtered out impossible suggestion: change optimization goal');
+      return null;
+    }
+
+    if (suggestion.suggestion_type === 'change_campaign_objective') {
+      // This is NEVER possible on any platform after launch
+      console.warn('[AdvancedRexIntelligence] Filtered out impossible suggestion: change campaign objective');
+      return null;
+    }
+
+    return suggestion;
   }
 }
