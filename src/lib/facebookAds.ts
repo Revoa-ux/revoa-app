@@ -178,10 +178,16 @@ export class FacebookAdsService {
       }
 
       console.log('[FacebookAds] Updating last_synced_at for account:', accountId);
-      await supabase
+      const { error: updateError } = await supabase
         .from('ad_accounts')
         .update({ last_synced_at: new Date().toISOString() })
         .eq('platform_account_id', accountId);
+
+      if (updateError) {
+        console.error('[FacebookAds] Error updating last_synced_at:', updateError);
+      } else {
+        console.log('[FacebookAds] Successfully updated last_synced_at');
+      }
 
       return data;
     } catch (error) {

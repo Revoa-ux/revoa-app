@@ -475,7 +475,39 @@ export default function Audit() {
 
   useEffect(() => {
     if (facebook.isConnected) {
-      refreshData();
+      // Check if data is fresh (synced within last 30 minutes)
+      const isDataFresh = facebook.accounts?.some(account => {
+        if (!account.last_synced_at) return false;
+        const lastSync = new Date(account.last_synced_at);
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+        return lastSync > thirtyMinutesAgo;
+      });
+
+      if (isDataFresh) {
+        console.log('[Audit] Data is fresh (< 30 min), skipping auto-refresh');
+        // Just load the data without syncing
+        setIsLoading(true);
+        const startDate = dateRange.startDate.toISOString().split('T')[0];
+        const endDate = dateRange.endDate.toISOString().split('T')[0];
+
+        Promise.all([
+          getAdReportsMetrics(startDate, endDate),
+          getCreativePerformance(startDate, endDate),
+          getCampaignPerformance(startDate, endDate),
+          getAdSetPerformance(startDate, endDate)
+        ]).then(([metrics, creativesData, campaignsData, adSetsData]) => {
+          setPerformanceData(metrics);
+          setCreatives(creativesData);
+          setCampaigns(campaignsData);
+          setAdSets(adSetsData);
+          loadRexSuggestions();
+        }).finally(() => {
+          setIsLoading(false);
+        });
+      } else {
+        console.log('[Audit] Data is stale (> 30 min), triggering refresh');
+        refreshData();
+      }
     }
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
