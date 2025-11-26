@@ -315,11 +315,12 @@ export async function getCreativePerformance(
     const accountIds = accounts.map(acc => acc.id);
     console.log('[AdReportsService] Found', accountIds.length, 'ad accounts');
 
-    // Get campaigns for these accounts
+    // Get campaigns for these accounts (no limit - need all campaigns)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('id')
-      .in('ad_account_id', accountIds);
+      .in('ad_account_id', accountIds)
+      .limit(10000);
 
     if (campaignsError) throw campaignsError;
 
@@ -330,11 +331,12 @@ export async function getCreativePerformance(
 
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get ad sets for these campaigns
+    // Get ad sets for these campaigns (no limit - need all ad sets)
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('id')
-      .in('campaign_id', campaignIds);
+      .in('campaign_id', campaignIds)
+      .limit(10000);
 
     if (adSetsError) throw adSetsError;
 
@@ -345,14 +347,15 @@ export async function getCreativePerformance(
 
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets with ad account info
+    // Fetch ads for these ad sets with ad account info (no limit - need all ads)
     const { data: ads, error } = await supabase
       .from('ads')
       .select(`
         *,
         ad_account:ad_accounts!ad_account_id(platform_account_id)
       `)
-      .in('ad_set_id', adSetIds);
+      .in('ad_set_id', adSetIds)
+      .limit(10000);
 
     if (error) throw error;
 
@@ -401,7 +404,6 @@ export async function getCreativePerformance(
     const metrics = allMetrics;
 
     console.log('[AdReportsService] Fetched', metrics?.length || 0, 'ad_metrics rows');
-    console.log('[AdReportsService] First ad ID:', adIds[0]);
     if (metrics && metrics.length > 0) {
       console.log('[AdReportsService] First metric sample:', {
         entity_id: metrics[0].entity_id,
@@ -637,11 +639,12 @@ export async function getCampaignPerformance(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Get all campaigns for these accounts
+    // Get all campaigns for these accounts (no limit - need all campaigns)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('*')
-      .in('ad_account_id', accountIds);
+      .in('ad_account_id', accountIds)
+      .limit(10000); // Explicitly set high limit to get all campaigns
 
     if (campaignsError) throw campaignsError;
 
@@ -808,11 +811,12 @@ export async function getAdSetPerformance(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Get all campaigns for these accounts
+    // Get all campaigns for these accounts (no limit - need all campaigns)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('id')
-      .in('ad_account_id', accountIds);
+      .in('ad_account_id', accountIds)
+      .limit(10000);
 
     if (campaignsError) throw campaignsError;
 
@@ -822,11 +826,12 @@ export async function getAdSetPerformance(
 
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get all ad sets for these campaigns
+    // Get all ad sets for these campaigns (no limit - need all ad sets)
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('*')
-      .in('campaign_id', campaignIds);
+      .in('campaign_id', campaignIds)
+      .limit(10000);
 
     if (adSetsError) throw adSetsError;
 
