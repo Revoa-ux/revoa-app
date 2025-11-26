@@ -186,7 +186,16 @@ export const chatService = {
   },
 
   async getAdminChats(adminId: string, filters?: ChatFilters): Promise<Chat[]> {
-    // First, get assigned user IDs for this admin
+    // Check if admin is super admin
+    const { data: adminProfile } = await supabase
+      .from('user_profiles')
+      .select('is_super_admin')
+      .eq('user_id', adminId)
+      .maybeSingle();
+
+    const isSuperAdmin = adminProfile?.is_super_admin || false;
+
+    // Get assigned user IDs for this admin
     const { data: assignments, error: assignmentError } = await supabase
       .from('user_assignments')
       .select('user_id, total_transactions, total_invoices, last_interaction_at')
@@ -194,28 +203,32 @@ export const chatService = {
 
     if (assignmentError) {
       console.error('Error fetching user assignments:', assignmentError);
-      return [];
     }
 
-    // If admin has no assigned users, return empty
-    if (!assignments || assignments.length === 0) {
-      return [];
-    }
-
-    const assignedUserIds = assignments.map(a => a.user_id);
     const assignmentMap = new Map(
-      assignments.map(a => [a.user_id, {
+      (assignments || []).map(a => [a.user_id, {
         total_transactions: a.total_transactions || 0,
         total_invoices: a.total_invoices || 0,
         last_interaction_at: a.last_interaction_at
       }])
     );
 
-    // Fetch chats for assigned users only
+    // Build chat query
     let query = supabase
       .from('chats')
-      .select('*')
-      .in('user_id', assignedUserIds);
+      .select('*');
+
+    // Super admins see all chats, regular admins only see assigned users
+    if (!isSuperAdmin) {
+      const assignedUserIds = (assignments || []).map(a => a.user_id);
+
+      // If admin has no assigned users, return empty
+      if (assignedUserIds.length === 0) {
+        return [];
+      }
+
+      query = query.in('user_id', assignedUserIds);
+    }
 
     // Apply filters
     if (filters?.status === 'unread') {
@@ -253,8 +266,8 @@ export const chatService = {
       .select('user_id, name, email, created_at')
       .in('user_id', userIds);
 
-    // Fetch admin profile
-    const { data: adminProfile } = await supabase
+    // Fetch admin profile details (already fetched is_super_admin above)
+    const { data: adminProfileDetails } = await supabase
       .from('user_profiles')
       .select('user_id, name, email')
       .eq('user_id', adminId)
@@ -292,7 +305,7 @@ export const chatService = {
     let enrichedChats = chats.map(chat => ({
       ...chat,
       user_profile: userProfileMap.get(chat.user_id) || null,
-      admin_profile: adminProfile ? { name: adminProfile.name, email: adminProfile.email } : null,
+      admin_profile: adminProfileDetails ? { name: adminProfileDetails.name, email: adminProfileDetails.email } : null,
       user_assignment: assignmentMap.get(chat.user_id) || null,
       last_message_preview: lastMessageMap.get(chat.id) || 'No messages yet'
     }));

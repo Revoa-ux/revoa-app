@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Search, 
-  Filter, 
-  ChevronDown, 
+import {
+  Search,
+  Filter,
+  ChevronDown,
   Check,
   X,
   ExternalLink,
@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Modal from '@/components/Modal';
+import { supabase } from '@/lib/supabase';
 
 interface Quote {
   id: string;
