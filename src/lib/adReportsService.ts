@@ -364,15 +364,13 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Found', ads.length, 'ads');
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
-    // IMPORTANT: entity_id in ad_metrics stores platform_ad_id, not our internal UUID
-    const platformAdIds = ads
-      .map(ad => ad.platform_ad_id)
-      .filter((id): id is string => id != null && id !== '');
+    // IMPORTANT: entity_id in ad_metrics stores our internal UUID, not platform_ad_id
+    const adUuids = ads.map(ad => ad.id);
 
-    console.log('[AdReportsService] Platform ad IDs to query:', platformAdIds.length);
+    console.log('[AdReportsService] Ad UUIDs to query:', adUuids.length);
 
-    if (platformAdIds.length === 0) {
-      console.log('[AdReportsService] No valid platform ad IDs found');
+    if (adUuids.length === 0) {
+      console.log('[AdReportsService] No valid ad UUIDs found');
       return [];
     }
 
@@ -380,8 +378,8 @@ export async function getCreativePerformance(
     const BATCH_SIZE = 100;
     let allMetrics: any[] = [];
 
-    for (let i = 0; i < platformAdIds.length; i += BATCH_SIZE) {
-      const batch = platformAdIds.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < adUuids.length; i += BATCH_SIZE) {
+      const batch = adUuids.slice(i, i + BATCH_SIZE);
       const { data: metrics, error: metricsError } = await supabase
         .from('ad_metrics')
         .select('*')
@@ -651,13 +649,11 @@ export async function getCampaignPerformance(
       return [];
     }
 
-    // Use platform_campaign_id for metrics lookup
-    const platformCampaignIds = campaigns
-      .map(c => c.platform_campaign_id)
-      .filter((id): id is string => id != null && id !== '');
+    // Use internal UUID for metrics lookup (entity_id is UUID type)
+    const campaignUuids = campaigns.map(c => c.id);
 
-    if (platformCampaignIds.length === 0) {
-      console.log('[AdReportsService] No valid platform campaign IDs found');
+    if (campaignUuids.length === 0) {
+      console.log('[AdReportsService] No valid campaign UUIDs found');
       return [];
     }
 
@@ -665,8 +661,8 @@ export async function getCampaignPerformance(
     const BATCH_SIZE = 100;
     let allMetrics: any[] = [];
 
-    for (let i = 0; i < platformCampaignIds.length; i += BATCH_SIZE) {
-      const batch = platformCampaignIds.slice(i, i + BATCH_SIZE);
+    for (let i = 0; i < campaignUuids.length; i += BATCH_SIZE) {
+      const batch = campaignUuids.slice(i, i + BATCH_SIZE);
       const { data: batchMetrics, error: metricsError } = await supabase
         .from('ad_metrics')
         .select('*')
@@ -815,13 +811,11 @@ export async function getAdSetPerformance(
       return [];
     }
 
-    // Use platform_ad_set_id for metrics lookup
-    const platformAdSetIds = adSets
-      .map(a => a.platform_ad_set_id)
-      .filter((id): id is string => id != null && id !== '');
+    // Use internal UUID for metrics lookup (entity_id is UUID type)
+    const adSetUuids = adSets.map(a => a.id);
 
-    if (platformAdSetIds.length === 0) {
-      console.log('[AdReportsService] No valid platform ad set IDs found');
+    if (adSetUuids.length === 0) {
+      console.log('[AdReportsService] No valid ad set UUIDs found');
       return [];
     }
 
@@ -829,9 +823,9 @@ export async function getAdSetPerformance(
     const BATCH_SIZE = 100;
     let allMetrics: any[] = [];
 
-    for (let i = 0; i < platformAdSetIds.length; i += BATCH_SIZE) {
-      const batch = platformAdSetIds.slice(i, i + BATCH_SIZE);
-      const { data: batchMetrics, error: metricsError } = await supabase
+    for (let i = 0; i < adSetUuids.length; i += BATCH_SIZE) {
+      const batch = adSetUuids.slice(i, i + BATCH_SIZE);
+      const { data: batchMetrics, error: metricsError} = await supabase
         .from('ad_metrics')
         .select('*')
         .eq('entity_type', 'ad_set')
