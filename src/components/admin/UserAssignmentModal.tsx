@@ -111,13 +111,13 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
       
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-xl w-full max-w-md">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Assign Users</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Assign Users</h3>
                 <button 
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -127,18 +127,18 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
             <div className="p-6">
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Selected Users
                   </label>
-                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <p className="text-sm text-gray-600">
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {selectedUsers.length} user{selectedUsers.length === 1 ? '' : 's'} selected
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Assign To
                   </label>
                   <div className="relative">
@@ -148,20 +148,20 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                       placeholder="Search admins..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-500 focus:border-gray-200 dark:focus:border-gray-500 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </div>
 
                   <div className="mt-3 space-y-2">
                     <button
                       onClick={handleDistributeEvenly}
-                      className="w-full flex items-center justify-between p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group"
+                      className="w-full flex items-center justify-between p-3 text-left bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
                     >
                       <div className="flex items-center">
-                        <Users className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
-                        <span className="ml-3 text-sm text-gray-700">Distribute Evenly</span>
+                        <Users className="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                        <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">Distribute Evenly</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
+                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
                     </button>
 
                     {admins
@@ -176,15 +176,15 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                           onClick={() => setSelectedAdmin(admin.id)}
                           className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
                             selectedAdmin === admin.id
-                              ? 'border-primary-500 bg-primary-50'
-                              : 'border-gray-200 hover:border-gray-300'
+                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                              : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/50'
                           }`}
                         >
                           <div className="flex items-center space-x-3">
                             <UserPlus className="w-5 h-5 text-gray-400" />
                             <div>
-                              <h3 className="text-sm font-medium text-gray-900">{admin.name}</h3>
-                              <p className="text-xs text-gray-500">{admin.assignedUsers} users assigned</p>
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white">{admin.name}</h3>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{admin.assignedUsers} users assigned</p>
                             </div>
                           </div>
                           {selectedAdmin === admin.id && (
@@ -199,7 +199,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                 <div className="flex space-x-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>

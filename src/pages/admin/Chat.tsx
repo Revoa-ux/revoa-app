@@ -32,7 +32,7 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
-import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
+import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientProfile';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -94,7 +94,7 @@ const AdminChat = () => {
     sortBy: 'recent',
   });
   const [conversationSearch, setConversationSearch] = useState('');
-  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(true); // Always show, just collapsed/expanded
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -310,24 +310,18 @@ const AdminChat = () => {
           </div>
         </div>
 
-        <div className={`flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-          showUserProfile ? 'max-w-none' : 'max-w-[1050px]'
-        }`}>
+        <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
-          <div className={`border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden transition-all duration-300 ${
-            showUserProfile ? 'w-20' : 'w-80'
-          }`}>
-            {!showUserProfile && (
-              <ConversationFilters
-                filters={conversationFilters}
-                onFiltersChange={setConversationFilters}
-                searchTerm={conversationSearch}
-                onSearchChange={setConversationSearch}
-              />
-            )}
+          <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden">
+            <ConversationFilters
+              filters={conversationFilters}
+              onFiltersChange={setConversationFilters}
+              searchTerm={conversationSearch}
+              onSearchChange={setConversationSearch}
+            />
 
-            {/* Collapsed View - Just Avatars */}
-            {showUserProfile && (
+            {/* Conversations - removed collapsed view, always full list */}
+            {false && (
               <div className="flex flex-col py-4 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
                 {chats.map((chat) => {
                   const profile = chat.user_profiles;
@@ -378,9 +372,8 @@ const AdminChat = () => {
               </div>
             )}
 
-            {/* Full View - Normal List */}
-            {!showUserProfile && (
-              <div className="flex-1 overflow-y-auto">
+            {/* Conversation List */}
+            <div className="flex-1 overflow-y-auto">
                 {isLoading ? (
                   <LoadingSpinner />
                 ) : chats.length === 0 ? (
@@ -399,7 +392,6 @@ const AdminChat = () => {
                   ))
                 )}
               </div>
-            )}
           </div>
 
       {/* Chat Area */}
@@ -754,17 +746,14 @@ const AdminChat = () => {
         )}
       </div>
 
-      {/* User Profile Sidebar with smooth animation */}
-      <div className={`transition-all duration-300 ease-in-out ${
-        showUserProfile && selectedChat ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none absolute'
-      }`}>
-        {showUserProfile && selectedChat && (
-          <UserProfileSidebar
-            userId={selectedChat.user_id}
-            onClose={() => setShowUserProfile(false)}
-          />
-        )}
-      </div>
+      {/* Collapsible Client Profile - Always visible */}
+      {selectedChat && (
+        <CollapsibleClientProfile
+          userId={selectedChat.user_id}
+          isExpanded={showUserProfile}
+          onToggle={() => setShowUserProfile(!showUserProfile)}
+        />
+      )}
         </div>
 
         {showUploadModal && (

@@ -195,7 +195,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                   </div>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</label>
-                    <div className="px-3 py-2 text-sm bg-gray-100 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
                       ${variant.totalCost.toFixed(2)}
                     </div>
                   </div>
@@ -208,7 +208,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
         <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>
