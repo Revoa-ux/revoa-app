@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { DollarSign, TrendingUp, Users, CreditCard, Calendar, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { format, subDays, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
 import { toast } from 'sonner';
+import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 
 interface FinanceMetrics {
   totalRevenue: number;
@@ -33,40 +34,38 @@ interface Transaction {
   };
 }
 
-type TimeRange = '7d' | '30d' | 'month' | 'year' | 'all';
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
 
 export default function AdminFinances() {
   const [metrics, setMetrics] = useState<FinanceMetrics | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 7);
+  initialStartDate.setHours(0, 0, 0, 0);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: initialStartDate,
+    endDate: initialEndDate
+  });
 
   useEffect(() => {
     loadFinanceData();
-  }, [timeRange]);
+  }, [dateRange]);
 
-  const getDateRange = () => {
-    const now = new Date();
-    switch (timeRange) {
-      case '7d':
-        return { start: subDays(now, 7), end: now };
-      case '30d':
-        return { start: subDays(now, 30), end: now };
-      case 'month':
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      case 'year':
-        return { start: startOfYear(now), end: now };
-      case 'all':
-        return { start: new Date(0), end: now };
-      default:
-        return { start: subDays(now, 30), end: now };
-    }
+  const handleTimeChange = (time: TimeOption) => {
+    setSelectedTime(time);
   };
 
   const loadFinanceData = async () => {
     try {
       setLoading(true);
-      const { start, end } = getDateRange();
+      const { startDate, endDate } = dateRange;
 
       // Fetch payment intents with platform fees
       const { data: payments, error: paymentsError } = await supabase
@@ -87,8 +86,8 @@ export default function AdminFinances() {
           )
         `)
         .eq('status', 'succeeded')
-        .gte('created_at', start.toISOString())
-        .lte('created_at', end.toISOString())
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString())
         .order('created_at', { ascending: false });
 
       if (paymentsError) throw paymentsError;
@@ -198,27 +197,13 @@ export default function AdminFinances() {
           </p>
         </div>
 
-        <div className="flex gap-2">
-          {[
-            { value: '7d', label: '7 Days' },
-            { value: '30d', label: '30 Days' },
-            { value: 'month', label: 'This Month' },
-            { value: 'year', label: 'This Year' },
-            { value: 'all', label: 'All Time' }
-          ].map((option) => (
-            <button
-              key={option.value}
-              onClick={() => setTimeRange(option.value as TimeRange)}
-              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                timeRange === option.value
-                  ? 'bg-gray-900 text-white dark:bg-gray-600'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <AdReportsTimeSelector
+          selectedTime={selectedTime}
+          onTimeChange={handleTimeChange}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onApply={() => loadFinanceData()}
+        />
       </div>
 
       {/* Key Metrics */}

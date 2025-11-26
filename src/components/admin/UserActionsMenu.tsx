@@ -55,7 +55,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
     <div className="relative">
       <button 
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
@@ -67,7 +67,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       {isOpen && (
         <div 
           ref={menuRef}
-          className="fixed z-50 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+          className="fixed z-50 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
           style={{
             ...(dropdownPosition === 'bottom' ? {
               top: buttonRef.current?.getBoundingClientRect().bottom,
@@ -81,7 +81,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         >
           <button
             onClick={handleAction(() => onViewProfile(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
           >
             <User className="w-4 h-4 mr-3" />
             View Profile
@@ -89,7 +89,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           
           <button
             onClick={handleAction(() => onResetPassword(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
           >
             <Key className="w-4 h-4 mr-3" />
             Reset Password
@@ -97,7 +97,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           
           <button
             onClick={handleAction(() => onToggleStatus(userId, !isActive))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
           >
             <Power className="w-4 h-4 mr-3" />
             {isActive ? 'Disable Account' : 'Enable Account'}
@@ -105,19 +105,19 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           
           <button
             onClick={handleAction(() => onRemoveAssignment(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
           >
             <UserMinus className="w-4 h-4 mr-3" />
             Remove Assignment
           </button>
           
-          <div className="h-px bg-gray-200 mx-3 my-1"></div>
+          <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
           
           <button
             onClick={handleAction(() => {
               toast.success('User archived');
             })}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-red-600 hover:bg-red-50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors relative group"
           >
             <Trash2 className="w-4 h-4 mr-3" />
             Archive User

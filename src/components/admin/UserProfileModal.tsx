@@ -15,12 +15,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Client Profile"
       size="large"
     >
-      <div className="max-h-[80vh] overflow-y-auto">
-        <UserProfileSidebar userId={userId} onClose={onClose} />
-      </div>
+      <UserProfileSidebar userId={userId} onClose={onClose} />
     </Modal>
   );
 };
