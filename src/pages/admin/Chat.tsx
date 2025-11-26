@@ -16,7 +16,8 @@ import {
   Image as ImageIcon,
   User,
   X,
-  Reply
+  Reply,
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -31,6 +32,7 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
+import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -92,6 +94,7 @@ const AdminChat = () => {
     sortBy: 'recent',
   });
   const [conversationSearch, setConversationSearch] = useState('');
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -372,6 +375,17 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                    showUserProfile
+                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                  title="View client profile"
+                >
+                  <Info className="w-5 h-5" />
+                </button>
                 <button
                   onClick={() => setShowSearchModal(true)}
                   className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -677,6 +691,14 @@ const AdminChat = () => {
           </div>
         )}
       </div>
+
+      {/* User Profile Sidebar */}
+      {showUserProfile && selectedChat && (
+        <UserProfileSidebar
+          userId={selectedChat.user_id}
+          onClose={() => setShowUserProfile(false)}
+        />
+      )}
         </div>
 
         {showUploadModal && (

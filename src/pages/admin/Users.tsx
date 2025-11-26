@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
+import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -77,6 +78,8 @@ export default function Users() {
   });
 
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
@@ -261,7 +264,8 @@ export default function Users() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex h-full">
+      <div className="flex-1 space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
           User Management
@@ -445,7 +449,8 @@ export default function Users() {
                           userEmail={user.email}
                           isActive={true}
                          onViewProfile={() => {
-                            toast.info('View profile functionality coming soon');
+                            setSelectedUserId(user.user_id);
+                            setShowUserProfile(true);
                           }}
                          onResetPassword={() => {
                             toast.success('Password reset email sent');
@@ -492,6 +497,18 @@ export default function Users() {
             setSelectedUsers([]);
           }}
           selectedUsers={selectedUsers}
+        />
+      )}
+      </div>
+
+      {/* User Profile Sidebar */}
+      {showUserProfile && selectedUserId && (
+        <UserProfileSidebar
+          userId={selectedUserId}
+          onClose={() => {
+            setShowUserProfile(false);
+            setSelectedUserId(null);
+          }}
         />
       )}
     </div>
