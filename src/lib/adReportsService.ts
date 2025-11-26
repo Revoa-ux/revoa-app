@@ -683,6 +683,15 @@ export async function getCampaignPerformance(
 
     const metrics = allMetrics;
 
+    console.log('[AdReportsService] Campaign metrics query returned:', metrics.length, 'rows');
+    if (metrics.length > 0) {
+      console.log('[AdReportsService] Sample metric:', {
+        entity_id: metrics[0].entity_id,
+        spend: metrics[0].spend,
+        date: metrics[0].date
+      });
+    }
+
     // Group metrics by campaign
     const campaignMetrics = new Map<string, any>();
 
@@ -701,6 +710,20 @@ export async function getCampaignPerformance(
         clicks: existing.clicks + (m.clicks || 0),
         conversions: existing.conversions + (m.conversions || 0),
         conversion_value: existing.conversion_value + (m.conversion_value || 0)
+      });
+    });
+
+    console.log('[AdReportsService] Grouped into', campaignMetrics.size, 'unique campaigns');
+    console.log('[AdReportsService] Total campaigns to map:', campaigns.length);
+
+    // Log first few campaigns and their metrics
+    campaigns.slice(0, 3).forEach(c => {
+      const m = campaignMetrics.get(c.id);
+      console.log('[AdReportsService] Campaign lookup:', {
+        name: c.name,
+        id: c.id,
+        hasMetrics: !!m,
+        spend: m?.spend || 0
       });
     });
 
