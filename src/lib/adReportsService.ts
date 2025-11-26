@@ -365,7 +365,17 @@ export async function getCreativePerformance(
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
     // IMPORTANT: entity_id in ad_metrics stores platform_ad_id, not our internal UUID
-    const platformAdIds = ads.map(ad => ad.platform_ad_id);
+    const platformAdIds = ads
+      .map(ad => ad.platform_ad_id)
+      .filter((id): id is string => id != null && id !== '');
+
+    console.log('[AdReportsService] Platform ad IDs to query:', platformAdIds.length);
+
+    if (platformAdIds.length === 0) {
+      console.log('[AdReportsService] No valid platform ad IDs found');
+      return [];
+    }
+
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
       .select('*')
@@ -374,7 +384,10 @@ export async function getCreativePerformance(
       .gte('date', startDate)
       .lte('date', endDate);
 
-    if (metricsError) throw metricsError;
+    if (metricsError) {
+      console.error('[AdReportsService] Error fetching metrics:', metricsError);
+      throw metricsError;
+    }
 
     console.log('[AdReportsService] Fetched', metrics?.length || 0, 'ad_metrics rows');
     console.log('[AdReportsService] First ad ID:', adIds[0]);
@@ -626,7 +639,14 @@ export async function getCampaignPerformance(
     }
 
     // Use platform_campaign_id for metrics lookup
-    const platformCampaignIds = campaigns.map(c => c.platform_campaign_id);
+    const platformCampaignIds = campaigns
+      .map(c => c.platform_campaign_id)
+      .filter((id): id is string => id != null && id !== '');
+
+    if (platformCampaignIds.length === 0) {
+      console.log('[AdReportsService] No valid platform campaign IDs found');
+      return [];
+    }
 
     // Fetch campaign-level metrics
     const { data: metrics, error: metricsError } = await supabase
@@ -637,7 +657,10 @@ export async function getCampaignPerformance(
       .gte('date', startDate)
       .lte('date', endDate);
 
-    if (metricsError) throw metricsError;
+    if (metricsError) {
+      console.error('[adReportsService] Error fetching campaign performance:', metricsError);
+      throw metricsError;
+    }
 
     // Group metrics by campaign
     const campaignMetrics = new Map<string, any>();
@@ -768,7 +791,14 @@ export async function getAdSetPerformance(
     }
 
     // Use platform_ad_set_id for metrics lookup
-    const platformAdSetIds = adSets.map(a => a.platform_ad_set_id);
+    const platformAdSetIds = adSets
+      .map(a => a.platform_ad_set_id)
+      .filter((id): id is string => id != null && id !== '');
+
+    if (platformAdSetIds.length === 0) {
+      console.log('[AdReportsService] No valid platform ad set IDs found');
+      return [];
+    }
 
     // Fetch ad set-level metrics
     const { data: metrics, error: metricsError } = await supabase
@@ -779,7 +809,10 @@ export async function getAdSetPerformance(
       .gte('date', startDate)
       .lte('date', endDate);
 
-    if (metricsError) throw metricsError;
+    if (metricsError) {
+      console.error('[adReportsService] Error fetching ad set performance:', metricsError);
+      throw metricsError;
+    }
 
     // Group metrics by ad set
     const adSetMetrics = new Map<string, any>();
