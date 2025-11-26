@@ -126,7 +126,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       <div className={`relative bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
         isExpanded ? 'w-80' : 'w-16'
       }`}>
-        <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500" />
+        <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-700 dark:bg-gray-600" />
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white" />
         </div>
@@ -138,8 +138,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
     <div className={`relative bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ${
       isExpanded ? 'w-80' : 'w-16'
     }`}>
-      {/* Gradient vertical line */}
-      <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-pink-500 via-purple-500 to-blue-500" />
+      {/* Vertical divider line */}
+      <div className="absolute left-0 top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-700" />
 
       {/* Toggle Button */}
       <button
@@ -156,7 +156,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       {/* Collapsed View */}
       {!isExpanded && (
         <div className="flex flex-col items-center py-4 space-y-4">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
             <span className="text-sm font-medium text-white">{initials}</span>
           </div>
         </div>
@@ -169,7 +169,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Client Profile</h3>
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-gray-700 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
                 <span className="text-lg font-medium text-white">{initials}</span>
               </div>
               <div className="min-w-0 flex-1">
@@ -196,29 +196,29 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
           {/* Financial Metrics */}
           <div className="p-4 space-y-3">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-700/50">
-              <div className="flex items-center text-blue-600 dark:text-blue-400 mb-1">
+            <div className="bg-gray-700/50 dark:bg-gray-700/30 rounded-lg p-3 border border-gray-600/50 dark:border-gray-600">
+              <div className="flex items-center text-green-500 dark:text-green-400 mb-1">
                 <DollarSign className="w-4 h-4 mr-1" />
                 <span className="text-xs font-medium">Lifetime Revenue</span>
               </div>
-              <p className="text-xl font-bold text-blue-900 dark:text-blue-100">
+              <p className="text-xl font-bold text-white dark:text-white">
                 ${financial.lifetime_revenue.toFixed(2)}
               </p>
-              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">
                 From {Math.floor(financial.paid_invoices / (financial.lifetime_revenue || 1))} paid invoices
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-2.5 border border-green-200 dark:border-green-700/50">
-                <p className="text-xs text-green-600 dark:text-green-400 mb-0.5">Paid</p>
-                <p className="text-lg font-bold text-green-900 dark:text-green-100">
+              <div className="bg-gray-700/50 dark:bg-gray-700/30 rounded-lg p-2.5 border border-green-600/50 dark:border-green-600/50">
+                <p className="text-xs text-green-500 dark:text-green-400 mb-0.5">Paid</p>
+                <p className="text-lg font-bold text-white dark:text-white">
                   ${financial.paid_invoices.toFixed(0)}
                 </p>
               </div>
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-2.5 border border-yellow-200 dark:border-yellow-700/50">
-                <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-0.5">Pending</p>
-                <p className="text-lg font-bold text-yellow-900 dark:text-yellow-100">
+              <div className="bg-gray-700/50 dark:bg-gray-700/30 rounded-lg p-2.5 border border-yellow-600/50 dark:border-yellow-600/50">
+                <p className="text-xs text-yellow-500 dark:text-yellow-400 mb-0.5">Pending</p>
+                <p className="text-lg font-bold text-white dark:text-white">
                   ${financial.pending_invoices.toFixed(0)}
                 </p>
               </div>
