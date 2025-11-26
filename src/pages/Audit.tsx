@@ -495,8 +495,33 @@ export default function Audit() {
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-          Cross-platform campaign management and performance insights
+          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+          {(() => {
+            const connected = [];
+            if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+              connected.push('Meta Ads');
+            }
+            // Placeholder for future integrations
+            // if (google.isConnected) connected.push('Google Ads');
+            // if (tiktok.isConnected) connected.push('TikTok Ads');
+
+            if (connected.length === 0) {
+              return 'No ad platforms connected';
+            }
+
+            const platformText = connected.join(' - ') + ' Connected';
+
+            // Get last sync time from accounts
+            const lastSyncedAccount = facebook.accounts
+              ?.filter(acc => acc.last_synced_at)
+              .sort((a, b) => new Date(b.last_synced_at!).getTime() - new Date(a.last_synced_at!).getTime())[0];
+
+            const timeText = lastSyncedAccount?.last_synced_at
+              ? ` - Updated ${new Date(lastSyncedAccount.last_synced_at).toLocaleTimeString()}`
+              : '';
+
+            return platformText + timeText;
+          })()}
         </p>
       </div>
 

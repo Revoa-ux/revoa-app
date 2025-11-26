@@ -41,6 +41,7 @@ export default function Analytics() {
   const [draggedCard, setDraggedCard] = useState<string | null>(null);
   const [userName, setUserName] = useState<string>('');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const [adPlatformsSyncTime, setAdPlatformsSyncTime] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'card' | 'chart'>('card');
   const [selectedChartCard, setSelectedChartCard] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -91,6 +92,31 @@ export default function Analytics() {
   useEffect(() => {
     setLastSyncTime(new Date());
   }, [cardData]);
+
+  // Fetch ad platforms last sync time
+  useEffect(() => {
+    const fetchAdPlatformsSyncTime = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: adAccounts } = await supabase
+          .from('ad_accounts')
+          .select('last_synced_at')
+          .eq('user_id', user.id)
+          .order('last_synced_at', { ascending: false, nullsFirst: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (adAccounts?.last_synced_at) {
+          setAdPlatformsSyncTime(new Date(adAccounts.last_synced_at));
+        }
+      } catch (error) {
+        console.error('Error fetching ad platforms sync time:', error);
+      }
+    };
+
+    fetchAdPlatformsSyncTime();
+  }, [user?.id, cardData]);
 
   // Load user preferences and initialize if needed
   useEffect(() => {
@@ -443,21 +469,30 @@ setCurrentTemplate(template);
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Real-Time Analytics and Performance Insights
         </h1>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <div className="flex items-center space-x-2">
-            <div className={`w-1.5 h-1.5 rounded-full ${
-              shopify.isConnected ? 'bg-green-500' : 'bg-gray-400'
-            }`}></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {shopify.isConnected ? 'Shopify Connected' : 'No Shopify data'}
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Clock className="w-3.5 h-3.5 text-gray-400" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isLoading ? 'Updating...' : 'Updated ' + new Date().toLocaleTimeString()}
-            </p>
-          </div>
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+          <span>
+            {(() => {
+              const connected = [];
+              if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+                connected.push('Meta Ads');
+              }
+              // Placeholder for future integrations
+              // if (google.isConnected) connected.push('Google Ads');
+              // if (tiktok.isConnected) connected.push('TikTok Ads');
+
+              if (connected.length === 0) {
+                return 'No ad platforms connected';
+              }
+
+              const platformText = connected.join(' - ') + ' Connected';
+              const timeText = adPlatformsSyncTime
+                ? ` - Updated ${adPlatformsSyncTime.toLocaleTimeString()}`
+                : '';
+
+              return platformText + timeText;
+            })()}
+          </span>
         </div>
       </div>
 
