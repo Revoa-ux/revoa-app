@@ -38,11 +38,12 @@ interface UserStats {
   store_type: string | null;
   onboarding_completed_at: string | null;
 
-  // Financial metrics
+  // Financial metrics (OUR revenue from platform fees)
   total_transactions: number;
   total_invoices: number;
   total_paid: number;
   total_pending: number;
+  our_revenue: number; // Platform fees from paid invoices
 
   // Shopify store
   store_url: string | null;
@@ -54,10 +55,10 @@ interface UserStats {
   total_messages: number;
   unread_messages: number;
 
-  // Product/Order metrics
+  // Fulfillment metrics
   total_units_fulfilled: number;
-  average_order_value: number;
-  lifetime_revenue: number;
+  avg_fulfillment_days: number | null;
+  last_fulfillment_date: string | null;
 }
 
 export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
@@ -97,19 +98,29 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('user_id', userId)
         .maybeSingle();
 
-      // Fetch invoices
+      // Fetch invoices with payment intents to get platform fees
       const { data: invoices } = await supabase
         .from('invoices')
-        .select('amount, status, paid_at')
+        .select('amount, status, paid_at, metadata, created_at')
         .eq('user_id', userId);
 
-      const totalPaid = invoices
-        ?.filter(i => i.status === 'paid')
-        .reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0) || 0;
-
+      const paidInvoices = invoices?.filter(i => i.status === 'paid') || [];
+      const totalPaid = paidInvoices.reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0);
       const totalPending = invoices
         ?.filter(i => i.status === 'pending')
         .reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0) || 0;
+
+      // Get platform fees (our revenue) from payment intents
+      const { data: payments } = await supabase
+        .from('payment_intents')
+        .select('platform_fee, created_at')
+        .eq('user_id', userId)
+        .eq('status', 'succeeded');
+
+      const ourRevenue = payments?.reduce(
+        (sum, p) => sum + parseFloat(p.platform_fee || '0'),
+        0
+      ) || 0;
 
       // Fetch Shopify store
       const { data: shopify } = await supabase
@@ -132,26 +143,39 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('chat_id', chat?.id || '')
         .is('deleted_at', null);
 
-      // Fetch transactions for total units calculation
-      const { data: transactions } = await supabase
-        .from('transactions')
-        .select('amount, metadata')
-        .eq('user_id', userId)
-        .eq('type', 'order');
+      // Fetch fulfillment data from invoices
+      const fulfilledInvoices = paidInvoices.filter(i => i.paid_at);
 
-      const lifetimeRevenue = transactions?.reduce(
-        (sum, t) => sum + parseFloat(t.amount || '0'),
-        0
-      ) || 0;
+      let avgFulfillmentDays: number | null = null;
+      let lastFulfillmentDate: string | null = null;
+      let totalUnits = 0;
 
-      const totalUnits = transactions?.reduce(
-        (sum, t) => sum + (t.metadata?.units || 0),
-        0
-      ) || 0;
+      if (fulfilledInvoices.length > 0) {
+        // Calculate average fulfillment time (days between created_at and paid_at)
+        const fulfillmentDays = fulfilledInvoices
+          .filter(i => i.created_at && i.paid_at)
+          .map(i => {
+            const created = new Date(i.created_at!);
+            const paid = new Date(i.paid_at!);
+            return (paid.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+          });
 
-      const avgOrderValue = transactions?.length
-        ? lifetimeRevenue / transactions.length
-        : 0;
+        if (fulfillmentDays.length > 0) {
+          avgFulfillmentDays = fulfillmentDays.reduce((sum, days) => sum + days, 0) / fulfillmentDays.length;
+        }
+
+        // Get last fulfillment date
+        const sortedByPaidDate = [...fulfilledInvoices].sort((a, b) =>
+          new Date(b.paid_at!).getTime() - new Date(a.paid_at!).getTime()
+        );
+        lastFulfillmentDate = sortedByPaidDate[0]?.paid_at || null;
+
+        // Count units from metadata
+        totalUnits = fulfilledInvoices.reduce(
+          (sum, i) => sum + (i.metadata?.units || 0),
+          0
+        );
+      }
 
       setStats({
         name: profile?.name || null,
@@ -169,6 +193,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         total_invoices: assignment?.total_invoices || 0,
         total_paid: totalPaid,
         total_pending: totalPending,
+        our_revenue: ourRevenue,
 
         store_url: shopify?.store_url || null,
         store_status: shopify?.status || null,
@@ -179,8 +204,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         unread_messages: chat?.unread_count_admin || 0,
 
         total_units_fulfilled: totalUnits,
-        average_order_value: avgOrderValue,
-        lifetime_revenue: lifetimeRevenue
+        avg_fulfillment_days: avgFulfillmentDays,
+        last_fulfillment_date: lastFulfillmentDate
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);
@@ -316,25 +341,15 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           </button>
           {expandedSections.financial && (
             <div className="px-6 pb-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 mb-1">
-                    <DollarSign className="w-3.5 h-3.5" />
-                    <span className="text-xs">Lifetime Revenue</span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    ${stats.lifetime_revenue.toLocaleString()}
-                  </p>
+              <div className="p-4 bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 rounded-lg border border-pink-200 dark:border-pink-800">
+                <div className="flex items-center space-x-2 text-pink-600 dark:text-pink-400 mb-2">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="text-xs font-medium">Our Revenue (Platform Fees)</span>
                 </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400 mb-1">
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span className="text-xs">Avg Order</span>
-                  </div>
-                  <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                    ${stats.average_order_value.toFixed(2)}
-                  </p>
-                </div>
+                <p className="text-2xl font-bold text-pink-700 dark:text-pink-300">
+                  ${stats.our_revenue.toLocaleString()}
+                </p>
+                <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">From {stats.total_invoices} invoices</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -350,23 +365,35 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                  <FileText className="w-4 h-4" />
-                  <span className="text-sm">Total Invoices</span>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                    <Package className="w-4 h-4" />
+                    <span className="text-sm">Units Fulfilled</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {stats.total_units_fulfilled}
+                  </span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {stats.total_invoices}
-                </span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                  <Package className="w-4 h-4" />
-                  <span className="text-sm">Units Fulfilled</span>
-                </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {stats.total_units_fulfilled}
-                </span>
+                {stats.avg_fulfillment_days !== null && (
+                  <div className="flex items-center justify-between py-2">
+                    <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">Avg Fulfillment Time</span>
+                    </div>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {Math.round(stats.avg_fulfillment_days)} days
+                    </span>
+                  </div>
+                )}
+                {stats.last_fulfillment_date && (
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Last Fulfillment</span>
+                    <span className="text-sm text-gray-900 dark:text-white">
+                      {formatDistanceToNow(new Date(stats.last_fulfillment_date), { addSuffix: true })}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}

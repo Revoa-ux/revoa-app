@@ -414,14 +414,14 @@ export default function AdminQuotes() {
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       quote.status === 'quote_pending'
-                        ? 'bg-yellow-50 text-yellow-700'
+                        ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
                         : quote.status === 'quoted'
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                         : quote.status === 'accepted'
-                        ? 'bg-green-50 text-green-700'
+                        ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                         : quote.status === 'rejected'
-                        ? 'bg-red-50 text-red-700'
-                        : 'bg-gray-50 text-gray-700'
+                        ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                        : 'bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                     }`}>
                       {quote.status.replace('_', ' ')}
                     </span>

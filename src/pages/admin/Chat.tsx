@@ -310,9 +310,13 @@ const AdminChat = () => {
           </div>
         </div>
 
-        <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className={`flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+          showUserProfile ? 'max-w-none' : 'max-w-[1050px]'
+        }`}>
           {/* Conversations List */}
-          <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden">
+          <div className={`border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden transition-all duration-300 ${
+            showUserProfile ? 'w-64' : 'w-80'
+          }`}>
             <ConversationFilters
               filters={conversationFilters}
               onFiltersChange={setConversationFilters}
@@ -692,13 +696,17 @@ const AdminChat = () => {
         )}
       </div>
 
-      {/* User Profile Sidebar */}
-      {showUserProfile && selectedChat && (
-        <UserProfileSidebar
-          userId={selectedChat.user_id}
-          onClose={() => setShowUserProfile(false)}
-        />
-      )}
+      {/* User Profile Sidebar with smooth animation */}
+      <div className={`transition-all duration-300 ease-in-out ${
+        showUserProfile && selectedChat ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none absolute'
+      }`}>
+        {showUserProfile && selectedChat && (
+          <UserProfileSidebar
+            userId={selectedChat.user_id}
+            onClose={() => setShowUserProfile(false)}
+          />
+        )}
+      </div>
         </div>
 
         {showUploadModal && (

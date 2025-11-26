@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
+import Modal from '@/components/Modal';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,20 +39,20 @@ interface User {
 }
 
 const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
-  <tr className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'}`}>
+  <tr className={`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'}`}>
     <td className="px-4 py-4">
-      <div className="h-4 w-4 bg-gray-200 rounded animate-pulse" />
+      <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
     </td>
     <td className="px-4 py-4">
       <div className="flex items-center space-x-3 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-32"></div>
-        <div className="h-3 bg-gray-200 rounded w-20"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
+        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
       </div>
     </td>
     {Array.from({ length: 4 }).map((_, i) => (
       <td key={i} className="px-4 py-4">
         <div
-          className="h-4 bg-gray-200 rounded w-16 animate-pulse"
+          className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"
           style={{ animationDelay: `${i * 0.1}s` }}
         ></div>
       </td>
@@ -264,8 +265,7 @@ export default function Users() {
   };
 
   return (
-    <div className="flex h-full">
-      <div className="flex-1 space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
           User Management
@@ -499,17 +499,27 @@ export default function Users() {
           selectedUsers={selectedUsers}
         />
       )}
-      </div>
 
-      {/* User Profile Sidebar */}
+      {/* User Profile Modal */}
       {showUserProfile && selectedUserId && (
-        <UserProfileSidebar
-          userId={selectedUserId}
+        <Modal
+          isOpen={true}
           onClose={() => {
             setShowUserProfile(false);
             setSelectedUserId(null);
           }}
-        />
+          title="Client Profile"
+        >
+          <div className="max-h-[75vh] overflow-y-auto -mx-6">
+            <UserProfileSidebar
+              userId={selectedUserId}
+              onClose={() => {
+                setShowUserProfile(false);
+                setSelectedUserId(null);
+              }}
+            />
+          </div>
+        </Modal>
       )}
     </div>
   );

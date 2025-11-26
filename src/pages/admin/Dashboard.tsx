@@ -601,15 +601,16 @@ export default function AdminDashboard() {
             >
               <defs>
                 <linearGradient id="colorNewUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.95} />
-                  <stop offset="50%" stopColor="#F43F5E" stopOpacity={0.85} />
-                  <stop offset="100%" stopColor="#FB7185" stopOpacity={0.8} />
+                  <stop offset="0%" stopColor="#F43F5E" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#FB7185" stopOpacity={0.2} />
                 </linearGradient>
                 <linearGradient id="colorActiveUsers" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#94A3B8" stopOpacity={0.85} />
-                  <stop offset="50%" stopColor="#B0BBC9" stopOpacity={0.75} />
-                  <stop offset="100%" stopColor="#CBD5E1" stopOpacity={0.65} />
+                  <stop offset="0%" stopColor="#94A3B8" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#CBD5E1" stopOpacity={0.15} />
                 </linearGradient>
+                <filter id="glassBlur">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" />
+                </filter>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
               <XAxis
@@ -638,12 +639,20 @@ export default function AdminDashboard() {
                 fill="url(#colorNewUsers)"
                 radius={[8, 8, 0, 0]}
                 maxBarSize={40}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
               />
               <Bar
                 dataKey="activeUsers"
                 fill="url(#colorActiveUsers)"
                 radius={[8, 8, 0, 0]}
                 maxBarSize={40}
+                style={{
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}
               />
             </BarChart>
           </ResponsiveContainer>

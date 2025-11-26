@@ -262,8 +262,8 @@ export default function AdminFinances() {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Transactions</p>
@@ -312,15 +312,15 @@ export default function AdminFinances() {
           <p className="text-xs text-green-700 dark:text-green-400 mt-2">Year-to-date revenue</p>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl p-6 border border-purple-200 dark:border-purple-800">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 mb-3">
-            <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <p className="text-sm font-medium text-purple-900 dark:text-purple-300">Total Volume</p>
+            <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-300">Total Volume</p>
           </div>
-          <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {formatCurrency(metrics?.totalRevenue || 0)}
           </p>
-          <p className="text-xs text-purple-700 dark:text-purple-400 mt-2">Gross transaction value</p>
+          <p className="text-xs text-gray-700 dark:text-gray-400 mt-2">Gross transaction value</p>
         </div>
       </div>
 
@@ -378,7 +378,7 @@ export default function AdminFinances() {
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                         transaction.payment_method === 'wire'
                           ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
-                          : 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                       }`}>
                         {transaction.payment_method === 'wire' ? 'Wire Transfer' : 'Stripe'}
                       </span>
