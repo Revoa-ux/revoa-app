@@ -38,12 +38,11 @@ interface UserStats {
   store_type: string | null;
   onboarding_completed_at: string | null;
 
-  // Financial metrics (OUR revenue from platform fees)
+  // Financial metrics
   total_transactions: number;
   total_invoices: number;
   total_paid: number;
   total_pending: number;
-  our_revenue: number; // Platform fees from paid invoices
 
   // Shopify store
   store_url: string | null;
@@ -109,18 +108,6 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
       const totalPending = invoices
         ?.filter(i => i.status === 'pending')
         .reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0) || 0;
-
-      // Get platform fees (our revenue) from payment intents
-      const { data: payments } = await supabase
-        .from('payment_intents')
-        .select('platform_fee, created_at')
-        .eq('user_id', userId)
-        .eq('status', 'succeeded');
-
-      const ourRevenue = payments?.reduce(
-        (sum, p) => sum + parseFloat(p.platform_fee || '0'),
-        0
-      ) || 0;
 
       // Fetch Shopify store
       const { data: shopify } = await supabase
@@ -193,7 +180,6 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         total_invoices: assignment?.total_invoices || 0,
         total_paid: totalPaid,
         total_pending: totalPending,
-        our_revenue: ourRevenue,
 
         store_url: shopify?.store_url || null,
         store_status: shopify?.status || null,
@@ -341,15 +327,15 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           </button>
           {expandedSections.financial && (
             <div className="px-6 pb-4 space-y-3">
-              <div className="p-4 bg-gradient-to-br from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20 rounded-lg border border-pink-200 dark:border-pink-800">
-                <div className="flex items-center space-x-2 text-pink-600 dark:text-pink-400 mb-2">
+              <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 mb-2">
                   <DollarSign className="w-4 h-4" />
-                  <span className="text-xs font-medium">Our Revenue (Platform Fees)</span>
+                  <span className="text-xs font-medium">Lifetime Revenue</span>
                 </div>
-                <p className="text-2xl font-bold text-pink-700 dark:text-pink-300">
-                  ${stats.our_revenue.toLocaleString()}
+                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                  ${stats.total_paid.toLocaleString()}
                 </p>
-                <p className="text-xs text-pink-600 dark:text-pink-400 mt-1">From {stats.total_invoices} invoices</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">From {stats.total_invoices} paid invoices</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">

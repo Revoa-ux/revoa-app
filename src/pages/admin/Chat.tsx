@@ -315,34 +315,87 @@ const AdminChat = () => {
         }`}>
           {/* Conversations List */}
           <div className={`border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden transition-all duration-300 ${
-            showUserProfile ? 'w-64' : 'w-80'
+            showUserProfile ? 'w-20' : 'w-80'
           }`}>
-            <ConversationFilters
-              filters={conversationFilters}
-              onFiltersChange={setConversationFilters}
-              searchTerm={conversationSearch}
-              onSearchChange={setConversationSearch}
-            />
-            <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : chats.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-center px-4">
-              <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
-            </div>
-          ) : (
-            chats.map((chat) => (
-              <ConversationListItem
-                key={chat.id}
-                chat={chat}
-                isSelected={selectedChat?.id === chat.id}
-                onClick={() => setSelectedChat(chat)}
+            {!showUserProfile && (
+              <ConversationFilters
+                filters={conversationFilters}
+                onFiltersChange={setConversationFilters}
+                searchTerm={conversationSearch}
+                onSearchChange={setConversationSearch}
               />
-            ))
-          )}
-        </div>
-      </div>
+            )}
+
+            {/* Collapsed View - Just Avatars */}
+            {showUserProfile && (
+              <div className="flex flex-col items-center py-4 space-y-4 overflow-y-auto">
+                {chats.map((chat) => {
+                  const profile = chat.user_profiles;
+                  const initials = profile?.first_name && profile?.last_name
+                    ? `${profile.first_name[0]}${profile.last_name[0]}`
+                    : profile?.email?.[0]?.toUpperCase() || 'U';
+
+                  return (
+                    <button
+                      key={chat.id}
+                      onClick={() => setSelectedChat(chat)}
+                      className={`relative group transition-all duration-200 ${
+                        selectedChat?.id === chat.id
+                          ? 'scale-110'
+                          : 'scale-100 hover:scale-105'
+                      }`}
+                      title={profile?.first_name && profile?.last_name
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : profile?.email || 'User'}
+                    >
+                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center transition-all ${
+                        selectedChat?.id === chat.id
+                          ? 'ring-2 ring-blue-500 dark:ring-blue-400'
+                          : 'group-hover:ring-2 group-hover:ring-gray-400 dark:group-hover:ring-gray-500'
+                      }`}>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {initials}
+                        </span>
+                      </div>
+                      {/* Unread indicator */}
+                      {chat.unread_count_admin > 0 && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-bold text-white">
+                            {chat.unread_count_admin > 9 ? '9+' : chat.unread_count_admin}
+                          </span>
+                        </div>
+                      )}
+                      {/* Online indicator */}
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Full View - Normal List */}
+            {!showUserProfile && (
+              <div className="flex-1 overflow-y-auto">
+                {isLoading ? (
+                  <LoadingSpinner />
+                ) : chats.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+                    <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
+                  </div>
+                ) : (
+                  chats.map((chat) => (
+                    <ConversationListItem
+                      key={chat.id}
+                      chat={chat}
+                      isSelected={selectedChat?.id === chat.id}
+                      onClick={() => setSelectedChat(chat)}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
