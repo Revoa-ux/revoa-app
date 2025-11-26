@@ -152,6 +152,16 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
       if (visibleCards.length === 0) return;
 
       try {
+        // Trigger incremental sync first (fire and forget)
+        const { facebook } = useConnectionStore.getState();
+        if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+          const { facebookAdsService } = await import('@/lib/facebookAds');
+          facebook.accounts.forEach(account => {
+            facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
+              .catch(err => console.error('[Analytics] Auto-sync failed:', err));
+          });
+        }
+
         const startDateStr = dateRange.startDate.toISOString();
         const endDateStr = dateRange.endDate.toISOString();
         const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr);

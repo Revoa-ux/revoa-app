@@ -70,6 +70,17 @@ export default function Attribution() {
 
     setIsLoading(true);
     try {
+      // Trigger incremental sync first (fire and forget)
+      const { useConnectionStore } = await import('@/lib/connectionStore');
+      const { facebook } = useConnectionStore.getState();
+      if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+        const { facebookAdsService } = await import('@/lib/facebookAds');
+        facebook.accounts.forEach(account => {
+          facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
+            .catch(err => console.error('[Attribution] Auto-sync failed:', err));
+        });
+      }
+
       const { data: orders, error: ordersError } = await supabase
         .from('shopify_orders')
         .select('id, total_price, utm_source')

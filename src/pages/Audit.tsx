@@ -418,6 +418,15 @@ export default function Audit() {
 
     setIsLoading(true);
     try {
+      // Trigger incremental sync first (fire and forget)
+      if (facebook.accounts && facebook.accounts.length > 0) {
+        const { facebookAdsService } = await import('@/lib/facebookAds');
+        facebook.accounts.forEach(account => {
+          facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
+            .catch(err => console.error('[Audit] Auto-sync failed:', err));
+        });
+      }
+
       const startDate = dateRange.startDate.toISOString().split('T')[0];
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 

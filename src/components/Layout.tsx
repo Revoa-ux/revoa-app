@@ -94,30 +94,6 @@ export default function Layout() {
     };
   }, [user?.id]);
 
-  // Auto-sync Facebook Ads every 15 minutes
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const { facebookAdsService } = require('../lib/facebookAds');
-
-    // Initial sync after 10 seconds (give time for page to load)
-    const initialTimeout = setTimeout(() => {
-      console.log('[Layout] Running initial auto-sync');
-      facebookAdsService.autoSyncAllAccounts().catch(console.error);
-    }, 10000);
-
-    // Then sync every 15 minutes
-    const syncInterval = setInterval(() => {
-      console.log('[Layout] Running scheduled auto-sync');
-      facebookAdsService.autoSyncAllAccounts().catch(console.error);
-    }, 15 * 60 * 1000); // 15 minutes
-
-    return () => {
-      clearTimeout(initialTimeout);
-      clearInterval(syncInterval);
-    };
-  }, [user?.id]);
-
   // Compute store name from connection state
   const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
 
