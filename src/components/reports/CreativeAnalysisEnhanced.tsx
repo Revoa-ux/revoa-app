@@ -508,11 +508,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   // Calculate totals for all sorted creatives
   const totals = sortedCreatives.reduce((acc, creative) => {
+    // Sum up actual revenue from metrics (already calculated from attribution system)
+    const creativeRevenue = (creative.metrics?.conversions || 0) > 0 && (creative.metrics?.roas || 0) > 0
+      ? (creative.metrics.spend * creative.metrics.roas)
+      : 0;
+
     return {
       impressions: acc.impressions + (creative.metrics?.impressions || 0),
       clicks: acc.clicks + (creative.metrics?.clicks || 0),
       spend: acc.spend + (creative.metrics?.spend || 0),
       conversions: acc.conversions + (creative.metrics?.conversions || 0),
+      revenue: acc.revenue + creativeRevenue,
       cpa: 0, // Will calculate after
       profit: acc.profit + (creative.metrics?.profit || 0),
       profitMargin: 0, // Will calculate after
@@ -525,6 +531,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     clicks: 0,
     spend: 0,
     conversions: 0,
+    revenue: 0,
     cpa: 0,
     profit: 0,
     profitMargin: 0,
@@ -533,7 +540,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     ctr: 0,
   });
 
-  // Calculate derived metrics
+  // Calculate derived metrics from REAL data
   if (totals.conversions > 0) {
     totals.cpa = totals.spend / totals.conversions;
   }
@@ -541,10 +548,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     totals.ctr = (totals.clicks / totals.impressions) * 100;
   }
   if (totals.spend > 0) {
-    const revenue = totals.conversions * 50; // Assuming average order value, adjust as needed
-    totals.roas = revenue / totals.spend;
-    totals.profitMargin = (totals.profit / totals.spend) * 100;
-    totals.netROAS = (totals.profit + totals.spend) / totals.spend;
+    // Use REAL revenue from attribution system, not mock data
+    totals.roas = totals.revenue / totals.spend;
+    totals.profitMargin = totals.revenue > 0 ? (totals.profit / totals.revenue) * 100 : 0;
+    totals.netROAS = totals.profit / totals.spend;
   }
 
   const getSortIcon = (field: string) => {
