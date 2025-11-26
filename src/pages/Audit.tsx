@@ -495,12 +495,14 @@ export default function Audit() {
           getCreativePerformance(startDate, endDate),
           getCampaignPerformance(startDate, endDate),
           getAdSetPerformance(startDate, endDate)
-        ]).then(([metrics, creativesData, campaignsData, adSetsData]) => {
+        ]).then(async ([metrics, creativesData, campaignsData, adSetsData]) => {
           setPerformanceData(metrics);
           setCreatives(creativesData);
           setCampaigns(campaignsData);
           setAdSets(adSetsData);
-          loadRexSuggestions();
+
+          // ALWAYS load and generate Rex suggestions (even when data is fresh)
+          await loadRexSuggestions();
         }).finally(() => {
           setIsLoading(false);
         });
