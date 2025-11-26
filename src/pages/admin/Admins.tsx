@@ -10,7 +10,13 @@ import {
   Loader2,
   ArrowUpRight,
   ArrowDownRight,
+  Calendar,
+  Package,
+  MessageSquare,
+  TrendingUp,
+  CheckCircle2
 } from 'lucide-react';
+import { format, subDays, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
 import { toast } from 'sonner';
 import { useAdmin } from '@/contexts/AdminContext';
 import { supabase } from '@/lib/supabase';
@@ -22,7 +28,11 @@ interface AdminUser {
   email: string;
   role: 'admin' | 'super_admin';
   assignedUsers: number;
+  activeClients: number;
   avgResponseTime: string;
+  avgFulfillmentTime: number | null;
+  quotesResponded: number;
+  totalQuotes: number;
   totalTransactions: number;
   lastActive: string | null;
   performance: {
@@ -31,6 +41,8 @@ interface AdminUser {
   };
 }
 
+type TimeRange = '7d' | '30d' | 'month' | 'year' | 'all';
+
 export default function AdminManage() {
   const { isSuperAdmin } = useAdmin();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
@@ -38,10 +50,41 @@ export default function AdminManage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
+  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
 
   useEffect(() => {
     fetchAdmins();
-  }, []);
+  }, [timeRange]);
+
+  const getDateRange = () => {
+    const now = new Date();
+    switch (timeRange) {
+      case '7d':
+        return { start: subDays(now, 7), end: now };
+      case '30d':
+        return { start: subDays(now, 30), end: now };
+      case 'month':
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case 'year':
+        return { start: startOfYear(now), end: now };
+      case 'all':
+        return { start: new Date(0), end: now };
+      default:
+        return { start: subDays(now, 30), end: now };
+    }
+  };
+
+  const getTimeRangeLabel = () => {
+    switch (timeRange) {
+      case '7d': return 'Last 7 days';
+      case '30d': return 'Last 30 days';
+      case 'month': return 'This month';
+      case 'year': return 'This year';
+      case 'all': return 'All time';
+      default: return 'Last 30 days';
+    }
+  };
 
   const fetchAdmins = async () => {
     try {
@@ -62,26 +105,100 @@ export default function AdminManage() {
       }
 
       const adminIds = adminProfiles.map(p => p.user_id);
+      const { start, end } = getDateRange();
 
       // Fetch user assignments for each admin
       const { data: assignments } = await supabase
         .from('user_assignments')
-        .select('admin_id, total_transactions')
+        .select('admin_id, user_id, total_transactions')
         .in('admin_id', adminIds);
 
-      // Group assignments by admin
-      const assignmentsByAdmin = new Map<string, { count: number; totalTransactions: number }>();
-      assignments?.forEach(assignment => {
-        const existing = assignmentsByAdmin.get(assignment.admin_id) || { count: 0, totalTransactions: 0 };
-        assignmentsByAdmin.set(assignment.admin_id, {
-          count: existing.count + 1,
-          totalTransactions: existing.totalTransactions + (assignment.total_transactions || 0)
+      // Get invoices within time range to calculate active clients and fulfillment time
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('user_id, created_at, paid_at, status')
+        .gte('created_at', start.toISOString())
+        .lte('created_at', end.toISOString());
+
+      // Get quotes within time range
+      const { data: quotes } = await supabase
+        .from('product_quotes')
+        .select('user_id, status, created_at')
+        .gte('created_at', start.toISOString())
+        .lte('created_at', end.toISOString());
+
+      // Calculate stats for each admin
+      const adminStats = new Map<string, {
+        count: number;
+        totalTransactions: number;
+        activeClients: Set<string>;
+        fulfillmentDays: number[];
+        quotesResponded: number;
+        totalQuotes: number;
+      }>();
+
+      adminIds.forEach(adminId => {
+        adminStats.set(adminId, {
+          count: 0,
+          totalTransactions: 0,
+          activeClients: new Set(),
+          fulfillmentDays: [],
+          quotesResponded: 0,
+          totalQuotes: 0
         });
+      });
+
+      // Process assignments
+      assignments?.forEach(assignment => {
+        const stats = adminStats.get(assignment.admin_id);
+        if (stats) {
+          stats.count++;
+          stats.totalTransactions += assignment.total_transactions || 0;
+        }
+      });
+
+      // Process invoices to find active clients and fulfillment time
+      invoices?.forEach(invoice => {
+        // Find which admin manages this user
+        const userAssignment = assignments?.find(a => a.user_id === invoice.user_id);
+        if (userAssignment) {
+          const stats = adminStats.get(userAssignment.admin_id);
+          if (stats) {
+            // Active client (has invoice in time range)
+            stats.activeClients.add(invoice.user_id);
+
+            // Calculate fulfillment time for paid invoices
+            if (invoice.status === 'paid' && invoice.created_at && invoice.paid_at) {
+              const created = new Date(invoice.created_at);
+              const paid = new Date(invoice.paid_at);
+              const days = (paid.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+              stats.fulfillmentDays.push(days);
+            }
+          }
+        }
+      });
+
+      // Process quotes
+      quotes?.forEach(quote => {
+        const userAssignment = assignments?.find(a => a.user_id === quote.user_id);
+        if (userAssignment) {
+          const stats = adminStats.get(userAssignment.admin_id);
+          if (stats) {
+            stats.totalQuotes++;
+            if (quote.status === 'quoted' || quote.status === 'accepted') {
+              stats.quotesResponded++;
+            }
+          }
+        }
       });
 
       // Transform to AdminUser interface
       const transformedAdmins: AdminUser[] = adminProfiles.map(profile => {
-        const stats = assignmentsByAdmin.get(profile.user_id) || { count: 0, totalTransactions: 0 };
+        const stats = adminStats.get(profile.user_id);
+
+        const avgFulfillmentDays = stats && stats.fulfillmentDays.length > 0
+          ? stats.fulfillmentDays.reduce((sum, days) => sum + days, 0) / stats.fulfillmentDays.length
+          : null;
 
         return {
           id: profile.user_id,
@@ -89,9 +206,13 @@ export default function AdminManage() {
           name: profile.name,
           email: profile.email,
           role: (profile.admin_role as 'admin' | 'super_admin') || 'admin',
-          assignedUsers: stats.count,
+          assignedUsers: stats?.count || 0,
+          activeClients: stats?.activeClients.size || 0,
           avgResponseTime: 'N/A',
-          totalTransactions: stats.totalTransactions,
+          avgFulfillmentTime: avgFulfillmentDays,
+          quotesResponded: stats?.quotesResponded || 0,
+          totalQuotes: stats?.totalQuotes || 0,
+          totalTransactions: stats?.totalTransactions || 0,
           lastActive: profile.last_login,
           performance: {
             score: 0,
@@ -158,6 +279,43 @@ export default function AdminManage() {
         )}
       </div>
 
+      {/* Time Range Selector */}
+      <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-6 py-4">
+        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <Calendar className="w-4 h-4" />
+          <span>Showing data for:</span>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setShowTimeRangeDropdown(!showTimeRangeDropdown)}
+            className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+          >
+            <span>{getTimeRangeLabel()}</span>
+            <X className={`w-4 h-4 transition-transform ${showTimeRangeDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          {showTimeRangeDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+              {(['7d', '30d', 'month', 'year', 'all'] as TimeRange[]).map((range) => (
+                <button
+                  key={range}
+                  onClick={() => {
+                    setTimeRange(range);
+                    setShowTimeRangeDropdown(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  {range === '7d' && 'Last 7 days'}
+                  {range === '30d' && 'Last 30 days'}
+                  {range === 'month' && 'This month'}
+                  {range === 'year' && 'This year'}
+                  {range === 'all' && 'All time'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -189,8 +347,8 @@ export default function AdminManage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <DollarSign className="w-6 h-6 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div className="space-y-1">
@@ -252,7 +410,7 @@ export default function AdminManage() {
                         <span>{admin.email}</span>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Assigned Users</p>
                           <div className="flex items-center space-x-1">
@@ -264,21 +422,45 @@ export default function AdminManage() {
                         </div>
 
                         <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Avg Response Time</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Active Clients</p>
                           <div className="flex items-center space-x-1">
-                            <Clock className="w-4 h-4 text-gray-400" />
+                            <TrendingUp className="w-4 h-4 text-green-500 dark:text-green-400" />
                             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              {admin.avgResponseTime}
+                              {admin.activeClients}
                             </span>
                           </div>
                         </div>
 
                         <div>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Volume</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Avg Fulfillment</p>
                           <div className="flex items-center space-x-1">
-                            <DollarSign className="w-4 h-4 text-gray-400" />
+                            <Clock className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              ${(admin.totalTransactions / 1000).toFixed(1)}k
+                              {admin.avgFulfillmentTime !== null
+                                ? `${Math.round(admin.avgFulfillmentTime)}d`
+                                : 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Quotes Handled</p>
+                          <div className="flex items-center space-x-1">
+                            <MessageSquare className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {admin.quotesResponded}/{admin.totalQuotes}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Quote Rate</p>
+                          <div className="flex items-center space-x-1">
+                            <CheckCircle2 className="w-4 h-4 text-gray-400" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {admin.totalQuotes > 0
+                                ? `${Math.round((admin.quotesResponded / admin.totalQuotes) * 100)}%`
+                                : 'N/A'}
                             </span>
                           </div>
                         </div>
