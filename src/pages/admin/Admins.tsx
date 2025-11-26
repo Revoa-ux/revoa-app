@@ -20,6 +20,7 @@ import { format, subDays, startOfMonth, endOfMonth, startOfYear } from 'date-fns
 import { toast } from 'sonner';
 import { useAdmin } from '@/contexts/AdminContext';
 import { supabase } from '@/lib/supabase';
+import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 
 interface AdminUser {
   id: string;
@@ -41,7 +42,10 @@ interface AdminUser {
   };
 }
 
-type TimeRange = '7d' | '30d' | 'month' | 'year' | 'all';
+interface DateRange {
+  startDate: Date;
+  endDate: Date;
+}
 
 export default function AdminManage() {
   const { isSuperAdmin } = useAdmin();
@@ -50,40 +54,24 @@ export default function AdminManage() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
-  const [timeRange, setTimeRange] = useState<TimeRange>('30d');
-  const [showTimeRangeDropdown, setShowTimeRangeDropdown] = useState(false);
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const initialEndDate = new Date();
+  initialEndDate.setHours(23, 59, 59, 999);
+  const initialStartDate = new Date(initialEndDate);
+  initialStartDate.setDate(initialStartDate.getDate() - 7);
+  initialStartDate.setHours(0, 0, 0, 0);
+  const [dateRange, setDateRange] = useState<DateRange>({
+    startDate: initialStartDate,
+    endDate: initialEndDate
+  });
 
   useEffect(() => {
     fetchAdmins();
-  }, [timeRange]);
+  }, [dateRange]);
 
-  const getDateRange = () => {
-    const now = new Date();
-    switch (timeRange) {
-      case '7d':
-        return { start: subDays(now, 7), end: now };
-      case '30d':
-        return { start: subDays(now, 30), end: now };
-      case 'month':
-        return { start: startOfMonth(now), end: endOfMonth(now) };
-      case 'year':
-        return { start: startOfYear(now), end: now };
-      case 'all':
-        return { start: new Date(0), end: now };
-      default:
-        return { start: subDays(now, 30), end: now };
-    }
-  };
-
-  const getTimeRangeLabel = () => {
-    switch (timeRange) {
-      case '7d': return 'Last 7 days';
-      case '30d': return 'Last 30 days';
-      case 'month': return 'This month';
-      case 'year': return 'This year';
-      case 'all': return 'All time';
-      default: return 'Last 30 days';
-    }
+  const handleTimeChange = (time: TimeOption) => {
+    setSelectedTime(time);
+    // Date range update is handled by AdReportsTimeSelector
   };
 
   const fetchAdmins = async () => {
@@ -105,7 +93,7 @@ export default function AdminManage() {
       }
 
       const adminIds = adminProfiles.map(p => p.user_id);
-      const { start, end } = getDateRange();
+      const { startDate, endDate } = dateRange;
 
       // Fetch user assignments for each admin
       const { data: assignments } = await supabase
@@ -117,15 +105,15 @@ export default function AdminManage() {
       const { data: invoices } = await supabase
         .from('invoices')
         .select('user_id, created_at, paid_at, status')
-        .gte('created_at', start.toISOString())
-        .lte('created_at', end.toISOString());
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
 
       // Get quotes within time range
       const { data: quotes } = await supabase
         .from('product_quotes')
         .select('user_id, status, created_at')
-        .gte('created_at', start.toISOString())
-        .lte('created_at', end.toISOString());
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
 
       // Calculate stats for each admin
       const adminStats = new Map<string, {
@@ -280,47 +268,21 @@ export default function AdminManage() {
       </div>
 
       {/* Time Range Selector */}
-      <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-          <Calendar className="w-4 h-4" />
-          <span>Showing data for:</span>
-        </div>
-        <div className="relative">
-          <button
-            onClick={() => setShowTimeRangeDropdown(!showTimeRangeDropdown)}
-            className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
-          >
-            <span>{getTimeRangeLabel()}</span>
-            <X className={`w-4 h-4 transition-transform ${showTimeRangeDropdown ? 'rotate-180' : ''}`} />
-          </button>
-          {showTimeRangeDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-              {(['7d', '30d', 'month', 'year', 'all'] as TimeRange[]).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => {
-                    setTimeRange(range);
-                    setShowTimeRangeDropdown(false);
-                  }}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  {range === '7d' && 'Last 7 days'}
-                  {range === '30d' && 'Last 30 days'}
-                  {range === 'month' && 'This month'}
-                  {range === 'year' && 'This year'}
-                  {range === 'all' && 'All time'}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="flex items-center justify-end">
+        <AdReportsTimeSelector
+          selectedTime={selectedTime}
+          onTimeChange={handleTimeChange}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onApply={() => fetchAdmins()}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div className="space-y-1">
@@ -333,8 +295,8 @@ export default function AdminManage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <BarChart3 className="w-6 h-6 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div className="space-y-1">

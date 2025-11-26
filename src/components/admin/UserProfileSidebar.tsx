@@ -264,12 +264,17 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           </div>
         </div>
 
-        {/* Overview Section */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => toggleSection('overview')}
-            className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          >
+        {/* Sections with vertical line */}
+        <div className="relative">
+          {/* Vertical line on left side */}
+          <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-blue-400 via-gray-300 to-gray-300 dark:from-blue-500 dark:via-gray-600 dark:to-gray-600"></div>
+
+          {/* Overview Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 relative">
+            <button
+              onClick={() => toggleSection('overview')}
+              className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
             <span className="text-sm font-medium text-gray-900 dark:text-white">Overview</span>
             {expandedSections.overview ? (
               <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -312,8 +317,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           )}
         </div>
 
-        {/* Financial Section */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
+          {/* Financial Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 relative">
           <button
             onClick={() => toggleSection('financial')}
             className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -385,9 +390,9 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           )}
         </div>
 
-        {/* Store Section */}
-        {stats.store_url && (
-          <div className="border-b border-gray-200 dark:border-gray-700">
+          {/* Store Section */}
+          {stats.store_url && (
+            <div className="border-b border-gray-200 dark:border-gray-700 relative">
             <button
               onClick={() => toggleSection('store')}
               className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -438,11 +443,11 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 )}
               </div>
             )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Activity Section */}
-        <div className="border-b border-gray-200 dark:border-gray-700">
+          {/* Activity Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 relative">
           <button
             onClick={() => toggleSection('activity')}
             className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -483,6 +488,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               )}
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

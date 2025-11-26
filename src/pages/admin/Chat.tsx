@@ -328,45 +328,50 @@ const AdminChat = () => {
 
             {/* Collapsed View - Just Avatars */}
             {showUserProfile && (
-              <div className="flex flex-col items-center py-4 space-y-4 overflow-y-auto">
+              <div className="flex flex-col py-4 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
                 {chats.map((chat) => {
                   const profile = chat.user_profiles;
                   const initials = profile?.first_name && profile?.last_name
                     ? `${profile.first_name[0]}${profile.last_name[0]}`
                     : profile?.email?.[0]?.toUpperCase() || 'U';
 
+                  const displayName = profile?.first_name && profile?.last_name
+                    ? `${profile.first_name} ${profile.last_name[0]}.`
+                    : profile?.email?.split('@')[0] || 'User';
+
                   return (
                     <button
                       key={chat.id}
                       onClick={() => setSelectedChat(chat)}
-                      className={`relative group transition-all duration-200 ${
-                        selectedChat?.id === chat.id
-                          ? 'scale-110'
-                          : 'scale-100 hover:scale-105'
-                      }`}
+                      className="flex flex-col items-center py-3 px-2 group transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/30"
                       title={profile?.first_name && profile?.last_name
                         ? `${profile.first_name} ${profile.last_name}`
                         : profile?.email || 'User'}
                     >
-                      <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center transition-all ${
-                        selectedChat?.id === chat.id
-                          ? 'ring-2 ring-blue-500 dark:ring-blue-400'
-                          : 'group-hover:ring-2 group-hover:ring-gray-400 dark:group-hover:ring-gray-500'
-                      }`}>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                          {initials}
-                        </span>
-                      </div>
-                      {/* Unread indicator */}
-                      {chat.unread_count_admin > 0 && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                          <span className="text-xs font-bold text-white">
-                            {chat.unread_count_admin > 9 ? '9+' : chat.unread_count_admin}
+                      <div className="relative mb-2">
+                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center transition-all ${
+                          selectedChat?.id === chat.id
+                            ? 'ring-2 ring-blue-500 dark:ring-blue-400'
+                            : 'group-hover:ring-2 group-hover:ring-gray-400 dark:group-hover:ring-gray-500'
+                        }`}>
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {initials}
                           </span>
                         </div>
-                      )}
-                      {/* Online indicator */}
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                        {/* Unread indicator */}
+                        {chat.unread_count_admin > 0 && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-bold text-white">
+                              {chat.unread_count_admin > 9 ? '9+' : chat.unread_count_admin}
+                            </span>
+                          </div>
+                        )}
+                        {/* Online indicator */}
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                      </div>
+                      <span className="text-xs text-gray-600 dark:text-gray-400 text-center leading-tight">
+                        {displayName}
+                      </span>
                     </button>
                   );
                 })}
