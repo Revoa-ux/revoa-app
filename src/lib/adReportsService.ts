@@ -376,18 +376,31 @@ export async function getCreativePerformance(
       return [];
     }
 
-    const { data: metrics, error: metricsError } = await supabase
-      .from('ad_metrics')
-      .select('*')
-      .eq('entity_type', 'ad')
-      .in('entity_id', platformAdIds)
-      .gte('date', startDate)
-      .lte('date', endDate);
+    // Batch queries if we have too many IDs (Supabase .in() has limits)
+    const BATCH_SIZE = 100;
+    let allMetrics: any[] = [];
 
-    if (metricsError) {
-      console.error('[AdReportsService] Error fetching metrics:', metricsError);
-      throw metricsError;
+    for (let i = 0; i < platformAdIds.length; i += BATCH_SIZE) {
+      const batch = platformAdIds.slice(i, i + BATCH_SIZE);
+      const { data: metrics, error: metricsError } = await supabase
+        .from('ad_metrics')
+        .select('*')
+        .eq('entity_type', 'ad')
+        .in('entity_id', batch)
+        .gte('date', startDate)
+        .lte('date', endDate);
+
+      if (metricsError) {
+        console.error('[AdReportsService] Error fetching metrics batch:', metricsError);
+        throw metricsError;
+      }
+
+      if (metrics) {
+        allMetrics = allMetrics.concat(metrics);
+      }
     }
+
+    const metrics = allMetrics;
 
     console.log('[AdReportsService] Fetched', metrics?.length || 0, 'ad_metrics rows');
     console.log('[AdReportsService] First ad ID:', adIds[0]);
@@ -648,19 +661,31 @@ export async function getCampaignPerformance(
       return [];
     }
 
-    // Fetch campaign-level metrics
-    const { data: metrics, error: metricsError } = await supabase
-      .from('ad_metrics')
-      .select('*')
-      .eq('entity_type', 'campaign')
-      .in('entity_id', platformCampaignIds)
-      .gte('date', startDate)
-      .lte('date', endDate);
+    // Batch queries if we have too many IDs (Supabase .in() has limits)
+    const BATCH_SIZE = 100;
+    let allMetrics: any[] = [];
 
-    if (metricsError) {
-      console.error('[adReportsService] Error fetching campaign performance:', metricsError);
-      throw metricsError;
+    for (let i = 0; i < platformCampaignIds.length; i += BATCH_SIZE) {
+      const batch = platformCampaignIds.slice(i, i + BATCH_SIZE);
+      const { data: batchMetrics, error: metricsError } = await supabase
+        .from('ad_metrics')
+        .select('*')
+        .eq('entity_type', 'campaign')
+        .in('entity_id', batch)
+        .gte('date', startDate)
+        .lte('date', endDate);
+
+      if (metricsError) {
+        console.error('[adReportsService] Error fetching campaign performance:', metricsError);
+        throw metricsError;
+      }
+
+      if (batchMetrics) {
+        allMetrics = allMetrics.concat(batchMetrics);
+      }
     }
+
+    const metrics = allMetrics;
 
     // Group metrics by campaign
     const campaignMetrics = new Map<string, any>();
@@ -800,19 +825,31 @@ export async function getAdSetPerformance(
       return [];
     }
 
-    // Fetch ad set-level metrics
-    const { data: metrics, error: metricsError } = await supabase
-      .from('ad_metrics')
-      .select('*')
-      .eq('entity_type', 'ad_set')
-      .in('entity_id', platformAdSetIds)
-      .gte('date', startDate)
-      .lte('date', endDate);
+    // Batch queries if we have too many IDs (Supabase .in() has limits)
+    const BATCH_SIZE = 100;
+    let allMetrics: any[] = [];
 
-    if (metricsError) {
-      console.error('[adReportsService] Error fetching ad set performance:', metricsError);
-      throw metricsError;
+    for (let i = 0; i < platformAdSetIds.length; i += BATCH_SIZE) {
+      const batch = platformAdSetIds.slice(i, i + BATCH_SIZE);
+      const { data: batchMetrics, error: metricsError } = await supabase
+        .from('ad_metrics')
+        .select('*')
+        .eq('entity_type', 'ad_set')
+        .in('entity_id', batch)
+        .gte('date', startDate)
+        .lte('date', endDate);
+
+      if (metricsError) {
+        console.error('[adReportsService] Error fetching ad set performance:', metricsError);
+        throw metricsError;
+      }
+
+      if (batchMetrics) {
+        allMetrics = allMetrics.concat(batchMetrics);
+      }
     }
+
+    const metrics = allMetrics;
 
     // Group metrics by ad set
     const adSetMetrics = new Map<string, any>();

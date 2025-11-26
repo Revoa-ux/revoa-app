@@ -491,9 +491,27 @@ setCurrentTemplate(template);
               }
 
               const platformText = connected.join(' - ') + ' Connected';
-              const timeText = adPlatformsSyncTime
-                ? ` - Updated ${adPlatformsSyncTime.toLocaleTimeString()}`
-                : '';
+
+              // Get most recent sync time from accounts
+              const lastSyncedAccount = facebook.accounts
+                ?.filter(acc => acc.last_synced_at)
+                .sort((a, b) => new Date(b.last_synced_at!).getTime() - new Date(a.last_synced_at!).getTime())[0];
+
+              let timeText = '';
+              if (lastSyncedAccount?.last_synced_at) {
+                const syncDate = new Date(lastSyncedAccount.last_synced_at);
+                const now = new Date();
+                const diffMs = now.getTime() - syncDate.getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+
+                if (diffMins < 1) {
+                  timeText = ' - Updated just now';
+                } else if (diffMins < 60) {
+                  timeText = ` - Updated ${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
+                } else {
+                  timeText = ` - Updated ${syncDate.toLocaleTimeString()}`;
+                }
+              }
 
               return platformText + timeText;
             })()}
