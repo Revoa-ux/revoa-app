@@ -364,12 +364,13 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Found', ads.length, 'ads');
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
-    const adIds = ads.map(ad => ad.id);
+    // IMPORTANT: entity_id in ad_metrics stores platform_ad_id, not our internal UUID
+    const platformAdIds = ads.map(ad => ad.platform_ad_id);
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
       .select('*')
       .eq('entity_type', 'ad')
-      .in('entity_id', adIds)
+      .in('entity_id', platformAdIds)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -402,7 +403,7 @@ export async function getCreativePerformance(
       attributionMetrics.map(m => [m.ad_id, m])
     );
 
-    // Aggregate metrics by ad
+    // Aggregate metrics by ad (using platform_ad_id as key)
     const adMetricsMap = new Map<string, typeof metrics[0][]>();
     metrics?.forEach(m => {
       const existing = adMetricsMap.get(m.entity_id) || [];
@@ -415,7 +416,8 @@ export async function getCreativePerformance(
 
     // Transform to creative performance format
     const creatives: CreativePerformance[] = ads.map((ad, index) => {
-      const adMetrics = adMetricsMap.get(ad.id) || [];
+      // Use platform_ad_id to look up metrics (not UUID id)
+      const adMetrics = adMetricsMap.get(ad.platform_ad_id) || [];
       const totalSpend = adMetrics.reduce((sum, m) => sum + (m.spend || 0), 0);
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
@@ -623,14 +625,15 @@ export async function getCampaignPerformance(
       return [];
     }
 
-    const campaignIds = campaigns.map(c => c.id);
+    // Use platform_campaign_id for metrics lookup
+    const platformCampaignIds = campaigns.map(c => c.platform_campaign_id);
 
     // Fetch campaign-level metrics
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
       .select('*')
       .eq('entity_type', 'campaign')
-      .in('entity_id', campaignIds)
+      .in('entity_id', platformCampaignIds)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -661,9 +664,9 @@ export async function getCampaignPerformance(
     const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
     const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
 
-    // Map campaigns with their metrics
+    // Map campaigns with their metrics (using platform_campaign_id)
     const campaignsWithMetrics = campaigns.map(campaign => {
-      const m = campaignMetrics.get(campaign.id) || {
+      const m = campaignMetrics.get(campaign.platform_campaign_id) || {
         spend: 0,
         impressions: 0,
         clicks: 0,
@@ -764,14 +767,15 @@ export async function getAdSetPerformance(
       return [];
     }
 
-    const adSetIds = adSets.map(a => a.id);
+    // Use platform_ad_set_id for metrics lookup
+    const platformAdSetIds = adSets.map(a => a.platform_ad_set_id);
 
     // Fetch ad set-level metrics
     const { data: metrics, error: metricsError } = await supabase
       .from('ad_metrics')
       .select('*')
       .eq('entity_type', 'ad_set')
-      .in('entity_id', adSetIds)
+      .in('entity_id', platformAdSetIds)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -802,9 +806,9 @@ export async function getAdSetPerformance(
     const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
     const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
 
-    // Map ad sets with their metrics
+    // Map ad sets with their metrics (using platform_ad_set_id)
     const adSetsWithMetrics = adSets.map(adSet => {
-      const m = adSetMetrics.get(adSet.id) || {
+      const m = adSetMetrics.get(adSet.platform_ad_set_id) || {
         spend: 0,
         impressions: 0,
         clicks: 0,
