@@ -1354,11 +1354,14 @@ const SettingsPage = () => {
 
               try {
                 const endDate = new Date().toISOString().split('T')[0];
-                // Fetch last 90 days of data (to avoid timeout)
-                const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                // Fetch last 7 days of data (to avoid timeout with large accounts)
+                const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
                 console.log('[Settings] Auto-syncing from', startDate, 'to', endDate);
-                await facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate);
+                // Start sync but don't wait for it (fire and forget to avoid timeout)
+                facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, startDate, endDate)
+                  .then(() => console.log('[Settings] Background sync completed'))
+                  .catch((err) => console.error('[Settings] Background sync failed:', err));
               } catch (syncError) {
                 console.error('[Settings] Auto-sync failed:', syncError);
               }
@@ -1403,16 +1406,27 @@ const SettingsPage = () => {
       setFacebookSyncing(true);
 
       const endDate = new Date().toISOString().split('T')[0];
-      // Fetch last 90 days of data (to avoid timeout)
-      const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      // Fetch last 7 days of data (to avoid timeout with large accounts)
+      const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       console.log('[Settings] Manual sync from', startDate, 'to', endDate);
 
-      const result = await facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate);
+      // Show immediate feedback
+      toast.info('Syncing data in background...');
 
-      console.log('[Settings] Sync result:', result);
-      toast.success('Data synced successfully');
+      // Start sync in background
+      facebookAdsService.syncAdAccount(platformAccountId, startDate, endDate)
+        .then((result) => {
+          console.log('[Settings] Sync result:', result);
+          toast.success('Data synced successfully');
+          refreshFacebookAccounts();
+        })
+        .catch((error) => {
+          console.error('[Settings] Sync failed:', error);
+          toast.error('Sync failed - check console for details');
+        });
 
+      // Refresh accounts immediately to show sync started
       await refreshFacebookAccounts();
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
