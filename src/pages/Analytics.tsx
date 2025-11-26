@@ -179,14 +179,19 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
       setIsLoading(true);
       try {
-        // Trigger incremental sync first (fire and forget)
+        // Trigger incremental sync and WAIT for it to complete
         const { facebook } = useConnectionStore.getState();
         if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
           const { facebookAdsService } = await import('@/lib/facebookAds');
-          facebook.accounts.forEach(account => {
-            facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
-              .catch(err => console.error('[Analytics] Auto-sync failed:', err));
-          });
+          await Promise.all(
+            facebook.accounts.map(account =>
+              facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
+                .catch(err => console.error('[Analytics] Auto-sync failed:', err))
+            )
+          );
+
+          // Refresh account data to update last_synced_at in UI
+          await facebookAdsService.getAdAccounts('facebook');
         }
 
         const startDateStr = dateRange.startDate.toISOString();

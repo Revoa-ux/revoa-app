@@ -33,12 +33,14 @@ import { createDemoInsight } from '@/lib/demoInsight';
 
 interface CreativeAnalysisEnhancedProps {
   creatives?: any[];
+  isLoading?: boolean;
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
   showAIInsights?: boolean;
   viewLevel?: 'campaigns' | 'adsets' | 'ads';
   onDrillDown?: (item: any) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
+  topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
@@ -58,10 +60,12 @@ type SortDirection = 'asc' | 'desc';
 
 export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> = ({
   creatives = [],
+  isLoading = false,
   showAIInsights = true,
   viewLevel = 'ads',
   onDrillDown,
   rexSuggestions = new Map(),
+  topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion
@@ -636,7 +640,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     setDismissedInsights(prev => new Set([...prev, insightId]));
   };
 
-  const isLoading = creatives.length === 0;
+  const isEmpty = creatives.length === 0 && !isLoading;
 
   return (
     <>
@@ -943,8 +947,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           >
             <div className="w-full">
               {isLoading ? (
-                // Skeleton loading rows
-                Array.from({ length: 8 }).map((_, index) => (
+                // Skeleton loading rows - enough to fill viewport
+                Array.from({ length: 15 }).map((_, index) => (
                   <div
                     key={`skeleton-${index}`}
                     className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"

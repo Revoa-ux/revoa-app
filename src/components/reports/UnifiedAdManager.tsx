@@ -7,6 +7,7 @@ interface UnifiedAdManagerProps {
   creatives?: any[];
   campaigns?: any[];
   adSets?: any[];
+  isLoading?: boolean;
   selectedTime?: string;
   onTimeChange?: (time: string) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
@@ -22,6 +23,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   creatives = [],
   campaigns = [],
   adSets = [],
+  isLoading = false,
   selectedTime,
   onTimeChange,
   rexSuggestions = new Map(),
@@ -188,6 +190,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       <div className="flex-1 min-h-0">
         <CreativeAnalysisEnhanced
         creatives={getFilteredData()}
+        isLoading={isLoading}
         selectedTime={selectedTime}
         onTimeChange={onTimeChange}
         showAIInsights={false}

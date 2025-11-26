@@ -418,13 +418,18 @@ export default function Audit() {
 
     setIsLoading(true);
     try {
-      // Trigger incremental sync first (fire and forget)
+      // Trigger incremental sync and WAIT for it to complete
       if (facebook.accounts && facebook.accounts.length > 0) {
         const { facebookAdsService } = await import('@/lib/facebookAds');
-        facebook.accounts.forEach(account => {
-          facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
-            .catch(err => console.error('[Audit] Auto-sync failed:', err));
-        });
+        await Promise.all(
+          facebook.accounts.map(account =>
+            facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
+              .catch(err => console.error('[Audit] Auto-sync failed:', err))
+          )
+        );
+
+        // Refresh account data to update last_synced_at in UI
+        await facebookAdsService.getAdAccounts('facebook');
       }
 
       const startDate = dateRange.startDate.toISOString().split('T')[0];
@@ -612,6 +617,7 @@ export default function Audit() {
                 creatives={creatives}
                 campaigns={campaigns}
                 adSets={adSets}
+                isLoading={isLoading}
                 selectedTime={selectedTime}
                 onTimeChange={handleTimeChange}
                 rexSuggestions={rexSuggestions}
