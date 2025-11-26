@@ -18,6 +18,16 @@
   animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @supports (font-variation-settings: normal) {
   :root { 
     font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;

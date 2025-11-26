@@ -9,6 +9,7 @@ import { MetricCardData } from '../../lib/analyticsService';
 interface MetricCardProps {
   data: MetricCardData;
   isDragging?: boolean;
+  isLoading?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDragOver?: (e: React.DragEvent) => void;
@@ -40,6 +41,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 export default function MetricCard({
   data,
   isDragging = false,
+  isLoading = false,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -78,13 +80,22 @@ export default function MetricCard({
       onDrop={onDrop}
       className={`
         h-[180px] p-4 rounded-xl cursor-grab active:cursor-grabbing
-        transition-all duration-200
+        transition-all duration-200 relative overflow-hidden
         bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
         hover:bg-gray-50 dark:hover:bg-gray-700
         ${isDragging ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}
+        ${isLoading ? 'animate-pulse' : ''}
         ${className}
       `}
     >
+      {isLoading && (
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+             style={{
+               backgroundSize: '200% 100%',
+               animation: 'shimmer 2s infinite'
+             }}
+        />
+      )}
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-2">
           <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">

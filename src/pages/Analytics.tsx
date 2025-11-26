@@ -177,6 +177,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     const fetchCardData = async () => {
       if (visibleCards.length === 0) return;
 
+      setIsLoading(true);
       try {
         // Trigger incremental sync first (fire and forget)
         const { facebook } = useConnectionStore.getState();
@@ -194,6 +195,8 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
         setCardData(data);
 } catch (error) {
         console.error('Error fetching card data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -459,10 +462,7 @@ setCurrentTemplate(template);
     return null;
   };
 
-  if (isLoading) {
-    return <DashboardSkeleton />;
-  }
-
+  // Don't block rendering with skeleton - show cards with loading states instead
   return (
     <div>
       <div className="mb-6">
@@ -679,6 +679,7 @@ setCurrentTemplate(template);
               <MetricCard
                 key={cardId}
                 data={data}
+                isLoading={isLoading}
                 isDragging={draggedCard === cardId}
                 onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
                 onDragEnd={isEditMode ? handleDragEnd : undefined}
