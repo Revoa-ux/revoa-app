@@ -123,10 +123,30 @@ export class FacebookAdsService {
   async syncAdAccount(
     accountId: string,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
+    isAutoSync: boolean = false
   ): Promise<SyncResponse> {
     try {
       const headers = await this.getAuthHeaders();
+
+      // If no dates provided and this is auto-sync, get last_synced_at
+      if (!startDate && isAutoSync) {
+        const { data: account } = await supabase
+          .from('ad_accounts')
+          .select('last_synced_at')
+          .eq('platform_account_id', accountId)
+          .maybeSingle();
+
+        if (account?.last_synced_at) {
+          // Sync from last sync date to now
+          startDate = new Date(account.last_synced_at).toISOString().split('T')[0];
+          console.log('[FacebookAds] Incremental sync from last_synced_at:', startDate);
+        } else {
+          // First time sync - get last 7 days
+          startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          console.log('[FacebookAds] First sync - using 7 days:', startDate);
+        }
+      }
 
       const params = new URLSearchParams({
         accountId,
@@ -171,6 +191,34 @@ export class FacebookAdsService {
         console.error('[FacebookAds] Error message:', error.message);
       }
       throw error;
+    }
+  }
+
+  async autoSyncAllAccounts(): Promise<void> {
+    try {
+      console.log('[FacebookAds] Starting auto-sync for all connected accounts');
+      const accounts = await this.getAdAccounts();
+
+      if (!accounts || accounts.length === 0) {
+        console.log('[FacebookAds] No accounts to sync');
+        return;
+      }
+
+      console.log(`[FacebookAds] Auto-syncing ${accounts.length} account(s)`);
+
+      for (const account of accounts) {
+        try {
+          console.log(`[FacebookAds] Auto-syncing account: ${account.platform_account_id}`);
+          await this.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+          console.log(`[FacebookAds] Successfully synced account: ${account.platform_account_id}`);
+        } catch (error) {
+          console.error(`[FacebookAds] Failed to sync account ${account.platform_account_id}:`, error);
+        }
+      }
+
+      console.log('[FacebookAds] Auto-sync completed for all accounts');
+    } catch (error) {
+      console.error('[FacebookAds] Error in auto-sync:', error);
     }
   }
 
