@@ -440,8 +440,8 @@ export async function getCreativePerformance(
 
     // Transform to creative performance format
     const creatives: CreativePerformance[] = ads.map((ad, index) => {
-      // Use platform_ad_id to look up metrics (not UUID id)
-      const adMetrics = adMetricsMap.get(ad.platform_ad_id) || [];
+      // Use internal UUID to look up metrics (entity_id stores UUID)
+      const adMetrics = adMetricsMap.get(ad.id) || [];
       const totalSpend = adMetrics.reduce((sum, m) => sum + (m.spend || 0), 0);
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
@@ -708,9 +708,9 @@ export async function getCampaignPerformance(
     const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
     const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
 
-    // Map campaigns with their metrics (using platform_campaign_id)
+    // Map campaigns with their metrics (using internal UUID)
     const campaignsWithMetrics = campaigns.map(campaign => {
-      const m = campaignMetrics.get(campaign.platform_campaign_id) || {
+      const m = campaignMetrics.get(campaign.id) || {
         spend: 0,
         impressions: 0,
         clicks: 0,
@@ -870,9 +870,9 @@ export async function getAdSetPerformance(
     const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
     const cogsRatio = profitMetrics.totalRevenue > 0 ? profitMetrics.totalCOGS / profitMetrics.totalRevenue : 0;
 
-    // Map ad sets with their metrics (using platform_ad_set_id)
+    // Map ad sets with their metrics (using internal UUID)
     const adSetsWithMetrics = adSets.map(adSet => {
-      const m = adSetMetrics.get(adSet.platform_ad_set_id) || {
+      const m = adSetMetrics.get(adSet.id) || {
         spend: 0,
         impressions: 0,
         clicks: 0,
