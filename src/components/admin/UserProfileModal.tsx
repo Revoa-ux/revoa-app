@@ -1,4 +1,5 @@
 import React from 'react';
+import { X } from 'lucide-react';
 import { UserProfileSidebar } from './UserProfileSidebar';
 
 interface UserProfileModalProps {
@@ -22,11 +23,25 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
-          <div className="relative rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
-            <UserProfileSidebar userId={userId} onClose={onClose} />
+          <div className="relative rounded-xl shadow-xl w-full max-w-md bg-white dark:bg-gray-800 max-h-[90vh] flex flex-col overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
+              <button
+                onClick={onClose}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-hidden">
+              <UserProfileSidebar userId={userId} onClose={onClose} showHeader={false} />
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
+  );}
 };

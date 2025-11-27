@@ -27,6 +27,7 @@ import { formatDistanceToNow } from 'date-fns';
 interface UserProfileSidebarProps {
   userId: string;
   onClose: () => void;
+  showHeader?: boolean;
 }
 
 interface UserStats {
@@ -70,7 +71,8 @@ interface UserStats {
 
 export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
   userId,
-  onClose
+  onClose,
+  showHeader = true
 }) => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -237,13 +239,15 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
   if (isLoading || !stats) {
     return (
-      <div className="w-96 bg-white dark:bg-gray-800 flex flex-col h-full">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-          <button onClick={onClose}>
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
+      <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-800 flex flex-col h-full`}>
+        {showHeader && (
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <button onClick={onClose}>
+              <X className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
@@ -258,17 +262,19 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     stats.email.split('@')[0];
 
   return (
-    <div className="w-96 bg-white dark:bg-gray-800 flex flex-col h-full">
+    <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-800 flex flex-col h-full`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-        >
-          <X className="w-5 h-5 text-gray-400" />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto">
         {/* User Header */}
