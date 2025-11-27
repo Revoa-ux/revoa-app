@@ -8,7 +8,8 @@ import {
   Calendar,
   TrendingUp,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Send
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -27,15 +28,17 @@ interface ProfileData {
 }
 
 interface MetricsData {
-  lifetime_revenue: number;
-  paid_count: number;
-  pending_amount: number;
-  pending_count: number;
-  unfulfilled_orders: number;
-  total_messages: number;
+  paid_invoices_total: number;
+  paid_invoices_count: number;
+  pending_invoices_total: number;
+  pending_invoices_count: number;
+  last_invoice_sent_date: string | null;
+  last_invoice_sent_amount: number;
   last_invoice_paid_date: string | null;
   last_invoice_paid_amount: number;
+  unfulfilled_orders: number;
   average_fulfillment_days: number;
+  total_messages: number;
   last_interaction: string | null;
 }
 
@@ -45,15 +48,17 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [metrics, setMetrics] = useState<MetricsData>({
-    lifetime_revenue: 0,
-    paid_count: 0,
-    pending_amount: 0,
-    pending_count: 0,
-    unfulfilled_orders: 0,
-    total_messages: 0,
+    paid_invoices_total: 0,
+    paid_invoices_count: 0,
+    pending_invoices_total: 0,
+    pending_invoices_count: 0,
+    last_invoice_sent_date: null,
+    last_invoice_sent_amount: 0,
     last_invoice_paid_date: null,
     last_invoice_paid_amount: 0,
+    unfulfilled_orders: 0,
     average_fulfillment_days: 0,
+    total_messages: 0,
     last_interaction: null
   });
   const [loading, setLoading] = useState(true);
@@ -88,9 +93,18 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       // Load pending invoices
       const { data: pendingInvoices } = await supabase
         .from('payment_intents')
-        .select('amount')
+        .select('amount, created_at')
         .eq('user_id', userId)
-        .eq('status', 'pending');
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      // Load most recent invoice (any status)
+      const { data: allInvoices } = await supabase
+        .from('payment_intents')
+        .select('amount, created_at, status')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
 
       // Load unfulfilled orders (quotes that are accepted but not fulfilled)
       const { count: unfulfilledCount } = await supabase
@@ -133,19 +147,21 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         avgFulfillmentDays = Math.round(totalDays / fulfilledQuotes.length);
       }
 
-      const lifetimeRevenue = paidInvoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0;
       const lastPaidInvoice = paidInvoices?.[0];
+      const lastSentInvoice = allInvoices?.[0];
 
       setMetrics({
-        lifetime_revenue: lifetimeRevenue,
-        paid_count: paidInvoices?.length || 0,
-        pending_amount: pendingInvoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0,
-        pending_count: pendingInvoices?.length || 0,
-        unfulfilled_orders: unfulfilledCount || 0,
-        total_messages: messageCount || 0,
+        paid_invoices_total: paidInvoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0,
+        paid_invoices_count: paidInvoices?.length || 0,
+        pending_invoices_total: pendingInvoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0,
+        pending_invoices_count: pendingInvoices?.length || 0,
+        last_invoice_sent_date: lastSentInvoice?.created_at || null,
+        last_invoice_sent_amount: lastSentInvoice ? Number(lastSentInvoice.amount) : 0,
         last_invoice_paid_date: lastPaidInvoice?.created_at || null,
         last_invoice_paid_amount: lastPaidInvoice ? Number(lastPaidInvoice.amount) : 0,
+        unfulfilled_orders: unfulfilledCount || 0,
         average_fulfillment_days: avgFulfillmentDays,
+        total_messages: messageCount || 0,
         last_interaction: lastMessage?.created_at || null
       });
     } catch (error) {
@@ -209,60 +225,76 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
         )}
 
-        {/* Financial Overview */}
-        <div className="p-4 space-y-3">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Financial Overview</h4>
+        {/* Financial Metrics */}
+        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Financial</h4>
 
-          {/* Lifetime Revenue */}
-          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center text-green-600 dark:text-green-400">
-                <DollarSign className="w-4 h-4 mr-1" />
-                <span className="text-xs font-medium">Lifetime Revenue</span>
-              </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{metrics.paid_count} invoices</span>
+          {/* Last Invoice Sent */}
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Send className="w-4 h-4 mr-2" />
+              <span className="text-xs">Last Invoice Sent</span>
             </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              ${metrics.lifetime_revenue.toFixed(2)}
-            </p>
+            <div className="text-right">
+              {metrics.last_invoice_sent_date ? (
+                <>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                    ${metrics.last_invoice_sent_amount.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDistanceToNow(new Date(metrics.last_invoice_sent_date), { addSuffix: true })}
+                  </p>
+                </>
+              ) : (
+                <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+              )}
+            </div>
           </div>
 
           {/* Last Invoice Paid */}
-          {metrics.last_invoice_paid_date && (
-            <div className="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-              <div className="flex items-center text-gray-600 dark:text-gray-400 mb-1">
-                <CheckCircle className="w-4 h-4 mr-1" />
-                <span className="text-xs font-medium">Last Invoice Paid</span>
-              </div>
-              <p className="text-lg font-bold text-gray-900 dark:text-white">
-                ${metrics.last_invoice_paid_amount.toFixed(2)}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {formatDistanceToNow(new Date(metrics.last_invoice_paid_date), { addSuffix: true })}
-              </p>
+          <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              <span className="text-xs">Last Invoice Paid</span>
             </div>
-          )}
+            <div className="text-right">
+              {metrics.last_invoice_paid_date ? (
+                <>
+                  <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                    ${metrics.last_invoice_paid_amount.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDistanceToNow(new Date(metrics.last_invoice_paid_date), { addSuffix: true })}
+                  </p>
+                </>
+              ) : (
+                <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+              )}
+            </div>
+          </div>
 
           {/* Pending Invoices */}
-          {metrics.pending_count > 0 && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-3 border border-yellow-200 dark:border-yellow-600/50">
-              <div className="flex items-center justify-between mb-1">
-                <div className="flex items-center text-yellow-600 dark:text-yellow-400">
-                  <AlertCircle className="w-4 h-4 mr-1" />
-                  <span className="text-xs font-medium">Pending Invoices</span>
-                </div>
-                <span className="text-xs text-yellow-600 dark:text-yellow-400">{metrics.pending_count}</span>
+          {metrics.pending_invoices_count > 0 && (
+            <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                <span className="text-xs">Pending Invoices</span>
               </div>
-              <p className="text-lg font-bold text-yellow-900 dark:text-yellow-100">
-                ${metrics.pending_amount.toFixed(2)}
-              </p>
+              <div className="text-right">
+                <p className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
+                  ${metrics.pending_invoices_total.toFixed(2)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {metrics.pending_invoices_count} invoice{metrics.pending_invoices_count > 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Order Metrics */}
-        <div className="px-4 pb-4 space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Order Metrics</h4>
+        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Orders</h4>
 
           {/* Unfulfilled Orders */}
           <div className="flex items-center justify-between py-2">
@@ -294,7 +326,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Communication */}
-        <div className="px-4 pb-4 space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div className="px-4 py-4 space-y-3">
           <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Communication</h4>
 
           <div className="flex items-center justify-between py-2">
@@ -308,14 +340,14 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {metrics.last_interaction && (
-            <div className="py-2 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center text-gray-600 dark:text-gray-400 mb-1">
+            <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span className="text-xs">Last Interaction</span>
               </div>
-              <p className="text-xs text-gray-900 dark:text-white ml-6">
+              <span className="text-xs text-gray-900 dark:text-white">
                 {formatDistanceToNow(new Date(metrics.last_interaction), { addSuffix: true })}
-              </p>
+              </span>
             </div>
           )}
         </div>

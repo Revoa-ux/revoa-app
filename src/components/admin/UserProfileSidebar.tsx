@@ -16,7 +16,10 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronUp,
-  ExternalLink
+  ExternalLink,
+  Send,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
@@ -43,6 +46,11 @@ interface UserStats {
   total_invoices: number;
   total_paid: number;
   total_pending: number;
+  last_invoice_sent_date: string | null;
+  last_invoice_sent_amount: number;
+  last_invoice_paid_date: string | null;
+  last_invoice_paid_amount: number;
+  unfulfilled_orders: number;
 
   // Shopify store
   store_url: string | null;
@@ -97,17 +105,38 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('user_id', userId)
         .maybeSingle();
 
-      // Fetch invoices with payment intents to get platform fees
-      const { data: invoices } = await supabase
-        .from('invoices')
-        .select('amount, status, paid_at, metadata, created_at')
-        .eq('user_id', userId);
+      // Fetch payment intents for invoices
+      const { data: paidInvoices } = await supabase
+        .from('payment_intents')
+        .select('amount, created_at')
+        .eq('user_id', userId)
+        .eq('status', 'succeeded')
+        .order('created_at', { ascending: false });
 
-      const paidInvoices = invoices?.filter(i => i.status === 'paid') || [];
-      const totalPaid = paidInvoices.reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0);
-      const totalPending = invoices
-        ?.filter(i => i.status === 'pending')
-        .reduce((sum, i) => sum + parseFloat(i.amount || '0'), 0) || 0;
+      const { data: pendingInvoices } = await supabase
+        .from('payment_intents')
+        .select('amount, created_at')
+        .eq('user_id', userId)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      const { data: allInvoices } = await supabase
+        .from('payment_intents')
+        .select('amount, created_at, status')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      const totalPaid = paidInvoices?.reduce((sum, i) => sum + Number(i.amount), 0) || 0;
+      const totalPending = pendingInvoices?.reduce((sum, i) => sum + Number(i.amount), 0) || 0;
+
+      // Get unfulfilled orders
+      const { count: unfulfilledCount } = await supabase
+        .from('product_quotes')
+        .select('*', { count: 'only', head: true })
+        .eq('user_id', userId)
+        .eq('status', 'accepted')
+        .is('fulfilled_at', null);
 
       // Fetch Shopify store
       const { data: shopify } = await supabase
@@ -130,39 +159,33 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('chat_id', chat?.id || '')
         .is('deleted_at', null);
 
-      // Fetch fulfillment data from invoices
-      const fulfilledInvoices = paidInvoices.filter(i => i.paid_at);
+      // Fetch fulfillment data from product quotes
+      const { data: fulfilledQuotes } = await supabase
+        .from('product_quotes')
+        .select('created_at, fulfilled_at')
+        .eq('user_id', userId)
+        .not('fulfilled_at', 'is', null);
 
       let avgFulfillmentDays: number | null = null;
       let lastFulfillmentDate: string | null = null;
-      let totalUnits = 0;
 
-      if (fulfilledInvoices.length > 0) {
-        // Calculate average fulfillment time (days between created_at and paid_at)
-        const fulfillmentDays = fulfilledInvoices
-          .filter(i => i.created_at && i.paid_at)
-          .map(i => {
-            const created = new Date(i.created_at!);
-            const paid = new Date(i.paid_at!);
-            return (paid.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-          });
+      if (fulfilledQuotes && fulfilledQuotes.length > 0) {
+        const totalDays = fulfilledQuotes.reduce((sum, quote) => {
+          const created = new Date(quote.created_at);
+          const fulfilled = new Date(quote.fulfilled_at!);
+          const days = (fulfilled.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
+          return sum + days;
+        }, 0);
+        avgFulfillmentDays = Math.round(totalDays / fulfilledQuotes.length);
 
-        if (fulfillmentDays.length > 0) {
-          avgFulfillmentDays = fulfillmentDays.reduce((sum, days) => sum + days, 0) / fulfillmentDays.length;
-        }
-
-        // Get last fulfillment date
-        const sortedByPaidDate = [...fulfilledInvoices].sort((a, b) =>
-          new Date(b.paid_at!).getTime() - new Date(a.paid_at!).getTime()
+        const sortedByFulfilled = [...fulfilledQuotes].sort((a, b) =>
+          new Date(b.fulfilled_at!).getTime() - new Date(a.fulfilled_at!).getTime()
         );
-        lastFulfillmentDate = sortedByPaidDate[0]?.paid_at || null;
-
-        // Count units from metadata
-        totalUnits = fulfilledInvoices.reduce(
-          (sum, i) => sum + (i.metadata?.units || 0),
-          0
-        );
+        lastFulfillmentDate = sortedByFulfilled[0]?.fulfilled_at || null;
       }
+
+      const lastPaidInvoice = paidInvoices?.[0];
+      const lastSentInvoice = allInvoices?.[0];
 
       setStats({
         name: profile?.name || null,
@@ -177,9 +200,14 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         onboarding_completed_at: profile?.onboarding_completed_at || null,
 
         total_transactions: parseFloat(assignment?.total_transactions || '0'),
-        total_invoices: assignment?.total_invoices || 0,
+        total_invoices: (paidInvoices?.length || 0) + (pendingInvoices?.length || 0),
         total_paid: totalPaid,
         total_pending: totalPending,
+        last_invoice_sent_date: lastSentInvoice?.created_at || null,
+        last_invoice_sent_amount: lastSentInvoice ? Number(lastSentInvoice.amount) : 0,
+        last_invoice_paid_date: lastPaidInvoice?.created_at || null,
+        last_invoice_paid_amount: lastPaidInvoice ? Number(lastPaidInvoice.amount) : 0,
+        unfulfilled_orders: unfulfilledCount || 0,
 
         store_url: shopify?.store_url || null,
         store_status: shopify?.status || null,
@@ -189,7 +217,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         total_messages: messageCount || 0,
         unread_messages: chat?.unread_count_admin || 0,
 
-        total_units_fulfilled: totalUnits,
+        total_units_fulfilled: 0,
         avg_fulfillment_days: avgFulfillmentDays,
         last_fulfillment_date: lastFulfillmentDate
       });
@@ -246,7 +274,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         {/* User Header */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-red-500 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-lg bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
               <span className="text-2xl font-medium text-white">
                 {displayName.charAt(0).toUpperCase()}
               </span>
@@ -332,60 +360,92 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           </button>
           {expandedSections.financial && (
             <div className="px-6 pb-4 space-y-3">
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 mb-2">
-                  <DollarSign className="w-4 h-4" />
-                  <span className="text-xs font-medium">Lifetime Revenue</span>
+              {/* Last Invoice Sent */}
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <Send className="w-4 h-4" />
+                  <span className="text-sm">Last Invoice Sent</span>
                 </div>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
-                  ${stats.total_paid.toLocaleString()}
-                </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">From {stats.total_invoices} paid invoices</p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <p className="text-xs text-green-600 dark:text-green-400 mb-1">Paid</p>
-                  <p className="text-base font-semibold text-green-700 dark:text-green-300">
-                    ${stats.total_paid.toLocaleString()}
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-1">Pending</p>
-                  <p className="text-base font-semibold text-yellow-700 dark:text-yellow-300">
-                    ${stats.total_pending.toLocaleString()}
-                  </p>
+                <div className="text-right">
+                  {stats.last_invoice_sent_date ? (
+                    <>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">
+                        ${stats.last_invoice_sent_amount.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatDistanceToNow(new Date(stats.last_invoice_sent_date), { addSuffix: true })}
+                      </p>
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                  )}
                 </div>
               </div>
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
-                <div className="flex items-center justify-between py-2">
+
+              {/* Last Invoice Paid */}
+              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-sm">Last Invoice Paid</span>
+                </div>
+                <div className="text-right">
+                  {stats.last_invoice_paid_date ? (
+                    <>
+                      <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                        ${stats.last_invoice_paid_amount.toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatDistanceToNow(new Date(stats.last_invoice_paid_date), { addSuffix: true })}
+                      </p>
+                    </>
+                  ) : (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Pending Invoices */}
+              {stats.total_pending > 0 && (
+                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Package className="w-4 h-4" />
-                    <span className="text-sm">Units Fulfilled</span>
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm">Pending Invoices</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
+                      ${stats.total_pending.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Unfulfilled Orders */}
+              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <Package className="w-4 h-4" />
+                  <span className="text-sm">Unfulfilled Orders</span>
+                </div>
+                <span className={`text-sm font-bold ${
+                  stats.unfulfilled_orders > 0
+                    ? 'text-orange-600 dark:text-orange-400'
+                    : 'text-gray-900 dark:text-white'
+                }`}>
+                  {stats.unfulfilled_orders}
+                </span>
+              </div>
+
+              {/* Average Fulfillment Time */}
+              {stats.avg_fulfillment_days !== null && (
+                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm">Avg Fulfillment Time</span>
                   </div>
                   <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {stats.total_units_fulfilled}
+                    {stats.avg_fulfillment_days} days
                   </span>
                 </div>
-                {stats.avg_fulfillment_days !== null && (
-                  <div className="flex items-center justify-between py-2">
-                    <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                      <Clock className="w-4 h-4" />
-                      <span className="text-sm">Avg Fulfillment Time</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {Math.round(stats.avg_fulfillment_days)} days
-                    </span>
-                  </div>
-                )}
-                {stats.last_fulfillment_date && (
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Last Fulfillment</span>
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {formatDistanceToNow(new Date(stats.last_fulfillment_date), { addSuffix: true })}
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           )}
         </div>
