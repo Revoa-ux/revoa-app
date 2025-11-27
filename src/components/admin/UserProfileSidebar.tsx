@@ -62,6 +62,8 @@ interface UserStats {
   last_interaction_at: string | null;
   total_messages: number;
   unread_messages: number;
+  typical_response_time: string | null;
+  typical_response_timezone: string | null;
 
   // Fulfillment metrics
   total_units_fulfilled: number;
@@ -163,6 +165,48 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('chat_id', chat?.id || '')
         .is('deleted_at', null);
 
+      // Get user's messages to determine typical response time
+      const { data: userMessages } = await supabase
+        .from('messages')
+        .select('created_at')
+        .eq('chat_id', chat?.id || '')
+        .eq('sender_id', userId)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      let typicalResponseTime: string | null = null;
+      let typicalResponseTimezone: string | null = null;
+
+      if (userMessages && userMessages.length >= 5) {
+        const hours = userMessages.map(msg => new Date(msg.created_at).getUTCHours());
+        const hourCounts: { [key: number]: number } = {};
+        hours.forEach(hour => {
+          hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+        });
+
+        const mostCommonHour = Object.entries(hourCounts)
+          .sort(([, a], [, b]) => b - a)[0]?.[0];
+
+        if (mostCommonHour !== undefined) {
+          const hour = parseInt(mostCommonHour);
+          const timezoneOffset = Math.round((new Date().getTimezoneOffset() / 60) * -1);
+          const localHour = (hour + timezoneOffset + 24) % 24;
+          const period = localHour >= 12 ? 'PM' : 'AM';
+          const displayHour = localHour === 0 ? 12 : localHour > 12 ? localHour - 12 : localHour;
+          typicalResponseTime = `${displayHour}:00 ${period}`;
+
+          // Detect timezone based on hour pattern (simplified)
+          if (hour >= 12 && hour <= 16) {
+            typicalResponseTimezone = 'China Time';
+          } else if (hour >= 8 && hour <= 12) {
+            typicalResponseTimezone = 'EST';
+          } else {
+            typicalResponseTimezone = 'UTC';
+          }
+        }
+      }
+
       // Fetch fulfillment data from order_line_items
       const { data: fulfilledItems } = await supabase
         .from('order_line_items')
@@ -237,6 +281,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         last_interaction_at: assignment?.last_interaction_at || chat?.last_message_at || null,
         total_messages: messageCount || 0,
         unread_messages: chat?.unread_count_admin || 0,
+        typical_response_time: typicalResponseTime,
+        typical_response_timezone: typicalResponseTimezone,
 
         total_units_fulfilled: totalUnitsFulfilled,
         fulfilled_orders: fulfilledOrdersCount,
@@ -408,7 +454,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               </div>
 
               {/* Last Invoice Paid */}
-              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">Last Invoice Paid</span>
@@ -431,7 +477,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
               {/* Pending Invoices */}
               {stats.total_pending > 0 && (
-                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between py-2">
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <AlertCircle className="w-4 h-4" />
                     <span className="text-sm">Pending Invoices</span>
@@ -445,7 +491,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               )}
 
               {/* Unfulfilled Orders */}
-              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                   <Package className="w-4 h-4" />
                   <span className="text-sm">Unfulfilled Orders</span>
@@ -460,24 +506,24 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               </div>
 
               {/* Fulfilled Orders */}
-              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">Fulfilled Orders</span>
                 </div>
-                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                <span className="text-sm font-bold text-gray-900 dark:text-white">
                   {stats.fulfilled_orders}
                 </span>
               </div>
 
               {/* Total Fulfillment Revenue */}
               {stats.total_fulfillment_revenue > 0 && (
-                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between py-2">
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <DollarSign className="w-4 h-4" />
                     <span className="text-sm">Total Fulfillment Revenue</span>
                   </div>
-                  <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
                     ${stats.total_fulfillment_revenue.toFixed(2)}
                   </span>
                 </div>
@@ -485,7 +531,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
               {/* Last Fulfilled */}
               {stats.last_fulfillment_date && (
-                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between py-2">
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <Clock className="w-4 h-4" />
                     <span className="text-sm">Last Fulfilled</span>
@@ -498,7 +544,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
               {/* Average Fulfillment Time */}
               {stats.avg_fulfillment_days !== null && (
-                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between py-2">
                   <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                     <TrendingUp className="w-4 h-4" />
                     <span className="text-sm">Avg Fulfillment Time</span>
@@ -605,6 +651,14 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <span className="text-sm text-gray-500 dark:text-gray-400">Last Interaction</span>
                   <span className="text-sm text-gray-900 dark:text-white">
                     {formatDistanceToNow(new Date(stats.last_interaction_at), { addSuffix: true })}
+                  </span>
+                </div>
+              )}
+              {stats.typical_response_time && (
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Typically Responds At</span>
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {stats.typical_response_time} {stats.typical_response_timezone}
                   </span>
                 </div>
               )}

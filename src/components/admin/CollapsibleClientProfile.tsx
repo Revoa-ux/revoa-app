@@ -37,9 +37,14 @@ interface MetricsData {
   last_invoice_paid_date: string | null;
   last_invoice_paid_amount: number;
   unfulfilled_orders: number;
+  fulfilled_orders: number;
+  total_fulfillment_revenue: number;
+  last_fulfillment_date: string | null;
   average_fulfillment_days: number;
   total_messages: number;
   last_interaction: string | null;
+  typical_response_time: string | null;
+  typical_response_timezone: string | null;
 }
 
 export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> = ({
@@ -57,9 +62,14 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
     last_invoice_paid_date: null,
     last_invoice_paid_amount: 0,
     unfulfilled_orders: 0,
+    fulfilled_orders: 0,
+    total_fulfillment_revenue: 0,
+    last_fulfillment_date: null,
     average_fulfillment_days: 0,
     total_messages: 0,
-    last_interaction: null
+    last_interaction: null,
+    typical_response_time: null,
+    typical_response_timezone: null
   });
   const [loading, setLoading] = useState(true);
 
@@ -129,22 +139,80 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         .limit(1)
         .maybeSingle();
 
-      // Calculate average fulfillment time
-      const { data: fulfilledQuotes } = await supabase
-        .from('product_quotes')
-        .select('created_at, fulfilled_at')
+      // Get user's messages to determine typical response time
+      const { data: userMessages } = await supabase
+        .from('messages')
+        .select('created_at')
         .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      let typicalResponseTime: string | null = null;
+      let typicalResponseTimezone: string | null = null;
+
+      if (userMessages && userMessages.length >= 5) {
+        const hours = userMessages.map(msg => new Date(msg.created_at).getUTCHours());
+        const hourCounts: { [key: number]: number } = {};
+        hours.forEach(hour => {
+          hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+        });
+
+        const mostCommonHour = Object.entries(hourCounts)
+          .sort(([, a], [, b]) => b - a)[0]?.[0];
+
+        if (mostCommonHour !== undefined) {
+          const hour = parseInt(mostCommonHour);
+          const timezoneOffset = Math.round((new Date().getTimezoneOffset() / 60) * -1);
+          const localHour = (hour + timezoneOffset + 24) % 24;
+          const period = localHour >= 12 ? 'PM' : 'AM';
+          const displayHour = localHour === 0 ? 12 : localHour > 12 ? localHour - 12 : localHour;
+          typicalResponseTime = `${displayHour}:00 ${period}`;
+
+          if (hour >= 12 && hour <= 16) {
+            typicalResponseTimezone = 'China Time';
+          } else if (hour >= 8 && hour <= 12) {
+            typicalResponseTimezone = 'EST';
+          } else {
+            typicalResponseTimezone = 'UTC';
+          }
+        }
+      }
+
+      // Fetch fulfillment data from order_line_items
+      const { data: fulfilledItems } = await supabase
+        .from('order_line_items')
+        .select('quantity, total_cost, fulfilled_at, created_at')
+        .eq('user_id', userId)
+        .eq('fulfillment_status', 'fulfilled')
         .not('fulfilled_at', 'is', null);
 
       let avgFulfillmentDays = 0;
-      if (fulfilledQuotes && fulfilledQuotes.length > 0) {
-        const totalDays = fulfilledQuotes.reduce((sum, quote) => {
-          const created = new Date(quote.created_at);
-          const fulfilled = new Date(quote.fulfilled_at!);
+      let totalUnitsFulfilled = 0;
+      let fulfilledOrdersCount = 0;
+      let totalFulfillmentRevenue = 0;
+      let lastFulfillmentDate: string | null = null;
+
+      if (fulfilledItems && fulfilledItems.length > 0) {
+        totalUnitsFulfilled = fulfilledItems.reduce((sum, item) => sum + item.quantity, 0);
+        totalFulfillmentRevenue = fulfilledItems.reduce((sum, item) => sum + Number(item.total_cost), 0);
+
+        const uniqueOrders = new Set(
+          fulfilledItems.map(item => new Date(item.fulfilled_at!).toISOString())
+        );
+        fulfilledOrdersCount = uniqueOrders.size;
+
+        const totalDays = fulfilledItems.reduce((sum, item) => {
+          const created = new Date(item.created_at);
+          const fulfilled = new Date(item.fulfilled_at!);
           const days = (fulfilled.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
           return sum + days;
         }, 0);
-        avgFulfillmentDays = Math.round(totalDays / fulfilledQuotes.length);
+        avgFulfillmentDays = Math.round(totalDays / fulfilledItems.length);
+
+        const sortedByFulfilled = [...fulfilledItems].sort((a, b) =>
+          new Date(b.fulfilled_at!).getTime() - new Date(a.fulfilled_at!).getTime()
+        );
+        lastFulfillmentDate = sortedByFulfilled[0]?.fulfilled_at || null;
       }
 
       const lastPaidInvoice = paidInvoices?.[0];
@@ -160,9 +228,14 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         last_invoice_paid_date: lastPaidInvoice?.created_at || null,
         last_invoice_paid_amount: lastPaidInvoice ? Number(lastPaidInvoice.amount) : 0,
         unfulfilled_orders: unfulfilledCount || 0,
+        fulfilled_orders: fulfilledOrdersCount,
+        total_fulfillment_revenue: totalFulfillmentRevenue,
+        last_fulfillment_date: lastFulfillmentDate,
         average_fulfillment_days: avgFulfillmentDays,
         total_messages: messageCount || 0,
-        last_interaction: lastMessage?.created_at || null
+        last_interaction: lastMessage?.created_at || null,
+        typical_response_time: typicalResponseTime,
+        typical_response_timezone: typicalResponseTimezone
       });
     } catch (error) {
       console.error('Error loading profile:', error);
@@ -311,18 +384,55 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             </span>
           </div>
 
-          {/* Average Fulfillment Time */}
-          <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+          {/* Fulfilled Orders */}
+          <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              <span className="text-xs">Avg Fulfillment Time</span>
+              <CheckCircle className="w-4 h-4 mr-2" />
+              <span className="text-xs">Fulfilled Orders</span>
             </div>
             <span className="text-sm font-bold text-gray-900 dark:text-white">
-              {metrics.average_fulfillment_days > 0
-                ? `${metrics.average_fulfillment_days} days`
-                : 'N/A'}
+              {metrics.fulfilled_orders}
             </span>
           </div>
+
+          {/* Total Fulfillment Revenue */}
+          {metrics.total_fulfillment_revenue > 0 && (
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <DollarSign className="w-4 h-4 mr-2" />
+                <span className="text-xs">Total Fulfillment Revenue</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                ${metrics.total_fulfillment_revenue.toFixed(2)}
+              </span>
+            </div>
+          )}
+
+          {/* Last Fulfilled */}
+          {metrics.last_fulfillment_date && (
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Clock className="w-4 h-4 mr-2" />
+                <span className="text-xs">Last Fulfilled</span>
+              </div>
+              <span className="text-xs text-gray-900 dark:text-white">
+                {formatDistanceToNow(new Date(metrics.last_fulfillment_date), { addSuffix: true })}
+              </span>
+            </div>
+          )}
+
+          {/* Average Fulfillment Time */}
+          {metrics.average_fulfillment_days > 0 && (
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                <span className="text-xs">Avg Fulfillment Time</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                {metrics.average_fulfillment_days} days
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Communication */}
@@ -340,13 +450,25 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {metrics.last_interaction && (
-            <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Calendar className="w-4 h-4 mr-2" />
                 <span className="text-xs">Last Interaction</span>
               </div>
               <span className="text-xs text-gray-900 dark:text-white">
                 {formatDistanceToNow(new Date(metrics.last_interaction), { addSuffix: true })}
+              </span>
+            </div>
+          )}
+
+          {metrics.typical_response_time && (
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Clock className="w-4 h-4 mr-2" />
+                <span className="text-xs">Typically Responds At</span>
+              </div>
+              <span className="text-xs text-gray-900 dark:text-white">
+                {metrics.typical_response_time} {metrics.typical_response_timezone}
               </span>
             </div>
           )}
