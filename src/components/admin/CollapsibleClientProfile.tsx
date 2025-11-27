@@ -9,7 +9,10 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  Send
+  Send,
+  Store,
+  ExternalLink,
+  Phone
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -23,8 +26,13 @@ interface ProfileData {
   first_name: string | null;
   last_name: string | null;
   email: string | null;
+  phone: string | null;
   company_name: string | null;
   created_at: string;
+  last_login: string | null;
+  store_url: string | null;
+  store_status: string | null;
+  store_installed_at: string | null;
 }
 
 interface MetricsData {
@@ -84,12 +92,25 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       // Load profile
       const { data: profileData } = await supabase
         .from('user_profiles')
-        .select('first_name, last_name, email, company_name, created_at')
-        .eq('id', userId)
+        .select('first_name, last_name, email, phone, company_name, created_at, last_login')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      // Load Shopify store
+      const { data: shopifyData } = await supabase
+        .from('shopify_installations')
+        .select('store_url, status, installed_at')
+        .eq('user_id', userId)
+        .is('uninstalled_at', null)
         .maybeSingle();
 
       if (profileData) {
-        setProfile(profileData);
+        setProfile({
+          ...profileData,
+          store_url: shopifyData?.store_url || null,
+          store_status: shopifyData?.status || null,
+          store_installed_at: shopifyData?.installed_at || null
+        });
       }
 
       // Load paid invoices
@@ -287,14 +308,36 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
         </div>
 
-        {/* Company */}
-        {profile?.company_name && (
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-1">
-              <Building2 className="w-4 h-4 mr-2" />
-              <span className="text-xs font-medium">Company</span>
-            </div>
-            <p className="text-sm text-gray-900 dark:text-white ml-6">{profile.company_name}</p>
+        {/* Overview Section */}
+        {(profile?.phone || profile?.company_name || profile?.last_login) && (
+          <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
+
+            {profile?.phone && (
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Phone className="w-4 h-4 mr-2" />
+                <span className="text-xs">{profile.phone}</span>
+              </div>
+            )}
+
+            {profile?.company_name && (
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Building2 className="w-4 h-4 mr-2" />
+                <span className="text-xs">{profile.company_name}</span>
+              </div>
+            )}
+
+            {profile?.last_login && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Clock className="w-4 h-4 mr-2" />
+                  <span className="text-xs">Last Active</span>
+                </div>
+                <span className="text-xs text-gray-900 dark:text-white">
+                  {formatDistanceToNow(new Date(profile.last_login), { addSuffix: true })}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
@@ -434,6 +477,48 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             </div>
           )}
         </div>
+
+        {/* Store Section */}
+        {profile?.store_url && (
+          <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+            <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Shopify Store</h4>
+
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Store className="w-4 h-4 mr-2" />
+              <a
+                href={`https://${profile.store_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-pink-600 hover:text-pink-700 flex items-center"
+              >
+                {profile.store_url}
+                <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </div>
+
+            {profile?.store_status && (
+              <div className="flex items-center justify-between py-2">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Status</span>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  profile.store_status === 'active'
+                    ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                    : 'bg-gray-50 text-gray-700 dark:bg-gray-900/50 dark:text-gray-400'
+                }`}>
+                  {profile.store_status}
+                </span>
+              </div>
+            )}
+
+            {profile?.store_installed_at && (
+              <div className="flex items-center justify-between py-2">
+                <span className="text-xs text-gray-600 dark:text-gray-400">Connected</span>
+                <span className="text-xs text-gray-900 dark:text-white">
+                  {formatDistanceToNow(new Date(profile.store_installed_at), { addSuffix: true })}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Communication */}
         <div className="px-4 py-4 space-y-3">

@@ -80,14 +80,6 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 }) => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<{
-    [key: string]: boolean;
-  }>({
-    overview: true,
-    financial: true,
-    activity: true,
-    store: true
-  });
 
   useEffect(() => {
     fetchUserStats();
@@ -297,12 +289,6 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     }
   };
 
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
 
   if (isLoading || !stats) {
     return (
@@ -369,20 +355,9 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         <div>
 
           {/* Overview Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 relative">
-            <button
-              onClick={() => toggleSection('overview')}
-              className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Overview</span>
-            {expandedSections.overview ? (
-              <ChevronUp className="w-4 h-4 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            )}
-          </button>
-          {expandedSections.overview && (
-            <div className="px-6 pb-4 space-y-3">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Overview</h3>
+            <div className="space-y-3">
               {stats.phone && (
                 <div className="flex items-start space-x-3">
                   <Phone className="w-4 h-4 text-gray-400 mt-0.5" />
@@ -413,24 +388,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
 
           {/* Financial Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 relative">
-          <button
-            onClick={() => toggleSection('financial')}
-            className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          >
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Financial</span>
-            {expandedSections.financial ? (
-              <ChevronUp className="w-4 h-4 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            )}
-          </button>
-          {expandedSections.financial && (
-            <div className="px-6 pb-4 space-y-3">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Financial</h3>
+            <div className="space-y-3">
               {/* Last Invoice Sent */}
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -555,25 +518,13 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
 
           {/* Store Section */}
           {stats.store_url && (
-            <div className="border-b border-gray-200 dark:border-gray-700 relative">
-            <button
-              onClick={() => toggleSection('store')}
-              className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-            >
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</span>
-              {expandedSections.store ? (
-                <ChevronUp className="w-4 h-4 text-gray-400" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-gray-400" />
-              )}
-            </button>
-            {expandedSections.store && (
-              <div className="px-6 pb-4 space-y-3">
+            <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+              <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Shopify Store</h3>
+              <div className="space-y-3">
                 <div className="flex items-start space-x-3">
                   <Store className="w-4 h-4 text-gray-400 mt-0.5" />
                   <div className="flex-1">
@@ -610,25 +561,13 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </div>
                 )}
               </div>
-            )}
             </div>
           )}
 
           {/* Activity Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 relative">
-          <button
-            onClick={() => toggleSection('activity')}
-            className="w-full px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          >
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Activity</span>
-            {expandedSections.activity ? (
-              <ChevronUp className="w-4 h-4 text-gray-400" />
-            ) : (
-              <ChevronDown className="w-4 h-4 text-gray-400" />
-            )}
-          </button>
-          {expandedSections.activity && (
-            <div className="px-6 pb-4 space-y-3">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Activity</h3>
+            <div className="space-y-3">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                   <MessageSquare className="w-4 h-4" />
@@ -663,7 +602,6 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 </div>
               )}
             </div>
-          )}
           </div>
         </div>
       </div>
