@@ -65,6 +65,8 @@ interface UserStats {
 
   // Fulfillment metrics
   total_units_fulfilled: number;
+  fulfilled_orders: number;
+  total_fulfillment_revenue: number;
   avg_fulfillment_days: number | null;
   last_fulfillment_date: string | null;
 }
@@ -161,26 +163,43 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('chat_id', chat?.id || '')
         .is('deleted_at', null);
 
-      // Fetch fulfillment data from product quotes
-      const { data: fulfilledQuotes } = await supabase
-        .from('product_quotes')
-        .select('created_at, fulfilled_at')
+      // Fetch fulfillment data from order_line_items
+      const { data: fulfilledItems } = await supabase
+        .from('order_line_items')
+        .select('quantity, total_cost, fulfilled_at, created_at')
         .eq('user_id', userId)
+        .eq('fulfillment_status', 'fulfilled')
         .not('fulfilled_at', 'is', null);
 
+      // Calculate fulfillment metrics
       let avgFulfillmentDays: number | null = null;
       let lastFulfillmentDate: string | null = null;
+      let totalUnitsFulfilled = 0;
+      let fulfilledOrdersCount = 0;
+      let totalFulfillmentRevenue = 0;
 
-      if (fulfilledQuotes && fulfilledQuotes.length > 0) {
-        const totalDays = fulfilledQuotes.reduce((sum, quote) => {
-          const created = new Date(quote.created_at);
-          const fulfilled = new Date(quote.fulfilled_at!);
+      if (fulfilledItems && fulfilledItems.length > 0) {
+        // Calculate total units and revenue
+        totalUnitsFulfilled = fulfilledItems.reduce((sum, item) => sum + item.quantity, 0);
+        totalFulfillmentRevenue = fulfilledItems.reduce((sum, item) => sum + Number(item.total_cost), 0);
+
+        // Count unique orders (group by date/time)
+        const uniqueOrders = new Set(
+          fulfilledItems.map(item => new Date(item.fulfilled_at!).toISOString())
+        );
+        fulfilledOrdersCount = uniqueOrders.size;
+
+        // Calculate average fulfillment days
+        const totalDays = fulfilledItems.reduce((sum, item) => {
+          const created = new Date(item.created_at);
+          const fulfilled = new Date(item.fulfilled_at!);
           const days = (fulfilled.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
           return sum + days;
         }, 0);
-        avgFulfillmentDays = Math.round(totalDays / fulfilledQuotes.length);
+        avgFulfillmentDays = Math.round(totalDays / fulfilledItems.length);
 
-        const sortedByFulfilled = [...fulfilledQuotes].sort((a, b) =>
+        // Get most recent fulfillment date
+        const sortedByFulfilled = [...fulfilledItems].sort((a, b) =>
           new Date(b.fulfilled_at!).getTime() - new Date(a.fulfilled_at!).getTime()
         );
         lastFulfillmentDate = sortedByFulfilled[0]?.fulfilled_at || null;
@@ -219,7 +238,9 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         total_messages: messageCount || 0,
         unread_messages: chat?.unread_count_admin || 0,
 
-        total_units_fulfilled: 0,
+        total_units_fulfilled: totalUnitsFulfilled,
+        fulfilled_orders: fulfilledOrdersCount,
+        total_fulfillment_revenue: totalFulfillmentRevenue,
         avg_fulfillment_days: avgFulfillmentDays,
         last_fulfillment_date: lastFulfillmentDate
       });
@@ -437,6 +458,43 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   {stats.unfulfilled_orders}
                 </span>
               </div>
+
+              {/* Fulfilled Orders */}
+              <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-sm">Fulfilled Orders</span>
+                </div>
+                <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                  {stats.fulfilled_orders}
+                </span>
+              </div>
+
+              {/* Total Fulfillment Revenue */}
+              {stats.total_fulfillment_revenue > 0 && (
+                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                    <DollarSign className="w-4 h-4" />
+                    <span className="text-sm">Total Fulfillment Revenue</span>
+                  </div>
+                  <span className="text-sm font-bold text-green-600 dark:text-green-400">
+                    ${stats.total_fulfillment_revenue.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {/* Last Fulfilled */}
+              {stats.last_fulfillment_date && (
+                <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span className="text-sm">Last Fulfilled</span>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDistanceToNow(new Date(stats.last_fulfillment_date), { addSuffix: true })}
+                  </span>
+                </div>
+              )}
 
               {/* Average Fulfillment Time */}
               {stats.avg_fulfillment_days !== null && (
