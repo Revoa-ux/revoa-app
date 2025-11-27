@@ -22,7 +22,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
-          <div className="relative rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+          <div className="relative rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
             <UserProfileSidebar userId={userId} onClose={onClose} />
           </div>
         </div>

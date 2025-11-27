@@ -99,6 +99,20 @@ export const InventorySkeleton = () => (
   </div>
 );
 
+export const ConversationListSkeleton = () => (
+  <div className="space-y-1 p-2 animate-pulse">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className="flex items-center space-x-3 p-3 rounded-lg">
+        <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex-shrink-0"></div>
+        <div className="flex-1 space-y-2">
+          <div className="h-3 w-3/4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-2 w-1/2 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export const ChatSkeleton = () => (
   <div className="space-y-6 animate-pulse">
     <div className="h-8 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -107,8 +121,8 @@ export const ChatSkeleton = () => (
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
             <div className={`w-2/3 h-16 ${
-              i % 2 === 0 
-                ? 'bg-gray-200 dark:bg-gray-700 ml-auto' 
+              i % 2 === 0
+                ? 'bg-gray-200 dark:bg-gray-700 ml-auto'
                 : 'bg-gray-200 dark:bg-gray-700'
             } rounded-lg`}></div>
           </div>

@@ -31,7 +31,7 @@ import { FileUploadModal } from '@/components/chat/FileUploadModal';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
-import { LoadingSpinner } from '@/components/PageSkeletons';
+import { ConversationListSkeleton } from '@/components/PageSkeletons';
 import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientProfile';
 
 const getDateLabel = (date: Date): string => {
@@ -380,7 +380,7 @@ const AdminChat = () => {
             {!showUserProfile && (
               <div className="flex-1 overflow-y-auto">
                 {isLoading ? (
-                  <LoadingSpinner />
+                  <ConversationListSkeleton />
                 ) : chats.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-32 text-center px-4">
                     <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />

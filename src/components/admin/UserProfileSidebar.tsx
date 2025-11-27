@@ -237,7 +237,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
   if (isLoading || !stats) {
     return (
-      <div className="w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+      <div className="w-96 bg-white dark:bg-gray-800 flex flex-col h-full">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           <button onClick={onClose}>
@@ -258,7 +258,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     stats.email.split('@')[0];
 
   return (
-    <div className="w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
+    <div className="w-96 bg-white dark:bg-gray-800 flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
@@ -292,10 +292,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           </div>
         </div>
 
-        {/* Sections with vertical line */}
-        <div className="relative">
-          {/* Vertical line on left side */}
-          <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-blue-400 via-gray-300 to-gray-300 dark:from-blue-500 dark:via-gray-600 dark:to-gray-600"></div>
+        {/* Sections */}
+        <div>
 
           {/* Overview Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 relative">

@@ -154,12 +154,12 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={sortDropdownRef}>
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="px-2.5 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1"
+            className="px-2.5 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1 whitespace-nowrap min-w-[110px]"
           >
             <span className="text-gray-700 dark:text-gray-300">
               {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Sort'}
             </span>
-            <ChevronDown className="w-3 h-3 text-gray-400" />
+            <ChevronDown className="w-3 h-3 text-gray-400 flex-shrink-0" />
           </button>
 
           {showSortDropdown && (
