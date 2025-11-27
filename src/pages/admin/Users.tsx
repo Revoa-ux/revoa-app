@@ -517,6 +517,7 @@ export default function Users() {
                 setShowUserProfile(false);
                 setSelectedUserId(null);
               }}
+              showHeader={false}
             />
           </div>
         </Modal>
