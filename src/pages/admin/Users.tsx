@@ -419,10 +419,9 @@ export default function Users() {
                   </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Company/Store</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Registration</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Volume</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Volume</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Transactions</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Invoices</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Active Quotes</th>
@@ -436,7 +435,7 @@ export default function Users() {
                 ))
               ) : sortedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={9} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     No users found
                   </td>
                 </tr>
@@ -454,20 +453,19 @@ export default function Users() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {user.name || user.email.split('@')[0]}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {user.company || user.storeUrl || 'N/A'}
+                      <div>
+                        <div className="text-sm text-gray-900 dark:text-white">
+                          {user.name || user.email.split('@')[0]}
+                        </div>
+                        {(user.company || user.storeUrl) && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {user.company || user.storeUrl}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-                      ${user.volume.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
                       {user.assignedTo ? (
@@ -475,6 +473,9 @@ export default function Users() {
                       ) : (
                         <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+                      ${user.volume.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.transactions.toLocaleString()}
