@@ -17,8 +17,7 @@ import {
   User,
   X,
   Reply,
-  ChevronLeft,
-  ChevronRight
+  Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -330,34 +329,64 @@ const AdminChat = () => {
         </div>
 
         <div className="flex flex-col h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-          {/* Unified Top Bar - Filters + Actions + User Info */}
+          {/* Unified Top Bar - Filters + User Info */}
           {selectedChat && (
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              {/* Left: Filters + Action Buttons */}
-              <div className="flex items-center space-x-3 flex-1 mr-6">
+              {/* Left: Filters */}
+              <div className="flex-1 mr-6">
                 <ConversationFilters
                   filters={conversationFilters}
                   onFiltersChange={setConversationFilters}
                   searchTerm={conversationSearch}
                   onSearchChange={setConversationSearch}
                 />
+              </div>
 
-                {/* Action Buttons next to filters */}
-                <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+              {/* Right: User Info + Actions */}
+              <div className="flex items-center space-x-4 flex-shrink-0">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                    {userName !== 'User' ? (
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      </span>
+                    ) : (
+                      <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500" title="User's current time">
+                      {getUserCurrentTime()}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowUserProfile(!showUserProfile)}
+                    className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                      showUserProfile
+                        ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    }`}
+                    title="View client profile"
+                  >
+                    <Info className="w-5 h-5" />
+                  </button>
                   <button
                     onClick={() => setShowSearchModal(true)}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    title="Search messages"
                   >
-                    <Search className="w-4 h-4" />
+                    <Search className="w-5 h-5" />
                   </button>
                   <div className="relative" ref={moreMenuRef}>
                     <button
                       onClick={() => setShowMoreMenu(!showMoreMenu)}
                       className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                      title="More options"
                     >
-                      <MoreHorizontal className="w-4 h-4" />
+                      <MoreHorizontal className="w-5 h-5" />
                     </button>
                     {showMoreMenu && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
@@ -387,40 +416,6 @@ const AdminChat = () => {
                           Delete
                         </button>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: User Info with Chevron Toggle */}
-              <div className="flex items-center space-x-3 flex-shrink-0">
-                <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
-                    showUserProfile
-                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  title={showUserProfile ? 'Hide profile' : 'Show profile'}
-                >
-                  {showUserProfile ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-                </button>
-
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500" title="User's current time">
-                      {getUserCurrentTime()}
-                    </p>
-                  </div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-                    {userName !== 'User' ? (
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                      </span>
-                    ) : (
-                      <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     )}
                   </div>
                 </div>
