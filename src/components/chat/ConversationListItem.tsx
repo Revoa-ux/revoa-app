@@ -25,6 +25,15 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
 
   useEffect(() => {
     loadTags();
+
+    // Subscribe to tag changes for this chat
+    const subscription = conversationTagService.subscribeToTagAssignments(chat.id, () => {
+      loadTags();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [chat.id]);
 
   const loadTags = async () => {
