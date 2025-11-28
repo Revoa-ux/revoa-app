@@ -110,7 +110,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
                 href={selectedQuote.product_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:text-blue-700 flex items-center mt-1"
+                className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center mt-1"
               >
                 View Product <ExternalLink className="w-3 h-3 ml-1" />
               </a>
@@ -198,10 +198,10 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
         adminId={user.id}
         onClose={() => {
           setEditingQuote(null);
-          setSelectedQuote(null);
         }}
         onSuccess={() => {
           fetchActiveQuotes();
+          setEditingQuote(null);
         }}
       />
     );
