@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, TrendingUp, Tag } from 'lucide-react';
+import { User, TrendingUp, Tag, Archive, Flag, VolumeX } from 'lucide-react';
 import { Chat } from '@/lib/chatService';
 import { formatDistanceToNow } from 'date-fns';
 import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
@@ -133,6 +133,29 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
               {tags.length > 2 && (
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400">
                   +{tags.length - 2}
+                </span>
+              )}
+            </div>
+          )}
+
+          {(chat.is_archived || chat.is_flagged || chat.is_muted) && (
+            <div className="flex items-center gap-2 mb-2">
+              {chat.is_archived && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                  <Archive className="w-3 h-3" />
+                  Archived
+                </span>
+              )}
+              {chat.is_flagged && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+                  <Flag className="w-3 h-3" />
+                  Flagged
+                </span>
+              )}
+              {chat.is_muted && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400">
+                  <VolumeX className="w-3 h-3" />
+                  Muted
                 </span>
               )}
             </div>
