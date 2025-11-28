@@ -310,8 +310,8 @@ const AdminChat = () => {
     return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
-  const displayName = companyName || userName;
-  const displayEmail = storeUrl || userEmail;
+  // Display company/store name instead of email
+  const displaySecondaryLine = companyName || storeUrl || userEmail;
 
   return (
     <div className="p-8">
@@ -433,11 +433,11 @@ const AdminChat = () => {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{displayName}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{displayEmail}</p>
+                  <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
                   <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                     <span title="User's current time">
-                      {getUserCurrentTime()} their time
+                      User's Current Time: {getUserCurrentTime()}
                     </span>
                     {totalTransactions > 0 && (
                       <span title="Total transaction volume">

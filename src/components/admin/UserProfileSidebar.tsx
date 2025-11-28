@@ -387,6 +387,22 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </div>
                 </div>
               )}
+              <div className="flex items-start space-x-3">
+                <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">User's Current Time</p>
+                  <p className="text-sm text-gray-900 dark:text-white">
+                    {(() => {
+                      const now = new Date();
+                      const hours = now.getUTCHours();
+                      const minutes = now.getMinutes();
+                      const period = hours >= 12 ? 'PM' : 'AM';
+                      const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                      return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+                    })()}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 

@@ -309,37 +309,52 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Overview Section */}
-        {(profile?.phone || profile?.company_name || profile?.last_login) && (
-          <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
-            <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
+        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
 
-            {profile?.phone && (
+          {profile?.phone && (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Phone className="w-4 h-4 mr-2" />
+              <span className="text-xs">{profile.phone}</span>
+            </div>
+          )}
+
+          {profile?.company_name && (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Building2 className="w-4 h-4 mr-2" />
+              <span className="text-xs">{profile.company_name}</span>
+            </div>
+          )}
+
+          {profile?.last_login && (
+            <div className="flex items-center justify-between">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Phone className="w-4 h-4 mr-2" />
-                <span className="text-xs">{profile.phone}</span>
+                <Clock className="w-4 h-4 mr-2" />
+                <span className="text-xs">Last Active</span>
               </div>
-            )}
+              <span className="text-xs text-gray-900 dark:text-white">
+                {formatDistanceToNow(new Date(profile.last_login), { addSuffix: true })}
+              </span>
+            </div>
+          )}
 
-            {profile?.company_name && (
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Building2 className="w-4 h-4 mr-2" />
-                <span className="text-xs">{profile.company_name}</span>
-              </div>
-            )}
-
-            {profile?.last_login && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4 mr-2" />
-                  <span className="text-xs">Last Active</span>
-                </div>
-                <span className="text-xs text-gray-900 dark:text-white">
-                  {formatDistanceToNow(new Date(profile.last_login), { addSuffix: true })}
-                </span>
-              </div>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4 mr-2" />
+              <span className="text-xs">User's Current Time</span>
+            </div>
+            <span className="text-xs text-gray-900 dark:text-white">
+              {(() => {
+                const now = new Date();
+                const hours = now.getUTCHours();
+                const minutes = now.getMinutes();
+                const period = hours >= 12 ? 'PM' : 'AM';
+                const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+              })()}
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Financial Metrics */}
         <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
