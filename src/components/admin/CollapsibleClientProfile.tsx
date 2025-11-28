@@ -472,10 +472,10 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 <span className="text-xs">Active Quotes</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-blue-600 dark:text-blue-400">
+                <span className="text-sm text-red-600 dark:text-red-400">
                   {activeQuotesCount}
                 </span>
-                <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-red-500 transition-colors" />
               </div>
             </button>
           </div>

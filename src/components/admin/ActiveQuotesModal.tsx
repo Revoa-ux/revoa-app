@@ -171,7 +171,7 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => setEditingQuote(selectedQuote)}
-              className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
             >
               <Edit className="w-4 h-4" />
               <span>Edit Quote</span>

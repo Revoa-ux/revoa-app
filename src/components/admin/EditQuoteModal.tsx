@@ -342,7 +342,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           <button
             onClick={handleSave}
             disabled={!hasChanges || isSaving}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
             <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>

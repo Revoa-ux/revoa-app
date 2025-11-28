@@ -165,9 +165,9 @@ export const QuoteComparisonModal: React.FC<QuoteComparisonModalProps> = ({
     <Modal isOpen={true} onClose={onClose} title={`Review Quote Changes: ${quote.product_name}`}>
       <div className="space-y-6">
         {/* Edit Info */}
-        <div className="flex items-start space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <AlertTriangle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-blue-800 dark:text-blue-200">
+        <div className="flex items-start space-x-3 p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg border border-gray-200 dark:border-gray-700">
+          <AlertTriangle className="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0 mt-0.5" />
+          <div className="text-sm text-gray-800 dark:text-gray-200">
             <p className="font-medium mb-1">
               {editorName} updated this quote {quote.last_edited_at && formatDistanceToNow(new Date(quote.last_edited_at), { addSuffix: true })}
             </p>

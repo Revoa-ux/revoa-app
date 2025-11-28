@@ -407,8 +407,8 @@ export default function Users() {
         <div className="relative overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-                <th className="px-6 py-3 text-left first:rounded-tl-xl">
+              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 first:rounded-tl-xl">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -418,13 +418,14 @@ export default function Users() {
                     />
                   </div>
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Company/Store</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Registration</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Volume</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Transactions</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Invoices</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Active Quotes</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Active Quotes</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
@@ -435,13 +436,13 @@ export default function Users() {
                 ))
               ) : sortedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={10} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     No users found
                   </td>
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <input
@@ -453,8 +454,13 @@ export default function Users() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-gray-900 dark:text-white">
-                        {user.company || user.storeUrl || user.name || 'N/A'}
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {user.name || user.email.split('@')[0]}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {user.company || user.storeUrl || 'N/A'}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -478,7 +484,7 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.activeQuotes > 0 ? (
-                        <span className="text-blue-600 dark:text-blue-400">
+                        <span className="text-red-600 dark:text-red-400">
                           {user.activeQuotes}
                         </span>
                       ) : (
