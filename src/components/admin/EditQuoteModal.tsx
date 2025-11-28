@@ -139,7 +139,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   );
 
   return (
-    <Modal isOpen={true} onClose={onClose} title={`Edit Quote: ${quoteName}`}>
+    <Modal isOpen={true} onClose={onClose} title={`Edit Quote: ${quoteName}`} maxWidth="max-w-5xl">
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <div className="flex items-start space-x-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
           <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
@@ -203,7 +203,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             onChange={(e) => setEditReason(e.target.value)}
             placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-rose-500 dark:focus:border-rose-400"
           />
         </div>
 

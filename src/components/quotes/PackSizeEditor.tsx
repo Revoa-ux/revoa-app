@@ -105,7 +105,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
             value={packSize}
             onChange={(e) => onPackSizeChange(parseInt(e.target.value) || 1)}
             disabled={disabled}
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
           />
         </div>
         <div>
@@ -118,7 +118,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
             onChange={(e) => onSkuPrefixChange(e.target.value)}
             disabled={disabled}
             placeholder="e.g., SUN-SINGLE or SUN-5PACK"
-            className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
           />
         </div>
       </div>
@@ -178,7 +178,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                       value={variant.sku}
                       onChange={(e) => updateVariant(index, { sku: e.target.value })}
                       disabled={disabled}
-                      className="w-full px-3 py-2 text-sm font-mono bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                      className="w-full px-3 py-2 text-sm font-mono bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
                     />
                   </div>
 
@@ -196,7 +196,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                         value={variant.costPerItem}
                         onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) || 0 })}
                         disabled={disabled}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                     <button
                       type="button"
                       onClick={() => setExpandedShipping(expandedShipping === index ? null : index)}
-                      className="w-full flex items-center justify-between text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-2"
+                      className="w-full flex items-center justify-between text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors mb-2"
                     >
                       <div className="flex items-center space-x-2">
                         <Globe className="w-3.5 h-3.5" />
@@ -301,20 +301,20 @@ export const PackSizeEditor: React.FC<PackSizeEditorProps> = ({
                 value={newAttribute.name}
                 onChange={(e) => setNewAttribute({ ...newAttribute, name: e.target.value })}
                 placeholder="Attribute (e.g., Color)"
-                className="w-1/3 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-1/3 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <input
                 type="text"
                 value={newAttribute.value}
                 onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })}
                 placeholder="Value (e.g., White)"
-                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <button
                 type="button"
                 onClick={addFinalVariant}
                 disabled={!newAttribute.name.trim() || !newAttribute.value.trim()}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 <Plus className="w-4 h-4" />
               </button>
