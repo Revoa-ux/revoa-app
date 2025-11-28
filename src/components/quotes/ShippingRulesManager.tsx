@@ -253,7 +253,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
           <div className="flex items-center space-x-2">
             <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-              Quantity Discounts
+              Shipping Quantity Discounts
             </h4>
           </div>
           <button
@@ -292,7 +292,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
           </div>
         ) : (
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            No quantity discounts configured. Same rate applies regardless of quantity.
+            No quantity discounts configured. Same shipping rate applies regardless of order quantity.
           </p>
         )}
 
@@ -304,7 +304,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                 min="1"
                 value={newTierMinQty}
                 onChange={(e) => setNewTierMinQty(e.target.value)}
-                placeholder="Min quantity"
+                placeholder="Min units ordered"
                 className="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
               />
               <div className="relative">
@@ -317,7 +317,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                   min="0"
                   value={newTierCost}
                   onChange={(e) => setNewTierCost(e.target.value)}
-                  placeholder="Cost"
+                  placeholder="Shipping cost"
                   className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {

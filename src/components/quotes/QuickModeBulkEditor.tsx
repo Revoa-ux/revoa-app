@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Copy, Settings, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Copy, Settings, AlertCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import { NewQuoteVariant, ShippingRules } from '@/types/quotes';
 import { ShippingRulesManager } from './ShippingRulesManager';
 import Modal from '@/components/Modal';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { toast } from 'sonner';
 
 interface QuickModeBulkEditorProps {
@@ -15,7 +16,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
   onVariantsChange
 }) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
-  const [shippingModalVariant, setShippingModalVariant] = useState<string | null>(null);
+  const [advancedSettingsVariantId, setAdvancedSettingsVariantId] = useState<string | null>(null);
 
   const addRow = () => {
     const newVariant: NewQuoteVariant = {
@@ -64,6 +65,18 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
       newSet.delete(id);
       return newSet;
     });
+  };
+
+  const moveRow = (id: string, direction: 'up' | 'down') => {
+    const index = variants.findIndex(v => v.id === id);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === variants.length - 1) return;
+
+    const newVariants = [...variants];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newVariants[index], newVariants[targetIndex]] = [newVariants[targetIndex], newVariants[index]];
+    onVariantsChange(newVariants);
   };
 
   const updateVariant = (id: string, updates: Partial<NewQuoteVariant>) => {
@@ -134,21 +147,39 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
     setSelectedRows(new Set());
   };
 
-  const selectedVariant = shippingModalVariant
-    ? variants.find(v => v.id === shippingModalVariant)
+  const selectedVariant = advancedSettingsVariantId
+    ? variants.find(v => v.id === advancedSettingsVariantId)
     : null;
 
   const allValid = variants.every(v => v.sku.trim() && v.costPerItem > 0 && v.shippingRules.default >= 0);
+
+  const getShippingDisplay = (variant: NewQuoteVariant): string => {
+    const parts: string[] = [];
+
+    parts.push(`$${variant.shippingRules.default.toFixed(2)}`);
+
+    const countryCount = Object.keys(variant.shippingRules.byCountry).length;
+    if (countryCount > 0) {
+      parts.push(`${countryCount} ${countryCount === 1 ? 'country' : 'countries'}`);
+    }
+
+    const tierCount = variant.shippingRules.byQuantity?.length || 0;
+    if (tierCount > 0) {
+      parts.push(`${tierCount} ${tierCount === 1 ? 'tier' : 'tiers'}`);
+    }
+
+    return parts.join(' • ');
+  };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Quick Mode: Bulk Editor
+            Product Variants
           </h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Add and edit variants in spreadsheet style
+            Add and configure all product variants with pricing and shipping
           </p>
         </div>
         <button
@@ -157,7 +188,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
           className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Row</span>
+          <span>Add Variant</span>
         </button>
       </div>
 
@@ -207,9 +238,9 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                 Cost per Item
               </th>
               <th className="text-left p-3 text-xs font-medium text-gray-700 dark:text-gray-300">
-                Default Shipping
+                Shipping
               </th>
-              <th className="w-24 p-3 text-xs font-medium text-gray-700 dark:text-gray-300">
+              <th className="w-32 p-3 text-xs font-medium text-gray-700 dark:text-gray-300">
                 Actions
               </th>
             </tr>
@@ -227,11 +258,9 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                   `}
                 >
                   <td className="p-3">
-                    <input
-                      type="checkbox"
+                    <CustomCheckbox
                       checked={isSelected}
                       onChange={() => toggleRowSelection(variant.id)}
-                      className="w-4 h-4 text-rose-600 rounded border-gray-300 focus:ring-rose-500"
                     />
                   </td>
                   <td className="p-3">
@@ -239,7 +268,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                       type="text"
                       value={variant.name}
                       onChange={(e) => updateVariant(variant.id, { name: e.target.value })}
-                      className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-rose-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
                       placeholder="Variant name"
                     />
                   </td>
@@ -248,13 +277,13 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                       type="text"
                       value={variant.sku}
                       onChange={(e) => updateVariant(variant.id, { sku: e.target.value })}
-                      className="w-full px-2 py-1 bg-transparent border border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-rose-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
                       placeholder="SKU-123"
                     />
                   </td>
                   <td className="p-3">
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs">
                         $
                       </span>
                       <input
@@ -263,49 +292,46 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         min="0"
                         value={variant.costPerItem || ''}
                         onChange={(e) => updateVariant(variant.id, { costPerItem: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-5 pr-2 py-1 bg-transparent border border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-rose-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
+                        className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
                         placeholder="0.00"
                       />
                     </div>
                   </td>
                   <td className="p-3">
-                    <div className="flex items-center space-x-1">
-                      <div className="relative flex-1">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-xs">
-                          $
-                        </span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={variant.shippingRules.default || ''}
-                          onChange={(e) => {
-                            const cost = parseFloat(e.target.value) || 0;
-                            updateVariant(variant.id, {
-                              shippingRules: { ...variant.shippingRules, default: cost }
-                            });
-                          }}
-                          className="w-full pl-5 pr-2 py-1 bg-transparent border border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-rose-500 rounded text-sm text-gray-900 dark:text-white focus:outline-none"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShippingModalVariant(variant.id)}
-                        className="p-1 text-gray-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors"
-                        title="Advanced shipping rules"
-                      >
-                        <Settings className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAdvancedSettingsVariantId(variant.id)}
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors text-left flex items-center justify-between group"
+                    >
+                      <span className="text-xs truncate">{getShippingDisplay(variant)}</span>
+                      <Settings className="w-4 h-4 text-gray-400 group-hover:text-rose-500 flex-shrink-0 ml-2" />
+                    </button>
                   </td>
                   <td className="p-3">
                     <div className="flex items-center justify-end space-x-1">
                       <button
                         type="button"
+                        onClick={() => moveRow(variant.id, 'up')}
+                        disabled={index === 0}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move up"
+                      >
+                        <ChevronUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveRow(variant.id, 'down')}
+                        disabled={index === variants.length - 1}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Move down"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => duplicateRow(variant.id)}
                         className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
-                        title="Duplicate row"
+                        title="Duplicate"
                       >
                         <Copy className="w-4 h-4" />
                       </button>
@@ -313,7 +339,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                         type="button"
                         onClick={() => deleteRow(variant.id)}
                         className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                        title="Delete row"
+                        title="Delete"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -327,7 +353,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
       </div>
 
       {variants.length === 0 && (
-        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+        <div className="p-8 text-center text-gray-500 dark:text-gray-400 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
           <p className="text-sm mb-4">No variants added yet</p>
           <button
             type="button"
@@ -352,7 +378,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
           <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800 flex items-start space-x-2">
             <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
             <div className="text-sm text-amber-700 dark:text-amber-300">
-              Please complete all required fields (SKU, Cost, Shipping) for all variants.
+              Please complete all required fields (Variant Name, SKU, Cost, Shipping) for all variants.
             </div>
           </div>
         )
@@ -361,19 +387,29 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
       {selectedVariant && (
         <Modal
           isOpen={true}
-          onClose={() => setShippingModalVariant(null)}
-          title={`Advanced Shipping Rules: ${selectedVariant.name}`}
+          onClose={() => setAdvancedSettingsVariantId(null)}
+          title="Advanced Settings"
+          maxWidth="max-w-2xl"
         >
+          <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="text-sm font-medium text-gray-900 dark:text-white">
+              {selectedVariant.name}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              SKU: {selectedVariant.sku || 'Not set'}
+            </div>
+          </div>
+
           <ShippingRulesManager
             rules={selectedVariant.shippingRules}
             onRulesChange={(rules) => {
               updateVariant(selectedVariant.id, { shippingRules: rules });
             }}
-            variantName={selectedVariant.name}
           />
+
           <div className="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
-              onClick={() => setShippingModalVariant(null)}
+              onClick={() => setAdvancedSettingsVariantId(null)}
               className="px-4 py-2 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
             >
               Done
