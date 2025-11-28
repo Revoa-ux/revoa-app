@@ -328,7 +328,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 <div className="space-y-2">
                   {/* Default Shipping */}
                   <div className="flex items-center space-x-2">
-                    <div className="flex-1">
+                    <div className="flex-1 flex items-center">
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         Default (All Other Countries)
                       </span>
@@ -343,7 +343,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         onChange={(e) =>
                           handleShippingCostChange(variantIndex, '_default', parseFloat(e.target.value) || 0)
                         }
-                        className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white"
+                        className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     .filter(([code]) => code !== '_default')
                     .map(([code, cost]) => (
                       <div key={code} className="flex items-center space-x-2">
-                        <div className="flex-1">
+                        <div className="flex-1 flex items-center">
                           <span className="text-xs text-gray-600 dark:text-gray-400">
                             {COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
@@ -368,12 +368,12 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                             onChange={(e) =>
                               handleShippingCostChange(variantIndex, code, parseFloat(e.target.value) || 0)
                             }
-                            className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white"
+                            className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                         <button
                           onClick={() => removeShippingCountry(variantIndex, code)}
-                          className="p-1 text-red-600 hover:text-red-700 dark:text-red-400"
+                          className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -405,7 +405,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             onChange={(e) => setEditReason(e.target.value)}
             placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+            className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent"
           />
         </div>
 

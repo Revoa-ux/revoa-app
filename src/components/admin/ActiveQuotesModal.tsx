@@ -174,10 +174,9 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
                 setEditingQuote(selectedQuote);
                 setSelectedQuote(null);
               }}
-              className="flex items-center space-x-2 px-6 py-2.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all shadow-sm hover:shadow-md"
+              className="px-6 py-2.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-all shadow-sm hover:shadow-md"
             >
-              <Edit className="w-4 h-4" />
-              <span>Edit Quote</span>
+              Edit Quote
             </button>
           </div>
         </div>
