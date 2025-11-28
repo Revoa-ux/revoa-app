@@ -25,6 +25,8 @@ interface User {
   user_id: string;
   name: string | null;
   email: string;
+  company: string | null;
+  storeUrl: string | null;
   registrationDate: string;
   transactions: number;
   invoices: number;
@@ -40,18 +42,15 @@ interface User {
 }
 
 const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
-  <tr className={`border-b border-gray-200 dark:border-gray-700 ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'}`}>
-    <td className="px-4 py-4">
+  <tr className="border-b border-gray-200 dark:border-gray-700">
+    <td className="px-6 py-4">
       <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
     </td>
-    <td className="px-4 py-4">
-      <div className="flex items-center space-x-3 animate-pulse">
-        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20"></div>
-      </div>
+    <td className="px-6 py-4">
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
     </td>
-    {Array.from({ length: 4 }).map((_, i) => (
-      <td key={i} className="px-4 py-4">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <td key={i} className="px-6 py-4">
         <div
           className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"
           style={{ animationDelay: `${i * 0.1}s` }}
@@ -106,7 +105,7 @@ export default function Users() {
       // Fetch all user profiles (non-admins only)
       const { data: profiles, error: profilesError } = await supabase
         .from('user_profiles')
-        .select('user_id, name, email, created_at, is_admin')
+        .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
         .eq('is_admin', false);
 
       if (profilesError) throw profilesError;
@@ -118,6 +117,17 @@ export default function Users() {
       }
 
       const userIds = profiles.map(p => p.user_id);
+
+      // Fetch Shopify store data
+      const { data: shopifyStores } = await supabase
+        .from('shopify_installations')
+        .select('user_id, store_url')
+        .in('user_id', userIds)
+        .is('uninstalled_at', null);
+
+      const storeMap = new Map(
+        (shopifyStores || []).map(s => [s.user_id, s.store_url])
+      );
 
       // Fetch user assignments
       const { data: assignments } = await supabase
@@ -157,11 +167,19 @@ export default function Users() {
         const assignment = assignmentMap.get(profile.user_id);
         const admin = assignment ? adminMap.get(assignment.admin_id) : null;
 
+        // Build display name from available fields
+        const displayName = profile.name ||
+          (profile.first_name && profile.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : profile.email.split('@')[0]);
+
         return {
           id: profile.user_id,
           user_id: profile.user_id,
-          name: profile.name,
+          name: displayName,
           email: profile.email,
+          company: profile.company || null,
+          storeUrl: storeMap.get(profile.user_id) || null,
           registrationDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A',
           transactions: assignment?.total_transactions || 0,
           invoices: assignment?.total_invoices || 0,
@@ -389,8 +407,8 @@ export default function Users() {
         <div className="relative overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <th className="px-4 py-4 text-left first:rounded-tl-xl">
+              <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                <th className="px-6 py-3 text-left first:rounded-tl-xl">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
@@ -400,14 +418,14 @@ export default function Users() {
                     />
                   </div>
                 </th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">User</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Registration</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Volume</th>
-                <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Invoices</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Active Quotes</th>
-                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Company/Store</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Registration</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Volume</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Transactions</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Invoices</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Active Quotes</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -417,14 +435,14 @@ export default function Users() {
                 ))
               ) : sortedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={9} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     No users found
                   </td>
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-900/30'}>
-                    <td className="px-4 py-4">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-6 py-4">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
@@ -434,39 +452,40 @@ export default function Users() {
                         />
                       </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || 'N/A'}</div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                    <td className="px-6 py-4">
+                      <div className="text-gray-900 dark:text-white">
+                        {user.company || user.storeUrl || user.name || 'N/A'}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.volume.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4">
                       {user.assignedTo ? (
                         <span className="text-sm text-gray-900 dark:text-gray-100">{user.assignedTo.name || user.assignedTo.email}</span>
                       ) : (
                         <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.transactions.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.invoices}
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.activeQuotes > 0 ? (
-                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                        <span className="text-blue-600 dark:text-blue-400">
                           {user.activeQuotes}
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">0</span>
+                        <span className="text-gray-500 dark:text-gray-400">0</span>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm relative">
                       <div className="relative flex justify-end">
                         <UserActionsMenu
                           userId={user.id}
