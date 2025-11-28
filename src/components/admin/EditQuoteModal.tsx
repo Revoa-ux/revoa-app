@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
-import { X, Trash2, AlertCircle, Globe, Save, DollarSign, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
-import { ProductVariantsEditor } from '@/components/quotes/ProductVariantsEditor';
-import { CountrySelector, COMMON_COUNTRIES } from '@/components/quotes/CountrySelector';
+import { PackSizeEditor } from '@/components/quotes/PackSizeEditor';
+import { QuoteVariant, FinalVariant } from '@/types/quotes';
 
-interface ProductAttribute {
-  name: string;
-  value: string;
-}
-
-interface QuoteVariant {
-  quantity: number;
-  sku: string;
-  attributes?: ProductAttribute[];
-  costPerItem: number;
-  shippingCosts: {
+interface LegacyQuoteVariant {
+  quantity?: number;
+  sku?: string;
+  attributes?: { name: string; value: string }[];
+  costPerItem?: number;
+  shippingCosts?: {
     [countryCode: string]: number;
     _default: number;
   };
@@ -25,12 +20,35 @@ interface QuoteVariant {
 interface EditQuoteModalProps {
   quoteId: string;
   quoteName: string;
-  currentVariants: QuoteVariant[];
+  currentVariants: (QuoteVariant | LegacyQuoteVariant)[];
   adminId: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
+function migrateLegacyVariant(legacy: LegacyQuoteVariant): QuoteVariant {
+  return {
+    packSize: legacy.quantity || 1,
+    skuPrefix: legacy.sku || '',
+    finalVariants: legacy.attributes && legacy.attributes.length > 0
+      ? [{
+          sku: legacy.sku || '',
+          attributes: legacy.attributes,
+          costPerItem: legacy.costPerItem || 0,
+          shippingCosts: legacy.shippingCosts || { _default: 0 }
+        }]
+      : [{
+          sku: legacy.sku || '',
+          attributes: [],
+          costPerItem: legacy.costPerItem || 0,
+          shippingCosts: legacy.shippingCosts || { _default: 0 }
+        }]
+  };
+}
+
+function isLegacyVariant(v: QuoteVariant | LegacyQuoteVariant): v is LegacyQuoteVariant {
+  return 'quantity' in v || 'costPerItem' in v;
+}
 
 export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   quoteId,
@@ -41,83 +59,58 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   onSuccess
 }) => {
   const [variants, setVariants] = useState<QuoteVariant[]>(
-    JSON.parse(JSON.stringify(currentVariants)) // Deep clone
+    currentVariants.map(v =>
+      isLegacyVariant(v) ? migrateLegacyVariant(v) : JSON.parse(JSON.stringify(v))
+    )
   );
   const [editReason, setEditReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [expandedShipping, setExpandedShipping] = useState<number | null>(null);
 
-  const handleVariantChange = (
-    index: number,
-    field: keyof QuoteVariant,
-    value: any
-  ) => {
-    const updated = [...variants];
-    updated[index] = { ...updated[index], [field]: value };
-    setVariants(updated);
-  };
-
-  const handleShippingCostChange = (
-    variantIndex: number,
-    countryCode: string,
-    cost: number
-  ) => {
-    const updated = [...variants];
-    updated[variantIndex] = {
-      ...updated[variantIndex],
-      shippingCosts: {
-        ...updated[variantIndex].shippingCosts,
-        [countryCode]: cost
-      }
+  const addPackOption = () => {
+    const newPack: QuoteVariant = {
+      packSize: 1,
+      skuPrefix: '',
+      finalVariants: []
     };
-    setVariants(updated);
+    setVariants([...variants, newPack]);
   };
 
-  const addShippingCountry = (variantIndex: number, countryCode: string) => {
+  const removePackOption = (index: number) => {
+    setVariants(variants.filter((_, i) => i !== index));
+  };
+
+  const updatePack = (index: number, updates: Partial<QuoteVariant>) => {
     const updated = [...variants];
-    const defaultCost = updated[variantIndex].shippingCosts._default || 0;
-    updated[variantIndex] = {
-      ...updated[variantIndex],
-      shippingCosts: {
-        ...updated[variantIndex].shippingCosts,
-        [countryCode]: defaultCost
-      }
-    };
+    updated[index] = { ...updated[index], ...updates };
     setVariants(updated);
-  };
-
-  const removeShippingCountry = (variantIndex: number, countryCode: string) => {
-    const updated = [...variants];
-    const { [countryCode]: removed, ...rest } = updated[variantIndex].shippingCosts;
-    updated[variantIndex] = {
-      ...updated[variantIndex],
-      shippingCosts: rest
-    };
-    setVariants(updated);
-  };
-
-  const getAvailableCountries = (variantIndex: number) => {
-    const usedCodes = Object.keys(variants[variantIndex].shippingCosts).filter(
-      (code) => code !== '_default'
-    );
-    return COMMON_COUNTRIES.filter((country) => !usedCodes.includes(country.code));
   };
 
   const handleSave = async () => {
-    // Validation
     if (!editReason.trim()) {
       toast.error('Please provide a reason for editing this quote');
       return;
     }
 
-    for (const variant of variants) {
-      if (variant.costPerItem <= 0) {
-        toast.error('All cost per item values must be greater than 0');
+    for (let i = 0; i < variants.length; i++) {
+      const pack = variants[i];
+      if (!pack.skuPrefix.trim()) {
+        toast.error(`Pack ${i + 1}: SKU prefix is required`);
         return;
       }
-      if (!variant.sku.trim()) {
-        toast.error('All variants must have a SKU');
+      if (pack.finalVariants.length === 0) {
+        toast.error(`Pack ${i + 1}: At least one variant is required`);
         return;
+      }
+      for (let j = 0; j < pack.finalVariants.length; j++) {
+        const finalVar = pack.finalVariants[j];
+        if (!finalVar.sku.trim()) {
+          toast.error(`Pack ${i + 1}, Variant ${j + 1}: SKU is required`);
+          return;
+        }
+        if (finalVar.costPerItem <= 0) {
+          toast.error(`Pack ${i + 1}, Variant ${j + 1}: Cost must be greater than 0`);
+          return;
+        }
       }
     }
 
@@ -125,7 +118,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
 
     const result = await editQuote({
       quoteId,
-      newVariants: variants,
+      newVariants: variants as any,
       editReason: editReason.trim(),
       adminId
     });
@@ -141,12 +134,13 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
     }
   };
 
-  const hasChanges = JSON.stringify(variants) !== JSON.stringify(currentVariants);
+  const hasChanges = JSON.stringify(variants) !== JSON.stringify(
+    currentVariants.map(v => isLegacyVariant(v) ? migrateLegacyVariant(v) : v)
+  );
 
   return (
     <Modal isOpen={true} onClose={onClose} title={`Edit Quote: ${quoteName}`}>
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-        {/* Warning Banner */}
         <div className="flex items-start space-x-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
           <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-amber-800 dark:text-amber-200">
@@ -158,171 +152,61 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           </div>
         </div>
 
-        {/* Variants */}
-        <div className="space-y-6">
-          {variants.map((variant, variantIndex) => (
+        <div className="space-y-4">
+          {variants.map((pack, packIndex) => (
             <div
-              key={variantIndex}
-              className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+              key={packIndex}
+              className="p-5 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700"
             >
-              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-4">
-                Pricing Option {variantIndex + 1}
-              </h4>
-
-              {/* STANDARDIZED LAYOUT - Matches Process Quote Modal Exactly */}
-
-              {/* SKU Input - Full width */}
-              <div className="mb-4">
-                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
-                  SKU <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={variant.sku}
-                  onChange={(e) => handleVariantChange(variantIndex, 'sku', e.target.value)}
-                  placeholder="e.g., PROD-SKU-001"
-                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Product Variants */}
-              <div className="mb-4">
-                <ProductVariantsEditor
-                  attributes={variant.attributes || []}
-                  onChange={(attributes) => handleVariantChange(variantIndex, 'attributes', attributes)}
-                />
-              </div>
-
-              {/* Cost per Item + Example Total - 2 Column Grid */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    Cost per Item <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={variant.costPerItem}
-                      onChange={(e) => handleVariantChange(variantIndex, 'costPerItem', parseFloat(e.target.value) || 0)}
-                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Example Total</label>
-                  <div className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
-                    ${(variant.costPerItem + (variant.shippingCosts._default || 0)).toFixed(2)}
-                  </div>
-                </div>
-              </div>
-
-              {/* Shipping Costs */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setExpandedShipping(expandedShipping === variantIndex ? null : variantIndex)}
-                  className="w-full flex items-center justify-between text-sm font-medium text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Globe className="w-4 h-4" />
-                    <span>Shipping Costs by Country</span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      ({Object.keys(variant.shippingCosts).length} countries)
-                    </span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${expandedShipping === variantIndex ? 'rotate-180' : ''}`} />
-                </button>
-
-                {expandedShipping === variantIndex && (
-                <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                  {/* FIX #2: Default Shipping - Reduced width to w-24 */}
-                  <div className="flex items-center space-x-2">
-                    <div className="flex-1">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Default (All Other Countries)
-                      </span>
-                    </div>
-                    <div className="relative w-24">
-                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={variant.shippingCosts._default}
-                        onChange={(e) =>
-                          handleShippingCostChange(variantIndex, '_default', parseFloat(e.target.value) || 0)
-                        }
-                        className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Country-Specific Shipping */}
-                  {/* FIX #3: Country shipping rows - Trash button on LEFT, reduced width to w-24 */}
-                  {Object.entries(variant.shippingCosts)
-                    .filter(([code]) => code !== '_default')
-                    .map(([code, cost]) => (
-                      <div key={code} className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => removeShippingCountry(variantIndex, code)}
-                          className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                        <div className="flex-1">
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            {COMMON_COUNTRIES.find((c) => c.code === code)?.name || code}
-                          </span>
-                        </div>
-                        <div className="relative w-24">
-                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
-                          <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={cost}
-                            onChange={(e) =>
-                              handleShippingCostChange(variantIndex, code, parseFloat(e.target.value) || 0)
-                            }
-                            className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          />
-                        </div>
-                      </div>
-                    ))}
-
-                  {/* Add Country */}
-                  <CountrySelector
-                    label="Add Country"
-                    availableCountries={getAvailableCountries(variantIndex)}
-                    onSelect={(code) => addShippingCountry(variantIndex, code)}
-                  />
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white">
+                  Pack Option {packIndex + 1}
+                </h4>
+                {variants.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removePackOption(packIndex)}
+                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 )}
               </div>
+
+              <PackSizeEditor
+                packSize={pack.packSize}
+                skuPrefix={pack.skuPrefix}
+                finalVariants={pack.finalVariants}
+                onPackSizeChange={(packSize) => updatePack(packIndex, { packSize })}
+                onSkuPrefixChange={(skuPrefix) => updatePack(packIndex, { skuPrefix })}
+                onFinalVariantsChange={(finalVariants) => updatePack(packIndex, { finalVariants })}
+              />
             </div>
           ))}
+
+          <button
+            type="button"
+            onClick={addPackOption}
+            className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center justify-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Another Pack Size</span>
+          </button>
         </div>
 
-        {/* Edit Reason */}
-        <div>
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
           <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
             Reason for Edit <span className="text-red-500">*</span>
           </label>
-          {/* FIX #4: Removed focus ring (focus:ring-2) completely */}
           <textarea
             value={editReason}
             onChange={(e) => setEditReason(e.target.value)}
             placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400"
           />
         </div>
 
-        {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
