@@ -92,7 +92,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
-    <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700 space-y-2">
+    <div className="px-3 py-4 border-b border-gray-200 dark:border-gray-700 space-y-2.5">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -229,7 +229,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           </button>
 
           {showTagDropdown && (
-            <div className="absolute z-[100] right-0 w-56 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute z-[100] left-auto right-[-12px] w-64 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
               {tags.length === 0 ? (
                 <div className="px-3 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
                   No tags available
