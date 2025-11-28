@@ -294,7 +294,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
           <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">OVERVIEW</h4>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
               <Calendar className="w-4 h-4 mr-2" />
               <span className="text-xs">Signed Up</span>
@@ -305,7 +305,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {profile?.store_url ? (
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-gray-600 dark:text-gray-400 py-2">
               <Store className="w-4 h-4 mr-2" />
               <a
                 href={`https://${profile.store_url}`}
@@ -318,27 +318,27 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               </a>
             </div>
           ) : (
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-gray-600 dark:text-gray-400 py-2">
               <Store className="w-4 h-4 mr-2" />
               <span className="text-xs">No store connected</span>
             </div>
           )}
 
           {profile?.phone && (
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-gray-600 dark:text-gray-400 py-2">
               <Phone className="w-4 h-4 mr-2" />
               <span className="text-xs">{profile.phone}</span>
             </div>
           )}
 
           {profile?.company_name && (
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
+            <div className="flex items-center text-gray-600 dark:text-gray-400 py-2">
               <Building2 className="w-4 h-4 mr-2" />
               <span className="text-xs">{profile.company_name}</span>
             </div>
           )}
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
               <Clock className="w-4 h-4 mr-2" />
               <span className="text-xs">Last Active</span>
