@@ -92,7 +92,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
-    <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700 space-y-2">
+    <div className="px-3 py-4 border-b border-gray-200 dark:border-gray-700 space-y-2">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -147,11 +147,11 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="relative" ref={statusDropdownRef}>
+      <div className="flex items-center gap-2 justify-between">
+        <div className="relative flex-1" ref={statusDropdownRef}>
           <button
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[120px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-full justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Filter className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -181,10 +181,10 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           )}
         </div>
 
-        <div className="relative" ref={userTypeDropdownRef}>
+        <div className="relative flex-1" ref={userTypeDropdownRef}>
           <button
             onClick={() => setShowUserTypeDropdown(!showUserTypeDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[115px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-full justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Users className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -229,7 +229,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           </button>
 
           {showTagDropdown && (
-            <div className="absolute z-[100] left-auto right-[-12px] w-64 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
               {tags.length === 0 ? (
                 <div className="px-3 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
                   No tags available
