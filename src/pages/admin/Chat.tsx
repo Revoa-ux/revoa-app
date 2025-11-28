@@ -336,34 +336,47 @@ const AdminChat = () => {
 
             {/* Collapsed view - Just avatars when profile is open */}
             {showUserProfile && (
-              <div className="flex flex-col py-4 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-700">
-                {chats.map((chat) => {
+              <div className="flex flex-col overflow-y-auto">
+                {chats.map((chat, index) => {
                   const profile = chat.user_profiles;
-                  const initials = profile?.first_name && profile?.last_name
-                    ? `${profile.first_name[0]}${profile.last_name[0]}`
-                    : profile?.email?.[0]?.toUpperCase() || 'U';
-
-                  const displayName = profile?.first_name && profile?.last_name
-                    ? `${profile.first_name} ${profile.last_name[0]}.`
+                  const userName = profile?.first_name && profile?.last_name
+                    ? `${profile.first_name} ${profile.last_name}`
                     : profile?.email?.split('@')[0] || 'User';
+
+                  const getInitials = (name: string) => {
+                    if (!name || name === 'User') {
+                      return 'U';
+                    }
+                    const parts = name.split(' ').filter(p => p.length > 0);
+                    if (parts.length >= 2) {
+                      return (parts[0][0] + parts[1][0]).toUpperCase();
+                    }
+                    return name.substring(0, 2).toUpperCase();
+                  };
+
+                  const isSelected = selectedChat?.id === chat.id;
+                  const isFirst = index === 0;
+                  const isLast = index === chats.length - 1;
 
                   return (
                     <button
                       key={chat.id}
                       onClick={() => setSelectedChat(chat)}
-                      className="flex flex-col items-center py-3 px-2 group transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700/30"
-                      title={profile?.first_name && profile?.last_name
-                        ? `${profile.first_name} ${profile.last_name}`
-                        : profile?.email || 'User'}
+                      className={`flex flex-col items-center py-3 px-2 group transition-all duration-200 border-l-4 ${
+                        isSelected
+                          ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-[#E85B81]'
+                          : 'border-l-transparent hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                      } ${
+                        isFirst ? 'pt-4' : ''
+                      } ${
+                        isLast ? 'pb-4' : ''
+                      }`}
+                      title={userName}
                     >
                       <div className="relative mb-2">
-                        <div className={`w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center transition-all ${
-                          selectedChat?.id === chat.id
-                            ? 'ring-2 ring-blue-500 dark:ring-blue-400'
-                            : 'group-hover:ring-2 group-hover:ring-gray-400 dark:group-hover:ring-gray-500'
-                        }`}>
-                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            {initials}
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E85B81] to-[#E87D55] flex items-center justify-center">
+                          <span className="text-sm font-semibold text-white">
+                            {getInitials(userName)}
                           </span>
                         </div>
                         {/* Unread indicator */}
@@ -374,11 +387,9 @@ const AdminChat = () => {
                             </span>
                           </div>
                         )}
-                        {/* Online indicator */}
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
                       </div>
                       <span className="text-xs text-gray-600 dark:text-gray-400 text-center leading-tight">
-                        {displayName}
+                        {userName.split(' ').length > 1 ? `${userName.split(' ')[0]} ${userName.split(' ')[1][0]}.` : userName}
                       </span>
                     </button>
                   );
