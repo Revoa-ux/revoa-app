@@ -342,7 +342,10 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 {displayName}
               </h3>
               {stats.store_url && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stats.store_url}</p>
+                <div className="flex items-center justify-center mt-1">
+                  <Store className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{stats.store_url}</p>
+                </div>
               )}
               <div className="flex items-center justify-center mt-2 text-xs text-gray-500 dark:text-gray-400">
                 <Calendar className="w-3 h-3 mr-1" />
@@ -369,12 +372,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 </div>
               )}
               {stats.company && (
-                <div className="flex items-start space-x-3">
-                  <Building2 className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Company</p>
-                    <p className="text-sm text-gray-900 dark:text-white">{stats.company}</p>
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                    <Building2 className="w-4 h-4 mr-2" />
+                    <span className="text-xs">Company</span>
                   </div>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.company}</span>
                 </div>
               )}
               {stats.last_login && (
@@ -388,28 +391,28 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </div>
                 </div>
               )}
-              <div className="flex items-start space-x-3">
-                <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">User's Current Time</p>
-                  <p className="text-sm text-gray-900 dark:text-white">
-                    {(() => {
-                      const now = new Date();
-                      const hours = now.getUTCHours();
-                      const minutes = now.getMinutes();
-                      const period = hours >= 12 ? 'PM' : 'AM';
-                      const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                      return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
-                    })()}
-                  </p>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Clock className="w-4 h-4 mr-2" />
+                  <span className="text-xs">User's Current Time</span>
                 </div>
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {(() => {
+                    const now = new Date();
+                    const hours = now.getUTCHours();
+                    const minutes = now.getMinutes();
+                    const period = hours >= 12 ? 'PM' : 'AM';
+                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+                  })()}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Financial Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#EA6B78]/30">FINANCIAL</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#EC7070]/30">FINANCIAL</h3>
             <div className="space-y-2">
               {/* Last Invoice Sent */}
               <div className="flex items-center justify-between py-2">
@@ -474,7 +477,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Orders Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87464]/30">ORDERS</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87962]/30">ORDERS</h3>
             <div className="space-y-2">
               {/* Unfulfilled Orders */}
               <div className="flex items-center justify-between py-2">
@@ -545,7 +548,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Communication Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87D55]/30">COMMUNICATION</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E88250]/30">COMMUNICATION</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">

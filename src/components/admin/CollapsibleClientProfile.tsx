@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Building2,
   DollarSign,
@@ -12,7 +12,8 @@ import {
   Send,
   Store,
   ExternalLink,
-  Phone
+  Phone,
+  ChevronDown
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -80,10 +81,35 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
     typical_response_timezone: null
   });
   const [loading, setLoading] = useState(true);
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadProfileData();
   }, [userId]);
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+        // Show indicator if there's content below (more than 50px from bottom)
+        setShowScrollIndicator(scrollHeight - scrollTop - clientHeight > 50);
+      }
+    };
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      checkScroll();
+      scrollContainer.addEventListener('scroll', checkScroll);
+      // Also check on resize
+      window.addEventListener('resize', checkScroll);
+
+      return () => {
+        scrollContainer.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [loading, profile, metrics]);
 
   const loadProfileData = async () => {
     try {
@@ -288,8 +314,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   }
 
   return (
-    <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden rounded-r-xl">
-      <div className="flex-1 overflow-y-auto">
+    <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden rounded-r-xl relative">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {/* Overview Section */}
         <div className="px-4 pb-4 space-y-2">
           <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E85B81]/30">OVERVIEW</h4>
@@ -332,9 +358,12 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           )}
 
           {profile?.company_name && (
-            <div className="flex items-center text-gray-600 dark:text-gray-400 py-2">
-              <Building2 className="w-4 h-4 mr-2" />
-              <span className="text-xs">{profile.company_name}</span>
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <Building2 className="w-4 h-4 mr-2" />
+                <span className="text-xs">Company</span>
+              </div>
+              <span className="text-xs font-medium text-gray-900 dark:text-white">{profile.company_name}</span>
             </div>
           )}
 
@@ -351,7 +380,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
         {/* Financial Metrics */}
         <div className="px-4 pb-4 space-y-2">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#EA6B78]/30">FINANCIAL</h4>
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#EC7070]/30">FINANCIAL</h4>
 
           {/* Last Invoice Sent */}
           <div className="flex items-center justify-between py-2">
@@ -418,7 +447,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
         {/* Order Metrics */}
         <div className="px-4 pb-4 space-y-2">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87464]/30">ORDERS</h4>
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87962]/30">ORDERS</h4>
 
           {/* Unfulfilled Orders */}
           <div className="flex items-center justify-between py-2">
@@ -483,7 +512,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
         {/* Communication */}
         <div className="px-4 pb-4 space-y-2">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87D55]/30">COMMUNICATION</h4>
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E88250]/30">COMMUNICATION</h4>
 
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -533,6 +562,15 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
         </div>
       </div>
+
+      {/* Scroll Indicator */}
+      {showScrollIndicator && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-10">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-1.5 shadow-lg animate-bounce">
+            <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
