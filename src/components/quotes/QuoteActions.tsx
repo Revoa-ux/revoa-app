@@ -58,7 +58,11 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                window.open(quote.productUrl, '_blank');
+                // Use Shopify product URL if available, otherwise use source product URL
+                const productUrl = quote.shopifyProductId && quote.shopDomain
+                  ? `https://${quote.shopDomain}/admin/products/${quote.shopifyProductId}`
+                  : quote.productUrl;
+                window.open(productUrl, '_blank');
                 setShowMenu(false);
               }}
               className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"

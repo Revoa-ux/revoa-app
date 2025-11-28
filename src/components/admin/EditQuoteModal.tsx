@@ -4,10 +4,17 @@ import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { ProductAttributesEditor } from '@/components/quotes/ProductAttributesEditor';
+
+interface ProductAttribute {
+  name: string;
+  value: string;
+}
 
 interface QuoteVariant {
   quantity: number;
   sku: string;
+  attributes?: ProductAttribute[];
   costPerItem: number;
   shippingCosts: {
     [countryCode: string]: number;
@@ -312,6 +319,14 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
+              </div>
+
+              {/* Product Attributes */}
+              <div className="mb-4">
+                <ProductAttributesEditor
+                  attributes={variant.attributes || []}
+                  onChange={(attributes) => handleVariantChange(variantIndex, 'attributes', attributes)}
+                />
               </div>
 
               {/* Shipping Costs */}

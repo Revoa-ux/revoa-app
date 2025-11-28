@@ -17,10 +17,17 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
+import { ProductAttributesEditor } from '@/components/quotes/ProductAttributesEditor';
+
+interface ProductAttribute {
+  name: string;
+  value: string;
+}
 
 interface QuoteVariant {
   quantity: number;
   sku: string;
+  attributes?: ProductAttribute[];
   costPerItem: number;
   shippingCosts: {
     [countryCode: string]: number;
@@ -163,9 +170,9 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
   onSubmit
 }) => {
   const [variants, setVariants] = useState<QuoteVariant[]>([
-    { quantity: 1, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } },
-    { quantity: 2, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } },
-    { quantity: 3, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } }
+    { quantity: 1, sku: '', attributes: [], costPerItem: 0, shippingCosts: { _default: 5.0 } },
+    { quantity: 2, sku: '', attributes: [], costPerItem: 0, shippingCosts: { _default: 5.0 } },
+    { quantity: 3, sku: '', attributes: [], costPerItem: 0, shippingCosts: { _default: 5.0 } }
   ]);
   const [expandedShipping, setExpandedShipping] = useState<number | null>(null);
 
@@ -184,7 +191,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
     setVariants(prev => [
       ...prev,
-      { quantity: customQuantity, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } }
+      { quantity: customQuantity, sku: '', attributes: [], costPerItem: 0, shippingCosts: { _default: 5.0 } }
     ]);
     setCustomQuantity(0);
   };
@@ -339,6 +346,14 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                     onChange={(e) => updateVariant(index, { sku: e.target.value })}
                     placeholder="e.g., PROD-SKU-001"
                     className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Product Attributes */}
+                <div className="mb-4">
+                  <ProductAttributesEditor
+                    attributes={variant.attributes || []}
+                    onChange={(attributes) => updateVariant(index, { attributes })}
                   />
                 </div>
 

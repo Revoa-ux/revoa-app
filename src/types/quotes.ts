@@ -1,8 +1,19 @@
+export interface ProductAttribute {
+  name: string;   // e.g., "Size", "Color", "Material"
+  value: string;  // e.g., "Large", "Red", "Cotton"
+}
+
 export interface QuoteVariant {
   quantity: number;
+  sku?: string;
+  attributes?: ProductAttribute[];  // Product variants (size, color, etc.)
   costPerItem: number;
   shippingCost: number;
   totalCost: number;
+  shippingCosts?: {
+    [countryCode: string]: number;
+    _default: number;
+  };
 }
 
 export interface Quote {

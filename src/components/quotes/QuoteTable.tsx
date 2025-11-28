@@ -3,6 +3,7 @@ import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown } from 'luc
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
+import { ProductAttributesBadge } from './ProductAttributesBadge';
 
 interface QuoteTableProps {
   quotes: Quote[];
@@ -106,12 +107,19 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                 </tr>
                 {quote.variants && expandedQuotes.includes(quote.id) && (
                   quote.variants.slice(1).map((variant) => (
-                    <tr 
-                      key={`${quote.id}-${variant.quantity}`} 
+                    <tr
+                      key={`${quote.id}-${variant.quantity}`}
                       className="bg-gray-50/95 dark:bg-gray-700/95 border-t border-gray-100 dark:border-gray-600"
                     >
-                      <td className="px-6 py-3 text-sm text-gray-500 dark:text-gray-400 pl-12">
-                        {variant.quantity} Pack Option
+                      <td className="px-6 py-3 pl-12">
+                        <div className="space-y-1">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {variant.quantity} Pack Option
+                          </div>
+                          {variant.attributes && variant.attributes.length > 0 && (
+                            <ProductAttributesBadge attributes={variant.attributes} />
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-3" />
                       <td className="px-6 py-3" />
