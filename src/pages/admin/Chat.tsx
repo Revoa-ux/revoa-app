@@ -320,7 +320,7 @@ const AdminChat = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row h-[calc(100vh-10rem)] sm:h-[calc(100vh-12rem)] lg:h-[calc(100vh-14rem)] mb-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col md:flex-row h-[calc(100vh-12rem)] sm:h-[calc(100vh-13rem)] lg:h-[calc(100vh-14rem)] mb-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
           <div className={`border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-t-xl md:rounded-l-xl md:rounded-tr-none overflow-hidden transition-all duration-300 ${
             showUserProfile ? 'hidden md:flex md:w-20' : 'w-full md:w-96'
