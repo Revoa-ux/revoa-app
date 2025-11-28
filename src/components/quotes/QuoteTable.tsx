@@ -60,7 +60,11 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                       </div>
                       <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <a
-                          href={quote.productUrl}
+                          href={
+                            quote.shopifyProductId && quote.shopDomain
+                              ? `https://${quote.shopDomain}/admin/products/${quote.shopifyProductId}`
+                              : quote.productUrl
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center hover:text-primary-500"

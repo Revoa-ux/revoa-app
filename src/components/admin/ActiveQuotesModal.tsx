@@ -107,7 +107,11 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
                 {selectedQuote.product_name}
               </p>
               <a
-                href={selectedQuote.product_url}
+                href={
+                  selectedQuote.shopify_product_id && selectedQuote.shop_domain
+                    ? `https://${selectedQuote.shop_domain}/admin/products/${selectedQuote.shopify_product_id}`
+                    : selectedQuote.product_url
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center mt-1"

@@ -285,7 +285,11 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           <div className="mt-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{quote.productName}</p>
             <a
-              href={quote.productUrl}
+              href={
+                quote.shopifyProductId && quote.shopDomain
+                  ? `https://${quote.shopDomain}/admin/products/${quote.shopifyProductId}`
+                  : quote.productUrl
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-primary-600 hover:text-primary-700 flex items-center mt-1"
@@ -676,7 +680,11 @@ export default function AdminQuotes() {
                   </td>
                   <td className="px-6 py-4">
                     <a
-                      href={quote.productUrl}
+                      href={
+                        quote.shopifyProductId && quote.shopDomain
+                          ? `https://${quote.shopDomain}/admin/products/${quote.shopifyProductId}`
+                          : quote.productUrl
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs text-primary-600 hover:text-primary-700 flex items-center"
