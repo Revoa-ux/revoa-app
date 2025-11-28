@@ -94,8 +94,8 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
   ].reduce((a, b) => a + b, 0);
 
   return (
-    <div className="p-3 border-b border-gray-200 dark:border-gray-700 space-y-3">
-      <div className="relative">
+    <div className="flex items-center space-x-3">
+      <div className="relative flex-1 max-w-xs">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
           type="text"
@@ -114,8 +114,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2">
           <div className="relative" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
@@ -251,20 +250,14 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             </div>
           )}
         </div>
-      </div>
 
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
-          </span>
-          <button
-            onClick={handleClearFilters}
-            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline"
-          >
-            Clear all
-          </button>
-        </div>
+        <button
+          onClick={handleClearFilters}
+          className="px-2.5 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors whitespace-nowrap"
+        >
+          Clear {activeFilterCount}
+        </button>
       )}
     </div>
   );
