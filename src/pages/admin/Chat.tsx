@@ -331,7 +331,7 @@ const AdminChat = () => {
         <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
           <div className={`border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden transition-all duration-300 ${
-            showUserProfile ? 'w-20' : 'w-80'
+            showUserProfile ? 'w-20' : 'w-96'
           }`}>
             {!showUserProfile && (
               <ConversationFilters
