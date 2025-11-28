@@ -296,64 +296,63 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Overview Section */}
-        {(profile?.created_at || profile?.store_url || profile?.phone || profile?.company_name || profile?.last_login) && (
-          <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
-            <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
+        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
 
-            {profile?.created_at && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  <span className="text-xs">Signed Up</span>
-                </div>
-                <span className="text-xs text-gray-900 dark:text-white">
-                  {Math.floor((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))} days ago
-                </span>
-              </div>
-            )}
-
-            {profile?.store_url && (
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Store className="w-4 h-4 mr-2" />
-                <a
-                  href={`https://${profile.store_url}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-pink-600 hover:text-pink-700 flex items-center"
-                >
-                  {profile.store_url}
-                  <ExternalLink className="w-3 h-3 ml-1" />
-                </a>
-              </div>
-            )}
-
-            {profile?.phone && (
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Phone className="w-4 h-4 mr-2" />
-                <span className="text-xs">{profile.phone}</span>
-              </div>
-            )}
-
-            {profile?.company_name && (
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Building2 className="w-4 h-4 mr-2" />
-                <span className="text-xs">{profile.company_name}</span>
-              </div>
-            )}
-
-            {profile?.last_login && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4 mr-2" />
-                  <span className="text-xs">Last Active</span>
-                </div>
-                <span className="text-xs text-gray-900 dark:text-white">
-                  {formatDistanceToNow(new Date(profile.last_login), { addSuffix: true })}
-                </span>
-              </div>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Calendar className="w-4 h-4 mr-2" />
+              <span className="text-xs">Signed Up</span>
+            </div>
+            <span className="text-xs text-gray-900 dark:text-white">
+              {profile?.created_at ? `${Math.floor((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))} days ago` : 'N/A'}
+            </span>
           </div>
-        )}
+
+          {profile?.store_url ? (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Store className="w-4 h-4 mr-2" />
+              <a
+                href={`https://${profile.store_url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-pink-600 hover:text-pink-700 flex items-center"
+              >
+                {profile.store_url}
+                <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </div>
+          ) : (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Store className="w-4 h-4 mr-2" />
+              <span className="text-xs">No store connected</span>
+            </div>
+          )}
+
+          {profile?.phone && (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Phone className="w-4 h-4 mr-2" />
+              <span className="text-xs">{profile.phone}</span>
+            </div>
+          )}
+
+          {profile?.company_name && (
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Building2 className="w-4 h-4 mr-2" />
+              <span className="text-xs">{profile.company_name}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4 mr-2" />
+              <span className="text-xs">Last Active</span>
+            </div>
+            <span className="text-xs text-gray-900 dark:text-white">
+              {profile?.last_login ? formatDistanceToNow(new Date(profile.last_login), { addSuffix: true }) : 'Never'}
+            </span>
+          </div>
+        </div>
 
         {/* Financial Metrics */}
         <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
@@ -453,43 +452,37 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {/* Total Fulfillment Revenue */}
-          {metrics.total_fulfillment_revenue > 0 && (
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <DollarSign className="w-4 h-4 mr-2" />
-                <span className="text-xs">Total Fulfillment Revenue</span>
-              </div>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                ${metrics.total_fulfillment_revenue.toFixed(2)}
-              </span>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <DollarSign className="w-4 h-4 mr-2" />
+              <span className="text-xs">Total Fulfillment Revenue</span>
             </div>
-          )}
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
+              ${metrics.total_fulfillment_revenue > 0 ? metrics.total_fulfillment_revenue.toFixed(2) : '0.00'}
+            </span>
+          </div>
 
           {/* Last Fulfilled */}
-          {metrics.last_fulfillment_date && (
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Clock className="w-4 h-4 mr-2" />
-                <span className="text-xs">Last Fulfilled</span>
-              </div>
-              <span className="text-xs text-gray-900 dark:text-white">
-                {formatDistanceToNow(new Date(metrics.last_fulfillment_date), { addSuffix: true })}
-              </span>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4 mr-2" />
+              <span className="text-xs">Last Fulfilled</span>
             </div>
-          )}
+            <span className="text-xs text-gray-900 dark:text-white">
+              {metrics.last_fulfillment_date ? formatDistanceToNow(new Date(metrics.last_fulfillment_date), { addSuffix: true }) : 'Never'}
+            </span>
+          </div>
 
           {/* Average Fulfillment Time */}
-          {metrics.average_fulfillment_days > 0 && (
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                <span className="text-xs">Avg Fulfillment Time</span>
-              </div>
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {metrics.average_fulfillment_days} days
-              </span>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              <span className="text-xs">Avg Fulfillment Time</span>
             </div>
-          )}
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
+              {metrics.average_fulfillment_days > 0 ? `${metrics.average_fulfillment_days} days` : 'N/A'}
+            </span>
+          </div>
         </div>
 
 
@@ -507,45 +500,42 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             </span>
           </div>
 
-          {metrics.last_interaction && (
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span className="text-xs">Last Interaction</span>
-              </div>
-              <span className="text-xs text-gray-900 dark:text-white">
-                {formatDistanceToNow(new Date(metrics.last_interaction), { addSuffix: true })}
-              </span>
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Calendar className="w-4 h-4 mr-2" />
+              <span className="text-xs">Last Interaction</span>
             </div>
-          )}
+            <span className="text-xs text-gray-900 dark:text-white">
+              {metrics.last_interaction ? formatDistanceToNow(new Date(metrics.last_interaction), { addSuffix: true }) : 'Never'}
+            </span>
+          </div>
 
-          {metrics.typical_response_time && (
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <Clock className="w-4 h-4 mr-2" />
-                <span className="text-xs">Typically Responds At</span>
-              </div>
-              <span className="text-xs text-gray-900 dark:text-white">
-                {(() => {
-                  // Convert UTC time to China Time (UTC+8)
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center text-gray-600 dark:text-gray-400">
+              <Clock className="w-4 h-4 mr-2" />
+              <span className="text-xs">Typically Responds At</span>
+            </div>
+            <span className="text-xs text-gray-900 dark:text-white">
+              {metrics.typical_response_time ? (() => {
+                try {
                   const [timeStr, period] = metrics.typical_response_time.split(' ');
                   const [hourStr] = timeStr.split(':');
                   let hour = parseInt(hourStr);
 
-                  // Convert 12-hour to 24-hour
                   if (period === 'PM' && hour !== 12) hour += 12;
                   if (period === 'AM' && hour === 12) hour = 0;
 
-                  // Add 8 hours for China Time
                   const chinaHour = (hour + 8) % 24;
                   const chinaPeriod = chinaHour >= 12 ? 'PM' : 'AM';
                   const displayHour = chinaHour === 0 ? 12 : chinaHour > 12 ? chinaHour - 12 : chinaHour;
 
                   return `${displayHour}:00 ${chinaPeriod} China Time`;
-                })()}
-              </span>
-            </div>
-          )}
+                } catch {
+                  return 'N/A';
+                }
+              })() : 'N/A'}
+            </span>
+          </div>
         </div>
       </div>
     </div>

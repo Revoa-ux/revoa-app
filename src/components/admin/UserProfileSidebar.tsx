@@ -609,14 +609,29 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </span>
                 </div>
               )}
-              {stats.typical_response_time && (
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Typically Responds At</span>
-                  <span className="text-sm text-gray-900 dark:text-white">
-                    {stats.typical_response_time} {stats.typical_response_timezone}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Typically Responds At</span>
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {stats.typical_response_time ? (() => {
+                    try {
+                      const [timeStr, period] = stats.typical_response_time.split(' ');
+                      const [hourStr] = timeStr.split(':');
+                      let hour = parseInt(hourStr);
+
+                      if (period === 'PM' && hour !== 12) hour += 12;
+                      if (period === 'AM' && hour === 12) hour = 0;
+
+                      const chinaHour = (hour + 8) % 24;
+                      const chinaPeriod = chinaHour >= 12 ? 'PM' : 'AM';
+                      const displayHour = chinaHour === 0 ? 12 : chinaHour > 12 ? chinaHour - 12 : chinaHour;
+
+                      return `${displayHour}:00 ${chinaPeriod} China Time`;
+                    } catch {
+                      return 'N/A';
+                    }
+                  })() : 'N/A'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
