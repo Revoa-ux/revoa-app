@@ -9,12 +9,24 @@ import {
   Plus,
   Minus,
   DollarSign,
-  Truck
+  Truck,
+  Globe,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
+
+interface QuoteVariant {
+  quantity: number;
+  sku: string;
+  costPerItem: number;
+  shippingCosts: {
+    [countryCode: string]: number;
+    _default: number;
+  };
+}
 
 interface Quote {
   id: string;
@@ -23,12 +35,7 @@ interface Quote {
   productName: string;
   requestDate: string;
   status: 'quote_pending' | 'quoted' | 'rejected' | 'expired' | 'accepted';
-  variants?: {
-    quantity: number;
-    costPerItem: number;
-    shippingCost: number;
-    totalCost: number;
-  }[];
+  variants?: QuoteVariant[];
   expiresIn?: number;
 }
 
@@ -38,17 +45,40 @@ interface ProcessQuoteModalProps {
   onSubmit: (quote: Quote) => void;
 }
 
+const COMMON_COUNTRIES = [
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'BE', name: 'Belgium' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'NO', name: 'Norway' },
+  { code: 'DK', name: 'Denmark' },
+  { code: 'FI', name: 'Finland' },
+  { code: 'CH', name: 'Switzerland' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'IE', name: 'Ireland' },
+  { code: 'NZ', name: 'New Zealand' },
+  { code: 'SG', name: 'Singapore' },
+  { code: 'JP', name: 'Japan' }
+];
+
 const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
   quote,
   onClose,
   onSubmit
 }) => {
-  // Initialize with fixed quantities for first 3 options
-  const [variants, setVariants] = useState<Quote['variants']>([
-    { quantity: 1, costPerItem: 0, shippingCost: 0, totalCost: 0 },
-    { quantity: 2, costPerItem: 0, shippingCost: 0, totalCost: 0 },
-    { quantity: 3, costPerItem: 0, shippingCost: 0, totalCost: 0 }
+  const [variants, setVariants] = useState<QuoteVariant[]>([
+    { quantity: 1, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } },
+    { quantity: 2, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } },
+    { quantity: 3, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } }
   ]);
+  const [expandedShipping, setExpandedShipping] = useState<number | null>(null);
 
   const [customQuantity, setCustomQuantity] = useState<number>(0);
 
@@ -58,7 +88,6 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
       return;
     }
 
-    // Check if quantity already exists
     if (variants.some(v => v.quantity === customQuantity)) {
       toast.error('This quantity already exists');
       return;
@@ -66,9 +95,9 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
     setVariants(prev => [
       ...prev,
-      { quantity: customQuantity, costPerItem: 0, shippingCost: 0, totalCost: 0 }
+      { quantity: customQuantity, sku: '', costPerItem: 0, shippingCosts: { _default: 5.0 } }
     ]);
-    setCustomQuantity(0); // Reset custom quantity input
+    setCustomQuantity(0);
   };
 
   const removeVariant = (index: number) => {
@@ -80,25 +109,71 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
     setVariants(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateVariant = (index: number, updates: Partial<Quote['variants'][0]>) => {
+  const updateVariant = (index: number, updates: Partial<QuoteVariant>) => {
     setVariants(prev => prev.map((variant, i) => {
       if (i === index) {
-        const updated = { ...variant, ...updates };
-        // Recalculate total cost
-        updated.totalCost = (updated.costPerItem + updated.shippingCost) * updated.quantity;
-        return updated;
+        return { ...variant, ...updates };
       }
       return variant;
     }));
   };
 
+  const addCountryShipping = (variantIndex: number, countryCode: string, cost: number) => {
+    setVariants(prev => prev.map((variant, i) => {
+      if (i === variantIndex) {
+        return {
+          ...variant,
+          shippingCosts: {
+            ...variant.shippingCosts,
+            [countryCode]: cost
+          }
+        };
+      }
+      return variant;
+    }));
+  };
+
+  const removeCountryShipping = (variantIndex: number, countryCode: string) => {
+    if (countryCode === '_default') {
+      toast.error('Cannot remove default shipping cost');
+      return;
+    }
+    setVariants(prev => prev.map((variant, i) => {
+      if (i === variantIndex) {
+        const newShipping = { ...variant.shippingCosts };
+        delete newShipping[countryCode];
+        return { ...variant, shippingCosts: newShipping };
+      }
+      return variant;
+    }));
+  };
+
+  const getTotalCostExample = (variant: QuoteVariant) => {
+    return (variant.costPerItem + variant.shippingCosts._default) * variant.quantity;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate all variants have SKU
+    const missingSkus = variants.filter(v => !v.sku.trim());
+    if (missingSkus.length > 0) {
+      toast.error('Please enter SKU for all variants');
+      return;
+    }
+
+    // Validate all variants have default shipping
+    const missingDefaultShipping = variants.filter(v => !v.shippingCosts._default || v.shippingCosts._default <= 0);
+    if (missingDefaultShipping.length > 0) {
+      toast.error('Please enter default shipping cost for all variants');
+      return;
+    }
+
     onSubmit({
       ...quote,
       status: 'quoted',
       variants,
-      expiresIn: 7 // 7 days expiry by default
+      expiresIn: 7
     });
   };
 
@@ -149,7 +224,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
           <div className="space-y-4">
             {variants.map((variant, index) => (
-              <div key={index} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+              <div key={index} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {variant.quantity} Unit{variant.quantity > 1 ? 's' : ''}
@@ -157,16 +232,33 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                   {index >= 3 && (
                     <button
                       onClick={() => removeVariant(index)}
-                      className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* SKU Input */}
+                <div className="mb-4">
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    SKU <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={variant.sku}
+                    onChange={(e) => updateVariant(index, { sku: e.target.value })}
+                    placeholder="e.g., PROD-SKU-001"
+                    className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Cost per Item */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Cost per Item</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      Cost per Item <span className="text-red-500">*</span>
+                    </label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <input
@@ -174,31 +266,113 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         min="0"
                         step="0.01"
                         value={variant.costPerItem}
-                        onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+                        onChange={(e) => updateVariant(index, { costPerItem: parseFloat(e.target.value) || 0 })}
+                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</label>
-                    <div className="relative">
-                      <Truck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={variant.shippingCost}
-                        onChange={(e) => updateVariant(index, { shippingCost: parseFloat(e.target.value) })}
-                        className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Example Total</label>
                     <div className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
-                      ${variant.totalCost.toFixed(2)}
+                      ${getTotalCostExample(variant).toFixed(2)}
                     </div>
                   </div>
+                </div>
+
+                {/* Shipping Costs by Country */}
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <button
+                    onClick={() => setExpandedShipping(expandedShipping === index ? null : index)}
+                    className="w-full flex items-center justify-between text-sm font-medium text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Globe className="w-4 h-4" />
+                      <span>Shipping Costs by Country</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        ({Object.keys(variant.shippingCosts).length} countries)
+                      </span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${expandedShipping === index ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {expandedShipping === index && (
+                    <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                      {/* Default Shipping */}
+                      <div>
+                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          Default (Other Countries) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Truck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={variant.shippingCosts._default || 0}
+                            onChange={(e) => {
+                              const newShipping = { ...variant.shippingCosts, _default: parseFloat(e.target.value) || 0 };
+                              updateVariant(index, { shippingCosts: newShipping });
+                            }}
+                            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Existing Country-Specific Costs */}
+                      {Object.entries(variant.shippingCosts)
+                        .filter(([code]) => code !== '_default')
+                        .map(([countryCode, cost]) => {
+                          const country = COMMON_COUNTRIES.find(c => c.code === countryCode);
+                          return (
+                            <div key={countryCode} className="flex items-center space-x-2">
+                              <div className="flex-1">
+                                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                  {country?.name || countryCode}
+                                </label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={cost}
+                                    onChange={(e) => addCountryShipping(index, countryCode, parseFloat(e.target.value) || 0)}
+                                    className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => removeCountryShipping(index, countryCode)}
+                                className="mt-5 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+
+                      {/* Add New Country */}
+                      <div>
+                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Add Country</label>
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value && !variant.shippingCosts[e.target.value]) {
+                              addCountryShipping(index, e.target.value, variant.shippingCosts._default || 5.0);
+                              e.target.value = '';
+                            }
+                          }}
+                          className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select a country...</option>
+                          {COMMON_COUNTRIES.filter(c => !variant.shippingCosts[c.code]).map(country => (
+                            <option key={country.code} value={country.code}>
+                              {country.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -294,11 +468,26 @@ export default function AdminQuotes() {
     }
   ];
 
-  const handleProcessQuote = (processedQuote: Quote) => {
-    console.log('Processing quote:', processedQuote);
-    // Update quote in state
-    toast.success('Quote processed successfully');
-    setSelectedQuote(null);
+  const handleProcessQuote = async (processedQuote: Quote) => {
+    try {
+      const { error } = await supabase
+        .from('product_quotes')
+        .update({
+          status: 'quoted',
+          variants: processedQuote.variants,
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        })
+        .eq('id', processedQuote.id);
+
+      if (error) throw error;
+
+      toast.success('Quote processed successfully');
+      setSelectedQuote(null);
+      fetchQuotes();
+    } catch (error) {
+      console.error('Error processing quote:', error);
+      toast.error('Failed to process quote');
+    }
   };
 
   const filteredQuotes = quotes.filter(quote => {
