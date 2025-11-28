@@ -254,20 +254,20 @@ export default function AdminProfileEdit() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     First Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       value={formData.first_name}
                       onChange={(e) => handleChange('first_name', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                     />
                   </div>
                   {errors.first_name && (
@@ -276,18 +276,18 @@ export default function AdminProfileEdit() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Last Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       value={formData.last_name}
                       onChange={(e) => handleChange('last_name', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                     />
                   </div>
                   {errors.last_name && (
@@ -297,18 +297,18 @@ export default function AdminProfileEdit() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Display Name
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="text"
                     value={formData.display_name}
                     onChange={(e) => handleChange('display_name', e.target.value)}
-                    className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                   />
                 </div>
                 {errors.display_name && (
@@ -316,32 +316,32 @@ export default function AdminProfileEdit() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Phone
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Timezone
                   </label>
                   <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <select
                       value={formData.timezone}
                       onChange={(e) => handleChange('timezone', e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
                     >
                       {commonTimezones.map((tz) => (
                         <option key={tz.value} value={tz.value}>
@@ -354,17 +354,17 @@ export default function AdminProfileEdit() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Bio
                 </label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                  <FileText className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
                   <textarea
                     value={formData.bio}
                     onChange={(e) => handleChange('bio', e.target.value)}
-                    rows={4}
+                    rows={3}
                     maxLength={500}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
                   />
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
@@ -372,22 +372,19 @@ export default function AdminProfileEdit() {
                 </p>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Changes
-                    </>
+                    'Save Changes'
                   )}
                 </button>
               </div>
@@ -395,36 +392,36 @@ export default function AdminProfileEdit() {
           )}
 
           {activeTab === 'security' && (
-            <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
+            <form onSubmit={handleChangePassword} className="space-y-4 max-w-xl">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   Change Password
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Ensure your account is using a strong password with at least 8 characters, including uppercase, lowercase, numbers, and special characters.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Current Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type={showPassword.current ? 'text' : 'password'}
                     value={passwordData.current_password}
                     onChange={(e) => handlePasswordChange('current_password', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
-                    {showPassword.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.current_password && (
@@ -433,25 +430,25 @@ export default function AdminProfileEdit() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type={showPassword.new ? 'text' : 'password'}
                     value={passwordData.new_password}
                     onChange={(e) => handlePasswordChange('new_password', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
-                    {showPassword.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.new_password && (
@@ -460,25 +457,25 @@ export default function AdminProfileEdit() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Confirm New Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type={showPassword.confirm ? 'text' : 'password'}
                     value={passwordData.confirm_password}
                     onChange={(e) => handlePasswordChange('confirm_password', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                   >
-                    {showPassword.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirm_password && (
@@ -486,15 +483,15 @@ export default function AdminProfileEdit() {
                 )}
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
                       Updating...
                     </>
                   ) : (
@@ -506,7 +503,7 @@ export default function AdminProfileEdit() {
           )}
 
           {activeTab === 'notifications' && (
-            <div className="space-y-6 max-w-xl">
+            <div className="space-y-4 max-w-xl">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                   Notification Preferences
@@ -516,13 +513,13 @@ export default function AdminProfileEdit() {
                 </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {[
                   { key: 'email', label: 'Email Notifications', description: 'Receive notifications via email' },
                   { key: 'push', label: 'Push Notifications', description: 'Receive push notifications in your browser' },
                   { key: 'chat', label: 'Chat Notifications', description: 'Get notified about new chat messages' },
                 ].map(({ key, label, description }) => (
-                  <div key={key} className="flex items-start justify-between py-4 border-b border-gray-200 dark:border-gray-700 last:border-0">
+                  <div key={key} className="flex items-start justify-between py-3 border-b border-gray-200 dark:border-gray-700 last:border-0">
                     <div className="flex-1">
                       <h4 className="text-sm font-medium text-gray-900 dark:text-white">{label}</h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
@@ -532,15 +529,15 @@ export default function AdminProfileEdit() {
                       onClick={() => setNotificationPrefs(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         notificationPrefs[key as keyof typeof notificationPrefs]
-                          ? 'bg-gray-900 dark:bg-gray-100'
-                          : 'bg-gray-200 dark:bg-gray-700'
+                          ? 'bg-gray-900 dark:bg-white'
+                          : 'bg-gray-200 dark:bg-gray-600'
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
                           notificationPrefs[key as keyof typeof notificationPrefs]
-                            ? 'translate-x-6'
-                            : 'translate-x-1'
+                            ? 'translate-x-6 bg-white dark:bg-gray-900'
+                            : 'translate-x-1 bg-white dark:bg-gray-300'
                         }`}
                       />
                     </button>
@@ -548,22 +545,19 @@ export default function AdminProfileEdit() {
                 ))}
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-2">
                 <button
                   onClick={handleSaveNotifications}
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Preferences
-                    </>
+                    'Save Preferences'
                   )}
                 </button>
               </div>
