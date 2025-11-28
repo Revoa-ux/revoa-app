@@ -169,53 +169,20 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 Pricing Option {variantIndex + 1}
               </h4>
 
-              {/* Quantity, SKU, Cost */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={variant.quantity}
-                    onChange={(e) =>
-                      handleVariantChange(variantIndex, 'quantity', parseInt(e.target.value) || 1)
-                    }
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
+              {/* STANDARDIZED LAYOUT - Matches Process Quote Modal Exactly */}
 
-                <div>
-                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    SKU <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={variant.sku}
-                    onChange={(e) => handleVariantChange(variantIndex, 'sku', e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
-                    Cost per Item <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={variant.costPerItem}
-                      onChange={(e) =>
-                        handleVariantChange(variantIndex, 'costPerItem', parseFloat(e.target.value) || 0)
-                      }
-                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
+              {/* SKU Input - Full width */}
+              <div className="mb-4">
+                <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
+                  SKU <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={variant.sku}
+                  onChange={(e) => handleVariantChange(variantIndex, 'sku', e.target.value)}
+                  placeholder="e.g., PROD-SKU-001"
+                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
 
               {/* Product Variants */}
@@ -224,6 +191,32 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                   attributes={variant.attributes || []}
                   onChange={(attributes) => handleVariantChange(variantIndex, 'attributes', attributes)}
                 />
+              </div>
+
+              {/* Cost per Item + Example Total - 2 Column Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    Cost per Item <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={variant.costPerItem}
+                      onChange={(e) => handleVariantChange(variantIndex, 'costPerItem', parseFloat(e.target.value) || 0)}
+                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Example Total</label>
+                  <div className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
+                    ${(variant.costPerItem + (variant.shippingCosts._default || 0)).toFixed(2)}
+                  </div>
+                </div>
               </div>
 
               {/* Shipping Costs */}

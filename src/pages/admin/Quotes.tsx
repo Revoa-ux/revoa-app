@@ -232,7 +232,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
                 {/* SKU Input */}
                 <div className="mb-4">
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
                     SKU <span className="text-red-500">*</span>
                   </label>
                   <input
