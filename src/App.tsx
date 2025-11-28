@@ -23,6 +23,8 @@ import AdminQuotes from './pages/admin/Quotes';
 import AdminInvoices from './pages/admin/Invoices';
 import AdminSettings from './pages/admin/Settings';
 import AdminManage from './pages/admin/Admins';
+import AdminProfileSetup from './pages/admin/ProfileSetup';
+import AdminProfileEdit from './pages/admin/ProfileEdit';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -144,6 +146,13 @@ function App() {
           <LoadingProvider>
             <PageTitle />
             <Routes>
+            {/* Admin profile setup - standalone route */}
+            <Route path="/admin/profile-setup" element={
+              <AdminProtectedRoute>
+                <AdminProfileSetup />
+              </AdminProtectedRoute>
+            } />
+
             {/* Admin routes */}
             <Route path="/admin" element={
               <AdminProtectedRoute>
@@ -160,6 +169,7 @@ function App() {
               <Route path="ai-import" element={<AdminAIImport />} />
               <Route path="invoices" element={<AdminInvoices />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="profile" element={<AdminProfileEdit />} />
               <Route path="admins" element={<AdminManage />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Route>

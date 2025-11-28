@@ -12,7 +12,8 @@ import {
   LogOut,
   Sun,
   Moon,
-  DollarSign
+  DollarSign,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +29,7 @@ const navigation = [
   // { name: 'Import Products', href: '/admin/product-import', icon: Upload, superAdminOnly: true },
   { name: 'Bulk Invoices', href: '/admin/invoices', icon: FileText },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true },
+  { name: 'My Profile', href: '/admin/profile', icon: User },
   { name: 'Settings', href: '/admin/settings', icon: Settings }
 ];
 
