@@ -129,45 +129,60 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
 
           {/* Variants */}
           <div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Pricing Options</h3>
-            <div className="space-y-4">
-              {selectedQuote.variants.map((variant, idx) => (
-                <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {variant.quantity} Unit{variant.quantity > 1 ? 's' : ''}
-                      </span>
-                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                        SKU: {variant.sku}
-                      </span>
-                    </div>
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${variant.costPerItem.toFixed(2)}/unit
-                    </div>
-                  </div>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Product Variants</h3>
+            <div className="space-y-3">
+              {selectedQuote.variants.map((variant, idx) => {
+                const finalVariant = variant.finalVariants?.[0] || variant;
+                const variantName = finalVariant.attributes && finalVariant.attributes.length > 0
+                  ? finalVariant.attributes.map((a: any) => a.value).join(' - ')
+                  : `Variant ${idx + 1}`;
+                const sku = finalVariant.sku || variant.sku;
+                const cost = finalVariant.costPerItem || variant.costPerItem;
+                const shippingCosts = finalVariant.shippingCosts || variant.shippingCosts;
 
-                  {/* Shipping Costs */}
-                  <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Globe className="w-4 h-4 text-gray-400" />
-                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                        Shipping by Country
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {Object.entries(variant.shippingCosts).map(([code, cost]) => (
-                        <div key={code} className="text-xs text-gray-600 dark:text-gray-400">
-                          <span className="font-medium">
-                            {code === '_default' ? 'Default' : getCountryName(code)}:
-                          </span>{' '}
+                return (
+                  <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          {variantName}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          SKU: {sku}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
                           ${cost.toFixed(2)}
                         </div>
-                      ))}
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          per unit
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Shipping Costs */}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Globe className="w-4 h-4 text-gray-400" />
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Shipping Costs
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(shippingCosts).map(([code, cost]) => (
+                          <div key={code} className="text-xs text-gray-600 dark:text-gray-400">
+                            <span className="font-medium">
+                              {code === '_default' ? 'Default' : getCountryName(code)}:
+                            </span>{' '}
+                            ${(cost as number).toFixed(2)}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

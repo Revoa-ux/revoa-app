@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
-import { PackSizeEditor } from '@/components/quotes/PackSizeEditor';
-import { QuoteVariant, FinalVariant } from '@/types/quotes';
+import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';
+import { NewQuoteVariant, QuoteVariant, FinalVariant } from '@/types/quotes';
 
 interface LegacyQuoteVariant {
   quantity?: number;
@@ -26,28 +26,65 @@ interface EditQuoteModalProps {
   onSuccess: () => void;
 }
 
-function migrateLegacyVariant(legacy: LegacyQuoteVariant): QuoteVariant {
-  return {
-    packSize: legacy.quantity || 1,
-    skuPrefix: legacy.sku || '',
-    finalVariants: legacy.attributes && legacy.attributes.length > 0
-      ? [{
-          sku: legacy.sku || '',
-          attributes: legacy.attributes,
-          costPerItem: legacy.costPerItem || 0,
-          shippingCosts: legacy.shippingCosts || { _default: 0 }
-        }]
-      : [{
-          sku: legacy.sku || '',
-          attributes: [],
-          costPerItem: legacy.costPerItem || 0,
-          shippingCosts: legacy.shippingCosts || { _default: 0 }
-        }]
-  };
-}
+function convertToNewFormat(variants: (QuoteVariant | LegacyQuoteVariant)[]): NewQuoteVariant[] {
+  return variants.map((v, index) => {
+    if ('packSize' in v && v.finalVariants && v.finalVariants.length > 0) {
+      const finalVar = v.finalVariants[0];
+      return {
+        id: `var_${Date.now()}_${index}`,
+        sku: finalVar.sku || v.skuPrefix || '',
+        name: finalVar.attributes && finalVar.attributes.length > 0
+          ? finalVar.attributes.map(a => a.value).join(' - ')
+          : `Variant ${index + 1}`,
+        attributes: finalVar.attributes || [],
+        costPerItem: finalVar.costPerItem || 0,
+        shippingRules: {
+          default: finalVar.shippingCosts._default || 0,
+          byCountry: Object.keys(finalVar.shippingCosts)
+            .filter(k => k !== '_default')
+            .reduce((acc, k) => ({ ...acc, [k]: finalVar.shippingCosts[k] }), {}),
+          byQuantity: undefined
+        },
+        enabled: true
+      };
+    }
 
-function isLegacyVariant(v: QuoteVariant | LegacyQuoteVariant): v is LegacyQuoteVariant {
-  return 'quantity' in v || 'costPerItem' in v;
+    if ('quantity' in v || 'costPerItem' in v) {
+      return {
+        id: `var_${Date.now()}_${index}`,
+        sku: v.sku || '',
+        name: v.attributes && v.attributes.length > 0
+          ? v.attributes.map(a => a.value).join(' - ')
+          : `Variant ${index + 1}`,
+        attributes: v.attributes || [],
+        costPerItem: v.costPerItem || 0,
+        shippingRules: {
+          default: v.shippingCosts?._default || 0,
+          byCountry: v.shippingCosts
+            ? Object.keys(v.shippingCosts)
+                .filter(k => k !== '_default')
+                .reduce((acc, k) => ({ ...acc, [k]: v.shippingCosts![k] }), {})
+            : {},
+          byQuantity: undefined
+        },
+        enabled: true
+      };
+    }
+
+    return {
+      id: `var_${Date.now()}_${index}`,
+      sku: '',
+      name: `Variant ${index + 1}`,
+      attributes: [],
+      costPerItem: 0,
+      shippingRules: {
+        default: 0,
+        byCountry: {},
+        byQuantity: undefined
+      },
+      enabled: true
+    };
+  });
 }
 
 export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
@@ -58,152 +95,86 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const [variants, setVariants] = useState<QuoteVariant[]>(
-    currentVariants.map(v =>
-      isLegacyVariant(v) ? migrateLegacyVariant(v) : JSON.parse(JSON.stringify(v))
-    )
-  );
+  const [variants, setVariants] = useState<NewQuoteVariant[]>(convertToNewFormat(currentVariants));
   const [editReason, setEditReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const addPackOption = () => {
-    const newPack: QuoteVariant = {
-      packSize: 1,
-      skuPrefix: '',
-      finalVariants: []
-    };
-    setVariants([...variants, newPack]);
+  const canSubmit = variants.every(v => v.sku.trim() && v.costPerItem > 0 && v.shippingRules.default >= 0) && editReason.trim();
+
+  const convertToLegacyFormat = (): QuoteVariant[] => {
+    return variants.map(variant => {
+      const finalVariant: FinalVariant = {
+        sku: variant.sku,
+        attributes: variant.attributes,
+        costPerItem: variant.costPerItem,
+        shippingCosts: {
+          _default: variant.shippingRules.default,
+          ...variant.shippingRules.byCountry
+        }
+      };
+
+      return {
+        packSize: 1,
+        skuPrefix: variant.sku,
+        finalVariants: [finalVariant]
+      };
+    });
   };
 
-  const removePackOption = (index: number) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
-
-  const updatePack = (index: number, updates: Partial<QuoteVariant>) => {
-    const updated = [...variants];
-    updated[index] = { ...updated[index], ...updates };
-    setVariants(updated);
-  };
-
-  const handleSave = async () => {
-    if (!editReason.trim()) {
-      toast.error('Please provide a reason for editing this quote');
+  const handleSubmit = async () => {
+    if (!canSubmit) {
+      toast.error('Please complete all required fields and provide a reason for editing');
       return;
     }
 
-    for (let i = 0; i < variants.length; i++) {
-      const pack = variants[i];
-      if (!pack.skuPrefix.trim()) {
-        toast.error(`Pack ${i + 1}: SKU prefix is required`);
-        return;
-      }
-      if (pack.finalVariants.length === 0) {
-        toast.error(`Pack ${i + 1}: At least one variant is required`);
-        return;
-      }
-      for (let j = 0; j < pack.finalVariants.length; j++) {
-        const finalVar = pack.finalVariants[j];
-        if (!finalVar.sku.trim()) {
-          toast.error(`Pack ${i + 1}, Variant ${j + 1}: SKU is required`);
-          return;
-        }
-        if (finalVar.costPerItem <= 0) {
-          toast.error(`Pack ${i + 1}, Variant ${j + 1}: Cost must be greater than 0`);
-          return;
-        }
-      }
-    }
-
-    setIsSaving(true);
-
-    const result = await editQuote({
-      quoteId,
-      newVariants: variants as any,
-      editReason: editReason.trim(),
-      adminId
-    });
-
-    setIsSaving(false);
-
-    if (result.success) {
-      toast.success('Quote updated successfully. User has been notified.');
+    try {
+      setIsSaving(true);
+      const legacyVariants = convertToLegacyFormat();
+      await editQuote(quoteId, legacyVariants, adminId, editReason);
+      toast.success('Quote updated successfully');
       onSuccess();
       onClose();
-    } else {
-      toast.error(result.error || 'Failed to update quote');
+    } catch (error) {
+      console.error('Error updating quote:', error);
+      toast.error('Failed to update quote');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const hasChanges = JSON.stringify(variants) !== JSON.stringify(
-    currentVariants.map(v => isLegacyVariant(v) ? migrateLegacyVariant(v) : v)
-  );
-
   return (
-    <Modal isOpen={true} onClose={onClose} title={`Edit Quote: ${quoteName}`} maxWidth="max-w-5xl">
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-        <div className="flex items-start space-x-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-amber-800 dark:text-amber-200">
-            <p className="font-medium mb-1">User Re-Acceptance Required</p>
-            <p className="text-xs">
-              After saving, the user will be notified and must review and accept the changes
-              before this quote becomes active again.
-            </p>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Edit Quote"
+      maxWidth="max-w-7xl"
+    >
+      <div className="space-y-6">
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+          <div className="flex items-start space-x-2">
+            <ExternalLink className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-amber-900 dark:text-amber-300">
+              <strong>Editing: {quoteName}</strong>
+              <p className="text-xs mt-1">Changes will require customer re-approval</p>
+            </div>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {variants.map((pack, packIndex) => (
-            <div
-              key={packIndex}
-              className="p-5 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-base font-semibold text-gray-900 dark:text-white">
-                  Pack Option {packIndex + 1}
-                </h4>
-                {variants.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removePackOption(packIndex)}
-                    className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+        <QuickModeBulkEditor
+          variants={variants}
+          onVariantsChange={setVariants}
+        />
 
-              <PackSizeEditor
-                packSize={pack.packSize}
-                skuPrefix={pack.skuPrefix}
-                finalVariants={pack.finalVariants}
-                onPackSizeChange={(packSize) => updatePack(packIndex, { packSize })}
-                onSkuPrefixChange={(skuPrefix) => updatePack(packIndex, { skuPrefix })}
-                onFinalVariantsChange={(finalVariants) => updatePack(packIndex, { finalVariants })}
-              />
-            </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={addPackOption}
-            className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center justify-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Another Pack Size</span>
-          </button>
-        </div>
-
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Reason for Edit <span className="text-red-500">*</span>
           </label>
           <textarea
             value={editReason}
             onChange={(e) => setEditReason(e.target.value)}
-            placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-rose-500 dark:focus:border-rose-400"
+            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            placeholder="Explain what changed and why..."
           />
         </div>
 
@@ -215,12 +186,13 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           >
             Cancel
           </button>
+
           <button
-            onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-            className="px-6 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleSubmit}
+            disabled={!canSubmit || isSaving}
+            className="px-6 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-colors disabled:cursor-not-allowed"
           >
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? 'Saving...' : 'Update Quote'}
           </button>
         </div>
       </div>

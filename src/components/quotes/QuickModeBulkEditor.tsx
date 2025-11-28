@@ -185,7 +185,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
         <button
           type="button"
           onClick={addRow}
-          className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
+          className="px-4 py-2 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors flex items-center space-x-2"
         >
           <Plus className="w-4 h-4" />
           <span>Add Variant</span>
@@ -357,8 +357,8 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
           <p className="text-sm mb-4">No variants added yet</p>
           <button
             type="button"
-            onClick={addRow}
-            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center space-x-2"
+            onClick=  {addRow}
+            className="px-4 py-2 bg-gray-900 hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors inline-flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add First Variant</span>
