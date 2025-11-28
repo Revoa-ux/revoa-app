@@ -26,6 +26,7 @@ import AdminManage from './pages/admin/Admins';
 import AdminProfileSetup from './pages/admin/ProfileSetup';
 import AdminProfileEdit from './pages/admin/ProfileEdit';
 import AcceptInvitation from './pages/admin/AcceptInvitation';
+import AdminShippingRates from './pages/admin/ShippingRates';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -175,6 +176,7 @@ function App() {
               <Route path="settings" element={<AdminSettings />} />
               <Route path="profile" element={<AdminProfileEdit />} />
               <Route path="admins" element={<AdminManage />} />
+              <Route path="shipping-rates" element={<AdminShippingRates />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
             </Route>
 

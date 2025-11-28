@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Eye, Package, Calendar, User, AlertCircle, Loader2, Download, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import { Check, X, Eye, Package, Calendar, User, AlertCircle, Loader2, Download, ChevronLeft, ChevronRight, Maximize2, DollarSign } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
+import UpdateCogsModal from '@/components/admin/UpdateCogsModal';
 
 interface ProductImage {
   id: string;
@@ -48,6 +49,7 @@ export default function ProductApprovals() {
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showFullPreview, setShowFullPreview] = useState(false);
+  const [showUpdateCogsModal, setShowUpdateCogsModal] = useState(false);
 
   useEffect(() => {
     fetchProducts();
@@ -641,16 +643,26 @@ export default function ProductApprovals() {
             </div>
 
             {/* Action Buttons - Always show for all statuses */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-              {selectedProduct.approval_status === 'pending' ? (
-                <>
-                  <button
-                    onClick={() => handleApprove(selectedProduct.id)}
-                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
-                  >
-                    <Check className="w-4 h-4" />
-                    Approve
-                  </button>
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex gap-3">
+                {selectedProduct.approval_status === 'pending' ? (
+                  <>
+                    <button
+                      onClick={() => handleApprove(selectedProduct.id)}
+                      className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    >
+                      <Check className="w-4 h-4" />
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleReject(selectedProduct.id)}
+                      className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-red-600 border-2 border-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                    >
+                      <X className="w-4 h-4" />
+                      Reject
+                    </button>
+                  </>
+                ) : selectedProduct.approval_status === 'approved' ? (
                   <button
                     onClick={() => handleReject(selectedProduct.id)}
                     className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-red-600 border-2 border-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
@@ -658,22 +670,25 @@ export default function ProductApprovals() {
                     <X className="w-4 h-4" />
                     Reject
                   </button>
-                </>
-              ) : selectedProduct.approval_status === 'approved' ? (
+                ) : (
+                  <button
+                    onClick={() => handleApprove(selectedProduct.id)}
+                    className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  >
+                    <Check className="w-4 h-4" />
+                    Approve
+                  </button>
+                )}
+              </div>
+
+              {/* Update COGS Button */}
+              {selectedProduct.approval_status === 'approved' && selectedProduct.created_by && (
                 <button
-                  onClick={() => handleReject(selectedProduct.id)}
-                  className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-red-600 border-2 border-red-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
+                  onClick={() => setShowUpdateCogsModal(true)}
+                  className="w-full px-4 py-2.5 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
                 >
-                  <X className="w-4 h-4" />
-                  Reject
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleApprove(selectedProduct.id)}
-                  className="flex-1 px-4 py-2.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 text-green-600 border-2 border-green-600 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium"
-                >
-                  <Check className="w-4 h-4" />
-                  Approve
+                  <DollarSign className="w-4 h-4" />
+                  Update COGS
                 </button>
               )}
             </div>
@@ -840,6 +855,23 @@ export default function ProductApprovals() {
           </div>
           )}
         </Modal>
+      )}
+
+      {/* Update COGS Modal */}
+      {selectedProduct && (
+        <UpdateCogsModal
+          isOpen={showUpdateCogsModal}
+          onClose={() => setShowUpdateCogsModal(false)}
+          product={{
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            supplier_price: selectedProduct.supplier_price,
+            created_by: selectedProduct.created_by,
+          }}
+          onSuccess={() => {
+            fetchProducts();
+          }}
+        />
       )}
     </div>
   );
