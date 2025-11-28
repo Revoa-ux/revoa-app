@@ -254,7 +254,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                 {/* Cost per Item */}
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
                       Cost per Item <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
@@ -270,7 +270,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Example Total</label>
+                    <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">Example Total</label>
                     <div className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white font-medium">
                       ${getTotalCostExample(variant).toFixed(2)}
                     </div>
@@ -298,12 +298,12 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                       {/* Default Shipping */}
                       <div className="flex items-start space-x-2">
                         <div className="flex-1 pt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             Default (All Other Countries)
                           </span>
                         </div>
                         <div className="relative w-32">
-                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                           <input
                             type="number"
                             min="0"
@@ -313,7 +313,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                               const newShipping = { ...variant.shippingCosts, _default: parseFloat(e.target.value) || 0 };
                               updateVariant(index, { shippingCosts: newShipping });
                             }}
-                            className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </div>
@@ -326,19 +326,19 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                           return (
                             <div key={countryCode} className="flex items-start space-x-2">
                               <div className="flex-1 pt-1">
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <span className="text-sm text-gray-500 dark:text-gray-400">
                                   {country?.name || countryCode}
                                 </span>
                               </div>
                               <div className="relative w-32">
-                                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
+                                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                                 <input
                                   type="number"
                                   min="0"
                                   step="0.01"
                                   value={cost}
                                   onChange={(e) => addCountryShipping(index, countryCode, parseFloat(e.target.value) || 0)}
-                                  className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
                               <button

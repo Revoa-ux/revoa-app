@@ -19,8 +19,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
   disabled = false
 }) => {
   const [newVariantType, setNewVariantType] = useState('');
-  const [newVariantValue, setNewVariantValue] = useState('');
-  const [editingType, setEditingType] = useState<string | null>(null);
+  const [editingValues, setEditingValues] = useState<{ [key: string]: string }>({});
   const [collapsedTypes, setCollapsedTypes] = useState<Set<string>>(new Set());
 
   // Group attributes by type
@@ -43,26 +42,30 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
   const variantGroups = getVariantGroups();
 
   const addVariantType = () => {
-    if (!newVariantType.trim()) return;
-    setEditingType(newVariantType.trim());
+    const trimmed = newVariantType.trim();
+    if (!trimmed) return;
+
+    // Check if type already exists
+    if (variantGroups.find(g => g.type.toLowerCase() === trimmed.toLowerCase())) {
+      return;
+    }
+
+    // Initialize editing state for this type
+    setEditingValues({ ...editingValues, [trimmed]: '' });
     setNewVariantType('');
   };
 
-  const addValueToType = (type: string, value: string) => {
-    if (!value.trim()) return;
+  const addValueToType = (type: string) => {
+    const value = editingValues[type]?.trim();
+    if (!value) return;
 
     const newAttribute: ProductAttribute = {
       name: type,
-      value: value.trim()
+      value: value
     };
 
     onChange([...attributes, newAttribute]);
-  };
-
-  const addNewValue = () => {
-    if (!editingType || !newVariantValue.trim()) return;
-    addValueToType(editingType, newVariantValue);
-    setNewVariantValue('');
+    setEditingValues({ ...editingValues, [type]: '' });
   };
 
   const removeValue = (type: string, value: string) => {
@@ -71,9 +74,9 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
 
   const removeVariantType = (type: string) => {
     onChange(attributes.filter(attr => attr.name !== type));
-    if (editingType === type) {
-      setEditingType(null);
-    }
+    const newEditingValues = { ...editingValues };
+    delete newEditingValues[type];
+    setEditingValues(newEditingValues);
   };
 
   const toggleCollapse = (type: string) => {
@@ -95,10 +98,10 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center space-x-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+      <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
         <Package className="w-4 h-4" />
         <span>Product Variants</span>
-        <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
       </div>
 
       {/* Existing Variant Groups */}
@@ -106,7 +109,6 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
         <div className="space-y-2">
           {variantGroups.map((group) => {
             const isCollapsed = collapsedTypes.has(group.type);
-            const isEditing = editingType === group.type;
 
             return (
               <div
@@ -122,14 +124,14 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                     disabled={disabled}
                   >
                     {isCollapsed ? (
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      <ChevronRight className="w-4 h-4 text-gray-400" />
                     ) : (
-                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
                     )}
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {group.type}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
                       ({group.values.length} {group.values.length === 1 ? 'value' : 'values'})
                     </span>
                   </button>
@@ -140,7 +142,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                       className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                       title={`Remove ${group.type} variant`}
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-4 h-4" />
                     </button>
                   )}
                 </div>
@@ -151,57 +153,46 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                     {group.values.map((value) => (
                       <div
                         key={value}
-                        className="flex items-center justify-between px-3 py-1.5 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700"
+                        className="flex items-center space-x-2"
                       >
-                        <span className="text-xs text-gray-700 dark:text-gray-300">
-                          {value}
-                        </span>
                         {!disabled && (
                           <button
                             type="button"
                             onClick={() => removeValue(group.type, value)}
-                            className="p-0.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded transition-colors"
+                            className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-3.5 h-3.5" />
                           </button>
                         )}
+                        <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {value}
+                          </span>
+                        </div>
                       </div>
                     ))}
 
                     {/* Add New Value to This Type */}
-                    {!disabled && isEditing && (
-                      <div className="flex items-center space-x-2 pt-2">
+                    {!disabled && (
+                      <div className="flex items-center space-x-2 pt-1">
+                        <div className="w-7 flex-shrink-0"></div>
                         <input
                           type="text"
-                          value={newVariantValue}
-                          onChange={(e) => setNewVariantValue(e.target.value)}
-                          onKeyPress={(e) => handleKeyPress(e, addNewValue)}
-                          placeholder={`Add ${group.type} value (e.g., Large)`}
-                          className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          autoFocus
+                          value={editingValues[group.type] || ''}
+                          onChange={(e) => setEditingValues({ ...editingValues, [group.type]: e.target.value })}
+                          onKeyPress={(e) => handleKeyPress(e, () => addValueToType(group.type))}
+                          placeholder={`Add ${group.type} value`}
+                          className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <button
                           type="button"
-                          onClick={addNewValue}
-                          disabled={!newVariantValue.trim()}
-                          className="p-1.5 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => addValueToType(group.type)}
+                          disabled={!editingValues[group.type]?.trim()}
+                          className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                         >
                           <Plus className="w-4 h-4" />
                         </button>
                       </div>
-                    )}
-
-                    {!disabled && !isEditing && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingType(group.type);
-                          setNewVariantValue('');
-                        }}
-                        className="w-full px-3 py-1.5 text-xs text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded border border-dashed border-gray-300 dark:border-gray-600 transition-colors"
-                      >
-                        + Add {group.type} value
-                      </button>
                     )}
                   </div>
                 )}
@@ -213,32 +204,28 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
 
       {/* Add New Variant Type */}
       {!disabled && (
-        <div className="space-y-2">
-          {!editingType || !variantGroups.find(g => g.type === editingType) ? (
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={newVariantType}
-                onChange={(e) => setNewVariantType(e.target.value)}
-                onKeyPress={(e) => handleKeyPress(e, addVariantType)}
-                placeholder="Variant type (e.g., Size, Color, Material)"
-                className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                type="button"
-                onClick={addVariantType}
-                disabled={!newVariantType.trim()}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600"
-              >
-                Add Type
-              </button>
-            </div>
-          ) : null}
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            value={newVariantType}
+            onChange={(e) => setNewVariantType(e.target.value)}
+            onKeyPress={(e) => handleKeyPress(e, addVariantType)}
+            placeholder="Variant type (e.g., Size, Color, Material)"
+            className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={addVariantType}
+            disabled={!newVariantType.trim()}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-gray-300 dark:border-gray-600 whitespace-nowrap"
+          >
+            Add Type
+          </button>
         </div>
       )}
 
       {variantGroups.length === 0 && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+        <p className="text-sm text-gray-500 dark:text-gray-400 italic">
           Add variant types like Size, Color, Material, etc. Each type can have multiple values.
         </p>
       )}

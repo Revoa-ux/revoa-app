@@ -187,7 +187,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
                     SKU <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -199,7 +199,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  <label className="block text-sm text-gray-500 dark:text-gray-400 mb-1">
                     Cost per Item <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -253,7 +253,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                       </span>
                     </div>
                     <div className="relative w-32">
-                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
+                      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                       <input
                         type="number"
                         min="0"
@@ -262,7 +262,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                         onChange={(e) =>
                           handleShippingCostChange(variantIndex, '_default', parseFloat(e.target.value) || 0)
                         }
-                        className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
@@ -273,12 +273,12 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     .map(([code, cost]) => (
                       <div key={code} className="flex items-start space-x-2">
                         <div className="flex-1 pt-1">
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             {COMMON_COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
                         </div>
                         <div className="relative w-32">
-                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                           <input
                             type="number"
                             min="0"
@@ -287,7 +287,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                             onChange={(e) =>
                               handleShippingCostChange(variantIndex, code, parseFloat(e.target.value) || 0)
                             }
-                            className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                         <button
