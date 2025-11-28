@@ -77,7 +77,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       )}
       <div className="flex items-start gap-3">
         <div className="relative flex-shrink-0 mt-0.5">
-          <div className="w-11 h-11 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-11 h-11 rounded-full bg-gray-800/90 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
             <span className="text-sm font-semibold text-white">
               {getInitials(userName)}
             </span>
