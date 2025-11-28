@@ -145,7 +145,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
                   {categoryLabels[category] || category}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {categoryTags.map((tag) => {
                     const IconComponent = iconMap[tag.icon] || TagIcon;
                     const isSelected = selectedTagIds.has(tag.id);
