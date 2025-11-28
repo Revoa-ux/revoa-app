@@ -91,6 +91,7 @@ const AdminChat = () => {
   const [conversationSearch, setConversationSearch] = useState('');
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -117,7 +118,7 @@ const AdminChat = () => {
     };
 
     loadChats();
-  }, [user, conversationFilters, conversationSearch]);
+  }, [user, conversationFilters, conversationSearch, refreshTrigger]);
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -362,7 +363,7 @@ const AdminChat = () => {
                     <button
                       key={chat.id}
                       onClick={() => setSelectedChat(chat)}
-                      className={`flex flex-col items-center py-3 px-2 group transition-all duration-200 border-l-4 ${
+                      className={`flex flex-col items-center py-3 px-2 group transition-all duration-200 border-l-[5px] ${
                         isSelected
                           ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-[#E85B81]'
                           : 'border-l-transparent hover:bg-gray-50 dark:hover:bg-gray-700/30'
@@ -799,16 +800,8 @@ const AdminChat = () => {
             onClose={() => setShowTagModal(false)}
             chatId={selectedChat.id}
             onTagsUpdated={() => {
-              // Refresh chat list to show updated tags
-              const loadChats = async () => {
-                const filterParams: ChatFilters = {
-                  ...conversationFilters,
-                  search: conversationSearch,
-                };
-                const adminChats = await chatService.getAdminChats(user!.id, filterParams);
-                setChats(adminChats);
-              };
-              loadChats();
+              // Force refresh chat list to show updated tags immediately
+              setRefreshTrigger(prev => prev + 1);
             }}
           />
         )}

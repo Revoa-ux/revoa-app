@@ -66,7 +66,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
     <button
       onClick={onClick}
       className={`w-full p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
-        isSelected ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-4 border-l-[#E85B81]' : ''
+        isSelected ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-[5px] border-l-[#E85B81]' : ''
       }`}
     >
       <div className="flex items-start space-x-3">
