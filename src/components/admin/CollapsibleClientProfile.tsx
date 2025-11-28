@@ -292,20 +292,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Client Profile</h3>
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-lg bg-gray-700 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-lg font-medium text-white">{initials}</span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">{displayName}</h4>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{profile?.email}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center mt-0.5">
-                <Clock className="w-3 h-3 mr-1" />
-                Client for {Math.floor((new Date().getTime() - new Date(profile?.created_at || '').getTime()) / (1000 * 60 * 60 * 24))} days
-              </p>
-            </div>
-          </div>
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Client Profile</h3>
         </div>
 
         {/* Overview Section */}
@@ -337,23 +324,6 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               </span>
             </div>
           )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <Clock className="w-4 h-4 mr-2" />
-              <span className="text-xs">User's Current Time</span>
-            </div>
-            <span className="text-xs text-gray-900 dark:text-white">
-              {(() => {
-                const now = new Date();
-                const hours = now.getUTCHours();
-                const minutes = now.getMinutes();
-                const period = hours >= 12 ? 'PM' : 'AM';
-                const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
-              })()}
-            </span>
-          </div>
         </div>
 
         {/* Financial Metrics */}
