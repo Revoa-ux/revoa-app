@@ -34,7 +34,6 @@ import { SearchResults } from '@/components/chat/SearchResults';
 import { ConversationListSkeleton } from '@/components/PageSkeletons';
 import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientProfile';
 import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
-import { ConversationHeaderControls } from '@/components/chat/ConversationHeaderControls';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -98,7 +97,6 @@ const AdminChat = () => {
   const [conversationSearch, setConversationSearch] = useState('');
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
-  const [showDeleteChatModal, setShowDeleteChatModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -238,71 +236,6 @@ const AdminChat = () => {
 
     setDeleteModalOpen(false);
     setMessageToDelete(null);
-  };
-
-  const handleArchiveChat = async () => {
-    if (!selectedChat) return;
-
-    const isArchived = selectedChat.is_archived || false;
-    const success = isArchived
-      ? await chatService.unarchiveChat(selectedChat.id)
-      : await chatService.archiveChat(selectedChat.id);
-
-    if (success) {
-      toast.success(isArchived ? 'Conversation unarchived' : 'Conversation archived');
-      loadChats();
-    } else {
-      toast.error('Failed to update conversation');
-    }
-  };
-
-  const handleFlagChat = async () => {
-    if (!selectedChat) return;
-
-    const isFlagged = selectedChat.is_flagged || false;
-    const success = isFlagged
-      ? await chatService.unflagChat(selectedChat.id)
-      : await chatService.flagChat(selectedChat.id);
-
-    if (success) {
-      toast.success(isFlagged ? 'Flag removed' : 'Conversation flagged');
-      loadChats();
-    } else {
-      toast.error('Failed to update conversation');
-    }
-  };
-
-  const handleMuteChat = async () => {
-    if (!selectedChat) return;
-
-    const isMuted = selectedChat.is_muted || false;
-    const success = isMuted
-      ? await chatService.unmuteChat(selectedChat.id)
-      : await chatService.muteChat(selectedChat.id);
-
-    if (success) {
-      toast.success(isMuted ? 'Notifications unmuted' : 'Notifications muted');
-      setIsMuted(!isMuted);
-      loadChats();
-    } else {
-      toast.error('Failed to update conversation');
-    }
-  };
-
-  const handleDeleteChat = async () => {
-    if (!selectedChat) return;
-
-    const success = await chatService.deleteChat(selectedChat.id);
-    if (success) {
-      toast.success('Conversation deleted');
-      setSelectedChat(null);
-      setMessages([]);
-      loadChats();
-    } else {
-      toast.error('Failed to delete conversation');
-    }
-
-    setShowDeleteChatModal(false);
   };
 
   const openDeleteModal = (messageId: string) => {
@@ -520,13 +453,6 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-4">
-                <ConversationHeaderControls
-                  chat={selectedChat}
-                  onArchive={handleArchiveChat}
-                  onFlag={handleFlagChat}
-                  onMute={handleMuteChat}
-                  onDelete={() => setShowDeleteChatModal(true)}
-                />
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
                   className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
@@ -904,34 +830,7 @@ const AdminChat = () => {
           />
         )}
 
-        {/* Delete Conversation Modal */}
-        <Modal
-          isOpen={showDeleteChatModal}
-          onClose={() => setShowDeleteChatModal(false)}
-          title="Delete Conversation"
-        >
-          <div className="p-6">
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Are you sure you want to delete this entire conversation? All messages will be permanently deleted. This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteChatModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteChat}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-              >
-                Delete Conversation
-              </button>
-            </div>
-          </div>
-        </Modal>
-
-        {/* Delete Message Modal */}
+        {/* Delete Confirmation Modal */}
         {deleteModalOpen && (
           <Modal
             isOpen={deleteModalOpen}
