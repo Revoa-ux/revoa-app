@@ -3,9 +3,10 @@ export interface ProductAttribute {
   value: string;  // e.g., "Large", "Red", "Cotton"
 }
 
+// Legacy support - kept for backward compatibility
 export interface FinalVariant {
   sku: string;
-  attributes: ProductAttribute[];  // e.g., [{name: "Color", value: "White"}]
+  attributes: ProductAttribute[];
   costPerItem: number;
   shippingCosts: {
     [countryCode: string]: number;
@@ -13,10 +14,51 @@ export interface FinalVariant {
   };
 }
 
+// Legacy support - kept for backward compatibility
 export interface QuoteVariant {
-  packSize: number;  // How many units in this pack (1, 2, 5, 10, etc.)
-  skuPrefix: string;  // Base SKU for this pack size (e.g., "SUN-SINGLE" or "SUN-5PACK")
-  finalVariants: FinalVariant[];  // All color/size combinations for this pack
+  packSize: number;
+  skuPrefix: string;
+  finalVariants: FinalVariant[];
+}
+
+// New simplified types
+export interface QuantityTier {
+  minQty: number;
+  shippingCost: number;
+}
+
+export interface ShippingRules {
+  default: number;
+  byCountry: { [countryCode: string]: number };
+  byQuantity?: QuantityTier[];
+}
+
+export interface VariantType {
+  id: string;
+  name: string;  // "Color", "Size", "Material"
+  values: string[];  // ["Black", "White", "Yellow"]
+}
+
+export interface NewQuoteVariant {
+  id: string;
+  sku: string;
+  name: string;  // Display name: "Black - Large" or "100 units"
+  attributes: ProductAttribute[];  // [{name: "Color", value: "Black"}, {name: "Size", value: "Large"}]
+  costPerItem: number;
+  shippingRules: ShippingRules;
+  enabled: boolean;  // For combination matrix - is this variant available?
+}
+
+export interface QuoteBuilderData {
+  mode: 'guided' | 'quick';
+  hasVariants: boolean;
+  variantTypes: VariantType[];  // [{ name: "Color", values: ["Black", "White"] }]
+  variants: NewQuoteVariant[];
+  metadata: {
+    totalVariants: number;
+    createdAt: string;
+    lastModified: string;
+  };
 }
 
 export interface Quote {

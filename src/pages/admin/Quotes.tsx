@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
-import { ProcessQuoteModal } from '@/components/admin/ProcessQuoteModal';
+import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
 import { QuoteVariant } from '@/types/quotes';
 
 interface Quote {
@@ -248,7 +248,7 @@ export default function AdminQuotes() {
       </div>
 
       {selectedQuote && (
-        <ProcessQuoteModal
+        <NewProcessQuoteModal
           quote={selectedQuote}
           onClose={() => setSelectedQuote(null)}
           onSubmit={handleProcessQuote}

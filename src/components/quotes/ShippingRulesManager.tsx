@@ -1,0 +1,345 @@
+import React, { useState } from 'react';
+import { Plus, Trash2, Globe, Package, AlertCircle } from 'lucide-react';
+import { ShippingRules, QuantityTier } from '@/types/quotes';
+import { toast } from 'sonner';
+
+interface ShippingRulesManagerProps {
+  rules: ShippingRules;
+  onRulesChange: (rules: ShippingRules) => void;
+  variantName?: string;
+}
+
+const COMMON_COUNTRIES = [
+  { code: 'US', name: 'United States' },
+  { code: 'CA', name: 'Canada' },
+  { code: 'GB', name: 'United Kingdom' },
+  { code: 'AU', name: 'Australia' },
+  { code: 'DE', name: 'Germany' },
+  { code: 'FR', name: 'France' },
+  { code: 'IT', name: 'Italy' },
+  { code: 'ES', name: 'Spain' },
+  { code: 'NL', name: 'Netherlands' },
+  { code: 'SE', name: 'Sweden' },
+  { code: 'JP', name: 'Japan' },
+  { code: 'CN', name: 'China' },
+  { code: 'IN', name: 'India' },
+  { code: 'BR', name: 'Brazil' },
+  { code: 'MX', name: 'Mexico' }
+];
+
+export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
+  rules,
+  onRulesChange,
+  variantName
+}) => {
+  const [showCountrySelector, setShowCountrySelector] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [countryRate, setCountryRate] = useState('');
+
+  const [showQuantityTiers, setShowQuantityTiers] = useState(false);
+  const [newTierMinQty, setNewTierMinQty] = useState('');
+  const [newTierCost, setNewTierCost] = useState('');
+
+  const updateDefaultShipping = (value: string) => {
+    const cost = parseFloat(value);
+    if (!isNaN(cost) && cost >= 0) {
+      onRulesChange({ ...rules, default: cost });
+    }
+  };
+
+  const addCountryRate = () => {
+    if (!selectedCountry || !countryRate) {
+      toast.error('Please select a country and enter a rate');
+      return;
+    }
+
+    const cost = parseFloat(countryRate);
+    if (isNaN(cost) || cost < 0) {
+      toast.error('Please enter a valid shipping cost');
+      return;
+    }
+
+    onRulesChange({
+      ...rules,
+      byCountry: {
+        ...rules.byCountry,
+        [selectedCountry]: cost
+      }
+    });
+
+    setSelectedCountry('');
+    setCountryRate('');
+    toast.success('Country rate added');
+  };
+
+  const removeCountryRate = (countryCode: string) => {
+    const newByCountry = { ...rules.byCountry };
+    delete newByCountry[countryCode];
+    onRulesChange({ ...rules, byCountry: newByCountry });
+  };
+
+  const addQuantityTier = () => {
+    const minQty = parseInt(newTierMinQty);
+    const cost = parseFloat(newTierCost);
+
+    if (isNaN(minQty) || minQty < 1) {
+      toast.error('Please enter a valid minimum quantity');
+      return;
+    }
+
+    if (isNaN(cost) || cost < 0) {
+      toast.error('Please enter a valid shipping cost');
+      return;
+    }
+
+    const newTiers = [...(rules.byQuantity || []), { minQty, shippingCost: cost }];
+    newTiers.sort((a, b) => a.minQty - b.minQty);
+
+    onRulesChange({
+      ...rules,
+      byQuantity: newTiers
+    });
+
+    setNewTierMinQty('');
+    setNewTierCost('');
+    toast.success('Quantity tier added');
+  };
+
+  const removeQuantityTier = (index: number) => {
+    const newTiers = [...(rules.byQuantity || [])];
+    newTiers.splice(index, 1);
+    onRulesChange({
+      ...rules,
+      byQuantity: newTiers.length > 0 ? newTiers : undefined
+    });
+  };
+
+  const getCountryName = (code: string) => {
+    return COMMON_COUNTRIES.find(c => c.code === code)?.name || code;
+  };
+
+  const availableCountries = COMMON_COUNTRIES.filter(
+    c => !rules.byCountry[c.code]
+  );
+
+  return (
+    <div className="space-y-4">
+      {variantName && (
+        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+          <Package className="w-4 h-4" />
+          <span>Shipping rules for: <strong className="text-gray-900 dark:text-white">{variantName}</strong></span>
+        </div>
+      )}
+
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-medium text-gray-900 dark:text-white">
+            Default Shipping Cost
+          </label>
+          <AlertCircle className="w-4 h-4 text-gray-400" title="Applied when no other rules match" />
+        </div>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+            $
+          </span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={rules.default}
+            onChange={(e) => updateDefaultShipping(e.target.value)}
+            className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+          />
+        </div>
+      </div>
+
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <Globe className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+              Country-Specific Rates
+            </h4>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowCountrySelector(!showCountrySelector)}
+            className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium"
+          >
+            {showCountrySelector ? 'Hide' : 'Add Country'}
+          </button>
+        </div>
+
+        {Object.keys(rules.byCountry).length > 0 ? (
+          <div className="space-y-2 mb-3">
+            {Object.entries(rules.byCountry).map(([code, cost]) => (
+              <div
+                key={code}
+                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+              >
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {getCountryName(code)}
+                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    ${cost.toFixed(2)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeCountryRate(code)}
+                    className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            No country-specific rates. Default rate applies to all countries.
+          </p>
+        )}
+
+        {showCountrySelector && availableCountries.length > 0 && (
+          <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
+              <option value="">Select a country...</option>
+              {availableCountries.map(c => (
+                <option key={c.code} value={c.code}>{c.name}</option>
+              ))}
+            </select>
+            <div className="flex space-x-2">
+              <div className="relative flex-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  $
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={countryRate}
+                  onChange={(e) => setCountryRate(e.target.value)}
+                  placeholder="Shipping cost"
+                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCountryRate();
+                    }
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={addCountryRate}
+                disabled={!selectedCountry || !countryRate}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed flex items-center space-x-1"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <Package className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white">
+              Quantity Discounts
+            </h4>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowQuantityTiers(!showQuantityTiers)}
+            className="text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-medium"
+          >
+            {showQuantityTiers ? 'Hide' : 'Add Tier'}
+          </button>
+        </div>
+
+        {rules.byQuantity && rules.byQuantity.length > 0 ? (
+          <div className="space-y-2 mb-3">
+            {rules.byQuantity.map((tier, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+              >
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {tier.minQty}+ units
+                </span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    ${tier.shippingCost.toFixed(2)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeQuantityTier(index)}
+                    className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+            No quantity discounts configured. Same rate applies regardless of quantity.
+          </p>
+        )}
+
+        {showQuantityTiers && (
+          <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                min="1"
+                value={newTierMinQty}
+                onChange={(e) => setNewTierMinQty(e.target.value)}
+                placeholder="Min quantity"
+                className="px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                  $
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newTierCost}
+                  onChange={(e) => setNewTierCost(e.target.value)}
+                  placeholder="Cost"
+                  className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addQuantityTier();
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={addQuantityTier}
+              disabled={!newTierMinQty || !newTierCost}
+              className="w-full py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors disabled:cursor-not-allowed flex items-center justify-center space-x-1"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Tier</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
