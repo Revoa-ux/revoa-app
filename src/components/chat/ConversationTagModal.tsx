@@ -155,24 +155,25 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
                         className={`
-                          relative flex items-center px-3 py-2.5 rounded-lg border-2 transition-all
+                          relative flex items-center px-3 py-2.5 rounded-lg border transition-all
+                          backdrop-blur-xl bg-white/40 dark:bg-gray-800/40
                           ${
                             isSelected
-                              ? 'border-current shadow-sm'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                              ? 'border-current shadow-lg shadow-black/5 dark:shadow-black/20'
+                              : 'border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300/70 dark:hover:border-gray-600/70 hover:shadow-md'
                           }
                         `}
                         style={{
-                          backgroundColor: isSelected
-                            ? `${tag.color}15`
-                            : 'transparent',
+                          background: isSelected
+                            ? `linear-gradient(135deg, ${tag.color}18, ${tag.color}08)`
+                            : undefined,
                           borderColor: isSelected ? tag.color : undefined,
                         }}
                       >
                         <div
-                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5"
+                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5 backdrop-blur-sm"
                           style={{
-                            backgroundColor: `${tag.color}20`,
+                            backgroundColor: `${tag.color}25`,
                             color: tag.color,
                           }}
                         >
@@ -190,10 +191,12 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         </div>
                         {isSelected && (
                           <div
-                            className="flex-shrink-0 ml-2"
-                            style={{ color: tag.color }}
+                            className="flex-shrink-0 ml-2 w-5 h-5 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+                            style={{
+                              backgroundColor: tag.color,
+                            }}
                           >
-                            <Check className="w-5 h-5" />
+                            <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
                       </button>
