@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';
@@ -34,6 +34,9 @@ export default function AdminProfileEdit() {
     confirm: false,
   });
 
+  const [showTimezoneDropdown, setShowTimezoneDropdown] = useState(false);
+  const timezoneDropdownRef = useRef<HTMLDivElement>(null);
+
   const [notificationPrefs, setNotificationPrefs] = useState({
     email: true,
     push: true,
@@ -45,6 +48,17 @@ export default function AdminProfileEdit() {
   useEffect(() => {
     loadProfile();
   }, [user]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (timezoneDropdownRef.current && !timezoneDropdownRef.current.contains(event.target as Node)) {
+        setShowTimezoneDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -300,19 +314,38 @@ export default function AdminProfileEdit() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Timezone
                   </label>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <select
-                      value={formData.timezone}
-                      onChange={(e) => handleChange('timezone', e.target.value)}
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700"
+                  <div className="relative" ref={timezoneDropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowTimezoneDropdown(!showTimezoneDropdown)}
+                      className="w-full pl-9 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-white dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:bg-white dark:focus:bg-gray-700 transition-colors text-left"
                     >
-                      {commonTimezones.map((tz) => (
-                        <option key={tz.value} value={tz.value}>
-                          {tz.label}
-                        </option>
-                      ))}
-                    </select>
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      {commonTimezones.find(tz => tz.value === formData.timezone)?.label || 'Select timezone'}
+                      <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-transform ${showTimezoneDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {showTimezoneDropdown && (
+                      <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                        {commonTimezones.map((tz) => (
+                          <button
+                            key={tz.value}
+                            type="button"
+                            onClick={() => {
+                              handleChange('timezone', tz.value);
+                              setShowTimezoneDropdown(false);
+                            }}
+                            className={`w-full px-3 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                              formData.timezone === tz.value
+                                ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium'
+                                : 'text-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            {tz.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
