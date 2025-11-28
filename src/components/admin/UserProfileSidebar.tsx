@@ -318,8 +318,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
     <div className={`${showHeader ? 'w-96' : 'w-full'} bg-white dark:bg-gray-800 flex flex-col h-full`}>
       {/* Header */}
       {showHeader && (
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Client Profile</h2>
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-end">
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
@@ -331,19 +330,19 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
       <div className="flex-1 overflow-y-auto">
         {/* User Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 rounded-lg bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
-              <span className="text-2xl font-medium text-white">
+        <div className="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="w-20 h-20 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+              <span className="text-3xl font-medium text-white">
                 {displayName.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div className="flex-1">
+            <div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                 {displayName}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{stats.email}</p>
-              <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{stats.email}</p>
+              <div className="flex items-center justify-center mt-2 text-xs text-gray-500 dark:text-gray-400">
                 <Calendar className="w-3 h-3 mr-1" />
                 Client for {formatDistanceToNow(new Date(stats.created_at))}
               </div>
@@ -356,7 +355,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Overview Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Overview</h3>
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">OVERVIEW</h3>
             <div className="space-y-3">
               {stats.phone && (
                 <div className="flex items-start space-x-3">
@@ -408,8 +407,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Financial Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Financial</h3>
-            <div className="space-y-3">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">FINANCIAL</h3>
+            <div className="space-y-2">
               {/* Last Invoice Sent */}
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -468,7 +467,13 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
 
+          {/* Orders Section */}
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">ORDERS</h3>
+            <div className="space-y-2">
               {/* Unfulfilled Orders */}
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
@@ -536,54 +541,10 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
             </div>
           </div>
 
-          {/* Store Section */}
-          {stats.store_url && (
-            <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-              <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Shopify Store</h3>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
-                  <Store className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Store URL</p>
-                    <a
-                      href={`https://${stats.store_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-pink-600 hover:text-pink-700 flex items-center"
-                    >
-                      {stats.store_url}
-                      <ExternalLink className="w-3 h-3 ml-1" />
-                    </a>
-                  </div>
-                </div>
-                {stats.store_status && (
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Status</span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      stats.store_status === 'active'
-                        ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                        : 'bg-gray-50 text-gray-700 dark:bg-gray-900/50 dark:text-gray-400'
-                    }`}>
-                      {stats.store_status}
-                    </span>
-                  </div>
-                )}
-                {stats.store_installed_at && (
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Connected</span>
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {formatDistanceToNow(new Date(stats.store_installed_at), { addSuffix: true })}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Activity Section */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">Activity</h3>
-            <div className="space-y-3">
+          {/* Communication Section */}
+          <div className="px-6 py-4">
+            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">COMMUNICATION</h3>
+            <div className="space-y-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
                   <MessageSquare className="w-4 h-4" />
@@ -593,24 +554,22 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   {stats.total_messages}
                 </span>
               </div>
-              {stats.unread_messages > 0 && (
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Unread</span>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
-                    {stats.unread_messages}
-                  </span>
-                </div>
-              )}
-              {stats.last_interaction_at && (
-                <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Last Interaction</span>
-                  <span className="text-sm text-gray-900 dark:text-white">
-                    {formatDistanceToNow(new Date(stats.last_interaction_at), { addSuffix: true })}
-                  </span>
-                </div>
-              )}
+
               <div className="flex items-center justify-between py-2">
-                <span className="text-sm text-gray-500 dark:text-gray-400">Typically Responds At</span>
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-sm">Last Interaction</span>
+                </div>
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {stats.last_interaction_at ? formatDistanceToNow(new Date(stats.last_interaction_at), { addSuffix: true }) : 'Never'}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-sm">Typically Responds At</span>
+                </div>
                 <span className="text-sm text-gray-900 dark:text-white">
                   {stats.typical_response_time ? (() => {
                     try {

@@ -290,14 +290,9 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   return (
     <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Client Profile</h3>
-        </div>
-
         {/* Overview Section */}
-        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overview</h4>
+        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">OVERVIEW</h4>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -355,8 +350,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Financial Metrics */}
-        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Financial</h4>
+        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">FINANCIAL</h4>
 
           {/* Last Invoice Sent */}
           <div className="flex items-center justify-between py-2">
@@ -381,7 +376,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {/* Last Invoice Paid */}
-          <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
               <CheckCircle className="w-4 h-4 mr-2" />
               <span className="text-xs">Last Invoice Paid</span>
@@ -404,7 +399,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
           {/* Pending Invoices */}
           {metrics.pending_invoices_count > 0 && (
-            <div className="flex items-center justify-between py-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <AlertCircle className="w-4 h-4 mr-2" />
                 <span className="text-xs">Pending Invoices</span>
@@ -422,8 +417,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Order Metrics */}
-        <div className="px-4 py-4 space-y-3 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Orders</h4>
+        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">ORDERS</h4>
 
           {/* Unfulfilled Orders */}
           <div className="flex items-center justify-between py-2">
@@ -487,8 +482,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
 
         {/* Communication */}
-        <div className="px-4 py-4 space-y-3">
-          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Communication</h4>
+        <div className="px-4 py-4 space-y-2">
+          <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">COMMUNICATION</h4>
 
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
