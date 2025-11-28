@@ -61,8 +61,8 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
   ];
 
   const sortOptions = [
-    { value: 'recent', label: 'Most Recent' },
-    { value: 'oldest', label: 'Oldest First' },
+    { value: 'recent', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
   ];
 
   const handleClearFilters = () => {
@@ -116,14 +116,12 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={sortDropdownRef}>
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[130px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap justify-center w-[100px]"
           >
-            <div className="flex items-center gap-1.5 min-w-0">
-              <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-                {sortOptions.find(opt => opt.value === filters.sortBy)?.label.split(' ')[0] || 'Sort'}
-              </span>
-            </div>
+            <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+            <span className="text-gray-700 dark:text-gray-300 text-sm">
+              {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Sort'}
+            </span>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           </button>
 
@@ -151,7 +149,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={statusDropdownRef}>
           <button
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[110px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Filter className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -184,7 +182,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={userTypeDropdownRef}>
           <button
             onClick={() => setShowUserTypeDropdown(!showUserTypeDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[80px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[100px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Users className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -217,7 +215,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={tagDropdownRef}>
           <button
             onClick={() => setShowTagDropdown(!showTagDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[110px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <TagIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -229,7 +227,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           </button>
 
           {showTagDropdown && (
-            <div className="absolute z-50 left-0 w-56 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+            <div className="absolute z-[100] left-0 w-56 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
               {tags.length === 0 ? (
                 <div className="px-3 py-6 text-sm text-center text-gray-500 dark:text-gray-400">
                   No tags available
