@@ -330,22 +330,69 @@ const AdminChat = () => {
         </div>
 
         <div className="flex flex-col h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-          {/* Unified Top Bar - Filters + User Info */}
+          {/* Unified Top Bar - Filters + Actions + User Info */}
           {selectedChat && (
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              {/* Left: Filters */}
-              <div className="flex-1 mr-6">
-                {!showUserProfile && (
-                  <ConversationFilters
-                    filters={conversationFilters}
-                    onFiltersChange={setConversationFilters}
-                    searchTerm={conversationSearch}
-                    onSearchChange={setConversationSearch}
-                  />
-                )}
+              {/* Left: Filters + Action Buttons */}
+              <div className="flex items-center space-x-3 flex-1 mr-6">
+                <ConversationFilters
+                  filters={conversationFilters}
+                  onFiltersChange={setConversationFilters}
+                  searchTerm={conversationSearch}
+                  onSearchChange={setConversationSearch}
+                />
+
+                {/* Action Buttons next to filters */}
+                <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                  <button
+                    onClick={() => setShowSearchModal(true)}
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Search messages"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                  <div className="relative" ref={moreMenuRef}>
+                    <button
+                      onClick={() => setShowMoreMenu(!showMoreMenu)}
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="More options"
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    {showMoreMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                        <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg">
+                          <Archive className="w-4 h-4 mr-2" />
+                          Archive
+                        </button>
+                        <button
+                          onClick={() => setIsMuted(!isMuted)}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+                        >
+                          {isMuted ? <Volume2 className="w-4 h-4 mr-2" /> : <VolumeX className="w-4 h-4 mr-2" />}
+                          {isMuted ? 'Unmute' : 'Mute'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowTagModal(true);
+                            setShowMoreMenu(false);
+                          }}
+                          className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+                        >
+                          <Flag className="w-4 h-4 mr-2" />
+                          Manage Tags
+                        </button>
+                        <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center rounded-b-lg">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              {/* Right: Simple User Info + Chevron */}
+              {/* Right: User Info with Chevron Toggle */}
               <div className="flex items-center space-x-3 flex-shrink-0">
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
@@ -358,8 +405,15 @@ const AdminChat = () => {
                 >
                   {showUserProfile ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
                 </button>
+
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</span>
+                  <div className="text-right">
+                    <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500" title="User's current time">
+                      {getUserCurrentTime()}
+                    </p>
+                  </div>
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
                     {userName !== 'User' ? (
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -461,58 +515,6 @@ const AdminChat = () => {
       <div className="flex-1 flex flex-col">
         {selectedChat ? (
           <>
-            {/* Chat Header with Actions */}
-            <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Conversation</h3>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setShowSearchModal(true)}
-                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Search messages"
-                >
-                  <Search className="w-4 h-4" />
-                </button>
-                <div className="relative" ref={moreMenuRef}>
-                  <button
-                    onClick={() => setShowMoreMenu(!showMoreMenu)}
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    title="More options"
-                  >
-                    <MoreHorizontal className="w-4 h-4" />
-                  </button>
-                  {showMoreMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg">
-                        <Archive className="w-4 h-4 mr-2" />
-                        Archive
-                      </button>
-                      <button
-                        onClick={() => setIsMuted(!isMuted)}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-                      >
-                        {isMuted ? <Volume2 className="w-4 h-4 mr-2" /> : <VolumeX className="w-4 h-4 mr-2" />}
-                        {isMuted ? 'Unmute' : 'Mute'}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowTagModal(true);
-                          setShowMoreMenu(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-                      >
-                        <Flag className="w-4 h-4 mr-2" />
-                        Manage Tags
-                      </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center rounded-b-lg">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {messages.length === 0 ? (
