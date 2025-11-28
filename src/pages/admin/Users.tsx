@@ -102,10 +102,10 @@ export default function Users() {
     try {
       setIsLoading(true);
 
-      // Fetch all user profiles (non-admins only)
+      // Fetch all user profiles (non-admins only) with Shopify store data
       const { data: profiles, error: profilesError } = await supabase
         .from('user_profiles')
-        .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
+        .select('user_id, name, email, created_at, is_admin, company, store_url')
         .eq('is_admin', false);
 
       if (profilesError) throw profilesError;
@@ -117,17 +117,6 @@ export default function Users() {
       }
 
       const userIds = profiles.map(p => p.user_id);
-
-      // Fetch Shopify store data
-      const { data: shopifyStores } = await supabase
-        .from('shopify_installations')
-        .select('user_id, store_url')
-        .in('user_id', userIds)
-        .is('uninstalled_at', null);
-
-      const storeMap = new Map(
-        (shopifyStores || []).map(s => [s.user_id, s.store_url])
-      );
 
       // Fetch user assignments
       const { data: assignments } = await supabase
@@ -167,19 +156,13 @@ export default function Users() {
         const assignment = assignmentMap.get(profile.user_id);
         const admin = assignment ? adminMap.get(assignment.admin_id) : null;
 
-        // Build display name from available fields
-        const displayName = profile.name ||
-          (profile.first_name && profile.last_name
-            ? `${profile.first_name} ${profile.last_name}`
-            : profile.email.split('@')[0]);
-
         return {
           id: profile.user_id,
           user_id: profile.user_id,
-          name: displayName,
+          name: profile.name,
           email: profile.email,
           company: profile.company || null,
-          storeUrl: storeMap.get(profile.user_id) || null,
+          storeUrl: profile.store_url || null,
           registrationDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A',
           transactions: assignment?.total_transactions || 0,
           invoices: assignment?.total_invoices || 0,
