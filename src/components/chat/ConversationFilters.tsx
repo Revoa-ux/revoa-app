@@ -92,7 +92,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
-    <div className="px-3 py-4 border-b border-gray-200 dark:border-gray-700 space-y-2.5">
+    <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700 space-y-2">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
