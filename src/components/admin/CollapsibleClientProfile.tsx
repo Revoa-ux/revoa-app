@@ -404,7 +404,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             <div className="text-right">
               {metrics.last_invoice_sent_date ? (
                 <>
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
+                  <p className="text-sm text-gray-900 dark:text-white">
                     ${metrics.last_invoice_sent_amount.toFixed(2)}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -426,7 +426,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             <div className="text-right">
               {metrics.last_invoice_paid_date ? (
                 <>
-                  <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                  <p className="text-sm text-green-600 dark:text-green-400">
                     ${metrics.last_invoice_paid_amount.toFixed(2)}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -447,7 +447,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 <span className="text-xs">Pending Invoices</span>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
+                <p className="text-sm text-yellow-600 dark:text-yellow-400">
                   ${metrics.pending_invoices_total.toFixed(2)}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -472,7 +472,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 <span className="text-xs">Active Quotes</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                <span className="text-sm text-blue-600 dark:text-blue-400">
                   {activeQuotesCount}
                 </span>
                 <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-blue-500 transition-colors" />
