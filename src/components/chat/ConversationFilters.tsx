@@ -17,16 +17,19 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
   searchTerm,
   onSearchChange,
 }) => {
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showUserTypeDropdown, setShowUserTypeDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [tags, setTags] = useState<ConversationTag[]>([]);
 
-  const filterDropdownRef = useRef<HTMLDivElement>(null);
+  const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const userTypeDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   const tagDropdownRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
+  useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+  useClickOutside(userTypeDropdownRef, () => setShowUserTypeDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
   useClickOutside(tagDropdownRef, () => setShowTagDropdown(false));
 
@@ -90,19 +93,6 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
     (filters.tagIds && filters.tagIds.length > 0) ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
-  const getFilterLabel = () => {
-    const activeFilters = [];
-    if (filters.status !== 'all') {
-      activeFilters.push(statusOptions.find(opt => opt.value === filters.status)?.label.split(' ')[0]);
-    }
-    if (filters.userType !== 'all') {
-      activeFilters.push(userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0]);
-    }
-
-    if (activeFilters.length === 0) return 'All';
-    if (activeFilters.length === 1) return activeFilters[0];
-    return `${activeFilters.length} Filters`;
-  };
 
   return (
     <div className="p-3 border-b border-gray-200 dark:border-gray-700 space-y-3">
@@ -158,59 +148,65 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="relative" ref={filterDropdownRef}>
+        <div className="relative" ref={statusDropdownRef}>
           <button
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2 whitespace-nowrap w-[120px] justify-between"
+            onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Filter className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
               <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-                {getFilterLabel()}
+                {statusOptions.find(opt => opt.value === filters.status)?.label.split(' ')[0] || 'All'}
               </span>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           </button>
 
-          {showFilterDropdown && (
+          {showStatusDropdown && (
+            <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {statusOptions.map((option, index) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    onFiltersChange({ ...filters, status: option.value as any });
+                    setShowStatusDropdown(false);
+                  }}
+                  className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                >
+                  <span>{option.label}</span>
+                  {filters.status === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="relative" ref={userTypeDropdownRef}>
+          <button
+            onClick={() => setShowUserTypeDropdown(!showUserTypeDropdown)}
+            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[80px] justify-between"
+          >
+            <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
+              {userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0] || 'All'}
+            </span>
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+          </button>
+
+          {showUserTypeDropdown && (
             <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <div className="py-1">
-                <div className="px-3 py-1.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Conversations
-                </div>
-                {statusOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      onFiltersChange({ ...filters, status: option.value as any });
-                    }}
-                    className="flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  >
-                    <span>{option.label}</span>
-                    {filters.status === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
-                  </button>
-                ))}
-              </div>
-
-              <div className="border-t border-gray-200 dark:border-gray-700" />
-
-              <div className="py-1">
-                <div className="px-3 py-1.5 text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Users
-                </div>
-                {userTypeOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      onFiltersChange({ ...filters, userType: option.value as any });
-                    }}
-                    className="flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  >
-                    <span>{option.label}</span>
-                    {filters.userType === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
-                  </button>
-                ))}
-              </div>
+              {userTypeOptions.map((option, index) => (
+                <button
+                  key={option.value}
+                  onClick={() => {
+                    onFiltersChange({ ...filters, userType: option.value as any });
+                    setShowUserTypeDropdown(false);
+                  }}
+                  className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                >
+                  <span>{option.label}</span>
+                  {filters.userType === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -218,7 +214,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={tagDropdownRef}>
           <button
             onClick={() => setShowTagDropdown(!showTagDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2 whitespace-nowrap w-[120px] justify-between"
+            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[100px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <TagIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
