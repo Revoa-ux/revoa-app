@@ -25,6 +25,7 @@ import AdminSettings from './pages/admin/Settings';
 import AdminManage from './pages/admin/Admins';
 import AdminProfileSetup from './pages/admin/ProfileSetup';
 import AdminProfileEdit from './pages/admin/ProfileEdit';
+import AcceptInvitation from './pages/admin/AcceptInvitation';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -152,6 +153,9 @@ function App() {
                 <AdminProfileSetup />
               </AdminProtectedRoute>
             } />
+
+            {/* Admin invitation acceptance - public route */}
+            <Route path="/admin/accept-invitation" element={<AcceptInvitation />} />
 
             {/* Admin routes */}
             <Route path="/admin" element={

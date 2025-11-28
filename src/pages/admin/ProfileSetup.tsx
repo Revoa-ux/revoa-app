@@ -7,6 +7,7 @@ import { adminProfileService } from '@/lib/adminProfileService';
 import { validateProfileSetup, ProfileSetupData, commonTimezones } from '@/lib/adminProfileValidation';
 import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
 import { LoadingPage } from '@/components/LoadingPage';
+import Button from '@/components/Button';
 
 export default function AdminProfileSetup() {
   const { user } = useAuth();
@@ -269,13 +270,15 @@ export default function AdminProfileSetup() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <button
+              <Button
                 type="submit"
-                disabled={saving}
-                className="flex-1 px-6 py-3 text-white font-medium bg-gradient-to-r from-[#E85B81] to-[#E87D55] rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                variant="primary"
+                size="lg"
+                loading={saving}
+                fullWidth
               >
                 {saving ? 'Saving...' : 'Complete Setup'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

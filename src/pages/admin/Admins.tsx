@@ -21,6 +21,8 @@ import { toast } from 'sonner';
 import { useAdmin } from '@/contexts/AdminContext';
 import { supabase } from '@/lib/supabase';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
+import InviteAdminModal from '@/components/admin/InviteAdminModal';
+import Button from '@/components/Button';
 
 interface AdminUser {
   id: string;
@@ -218,24 +220,8 @@ export default function AdminManage() {
     }
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inviteEmail.endsWith('@revoa.app')) {
-      toast.error('Only @revoa.app email addresses are allowed');
-      return;
-    }
-
-    setIsInviting(true);
-    try {
-      toast.info('Invite functionality coming soon');
-      setInviteEmail('');
-      setShowInviteModal(false);
-    } catch (error) {
-      console.error('Error inviting admin:', error);
-      toast.error('Failed to send invitation');
-    } finally {
-      setIsInviting(false);
-    }
+  const handleInviteSuccess = () => {
+    fetchAdmins();
   };
 
   const totalAssignedUsers = admins.reduce((sum, admin) => sum + admin.assignedUsers, 0);
@@ -257,13 +243,15 @@ export default function AdminManage() {
         </div>
 
         {isSuperAdmin && (
-          <button
+          <Button
+            variant="primary"
+            size="md"
+            icon={<UserPlus className="w-4 h-4" />}
+            iconPosition="left"
             onClick={() => setShowInviteModal(true)}
-            className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2"
           >
-            <UserPlus className="w-4 h-4" />
-            <span>Invite Admin</span>
-          </button>
+            Invite Admin
+          </Button>
         )}
       </div>
 
@@ -445,69 +433,11 @@ export default function AdminManage() {
         )}
       </div>
 
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                Invite Admin
-              </h3>
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="admin@revoa.app"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 dark:bg-gray-700 dark:text-gray-100"
-                  required
-                />
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Only @revoa.app email addresses are allowed
-                </p>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowInviteModal(false)}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isInviting}
-                  className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isInviting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="w-4 h-4" />
-                      <span>Send Invitation</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <InviteAdminModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSuccess={handleInviteSuccess}
+      />
     </div>
   );
 }

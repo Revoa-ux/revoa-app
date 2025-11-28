@@ -6,6 +6,7 @@ import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';
 import { validatePasswordChange, validateProfileSetup, commonTimezones } from '@/lib/adminProfileValidation';
 import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
 import { LoadingPage } from '@/components/LoadingPage';
+import Button from '@/components/Button';
 
 export default function AdminProfileEdit() {
   const { user } = useAuth();
@@ -342,14 +343,16 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end">
-                <button
+                <Button
                   type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 text-white font-medium bg-gradient-to-r from-[#E85B81] to-[#E87D55] rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                  variant="primary"
+                  size="lg"
+                  loading={saving}
+                  icon={<Save className="w-4 h-4" />}
+                  iconPosition="left"
                 >
-                  <Save className="w-4 h-4 inline mr-2" />
                   {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -447,13 +450,14 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <button
+                <Button
                   type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 text-white font-medium bg-gradient-to-r from-[#E85B81] to-[#E87D55] rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                  variant="primary"
+                  size="lg"
+                  loading={saving}
                 >
                   {saving ? 'Updating...' : 'Update Password'}
-                </button>
+                </Button>
               </div>
             </form>
           )}
@@ -502,14 +506,16 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <button
+                <Button
                   onClick={handleSaveNotifications}
-                  disabled={saving}
-                  className="px-6 py-2.5 text-white font-medium bg-gradient-to-r from-[#E85B81] to-[#E87D55] rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                  variant="primary"
+                  size="lg"
+                  loading={saving}
+                  icon={<Save className="w-4 h-4" />}
+                  iconPosition="left"
                 >
-                  <Save className="w-4 h-4 inline mr-2" />
                   {saving ? 'Saving...' : 'Save Preferences'}
-                </button>
+                </Button>
               </div>
             </div>
           )}
