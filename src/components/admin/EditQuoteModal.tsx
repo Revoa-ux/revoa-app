@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2, AlertCircle, Globe, Save, DollarSign } from 'lucide-react';
+import { X, Trash2, AlertCircle, Globe, Save, DollarSign, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
@@ -45,6 +45,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   );
   const [editReason, setEditReason] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedShipping, setExpandedShipping] = useState<number | null>(null);
 
   const handleVariantChange = (
     index: number,
@@ -227,24 +228,31 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
 
               {/* Shipping Costs */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center justify-between mb-3">
+                <button
+                  type="button"
+                  onClick={() => setExpandedShipping(expandedShipping === variantIndex ? null : variantIndex)}
+                  className="w-full flex items-center justify-between text-sm font-medium text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                >
                   <div className="flex items-center space-x-2">
-                    <Globe className="w-4 h-4 text-gray-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      Shipping by Country
+                    <Globe className="w-4 h-4" />
+                    <span>Shipping Costs by Country</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      ({Object.keys(variant.shippingCosts).length} countries)
                     </span>
                   </div>
-                </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${expandedShipping === variantIndex ? 'rotate-180' : ''}`} />
+                </button>
 
-                <div className="space-y-2">
+                {expandedShipping === variantIndex && (
+                <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                   {/* Default Shipping */}
                   <div className="flex items-start space-x-2">
                     <div className="flex-1 pt-1">
-                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         Default (All Other Countries)
                       </span>
                     </div>
-                    <div className="relative w-24">
+                    <div className="relative w-32">
                       <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
                       <input
                         type="number"
@@ -265,11 +273,11 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     .map(([code, cost]) => (
                       <div key={code} className="flex items-start space-x-2">
                         <div className="flex-1 pt-1">
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             {COMMON_COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
                         </div>
-                        <div className="relative w-24">
+                        <div className="relative w-32">
                           <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
                           <input
                             type="number"
@@ -283,8 +291,9 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                           />
                         </div>
                         <button
+                          type="button"
                           onClick={() => removeShippingCountry(variantIndex, code)}
-                          className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                          className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -292,15 +301,13 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     ))}
 
                   {/* Add Country */}
-                  {getAvailableCountries(variantIndex).length > 0 && (
-                    <div className="pt-2">
-                      <CountrySelector
-                        availableCountries={getAvailableCountries(variantIndex)}
-                        onSelect={(code) => addShippingCountry(variantIndex, code)}
-                      />
-                    </div>
-                  )}
+                  <CountrySelector
+                    label="Add Country"
+                    availableCountries={getAvailableCountries(variantIndex)}
+                    onSelect={(code) => addShippingCountry(variantIndex, code)}
+                  />
                 </div>
+                )}
               </div>
             </div>
           ))}
