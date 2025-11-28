@@ -328,7 +328,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 <div className="space-y-2">
                   {/* Default Shipping */}
                   <div className="flex items-center space-x-2">
-                    <div className="flex-1 flex items-center">
+                    <div className="flex-1">
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         Default (All Other Countries)
                       </span>
@@ -353,7 +353,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                     .filter(([code]) => code !== '_default')
                     .map(([code, cost]) => (
                       <div key={code} className="flex items-center space-x-2">
-                        <div className="flex-1 flex items-center">
+                        <div className="flex-1">
                           <span className="text-xs text-gray-600 dark:text-gray-400">
                             {COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
@@ -405,7 +405,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
             onChange={(e) => setEditReason(e.target.value)}
             placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent"
           />
         </div>
 
