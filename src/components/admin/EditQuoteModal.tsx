@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Plus, Trash2, AlertCircle, Globe, Save, ChevronDown, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Trash2, AlertCircle, Globe, Save, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
-import { useClickOutside } from '@/lib/useClickOutside';
-import { ProductAttributesEditor } from '@/components/quotes/ProductAttributesEditor';
+import { ProductVariantsEditor } from '@/components/quotes/ProductVariantsEditor';
+import { CountrySelector, COMMON_COUNTRIES } from '@/components/quotes/CountrySelector';
 
 interface ProductAttribute {
   name: string;
@@ -31,113 +31,6 @@ interface EditQuoteModalProps {
   onSuccess: () => void;
 }
 
-const COUNTRIES = [
-  { code: 'US', name: 'United States' },
-  { code: 'CA', name: 'Canada' },
-  { code: 'GB', name: 'United Kingdom' },
-  { code: 'AU', name: 'Australia' },
-  { code: 'DE', name: 'Germany' },
-  { code: 'FR', name: 'France' },
-  { code: 'IT', name: 'Italy' },
-  { code: 'ES', name: 'Spain' },
-  { code: 'NL', name: 'Netherlands' },
-  { code: 'BE', name: 'Belgium' },
-  { code: 'SE', name: 'Sweden' },
-  { code: 'NO', name: 'Norway' },
-  { code: 'DK', name: 'Denmark' },
-  { code: 'FI', name: 'Finland' },
-  { code: 'CH', name: 'Switzerland' },
-  { code: 'AT', name: 'Austria' },
-  { code: 'IE', name: 'Ireland' },
-  { code: 'NZ', name: 'New Zealand' },
-  { code: 'SG', name: 'Singapore' },
-  { code: 'JP', name: 'Japan' }
-];
-
-interface CountrySelectorProps {
-  availableCountries: Array<{ code: string; name: string }>;
-  onSelect: (code: string) => void;
-}
-
-const CountrySelector: React.FC<CountrySelectorProps> = ({ availableCountries, onSelect }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  useClickOutside(dropdownRef, () => setIsOpen(false));
-
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const filteredCountries = availableCountries.filter(country =>
-    country.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleSelect = (code: string) => {
-    onSelect(code);
-    setIsOpen(false);
-    setSearchTerm('');
-  };
-
-  return (
-    <div ref={dropdownRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-left text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-transparent transition-all flex items-center justify-between"
-      >
-        <span className="flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Add Country</span>
-        </span>
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute z-[9999] mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-hidden">
-          {/* Search Input */}
-          <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search countries..."
-                className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
-              />
-            </div>
-          </div>
-
-          {/* Country List */}
-          <div className="max-h-48 overflow-y-auto">
-            {filteredCountries.length > 0 ? (
-              filteredCountries.map((country) => (
-                <button
-                  key={country.code}
-                  type="button"
-                  onClick={() => handleSelect(country.code)}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  {country.name}
-                </button>
-              ))
-            ) : (
-              <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-center">
-                No countries found
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
   quoteId,
@@ -206,7 +99,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
     const usedCodes = Object.keys(variants[variantIndex].shippingCosts).filter(
       (code) => code !== '_default'
     );
-    return COUNTRIES.filter((country) => !usedCodes.includes(country.code));
+    return COMMON_COUNTRIES.filter((country) => !usedCodes.includes(country.code));
   };
 
   const handleSave = async () => {
@@ -293,8 +186,8 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    SKU
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    SKU <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -305,25 +198,28 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Cost Per Item ($)
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Cost per Item <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={variant.costPerItem}
-                    onChange={(e) =>
-                      handleVariantChange(variantIndex, 'costPerItem', parseFloat(e.target.value) || 0)
-                    }
-                    className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={variant.costPerItem}
+                      onChange={(e) =>
+                        handleVariantChange(variantIndex, 'costPerItem', parseFloat(e.target.value) || 0)
+                      }
+                      className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Product Variants */}
               <div className="mb-4">
-                <ProductAttributesEditor
+                <ProductVariantsEditor
                   attributes={variant.attributes || []}
                   onChange={(attributes) => handleVariantChange(variantIndex, 'attributes', attributes)}
                 />
@@ -370,7 +266,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                       <div key={code} className="flex items-start space-x-2">
                         <div className="flex-1 pt-1">
                           <span className="text-xs text-gray-600 dark:text-gray-400">
-                            {COUNTRIES.find((c) => c.code === code)?.name || code}
+                            {COMMON_COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
                         </div>
                         <div className="relative w-24">
