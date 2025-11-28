@@ -333,17 +333,23 @@ const AdminChat = () => {
           {/* Unified Top Bar - Filters + Actions + User Info */}
           {selectedChat && (
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              {/* Left: Filters + Action Buttons */}
-              <div className="flex items-center space-x-3 flex-1 mr-6">
-                <ConversationFilters
-                  filters={conversationFilters}
-                  onFiltersChange={setConversationFilters}
-                  searchTerm={conversationSearch}
-                  onSearchChange={setConversationSearch}
-                />
+              {/* Left: Filters + Action Buttons - Compressed when profile expanded */}
+              <div className={`flex items-center space-x-3 flex-1 mr-6 transition-all duration-300 ${
+                showUserProfile ? 'max-w-md' : ''
+              }`}>
+                {!showUserProfile && (
+                  <ConversationFilters
+                    filters={conversationFilters}
+                    onFiltersChange={setConversationFilters}
+                    searchTerm={conversationSearch}
+                    onSearchChange={setConversationSearch}
+                  />
+                )}
 
-                {/* Action Buttons next to filters */}
-                <div className="flex items-center space-x-2 border-l border-gray-200 dark:border-gray-700 pl-3">
+                {/* Action Buttons - always visible */}
+                <div className={`flex items-center space-x-2 ${
+                  !showUserProfile ? 'border-l border-gray-200 dark:border-gray-700 pl-3' : ''
+                }`}>
                   <button
                     onClick={() => setShowSearchModal(true)}
                     className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -394,36 +400,67 @@ const AdminChat = () => {
 
               {/* Right: User Info with Chevron Toggle */}
               <div className="flex items-center space-x-3 flex-shrink-0">
-                <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
-                    showUserProfile
-                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  title={showUserProfile ? 'Hide profile' : 'Show profile'}
-                >
-                  {showUserProfile ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
-                </button>
-
-                <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500" title="User's current time">
-                      {getUserCurrentTime()}
-                    </p>
+                {showUserProfile ? (
+                  /* Expanded Profile Card */
+                  <div className="flex items-center space-x-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-200 dark:border-gray-700">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                      {userName !== 'User' ? (
+                        <span className="text-base font-medium text-gray-700 dark:text-gray-300">
+                          {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                        </span>
+                      ) : (
+                        <User className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">{userName}</h2>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{displaySecondaryLine}</p>
+                      <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <span title="User's current time">
+                          {getUserCurrentTime()}
+                        </span>
+                        {totalTransactions > 0 && (
+                          <span title="Total transaction volume">
+                            ${totalTransactions.toLocaleString()} volume
+                          </span>
+                        )}
+                        {totalInvoices > 0 && (
+                          <span>{totalInvoices} invoices</span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowUserProfile(false)}
+                      className="p-2 text-pink-600 bg-pink-50 dark:bg-pink-900/20 hover:bg-pink-100 dark:hover:bg-pink-900/30 rounded-lg transition-colors ml-2"
+                      title="Hide profile"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-                    {userName !== 'User' ? (
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                      </span>
-                    ) : (
-                      <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    )}
-                  </div>
-                </div>
+                ) : (
+                  /* Collapsed - Simple Name + Avatar */
+                  <>
+                    <button
+                      onClick={() => setShowUserProfile(true)}
+                      className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      title="Show profile"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</span>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                        {userName !== 'User' ? (
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                          </span>
+                        ) : (
+                          <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
