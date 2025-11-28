@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, TrendingUp, Tag } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import { Chat } from '@/lib/chatService';
 import { formatDistanceToNow } from 'date-fns';
 import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
@@ -45,78 +45,37 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
     }
   };
 
-  // Determine user status
-  const getUserStatus = () => {
-    const createdAt = chat.user_profile?.created_at ? new Date(chat.user_profile.created_at) : null;
-    const lastInteraction = chat.user_assignment?.last_interaction_at ? new Date(chat.user_assignment.last_interaction_at) : null;
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-    if (createdAt && createdAt > sevenDaysAgo) {
-      return { label: 'New', color: 'bg-green-500' };
-    } else if (lastInteraction && lastInteraction > sevenDaysAgo) {
-      return { label: 'Active', color: 'bg-blue-500' };
-    } else if (!lastInteraction || lastInteraction < thirtyDaysAgo) {
-      return { label: 'Inactive', color: 'bg-gray-400' };
-    }
-    return null;
-  };
-
-  const userStatus = getUserStatus();
-
-  // Format last message time
-  const lastMessageTime = chat.last_message_at
-    ? formatDistanceToNow(new Date(chat.last_message_at), { addSuffix: true })
-    : '';
-
   // Get initials for avatar
   const getInitials = (name: string) => {
-    const parts = name.split(' ');
+    if (!name || name === 'User') {
+      return 'U';
+    }
+    const parts = name.split(' ').filter(p => p.length > 0);
     if (parts.length >= 2) {
       return (parts[0][0] + parts[1][0]).toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
   };
 
+  // Format last message time
+  const lastMessageTime = chat.last_message_at
+    ? formatDistanceToNow(new Date(chat.last_message_at), { addSuffix: true })
+    : '';
+
   return (
     <button
       onClick={onClick}
       className={`w-full p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
-        isSelected ? 'bg-gray-50 dark:bg-gray-700' : ''
+        isSelected ? 'bg-gradient-to-r from-[#E85B81]/10 to-[#E87D55]/10 dark:from-[#E85B81]/20 dark:to-[#E87D55]/20 border-l-2 border-l-[#E85B81]' : ''
       }`}
     >
       <div className="flex items-start space-x-3">
         <div className="relative flex-shrink-0">
-          {isSelected ? (
-            <div className="p-0.5 rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-                {userName !== 'User' ? (
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {getInitials(userName)}
-                  </span>
-                ) : (
-                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-              {userName !== 'User' ? (
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {getInitials(userName)}
-                </span>
-              ) : (
-                <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              )}
-            </div>
-          )}
-          {userStatus && (
-            <div
-              className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 ${userStatus.color} rounded-full border-2 border-white dark:border-gray-800`}
-              title={userStatus.label}
-            />
-          )}
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E85B81] to-[#E87D55] flex items-center justify-center">
+            <span className="text-sm font-semibold text-white">
+              {getInitials(userName)}
+            </span>
+          </div>
         </div>
 
         <div className="flex-1 min-w-0">
