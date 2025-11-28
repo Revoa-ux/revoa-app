@@ -8,7 +8,7 @@ import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
 
 export default function AdminProfileEdit() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
@@ -49,6 +49,7 @@ export default function AdminProfileEdit() {
   const loadProfile = async () => {
     if (!user) return;
 
+    setLoading(true);
     try {
       const data = await adminProfileService.getProfile(user.id);
       if (!data) {
@@ -165,49 +166,12 @@ export default function AdminProfileEdit() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-          <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <div className="flex space-x-8 px-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="h-12 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse my-2"></div>
-              ))}
-            </div>
-          </div>
-
-          <div className="p-6 space-y-6">
-            <div className="flex justify-center">
-              <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-            </div>
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="space-y-2">
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (!profile) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-gray-600 dark:text-gray-400">Profile not found</p>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-[1050px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Profile Settings</h1>
         <div className="flex items-center space-x-2">
