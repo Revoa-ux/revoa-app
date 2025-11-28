@@ -92,6 +92,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
+    <>
     <div className="px-3 border-b border-gray-200 dark:border-gray-700 min-h-[90px] max-h-[90px] flex flex-col justify-center gap-1.5">
       {/* Top Row: Search + Sort */}
       <div className="flex items-center gap-2">
@@ -261,20 +262,22 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           )}
         </div>
       </div>
-
-      {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-gray-500 dark:text-gray-400">
-            {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
-          </span>
-          <button
-            onClick={handleClearFilters}
-            className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
     </div>
+
+    {/* Filter count banner - outside the fixed-height container */}
+    {activeFilterCount > 0 && (
+      <div className="px-3 py-2 bg-gray-50 dark:bg-gray-900/30 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
+        </span>
+        <button
+          onClick={handleClearFilters}
+          className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline"
+        >
+          Clear all
+        </button>
+      </div>
+    )}
+    </>
   );
 };
