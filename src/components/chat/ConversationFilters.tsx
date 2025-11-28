@@ -92,8 +92,8 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
-    <div className="px-3 py-4 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2">
+    <div className="px-3 py-4 border-b border-gray-200 dark:border-gray-700 h-[74px] flex items-center">
+      <div className="flex items-center gap-2 w-full">
         <div className="relative flex-1" ref={statusDropdownRef}>
           <button
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
