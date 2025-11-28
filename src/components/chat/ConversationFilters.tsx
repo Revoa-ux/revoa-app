@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
-import { Search, Filter, ChevronDown, X, Check, SlidersHorizontal } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Search, Filter, ChevronDown, X, Check, SlidersHorizontal, Tag as TagIcon } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { ChatFilters } from '@/lib/chatService';
+import { ConversationTag, conversationTagService } from '@/lib/conversationTagService';
 
 interface ConversationFiltersProps {
   filters: ChatFilters;
@@ -19,14 +20,31 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showUserTypeDropdown, setShowUserTypeDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [showTagDropdown, setShowTagDropdown] = useState(false);
+  const [tags, setTags] = useState<ConversationTag[]>([]);
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
   const userTypeDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
+  const tagDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
   useClickOutside(userTypeDropdownRef, () => setShowUserTypeDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
+  useClickOutside(tagDropdownRef, () => setShowTagDropdown(false));
+
+  useEffect(() => {
+    loadTags();
+  }, []);
+
+  const loadTags = async () => {
+    try {
+      const allTags = await conversationTagService.getTags();
+      setTags(allTags);
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    }
+  };
 
   const statusOptions = [
     { value: 'all', label: 'All Conversations' },
@@ -55,14 +73,24 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
       status: 'all',
       userType: 'all',
       sortBy: 'recent',
+      tagIds: [],
     });
     onSearchChange('');
+  };
+
+  const toggleTag = (tagId: string) => {
+    const currentTags = filters.tagIds || [];
+    const newTags = currentTags.includes(tagId)
+      ? currentTags.filter(id => id !== tagId)
+      : [...currentTags, tagId];
+    onFiltersChange({ ...filters, tagIds: newTags });
   };
 
   const activeFilterCount = [
     filters.status !== 'all' ? 1 : 0,
     filters.userType !== 'all' ? 1 : 0,
     searchTerm ? 1 : 0,
+    (filters.tagIds && filters.tagIds.length > 0) ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -101,15 +129,15 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             </button>
 
             {showStatusDropdown && (
-              <div className="absolute z-50 w-44 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
-                {statusOptions.map((option) => (
+              <div className="absolute z-50 w-44 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {statusOptions.map((option, index) => (
                   <button
                     key={option.value}
                     onClick={() => {
                       onFiltersChange({ ...filters, status: option.value as any });
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className={`flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                   >
                     <span>{option.label}</span>
                     {filters.status === option.value && <Check className="w-3 h-3 text-gray-900 dark:text-gray-100" />}
@@ -132,20 +160,63 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             </button>
 
             {showUserTypeDropdown && (
-              <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
-                {userTypeOptions.map((option) => (
+              <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {userTypeOptions.map((option, index) => (
                   <button
                     key={option.value}
                     onClick={() => {
                       onFiltersChange({ ...filters, userType: option.value as any });
                       setShowUserTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className={`flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                   >
                     <span>{option.label}</span>
                     {filters.userType === option.value && <Check className="w-3 h-3 text-gray-900 dark:text-gray-100" />}
                   </button>
                 ))}
+              </div>
+            )}
+          </div>
+
+          <div className="relative" ref={tagDropdownRef}>
+            <button
+              onClick={() => setShowTagDropdown(!showTagDropdown)}
+              className="px-2.5 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1"
+            >
+              <TagIcon className="w-3 h-3 text-gray-400" />
+              <span className="text-gray-700 dark:text-gray-300">
+                {filters.tagIds && filters.tagIds.length > 0 ? `${filters.tagIds.length} Tag${filters.tagIds.length > 1 ? 's' : ''}` : 'Tags'}
+              </span>
+              <ChevronDown className="w-3 h-3 text-gray-400" />
+            </button>
+
+            {showTagDropdown && (
+              <div className="absolute z-50 left-0 w-56 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
+                {tags.length === 0 ? (
+                  <div className="px-3 py-6 text-xs text-center text-gray-500 dark:text-gray-400">
+                    No tags available
+                  </div>
+                ) : (
+                  tags.map((tag, index) => {
+                    const isSelected = filters.tagIds?.includes(tag.id) || false;
+                    return (
+                      <button
+                        key={tag.id}
+                        onClick={() => toggleTag(tag.id)}
+                        className={`flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === tags.length - 1 ? 'rounded-b-lg' : ''}`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: tag.color }}
+                          />
+                          <span>{tag.name}</span>
+                        </div>
+                        {isSelected && <Check className="w-3 h-3 text-gray-900 dark:text-gray-100" />}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             )}
           </div>
@@ -163,15 +234,15 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
           </button>
 
           {showSortDropdown && (
-            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
-              {sortOptions.map((option) => (
+            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {sortOptions.map((option, index) => (
                 <button
                   key={option.value}
                   onClick={() => {
                     onFiltersChange({ ...filters, sortBy: option.value as any });
                     setShowSortDropdown(false);
                   }}
-                  className="flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  className={`flex items-center justify-between w-full px-3 py-2 text-xs text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === sortOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
                   {filters.sortBy === option.value && <Check className="w-3 h-3 text-gray-900 dark:text-gray-100" />}

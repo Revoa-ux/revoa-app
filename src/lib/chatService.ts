@@ -65,6 +65,7 @@ export interface ChatFilters {
   status?: 'all' | 'unread' | 'archived' | 'flagged';
   userType?: 'all' | 'new' | 'active' | 'inactive';
   sortBy?: 'recent' | 'oldest' | 'volume' | 'messages' | 'alphabetical';
+  tagIds?: string[];
 }
 
 export const chatService = {
@@ -359,6 +360,23 @@ export const chatService = {
         }
         return true;
       });
+    }
+
+    // Apply tag filter
+    if (filters?.tagIds && filters.tagIds.length > 0) {
+      const { data: tagAssignments } = await supabase
+        .from('conversation_tag_assignments')
+        .select('chat_id, tag_id')
+        .in('chat_id', chatIds);
+
+      const taggedChatIds = new Set<string>();
+      tagAssignments?.forEach(assignment => {
+        if (filters.tagIds!.includes(assignment.tag_id)) {
+          taggedChatIds.add(assignment.chat_id);
+        }
+      });
+
+      enrichedChats = enrichedChats.filter(chat => taggedChatIds.has(chat.id));
     }
 
     // Apply custom sorting after filters

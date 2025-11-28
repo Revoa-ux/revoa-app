@@ -65,9 +65,9 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       </button>
 
       {isOpen && (
-        <div 
+        <div
           ref={menuRef}
-          className="fixed z-50 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1"
+          className="fixed z-50 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
           style={{
             ...(dropdownPosition === 'bottom' ? {
               top: buttonRef.current?.getBoundingClientRect().bottom,
@@ -81,12 +81,12 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         >
           <button
             onClick={handleAction(() => onViewProfile(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group rounded-t-lg"
           >
             <User className="w-4 h-4 mr-3" />
             View Profile
           </button>
-          
+
           <button
             onClick={handleAction(() => onResetPassword(userId))}
             className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
@@ -94,7 +94,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
             <Key className="w-4 h-4 mr-3" />
             Reset Password
           </button>
-          
+
           <button
             onClick={handleAction(() => onToggleStatus(userId, !isActive))}
             className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
@@ -102,7 +102,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
             <Power className="w-4 h-4 mr-3" />
             {isActive ? 'Disable Account' : 'Enable Account'}
           </button>
-          
+
           <button
             onClick={handleAction(() => onRemoveAssignment(userId))}
             className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
@@ -110,14 +110,14 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
             <UserMinus className="w-4 h-4 mr-3" />
             Remove Assignment
           </button>
-          
+
           <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
-          
+
           <button
             onClick={handleAction(() => {
               toast.success('User archived');
             })}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors relative group"
+            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors relative group rounded-b-lg"
           >
             <Trash2 className="w-4 h-4 mr-3" />
             Archive User

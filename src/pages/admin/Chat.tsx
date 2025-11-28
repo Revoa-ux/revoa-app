@@ -33,6 +33,7 @@ import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { ConversationListSkeleton } from '@/components/PageSkeletons';
 import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientProfile';
+import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -94,7 +95,8 @@ const AdminChat = () => {
     sortBy: 'recent',
   });
   const [conversationSearch, setConversationSearch] = useState('');
-  const [showUserProfile, setShowUserProfile] = useState(false); // Controlled by Info button
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showTagModal, setShowTagModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -476,8 +478,8 @@ const AdminChat = () => {
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
                   {showMoreMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg">
                         <Archive className="w-4 h-4 mr-2" />
                         Archive
                       </button>
@@ -488,11 +490,17 @@ const AdminChat = () => {
                         {isMuted ? <Volume2 className="w-4 h-4 mr-2" /> : <VolumeX className="w-4 h-4 mr-2" />}
                         {isMuted ? 'Unmute' : 'Mute'}
                       </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center">
+                      <button
+                        onClick={() => {
+                          setShowTagModal(true);
+                          setShowMoreMenu(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
+                      >
                         <Flag className="w-4 h-4 mr-2" />
-                        Flag
+                        Manage Tags
                       </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center">
+                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center rounded-b-lg">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Delete
                       </button>
@@ -807,6 +815,19 @@ const AdminChat = () => {
               )}
             </div>
           </Modal>
+        )}
+
+        {/* Tag Modal */}
+        {showTagModal && selectedChat && (
+          <ConversationTagModal
+            isOpen={showTagModal}
+            onClose={() => setShowTagModal(false)}
+            chatId={selectedChat.id}
+            onTagsUpdated={() => {
+              // Refresh chat list to show updated tags
+              if (user) loadChats();
+            }}
+          />
         )}
 
         {/* Delete Confirmation Modal */}

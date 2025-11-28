@@ -1,7 +1,8 @@
-import React from 'react';
-import { User, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, TrendingUp, Tag } from 'lucide-react';
 import { Chat } from '@/lib/chatService';
 import { formatDistanceToNow } from 'date-fns';
+import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
 
 interface ConversationListItemProps {
   chat: Chat;
@@ -20,6 +21,20 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   const lastMessagePreview = chat.last_message_preview || 'No messages yet';
   const totalTransactions = chat.user_assignment?.total_transactions || 0;
   const totalInvoices = chat.user_assignment?.total_invoices || 0;
+  const [tags, setTags] = useState<ConversationTagAssignment[]>([]);
+
+  useEffect(() => {
+    loadTags();
+  }, [chat.id]);
+
+  const loadTags = async () => {
+    try {
+      const chatTags = await conversationTagService.getTagsByChat(chat.id);
+      setTags(chatTags);
+    } catch (error) {
+      console.error('Error loading tags:', error);
+    }
+  };
 
   // Determine user status
   const getUserStatus = () => {
@@ -100,6 +115,28 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
           <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">
             {lastMessagePreview}
           </p>
+
+          {tags.length > 0 && (
+            <div className="flex items-center gap-1 mb-2 flex-wrap">
+              {tags.slice(0, 2).map((assignment) => (
+                <span
+                  key={assignment.id}
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
+                  style={{
+                    backgroundColor: `${assignment.tag?.color}15`,
+                    color: assignment.tag?.color,
+                  }}
+                >
+                  {assignment.tag?.name}
+                </span>
+              ))}
+              {tags.length > 2 && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400">
+                  +{tags.length - 2}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
