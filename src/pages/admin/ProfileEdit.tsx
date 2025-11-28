@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff } from 'lucide-react';
+import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';
 import { validatePasswordChange, validateProfileSetup, commonTimezones } from '@/lib/adminProfileValidation';
 import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
-import { LoadingPage } from '@/components/LoadingPage';
-import Button from '@/components/Button';
 
 export default function AdminProfileEdit() {
   const { user } = useAuth();
@@ -30,7 +28,7 @@ export default function AdminProfileEdit() {
     confirm_password: '',
   });
 
-  const [showPasswords, setShowPasswords] = useState({
+  const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
     confirm: false,
@@ -168,12 +166,41 @@ export default function AdminProfileEdit() {
   };
 
   if (loading) {
-    return <LoadingPage />;
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+          <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="flex space-x-8 px-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-12 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse my-2"></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6 space-y-6">
+            <div className="flex justify-center">
+              <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+            </div>
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="space-y-2">
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-10 w-full bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!profile) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-96">
         <p className="text-gray-600 dark:text-gray-400">Profile not found</p>
       </div>
     );
@@ -182,10 +209,13 @@ export default function AdminProfileEdit() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Profile Settings</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Manage your admin profile and account settings
-        </p>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Profile Settings</h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Manage your admin profile and account settings
+          </p>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -201,12 +231,12 @@ export default function AdminProfileEdit() {
                 onClick={() => setActiveTab(id as any)}
                 className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors ${
                   activeTab === id
-                    ? 'border-[#E85B81] text-[#E85B81]'
+                    ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="font-medium">{label}</span>
+                <span className="font-medium text-sm">{label}</span>
               </button>
             ))}
           </div>
@@ -237,7 +267,7 @@ export default function AdminProfileEdit() {
                       onChange={(e) => handleChange('first_name', e.target.value)}
                       className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      }`}
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                     />
                   </div>
                   {errors.first_name && (
@@ -257,7 +287,7 @@ export default function AdminProfileEdit() {
                       onChange={(e) => handleChange('last_name', e.target.value)}
                       className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                      }`}
+                      } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                     />
                   </div>
                   {errors.last_name && (
@@ -278,7 +308,7 @@ export default function AdminProfileEdit() {
                     onChange={(e) => handleChange('display_name', e.target.value)}
                     className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.display_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                   />
                 </div>
                 {errors.display_name && (
@@ -297,7 +327,7 @@ export default function AdminProfileEdit() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleChange('phone', e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
                     />
                   </div>
                 </div>
@@ -311,7 +341,7 @@ export default function AdminProfileEdit() {
                     <select
                       value={formData.timezone}
                       onChange={(e) => handleChange('timezone', e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
                     >
                       {commonTimezones.map((tz) => (
                         <option key={tz.value} value={tz.value}>
@@ -334,7 +364,7 @@ export default function AdminProfileEdit() {
                     onChange={(e) => handleChange('bio', e.target.value)}
                     rows={4}
                     maxLength={500}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
                   />
                 </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 text-right">
@@ -343,16 +373,23 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end">
-                <Button
+                <button
                   type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={saving}
-                  icon={<Save className="w-4 h-4" />}
-                  iconPosition="left"
+                  disabled={saving}
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
               </div>
             </form>
           )}
@@ -375,19 +412,19 @@ export default function AdminProfileEdit() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type={showPasswords.current ? 'text' : 'password'}
+                    type={showPassword.current ? 'text' : 'password'}
                     value={passwordData.current_password}
                     onChange={(e) => handlePasswordChange('current_password', e.target.value)}
                     className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                    onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 {errors.current_password && (
@@ -402,19 +439,19 @@ export default function AdminProfileEdit() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type={showPasswords.new ? 'text' : 'password'}
+                    type={showPassword.new ? 'text' : 'password'}
                     value={passwordData.new_password}
                     onChange={(e) => handlePasswordChange('new_password', e.target.value)}
                     className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                    onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 {errors.new_password && (
@@ -429,19 +466,19 @@ export default function AdminProfileEdit() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type={showPasswords.confirm ? 'text' : 'password'}
+                    type={showPassword.confirm ? 'text' : 'password'}
                     value={passwordData.confirm_password}
                     onChange={(e) => handlePasswordChange('confirm_password', e.target.value)}
                     className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                    }`}
+                    } focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100`}
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                    onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 {errors.confirm_password && (
@@ -450,14 +487,20 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button
+                <button
                   type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={saving}
+                  disabled={saving}
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
                 >
-                  {saving ? 'Updating...' : 'Update Password'}
-                </Button>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    'Update Password'
+                  )}
+                </button>
               </div>
             </form>
           )}
@@ -489,7 +532,7 @@ export default function AdminProfileEdit() {
                       onClick={() => setNotificationPrefs(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                         notificationPrefs[key as keyof typeof notificationPrefs]
-                          ? 'bg-[#E85B81]'
+                          ? 'bg-gray-900 dark:bg-gray-100'
                           : 'bg-gray-200 dark:bg-gray-700'
                       }`}
                     >
@@ -506,16 +549,23 @@ export default function AdminProfileEdit() {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button
+                <button
                   onClick={handleSaveNotifications}
-                  variant="primary"
-                  size="lg"
-                  loading={saving}
-                  icon={<Save className="w-4 h-4" />}
-                  iconPosition="left"
+                  disabled={saving}
+                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : 'Save Preferences'}
-                </Button>
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Save Preferences
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           )}

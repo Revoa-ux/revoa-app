@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { X, Mail, UserPlus, Shield, ShieldCheck } from 'lucide-react';
+import { X, Mail, UserPlus, Shield, ShieldCheck, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-import Button from '@/components/Button';
 import Modal from '@/components/Modal';
 import { z } from 'zod';
 
@@ -231,27 +230,31 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
         </div>
 
         <div className="flex gap-3 pt-2">
-          <Button
+          <button
             type="button"
-            variant="secondary"
-            size="lg"
             onClick={handleClose}
             disabled={isSubmitting}
-            fullWidth
+            className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             type="submit"
-            variant="primary"
-            size="lg"
-            loading={isSubmitting}
-            icon={<UserPlus className="w-4 h-4" />}
-            iconPosition="left"
-            fullWidth
+            disabled={isSubmitting}
+            className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center disabled:opacity-50"
           >
-            {isSubmitting ? 'Sending...' : 'Send Invitation'}
-          </Button>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Send Invitation
+              </>
+            )}
+          </button>
         </div>
       </form>
     </Modal>

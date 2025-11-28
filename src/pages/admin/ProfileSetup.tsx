@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Clock, FileText } from 'lucide-react';
+import { User, Mail, Phone, Clock, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminProfileService } from '@/lib/adminProfileService';
 import { validateProfileSetup, ProfileSetupData, commonTimezones } from '@/lib/adminProfileValidation';
 import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
 import { LoadingPage } from '@/components/LoadingPage';
-import Button from '@/components/Button';
 
 export default function AdminProfileSetup() {
   const { user } = useAuth();
@@ -270,15 +269,20 @@ export default function AdminProfileSetup() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button
+              <button
                 type="submit"
-                variant="primary"
-                size="lg"
-                loading={saving}
-                fullWidth
+                disabled={saving}
+                className="w-full px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center disabled:opacity-50"
               >
-                {saving ? 'Saving...' : 'Complete Setup'}
-              </Button>
+                {saving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Complete Setup'
+                )}
+              </button>
             </div>
           </form>
         </div>
