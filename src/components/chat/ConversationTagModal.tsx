@@ -217,7 +217,9 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-8 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 dark:from-gray-100 dark:to-gray-300 dark:text-gray-900 dark:hover:from-white dark:hover:to-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+            className="px-8 py-2.5 text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+              bg-gray-900 text-white hover:bg-gray-800
+              dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
           >
             {isSaving ? 'Saving...' : 'Save Tags'}
           </button>
