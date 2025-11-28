@@ -16,7 +16,10 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   onClick,
 }) => {
   const userName = chat.user_profile?.name || 'User';
-  const userEmail = chat.user_profile?.email || '';
+  const userCompany = chat.user_profile?.company ||
+    (chat.shopify_installations && chat.shopify_installations.length > 0
+      ? chat.shopify_installations[0].store_url.replace('https://', '').replace('.myshopify.com', '')
+      : chat.user_profile?.email || '');
   const unreadCount = chat.unread_count_admin || 0;
   const lastMessagePreview = chat.last_message_preview || 'No messages yet';
   const totalTransactions = chat.user_assignment?.total_transactions || 0;
@@ -65,14 +68,17 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`w-full p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
-        isSelected ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-[5px] border-l-[#E85B81]' : ''
+      className={`relative w-full p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
+        isSelected ? 'bg-gray-100/80 dark:bg-gray-700/80' : ''
       }`}
     >
+      {isSelected && (
+        <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
+      )}
       <div className="flex items-start space-x-3">
         <div className="relative flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#E85B81] to-[#E87D55] flex items-center justify-center">
-            <span className="text-sm font-semibold text-white">
+          <div className="w-10 h-10 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <span className="text-sm font-semibold text-white dark:text-white">
               {getInitials(userName)}
             </span>
           </div>
@@ -91,7 +97,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
           </div>
 
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-1">
-            {userEmail}
+            {userCompany}
           </p>
 
           <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">

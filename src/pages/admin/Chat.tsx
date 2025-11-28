@@ -342,7 +342,10 @@ const AdminChat = () => {
                   const profile = chat.user_profiles;
                   const userName = profile?.first_name && profile?.last_name
                     ? `${profile.first_name} ${profile.last_name}`
-                    : profile?.email?.split('@')[0] || 'User';
+                    : profile?.company ||
+                      (chat.shopify_installations && chat.shopify_installations.length > 0
+                        ? chat.shopify_installations[0].store_url.replace('https://', '').replace('.myshopify.com', '')
+                        : profile?.email?.split('@')[0] || 'User');
 
                   const getInitials = (name: string) => {
                     if (!name || name === 'User') {
@@ -363,10 +366,10 @@ const AdminChat = () => {
                     <button
                       key={chat.id}
                       onClick={() => setSelectedChat(chat)}
-                      className={`flex flex-col items-center py-3 px-2 group transition-all duration-200 border-l-[5px] ${
+                      className={`relative flex flex-col items-center py-3 px-2 group transition-all duration-200 ${
                         isSelected
-                          ? 'bg-gray-100/80 dark:bg-gray-700/80 border-l-[#E85B81]'
-                          : 'border-l-transparent hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                          ? 'bg-gray-100/80 dark:bg-gray-700/80'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
                       } ${
                         isFirst ? 'pt-4' : ''
                       } ${
@@ -374,9 +377,12 @@ const AdminChat = () => {
                       }`}
                       title={userName}
                     >
+                      {isSelected && (
+                        <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
+                      )}
                       <div className="relative mb-2">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#E85B81] to-[#E87D55] flex items-center justify-center">
-                          <span className="text-sm font-semibold text-white">
+                        <div className="w-12 h-12 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-sm font-semibold text-white dark:text-white">
                             {getInitials(userName)}
                           </span>
                         </div>
@@ -431,15 +437,6 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[90px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center flex-shrink-0">
-                  {userName !== 'User' ? (
-                    <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                    </span>
-                  ) : (
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
-                  )}
-                </div>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>

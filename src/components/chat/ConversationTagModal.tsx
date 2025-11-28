@@ -155,25 +155,19 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
                         className={`
-                          relative flex items-center px-3 py-2.5 rounded-lg border-2 transition-all
-                          backdrop-blur-md bg-white/50 dark:bg-gray-800/50
+                          relative flex items-center px-3 py-2.5 rounded-lg border transition-all
+                          backdrop-blur-sm bg-white/80 dark:bg-gray-800/80
+                          hover:shadow-md
                           ${
                             isSelected
-                              ? 'border-current shadow-sm'
-                              : 'border-gray-200/60 dark:border-gray-700/60'
+                              ? 'border-gray-900 dark:border-gray-100 shadow-sm'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                           }
                         `}
-                        style={{
-                          background: isSelected
-                            ? `linear-gradient(135deg, ${tag.color}20, ${tag.color}10)`
-                            : undefined,
-                          borderColor: isSelected ? tag.color : undefined,
-                        }}
                       >
                         <div
-                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5"
+                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5 bg-gray-100 dark:bg-gray-700"
                           style={{
-                            backgroundColor: `${tag.color}20`,
                             color: tag.color,
                           }}
                         >
@@ -190,10 +184,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                           )}
                         </div>
                         {isSelected && (
-                          <div
-                            className="flex-shrink-0 ml-2"
-                            style={{ color: tag.color }}
-                          >
+                          <div className="flex-shrink-0 ml-2 text-gray-900 dark:text-gray-100">
                             <Check className="w-5 h-5" />
                           </div>
                         )}
@@ -217,8 +208,8 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-8 py-2.5 text-sm font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-              bg-gradient-to-r from-[#E85B81] to-[#E87D55] text-white hover:shadow-[0_8px_20px_rgba(232,91,129,0.4)] dark:hover:shadow-[0_8px_20px_rgba(232,91,129,0.5)]"
+            className="px-8 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+              bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600 shadow-sm hover:shadow-md"
           >
             {isSaving ? 'Saving...' : 'Save Tags'}
           </button>
