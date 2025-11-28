@@ -380,8 +380,8 @@ const AdminChat = () => {
                         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
                       )}
                       <div className="relative mb-2">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-100 via-gray-50 to-white dark:bg-white/20 border border-gray-200/50 dark:border-white/10 backdrop-blur-sm shadow-sm flex items-center justify-center">
-                          <span className="text-sm font-semibold bg-gradient-to-br from-gray-700 via-gray-600 to-gray-500 dark:from-white dark:via-white dark:to-white bg-clip-text text-transparent">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                             {getInitials(userName)}
                           </span>
                         </div>
