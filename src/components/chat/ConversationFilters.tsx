@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Search, Filter, ChevronDown, X, Check, Tag as TagIcon } from 'lucide-react';
+import { Search, Filter, ChevronDown, X, Check, Tag as TagIcon, Users, ArrowUpDown } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { ChatFilters } from '@/lib/chatService';
 import { ConversationTag, conversationTagService } from '@/lib/conversationTagService';
@@ -63,9 +63,6 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
   const sortOptions = [
     { value: 'recent', label: 'Most Recent' },
     { value: 'oldest', label: 'Oldest First' },
-    { value: 'volume', label: 'Highest Volume' },
-    { value: 'messages', label: 'Most Messages' },
-    { value: 'alphabetical', label: 'Alphabetical' },
   ];
 
   const handleClearFilters = () => {
@@ -95,7 +92,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
 
 
   return (
-    <div className="p-3 border-b border-gray-200 dark:border-gray-700 space-y-3">
+    <div className="p-3 border-b border-gray-200 dark:border-gray-700 space-y-2.5">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -104,7 +101,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
             placeholder="Search conversations..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-9 py-2 text-sm bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
+            className="w-full pl-9 pr-9 py-1.5 text-sm bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600"
           />
           {searchTerm && (
             <button
@@ -119,16 +116,19 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={sortDropdownRef}>
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2 whitespace-nowrap w-[160px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[130px] justify-between"
           >
-            <span className="text-gray-700 dark:text-gray-300 truncate">
-              {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Sort'}
-            </span>
-            <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
+                {sortOptions.find(opt => opt.value === filters.sortBy)?.label.split(' ')[0] || 'Sort'}
+              </span>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           </button>
 
           {showSortDropdown && (
-            <div className="absolute z-50 right-0 w-44 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
               {sortOptions.map((option, index) => (
                 <button
                   key={option.value}
@@ -136,10 +136,10 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, sortBy: option.value as any });
                     setShowSortDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === sortOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === sortOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
-                  {filters.sortBy === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                  {filters.sortBy === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
                 </button>
               ))}
             </div>
@@ -151,7 +151,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={statusDropdownRef}>
           <button
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <Filter className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -171,10 +171,10 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, status: option.value as any });
                     setShowStatusDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === statusOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
-                  {filters.status === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                  {filters.status === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
                 </button>
               ))}
             </div>
@@ -184,11 +184,14 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={userTypeDropdownRef}>
           <button
             onClick={() => setShowUserTypeDropdown(!showUserTypeDropdown)}
-            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[80px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[80px] justify-between"
           >
-            <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-              {userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0] || 'All'}
-            </span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Users className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
+                {userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0] || 'All'}
+              </span>
+            </div>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
           </button>
 
@@ -201,10 +204,10 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     onFiltersChange({ ...filters, userType: option.value as any });
                     setShowUserTypeDropdown(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === userTypeOptions.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <span>{option.label}</span>
-                  {filters.userType === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                  {filters.userType === option.value && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100" />}
                 </button>
               ))}
             </div>
@@ -214,7 +217,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         <div className="relative" ref={tagDropdownRef}>
           <button
             onClick={() => setShowTagDropdown(!showTagDropdown)}
-            className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[100px] justify-between"
+            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-[90px] justify-between"
           >
             <div className="flex items-center gap-1.5 min-w-0">
               <TagIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
@@ -238,7 +241,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                     <button
                       key={tag.id}
                       onClick={() => toggleTag(tag.id)}
-                      className={`flex items-center justify-between w-full px-3 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === tags.length - 1 ? 'rounded-b-lg' : ''}`}
+                      className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 ${index === 0 ? 'rounded-t-lg' : ''} ${index === tags.length - 1 ? 'rounded-b-lg' : ''}`}
                     >
                       <div className="flex items-center gap-2">
                         <div
@@ -247,7 +250,7 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
                         />
                         <span className="truncate">{tag.name}</span>
                       </div>
-                      {isSelected && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100 flex-shrink-0" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-gray-900 dark:text-gray-100 flex-shrink-0" />}
                     </button>
                   );
                 })
