@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, X, AlertCircle, Check, Store, RefreshCw } from 'lucide-react';
+import { Clock, CheckCircle2, X, AlertCircle, Check, Store } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 
 export const getStatusIcon = (status: Quote['status']) => {
@@ -16,8 +16,6 @@ export const getStatusIcon = (status: Quote['status']) => {
       return <Check className="w-4 h-4 text-blue-500" />;
     case 'synced_with_shopify':
       return <Store className="w-4 h-4 text-purple-500" />;
-    case 'pending_reacceptance':
-      return <RefreshCw className="w-4 h-4 text-amber-500" />;
   }
 };
 
@@ -35,8 +33,6 @@ export const getStatusText = (status: Quote['status']) => {
       return 'Accepted';
     case 'synced_with_shopify':
       return 'Synced';
-    case 'pending_reacceptance':
-      return 'Review Required';
   }
 };
 
@@ -54,8 +50,6 @@ export const getStatusClass = (status: Quote['status']) => {
       return 'bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30';
     case 'synced_with_shopify':
       return 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-900/30';
-    case 'pending_reacceptance':
-      return 'bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30';
   }
 };
 

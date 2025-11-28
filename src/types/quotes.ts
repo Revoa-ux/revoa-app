@@ -11,7 +11,7 @@ export interface Quote {
   platform: 'aliexpress' | 'amazon' | 'other';
   productName: string;
   requestDate: string;
-  status: 'quote_pending' | 'quoted' | 'rejected' | 'expired' | 'accepted' | 'pending_reacceptance' | 'synced_with_shopify';
+  status: 'quote_pending' | 'quoted' | 'rejected' | 'expired' | 'accepted' | 'synced_with_shopify';
   variants?: QuoteVariant[];
   expiresIn?: number;
   shopifyConnected?: boolean;

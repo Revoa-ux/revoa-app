@@ -19,8 +19,7 @@ import {
   ExternalLink,
   Send,
   CheckCircle,
-  AlertCircle,
-  Clipboard
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
@@ -72,9 +71,6 @@ interface UserStats {
   total_fulfillment_revenue: number;
   avg_fulfillment_days: number | null;
   last_fulfillment_date: string | null;
-
-  // Quotes
-  active_quotes: number;
 }
 
 export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
@@ -284,18 +280,8 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         fulfilled_orders: fulfilledOrdersCount,
         total_fulfillment_revenue: totalFulfillmentRevenue,
         avg_fulfillment_days: avgFulfillmentDays,
-        last_fulfillment_date: lastFulfillmentDate,
-        active_quotes: 0
+        last_fulfillment_date: lastFulfillmentDate
       });
-
-      // Fetch active quotes count
-      const { count: quotesCount } = await supabase
-        .from('product_quotes')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('status', 'accepted');
-
-      setStats(prev => prev ? { ...prev, active_quotes: quotesCount || 0 } : null);
     } catch (error) {
       console.error('Error fetching user stats:', error);
     } finally {
@@ -391,7 +377,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <Building2 className="w-4 h-4 mr-2" />
                     <span className="text-xs">Company</span>
                   </div>
-                  <span className="text-sm text-gray-900 dark:text-white">{stats.company}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.company}</span>
                 </div>
               )}
               {stats.last_login && (
@@ -410,7 +396,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <Clock className="w-4 h-4 mr-2" />
                   <span className="text-xs">User's Current Time</span>
                 </div>
-                <span className="text-sm text-gray-900 dark:text-white">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {(() => {
                     const now = new Date();
                     const hours = now.getUTCHours();
@@ -437,7 +423,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 <div className="text-right">
                   {stats.last_invoice_sent_date ? (
                     <>
-                      <p className="text-sm text-gray-900 dark:text-white">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">
                         ${stats.last_invoice_sent_amount.toFixed(2)}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -459,7 +445,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 <div className="text-right">
                   {stats.last_invoice_paid_date ? (
                     <>
-                      <p className="text-sm text-green-600 dark:text-green-400">
+                      <p className="text-sm font-bold text-green-600 dark:text-green-400">
                         ${stats.last_invoice_paid_amount.toFixed(2)}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -480,23 +466,10 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <span className="text-sm">Pending Invoices</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-yellow-600 dark:text-yellow-400">
+                    <p className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
                       ${stats.total_pending.toFixed(2)}
                     </p>
                   </div>
-                </div>
-              )}
-
-              {/* Active Quotes */}
-              {stats.active_quotes > 0 && (
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-                    <Clipboard className="w-4 h-4" />
-                    <span className="text-sm">Active Quotes</span>
-                  </div>
-                  <span className="text-sm text-blue-600 dark:text-blue-400">
-                    {stats.active_quotes}
-                  </span>
                 </div>
               )}
             </div>
@@ -512,7 +485,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <Package className="w-4 h-4" />
                   <span className="text-sm">Unfulfilled Orders</span>
                 </div>
-                <span className={`text-sm ${
+                <span className={`text-sm font-bold ${
                   stats.unfulfilled_orders > 0
                     ? 'text-orange-600 dark:text-orange-400'
                     : 'text-gray-900 dark:text-white'
@@ -527,7 +500,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <CheckCircle className="w-4 h-4" />
                   <span className="text-sm">Fulfilled Orders</span>
                 </div>
-                <span className="text-sm text-gray-900 dark:text-white">
+                <span className="text-sm font-bold text-gray-900 dark:text-white">
                   {stats.fulfilled_orders}
                 </span>
               </div>
@@ -539,7 +512,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <DollarSign className="w-4 h-4" />
                     <span className="text-sm">Total Fulfillment Revenue</span>
                   </div>
-                  <span className="text-sm text-gray-900 dark:text-white">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
                     ${stats.total_fulfillment_revenue.toFixed(2)}
                   </span>
                 </div>
@@ -565,7 +538,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <TrendingUp className="w-4 h-4" />
                     <span className="text-sm">Avg Fulfillment Time</span>
                   </div>
-                  <span className="text-sm text-gray-900 dark:text-white">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
                     {stats.avg_fulfillment_days} days
                   </span>
                 </div>

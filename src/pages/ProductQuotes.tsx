@@ -4,11 +4,7 @@ import { QuoteForm } from '@/components/quotes/QuoteForm';
 import { QuoteFilters } from '@/components/quotes/QuoteFilters';
 import { QuoteTable } from '@/components/quotes/QuoteTable';
 import { ShopifyConnectModal } from '@/components/quotes/ShopifyConnectModal';
-import { QuoteComparisonModal } from '@/components/quotes/QuoteComparisonModal';
-import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
 import {
   createQuoteRequest,
   getUserQuotes,
@@ -22,50 +18,15 @@ export default function ProductQuotes() {
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [expandedQuotes, setExpandedQuotes] = useState<string[]>([]);
-  const { user } = useAuth();
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [reviewQuoteId, setReviewQuoteId] = useState<string | null>(null);
-  const [quotePendingReview, setQuotePendingReview] = useState<any>(null);
 
-  // Load quotes on mount and check URL for review parameter
+  // Load quotes on mount
   useEffect(() => {
     loadQuotes();
-
-    // Check if URL has review parameter
-    const params = new URLSearchParams(window.location.search);
-    const reviewId = params.get('review');
-    if (reviewId) {
-      setReviewQuoteId(reviewId);
-    }
   }, []);
-
-  // Fetch quote details when reviewQuoteId is set
-  useEffect(() => {
-    if (reviewQuoteId) {
-      fetchQuoteForReview(reviewQuoteId);
-    }
-  }, [reviewQuoteId]);
-
-  const fetchQuoteForReview = async (quoteId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('product_quotes')
-        .select('*')
-        .eq('id', quoteId)
-        .eq('status', 'pending_reacceptance')
-        .single();
-
-      if (error) throw error;
-      if (data) {
-        setQuotePendingReview(data);
-      }
-    } catch (error) {
-      console.error('Error fetching quote for review:', error);
-    }
-  };
 
   const loadQuotes = async () => {
     try {
@@ -151,17 +112,15 @@ export default function ProductQuotes() {
   };
 
   const filteredQuotes = quotes.filter(quote => {
-    const matchesSearch =
+    const matchesSearch = 
       quote.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.productUrl.toLowerCase().includes(searchTerm.toLowerCase());
-
+    
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
-
+    
     return matchesSearch && matchesStatus;
   });
-
-  const pendingReacceptanceCount = quotes.filter(q => q.status === 'pending_reacceptance').length;
 
   return (
     <div className="space-y-6">
@@ -177,21 +136,6 @@ export default function ProductQuotes() {
           </p>
         </div>
       </div>
-
-      {/* Reacceptance Banner */}
-      {pendingReacceptanceCount > 0 && (
-        <div className="flex items-start space-x-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-              {pendingReacceptanceCount} quote{pendingReacceptanceCount > 1 ? 's' : ''} updated by admin - Review required
-            </p>
-            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-              Please review and accept the changes to activate {pendingReacceptanceCount > 1 ? 'these quotes' : 'this quote'}.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* New Quote Button */}
       <button
@@ -257,23 +201,6 @@ export default function ProductQuotes() {
             setSelectedQuote(null);
           }}
           onConnect={handleShopifyConnect}
-        />
-      )}
-
-      {/* Quote Comparison Modal */}
-      {quotePendingReview && user && (
-        <QuoteComparisonModal
-          quote={quotePendingReview}
-          userId={user.id}
-          onClose={() => {
-            setQuotePendingReview(null);
-            setReviewQuoteId(null);
-            // Clear URL parameter
-            window.history.replaceState({}, '', window.location.pathname);
-          }}
-          onSuccess={() => {
-            loadQuotes();
-          }}
         />
       )}
     </div>
