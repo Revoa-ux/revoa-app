@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, DollarSign, Globe, ExternalLink, AlertCircle } from 'lucide-react';
+import { X, Package, DollarSign, Globe, ExternalLink, AlertCircle, Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
+import { EditQuoteModal } from './EditQuoteModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface QuoteVariant {
   quantity: number;
@@ -37,9 +39,11 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
   userName,
   onClose
 }) => {
+  const { user } = useAuth();
   const [quotes, setQuotes] = useState<ActiveQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedQuote, setSelectedQuote] = useState<ActiveQuote | null>(null);
+  const [editingQuote, setEditingQuote] = useState<ActiveQuote | null>(null);
 
   useEffect(() => {
     fetchActiveQuotes();
@@ -164,7 +168,14 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => setEditingQuote(selectedQuote)}
+              className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              <Edit className="w-4 h-4" />
+              <span>Edit Quote</span>
+            </button>
             <button
               onClick={() => setSelectedQuote(null)}
               className="px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
@@ -174,6 +185,25 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           </div>
         </div>
       </Modal>
+    );
+  }
+
+  // Show edit modal
+  if (editingQuote && user) {
+    return (
+      <EditQuoteModal
+        quoteId={editingQuote.id}
+        quoteName={editingQuote.product_name}
+        currentVariants={editingQuote.variants}
+        adminId={user.id}
+        onClose={() => {
+          setEditingQuote(null);
+          setSelectedQuote(null);
+        }}
+        onSuccess={() => {
+          fetchActiveQuotes();
+        }}
+      />
     );
   }
 

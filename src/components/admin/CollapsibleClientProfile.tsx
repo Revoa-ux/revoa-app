@@ -491,7 +491,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Package className="w-4 h-4 mr-2" />
               <span className="text-xs">Unfulfilled Orders</span>
             </div>
-            <span className={`text-sm font-bold ${
+            <span className={`text-sm ${
               metrics.unfulfilled_orders > 0
                 ? 'text-orange-600 dark:text-orange-400'
                 : 'text-gray-900 dark:text-white'
@@ -506,7 +506,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <CheckCircle className="w-4 h-4 mr-2" />
               <span className="text-xs">Fulfilled Orders</span>
             </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.fulfilled_orders}
             </span>
           </div>
@@ -517,7 +517,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <DollarSign className="w-4 h-4 mr-2" />
               <span className="text-xs">Total Fulfillment Revenue</span>
             </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               ${metrics.total_fulfillment_revenue > 0 ? metrics.total_fulfillment_revenue.toFixed(2) : '0.00'}
             </span>
           </div>
@@ -539,7 +539,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <TrendingUp className="w-4 h-4 mr-2" />
               <span className="text-xs">Avg Fulfillment Time</span>
             </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.average_fulfillment_days > 0 ? `${metrics.average_fulfillment_days} days` : 'N/A'}
             </span>
           </div>
