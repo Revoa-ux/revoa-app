@@ -170,7 +170,10 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
           {/* Footer */}
           <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
-              onClick={() => setEditingQuote(selectedQuote)}
+              onClick={() => {
+                setEditingQuote(selectedQuote);
+                setSelectedQuote(null);
+              }}
               className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
             >
               <Edit className="w-4 h-4" />
@@ -198,10 +201,13 @@ export const ActiveQuotesModal: React.FC<ActiveQuotesModalProps> = ({
         adminId={user.id}
         onClose={() => {
           setEditingQuote(null);
+          setSelectedQuote(null);
         }}
-        onSuccess={() => {
-          fetchActiveQuotes();
+        onSuccess={async () => {
+          await fetchActiveQuotes();
           setEditingQuote(null);
+          setSelectedQuote(null);
+          toast.success('Quote updated successfully');
         }}
       />
     );
