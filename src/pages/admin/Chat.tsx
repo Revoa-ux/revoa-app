@@ -423,7 +423,7 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700 min-h-[90px]">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
                   {userName !== 'User' ? (
