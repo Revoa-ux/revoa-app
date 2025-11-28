@@ -215,9 +215,10 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
           <div className="space-y-4">
             {variants.map((variant, index) => (
               <div key={index} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                {/* FIX #5: Removed quantity display, just show "Pricing Option N" */}
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {variant.quantity} Unit{variant.quantity > 1 ? 's' : ''}
+                    Pricing Option {index + 1}
                   </h4>
                   {index >= 3 && (
                     <button
@@ -295,14 +296,14 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
 
                   {expandedShipping === index && (
                     <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                      {/* Default Shipping */}
-                      <div className="flex items-start space-x-2">
-                        <div className="flex-1 pt-1">
+                      {/* FIX #2: Default Shipping - Reduced width to w-24 */}
+                      <div className="flex items-center space-x-2">
+                        <div className="flex-1">
                           <span className="text-sm text-gray-500 dark:text-gray-400">
                             Default (All Other Countries)
                           </span>
                         </div>
-                        <div className="relative w-32">
+                        <div className="relative w-24">
                           <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                           <input
                             type="number"
@@ -323,14 +324,22 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         .filter(([code]) => code !== '_default')
                         .map(([countryCode, cost]) => {
                           const country = COMMON_COUNTRIES.find(c => c.code === countryCode);
+                          // FIX #3: Trash button on LEFT, reduced width to w-24
                           return (
-                            <div key={countryCode} className="flex items-start space-x-2">
-                              <div className="flex-1 pt-1">
+                            <div key={countryCode} className="flex items-center space-x-2">
+                              <button
+                                type="button"
+                                onClick={() => removeCountryShipping(index, countryCode)}
+                                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                              <div className="flex-1">
                                 <span className="text-sm text-gray-500 dark:text-gray-400">
                                   {country?.name || countryCode}
                                 </span>
                               </div>
-                              <div className="relative w-32">
+                              <div className="relative w-24">
                                 <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                                 <input
                                   type="number"
@@ -341,12 +350,6 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                                   className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
-                              <button
-                                onClick={() => removeCountryShipping(index, countryCode)}
-                                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
                             </div>
                           );
                         })}

@@ -41,6 +41,10 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
 
   const variantGroups = getVariantGroups();
 
+  /**
+   * FIX #1: Add Type button now properly creates a variant type
+   * Creates the type with an empty placeholder value that will be shown in the UI
+   */
   const addVariantType = () => {
     const trimmed = newVariantType.trim();
     if (!trimmed) return;
@@ -50,11 +54,22 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
       return;
     }
 
-    // Initialize editing state for this type
+    // Create a placeholder attribute to establish the type
+    // This makes the type appear in the UI immediately
+    const placeholderAttribute: ProductAttribute = {
+      name: trimmed,
+      value: '__PLACEHOLDER__' // Temporary marker
+    };
+
+    onChange([...attributes, placeholderAttribute]);
     setEditingValues({ ...editingValues, [trimmed]: '' });
     setNewVariantType('');
   };
 
+  /**
+   * Add a value to an existing type
+   * If adding the first real value, removes the placeholder
+   */
   const addValueToType = (type: string) => {
     const value = editingValues[type]?.trim();
     if (!value) return;
@@ -64,12 +79,29 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
       value: value
     };
 
-    onChange([...attributes, newAttribute]);
+    // Remove placeholder if it exists when adding first real value
+    const filteredAttributes = attributes.filter(
+      attr => !(attr.name === type && attr.value === '__PLACEHOLDER__')
+    );
+
+    onChange([...filteredAttributes, newAttribute]);
     setEditingValues({ ...editingValues, [type]: '' });
   };
 
   const removeValue = (type: string, value: string) => {
-    onChange(attributes.filter(attr => !(attr.name === type && attr.value === value)));
+    const remainingValues = attributes.filter(
+      attr => !(attr.name === type && attr.value === value)
+    );
+
+    // If no values left for this type, remove all traces
+    const hasOtherValues = remainingValues.some(attr => attr.name === type);
+    if (!hasOtherValues) {
+      const newEditingValues = { ...editingValues };
+      delete newEditingValues[type];
+      setEditingValues(newEditingValues);
+    }
+
+    onChange(remainingValues);
   };
 
   const removeVariantType = (type: string) => {
@@ -98,10 +130,11 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
 
   return (
     <div className="space-y-3">
+      {/* Header */}
       <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-gray-300">
         <Package className="w-4 h-4" />
         <span>Product Variants</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400 font-normal">(Optional)</span>
       </div>
 
       {/* Existing Variant Groups */}
@@ -109,6 +142,8 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
         <div className="space-y-2">
           {variantGroups.map((group) => {
             const isCollapsed = collapsedTypes.has(group.type);
+            // Filter out placeholder values from display
+            const realValues = group.values.filter(v => v !== '__PLACEHOLDER__');
 
             return (
               <div
@@ -131,8 +166,8 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {group.type}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-normal">
-                      ({group.values.length} {group.values.length === 1 ? 'value' : 'values'})
+                    <span className="text-sm text-gray-500 dark:text-gray-400 font-normal">
+                      ({realValues.length} {realValues.length === 1 ? 'value' : 'values'})
                     </span>
                   </button>
                   {!disabled && (
@@ -150,27 +185,33 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                 {/* Variant Values */}
                 {!isCollapsed && (
                   <div className="p-3 space-y-2">
-                    {group.values.map((value) => (
-                      <div
-                        key={value}
-                        className="flex items-center space-x-2"
-                      >
-                        {!disabled && (
-                          <button
-                            type="button"
-                            onClick={() => removeValue(group.type, value)}
-                            className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                        <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700">
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {value}
-                          </span>
+                    {realValues.length > 0 ? (
+                      realValues.map((value) => (
+                        <div
+                          key={value}
+                          className="flex items-center space-x-2"
+                        >
+                          {!disabled && (
+                            <button
+                              type="button"
+                              onClick={() => removeValue(group.type, value)}
+                              className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          <div className="flex-1 px-3 py-2 bg-gray-50 dark:bg-gray-900/30 rounded border border-gray-200 dark:border-gray-700">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {value}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400 italic px-7">
+                        Add values for this variant type below
+                      </p>
+                    )}
 
                     {/* Add New Value to This Type */}
                     {!disabled && (

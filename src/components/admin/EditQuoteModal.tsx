@@ -245,14 +245,14 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
 
                 {expandedShipping === variantIndex && (
                 <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                  {/* Default Shipping */}
-                  <div className="flex items-start space-x-2">
-                    <div className="flex-1 pt-1">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {/* FIX #2: Default Shipping - Reduced width to w-24 */}
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         Default (All Other Countries)
                       </span>
                     </div>
-                    <div className="relative w-32">
+                    <div className="relative w-24">
                       <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                       <input
                         type="number"
@@ -268,16 +268,24 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                   </div>
 
                   {/* Country-Specific Shipping */}
+                  {/* FIX #3: Country shipping rows - Trash button on LEFT, reduced width to w-24 */}
                   {Object.entries(variant.shippingCosts)
                     .filter(([code]) => code !== '_default')
                     .map(([code, cost]) => (
-                      <div key={code} className="flex items-start space-x-2">
-                        <div className="flex-1 pt-1">
+                      <div key={code} className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => removeShippingCountry(variantIndex, code)}
+                          className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="flex-1">
                           <span className="text-sm text-gray-500 dark:text-gray-400">
                             {COMMON_COUNTRIES.find((c) => c.code === code)?.name || code}
                           </span>
                         </div>
-                        <div className="relative w-32">
+                        <div className="relative w-24">
                           <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">$</span>
                           <input
                             type="number"
@@ -290,13 +298,6 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                             className="w-full pl-6 pr-2 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => removeShippingCountry(variantIndex, code)}
-                          className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     ))}
 
@@ -318,12 +319,13 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
             Reason for Edit <span className="text-red-500">*</span>
           </label>
+          {/* FIX #4: Removed focus ring (focus:ring-2) completely */}
           <textarea
             value={editReason}
             onChange={(e) => setEditReason(e.target.value)}
             placeholder="Explain why you're updating this quote (visible to user)"
             rows={3}
-            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100"
+            className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
           />
         </div>
 
