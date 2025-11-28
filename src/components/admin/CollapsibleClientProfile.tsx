@@ -11,7 +11,6 @@ import {
   CheckCircle,
   Send,
   Store,
-  ExternalLink,
   Phone,
   ChevronDown,
   FileText
@@ -463,21 +462,20 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           <div className="px-4 pb-4 space-y-2">
             <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#72B4D6]/30">QUOTES</h4>
 
-            <button
-              onClick={() => setShowActiveQuotes(true)}
-              className="w-full flex items-center justify-between py-2 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-lg px-2 transition-colors group"
-            >
+            <div className="w-full flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <FileText className="w-4 h-4 mr-2" />
-                <span className="text-xs">Active Quotes</span>
+                <button
+                  onClick={() => setShowActiveQuotes(true)}
+                  className="text-xs underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                >
+                  Active Quotes
+                </button>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-red-600 dark:text-red-400">
-                  {activeQuotesCount}
-                </span>
-                <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-red-500 transition-colors" />
-              </div>
-            </button>
+              <span className="text-sm text-red-600 dark:text-red-400">
+                {activeQuotesCount}
+              </span>
+            </div>
           </div>
         )}
 

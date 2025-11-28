@@ -16,7 +16,6 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   Send,
   CheckCircle,
   AlertCircle,
@@ -491,21 +490,20 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
               {/* Active Quotes */}
               {stats.active_quotes > 0 && (
-                <button
-                  onClick={() => setShowActiveQuotesModal(true)}
-                  className="w-full flex items-center justify-between py-2 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-lg px-2 transition-colors group"
-                >
+                <div className="w-full flex items-center justify-between py-2">
                   <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <FileText className="w-4 h-4 mr-2" />
-                    <span className="text-sm">Active Quotes</span>
+                    <button
+                      onClick={() => setShowActiveQuotesModal(true)}
+                      className="text-sm underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                    >
+                      Active Quotes
+                    </button>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-red-600 dark:text-red-400">
-                      {stats.active_quotes}
-                    </span>
-                    <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-red-500 transition-colors" />
-                  </div>
-                </button>
+                  <span className="text-sm text-red-600 dark:text-red-400">
+                    {stats.active_quotes}
+                  </span>
+                </div>
               )}
             </div>
           </div>
