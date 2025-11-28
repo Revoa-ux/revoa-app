@@ -1,23 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Archive,
-  Flag,
-  Volume2,
-  VolumeX,
-  Trash2,
   Download,
   MessageSquare,
   Search,
-  MoreHorizontal,
   Paperclip,
   Smile,
   Send,
   FileText,
-  Image as ImageIcon,
   User,
   X,
   Reply,
-  Info
+  Info,
+  MoreHorizontal,
+  Trash2,
+  Tag
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -80,8 +76,6 @@ const AdminChat = () => {
   });
   const [isSearching, setIsSearching] = useState(false);
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -100,11 +94,9 @@ const AdminChat = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const moreMenuRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messageActionsRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(moreMenuRef, () => setShowMoreMenu(false));
   useClickOutside(messageActionsRef, () => setMessageActionsOpen(null));
 
   useEffect(() => {
@@ -316,10 +308,10 @@ const AdminChat = () => {
   const displaySecondaryLine = companyName || storeUrl || userEmail;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       <div className="max-w-[1050px] mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
             Conversations
           </h1>
           <div className="flex items-center space-x-2">
@@ -328,10 +320,10 @@ const AdminChat = () => {
           </div>
         </div>
 
-        <div className="flex h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col md:flex-row h-[calc(100vh-10rem)] sm:h-[calc(100vh-12rem)] lg:h-[calc(100vh-14rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
-          <div className={`border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-l-xl overflow-hidden transition-all duration-300 ${
-            showUserProfile ? 'w-20' : 'w-96'
+          <div className={`border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-t-xl md:rounded-l-xl md:rounded-tr-none overflow-hidden transition-all duration-300 ${
+            showUserProfile ? 'hidden md:flex md:w-20' : 'w-full md:w-96'
           }`}>
             {!showUserProfile && (
               <ConversationFilters
@@ -423,21 +415,21 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-700 min-h-[90px]">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[90px]">
+              <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center flex-shrink-0">
                   {userName !== 'User' ? (
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                       {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                     </span>
                   ) : (
-                    <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
                   )}
                 </div>
-                <div>
-                  <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{displaySecondaryLine}</p>
-                  <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
+                  <div className="hidden sm:flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                     <span title="User's current time">
                       User's Current Time: {getUserCurrentTime()}
                     </span>
@@ -452,66 +444,36 @@ const AdminChat = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
-                  className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                  className={`hidden md:flex p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
                     showUserProfile
                       ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                   }`}
                   title="View client profile"
                 >
-                  <Info className="w-5 h-5" />
+                  <Info className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={() => setShowSearchModal(true)}
-                  className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
-                  <Search className="w-5 h-5" />
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
-                <div className="relative" ref={moreMenuRef}>
-                  <button
-                    onClick={() => setShowMoreMenu(!showMoreMenu)}
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <MoreHorizontal className="w-5 h-5" />
-                  </button>
-                  {showMoreMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                      <button className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center rounded-t-lg">
-                        <Archive className="w-4 h-4 mr-2" />
-                        Archive
-                      </button>
-                      <button
-                        onClick={() => setIsMuted(!isMuted)}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-                      >
-                        {isMuted ? <Volume2 className="w-4 h-4 mr-2" /> : <VolumeX className="w-4 h-4 mr-2" />}
-                        {isMuted ? 'Unmute' : 'Mute'}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowTagModal(true);
-                          setShowMoreMenu(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center"
-                      >
-                        <Flag className="w-4 h-4 mr-2" />
-                        Manage Tags
-                      </button>
-                      <button className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center rounded-b-lg">
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={() => setShowTagModal(true)}
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Manage tags"
+                >
+                  <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
               </div>
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
@@ -679,7 +641,7 @@ const AdminChat = () => {
             </div>
 
             {/* Input */}
-            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
                 <div className="min-h-[44px] p-3">
                   {replyToMessage && (
@@ -825,7 +787,15 @@ const AdminChat = () => {
             chatId={selectedChat.id}
             onTagsUpdated={() => {
               // Refresh chat list to show updated tags
-              if (user) loadChats();
+              const loadChats = async () => {
+                const filterParams: ChatFilters = {
+                  ...conversationFilters,
+                  search: conversationSearch,
+                };
+                const adminChats = await chatService.getAdminChats(user!.id, filterParams);
+                setChats(adminChats);
+              };
+              loadChats();
             }}
           />
         )}
