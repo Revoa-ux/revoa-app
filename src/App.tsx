@@ -30,6 +30,8 @@ import AdminShippingRates from './pages/admin/ShippingRates';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
+import Notifications from './pages/Notifications';
+import QuoteReview from './pages/QuoteReview';
 import CallbackHandler from './components/shopify/CallbackHandler';
 import ShopifyCallback from './pages/ShopifyCallback';
 import Pricing from './pages/Pricing';
@@ -225,6 +227,8 @@ function App() {
               <Route path="balance" element={<Balance />} />
               <Route path="audit" element={<Audit />} />
               <Route path="attribution" element={<Attribution />} />
+              <Route path="notifications" element={<Notifications />} />
+              <Route path="quotes/review/:id" element={<QuoteReview />} />
               <Route path="automation" element={<AutomationRules />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />

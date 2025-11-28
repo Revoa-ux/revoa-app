@@ -26,6 +26,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
+import NotificationBell from './NotificationBell';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: Home },
@@ -123,6 +124,7 @@ export default function Layout() {
                   className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
                 />
               </div>
+              <NotificationBell />
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
@@ -145,13 +147,16 @@ export default function Layout() {
                   className="w-full h-full object-contain hidden dark:block"
                 />
               </div>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all ml-2"
-                title="Collapse sidebar"
-              >
-                <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </button>
+              <div className="flex items-center space-x-1">
+                <NotificationBell />
+                <button
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                  title="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
             </div>
           )}
 
