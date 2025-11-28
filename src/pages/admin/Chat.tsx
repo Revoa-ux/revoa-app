@@ -368,7 +368,7 @@ const AdminChat = () => {
                       onClick={() => setSelectedChat(chat)}
                       className={`relative flex flex-col items-center py-3 px-2 group transition-all duration-200 ${
                         isSelected
-                          ? 'bg-gray-100/80 dark:bg-gray-700/80'
+                          ? 'bg-gray-100 dark:bg-gray-700/50'
                           : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
                       } ${
                         isFirst ? 'pt-4' : ''
@@ -378,7 +378,7 @@ const AdminChat = () => {
                       title={userName}
                     >
                       {isSelected && (
-                        <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
+                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
                       )}
                       <div className="relative mb-2">
                         <div className="w-12 h-12 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">

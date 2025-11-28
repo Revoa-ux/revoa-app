@@ -68,69 +68,76 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   return (
     <button
       onClick={onClick}
-      className={`relative w-full p-3 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
-        isSelected ? 'bg-gray-100/80 dark:bg-gray-700/80' : ''
+      className={`relative w-full p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-left ${
+        isSelected ? 'bg-gray-100 dark:bg-gray-700/50' : ''
       }`}
     >
       {isSelected && (
-        <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
+        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
       )}
-      <div className="flex items-start space-x-3">
-        <div className="relative flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <span className="text-sm font-semibold text-white dark:text-white">
+      <div className="flex items-start gap-3">
+        <div className="relative flex-shrink-0 mt-0.5">
+          <div className="w-11 h-11 rounded-full bg-gray-900 dark:bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <span className="text-sm font-semibold text-white">
               {getInitials(userName)}
             </span>
           </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-0.5">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+        <div className="flex-1 min-w-0 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
               {userName}
             </h3>
+            {lastMessageTime && (
+              <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
+                {lastMessageTime}
+              </span>
+            )}
+          </div>
+
+          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+            {userCompany}
+          </p>
+
+          <p className="text-sm text-gray-600 dark:text-gray-400 truncate line-clamp-1">
+            {lastMessagePreview}
+          </p>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {tags.length > 0 && (
+              <>
+                {tags.slice(0, 2).map((assignment) => (
+                  <span
+                    key={assignment.id}
+                    className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+                    style={{
+                      backgroundColor: `${assignment.tag?.color}15`,
+                      color: assignment.tag?.color,
+                    }}
+                  >
+                    {assignment.tag?.name}
+                  </span>
+                ))}
+                {tags.length > 2 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium text-gray-500 dark:text-gray-400">
+                    +{tags.length - 2}
+                  </span>
+                )}
+              </>
+            )}
             {unreadCount > 0 && (
-              <span className="ml-2 px-1.5 py-0.5 text-xs font-medium bg-red-500 text-white rounded-full flex-shrink-0">
+              <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-red-500 text-white rounded-full">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-1">
-            {userCompany}
-          </p>
-
-          <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2">
-            {lastMessagePreview}
-          </p>
-
-          {tags.length > 0 && (
-            <div className="flex items-center gap-1 mb-2 flex-wrap">
-              {tags.slice(0, 2).map((assignment) => (
-                <span
-                  key={assignment.id}
-                  className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                  style={{
-                    backgroundColor: `${assignment.tag?.color}15`,
-                    color: assignment.tag?.color,
-                  }}
-                >
-                  {assignment.tag?.name}
-                </span>
-              ))}
-              {tags.length > 2 && (
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium text-gray-500 dark:text-gray-400">
-                  +{tags.length - 2}
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
+          {(totalTransactions > 0 || totalInvoices > 0) && (
+            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
               {totalTransactions > 0 && (
-                <div className="flex items-center space-x-1" title="Total transaction volume">
-                  <TrendingUp className="w-3 h-3" />
+                <div className="flex items-center gap-1" title="Total transaction volume">
+                  <TrendingUp className="w-3.5 h-3.5" />
                   <span>${totalTransactions.toLocaleString()}</span>
                 </div>
               )}
@@ -138,12 +145,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
                 <span title="Total invoices">{totalInvoices} invoices</span>
               )}
             </div>
-            {lastMessageTime && (
-              <span className="text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
-                {lastMessageTime}
-              </span>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </button>
