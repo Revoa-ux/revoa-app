@@ -321,7 +321,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
                 </div>
               </div>
 
-              {/* Product Attributes */}
+              {/* Product Variants */}
               <div className="mb-4">
                 <ProductAttributesEditor
                   attributes={variant.attributes || []}

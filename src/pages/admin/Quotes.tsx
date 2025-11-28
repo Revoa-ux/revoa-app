@@ -353,7 +353,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                   />
                 </div>
 
-                {/* Product Attributes */}
+                {/* Product Variants */}
                 <div className="mb-4">
                   <ProductAttributesEditor
                     attributes={variant.attributes || []}
@@ -406,12 +406,14 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                   {expandedShipping === index && (
                     <div className="space-y-3 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                       {/* Default Shipping */}
-                      <div>
-                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          Default (Other Countries) <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <Truck className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <div className="flex items-start space-x-2">
+                        <div className="flex-1 pt-1">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Default (All Other Countries)
+                          </span>
+                        </div>
+                        <div className="relative w-32">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
                           <input
                             type="number"
                             min="0"
@@ -421,7 +423,7 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                               const newShipping = { ...variant.shippingCosts, _default: parseFloat(e.target.value) || 0 };
                               updateVariant(index, { shippingCosts: newShipping });
                             }}
-                            className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </div>
@@ -432,26 +434,26 @@ const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
                         .map(([countryCode, cost]) => {
                           const country = COMMON_COUNTRIES.find(c => c.code === countryCode);
                           return (
-                            <div key={countryCode} className="flex items-center space-x-2">
-                              <div className="flex-1">
-                                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                            <div key={countryCode} className="flex items-start space-x-2">
+                              <div className="flex-1 pt-1">
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                   {country?.name || countryCode}
-                                </label>
-                                <div className="relative">
-                                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={cost}
-                                    onChange={(e) => addCountryShipping(index, countryCode, parseFloat(e.target.value) || 0)}
-                                    className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  />
-                                </div>
+                                </span>
+                              </div>
+                              <div className="relative w-32">
+                                <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">$</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  value={cost}
+                                  onChange={(e) => addCountryShipping(index, countryCode, parseFloat(e.target.value) || 0)}
+                                  className="w-full pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-xs text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
                               </div>
                               <button
                                 onClick={() => removeCountryShipping(index, countryCode)}
-                                className="mt-5 p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

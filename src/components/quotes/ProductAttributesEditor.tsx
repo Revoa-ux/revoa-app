@@ -44,7 +44,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
     <div className="space-y-3">
       <div className="flex items-center space-x-2 text-xs font-medium text-gray-700 dark:text-gray-300">
         <Package className="w-4 h-4" />
-        <span>Product Attributes</span>
+        <span>Product Variants</span>
         <span className="text-gray-500 dark:text-gray-400">(Optional)</span>
       </div>
 
@@ -86,7 +86,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
             value={newAttrName}
             onChange={(e) => setNewAttrName(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Attribute (e.g., Size)"
+            placeholder="Variant (e.g., Size)"
             className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-xs text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
@@ -101,7 +101,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
             type="button"
             onClick={addAttribute}
             disabled={!newAttrName.trim() || !newAttrValue.trim()}
-            className="p-1.5 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-1.5 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-4 h-4" />
           </button>
@@ -110,7 +110,7 @@ export const ProductAttributesEditor: React.FC<ProductAttributesEditorProps> = (
 
       {attributes.length === 0 && (
         <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-          Add product attributes like Size, Color, Material, etc.
+          Add product variants like Size, Color, Material, etc.
         </p>
       )}
     </div>
