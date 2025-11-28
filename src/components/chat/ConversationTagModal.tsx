@@ -155,53 +155,46 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
                         className={`
-                          group relative flex items-center px-4 py-3 rounded-xl border-2 transition-all duration-200
-                          backdrop-blur-2xl
+                          relative flex items-center px-3 py-2.5 rounded-lg border-2 transition-all
+                          backdrop-blur-md bg-white/50 dark:bg-gray-800/50
                           ${
                             isSelected
-                              ? 'shadow-2xl scale-[1.02]'
-                              : 'hover:shadow-xl hover:scale-[1.01] bg-white/60 dark:bg-gray-800/60 border-gray-200/30 dark:border-gray-700/30'
+                              ? 'border-current shadow-sm'
+                              : 'border-gray-200/60 dark:border-gray-700/60'
                           }
                         `}
-                        style={
-                          isSelected
-                            ? {
-                                background: `linear-gradient(135deg, ${tag.color}25 0%, ${tag.color}10 100%)`,
-                                borderColor: tag.color,
-                                boxShadow: `0 10px 40px ${tag.color}20, 0 0 0 1px ${tag.color}40 inset`,
-                              }
-                            : undefined
-                        }
+                        style={{
+                          background: isSelected
+                            ? `linear-gradient(135deg, ${tag.color}20, ${tag.color}10)`
+                            : undefined,
+                          borderColor: isSelected ? tag.color : undefined,
+                        }}
                       >
                         <div
-                          className="flex items-center justify-center w-10 h-10 rounded-lg mr-3 transition-transform duration-200 group-hover:scale-110"
+                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5"
                           style={{
-                            backgroundColor: `${tag.color}30`,
+                            backgroundColor: `${tag.color}20`,
                             color: tag.color,
-                            boxShadow: `0 4px 12px ${tag.color}15`,
                           }}
                         >
-                          <IconComponent className="w-5 h-5" />
+                          <IconComponent className="w-4 h-4" />
                         </div>
-                        <div className="flex-1 text-left min-w-0">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {tag.name}
                           </div>
                           {tag.description && (
-                            <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                               {tag.description}
                             </div>
                           )}
                         </div>
                         {isSelected && (
                           <div
-                            className="flex-shrink-0 ml-3 w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200 scale-100 animate-in"
-                            style={{
-                              backgroundColor: tag.color,
-                              boxShadow: `0 4px 12px ${tag.color}40`,
-                            }}
+                            className="flex-shrink-0 ml-2"
+                            style={{ color: tag.color }}
                           >
-                            <Check className="w-4 h-4 text-white font-bold" />
+                            <Check className="w-5 h-5" />
                           </div>
                         )}
                       </button>

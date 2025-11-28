@@ -355,7 +355,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Overview Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">OVERVIEW</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-blue-500">OVERVIEW</h3>
             <div className="space-y-3">
               {stats.phone && (
                 <div className="flex items-start space-x-3">
@@ -407,7 +407,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Financial Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">FINANCIAL</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-green-500">FINANCIAL</h3>
             <div className="space-y-2">
               {/* Last Invoice Sent */}
               <div className="flex items-center justify-between py-2">
@@ -472,7 +472,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Orders Section */}
           <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">ORDERS</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">ORDERS</h3>
             <div className="space-y-2">
               {/* Unfulfilled Orders */}
               <div className="flex items-center justify-between py-2">
@@ -543,7 +543,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
 
           {/* Communication Section */}
           <div className="px-6 py-4">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">COMMUNICATION</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-purple-500">COMMUNICATION</h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
