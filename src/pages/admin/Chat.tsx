@@ -241,12 +241,12 @@ const AdminChat = () => {
   };
 
   const handleArchiveChat = async () => {
-    if (!currentChat) return;
+    if (!selectedChat) return;
 
-    const isArchived = currentChat.is_archived || false;
+    const isArchived = selectedChat.is_archived || false;
     const success = isArchived
-      ? await chatService.unarchiveChat(currentChat.id)
-      : await chatService.archiveChat(currentChat.id);
+      ? await chatService.unarchiveChat(selectedChat.id)
+      : await chatService.archiveChat(selectedChat.id);
 
     if (success) {
       toast.success(isArchived ? 'Conversation unarchived' : 'Conversation archived');
@@ -257,12 +257,12 @@ const AdminChat = () => {
   };
 
   const handleFlagChat = async () => {
-    if (!currentChat) return;
+    if (!selectedChat) return;
 
-    const isFlagged = currentChat.is_flagged || false;
+    const isFlagged = selectedChat.is_flagged || false;
     const success = isFlagged
-      ? await chatService.unflagChat(currentChat.id)
-      : await chatService.flagChat(currentChat.id);
+      ? await chatService.unflagChat(selectedChat.id)
+      : await chatService.flagChat(selectedChat.id);
 
     if (success) {
       toast.success(isFlagged ? 'Flag removed' : 'Conversation flagged');
@@ -273,12 +273,12 @@ const AdminChat = () => {
   };
 
   const handleMuteChat = async () => {
-    if (!currentChat) return;
+    if (!selectedChat) return;
 
-    const isMuted = currentChat.is_muted || false;
+    const isMuted = selectedChat.is_muted || false;
     const success = isMuted
-      ? await chatService.unmuteChat(currentChat.id)
-      : await chatService.muteChat(currentChat.id);
+      ? await chatService.unmuteChat(selectedChat.id)
+      : await chatService.muteChat(selectedChat.id);
 
     if (success) {
       toast.success(isMuted ? 'Notifications unmuted' : 'Notifications muted');
@@ -290,12 +290,12 @@ const AdminChat = () => {
   };
 
   const handleDeleteChat = async () => {
-    if (!currentChat) return;
+    if (!selectedChat) return;
 
-    const success = await chatService.deleteChat(currentChat.id);
+    const success = await chatService.deleteChat(selectedChat.id);
     if (success) {
       toast.success('Conversation deleted');
-      setCurrentChat(null);
+      setSelectedChat(null);
       setMessages([]);
       loadChats();
     } else {
@@ -521,7 +521,7 @@ const AdminChat = () => {
               </div>
               <div className="flex items-center space-x-4">
                 <ConversationHeaderControls
-                  chat={currentChat}
+                  chat={selectedChat}
                   onArchive={handleArchiveChat}
                   onFlag={handleFlagChat}
                   onMute={handleMuteChat}
