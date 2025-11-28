@@ -28,6 +28,7 @@ interface User {
   registrationDate: string;
   transactions: number;
   invoices: number;
+  activeQuotes: number;
   isAssigned: boolean;
   assignedTo?: {
     id: string;
@@ -124,6 +125,18 @@ export default function Users() {
         .select('user_id, admin_id, total_transactions, total_invoices')
         .in('user_id', userIds);
 
+      // Fetch active quotes count for each user
+      const { data: quotesData } = await supabase
+        .from('product_quotes')
+        .select('user_id')
+        .eq('status', 'accepted')
+        .in('user_id', userIds);
+
+      const quotesCountMap = new Map<string, number>();
+      (quotesData || []).forEach(quote => {
+        quotesCountMap.set(quote.user_id, (quotesCountMap.get(quote.user_id) || 0) + 1);
+      });
+
       // Fetch admin profiles for assigned admins
       const adminIds = Array.from(new Set(assignments?.map(a => a.admin_id) || []));
       const { data: adminProfiles } = await supabase
@@ -152,6 +165,7 @@ export default function Users() {
           registrationDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString() : 'N/A',
           transactions: assignment?.total_transactions || 0,
           invoices: assignment?.total_invoices || 0,
+          activeQuotes: quotesCountMap.get(profile.user_id) || 0,
           isAssigned: !!assignment,
           assignedTo: admin ? {
             id: admin.user_id,
@@ -392,6 +406,7 @@ export default function Users() {
                 <th className="px-4 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">Assigned To</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Transactions</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Invoices</th>
+                <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400">Active Quotes</th>
                 <th className="px-4 py-4 text-right text-sm font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
@@ -441,6 +456,15 @@ export default function Users() {
                     </td>
                     <td className="px-4 py-4 text-right text-sm font-medium text-gray-900 dark:text-gray-100">
                       {user.invoices}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      {user.activeQuotes > 0 ? (
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                          {user.activeQuotes}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">0</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <div className="relative flex justify-end">

@@ -13,10 +13,12 @@ import {
   Store,
   ExternalLink,
   Phone,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
+import { ActiveQuotesModal } from './ActiveQuotesModal';
 
 interface CollapsibleClientProfileProps {
   userId: string;
@@ -82,6 +84,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   });
   const [loading, setLoading] = useState(true);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const [showActiveQuotes, setShowActiveQuotes] = useState(false);
+  const [activeQuotesCount, setActiveQuotesCount] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -265,6 +269,15 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       const lastPaidInvoice = paidInvoices?.[0];
       const lastSentInvoice = allInvoices?.[0];
 
+      // Fetch active quotes count
+      const { count: quotesCount } = await supabase
+        .from('product_quotes')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('status', 'accepted');
+
+      setActiveQuotesCount(quotesCount || 0);
+
       setMetrics({
         paid_invoices_total: paidInvoices?.reduce((sum, inv) => sum + Number(inv.amount), 0) || 0,
         paid_invoices_count: paidInvoices?.length || 0,
@@ -445,6 +458,29 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           )}
         </div>
 
+        {/* Active Quotes Section */}
+        {activeQuotesCount > 0 && (
+          <div className="px-4 pb-4 space-y-2">
+            <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#72B4D6]/30">QUOTES</h4>
+
+            <button
+              onClick={() => setShowActiveQuotes(true)}
+              className="w-full flex items-center justify-between py-2 hover:bg-gray-50 dark:hover:bg-gray-900/50 rounded-lg px-2 transition-colors group"
+            >
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <FileText className="w-4 h-4 mr-2" />
+                <span className="text-xs">Active Quotes</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                  {activeQuotesCount}
+                </span>
+                <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              </div>
+            </button>
+          </div>
+        )}
+
         {/* Order Metrics */}
         <div className="px-4 pb-4 space-y-2">
           <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E87962]/30">ORDERS</h4>
@@ -570,6 +606,15 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </div>
         </div>
+      )}
+
+      {/* Active Quotes Modal */}
+      {showActiveQuotes && (
+        <ActiveQuotesModal
+          userId={userId}
+          userName={displayName}
+          onClose={() => setShowActiveQuotes(false)}
+        />
       )}
     </div>
   );
