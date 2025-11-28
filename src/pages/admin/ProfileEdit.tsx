@@ -491,17 +491,17 @@ export default function AdminProfileEdit() {
                     <button
                       type="button"
                       onClick={() => setNotificationPrefs(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }))}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all ${
                         notificationPrefs[key as keyof typeof notificationPrefs]
-                          ? 'bg-gray-900 dark:bg-white'
+                          ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-sm'
                           : 'bg-gray-200 dark:bg-gray-600'
                       }`}
                     >
                       <span
-                        className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                           notificationPrefs[key as keyof typeof notificationPrefs]
-                            ? 'translate-x-6 bg-white dark:bg-gray-900'
-                            : 'translate-x-1 bg-white dark:bg-gray-300'
+                            ? 'translate-x-6'
+                            : 'translate-x-1'
                         }`}
                       />
                     </button>
