@@ -42,8 +42,12 @@ export interface Chat {
   user_profile?: {
     name: string | null;
     email: string;
+    company: string | null;
     created_at?: string;
   };
+  shopify_installations?: {
+    store_url: string;
+  }[];
   admin_profile?: {
     name: string | null;
     email: string;
@@ -263,8 +267,15 @@ export const chatService = {
     const userIds = chats.map(c => c.user_id);
     const { data: userProfiles } = await supabase
       .from('user_profiles')
-      .select('user_id, name, email, created_at')
+      .select('user_id, name, email, company, created_at')
       .in('user_id', userIds);
+
+    // Fetch shopify installations for these users
+    const { data: shopifyData } = await supabase
+      .from('shopify_installations')
+      .select('user_id, store_url')
+      .in('user_id', userIds)
+      .is('uninstalled_at', null);
 
     // Fetch admin profile details (already fetched is_super_admin above)
     const { data: adminProfileDetails } = await supabase
@@ -299,14 +310,23 @@ export const chatService = {
 
     // Map profiles to chats
     const userProfileMap = new Map(
-      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email, created_at: p.created_at }])
+      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email, company: p.company, created_at: p.created_at }])
     );
+
+    // Map shopify installations by user_id
+    const shopifyMap = new Map<string, any[]>();
+    (shopifyData || []).forEach(shop => {
+      const existing = shopifyMap.get(shop.user_id) || [];
+      existing.push({ store_url: shop.store_url });
+      shopifyMap.set(shop.user_id, existing);
+    });
 
     let enrichedChats = chats.map(chat => ({
       ...chat,
       user_profile: userProfileMap.get(chat.user_id) || null,
       admin_profile: adminProfileDetails ? { name: adminProfileDetails.name, email: adminProfileDetails.email } : null,
       user_assignment: assignmentMap.get(chat.user_id) || null,
+      shopify_installations: shopifyMap.get(chat.user_id) || null,
       last_message_preview: lastMessageMap.get(chat.id) || 'No messages yet'
     }));
 

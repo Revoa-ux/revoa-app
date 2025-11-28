@@ -292,10 +292,26 @@ const AdminChat = () => {
 
   const userName = selectedChat?.user_profile?.name || 'User';
   const userEmail = selectedChat?.user_profile?.email || '';
+  const companyName = selectedChat?.user_profile?.company || null;
+  const storeUrl = selectedChat?.shopify_installations?.[0]?.store_url || null;
   const totalTransactions = selectedChat?.user_assignment?.total_transactions || 0;
   const totalInvoices = selectedChat?.user_assignment?.total_invoices || 0;
   const userCreatedAt = selectedChat?.user_profile?.created_at;
   const lastInteraction = selectedChat?.user_assignment?.last_interaction_at;
+
+  // Calculate user's current time based on timezone
+  const getUserCurrentTime = () => {
+    const now = new Date();
+    // Default to UTC if no timezone info
+    const hours = now.getUTCHours();
+    const minutes = now.getMinutes();
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+
+  const displayName = companyName || userName;
+  const displayEmail = storeUrl || userEmail;
 
   return (
     <div className="p-8">
@@ -417,9 +433,12 @@ const AdminChat = () => {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{userName}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{userEmail}</p>
+                  <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">{displayName}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{displayEmail}</p>
                   <div className="flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <span title="User's current time">
+                      {getUserCurrentTime()} their time
+                    </span>
                     {totalTransactions > 0 && (
                       <span title="Total transaction volume">
                         ${totalTransactions.toLocaleString()} volume
@@ -427,9 +446,6 @@ const AdminChat = () => {
                     )}
                     {totalInvoices > 0 && (
                       <span>{totalInvoices} invoices</span>
-                    )}
-                    {userCreatedAt && (
-                      <span>Joined {new Date(userCreatedAt).toLocaleDateString()}</span>
                     )}
                   </div>
                 </div>
