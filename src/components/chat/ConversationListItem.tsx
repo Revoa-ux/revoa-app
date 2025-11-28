@@ -88,15 +88,29 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
     >
       <div className="flex items-start space-x-3">
         <div className="relative flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
-            {userName !== 'User' ? (
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {getInitials(userName)}
-              </span>
-            ) : (
-              <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            )}
-          </div>
+          {isSelected ? (
+            <div className="p-0.5 rounded-full bg-gradient-to-r from-red-500 via-pink-500 to-orange-400">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                {userName !== 'User' ? (
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {getInitials(userName)}
+                  </span>
+                ) : (
+                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+              {userName !== 'User' ? (
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {getInitials(userName)}
+                </span>
+              ) : (
+                <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </div>
+          )}
           {userStatus && (
             <div
               className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 ${userStatus.color} rounded-full border-2 border-white dark:border-gray-800`}

@@ -291,8 +291,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
     <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
       <div className="flex-1 overflow-y-auto">
         {/* Overview Section */}
-        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-blue-500">OVERVIEW</h4>
+        <div className="px-4 pb-4 space-y-2">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-red-500/50">OVERVIEW</h4>
 
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -350,8 +350,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Financial Metrics */}
-        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-green-500">FINANCIAL</h4>
+        <div className="px-4 pb-4 space-y-2">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-pink-500/50">FINANCIAL</h4>
 
           {/* Last Invoice Sent */}
           <div className="flex items-center justify-between py-2">
@@ -417,8 +417,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         </div>
 
         {/* Order Metrics */}
-        <div className="px-4 py-4 space-y-2 border-b border-gray-200 dark:border-gray-700">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500">ORDERS</h4>
+        <div className="px-4 pb-4 space-y-2">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-orange-500/50">ORDERS</h4>
 
           {/* Unfulfilled Orders */}
           <div className="flex items-center justify-between py-2">
@@ -482,8 +482,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
 
         {/* Communication */}
-        <div className="px-4 py-4 space-y-2">
-          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-purple-500">COMMUNICATION</h4>
+        <div className="px-4 pb-4 space-y-2">
+          <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 -mx-4 px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-red-500/50">COMMUNICATION</h4>
 
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
