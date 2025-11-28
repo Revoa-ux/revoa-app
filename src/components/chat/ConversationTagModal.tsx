@@ -145,7 +145,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wide">
                   {categoryLabels[category] || category}
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {categoryTags.map((tag) => {
                     const IconComponent = iconMap[tag.icon] || TagIcon;
                     const isSelected = selectedTagIds.has(tag.id);
@@ -155,48 +155,53 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
                         key={tag.id}
                         onClick={() => toggleTag(tag.id)}
                         className={`
-                          relative flex items-center px-3 py-2.5 rounded-lg border transition-all
-                          backdrop-blur-xl bg-white/40 dark:bg-gray-800/40
+                          group relative flex items-center px-4 py-3 rounded-xl border-2 transition-all duration-200
+                          backdrop-blur-2xl
                           ${
                             isSelected
-                              ? 'border-current shadow-lg shadow-black/5 dark:shadow-black/20'
-                              : 'border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300/70 dark:hover:border-gray-600/70 hover:shadow-md'
+                              ? 'shadow-2xl scale-[1.02]'
+                              : 'hover:shadow-xl hover:scale-[1.01] bg-white/60 dark:bg-gray-800/60 border-gray-200/30 dark:border-gray-700/30'
                           }
                         `}
-                        style={{
-                          background: isSelected
-                            ? `linear-gradient(135deg, ${tag.color}18, ${tag.color}08)`
-                            : undefined,
-                          borderColor: isSelected ? tag.color : undefined,
-                        }}
+                        style={
+                          isSelected
+                            ? {
+                                background: `linear-gradient(135deg, ${tag.color}25 0%, ${tag.color}10 100%)`,
+                                borderColor: tag.color,
+                                boxShadow: `0 10px 40px ${tag.color}20, 0 0 0 1px ${tag.color}40 inset`,
+                              }
+                            : undefined
+                        }
                       >
                         <div
-                          className="flex items-center justify-center w-8 h-8 rounded-md mr-2.5 backdrop-blur-sm"
+                          className="flex items-center justify-center w-10 h-10 rounded-lg mr-3 transition-transform duration-200 group-hover:scale-110"
                           style={{
-                            backgroundColor: `${tag.color}25`,
+                            backgroundColor: `${tag.color}30`,
                             color: tag.color,
+                            boxShadow: `0 4px 12px ${tag.color}15`,
                           }}
                         >
-                          <IconComponent className="w-4 h-4" />
+                          <IconComponent className="w-5 h-5" />
                         </div>
-                        <div className="flex-1 text-left">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-0.5">
                             {tag.name}
                           </div>
                           {tag.description && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">
                               {tag.description}
                             </div>
                           )}
                         </div>
                         {isSelected && (
                           <div
-                            className="flex-shrink-0 ml-2 w-5 h-5 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm"
+                            className="flex-shrink-0 ml-3 w-6 h-6 rounded-full flex items-center justify-center shadow-lg transition-transform duration-200 scale-100 animate-in"
                             style={{
                               backgroundColor: tag.color,
+                              boxShadow: `0 4px 12px ${tag.color}40`,
                             }}
                           >
-                            <Check className="w-3 h-3 text-white" />
+                            <Check className="w-4 h-4 text-white font-bold" />
                           </div>
                         )}
                       </button>
@@ -208,10 +213,10 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           </>
         )}
 
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
             disabled={isSaving}
           >
             Cancel
@@ -219,7 +224,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-6 py-2 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-8 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-gray-900 to-gray-700 hover:from-gray-800 hover:to-gray-600 dark:from-gray-100 dark:to-gray-300 dark:text-gray-900 dark:hover:from-white dark:hover:to-gray-100 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
           >
             {isSaving ? 'Saving...' : 'Save Tags'}
           </button>
