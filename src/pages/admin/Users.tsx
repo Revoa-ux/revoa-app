@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
+import { ActiveQuotesModal } from '@/components/admin/ActiveQuotesModal';
 import Modal from '@/components/Modal';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -81,6 +82,8 @@ export default function Users() {
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showActiveQuotesModal, setShowActiveQuotesModal] = useState(false);
+  const [activeQuotesUser, setActiveQuotesUser] = useState<{ id: string; name: string } | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
@@ -485,9 +488,15 @@ export default function Users() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.activeQuotes > 0 ? (
-                        <span className="text-red-600 dark:text-red-400">
+                        <button
+                          onClick={() => {
+                            setActiveQuotesUser({ id: user.user_id, name: user.name || user.email.split('@')[0] });
+                            setShowActiveQuotesModal(true);
+                          }}
+                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline cursor-pointer transition-colors"
+                        >
                           {user.activeQuotes}
-                        </span>
+                        </button>
                       ) : (
                         <span className="text-gray-500 dark:text-gray-400">0</span>
                       )}
@@ -571,6 +580,18 @@ export default function Users() {
             />
           </div>
         </Modal>
+      )}
+
+      {/* Active Quotes Modal */}
+      {showActiveQuotesModal && activeQuotesUser && (
+        <ActiveQuotesModal
+          userId={activeQuotesUser.id}
+          userName={activeQuotesUser.name}
+          onClose={() => {
+            setShowActiveQuotesModal(false);
+            setActiveQuotesUser(null);
+          }}
+        />
       )}
     </div>
   );
