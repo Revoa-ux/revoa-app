@@ -21,7 +21,6 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminUsers from './pages/admin/Users';
 import AdminQuotes from './pages/admin/Quotes';
 import AdminInvoices from './pages/admin/Invoices';
-import AdminFinances from './pages/admin/Finances';
 import AdminSettings from './pages/admin/Settings';
 import AdminManage from './pages/admin/Admins';
 import SignUpNew from './pages/SignUpNew';
@@ -160,11 +159,6 @@ function App() {
               <Route path="product-import" element={<AdminProductImport />} />
               <Route path="ai-import" element={<AdminAIImport />} />
               <Route path="invoices" element={<AdminInvoices />} />
-              <Route path="finances" element={
-                <SuperAdminProtectedRoute>
-                  <AdminFinances />
-                </SuperAdminProtectedRoute>
-              } />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="admins" element={<AdminManage />} />
               <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />

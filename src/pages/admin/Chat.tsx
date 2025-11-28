@@ -747,15 +747,15 @@ const AdminChat = () => {
             </div>
           </div>
         )}
-      </div>
 
-      {/* Collapsible Client Profile */}
-      {selectedChat && (
-        <CollapsibleClientProfile
-          userId={selectedChat.user_id}
-          isExpanded={showUserProfile}
-        />
-      )}
+        {/* Collapsible Client Profile */}
+        {selectedChat && (
+          <CollapsibleClientProfile
+            userId={selectedChat.user_id}
+            isExpanded={showUserProfile}
+          />
+        )}
+      </div>
         </div>
 
         {showUploadModal && (

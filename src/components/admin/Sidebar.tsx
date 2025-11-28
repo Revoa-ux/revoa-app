@@ -27,7 +27,6 @@ const navigation = [
   // { name: 'Product Approvals', href: '/admin/products', icon: Package, superAdminOnly: true },
   // { name: 'Import Products', href: '/admin/product-import', icon: Upload, superAdminOnly: true },
   { name: 'Bulk Invoices', href: '/admin/invoices', icon: FileText },
-  { name: 'Business Finances', href: '/admin/finances', icon: DollarSign, superAdminOnly: true },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true },
   { name: 'Settings', href: '/admin/settings', icon: Settings }
 ];
