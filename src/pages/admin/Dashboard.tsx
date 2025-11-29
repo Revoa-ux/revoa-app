@@ -14,7 +14,10 @@ import {
   ShoppingCart,
   FileText,
   Shield,
-  ChevronRight
+  ChevronRight,
+  MessageSquare,
+  Package,
+  Clock
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -95,6 +98,13 @@ export default function AdminDashboard() {
     pendingOrders: 0,
     activeQuotes: 0
   });
+  const [adminStats, setAdminStats] = useState({
+    unreadMessages: 0,
+    newQuoteRequests: 0,
+    pendingApprovals: 0,
+    assignedClients: 0,
+    lastLoginTime: null as string | null
+  });
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
@@ -147,6 +157,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardStats();
+    if (!isSuperAdmin && adminUser) {
+      fetchAdminStats();
+    }
 
     const subscription = supabase
       .channel('admin-dashboard')
@@ -159,7 +172,7 @@ export default function AdminDashboard() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isSuperAdmin, adminUser]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -209,6 +222,60 @@ export default function AdminDashboard() {
       console.error('Error fetching dashboard stats:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchAdminStats = async () => {
+    if (!adminUser?.id) return;
+
+    try {
+      // Get last login time
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('last_login')
+        .eq('user_id', adminUser.id)
+        .single();
+
+      const lastLogin = profile?.last_login || null;
+
+      // Get unread messages count (messages in chats where admin is assigned, created after last login)
+      const { count: unreadMessages } = await supabase
+        .from('messages')
+        .select('chat_id, chats!inner(user_assignments!inner(admin_id))', { count: 'exact', head: true })
+        .eq('chats.user_assignments.admin_id', adminUser.id)
+        .eq('sender_type', 'user')
+        .gte('created_at', lastLogin || new Date(0).toISOString());
+
+      // Get new quote requests (pending quotes for assigned users, created after last login)
+      const { count: newQuoteRequests } = await supabase
+        .from('product_quotes')
+        .select('user_id, user_assignments!inner(admin_id)', { count: 'exact', head: true })
+        .eq('user_assignments.admin_id', adminUser.id)
+        .eq('status', 'pending')
+        .gte('created_at', lastLogin || new Date(0).toISOString());
+
+      // Get pending approvals (products awaiting approval from this admin)
+      const { count: pendingApprovals } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('created_by', adminUser.id)
+        .eq('status', 'pending');
+
+      // Get assigned clients count
+      const { count: assignedClients } = await supabase
+        .from('user_assignments')
+        .select('*', { count: 'exact', head: true })
+        .eq('admin_id', adminUser.id);
+
+      setAdminStats({
+        unreadMessages: unreadMessages || 0,
+        newQuoteRequests: newQuoteRequests || 0,
+        pendingApprovals: pendingApprovals || 0,
+        assignedClients: assignedClients || 0,
+        lastLoginTime: lastLogin
+      });
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
     }
   };
 
@@ -497,75 +564,156 @@ export default function AdminDashboard() {
             <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
           <div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Active Alerts</h3>
+            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              {isSuperAdmin ? 'Active Alerts' : 'What\'s New Since Your Last Visit'}
+            </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {notifications.filter(n => n.status === 'unread').length} unread notifications
+              {isSuperAdmin
+                ? `${notifications.filter(n => n.status === 'unread').length} unread notifications`
+                : adminStats.lastLoginTime
+                  ? `Last login: ${new Date(adminStats.lastLoginTime).toLocaleString()}`
+                  : 'Welcome back!'
+              }
             </p>
           </div>
         </div>
-        
+
         <div className="mt-4 space-y-3">
-          {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`flex items-start justify-between p-4 rounded-lg border ${
-                notification.status === 'unread'
-                  ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
-                  : 'bg-white dark:bg-gray-700/30 border-gray-100 dark:border-gray-600'
-              }`}
-            >
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0 mt-1">
-                  {notification.icon}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {notification.title}
-                    </h4>
-                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
-                      notification.priority === 'high'
-                        ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                        : notification.priority === 'medium'
-                        ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                        : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                    }`}>
-                      {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{notification.message}</p>
-                  <div className="flex items-center space-x-4 mt-2">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(notification.timestamp).toLocaleTimeString()}
-                    </span>
-                    {notification.actionUrl && (
-                      <Link
-                        to={notification.actionUrl}
-                        className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center"
-                      >
-                        {notification.actionLabel}
-                        <ChevronRight className="w-3 h-3 ml-1" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <button
-                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                onClick={() => {
-                  setNotifications(prev =>
-                    prev.map(n =>
-                      n.id === notification.id
-                        ? { ...n, status: 'read' }
-                        : n
-                    )
-                  );
-                }}
+          {isSuperAdmin ? (
+            notifications.map((notification) => (
+              <div
+                key={notification.id}
+                className={`flex items-start justify-between p-4 rounded-lg border ${
+                  notification.status === 'unread'
+                    ? 'bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-600'
+                    : 'bg-white dark:bg-gray-700/30 border-gray-100 dark:border-gray-600'
+                }`}
               >
-                <X className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-              </button>
-            </div>
-          ))}
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 mt-1">
+                    {notification.icon}
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {notification.title}
+                      </h4>
+                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                        notification.priority === 'high'
+                          ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                          : notification.priority === 'medium'
+                          ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                          : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      }`}>
+                        {notification.priority.charAt(0).toUpperCase() + notification.priority.slice(1)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{notification.message}</p>
+                    <div className="flex items-center space-x-4 mt-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(notification.timestamp).toLocaleTimeString()}
+                      </span>
+                      {notification.actionUrl && (
+                        <Link
+                          to={notification.actionUrl}
+                          className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center"
+                        >
+                          {notification.actionLabel}
+                          <ChevronRight className="w-3 h-3 ml-1" />
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  onClick={() => {
+                    setNotifications(prev =>
+                      prev.map(n =>
+                        n.id === notification.id
+                          ? { ...n, status: 'read' }
+                          : n
+                      )
+                    );
+                  }}
+                >
+                  <X className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                </button>
+              </div>
+            ))
+          ) : (
+            <>
+              <Link
+                to="/admin/chat"
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/20 dark:to-transparent hover:from-blue-100 dark:hover:from-blue-900/30 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <MessageSquare className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Unread Messages</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">From your assigned clients</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">{adminStats.unreadMessages}</span>
+                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                </div>
+              </Link>
+
+              <Link
+                to="/admin/quotes"
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-transparent dark:from-green-900/20 dark:to-transparent hover:from-green-100 dark:hover:from-green-900/30 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                    <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">New Quote Requests</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Pending your response</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">{adminStats.newQuoteRequests}</span>
+                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" />
+                </div>
+              </Link>
+
+              <Link
+                to="/admin/product-approvals"
+                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-transparent dark:from-orange-900/20 dark:to-transparent hover:from-orange-100 dark:hover:from-orange-900/30 transition-all group"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                    <Package className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Pending Approvals</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Products awaiting review</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">{adminStats.pendingApprovals}</span>
+                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors" />
+                </div>
+              </Link>
+
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-transparent dark:from-gray-700/50 dark:to-transparent">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <Users className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Assigned Clients</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Total clients under your care</p>
+                  </div>
+                </div>
+                <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{adminStats.assignedClients}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
