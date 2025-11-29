@@ -229,24 +229,27 @@ export default function AdminManage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
-            Admin Team
-          </h1>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Manage your admin team and monitor performance
-            </p>
-          </div>
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+          Admin Team
+        </h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Manage your admin team and monitor performance
+          </p>
         </div>
       </div>
 
-      {/* Time Range Selector and Invite Button */}
       <div className="flex items-center justify-between">
-        <div className="flex-1"></div>
         <div className="flex items-center space-x-3">
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={() => fetchAdmins()}
+          />
           {isSuperAdmin && (
             <Button
               variant="primary"
@@ -258,13 +261,6 @@ export default function AdminManage() {
               Invite Admin
             </Button>
           )}
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            onApply={() => fetchAdmins()}
-          />
         </div>
       </div>
 

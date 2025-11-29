@@ -311,25 +311,29 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
-            Admin Dashboard
-          </h1>
-          <div className="flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isLoading ? 'Updating metrics...' : 'Welcome back, ' + adminUser?.email}
-            </p>
-          </div>
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+          Admin Dashboard
+        </h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {isLoading ? 'Updating metrics...' : 'Welcome back, ' + adminUser?.email}
+          </p>
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} users active now</p>
-          </div>
-          <button 
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 dark:bg-gray-900/50 transition-colors flex items-center space-x-2"
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+            onApply={handleApplyDateRange}
+          />
+          <button
+            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
@@ -345,13 +349,10 @@ export default function AdminDashboard() {
               </>
             )}
           </button>
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={handleDateRangeChange}
-            onApply={handleApplyDateRange}
-          />
+        </div>
+        <div className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} users active now</p>
         </div>
       </div>
 
