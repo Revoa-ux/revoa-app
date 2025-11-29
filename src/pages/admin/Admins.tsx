@@ -241,29 +241,31 @@ export default function AdminManage() {
             </p>
           </div>
         </div>
-
-        {isSuperAdmin && (
-          <Button
-            variant="primary"
-            size="md"
-            icon={<UserPlus className="w-4 h-4" />}
-            iconPosition="left"
-            onClick={() => setShowInviteModal(true)}
-          >
-            Invite Admin
-          </Button>
-        )}
       </div>
 
-      {/* Time Range Selector */}
-      <div className="flex items-center justify-end">
-        <AdReportsTimeSelector
-          selectedTime={selectedTime}
-          onTimeChange={handleTimeChange}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-          onApply={() => fetchAdmins()}
-        />
+      {/* Time Range Selector and Invite Button */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1"></div>
+        <div className="flex items-center space-x-3">
+          {isSuperAdmin && (
+            <Button
+              variant="primary"
+              size="md"
+              icon={<UserPlus className="w-4 h-4" />}
+              iconPosition="left"
+              onClick={() => setShowInviteModal(true)}
+            >
+              Invite Admin
+            </Button>
+          )}
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={() => fetchAdmins()}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

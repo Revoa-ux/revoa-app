@@ -14,7 +14,6 @@ import {
   Moon,
   DollarSign,
   User,
-  Ship
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,10 +25,6 @@ const navigation = [
   { name: 'User Management', href: '/admin/users', icon: Users },
   { name: 'Quote Requests', href: '/admin/quotes', icon: FileText },
   { name: 'Conversations', href: '/admin/chat', icon: MessageSquare },
-  // { name: 'Product Approvals', href: '/admin/products', icon: Package, superAdminOnly: true },
-  // { name: 'Import Products', href: '/admin/product-import', icon: Upload, superAdminOnly: true },
-  { name: 'Bulk Invoices', href: '/admin/invoices', icon: FileText },
-  { name: 'Shipping Rates', href: '/admin/shipping-rates', icon: Ship, superAdminOnly: true },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true },
   { name: 'My Profile', href: '/admin/profile', icon: User },
   { name: 'Settings', href: '/admin/settings', icon: Settings }
