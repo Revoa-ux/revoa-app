@@ -12,6 +12,7 @@ import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
 import { ActiveQuotesModal } from '@/components/admin/ActiveQuotesModal';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 import Modal from '@/components/Modal';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -43,7 +44,7 @@ interface User {
 }
 
 const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
-  <tr className="border-b border-gray-200 dark:border-gray-700">
+  <tr>
     <td className="px-6 py-4">
       <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
     </td>
@@ -411,15 +412,11 @@ export default function Users() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 first:rounded-tl-xl">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectAll}
-                      onChange={handleSelectAll}
-                      className="rounded border-gray-300 text-gray-900 dark:text-gray-100 focus:ring-gray-900"
-                    />
-                  </div>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl w-12">
+                  <CustomCheckbox
+                    checked={selectAll}
+                    onChange={(e) => handleSelectAll(e)}
+                  />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Registration</th>
@@ -427,11 +424,11 @@ export default function Users() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Volume</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Transactions</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Invoices</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Active Quotes</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Active Quotes</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:border-gray-700">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRowSkeleton key={index} index={index} />
@@ -444,16 +441,12 @@ export default function Users() {
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedUsers.includes(user.id)}
-                          onChange={() => handleSelectUser(user.id)}
-                          className="rounded border-gray-300 text-gray-900 dark:text-gray-100 focus:ring-gray-900"
-                        />
-                      </div>
+                      <CustomCheckbox
+                        checked={selectedUsers.includes(user.id)}
+                        onChange={() => handleSelectUser(user.id)}
+                      />
                     </td>
                     <td className="px-6 py-4">
                       <div>

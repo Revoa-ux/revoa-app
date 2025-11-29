@@ -185,7 +185,7 @@ export default function AdminQuotes() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:border-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {filteredQuotes.map((quote) => (
                 <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4">
