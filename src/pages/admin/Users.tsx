@@ -51,7 +51,7 @@ const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
     <td className="px-6 py-4">
       <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse"></div>
     </td>
-    {Array.from({ length: 6 }).map((_, i) => (
+    {Array.from({ length: 7 }).map((_, i) => (
       <td key={i} className="px-6 py-4">
         <div
           className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"
@@ -428,7 +428,7 @@ export default function Users() {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:border-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRowSkeleton key={index} index={index} />
