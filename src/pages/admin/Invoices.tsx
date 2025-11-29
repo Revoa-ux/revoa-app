@@ -93,7 +93,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              {invoice.user_profile?.company_name || invoice.user_profile?.email}
+              {invoice.user_profile?.company || invoice.user_profile?.email}
             </p>
           </div>
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -541,7 +541,7 @@ export default function Invoices() {
                           {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {invoice.user_profile?.company_name || invoice.user_profile?.email || 'Unknown'}
+                          {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                           {format(new Date(invoice.created_at), 'MMM dd, yyyy')}

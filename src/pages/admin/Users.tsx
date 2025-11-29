@@ -420,14 +420,14 @@ export default function Users() {
                     onChange={(e) => handleSelectAll(e)}
                   />
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Registration</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Assigned To</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Volume</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Transactions</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Invoices</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Active Quotes</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap last:rounded-tr-xl">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-1/4">User</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-24">Registration</th>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-32">Assigned To</th>
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-24">Volume</th>
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-28">Transactions</th>
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-20">Invoices</th>
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-24">Active Quotes</th>
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-20 last:rounded-tr-xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -450,35 +450,35 @@ export default function Users() {
                         onChange={() => handleSelectUser(user.id)}
                       />
                     </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="text-sm text-gray-900 dark:text-white">
+                    <td className="px-4 py-4">
+                      <div className="max-w-xs">
+                        <div className="text-sm text-gray-900 dark:text-white truncate">
                           {user.name || user.email.split('@')[0]}
                         </div>
                         {(user.company || user.storeUrl) && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">
                             {user.company || user.storeUrl}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       {user.assignedTo ? (
-                        <span className="text-sm text-gray-900 dark:text-gray-100">{user.assignedTo.name || user.assignedTo.email}</span>
+                        <span className="text-sm text-gray-900 dark:text-gray-100 truncate block max-w-[8rem]" title={user.assignedTo.name || user.assignedTo.email}>{user.assignedTo.name || user.assignedTo.email}</span>
                       ) : (
                         <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.volume.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.transactions.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.invoices > 0 ? (
                         <button
                           onClick={(e) => {
@@ -494,7 +494,7 @@ export default function Users() {
                         <span className="text-gray-500 dark:text-gray-400">0</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
+                    <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.activeQuotes > 0 ? (
                         <button
                           onClick={() => {

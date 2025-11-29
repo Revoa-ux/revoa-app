@@ -34,7 +34,7 @@ export interface Invoice {
     email: string;
     first_name: string | null;
     last_name: string | null;
-    company_name: string | null;
+    company: string | null;
   };
 }
 
