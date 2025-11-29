@@ -14,7 +14,11 @@ import {
   Package,
   MessageSquare,
   TrendingUp,
-  CheckCircle2
+  CheckCircle2,
+  MoreVertical,
+  Trash2,
+  Shield,
+  ShieldCheck
 } from 'lucide-react';
 import { format, subDays, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
 import { toast } from 'sonner';
@@ -57,6 +61,7 @@ export default function AdminManage() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
@@ -222,6 +227,53 @@ export default function AdminManage() {
 
   const handleInviteSuccess = () => {
     fetchAdmins();
+  };
+
+  const handleDeleteAdmin = async (adminId: string, adminEmail: string) => {
+    if (!confirm(`Are you sure you want to delete admin ${adminEmail}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ is_admin: false, admin_role: null })
+        .eq('user_id', adminId);
+
+      if (error) throw error;
+
+      toast.success('Admin removed successfully');
+      fetchAdmins();
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error('Error deleting admin:', error);
+      toast.error('Failed to remove admin');
+    }
+  };
+
+  const handleChangeRole = async (adminId: string, currentRole: string, adminEmail: string) => {
+    const newRole = currentRole === 'super_admin' ? 'admin' : 'super_admin';
+    const roleLabel = newRole === 'super_admin' ? 'Super Admin' : 'Admin';
+
+    if (!confirm(`Change ${adminEmail}'s role to ${roleLabel}?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ admin_role: newRole })
+        .eq('user_id', adminId);
+
+      if (error) throw error;
+
+      toast.success(`Role updated to ${roleLabel}`);
+      fetchAdmins();
+      setOpenMenuId(null);
+    } catch (error) {
+      console.error('Error changing role:', error);
+      toast.error('Failed to update role');
+    }
   };
 
   const totalAssignedUsers = admins.reduce((sum, admin) => sum + admin.assignedUsers, 0);
@@ -461,6 +513,51 @@ export default function AdminManage() {
                       </div>
                     </div>
                   </div>
+
+                  {isSuperAdmin && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === admin.id ? null : admin.id)}
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        <MoreVertical className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      {openMenuId === admin.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-10"
+                            onClick={() => setOpenMenuId(null)}
+                          />
+                          <div className="absolute right-0 top-10 z-20 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                            <button
+                              onClick={() => handleChangeRole(admin.id, admin.role, admin.email)}
+                              className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2"
+                            >
+                              {admin.role === 'super_admin' ? (
+                                <>
+                                  <Shield className="w-4 h-4" />
+                                  <span>Change to Admin</span>
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldCheck className="w-4 h-4" />
+                                  <span>Make Super Admin</span>
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAdmin(admin.id, admin.email)}
+                              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center space-x-2"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span>Remove Admin</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
