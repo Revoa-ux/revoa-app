@@ -29,7 +29,7 @@ interface ProfileData {
   last_name: string | null;
   email: string | null;
   phone: string | null;
-  company_name: string | null;
+  company: string | null;
   created_at: string;
   last_login: string | null;
   store_url: string | null;
@@ -121,7 +121,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       // Load profile
       const { data: profileData } = await supabase
         .from('user_profiles')
-        .select('first_name, last_name, email, phone, company_name, created_at, last_login')
+        .select('first_name, last_name, email, phone, company, created_at, last_login')
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -380,13 +380,13 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             </div>
           )}
 
-          {profile?.company_name && (
+          {profile?.company && (
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Building2 className="w-4 h-4 mr-2" />
                 <span className="text-xs">Company</span>
               </div>
-              <span className="text-xs font-medium text-gray-900 dark:text-white">{profile.company_name}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-white">{profile.company}</span>
             </div>
           )}
 

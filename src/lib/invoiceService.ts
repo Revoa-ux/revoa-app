@@ -138,7 +138,7 @@ export const invoiceService = {
             email: profile.email,
             first_name: profile.first_name,
             last_name: profile.last_name,
-            company_name: profile.company
+            company: profile.company
           } : undefined
         };
       }),
@@ -169,7 +169,7 @@ export const invoiceService = {
         email: profile.email,
         first_name: profile.first_name,
         last_name: profile.last_name,
-        company_name: profile.company
+        company: profile.company
       } : undefined
     };
   },
@@ -439,7 +439,7 @@ export const invoiceService = {
           email: profile.email,
           first_name: profile.first_name,
           last_name: profile.last_name,
-          company_name: profile.company
+          company: profile.company
         } : undefined
       };
     });
