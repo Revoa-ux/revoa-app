@@ -81,15 +81,7 @@ export const invoiceService = {
   async getInvoices(filters?: InvoiceFilters, page = 1, pageSize = 50): Promise<{ data: Invoice[]; count: number }> {
     let query = supabase
       .from('invoices')
-      .select(`
-        *,
-        user_profiles!invoices_user_id_fkey (
-          email,
-          first_name,
-          last_name,
-          company_name
-        )
-      `, { count: 'exact' });
+      .select('*', { count: 'exact' });
 
     if (filters?.userId) {
       query = query.eq('user_id', filters.userId);
@@ -116,7 +108,7 @@ export const invoiceService = {
     }
 
     if (filters?.searchTerm) {
-      query = query.or(`invoice_number.ilike.%${filters.searchTerm}%,user_profiles.email.ilike.%${filters.searchTerm}%`);
+      query = query.ilike('invoice_number', `%${filters.searchTerm}%`);
     }
 
     const from = (page - 1) * pageSize;
@@ -128,11 +120,28 @@ export const invoiceService = {
 
     if (error) throw error;
 
+    // Fetch user profiles for all invoices
+    const userIds = [...new Set(data?.map(inv => inv.user_id).filter(Boolean))];
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('user_id, email, first_name, last_name, company')
+      .in('user_id', userIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+
     return {
-      data: (data || []).map(inv => ({
-        ...inv,
-        user_profile: inv.user_profiles
-      })),
+      data: (data || []).map(inv => {
+        const profile = profileMap.get(inv.user_id);
+        return {
+          ...inv,
+          user_profile: profile ? {
+            email: profile.email,
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            company_name: profile.company
+          } : undefined
+        };
+      }),
       count: count || 0
     };
   },
@@ -140,25 +149,28 @@ export const invoiceService = {
   async getInvoiceById(invoiceId: string): Promise<Invoice | null> {
     const { data, error } = await supabase
       .from('invoices')
-      .select(`
-        *,
-        user_profiles!invoices_user_id_fkey (
-          email,
-          first_name,
-          last_name,
-          company_name
-        )
-      `)
+      .select('*')
       .eq('id', invoiceId)
       .maybeSingle();
 
     if (error) throw error;
-
     if (!data) return null;
+
+    // Fetch user profile
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('email, first_name, last_name, company')
+      .eq('user_id', data.user_id)
+      .maybeSingle();
 
     return {
       ...data,
-      user_profile: data.user_profiles
+      user_profile: profile ? {
+        email: profile.email,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        company_name: profile.company
+      } : undefined
     };
   },
 
@@ -399,15 +411,7 @@ export const invoiceService = {
   async getOverdueInvoices(userId?: string): Promise<Invoice[]> {
     let query = supabase
       .from('invoices')
-      .select(`
-        *,
-        user_profiles!invoices_user_id_fkey (
-          email,
-          first_name,
-          last_name,
-          company_name
-        )
-      `)
+      .select('*')
       .eq('status', 'overdue');
 
     if (userId) {
@@ -418,10 +422,27 @@ export const invoiceService = {
 
     if (error) throw error;
 
-    return (data || []).map(inv => ({
-      ...inv,
-      user_profile: inv.user_profiles
-    }));
+    // Fetch user profiles
+    const userIds = [...new Set(data?.map(inv => inv.user_id).filter(Boolean))];
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('user_id, email, first_name, last_name, company')
+      .in('user_id', userIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.user_id, p]));
+
+    return (data || []).map(inv => {
+      const profile = profileMap.get(inv.user_id);
+      return {
+        ...inv,
+        user_profile: profile ? {
+          email: profile.email,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          company_name: profile.company
+        } : undefined
+      };
+    });
   },
 
   async updateOverdueInvoices(): Promise<void> {

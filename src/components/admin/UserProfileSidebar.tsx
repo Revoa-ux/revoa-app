@@ -170,7 +170,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .from('messages')
         .select('created_at')
         .eq('chat_id', chat?.id || '')
-        .eq('sender_id', userId)
+        .eq('sender', 'user')
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .limit(50);

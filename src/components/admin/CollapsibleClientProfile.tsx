@@ -174,17 +174,26 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         .eq('status', 'accepted')
         .is('fulfilled_at', null);
 
+      // Get chat for this user
+      const { data: userChat } = await supabase
+        .from('chats')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
       // Load message count
       const { count: messageCount } = await supabase
         .from('messages')
         .select('*', { count: 'only', head: true })
-        .eq('user_id', userId);
+        .eq('chat_id', userChat?.id || '')
+        .is('deleted_at', null);
 
       // Load last interaction
       const { data: lastMessage } = await supabase
         .from('messages')
         .select('created_at')
-        .eq('user_id', userId)
+        .eq('chat_id', userChat?.id || '')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -193,7 +202,9 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
       const { data: userMessages } = await supabase
         .from('messages')
         .select('created_at')
-        .eq('user_id', userId)
+        .eq('chat_id', userChat?.id || '')
+        .eq('sender', 'user')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .limit(50);
 
