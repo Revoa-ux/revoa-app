@@ -25,6 +25,7 @@ import AdminManage from './pages/admin/Admins';
 import AdminProfileSetup from './pages/admin/ProfileSetup';
 import AdminProfileEdit from './pages/admin/ProfileEdit';
 import AcceptInvitation from './pages/admin/AcceptInvitation';
+import AdminInvoices from './pages/admin/Invoices';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -168,6 +169,7 @@ function App() {
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
+              <Route path="invoices" element={<AdminInvoices />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
               <Route path="product-import" element={<AdminProductImport />} />
