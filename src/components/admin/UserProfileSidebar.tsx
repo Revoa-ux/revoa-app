@@ -136,13 +136,13 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
       const totalPaid = paidInvoices?.reduce((sum, i) => sum + Number(i.amount), 0) || 0;
       const totalPending = pendingInvoices?.reduce((sum, i) => sum + Number(i.amount), 0) || 0;
 
-      // Get unfulfilled orders
+      // Get unfulfilled orders (accepted quotes that haven't been pushed to Shopify yet)
       const { count: unfulfilledCount } = await supabase
         .from('product_quotes')
         .select('*', { count: 'only', head: true })
         .eq('user_id', userId)
         .eq('status', 'accepted')
-        .is('fulfilled_at', null);
+        .is('shopify_product_id', null);
 
       // Fetch Shopify store
       const { data: shopify } = await supabase

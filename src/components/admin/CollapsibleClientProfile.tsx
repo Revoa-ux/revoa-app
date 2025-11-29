@@ -172,7 +172,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
         .select('*', { count: 'only', head: true })
         .eq('user_id', userId)
         .eq('status', 'accepted')
-        .is('fulfilled_at', null);
+        .is('shopify_product_id', null);
 
       // Get chat for this user
       const { data: userChat } = await supabase
