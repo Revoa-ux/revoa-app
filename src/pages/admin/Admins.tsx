@@ -27,6 +27,7 @@ import { supabase } from '@/lib/supabase';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import InviteAdminModal from '@/components/admin/InviteAdminModal';
 import Button from '@/components/Button';
+import Modal from '@/components/Modal';
 
 interface AdminUser {
   id: string;
@@ -62,6 +63,12 @@ export default function AdminManage() {
   const [isInviting, setIsInviting] = useState(false);
   const [selectedTime, setSelectedTime] = useState<TimeOption>('7d');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: 'delete' | 'changeRole' | null;
+    adminId: string | null;
+    adminEmail: string | null;
+    currentRole: string | null;
+  }>({ type: null, adminId: null, adminEmail: null, currentRole: null });
   const initialEndDate = new Date();
   initialEndDate.setHours(23, 59, 59, 999);
   const initialStartDate = new Date(initialEndDate);
@@ -229,47 +236,45 @@ export default function AdminManage() {
     fetchAdmins();
   };
 
-  const handleDeleteAdmin = async (adminId: string, adminEmail: string) => {
-    if (!confirm(`Are you sure you want to delete admin ${adminEmail}? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDeleteAdmin = async () => {
+    if (!confirmAction.adminId || !confirmAction.adminEmail) return;
 
     try {
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_admin: false, admin_role: null })
-        .eq('user_id', adminId);
+        .eq('user_id', confirmAction.adminId);
 
       if (error) throw error;
 
       toast.success('Admin removed successfully');
       fetchAdmins();
       setOpenMenuId(null);
+      setConfirmAction({ type: null, adminId: null, adminEmail: null, currentRole: null });
     } catch (error) {
       console.error('Error deleting admin:', error);
       toast.error('Failed to remove admin');
     }
   };
 
-  const handleChangeRole = async (adminId: string, currentRole: string, adminEmail: string) => {
-    const newRole = currentRole === 'super_admin' ? 'admin' : 'super_admin';
-    const roleLabel = newRole === 'super_admin' ? 'Super Admin' : 'Admin';
+  const handleChangeRole = async () => {
+    if (!confirmAction.adminId || !confirmAction.currentRole) return;
 
-    if (!confirm(`Change ${adminEmail}'s role to ${roleLabel}?`)) {
-      return;
-    }
+    const newRole = confirmAction.currentRole === 'super_admin' ? 'admin' : 'super_admin';
+    const roleLabel = newRole === 'super_admin' ? 'Super Admin' : 'Admin';
 
     try {
       const { error } = await supabase
         .from('user_profiles')
         .update({ admin_role: newRole })
-        .eq('user_id', adminId);
+        .eq('user_id', confirmAction.adminId);
 
       if (error) throw error;
 
       toast.success(`Role updated to ${roleLabel}`);
       fetchAdmins();
       setOpenMenuId(null);
+      setConfirmAction({ type: null, adminId: null, adminEmail: null, currentRole: null });
     } catch (error) {
       console.error('Error changing role:', error);
       toast.error('Failed to update role');
@@ -531,7 +536,15 @@ export default function AdminManage() {
                           />
                           <div className="absolute right-0 top-10 z-20 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                             <button
-                              onClick={() => handleChangeRole(admin.id, admin.role, admin.email)}
+                              onClick={() => {
+                                setConfirmAction({
+                                  type: 'changeRole',
+                                  adminId: admin.id,
+                                  adminEmail: admin.email,
+                                  currentRole: admin.role
+                                });
+                                setOpenMenuId(null);
+                              }}
                               className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2"
                             >
                               {admin.role === 'super_admin' ? (
@@ -547,7 +560,15 @@ export default function AdminManage() {
                               )}
                             </button>
                             <button
-                              onClick={() => handleDeleteAdmin(admin.id, admin.email)}
+                              onClick={() => {
+                                setConfirmAction({
+                                  type: 'delete',
+                                  adminId: admin.id,
+                                  adminEmail: admin.email,
+                                  currentRole: admin.role
+                                });
+                                setOpenMenuId(null);
+                              }}
                               className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center space-x-2"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -570,6 +591,46 @@ export default function AdminManage() {
         onClose={() => setShowInviteModal(false)}
         onSuccess={handleInviteSuccess}
       />
+
+      <Modal
+        isOpen={confirmAction.type !== null}
+        onClose={() => setConfirmAction({ type: null, adminId: null, adminEmail: null, currentRole: null })}
+        title={confirmAction.type === 'delete' ? 'Remove Admin' : 'Change Admin Role'}
+      >
+        <div className="space-y-4">
+          <p className="text-gray-600 dark:text-gray-400">
+            {confirmAction.type === 'delete' ? (
+              <>
+                Are you sure you want to remove <strong>{confirmAction.adminEmail}</strong> as an admin?
+                This action cannot be undone.
+              </>
+            ) : (
+              <>
+                Change <strong>{confirmAction.adminEmail}</strong>'s role to{' '}
+                <strong>
+                  {confirmAction.currentRole === 'super_admin' ? 'Admin' : 'Super Admin'}
+                </strong>
+                ?
+              </>
+            )}
+          </p>
+
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmAction({ type: null, adminId: null, adminEmail: null, currentRole: null })}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={confirmAction.type === 'delete' ? 'danger' : 'primary'}
+              onClick={confirmAction.type === 'delete' ? handleDeleteAdmin : handleChangeRole}
+            >
+              {confirmAction.type === 'delete' ? 'Remove Admin' : 'Change Role'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
