@@ -111,23 +111,23 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         .eq('user_id', userId)
         .maybeSingle();
 
-      // Fetch payment intents for invoices
+      // Fetch invoices
       const { data: paidInvoices } = await supabase
-        .from('payment_intents')
+        .from('invoices')
         .select('amount, created_at')
         .eq('user_id', userId)
-        .eq('status', 'succeeded')
+        .eq('status', 'paid')
         .order('created_at', { ascending: false });
 
       const { data: pendingInvoices } = await supabase
-        .from('payment_intents')
+        .from('invoices')
         .select('amount, created_at')
         .eq('user_id', userId)
-        .eq('status', 'pending')
+        .in('status', ['pending', 'overdue'])
         .order('created_at', { ascending: false });
 
       const { data: allInvoices } = await supabase
-        .from('payment_intents')
+        .from('invoices')
         .select('amount, created_at, status')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
