@@ -264,49 +264,65 @@ export default function AdminManage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse" />
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Admins</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                {admins.length}
+              </p>
             </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Total Admins</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {admins.length}
-            </p>
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <BarChart3 className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <BarChart3 className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Users</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                {totalAssignedUsers}
+              </p>
             </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Assigned Users</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              {totalAssignedUsers}
-            </p>
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-              <DollarSign className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <DollarSign className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Volume</p>
+              <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                ${(totalVolume / 1000).toFixed(1)}k
+              </p>
             </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Total Volume</p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-              ${(totalVolume / 1000).toFixed(1)}k
-            </p>
-          </div>
         </div>
-      </div>
+      )}
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
@@ -314,8 +330,29 @@ export default function AdminManage() {
         </div>
 
         {isLoading ? (
-          <div className="p-12 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse flex-shrink-0" />
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" />
+                      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse" />
+                    </div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse" />
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                      {Array.from({ length: 6 }).map((_, j) => (
+                        <div key={j} className="space-y-2">
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse" />
+                          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-12 animate-pulse" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : admins.length === 0 ? (
           <div className="p-12 text-center">
