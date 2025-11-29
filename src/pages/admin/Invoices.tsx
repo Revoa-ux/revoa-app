@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -244,6 +245,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 };
 
 export default function Invoices() {
+  const [searchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -255,11 +257,14 @@ export default function Invoices() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  const userId = searchParams.get('userId');
+
   const [filters, setFilters] = useState<InvoiceFilters>({
     status: 'all',
     dateFrom: '',
     dateTo: '',
-    searchTerm: ''
+    searchTerm: '',
+    userId: userId || undefined
   });
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);

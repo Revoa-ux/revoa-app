@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -64,6 +65,7 @@ const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
 
 export default function Users() {
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
@@ -477,7 +479,20 @@ export default function Users() {
                       ${user.transactions.toLocaleString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-                      {user.invoices}
+                      {user.invoices > 0 ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/invoices?userId=${user.user_id}`);
+                          }}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors font-medium"
+                          title="View invoices"
+                        >
+                          {user.invoices}
+                        </button>
+                      ) : (
+                        <span className="text-gray-500 dark:text-gray-400">0</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       {user.activeQuotes > 0 ? (

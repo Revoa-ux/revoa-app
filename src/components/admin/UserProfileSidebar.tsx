@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   User,
@@ -19,7 +20,8 @@ import {
   Send,
   CheckCircle,
   AlertCircle,
-  Clipboard
+  Clipboard,
+  Receipt
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
@@ -82,6 +84,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
   onClose,
   showHeader = true
 }) => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showActiveQuotesModal, setShowActiveQuotesModal] = useState(false);
@@ -503,6 +506,22 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <span className="text-sm text-red-600 dark:text-red-400">
                     {stats.active_quotes}
                   </span>
+                </div>
+              )}
+
+              {/* View All Invoices Button */}
+              {stats.total_invoices > 0 && (
+                <div className="w-full pt-3 mt-3 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={() => {
+                      navigate(`/admin/invoices?userId=${userId}`);
+                      if (showHeader) onClose();
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    <Receipt className="w-4 h-4" />
+                    <span className="text-sm font-medium">View All Invoices ({stats.total_invoices})</span>
+                  </button>
                 </div>
               )}
             </div>
