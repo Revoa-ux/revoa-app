@@ -252,7 +252,7 @@ export default function AdminManage() {
           />
           {isSuperAdmin && (
             <Button
-              variant="primary"
+              variant="secondary"
               size="md"
               icon={<UserPlus className="w-4 h-4" />}
               iconPosition="left"
