@@ -155,25 +155,34 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
       // Fetch chat activity
       const { data: chat } = await supabase
         .from('chats')
-        .select('unread_count_admin, last_message_at')
+        .select('id, unread_count_admin, last_message_at')
         .eq('user_id', userId)
         .maybeSingle();
 
-      const { count: messageCount } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('chat_id', chat?.id || '')
-        .is('deleted_at', null);
+      let messageCount = 0;
+      let userMessages: any[] = [];
 
-      // Get user's messages to determine typical response time
-      const { data: userMessages } = await supabase
-        .from('messages')
-        .select('created_at')
-        .eq('chat_id', chat?.id || '')
-        .eq('sender', 'user')
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      if (chat?.id) {
+        const { count } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('chat_id', chat.id)
+          .is('deleted_at', null);
+
+        messageCount = count || 0;
+
+        // Get user's messages to determine typical response time
+        const { data } = await supabase
+          .from('messages')
+          .select('created_at')
+          .eq('chat_id', chat.id)
+          .eq('sender', 'user')
+          .is('deleted_at', null)
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        userMessages = data || [];
+      }
 
       let typicalResponseTime: string | null = null;
       let typicalResponseTimezone: string | null = null;

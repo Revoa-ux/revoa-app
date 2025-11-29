@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Invoice Page</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Testing Invoice Data</h1>
+  <div id="result"></div>
+
+  <script>
+    const supabaseUrl = 'https://iipaykvimkbbnoobtpzz.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA1ODA0NzksImV4cCI6MjA0NjE1NjQ3OX0.Lc1F4sE-IatQNf6HvYLy0rFwN_f8P8n6CQc9eqKVYpA';
+
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function testInvoices() {
+      const result = document.getElementById('result');
+      result.innerHTML = '<p>Fetching invoices...</p>';
+
+      try {
+        // Test 1: Fetch invoices
+        const { data: invoices, error: invoicesError } = await supabase
+          .from('invoices')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (invoicesError) throw invoicesError;
+
+        result.innerHTML += `<p>✅ Found ${invoices.length} invoices</p>`;
+
+        // Test 2: Fetch user profiles
+        const userIds = [...new Set(invoices.map(inv => inv.user_id))];
+        const { data: profiles, error: profilesError } = await supabase
+          .from('user_profiles')
+          .select('user_id, email, first_name, last_name, company')
+          .in('user_id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        result.innerHTML += `<p>✅ Found ${profiles.length} user profiles</p>`;
+
+        // Test 3: Display invoice data
+        result.innerHTML += '<h2>Invoice Details:</h2>';
+        invoices.forEach(inv => {
+          const profile = profiles.find(p => p.user_id === inv.user_id);
+          result.innerHTML += `
+            <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+              <strong>${inv.invoice_number}</strong> - $${inv.amount}<br>
+              Client: ${profile?.first_name} ${profile?.last_name} (${profile?.email})<br>
+              Status: ${inv.status}<br>
+              Due: ${new Date(inv.due_date).toLocaleDateString()}
+            </div>
+          `;
+        });
+
+      } catch (error) {
+        result.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+        console.error('Error:', error);
+      }
+    }
+
+    testInvoices();
+  </script>
+</body>
+</html>
