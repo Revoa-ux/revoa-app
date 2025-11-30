@@ -20,7 +20,6 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import GlassCard from '@/components/GlassCard';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -362,77 +361,82 @@ export default function Invoices() {
 
   return (
     <div className="space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Invoice Management</h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
+          Invoice Management
+        </h1>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Manage all client invoices and track payments
           </p>
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <GlassCard>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <DollarSign className="w-6 h-6 text-red-600 dark:text-red-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Outstanding</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${stats.total_outstanding.toLocaleString()}
-                  </p>
-                </div>
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <DollarSign className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
-            </GlassCard>
-
-            <GlassCard>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Paid This Month</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${stats.paid_this_month.toLocaleString()}
-                  </p>
-                </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
+                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  ${stats.total_outstanding.toLocaleString()}
+                </p>
               </div>
-            </GlassCard>
-
-            <GlassCard>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                  <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.pending_count}
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
-
-            <GlassCard>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Overdue</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.overdue_count}
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
+            </div>
           </div>
-        )}
 
-        {/* Filters and Actions */}
-        <GlassCard>
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Paid This Month</p>
+                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  ${stats.paid_this_month.toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
+                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {stats.pending_count}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
+                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {stats.overdue_count}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filters and Actions */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
@@ -483,12 +487,12 @@ export default function Invoices() {
                 Mark {selectedInvoices.length} as Paid
               </button>
             )}
-          </div>
-        </GlassCard>
+        </div>
+      </div>
 
-        {/* Invoices Table */}
-        <GlassCard>
-          <div className="overflow-x-auto">
+      {/* Invoices Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead>
                 <tr>
@@ -568,9 +572,9 @@ export default function Invoices() {
                   })
                 )}
               </tbody>
-            </table>
-          </div>
-        </GlassCard>
+          </table>
+        </div>
+      </div>
 
       {/* Detail Modal */}
       <InvoiceDetailModal
