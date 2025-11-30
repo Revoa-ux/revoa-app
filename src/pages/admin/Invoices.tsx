@@ -245,6 +245,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 };
 
 export default function Invoices() {
+  console.log('Invoices component rendering');
   const [searchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
@@ -272,6 +273,19 @@ export default function Invoices() {
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+
+  // DEBUG: Test if component renders
+  if (true) {
+    console.log('Rendering test return');
+    return (
+      <Layout>
+        <div className="p-8">
+          <h1 className="text-3xl font-bold text-white">Invoices Page Test</h1>
+          <p className="text-white mt-4">If you see this, the component is rendering.</p>
+        </div>
+      </Layout>
+    );
+  }
 
   useEffect(() => {
     loadData();
