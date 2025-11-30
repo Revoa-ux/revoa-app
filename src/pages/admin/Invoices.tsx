@@ -20,7 +20,6 @@ import {
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
-import Layout from '@/components/admin/Layout';
 import GlassCard from '@/components/GlassCard';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
@@ -245,7 +244,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 };
 
 export default function Invoices() {
-  console.log('Invoices component rendering');
   const [searchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
@@ -273,19 +271,6 @@ export default function Invoices() {
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
-
-  // DEBUG: Test if component renders
-  if (true) {
-    console.log('Rendering test return');
-    return (
-      <Layout>
-        <div className="p-8">
-          <h1 className="text-3xl font-bold text-white">Invoices Page Test</h1>
-          <p className="text-white mt-4">If you see this, the component is rendering.</p>
-        </div>
-      </Layout>
-    );
-  }
 
   useEffect(() => {
     loadData();
@@ -376,8 +361,7 @@ export default function Invoices() {
   };
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Invoice Management</h1>
@@ -587,7 +571,6 @@ export default function Invoices() {
             </table>
           </div>
         </GlassCard>
-      </div>
 
       {/* Detail Modal */}
       <InvoiceDetailModal
@@ -596,6 +579,6 @@ export default function Invoices() {
         onClose={() => setShowDetailModal(false)}
         onStatusChange={loadData}
       />
-    </Layout>
+    </div>
   );
 }
