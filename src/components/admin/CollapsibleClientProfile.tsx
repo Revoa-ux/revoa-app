@@ -15,7 +15,8 @@ import {
   Phone,
   ChevronDown,
   FileText,
-  Receipt
+  Receipt,
+  ExternalLink
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -470,9 +471,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           )}
 
           {/* Total Invoices Link */}
-          {(metrics.paid_invoices_count + metrics.pending_invoices_count) > 0 && (
-            <InvoicesLink userId={userId} totalInvoices={metrics.paid_invoices_count + metrics.pending_invoices_count} />
-          )}
+          <InvoicesLink userId={userId} totalInvoices={metrics.paid_invoices_count + metrics.pending_invoices_count} />
 
           {/* Total Fulfillment Revenue */}
           {metrics.total_fulfillment_revenue > 0 && (
