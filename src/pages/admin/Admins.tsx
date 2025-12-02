@@ -266,13 +266,22 @@ export default function AdminManage() {
           expires_at,
           status,
           accepted_at,
-          invited_by_profile:user_profiles!admin_invitations_invited_by_fkey(name, email)
+          user_profiles!admin_invitations_invited_by_fkey(name, email)
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching invitations:', error);
+        throw error;
+      }
 
-      setPendingInvitations(data || []);
+      // Transform the data to match our interface
+      const transformedData = (data || []).map(invitation => ({
+        ...invitation,
+        invited_by_profile: invitation.user_profiles
+      }));
+
+      setPendingInvitations(transformedData);
     } catch (error) {
       console.error('Error fetching pending invitations:', error);
     }
