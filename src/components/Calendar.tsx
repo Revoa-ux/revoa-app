@@ -131,10 +131,10 @@ const Calendar: React.FC<CalendarProps> = ({
               disabled={isDisabled}
               className={`
                 text-sm p-2.5 rounded-lg transition-all relative focus:outline-none font-medium
-                ${isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
+                ${isSelected ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md' :
+                  inRange ? 'bg-gray-700/50 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100' :
+                  isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}
                 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-                ${isSelected ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md' : ''}
-                ${inRange && !isSelected ? 'bg-gray-700/50 dark:bg-gray-700/70' : ''}
                 ${isToday && !isSelected && !inRange ? 'ring-1 ring-rose-500/50' : ''}
               `}
             >
