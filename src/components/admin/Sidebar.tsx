@@ -13,9 +13,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Receipt,
-  Menu,
-  X as CloseIcon
+  Receipt
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,16 +34,23 @@ const bottomNavigation = [
   { name: 'Settings', href: '/admin/settings', icon: Settings }
 ];
 
-interface AdminSidebarProps {
-  isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (open: boolean) => void;
-}
-
-export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: AdminSidebarProps) {
+export default function AdminSidebar() {
   const location = useLocation();
   const { signOut } = useAuth();
   const { isSuperAdmin, adminUser } = useAdmin();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -91,37 +96,15 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
   const adminName = adminUser?.name || adminUser?.email || 'Admin';
   const adminInitials = adminName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
+  const effectiveCollapsed = !isLargeScreen || isCollapsed;
+
   return (
-    <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
-      >
-        {isMobileMenuOpen ? (
-          <CloseIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-        ) : (
-          <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-        )}
-      </button>
-
-      {/* Mobile Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
-        isCollapsed ? 'w-[70px]' : 'w-[280px]'
-      } ${
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
+    <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
+      effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
+    }`}>
       <div className="flex flex-col h-full">
         {/* Logo and Collapse Button */}
-        {isCollapsed ? (
+        {effectiveCollapsed ? (
           <div className="py-8 px-2 flex flex-col items-center gap-3">
             <div className="w-10 h-10 relative">
               <img
@@ -130,13 +113,15 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
                 className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
               />
             </div>
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-              title="Expand sidebar"
-            >
-              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            </button>
+            {isLargeScreen && (
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                title="Expand sidebar"
+              >
+                <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
           </div>
         ) : (
           <div className="py-8 px-4 flex items-center justify-between">
@@ -163,7 +148,7 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
         )}
 
         {/* Admin Profile Card */}
-        {!isCollapsed && (
+        {!effectiveCollapsed && (
           <div className="px-4 py-4">
             <div className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
               <div className="flex items-center space-x-3">
@@ -182,7 +167,7 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
             </div>
           </div>
         )}
-        {isCollapsed && (
+        {effectiveCollapsed && (
           <div className="px-2 py-4 flex justify-center">
             <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
               {adminInitials}
@@ -200,19 +185,18 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  title={isCollapsed ? item.name : undefined}
+                  title={effectiveCollapsed ? item.name : undefined}
                   className={cn(
                     'flex items-center rounded-lg transition-colors',
-                    isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+                    effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                     'text-[13px]',
                     isActive
                       ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   )}
                 >
-                  <Icon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                  {!isCollapsed && item.name}
+                  <Icon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                  {!effectiveCollapsed && item.name}
                 </Link>
               );
             })}
@@ -229,18 +213,17 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  title={isCollapsed ? item.name : undefined}
+                  title={effectiveCollapsed ? item.name : undefined}
                   className={cn(
                     'flex items-center text-[13px] rounded-lg transition-colors',
-                    isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+                    effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                     isActive
                       ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                   )}
                 >
-                  <Icon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                  {!isCollapsed && item.name}
+                  <Icon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                  {!effectiveCollapsed && item.name}
                 </Link>
               );
             })}
@@ -251,33 +234,32 @@ export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: 
         <div className="p-3">
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}
-            title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
+            title={effectiveCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
             {isDarkMode ? (
-              <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+              <Sun className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             ) : (
-              <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+              <Moon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             )}
-            {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
+            {!effectiveCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
           </button>
           <button
             onClick={handleLogout}
-            title={isCollapsed ? 'Log Out' : undefined}
+            title={effectiveCollapsed ? 'Log Out' : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors mt-0.5',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
-            <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!isCollapsed && 'Log Out'}
+            <LogOut className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Log Out'}
           </button>
         </div>
       </div>
     </div>
-    </>
   );
 }
