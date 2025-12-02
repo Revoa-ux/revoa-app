@@ -351,8 +351,8 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Calendar className="w-4 h-4 mr-2" />
               <span className="text-xs">Signed Up</span>
             </div>
-            <span className="text-xs text-gray-900 dark:text-white">
-              {profile?.created_at ? `${Math.floor((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))} days ago` : 'N/A'}
+            <span className="text-sm text-gray-900 dark:text-white">
+              {profile?.created_at ? `${Math.floor((new Date().getTime() - new Date(profile.created_at).getTime()) / (1000 * 60 * 60 * 24))} days ago` : 'Never'}
             </span>
           </div>
 
@@ -387,9 +387,9 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <Building2 className="w-4 h-4 mr-2" />
-                <span className="text-xs">Company</span>
+                <span className="text-sm">Company</span>
               </div>
-              <span className="text-xs font-medium text-gray-900 dark:text-white">{profile.company}</span>
+              <span className="text-sm text-gray-900 dark:text-white">{profile.company}</span>
             </div>
           )}
 
@@ -398,7 +398,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Clock className="w-4 h-4 mr-2" />
               <span className="text-xs">Last Active</span>
             </div>
-            <span className="text-xs text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {profile?.last_login ? formatDistanceToNow(new Date(profile.last_login), { addSuffix: true }) : 'Never'}
             </span>
           </div>
@@ -420,12 +420,12 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                   <p className="text-sm text-gray-900 dark:text-white">
                     ${metrics.last_invoice_sent_amount.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(metrics.last_invoice_sent_date), { addSuffix: true })}
                   </p>
                 </>
               ) : (
-                <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
               )}
             </div>
           </div>
@@ -442,12 +442,12 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                   <p className="text-sm text-green-600 dark:text-green-400">
                     ${metrics.last_invoice_paid_amount.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(metrics.last_invoice_paid_date), { addSuffix: true })}
                   </p>
                 </>
               ) : (
-                <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
               )}
             </div>
           </div>
@@ -502,7 +502,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                   Active Quotes
                 </button>
               </div>
-              <span className="text-xs text-gray-900 dark:text-white">
+              <span className="text-sm text-gray-900 dark:text-white">
                 {activeQuotesCount}
               </span>
             </div>
@@ -557,7 +557,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <span className="text-xs">Avg Fulfillment Time</span>
             </div>
             <span className="text-sm text-gray-900 dark:text-white">
-              {metrics.average_fulfillment_days > 0 ? `${metrics.average_fulfillment_days} days` : 'N/A'}
+              {metrics.average_fulfillment_days > 0 ? `${metrics.average_fulfillment_days} days` : 'Never'}
             </span>
           </div>
         </div>
@@ -608,9 +608,9 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
                   return `${displayHour}:00 ${chinaPeriod} China Time`;
                 } catch {
-                  return 'N/A';
+                  return 'Never';
                 }
-              })() : 'N/A'}
+              })() : 'Never'}
             </span>
           </div>
         </div>
@@ -652,7 +652,7 @@ const InvoicesLink: React.FC<{ userId: string; totalInvoices: number }> = ({ use
           Invoices
         </button>
       </div>
-      <span className="text-xs text-gray-900 dark:text-white">
+      <span className="text-sm text-gray-900 dark:text-white">
         {totalInvoices}
       </span>
     </div>

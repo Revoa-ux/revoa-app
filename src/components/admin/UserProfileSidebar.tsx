@@ -407,17 +407,15 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <span className="text-sm text-gray-900 dark:text-white">{stats.company}</span>
                 </div>
               )}
-              {stats.last_login && (
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <Clock className="w-4 h-4 mr-2" />
-                    <span className="text-sm">Last Active</span>
-                  </div>
-                  <span className="text-sm text-gray-900 dark:text-white">
-                    {formatDistanceToNow(new Date(stats.last_login), { addSuffix: true })}
-                  </span>
+              <div className="flex items-center justify-between py-2">
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Clock className="w-4 h-4 mr-2" />
+                  <span className="text-sm">Last Active</span>
                 </div>
-              )}
+                <span className="text-sm text-gray-900 dark:text-white">
+                  {stats.last_login ? formatDistanceToNow(new Date(stats.last_login), { addSuffix: true }) : 'Never'}
+                </span>
+              </div>
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Clock className="w-4 h-4 mr-2" />
