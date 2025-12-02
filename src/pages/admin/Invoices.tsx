@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import { useClickOutside } from '@/lib/useClickOutside';
+import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { invoiceService, Invoice, InvoiceFilters, InvoiceStats } from '@/lib/invoiceService';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
@@ -253,13 +254,18 @@ export default function Invoices() {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [filteredUserName, setFilteredUserName] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
+  const [dateRange, setDateRange] = useState<{ startDate: Date; endDate: Date }>({
+    startDate: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000),
+    endDate: new Date()
+  });
 
   const userId = searchParams.get('userId');
 
   const [filters, setFilters] = useState<InvoiceFilters>({
     status: 'all',
-    dateFrom: '',
-    dateTo: '',
+    dateFrom: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    dateTo: new Date().toISOString().split('T')[0],
     searchTerm: '',
     userId: userId || undefined
   });
@@ -324,6 +330,19 @@ export default function Invoices() {
   const handleStatusFilterChange = (status: InvoiceFilters['status']) => {
     setFilters(prev => ({ ...prev, status }));
     setShowStatusDropdown(false);
+  };
+
+  const handleTimeChange = (time: TimeOption) => {
+    setSelectedTime(time);
+  };
+
+  const handleDateRangeChange = (range: { startDate: Date; endDate: Date }) => {
+    setDateRange(range);
+    setFilters(prev => ({
+      ...prev,
+      dateFrom: range.startDate.toISOString().split('T')[0],
+      dateTo: range.endDate.toISOString().split('T')[0]
+    }));
   };
 
   const handleSelectAll = () => {
@@ -484,6 +503,12 @@ export default function Invoices() {
       {/* Filters and Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+          />
           <div className="relative w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
