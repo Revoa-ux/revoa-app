@@ -485,7 +485,7 @@ export default function Users() {
                             e.stopPropagation();
                             navigate(`/admin/invoices?userId=${user.user_id}`);
                           }}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline cursor-pointer transition-colors font-medium"
+                          className="text-gray-900 dark:text-white underline hover:no-underline cursor-pointer transition-all"
                           title="View invoices"
                         >
                           {user.invoices}
@@ -501,7 +501,7 @@ export default function Users() {
                             setActiveQuotesUser({ id: user.user_id, name: user.name || user.email.split('@')[0] });
                             setShowActiveQuotesModal(true);
                           }}
-                          className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:underline cursor-pointer transition-colors"
+                          className="text-gray-900 dark:text-white underline hover:no-underline cursor-pointer transition-all"
                         >
                           {user.activeQuotes}
                         </button>

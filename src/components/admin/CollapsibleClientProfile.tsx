@@ -497,12 +497,12 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 <FileText className="w-4 h-4 mr-2" />
                 <button
                   onClick={() => setShowActiveQuotes(true)}
-                  className="text-xs underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
                 >
                   Active Quotes
                 </button>
               </div>
-              <span className="text-sm text-red-600 dark:text-red-400">
+              <span className="text-xs text-gray-900 dark:text-white">
                 {activeQuotesCount}
               </span>
             </div>
@@ -647,12 +647,12 @@ const InvoicesLink: React.FC<{ userId: string; totalInvoices: number }> = ({ use
         <Receipt className="w-4 h-4 mr-2" />
         <button
           onClick={() => navigate(`/admin/invoices?userId=${userId}`)}
-          className="text-xs underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+          className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
         >
           Invoices
         </button>
       </div>
-      <span className="text-sm text-blue-600 dark:text-blue-400">
+      <span className="text-xs text-gray-900 dark:text-white">
         {totalInvoices}
       </span>
     </div>

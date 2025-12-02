@@ -509,12 +509,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       navigate(`/admin/invoices?userId=${userId}`);
                       if (showHeader) onClose();
                     }}
-                    className="text-sm underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                    className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
                   >
                     Invoices
                   </button>
                 </div>
-                <span className="text-sm text-blue-600 dark:text-blue-400">
+                <span className="text-xs text-gray-900 dark:text-white">
                   {stats.total_invoices}
                 </span>
               </div>
@@ -526,12 +526,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <FileText className="w-4 h-4 mr-2" />
                     <button
                       onClick={() => setShowActiveQuotesModal(true)}
-                      className="text-sm underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                      className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
                     >
                       Active Quotes
                     </button>
                   </div>
-                  <span className="text-sm text-red-600 dark:text-red-400">
+                  <span className="text-xs text-gray-900 dark:text-white">
                     {stats.active_quotes}
                   </span>
                 </div>
