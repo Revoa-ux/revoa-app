@@ -26,6 +26,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { invoiceService, Invoice, InvoiceFilters, InvoiceStats } from '@/lib/invoiceService';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
+import { supabase } from '@/lib/supabase';
 
 interface InvoiceDetailModalProps {
   invoice: Invoice | null;
@@ -243,7 +244,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 };
 
 export default function Invoices() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -254,6 +255,7 @@ export default function Invoices() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [filteredUserName, setFilteredUserName] = useState<string | null>(null);
 
   const userId = searchParams.get('userId');
 
@@ -270,6 +272,30 @@ export default function Invoices() {
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+
+  // Update filters when userId changes in URL
+  useEffect(() => {
+    const userIdFromUrl = searchParams.get('userId');
+    if (userIdFromUrl !== filters.userId) {
+      setFilters(prev => ({ ...prev, userId: userIdFromUrl || undefined }));
+
+      // Fetch user name for display
+      if (userIdFromUrl) {
+        supabase
+          .from('user_profiles')
+          .select('name, email')
+          .eq('user_id', userIdFromUrl)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data) {
+              setFilteredUserName(data.name || data.email);
+            }
+          });
+      } else {
+        setFilteredUserName(null);
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadData();
@@ -363,13 +389,36 @@ export default function Invoices() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
-          Invoice Management
-        </h1>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100">
+            Invoice Management
+          </h1>
+          {filteredUserName && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400 dark:text-gray-500">•</span>
+              <span className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium">
+                {filteredUserName}
+              </span>
+              <button
+                onClick={() => {
+                  setSearchParams({});
+                  setFilteredUserName(null);
+                }}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                title="Clear filter"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+          )}
+        </div>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Manage all client invoices and track payments
+            {filteredUserName
+              ? `Viewing invoices for ${filteredUserName}`
+              : 'Manage all client invoices and track payments'
+            }
           </p>
         </div>
       </div>
