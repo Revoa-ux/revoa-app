@@ -226,52 +226,65 @@ export default function AdminDashboard() {
   };
 
   const fetchAdminStats = async () => {
-    if (!adminUser?.id) return;
+    if (!adminUser?.userId) return;
 
     try {
       // Get last login time
       const { data: profile } = await supabase
         .from('user_profiles')
         .select('last_login')
-        .eq('user_id', adminUser.id)
-        .single();
+        .eq('user_id', adminUser.userId)
+        .maybeSingle();
 
       const lastLogin = profile?.last_login || null;
 
-      // Get unread messages count (messages in chats where admin is assigned, created after last login)
+      // Get assigned users for this admin
+      const { data: assignments } = await supabase
+        .from('user_assignments')
+        .select('user_id')
+        .eq('admin_id', adminUser.userId);
+
+      const assignedUserIds = assignments?.map(a => a.user_id) || [];
+
+      if (assignedUserIds.length === 0) {
+        setAdminStats({
+          unreadMessages: 0,
+          newQuoteRequests: 0,
+          pendingApprovals: 0,
+          assignedClients: 0,
+          lastLoginTime: lastLogin
+        });
+        return;
+      }
+
+      // Get unread messages count (messages in chats for assigned users)
       const { count: unreadMessages } = await supabase
         .from('messages')
-        .select('chat_id, chats!inner(user_assignments!inner(admin_id))', { count: 'exact', head: true })
-        .eq('chats.user_assignments.admin_id', adminUser.id)
+        .select('chat_id, chats!inner(user_id)', { count: 'exact', head: true })
+        .in('chats.user_id', assignedUserIds)
         .eq('sender_type', 'user')
         .gte('created_at', lastLogin || new Date(0).toISOString());
 
-      // Get new quote requests (pending quotes for assigned users, created after last login)
+      // Get new quote requests (pending quotes for assigned users)
       const { count: newQuoteRequests } = await supabase
         .from('product_quotes')
-        .select('user_id, user_assignments!inner(admin_id)', { count: 'exact', head: true })
-        .eq('user_assignments.admin_id', adminUser.id)
+        .select('*', { count: 'exact', head: true })
+        .in('user_id', assignedUserIds)
         .eq('status', 'pending')
         .gte('created_at', lastLogin || new Date(0).toISOString());
 
-      // Get pending approvals (products awaiting approval from this admin)
+      // Get pending approvals (products awaiting approval)
       const { count: pendingApprovals } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
-        .eq('created_by', adminUser.id)
+        .in('created_by', assignedUserIds)
         .eq('status', 'pending');
-
-      // Get assigned clients count
-      const { count: assignedClients } = await supabase
-        .from('user_assignments')
-        .select('*', { count: 'exact', head: true })
-        .eq('admin_id', adminUser.id);
 
       setAdminStats({
         unreadMessages: unreadMessages || 0,
         newQuoteRequests: newQuoteRequests || 0,
         pendingApprovals: pendingApprovals || 0,
-        assignedClients: assignedClients || 0,
+        assignedClients: assignedUserIds.length,
         lastLoginTime: lastLogin
       });
     } catch (error) {
