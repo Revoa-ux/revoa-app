@@ -10,8 +10,6 @@ import {
   Shield,
   ShieldCheck,
   Clock,
-  Calendar,
-  Send,
   XCircle,
   CheckCircle2,
   MoreVertical,
@@ -21,7 +19,6 @@ import {
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
-import { useAdmin } from '@/contexts/AdminContext';
 import { InviteAdminModal } from '@/components/admin/InviteAdminModal';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -45,7 +42,6 @@ interface AdminRow {
 }
 
 export default function AdminsManagement() {
-  const { isSuperAdmin } = useAdmin();
   const [rows, setRows] = useState<AdminRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -68,11 +64,11 @@ export default function AdminsManagement() {
   useClickOutside(actionMenuRef, () => setActionMenuOpen(null));
 
   const filterOptions = [
-    { value: 'all', label: 'All', icon: Shield },
-    { value: 'super_admins', label: 'Super Admins', icon: ShieldCheck },
-    { value: 'admins', label: 'Admins', icon: Shield },
-    { value: 'pending_invites', label: 'Pending Invites', icon: Clock },
-    { value: 'revoked', label: 'Revoked', icon: XCircle }
+    { value: 'all', label: 'All' },
+    { value: 'super_admins', label: 'Super Admins' },
+    { value: 'admins', label: 'Admins' },
+    { value: 'pending_invites', label: 'Pending Invites' },
+    { value: 'revoked', label: 'Revoked' }
   ];
 
   const sortOptions = [
@@ -87,11 +83,6 @@ export default function AdminsManagement() {
   }, []);
 
   const fetchData = async () => {
-    if (!isSuperAdmin) {
-      setIsLoading(false);
-      return;
-    }
-
     try {
       setIsLoading(true);
       const combinedRows: AdminRow[] = [];
@@ -338,22 +329,6 @@ export default function AdminsManagement() {
     );
   };
 
-  if (!isSuperAdmin) {
-    return (
-      <div className="max-w-[1050px] mx-auto">
-        <div className="text-center py-12">
-          <Shield className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Super Admin Access Required
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            You need super admin privileges to manage admins
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-[1050px] mx-auto space-y-6">
       {/* Header */}
@@ -406,28 +381,22 @@ export default function AdminsManagement() {
             </button>
 
             {showFilterDropdown && (
-              <div className="absolute top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
-                {filterOptions.map(option => {
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setFilterType(option.value as FilterType);
-                        setShowFilterDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-between group"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Icon className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-700 dark:text-gray-300">{option.label}</span>
-                      </div>
-                      {filterType === option.value && (
-                        <Check className="w-4 h-4 text-gray-900 dark:text-white" />
-                      )}
-                    </button>
-                  );
-                })}
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                {filterOptions.map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setFilterType(option.value as FilterType);
+                      setShowFilterDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span>{option.label}</span>
+                    {filterType === option.value && (
+                      <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />
+                    )}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -439,13 +408,13 @@ export default function AdminsManagement() {
               className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             >
               <span className="text-gray-700 dark:text-gray-300">
-                Sort: {sortOptions.find(s => s.value === sortBy.field)?.label}
+                Sort by: {sortOptions.find(s => s.value === sortBy.field)?.label}
               </span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
             {showSortDropdown && (
-              <div className="absolute top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {sortOptions.map(option => (
                   <button
                     key={option.value}
@@ -463,13 +432,11 @@ export default function AdminsManagement() {
                       }
                       setShowSortDropdown(false);
                     }}
-                    className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center justify-between"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
-                    <span className="text-gray-700 dark:text-gray-300">{option.label}</span>
+                    <span>{option.label}</span>
                     {sortBy.field === option.value && (
-                      <span className="text-xs text-gray-500">
-                        {sortBy.direction === 'asc' ? '↑' : '↓'}
-                      </span>
+                      <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />
                     )}
                   </button>
                 ))}
@@ -492,24 +459,24 @@ export default function AdminsManagement() {
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap first:rounded-tl-xl">
                   Admin
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   Role
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   Date Added
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   Details
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap last:rounded-tr-xl">
                   Actions
                 </th>
               </tr>
@@ -519,7 +486,7 @@ export default function AdminsManagement() {
                 Array.from({ length: 5 }).map((_, index) => (
                   <tr key={index}>
                     {Array.from({ length: 6 }).map((_, i) => (
-                      <td key={i} className="px-6 py-4">
+                      <td key={i} className="px-4 py-4">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
                       </td>
                     ))}
@@ -527,14 +494,8 @@ export default function AdminsManagement() {
                 ))
               ) : sortedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
-                    <Shield className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                      No {filterType === 'all' ? 'admins' : filterType.replace('_', ' ')} found
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {searchTerm ? 'Try adjusting your search' : 'Get started by inviting an admin'}
-                    </p>
+                  <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                    No {filterType === 'all' ? 'admins' : filterType.replace('_', ' ')} found
                   </td>
                 </tr>
               ) : (
@@ -543,7 +504,7 @@ export default function AdminsManagement() {
                     key={row.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {row.name || row.email.split('@')[0]}
@@ -553,13 +514,13 @@ export default function AdminsManagement() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       {getRoleBadge(row.role)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       {getStatusBadge(row)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white">
                         {format(new Date(row.dateAdded), 'MMM dd, yyyy')}
                       </div>
@@ -567,7 +528,7 @@ export default function AdminsManagement() {
                         {formatDistanceToNow(new Date(row.dateAdded), { addSuffix: true })}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 whitespace-nowrap">
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {row.type === 'invitation' && row.invitedBy && (
                           <div className="flex items-center space-x-1">
@@ -583,7 +544,7 @@ export default function AdminsManagement() {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-3 py-4 whitespace-nowrap text-right">
                       <div className="relative inline-block" ref={actionMenuOpen === row.id ? actionMenuRef : null}>
                         <button
                           onClick={() => setActionMenuOpen(actionMenuOpen === row.id ? null : row.id)}
@@ -632,13 +593,6 @@ export default function AdminsManagement() {
           </table>
         </div>
       </div>
-
-      {/* Summary */}
-      {!isLoading && sortedRows.length > 0 && (
-        <div className="text-sm text-gray-500 dark:text-gray-400 text-center">
-          Showing {sortedRows.length} of {rows.length} {rows.length === 1 ? 'admin' : 'admins/invitations'}
-        </div>
-      )}
 
       {/* Invite Modal */}
       <InviteAdminModal
