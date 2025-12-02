@@ -686,7 +686,7 @@ export default function AdminManage() {
       </div>
 
       {/* All Invitations Section */}
-      {isSuperAdmin && pendingInvitations.length > 0 && (
+      {isSuperAdmin && (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
@@ -703,7 +703,16 @@ export default function AdminManage() {
           </div>
 
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {pendingInvitations.map((invitation) => {
+            {pendingInvitations.length === 0 ? (
+              <div className="p-12 text-center">
+                <UserPlus className="w-12 h-12 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No invitations yet</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Click "Invite Admin" above to send your first invitation
+                </p>
+              </div>
+            ) : (
+              pendingInvitations.map((invitation) => {
               const expiresAt = new Date(invitation.expires_at);
               const isExpiringSoon = expiresAt.getTime() - Date.now() < 24 * 60 * 60 * 1000; // Less than 24 hours
               const invitedByName = invitation.invited_by_profile?.name || invitation.invited_by_profile?.email || 'Unknown';
@@ -802,7 +811,7 @@ export default function AdminManage() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
       )}

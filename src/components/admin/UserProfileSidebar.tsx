@@ -501,25 +501,23 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               )}
 
               {/* Invoices */}
-              {stats.total_invoices > 0 && (
-                <div className="w-full flex items-center justify-between py-2">
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <Receipt className="w-4 h-4 mr-2" />
-                    <button
-                      onClick={() => {
-                        navigate(`/admin/invoices?userId=${userId}`);
-                        if (showHeader) onClose();
-                      }}
-                      className="text-sm underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-                    >
-                      Invoices
-                    </button>
-                  </div>
-                  <span className="text-sm text-blue-600 dark:text-blue-400">
-                    {stats.total_invoices}
-                  </span>
+              <div className="w-full flex items-center justify-between py-2">
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <Receipt className="w-4 h-4 mr-2" />
+                  <button
+                    onClick={() => {
+                      navigate(`/admin/invoices?userId=${userId}`);
+                      if (showHeader) onClose();
+                    }}
+                    className="text-sm underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+                  >
+                    Invoices
+                  </button>
                 </div>
-              )}
+                <span className="text-sm text-blue-600 dark:text-blue-400">
+                  {stats.total_invoices}
+                </span>
+              </div>
 
               {/* Active Quotes */}
               {stats.active_quotes > 0 && (
