@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Building2,
   DollarSign,
@@ -13,7 +14,8 @@ import {
   Store,
   Phone,
   ChevronDown,
-  FileText
+  FileText,
+  Receipt
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -466,6 +468,24 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               </div>
             </div>
           )}
+
+          {/* Total Invoices Link */}
+          {(metrics.paid_invoices_count + metrics.pending_invoices_count) > 0 && (
+            <InvoicesLink userId={userId} totalInvoices={metrics.paid_invoices_count + metrics.pending_invoices_count} />
+          )}
+
+          {/* Total Fulfillment Revenue */}
+          {metrics.total_fulfillment_revenue > 0 && (
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center text-gray-600 dark:text-gray-400">
+                <DollarSign className="w-4 h-4 mr-2" />
+                <span className="text-xs">Total Fulfillment Revenue</span>
+              </div>
+              <span className="text-sm text-gray-900 dark:text-white">
+                ${metrics.total_fulfillment_revenue.toFixed(2)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Active Quotes Section */}
@@ -517,17 +537,6 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
             </div>
             <span className="text-sm text-gray-900 dark:text-white">
               {metrics.fulfilled_orders}
-            </span>
-          </div>
-
-          {/* Total Fulfillment Revenue */}
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center text-gray-600 dark:text-gray-400">
-              <DollarSign className="w-4 h-4 mr-2" />
-              <span className="text-xs">Total Fulfillment Revenue</span>
-            </div>
-            <span className="text-sm text-gray-900 dark:text-white">
-              ${metrics.total_fulfillment_revenue > 0 ? metrics.total_fulfillment_revenue.toFixed(2) : '0.00'}
             </span>
           </div>
 
@@ -625,6 +634,28 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           onClose={() => setShowActiveQuotes(false)}
         />
       )}
+    </div>
+  );
+};
+
+// Helper component for Invoices link
+const InvoicesLink: React.FC<{ userId: string; totalInvoices: number }> = ({ userId, totalInvoices }) => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="w-full flex items-center justify-between py-2">
+      <div className="flex items-center text-gray-600 dark:text-gray-400">
+        <Receipt className="w-4 h-4 mr-2" />
+        <button
+          onClick={() => navigate(`/admin/invoices?userId=${userId}`)}
+          className="text-xs underline hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+        >
+          Invoices
+        </button>
+      </div>
+      <span className="text-sm text-blue-600 dark:text-blue-400">
+        {totalInvoices}
+      </span>
     </div>
   );
 };
