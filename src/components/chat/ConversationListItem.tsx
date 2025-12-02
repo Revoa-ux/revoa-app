@@ -107,7 +107,7 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
                 {tags.slice(0, 2).map((assignment) => (
                   <span
                     key={assignment.id}
-                    className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium"
+                    className="inline-flex items-center px-2 py-0.5 rounded-md text-xs"
                     style={{
                       backgroundColor: `${assignment.tag?.color}15`,
                       color: assignment.tag?.color,
@@ -117,14 +117,14 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
                   </span>
                 ))}
                 {tags.length > 2 && (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium text-gray-500 dark:text-gray-400">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs text-gray-500 dark:text-gray-400">
                     +{tags.length - 2}
                   </span>
                 )}
               </>
             )}
             {unreadCount > 0 && (
-              <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-red-500 text-white rounded-full">
+              <span className="inline-flex items-center px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}

@@ -218,7 +218,7 @@ export default function Layout() {
                           {item.name}
                         </div>
                         {isComingSoon && (
-                          <span className="px-2 py-0.5 text-[10px] font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full whitespace-nowrap">
+                          <span className="px-2 py-0.5 text-[10px] bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full whitespace-nowrap">
                             Coming Soon
                           </span>
                         )}

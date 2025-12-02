@@ -73,7 +73,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({ data }) => {
       minWidth: 100,
       sortable: true,
       render: (value) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${
           value === 'paid'
             ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
             : value === 'pending'

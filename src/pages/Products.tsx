@@ -665,7 +665,7 @@ const Products: React.FC = () => {
           <h1 className="text-2xl font-normal text-gray-900 dark:text-white">
             Products
           </h1>
-          <span className="px-3 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
+          <span className="px-3 py-1 text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full">
             Coming Soon
           </span>
         </div>

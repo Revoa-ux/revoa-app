@@ -215,7 +215,7 @@ export default function Notifications() {
                         <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                       )}
                       {notification.action_required && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200">
                           Action Required
                         </span>
                       )}

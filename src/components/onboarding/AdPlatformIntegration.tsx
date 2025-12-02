@@ -368,7 +368,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                 You can add more platforms later from your account settings.
               </p>
             </div>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+            <span className="px-2.5 py-0.5 rounded-full text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
               {platforms.filter(p => p.status === 'connected').length} of {platforms.length}
             </span>
           </div>

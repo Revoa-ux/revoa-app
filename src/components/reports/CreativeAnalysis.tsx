@@ -271,7 +271,7 @@ export const CreativeAnalysis: React.FC<CreativeAnalysisProps> = ({
                       {column.render ? (
                         column.render(null, creative)
                       ) : column.id === 'platform' ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
                           {creative.platform || 'facebook'}
                         </span>
                       ) : column.id === 'performance' ? (

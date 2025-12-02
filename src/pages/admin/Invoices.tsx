@@ -623,7 +623,7 @@ export default function Invoices() {
                           ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs ${getStatusColor(invoice.status)}`}>
                             {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                           </span>
                         </td>

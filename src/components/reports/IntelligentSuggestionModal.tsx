@@ -101,7 +101,7 @@ export const IntelligentSuggestionModal: React.FC<IntelligentSuggestionModalProp
                   <Brain className="w-5 h-5 text-red-600 dark:text-red-400" />
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">What I Found</h3>
                   {supportingData?.crossDimensionalPattern && (
-                    <span className="px-2 py-0.5 text-xs font-medium bg-red-600 text-white rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-red-600 text-white rounded-full">
                       Hidden Pattern
                     </span>
                   )}

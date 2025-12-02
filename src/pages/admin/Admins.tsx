@@ -274,7 +274,7 @@ export default function AdminsManagement() {
   const getStatusBadge = (row: AdminRow) => {
     if (row.type === 'admin') {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Active
         </span>
@@ -297,21 +297,21 @@ export default function AdminsManagement() {
         );
       case 'revoked':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
             <XCircle className="w-3 h-3 mr-1" />
             Cancelled
           </span>
         );
       case 'expired':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400">
             <XCircle className="w-3 h-3 mr-1" />
             Expired
           </span>
         );
       case 'accepted':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
             <CheckCircle2 className="w-3 h-3 mr-1" />
             Accepted
           </span>
@@ -321,12 +321,12 @@ export default function AdminsManagement() {
 
   const getRoleBadge = (role: AdminType) => {
     return role === 'super_admin' ? (
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400">
         <ShieldCheck className="w-3 h-3 mr-1" />
         Super Admin
       </span>
     ) : (
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
         <Shield className="w-3 h-3 mr-1" />
         Admin
       </span>

@@ -90,7 +90,7 @@ export const PaymentMethodList: React.FC<PaymentMethodListProps> = ({
                         : 'PayPal Account'}
                     </p>
                     {isDefault && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-200">
                         Default
                       </span>
                     )}
