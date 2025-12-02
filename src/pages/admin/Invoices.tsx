@@ -17,7 +17,8 @@ import {
   Link as LinkIcon,
   MoreVertical,
   Eye,
-  Trash2
+  Trash2,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -95,7 +96,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               {invoice.user_profile?.company || invoice.user_profile?.email}
             </p>
           </div>
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
             invoice.status === 'paid'
               ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
               : invoice.status === 'overdue'
@@ -192,12 +193,6 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                   <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
                 </div>
               )}
-              {invoice.breakdown.commission && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Commission (2%)</span>
-                  <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.commission.toFixed(2)}</span>
-                </div>
-              )}
               <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
                 <span className="text-gray-900 dark:text-white">Total</span>
                 <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
@@ -213,25 +208,27 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
               <button
                 onClick={handleMarkAsPaid}
                 disabled={isUpdating}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Check className="w-4 h-4" />
-                Mark as Paid
+                <span>Mark as Paid</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
               <button
                 onClick={handleSendReminder}
                 disabled={isUpdating}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
-                Send Reminder
+                <span>Send Reminder</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </>
           )}
           {invoice.file_url && (
             <button
               onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
               Download PDF
