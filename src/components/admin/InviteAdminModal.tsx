@@ -98,7 +98,7 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
 
       if (emailError) {
         console.error('Email sending error:', emailError);
-        toast.warning('Invitation created but email service encountered an error. Please share the invitation link manually.');
+        toast.warning('Invitation created but email service encountered an error. Check console for details.');
 
         // Show the invitation link in console for manual sharing
         if (emailResult?.invitationLink) {
@@ -107,15 +107,19 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
       } else if (emailResult?.emailSent) {
         toast.success(`Invitation sent to ${email}`);
       } else {
+        const errorMsg = emailResult?.emailError || 'Unknown error';
         toast.warning(emailResult?.message || 'Invitation created but email may not have been sent');
 
-        // If email wasn't sent, log details
-        if (emailResult?.emailError) {
-          console.error('Email not sent:', emailResult.emailError);
+        // Log detailed error information
+        console.group('📧 Email Sending Failed');
+        console.error('Error:', errorMsg);
+        if (emailResult?.emailDetails) {
+          console.error('Details:', emailResult.emailDetails);
         }
         if (emailResult?.invitationLink) {
           console.log('Invitation link (share manually):', emailResult.invitationLink);
         }
+        console.groupEnd();
       }
 
       setEmail('');

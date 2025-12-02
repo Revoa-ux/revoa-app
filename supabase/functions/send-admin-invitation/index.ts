@@ -67,40 +67,60 @@ Deno.serve(async (req: Request) => {
 
     // Try to send email using Resend if configured
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    const fromEmail = Deno.env.get('EMAIL_FROM') || 'Revoa <noreply@notifications.revoa.app>';
     let emailSent = false;
-    let emailError = null;
+    let emailError: any = null;
+    let emailDetails: any = null;
 
     if (resendApiKey) {
       try {
+        const emailPayload = {
+          from: fromEmail,
+          to: email,
+          subject: `You've been invited to join Revoa as ${role === 'super_admin' ? 'a Super Admin' : 'an Admin'}`,
+          html: generateInvitationEmail(role, invitationLink),
+        };
+
+        console.log('Attempting to send email with payload:', {
+          from: emailPayload.from,
+          to: emailPayload.to,
+          subject: emailPayload.subject,
+        });
+
         const emailResponse = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${resendApiKey}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            from: 'Revoa <noreply@revoa.ai>',
-            to: email,
-            subject: `You've been invited to join Revoa as ${role === 'super_admin' ? 'a Super Admin' : 'an Admin'}`,
-            html: generateInvitationEmail(role, invitationLink),
-          }),
+          body: JSON.stringify(emailPayload),
         });
 
         const emailResult = await emailResponse.json();
+        emailDetails = emailResult;
+
+        console.log('Resend API response:', {
+          status: emailResponse.status,
+          statusText: emailResponse.statusText,
+          result: emailResult,
+        });
 
         if (emailResponse.ok) {
           emailSent = true;
-          console.log('Email sent successfully:', emailResult);
+          console.log('✅ Email sent successfully:', emailResult);
         } else {
           emailError = emailResult;
-          console.error('Email sending failed:', emailResult);
+          console.error('❌ Email sending failed:', {
+            status: emailResponse.status,
+            error: emailResult,
+          });
         }
       } catch (error) {
         emailError = error;
-        console.error('Error sending email:', error);
+        console.error('❌ Exception sending email:', error);
       }
     } else {
-      console.warn('RESEND_API_KEY not configured - email not sent');
+      console.warn('⚠️ RESEND_API_KEY not configured - email not sent');
       emailError = 'Email service not configured';
     }
 
@@ -110,7 +130,12 @@ Deno.serve(async (req: Request) => {
         message: emailSent ? 'Invitation sent successfully' : 'Invitation created but email could not be sent',
         emailSent,
         invitationLink: Deno.env.get('ENV') === 'development' ? invitationLink : undefined,
-        ...(emailError && { emailError: typeof emailError === 'string' ? emailError : 'Failed to send email' }),
+        emailError: emailError
+          ? (typeof emailError === 'string'
+              ? emailError
+              : emailError.message || JSON.stringify(emailError))
+          : undefined,
+        emailDetails: !emailSent ? emailDetails : undefined,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
