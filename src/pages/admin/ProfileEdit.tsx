@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2, ChevronDown } from 'lucide-react';
+import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2, ChevronDown, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';
@@ -373,15 +373,18 @@ export default function AdminProfileEdit() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    'Save Changes'
+                    <>
+                      Save Changes
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
                   )}
                 </button>
               </div>
@@ -484,15 +487,18 @@ export default function AdminProfileEdit() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Updating...
                     </>
                   ) : (
-                    'Update Password'
+                    <>
+                      Update Password
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
                   )}
                 </button>
               </div>
@@ -546,15 +552,18 @@ export default function AdminProfileEdit() {
                 <button
                   onClick={handleSaveNotifications}
                   disabled={saving}
-                  className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                  className="group px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 inline-block mr-2 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    'Save Preferences'
+                    <>
+                      Save Preferences
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </>
                   )}
                 </button>
               </div>

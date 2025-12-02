@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   MoreVertical,
   Trash2,
-  RotateCw
+  RotateCw,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -117,24 +118,27 @@ export default function AdminsManagement() {
       // Fetch invitations
       const { data: invitations, error: invitationsError } = await supabase
         .from('admin_invitations')
-        .select(`
-          id,
-          email,
-          role,
-          status,
-          created_at,
-          expires_at,
-          accepted_at,
-          user_profiles!admin_invitations_invited_by_fkey(name, email)
-        `)
+        .select('id, email, role, status, created_at, expires_at, accepted_at, invited_by')
         .order('created_at', { ascending: false });
 
       if (invitationsError) throw invitationsError;
 
-      if (invitations) {
+      if (invitations && invitations.length > 0) {
+        const inviterIds = [...new Set(invitations.map(inv => inv.invited_by))];
+        const { data: inviters } = await supabase
+          .from('user_profiles')
+          .select('user_id, name, email, first_name, last_name')
+          .in('user_id', inviterIds);
+
+        const inviterMap = new Map(
+          inviters?.map(inv => [
+            inv.user_id,
+            inv.name || (inv.first_name && inv.last_name ? `${inv.first_name} ${inv.last_name}` : inv.email)
+          ])
+        );
+
         invitations.forEach(inv => {
-          const inviterProfile = inv.user_profiles as any;
-          const inviterName = inviterProfile?.name || inviterProfile?.email || 'Unknown';
+          const inviterName = inviterMap.get(inv.invited_by) || 'Unknown';
 
           combinedRows.push({
             id: inv.id,
@@ -393,7 +397,7 @@ export default function AdminsManagement() {
                   >
                     <span>{option.label}</span>
                     {filterType === option.value && (
-                      <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />
+                      <Check className="w-4 h-4 text-primary-500" />
                     )}
                   </button>
                 ))}
@@ -436,7 +440,7 @@ export default function AdminsManagement() {
                   >
                     <span>{option.label}</span>
                     {sortBy.field === option.value && (
-                      <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />
+                      <Check className="w-4 h-4 text-primary-500" />
                     )}
                   </button>
                 ))}
@@ -448,10 +452,11 @@ export default function AdminsManagement() {
         {/* Invite Button */}
         <button
           onClick={() => setShowInviteModal(true)}
-          className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center space-x-2"
+          className="group px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center gap-2"
         >
           <UserPlus className="w-4 h-4" />
           <span>Invite Admin</span>
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
 
@@ -502,7 +507,7 @@ export default function AdminsManagement() {
                 sortedRows.map(row => (
                   <tr
                     key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors first:hover:rounded-t-xl last:hover:rounded-b-xl"
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div>

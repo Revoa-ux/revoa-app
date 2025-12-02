@@ -360,7 +360,7 @@ export default function Users() {
                     className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
                     <span>{filter.label}</span>
-                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-primary-500" />}
                   </button>
                 ))}
               </div>
@@ -388,7 +388,7 @@ export default function Users() {
                     className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
                     <span>{option.label}</span>
-                    {sortBy.field === option.value && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                    {sortBy.field === option.value && <Check className="w-4 h-4 text-primary-500" />}
                   </button>
                 ))}
               </div>
@@ -443,7 +443,7 @@ export default function Users() {
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 first:hover:rounded-t-xl last:hover:rounded-b-xl">
                     <td className="px-6 py-4">
                       <CustomCheckbox
                         checked={selectedUsers.includes(user.id)}

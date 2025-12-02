@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { editQuote } from '@/lib/quoteEditService';
 import Modal from '@/components/Modal';
@@ -190,9 +190,14 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || isSaving}
-            className="px-6 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="group px-6 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-all active:scale-95 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {isSaving ? 'Saving...' : 'Update Quote'}
+            {isSaving ? 'Saving...' : (
+              <>
+                Update Quote
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </>
+            )}
           </button>
         </div>
       </div>

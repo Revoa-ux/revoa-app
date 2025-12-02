@@ -529,7 +529,7 @@ export default function Invoices() {
                     className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 capitalize"
                   >
                     <span>{status === 'all' ? 'All' : status}</span>
-                    {filters.status === status && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                    {filters.status === status && <Check className="w-4 h-4 text-primary-500" />}
                   </button>
                 ))}
               </div>
