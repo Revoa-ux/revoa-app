@@ -115,13 +115,22 @@ export default function AdminsManagement() {
         });
       }
 
-      // Fetch invitations
-      const { data: invitations, error: invitationsError } = await supabase
+      // Fetch invitations - only get the most recent invitation per email
+      const { data: allInvitations, error: invitationsError } = await supabase
         .from('admin_invitations')
         .select('id, email, role, status, created_at, expires_at, accepted_at, invited_by')
         .order('created_at', { ascending: false });
 
       if (invitationsError) throw invitationsError;
+
+      // Deduplicate invitations - keep only the most recent one per email
+      const invitationsMap = new Map<string, typeof allInvitations[0]>();
+      allInvitations?.forEach(inv => {
+        if (!invitationsMap.has(inv.email)) {
+          invitationsMap.set(inv.email, inv);
+        }
+      });
+      const invitations = Array.from(invitationsMap.values());
 
       if (invitations && invitations.length > 0) {
         const inviterIds = [...new Set(invitations.map(inv => inv.invited_by))];
@@ -223,6 +232,27 @@ export default function AdminsManagement() {
     } catch (error) {
       console.error('Error removing admin:', error);
       toast.error('Failed to remove admin');
+    }
+  };
+
+  const handleDeleteInvitation = async (invitationId: string, email: string) => {
+    if (!confirm(`Are you sure you want to permanently delete the invitation for ${email}?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('admin_invitations')
+        .delete()
+        .eq('id', invitationId);
+
+      if (error) throw error;
+      toast.success(`Deleted invitation for ${email}`);
+      setActionMenuOpen(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting invitation:', error);
+      toast.error('Failed to delete invitation');
     }
   };
 
@@ -559,7 +589,7 @@ export default function AdminsManagement() {
                         </button>
 
                         {actionMenuOpen === row.id && (
-                          (row.type === 'invitation' && row.status === 'pending') || (row.type === 'admin' && row.userId)
+                          (row.type === 'invitation' && (row.status === 'pending' || row.status === 'revoked')) || (row.type === 'admin' && row.userId)
                         ) && (
                           <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
                             {row.type === 'invitation' && row.status === 'pending' && (
@@ -579,6 +609,15 @@ export default function AdminsManagement() {
                                   <span>Cancel Invite</span>
                                 </button>
                               </>
+                            )}
+                            {row.type === 'invitation' && row.status === 'revoked' && (
+                              <button
+                                onClick={() => handleDeleteInvitation(row.id, row.email)}
+                                className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                <span>Delete Invitation</span>
+                              </button>
                             )}
                             {row.type === 'admin' && row.userId && (
                               <button
