@@ -18,7 +18,9 @@ import {
   MoreVertical,
   Trash2,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  Send,
+  XCircle
 } from 'lucide-react';
 import { format, subDays, startOfMonth, endOfMonth, startOfYear } from 'date-fns';
 import { toast } from 'sonner';
@@ -54,9 +56,23 @@ interface DateRange {
   endDate: Date;
 }
 
+interface PendingInvitation {
+  id: string;
+  email: string;
+  role: 'admin' | 'super_admin';
+  invited_by: string;
+  created_at: string;
+  expires_at: string;
+  invited_by_profile?: {
+    name: string | null;
+    email: string;
+  };
+}
+
 export default function AdminManage() {
   const { isSuperAdmin } = useAdmin();
   const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -81,6 +97,7 @@ export default function AdminManage() {
 
   useEffect(() => {
     fetchAdmins();
+    fetchPendingInvitations();
   }, [dateRange]);
 
   const handleTimeChange = (time: TimeOption) => {
@@ -232,8 +249,78 @@ export default function AdminManage() {
     }
   };
 
+  const fetchPendingInvitations = async () => {
+    if (!isSuperAdmin) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('admin_invitations')
+        .select(`
+          id,
+          email,
+          role,
+          invited_by,
+          created_at,
+          expires_at,
+          invited_by_profile:user_profiles!admin_invitations_invited_by_fkey(name, email)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setPendingInvitations(data || []);
+    } catch (error) {
+      console.error('Error fetching pending invitations:', error);
+    }
+  };
+
   const handleInviteSuccess = () => {
     fetchAdmins();
+    fetchPendingInvitations();
+  };
+
+  const handleCancelInvite = async (invitationId: string, email: string) => {
+    try {
+      const { error } = await supabase
+        .from('admin_invitations')
+        .update({ status: 'revoked' })
+        .eq('id', invitationId);
+
+      if (error) throw error;
+
+      toast.success(`Invitation to ${email} has been cancelled`);
+      fetchPendingInvitations();
+    } catch (error) {
+      console.error('Error canceling invitation:', error);
+      toast.error('Failed to cancel invitation');
+    }
+  };
+
+  const handleResendInvite = async (invitation: PendingInvitation) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-admin-invitation', {
+        body: {
+          email: invitation.email,
+          role: invitation.role,
+          invitation_token: invitation.id,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.emailSent) {
+        toast.success(`Invitation resent to ${invitation.email}`);
+      } else {
+        toast.warning(`Invitation link generated but email may not have been sent`);
+        if (data?.invitationLink) {
+          console.log('Invitation link:', data.invitationLink);
+        }
+      }
+    } catch (error) {
+      console.error('Error resending invitation:', error);
+      toast.error('Failed to resend invitation');
+    }
   };
 
   const handleDeleteAdmin = async () => {
@@ -585,6 +672,96 @@ export default function AdminManage() {
           </div>
         )}
       </div>
+
+      {/* Pending Invitations Section */}
+      {isSuperAdmin && pendingInvitations.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Pending Invitations</h2>
+              <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded-full">
+                {pendingInvitations.length} pending
+              </span>
+            </div>
+          </div>
+
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {pendingInvitations.map((invitation) => {
+              const expiresAt = new Date(invitation.expires_at);
+              const isExpiringSoon = expiresAt.getTime() - Date.now() < 24 * 60 * 60 * 1000; // Less than 24 hours
+              const invitedByName = invitation.invited_by_profile?.name || invitation.invited_by_profile?.email || 'Unknown';
+
+              return (
+                <div key={invitation.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 flex-1">
+                      <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
+                        <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="text-base font-medium text-gray-900 dark:text-gray-100">
+                            {invitation.email}
+                          </h3>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                              invitation.role === 'super_admin'
+                                ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                                : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                            }`}
+                          >
+                            {invitation.role === 'super_admin' ? 'Super Admin' : 'Admin'}
+                          </span>
+                          {isExpiringSoon && (
+                            <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-full">
+                              Expiring Soon
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center space-x-1">
+                            <UserPlus className="w-4 h-4" />
+                            <span>Invited by {invitedByName}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>Sent {format(new Date(invitation.created_at), 'MMM d, yyyy')}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Clock className="w-4 h-4" />
+                            <span>Expires {format(expiresAt, 'MMM d, yyyy')}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2 ml-4">
+                      <button
+                        onClick={() => handleResendInvite(invitation)}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1.5"
+                        title="Resend invitation email"
+                      >
+                        <Send className="w-4 h-4" />
+                        <span>Resend</span>
+                      </button>
+                      <button
+                        onClick={() => handleCancelInvite(invitation.id, invitation.email)}
+                        className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center space-x-1.5"
+                        title="Cancel invitation"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        <span>Cancel</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <InviteAdminModal
         isOpen={showInviteModal}
