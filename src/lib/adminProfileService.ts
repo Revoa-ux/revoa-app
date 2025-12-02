@@ -31,7 +31,6 @@ export const adminProfileService = {
       .from('user_profiles')
       .select('*')
       .eq('user_id', userId)
-      .eq('is_admin', true)
       .maybeSingle();
 
     if (error) {
