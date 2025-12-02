@@ -393,7 +393,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 <div className="flex items-center justify-between py-2">
                   <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Phone className="w-4 h-4 mr-2" />
-                    <span className="text-xs">Phone</span>
+                    <span className="text-sm">Phone</span>
                   </div>
                   <span className="text-sm text-gray-900 dark:text-white">{stats.phone}</span>
                 </div>
@@ -402,7 +402,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 <div className="flex items-center justify-between py-2">
                   <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Building2 className="w-4 h-4 mr-2" />
-                    <span className="text-xs">Company</span>
+                    <span className="text-sm">Company</span>
                   </div>
                   <span className="text-sm text-gray-900 dark:text-white">{stats.company}</span>
                 </div>
@@ -411,7 +411,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 <div className="flex items-center justify-between py-2">
                   <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Clock className="w-4 h-4 mr-2" />
-                    <span className="text-xs">Last Active</span>
+                    <span className="text-sm">Last Active</span>
                   </div>
                   <span className="text-sm text-gray-900 dark:text-white">
                     {formatDistanceToNow(new Date(stats.last_login), { addSuffix: true })}
@@ -421,7 +421,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
                   <Clock className="w-4 h-4 mr-2" />
-                  <span className="text-xs">User's Current Time</span>
+                  <span className="text-sm">User's Current Time</span>
                 </div>
                 <span className="text-sm text-gray-900 dark:text-white">
                   {(() => {
@@ -458,7 +458,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       </p>
                     </>
                   ) : (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
                   )}
                 </div>
               </div>
@@ -480,7 +480,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       </p>
                     </>
                   ) : (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">None</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">None</span>
                   )}
                 </div>
               </div>
@@ -589,7 +589,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <Clock className="w-4 h-4" />
                     <span className="text-sm">Last Fulfilled</span>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
                     {formatDistanceToNow(new Date(stats.last_fulfillment_date), { addSuffix: true })}
                   </span>
                 </div>
@@ -619,7 +619,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   <MessageSquare className="w-4 h-4" />
                   <span className="text-sm">Total Messages</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-sm text-gray-900 dark:text-white">
                   {stats.total_messages}
                 </span>
               </div>

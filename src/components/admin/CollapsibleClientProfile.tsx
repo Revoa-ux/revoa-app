@@ -545,7 +545,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Clock className="w-4 h-4 mr-2" />
               <span className="text-xs">Last Fulfilled</span>
             </div>
-            <span className="text-xs text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.last_fulfillment_date ? formatDistanceToNow(new Date(metrics.last_fulfillment_date), { addSuffix: true }) : 'Never'}
             </span>
           </div>
@@ -572,7 +572,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <MessageSquare className="w-4 h-4 mr-2" />
               <span className="text-xs">Total Messages</span>
             </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.total_messages}
             </span>
           </div>
@@ -582,7 +582,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Calendar className="w-4 h-4 mr-2" />
               <span className="text-xs">Last Interaction</span>
             </div>
-            <span className="text-xs text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.last_interaction ? formatDistanceToNow(new Date(metrics.last_interaction), { addSuffix: true }) : 'Never'}
             </span>
           </div>
@@ -592,7 +592,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               <Clock className="w-4 h-4 mr-2" />
               <span className="text-xs">Typically Responds At</span>
             </div>
-            <span className="text-xs text-gray-900 dark:text-white">
+            <span className="text-sm text-gray-900 dark:text-white">
               {metrics.typical_response_time ? (() => {
                 try {
                   const [timeStr, period] = metrics.typical_response_time.split(' ');
