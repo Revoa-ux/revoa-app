@@ -213,7 +213,7 @@ export default function AdminQuotes() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs whitespace-nowrap ${
                       quote.status === 'quote_pending'
                         ? 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
                         : quote.status === 'quoted'
@@ -224,14 +224,14 @@ export default function AdminQuotes() {
                         ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'
                         : 'bg-gray-50 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300'
                     }`}>
-                      {quote.status.replace('_', ' ')}
+                      {quote.status === 'synced_with_shopify' ? 'Synced' : quote.status.replace('_', ' ')}
                     </span>
                   </td>
                   <td className={`px-6 py-4 text-right ${index === filteredQuotes.length - 1 ? 'rounded-br-xl' : ''}`}>
                     {quote.status === 'quote_pending' ? (
                       <button
                         onClick={() => setSelectedQuote(quote)}
-                        className="text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-medium"
+                        className="text-xs text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 underline hover:no-underline"
                       >
                         Process
                       </button>
