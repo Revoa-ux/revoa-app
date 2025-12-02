@@ -53,15 +53,15 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
 
   return (
     <div className="relative">
-      <button 
+      <button
         ref={buttonRef}
-        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
         onClick={(e) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
         }}
       >
-        <MoreVertical className="w-5 h-5" />
+        <MoreVertical className="w-4 h-4" />
       </button>
 
       {isOpen && (
