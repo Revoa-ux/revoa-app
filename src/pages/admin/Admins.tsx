@@ -252,9 +252,13 @@ export default function AdminManage() {
   };
 
   const fetchPendingInvitations = async () => {
-    if (!isSuperAdmin) return;
+    if (!isSuperAdmin) {
+      console.log('Not super admin, skipping invitation fetch');
+      return;
+    }
 
     try {
+      console.log('Fetching admin invitations...');
       const { data, error } = await supabase
         .from('admin_invitations')
         .select(`
@@ -275,12 +279,15 @@ export default function AdminManage() {
         throw error;
       }
 
+      console.log('Raw invitation data:', data);
+
       // Transform the data to match our interface
       const transformedData = (data || []).map(invitation => ({
         ...invitation,
         invited_by_profile: invitation.user_profiles
       }));
 
+      console.log('Transformed invitation data:', transformedData);
       setPendingInvitations(transformedData);
     } catch (error) {
       console.error('Error fetching pending invitations:', error);
