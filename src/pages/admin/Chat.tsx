@@ -289,8 +289,6 @@ const AdminChat = () => {
   const userEmail = selectedChat?.user_profile?.email || '';
   const companyName = selectedChat?.user_profile?.company || null;
   const storeUrl = selectedChat?.shopify_installations?.[0]?.store_url || null;
-  const totalTransactions = selectedChat?.user_assignment?.total_transactions || 0;
-  const totalInvoices = selectedChat?.user_assignment?.total_invoices || 0;
   const userCreatedAt = selectedChat?.user_profile?.created_at;
   const lastInteraction = selectedChat?.user_assignment?.last_interaction_at;
 
@@ -443,14 +441,6 @@ const AdminChat = () => {
                     <span title="User's current time">
                       User's Current Time: {getUserCurrentTime()}
                     </span>
-                    {totalTransactions > 0 && (
-                      <span title="Total transaction volume">
-                        ${totalTransactions.toLocaleString()} volume
-                      </span>
-                    )}
-                    {totalInvoices > 0 && (
-                      <span>{totalInvoices} invoices</span>
-                    )}
                   </div>
                 </div>
               </div>

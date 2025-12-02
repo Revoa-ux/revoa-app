@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { TrendingUp } from 'lucide-react';
 import { Chat } from '@/lib/chatService';
 import { formatDistanceToNow } from 'date-fns';
 import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
@@ -22,8 +21,6 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       : chat.user_profile?.email || '');
   const unreadCount = chat.unread_count_admin || 0;
   const lastMessagePreview = chat.last_message_preview || 'No messages yet';
-  const totalTransactions = chat.user_assignment?.total_transactions || 0;
-  const totalInvoices = chat.user_assignment?.total_invoices || 0;
   const [tags, setTags] = useState<ConversationTagAssignment[]>([]);
 
   useEffect(() => {
@@ -133,19 +130,6 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
             )}
           </div>
 
-          {(totalTransactions > 0 || totalInvoices > 0) && (
-            <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-              {totalTransactions > 0 && (
-                <div className="flex items-center gap-1" title="Total transaction volume">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>${totalTransactions.toLocaleString()}</span>
-                </div>
-              )}
-              {totalInvoices > 0 && (
-                <span title="Total invoices">{totalInvoices} invoices</span>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </button>
