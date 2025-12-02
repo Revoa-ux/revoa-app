@@ -504,12 +504,12 @@ export default function AdminsManagement() {
                   </td>
                 </tr>
               ) : (
-                sortedRows.map(row => (
+                sortedRows.map((row, index) => (
                   <tr
                     key={row.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors first:hover:rounded-t-xl last:hover:rounded-b-xl"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className={`px-4 py-4 whitespace-nowrap ${index === sortedRows.length - 1 ? 'rounded-bl-xl' : ''}`}>
                       <div>
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {row.name || row.email.split('@')[0]}
@@ -549,7 +549,7 @@ export default function AdminsManagement() {
                         )}
                       </div>
                     </td>
-                    <td className="px-3 py-4 whitespace-nowrap text-right">
+                    <td className={`px-3 py-4 whitespace-nowrap text-right ${index === sortedRows.length - 1 ? 'rounded-br-xl' : ''}`}>
                       <div className="relative inline-block" ref={actionMenuOpen === row.id ? actionMenuRef : null}>
                         <button
                           onClick={() => setActionMenuOpen(actionMenuOpen === row.id ? null : row.id)}

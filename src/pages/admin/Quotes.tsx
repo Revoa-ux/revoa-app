@@ -12,6 +12,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
 import { QuoteVariant } from '@/types/quotes';
+import { getStatusText } from '@/components/quotes/QuoteStatus';
 
 interface Quote {
   id: string;
@@ -148,7 +149,7 @@ export default function AdminQuotes() {
               className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             >
               <Filter className="w-4 h-4 text-gray-400" />
-              <span>Status: {statusFilter === 'all' ? 'All' : statusFilter.replace('_', ' ')}</span>
+              <span>Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
@@ -163,7 +164,7 @@ export default function AdminQuotes() {
                     }}
                     className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   >
-                    <span>{status === 'all' ? 'All' : status.replace('_', ' ')}</span>
+                    <span>{status === 'all' ? 'All' : getStatusText(status)}</span>
                     {statusFilter === status && <Check className="w-4 h-4 text-rose-500" />}
                   </button>
                 ))}
@@ -186,9 +187,9 @@ export default function AdminQuotes() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredQuotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 first:hover:rounded-t-xl last:hover:rounded-b-xl">
-                  <td className="px-6 py-4">
+              {filteredQuotes.map((quote, index) => (
+                <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className={`px-6 py-4 ${index === filteredQuotes.length - 1 ? 'rounded-bl-xl' : ''}`}>
                     <span className="text-xs text-gray-900 dark:text-gray-100">{quote.id}</span>
                   </td>
                   <td className="px-6 py-4">
@@ -226,7 +227,7 @@ export default function AdminQuotes() {
                       {quote.status.replace('_', ' ')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className={`px-6 py-4 text-right ${index === filteredQuotes.length - 1 ? 'rounded-br-xl' : ''}`}>
                     {quote.status === 'quote_pending' ? (
                       <button
                         onClick={() => setSelectedQuote(quote)}

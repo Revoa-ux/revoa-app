@@ -443,8 +443,8 @@ export default function Users() {
                 </tr>
               ) : (
                 sortedUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 first:hover:rounded-t-xl last:hover:rounded-b-xl">
-                    <td className="px-6 py-4">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className={`px-6 py-4 ${index === sortedUsers.length - 1 ? 'rounded-bl-xl' : ''}`}>
                       <CustomCheckbox
                         checked={selectedUsers.includes(user.id)}
                         onChange={() => handleSelectUser(user.id)}
@@ -509,7 +509,7 @@ export default function Users() {
                         <span className="text-gray-500 dark:text-gray-400">0</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm relative">
+                    <td className={`px-6 py-4 whitespace-nowrap text-right text-sm relative ${index === sortedUsers.length - 1 ? 'rounded-br-xl' : ''}`}>
                       <div className="relative flex justify-end">
                         <UserActionsMenu
                           userId={user.id}

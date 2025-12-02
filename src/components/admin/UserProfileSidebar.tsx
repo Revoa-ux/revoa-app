@@ -453,7 +453,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       <p className="text-sm text-gray-900 dark:text-white">
                         ${stats.last_invoice_sent_amount.toFixed(2)}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {formatDistanceToNow(new Date(stats.last_invoice_sent_date), { addSuffix: true })}
                       </p>
                     </>
@@ -475,7 +475,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       <p className="text-sm text-green-600 dark:text-green-400">
                         ${stats.last_invoice_paid_amount.toFixed(2)}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {formatDistanceToNow(new Date(stats.last_invoice_paid_date), { addSuffix: true })}
                       </p>
                     </>
@@ -509,12 +509,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                       navigate(`/admin/invoices?userId=${userId}`);
                       if (showHeader) onClose();
                     }}
-                    className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
+                    className="text-sm underline hover:no-underline text-gray-900 dark:text-white transition-all"
                   >
                     Invoices
                   </button>
                 </div>
-                <span className="text-xs text-gray-900 dark:text-white">
+                <span className="text-sm text-gray-900 dark:text-white">
                   {stats.total_invoices}
                 </span>
               </div>
@@ -526,12 +526,12 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                     <FileText className="w-4 h-4 mr-2" />
                     <button
                       onClick={() => setShowActiveQuotesModal(true)}
-                      className="text-xs underline hover:no-underline text-gray-900 dark:text-white transition-all"
+                      className="text-sm underline hover:no-underline text-gray-900 dark:text-white transition-all"
                     >
                       Active Quotes
                     </button>
                   </div>
-                  <span className="text-xs text-gray-900 dark:text-white">
+                  <span className="text-sm text-gray-900 dark:text-white">
                     {stats.active_quotes}
                   </span>
                 </div>
