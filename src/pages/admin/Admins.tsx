@@ -63,6 +63,8 @@ interface PendingInvitation {
   invited_by: string;
   created_at: string;
   expires_at: string;
+  status: 'pending' | 'accepted' | 'revoked' | 'expired';
+  accepted_at?: string | null;
   invited_by_profile?: {
     name: string | null;
     email: string;
@@ -262,9 +264,10 @@ export default function AdminManage() {
           invited_by,
           created_at,
           expires_at,
+          status,
+          accepted_at,
           invited_by_profile:user_profiles!admin_invitations_invited_by_fkey(name, email)
         `)
-        .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -673,15 +676,20 @@ export default function AdminManage() {
         )}
       </div>
 
-      {/* Pending Invitations Section */}
+      {/* All Invitations Section */}
       {isSuperAdmin && pendingInvitations.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Pending Invitations</h2>
-              <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded-full">
-                {pendingInvitations.length} pending
-              </span>
+              <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Admin Invitations</h2>
+              <div className="flex items-center space-x-2">
+                <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 rounded-full">
+                  {pendingInvitations.filter(i => i.status === 'pending').length} pending
+                </span>
+                <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-full">
+                  {pendingInvitations.length} total
+                </span>
+              </div>
             </div>
           </div>
 
@@ -695,8 +703,21 @@ export default function AdminManage() {
                 <div key={invitation.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
-                      <div className="w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                        <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        invitation.status === 'accepted' ? 'bg-green-100 dark:bg-green-900/30' :
+                        invitation.status === 'revoked' ? 'bg-red-100 dark:bg-red-900/30' :
+                        invitation.status === 'expired' ? 'bg-gray-100 dark:bg-gray-900/30' :
+                        'bg-yellow-100 dark:bg-yellow-900/30'
+                      }`}>
+                        {invitation.status === 'accepted' ? (
+                          <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
+                        ) : invitation.status === 'revoked' ? (
+                          <XCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                        ) : invitation.status === 'expired' ? (
+                          <XCircle className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+                        ) : (
+                          <Clock className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -713,11 +734,18 @@ export default function AdminManage() {
                           >
                             {invitation.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                           </span>
-                          {isExpiringSoon && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded-full">
-                              Expiring Soon
-                            </span>
-                          )}
+                          <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                            invitation.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
+                            invitation.status === 'revoked' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                            invitation.status === 'expired' ? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' :
+                            isExpiringSoon ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                            'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+                          }`}>
+                            {invitation.status === 'accepted' ? 'Accepted' :
+                             invitation.status === 'revoked' ? 'Cancelled' :
+                             invitation.status === 'expired' ? 'Expired' :
+                             isExpiringSoon ? 'Expiring Soon' : 'Pending'}
+                          </span>
                         </div>
 
                         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
@@ -737,24 +765,31 @@ export default function AdminManage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-2 ml-4">
-                      <button
-                        onClick={() => handleResendInvite(invitation)}
-                        className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1.5"
-                        title="Resend invitation email"
-                      >
-                        <Send className="w-4 h-4" />
-                        <span>Resend</span>
-                      </button>
-                      <button
-                        onClick={() => handleCancelInvite(invitation.id, invitation.email)}
-                        className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center space-x-1.5"
-                        title="Cancel invitation"
-                      >
-                        <XCircle className="w-4 h-4" />
-                        <span>Cancel</span>
-                      </button>
-                    </div>
+                    {invitation.status === 'pending' && (
+                      <div className="flex items-center space-x-2 ml-4">
+                        <button
+                          onClick={() => handleResendInvite(invitation)}
+                          className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-1.5"
+                          title="Resend invitation email"
+                        >
+                          <Send className="w-4 h-4" />
+                          <span>Resend</span>
+                        </button>
+                        <button
+                          onClick={() => handleCancelInvite(invitation.id, invitation.email)}
+                          className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-900/50 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center space-x-1.5"
+                          title="Cancel invitation"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          <span>Cancel</span>
+                        </button>
+                      </div>
+                    )}
+                    {invitation.status === 'accepted' && invitation.accepted_at && (
+                      <div className="text-sm text-gray-500 dark:text-gray-400 ml-4">
+                        Accepted {format(new Date(invitation.accepted_at), 'MMM d, yyyy')}
+                      </div>
+                    )}
                   </div>
                 </div>
               );

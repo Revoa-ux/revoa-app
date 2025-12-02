@@ -61,8 +61,12 @@ export default function AcceptInvitation() {
 
   const validateInvitation = async () => {
     try {
-      // Fetch invitation details
-      const { data, error: inviteError } = await supabase
+      // Fetch invitation details - try both id and invitation_token for backwards compatibility
+      let data: any = null;
+      let inviteError: any = null;
+
+      // First try with invitation_token (the token in the URL)
+      const { data: tokenData, error: tokenError } = await supabase
         .from('admin_invitations')
         .select(`
           email,
@@ -76,6 +80,29 @@ export default function AcceptInvitation() {
         `)
         .eq('invitation_token', token)
         .maybeSingle();
+
+      if (tokenData) {
+        data = tokenData;
+      } else {
+        // Fallback: try with id (in case the token is actually the invitation id)
+        const { data: idData, error: idError } = await supabase
+          .from('admin_invitations')
+          .select(`
+            email,
+            role,
+            expires_at,
+            status,
+            invited_by,
+            user_profiles!admin_invitations_invited_by_fkey (
+              email
+            )
+          `)
+          .eq('id', token)
+          .maybeSingle();
+
+        data = idData;
+        inviteError = idError;
+      }
 
       if (inviteError || !data) {
         setError('Invalid or expired invitation');
