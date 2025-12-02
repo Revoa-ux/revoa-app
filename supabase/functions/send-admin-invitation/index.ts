@@ -55,10 +55,9 @@ Deno.serve(async (req: Request) => {
     }
 
     // Generate invitation link
-    const invitationLink = `${Deno.env.get('SITE_URL') || 'https://app.revoa.ai'}/admin/accept-invitation?token=${invitation_token}`;
+    const siteUrl = Deno.env.get('SITE_URL') || Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.netlify.app') || 'https://app.revoa.ai';
+    const invitationLink = `${siteUrl}/admin/accept-invitation?token=${invitation_token}`;
 
-    // In production, you would integrate with an email service (SendGrid, Resend, etc.)
-    // For now, we'll log the invitation details
     console.log('Admin Invitation Details:', {
       email,
       role,
@@ -66,30 +65,52 @@ Deno.serve(async (req: Request) => {
       sentBy: user.email,
     });
 
-    // TODO: Integrate with actual email service
-    // Example with Resend:
-    // const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    // const emailResponse = await fetch('https://api.resend.com/emails', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${resendApiKey}`,
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({
-    //     from: 'Revoa <noreply@revoa.ai>',
-    //     to: email,
-    //     subject: 'You\'ve been invited to join Revoa as an admin',
-    //     html: generateInvitationEmail(role, invitationLink),
-    //   }),
-    // });
+    // Try to send email using Resend if configured
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    let emailSent = false;
+    let emailError = null;
 
-    // For development/testing, return the invitation link
+    if (resendApiKey) {
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Revoa <noreply@revoa.ai>',
+            to: email,
+            subject: `You've been invited to join Revoa as ${role === 'super_admin' ? 'a Super Admin' : 'an Admin'}`,
+            html: generateInvitationEmail(role, invitationLink),
+          }),
+        });
+
+        const emailResult = await emailResponse.json();
+
+        if (emailResponse.ok) {
+          emailSent = true;
+          console.log('Email sent successfully:', emailResult);
+        } else {
+          emailError = emailResult;
+          console.error('Email sending failed:', emailResult);
+        }
+      } catch (error) {
+        emailError = error;
+        console.error('Error sending email:', error);
+      }
+    } else {
+      console.warn('RESEND_API_KEY not configured - email not sent');
+      emailError = 'Email service not configured';
+    }
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        message: 'Invitation created successfully',
-        // In development, include the link for testing
-        ...(Deno.env.get('ENV') === 'development' && { invitationLink }),
+        message: emailSent ? 'Invitation sent successfully' : 'Invitation created but email could not be sent',
+        emailSent,
+        invitationLink: Deno.env.get('ENV') === 'development' ? invitationLink : undefined,
+        ...(emailError && { emailError: typeof emailError === 'string' ? emailError : 'Failed to send email' }),
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

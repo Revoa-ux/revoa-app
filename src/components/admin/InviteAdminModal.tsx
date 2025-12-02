@@ -88,7 +88,7 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
       if (inviteError) throw inviteError;
 
       // Call Edge Function to send invitation email
-      const { error: emailError } = await supabase.functions.invoke('send-admin-invitation', {
+      const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-admin-invitation', {
         body: {
           email: email.toLowerCase(),
           role,
@@ -98,9 +98,24 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
 
       if (emailError) {
         console.error('Email sending error:', emailError);
-        toast.warning('Invitation created but email may not have been sent');
-      } else {
+        toast.warning('Invitation created but email service encountered an error. Please share the invitation link manually.');
+
+        // Show the invitation link in console for manual sharing
+        if (emailResult?.invitationLink) {
+          console.log('Invitation link:', emailResult.invitationLink);
+        }
+      } else if (emailResult?.emailSent) {
         toast.success(`Invitation sent to ${email}`);
+      } else {
+        toast.warning(emailResult?.message || 'Invitation created but email may not have been sent');
+
+        // If email wasn't sent, log details
+        if (emailResult?.emailError) {
+          console.error('Email not sent:', emailResult.emailError);
+        }
+        if (emailResult?.invitationLink) {
+          console.log('Invitation link (share manually):', emailResult.invitationLink);
+        }
       }
 
       setEmail('');
