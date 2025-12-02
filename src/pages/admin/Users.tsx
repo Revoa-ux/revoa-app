@@ -18,6 +18,7 @@ import Modal from '@/components/Modal';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/contexts/AdminContext';
 
 interface TableRowSkeletonProps {
   index: number;
@@ -65,11 +66,15 @@ const TableRowSkeleton: React.FC<TableRowSkeletonProps> = ({ index }) => (
 
 export default function Users() {
   const { user: currentUser } = useAuth();
+  const { adminUser, isSuperAdmin } = useAdmin();
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
+  const [selectedAdminFilter, setSelectedAdminFilter] = useState<string>('all');
+  const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showAdminFilterDropdown, setShowAdminFilterDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
@@ -88,8 +93,10 @@ export default function Users() {
   const [showActiveQuotesModal, setShowActiveQuotesModal] = useState(false);
   const [activeQuotesUser, setActiveQuotesUser] = useState<{ id: string; name: string } | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
+  const adminFilterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
+  useClickOutside(adminFilterDropdownRef, () => setShowAdminFilterDropdown(false));
   useClickOutside(sortDropdownRef, () => setShowSortDropdown(false));
 
   const sortOptions = [
@@ -102,17 +109,76 @@ export default function Users() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+    if (isSuperAdmin) {
+      fetchAdmins();
+    }
+  }, [isSuperAdmin]);
+
+  const fetchAdmins = async () => {
+    try {
+      const { data: adminProfiles, error } = await supabase
+        .from('user_profiles')
+        .select('user_id, name, first_name, last_name, email')
+        .eq('is_admin', true);
+
+      if (error) throw error;
+
+      const transformedAdmins = (adminProfiles || []).map(admin => ({
+        id: admin.user_id,
+        name: admin.name || (admin.first_name && admin.last_name ? `${admin.first_name} ${admin.last_name}` : admin.email),
+        email: admin.email
+      }));
+
+      setAdmins(transformedAdmins);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch all user profiles (non-admins only)
-      const { data: profiles, error: profilesError } = await supabase
-        .from('user_profiles')
-        .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
-        .eq('is_admin', false);
+      // For regular admins, only fetch their assigned users
+      let profiles;
+      let profilesError;
+
+      if (!isSuperAdmin && adminUser?.userId) {
+        // Get assigned user IDs first
+        const { data: assignments, error: assignError } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', adminUser.userId);
+
+        if (assignError) throw assignError;
+
+        const assignedUserIds = assignments?.map(a => a.user_id) || [];
+
+        if (assignedUserIds.length === 0) {
+          setUsers([]);
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch only assigned users
+        const { data: assignedProfiles, error: assignedError } = await supabase
+          .from('user_profiles')
+          .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
+          .in('user_id', assignedUserIds)
+          .eq('is_admin', false);
+
+        profiles = assignedProfiles;
+        profilesError = assignedError;
+      } else {
+        // Fetch all user profiles (non-admins only) for super admins
+        const { data: allProfiles, error: allError } = await supabase
+          .from('user_profiles')
+          .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
+          .eq('is_admin', false);
+
+        profiles = allProfiles;
+        profilesError = allError;
+      }
 
       if (profilesError) throw profilesError;
 
@@ -277,7 +343,13 @@ export default function Users() {
       (selectedFilter === 'assigned' && user.isAssigned) ||
       (selectedFilter === 'unassigned' && !user.isAssigned);
 
-    return matchesSearch && matchesFilter;
+    const matchesAdminFilter =
+      !isSuperAdmin ||
+      selectedAdminFilter === 'all' ||
+      (selectedAdminFilter === 'unassigned' && !user.assignedTo) ||
+      (user.assignedTo?.id === selectedAdminFilter);
+
+    return matchesSearch && matchesFilter && matchesAdminFilter;
   });
 
   const sortedUsers = getSortedUsers(filteredUsers);
@@ -367,6 +439,63 @@ export default function Users() {
             )}
           </div>
 
+          {isSuperAdmin && (
+            <div className="relative" ref={adminFilterDropdownRef}>
+              <button
+                onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
+                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              >
+                <span>
+                  Admin: {selectedAdminFilter === 'all'
+                    ? 'All Admins'
+                    : selectedAdminFilter === 'unassigned'
+                    ? 'Unassigned'
+                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {showAdminFilterDropdown && (
+                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      setSelectedAdminFilter('all');
+                      setShowAdminFilterDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span>All Admins</span>
+                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedAdminFilter('unassigned');
+                      setShowAdminFilterDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span>Unassigned</span>
+                    {selectedAdminFilter === 'unassigned' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  {admins.map((admin) => (
+                    <button
+                      key={admin.id}
+                      onClick={() => {
+                        setSelectedAdminFilter(admin.id);
+                        setShowAdminFilterDropdown(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
+                      <span className="truncate">{admin.name}</span>
+                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
@@ -422,7 +551,9 @@ export default function Users() {
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-1/4">User</th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-24">Registration</th>
-                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-32">Assigned To</th>
+                {isSuperAdmin && (
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-32">Assigned To</th>
+                )}
                 <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-24">Volume</th>
                 <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-28">Transactions</th>
                 <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-20">Invoices</th>
@@ -437,7 +568,7 @@ export default function Users() {
                 ))
               ) : sortedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                  <td colSpan={isSuperAdmin ? 9 : 8} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                     No users found
                   </td>
                 </tr>
@@ -465,13 +596,15 @@ export default function Users() {
                     <td className="px-3 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-500 dark:text-gray-400">{user.registrationDate}</span>
                     </td>
-                    <td className="px-3 py-4 whitespace-nowrap">
-                      {user.assignedTo ? (
-                        <span className="text-sm text-gray-900 dark:text-gray-100 truncate block max-w-[8rem]" title={user.assignedTo.name || user.assignedTo.email}>{user.assignedTo.name || user.assignedTo.email}</span>
-                      ) : (
-                        <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
-                      )}
-                    </td>
+                    {isSuperAdmin && (
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        {user.assignedTo ? (
+                          <span className="text-sm text-gray-900 dark:text-gray-100 truncate block max-w-[8rem]" title={user.assignedTo.name || user.assignedTo.email}>{user.assignedTo.name || user.assignedTo.email}</span>
+                        ) : (
+                          <span className="text-sm text-gray-500 dark:text-gray-400">Unassigned</span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                       ${user.volume.toLocaleString()}
                     </td>

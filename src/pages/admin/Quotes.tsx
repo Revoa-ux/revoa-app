@@ -5,7 +5,10 @@ import {
   ChevronDown,
   Check,
   X,
-  ExternalLink
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -13,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
 import { QuoteVariant } from '@/types/quotes';
 import { getStatusText } from '@/components/quotes/QuoteStatus';
+import { useAdmin } from '@/contexts/AdminContext';
 
 interface Quote {
   id: string;
@@ -28,28 +32,123 @@ interface Quote {
 }
 
 export default function AdminQuotes() {
+  const { adminUser, isSuperAdmin } = useAdmin();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
+  const [selectedAdminFilter, setSelectedAdminFilter] = useState<string>('all');
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showAdminFilterDropdown, setShowAdminFilterDropdown] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
+  const [quoteStats, setQuoteStats] = useState({
+    avgResponseTime: 0,
+    avgProcessTime: 0,
+    pendingCount: 0
+  });
 
   const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const adminFilterDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+  useClickOutside(adminFilterDropdownRef, () => setShowAdminFilterDropdown(false));
 
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoadingQuotes, setIsLoadingQuotes] = useState(true);
 
   useEffect(() => {
     fetchQuotes();
-  }, []);
+    if (isSuperAdmin) {
+      fetchAdmins();
+      fetchQuoteStats();
+    }
+  }, [isSuperAdmin]);
+
+  const fetchAdmins = async () => {
+    try {
+      const { data: adminProfiles, error } = await supabase
+        .from('user_profiles')
+        .select('user_id, name, first_name, last_name, email')
+        .eq('is_admin', true);
+
+      if (error) throw error;
+
+      const transformedAdmins = (adminProfiles || []).map(admin => ({
+        id: admin.user_id,
+        name: admin.name || (admin.first_name && admin.last_name ? `${admin.first_name} ${admin.last_name}` : admin.email),
+        email: admin.email
+      }));
+
+      setAdmins(transformedAdmins);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+    }
+  };
+
+  const fetchQuoteStats = async () => {
+    try {
+      // Get pending quotes count
+      const { count: pendingCount } = await supabase
+        .from('product_quotes')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      // Calculate average response time (time from created to quoted status)
+      const { data: quotedQuotes } = await supabase
+        .from('product_quotes')
+        .select('created_at, updated_at')
+        .eq('status', 'quoted')
+        .limit(100);
+
+      let avgResponseTime = 0;
+      if (quotedQuotes && quotedQuotes.length > 0) {
+        const totalTime = quotedQuotes.reduce((acc, quote) => {
+          const created = new Date(quote.created_at).getTime();
+          const updated = new Date(quote.updated_at).getTime();
+          return acc + (updated - created);
+        }, 0);
+        avgResponseTime = Math.round(totalTime / quotedQuotes.length / (1000 * 60 * 60)); // Convert to hours
+      }
+
+      // Calculate average process time (similar but for accepted quotes)
+      const { data: acceptedQuotes } = await supabase
+        .from('product_quotes')
+        .select('created_at, updated_at')
+        .eq('status', 'accepted')
+        .limit(100);
+
+      let avgProcessTime = 0;
+      if (acceptedQuotes && acceptedQuotes.length > 0) {
+        const totalTime = acceptedQuotes.reduce((acc, quote) => {
+          const created = new Date(quote.created_at).getTime();
+          const updated = new Date(quote.updated_at).getTime();
+          return acc + (updated - created);
+        }, 0);
+        avgProcessTime = Math.round(totalTime / acceptedQuotes.length / (1000 * 60 * 60)); // Convert to hours
+      }
+
+      setQuoteStats({
+        avgResponseTime,
+        avgProcessTime,
+        pendingCount: pendingCount || 0
+      });
+    } catch (error) {
+      console.error('Error fetching quote stats:', error);
+    }
+  };
 
   const fetchQuotes = async () => {
     try {
       setIsLoadingQuotes(true);
-      const { data, error } = await supabase
+
+      let query = supabase
         .from('product_quotes')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*, user_assignments!inner(admin_id, user_id)');
+
+      // For regular admins, filter by assigned users
+      if (!isSuperAdmin && adminUser?.userId) {
+        query = query.eq('user_assignments.admin_id', adminUser.userId);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -105,7 +204,10 @@ export default function AdminQuotes() {
 
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    // Admin filter is only for super admins
+    const matchesAdminFilter = !isSuperAdmin || selectedAdminFilter === 'all';
+
+    return matchesSearch && matchesStatus && matchesAdminFilter;
   });
 
   return (
@@ -121,6 +223,64 @@ export default function AdminQuotes() {
           </p>
         </div>
       </div>
+
+      {isSuperAdmin && (
+        <div className="grid grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Response Time</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgResponseTime}h</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Time to first quote</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgResponseTime}h</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Process Time</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgProcessTime}h</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Time to acceptance</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgProcessTime}h</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Pending Quotes</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.pendingCount}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Awaiting response</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.pendingCount}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -171,6 +331,51 @@ export default function AdminQuotes() {
               </div>
             )}
           </div>
+
+          {isSuperAdmin && (
+            <div className="relative" ref={adminFilterDropdownRef}>
+              <button
+                onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
+                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              >
+                <span>
+                  Admin: {selectedAdminFilter === 'all'
+                    ? 'All Admins'
+                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {showAdminFilterDropdown && (
+                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      setSelectedAdminFilter('all');
+                      setShowAdminFilterDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span>All Admins</span>
+                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  {admins.map((admin) => (
+                    <button
+                      key={admin.id}
+                      onClick={() => {
+                        setSelectedAdminFilter(admin.id);
+                        setShowAdminFilterDropdown(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
+                      <span className="truncate">{admin.name}</span>
+                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

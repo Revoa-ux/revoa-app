@@ -27,6 +27,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { invoiceService, Invoice, InvoiceFilters, InvoiceStats } from '@/lib/invoiceService';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/contexts/AdminContext';
 import { format } from 'date-fns';
 import { supabase } from '@/lib/supabase';
 
@@ -242,6 +243,7 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
 };
 
 export default function Invoices() {
+  const { adminUser, isSuperAdmin } = useAdmin();
   const [searchParams, setSearchParams] = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [stats, setStats] = useState<InvoiceStats | null>(null);
@@ -251,6 +253,9 @@ export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  const [showAdminFilterDropdown, setShowAdminFilterDropdown] = useState(false);
+  const [selectedAdminFilter, setSelectedAdminFilter] = useState<string>('all');
+  const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [filteredUserName, setFilteredUserName] = useState<string | null>(null);
@@ -272,9 +277,11 @@ export default function Invoices() {
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const statusDropdownRef = useRef<HTMLDivElement>(null);
+  const adminFilterDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(filterDropdownRef, () => setShowFilterDropdown(false));
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+  useClickOutside(adminFilterDropdownRef, () => setShowAdminFilterDropdown(false));
 
   // Update filters when userId changes in URL
   useEffect(() => {
@@ -462,7 +469,7 @@ export default function Invoices() {
                 <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Paid This Month</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Paid in Period</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   ${stats.paid_this_month.toLocaleString()}
                 </p>
