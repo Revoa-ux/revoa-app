@@ -56,7 +56,7 @@ export default function AdminsManagement() {
     direction: 'desc'
   });
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string; email: string } | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string; email: string; type: 'invitation' | 'admin'; userId?: string } | null>(null);
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -216,19 +216,18 @@ export default function AdminsManagement() {
     }
   };
 
-  const handleRemoveAdmin = async (userId: string, email: string) => {
-    if (!confirm(`Are you sure you want to remove ${email} as an admin?`)) {
-      return;
-    }
+  const handleRemoveAdmin = async () => {
+    if (!deleteConfirmation || deleteConfirmation.type !== 'admin' || !deleteConfirmation.userId) return;
 
     try {
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_admin: false, is_super_admin: false })
-        .eq('user_id', userId);
+        .eq('user_id', deleteConfirmation.userId);
 
       if (error) throw error;
-      toast.success(`Removed ${email} as admin`);
+      toast.success(`Removed ${deleteConfirmation.email} as admin`);
+      setDeleteConfirmation(null);
       setActionMenuOpen(null);
       fetchData();
     } catch (error) {
@@ -237,23 +236,27 @@ export default function AdminsManagement() {
     }
   };
 
-  const handleDeleteInvitation = async () => {
+  const handleDeleteAction = async () => {
     if (!deleteConfirmation) return;
 
-    try {
-      const { error } = await supabase
-        .from('admin_invitations')
-        .delete()
-        .eq('id', deleteConfirmation.id);
+    if (deleteConfirmation.type === 'invitation') {
+      try {
+        const { error } = await supabase
+          .from('admin_invitations')
+          .delete()
+          .eq('id', deleteConfirmation.id);
 
-      if (error) throw error;
-      toast.success(`Deleted invitation for ${deleteConfirmation.email}`);
-      setDeleteConfirmation(null);
-      setActionMenuOpen(null);
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting invitation:', error);
-      toast.error('Failed to delete invitation');
+        if (error) throw error;
+        toast.success(`Deleted invitation for ${deleteConfirmation.email}`);
+        setDeleteConfirmation(null);
+        setActionMenuOpen(null);
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting invitation:', error);
+        toast.error('Failed to delete invitation');
+      }
+    } else if (deleteConfirmation.type === 'admin') {
+      await handleRemoveAdmin();
     }
   };
 
@@ -614,7 +617,7 @@ export default function AdminsManagement() {
                             {row.type === 'invitation' && row.status === 'revoked' && (
                               <button
                                 onClick={() => {
-                                  setDeleteConfirmation({ id: row.id, email: row.email });
+                                  setDeleteConfirmation({ id: row.id, email: row.email, type: 'invitation' });
                                   setActionMenuOpen(null);
                                 }}
                                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
@@ -625,7 +628,10 @@ export default function AdminsManagement() {
                             )}
                             {row.type === 'admin' && row.userId && (
                               <button
-                                onClick={() => handleRemoveAdmin(row.userId!, row.email)}
+                                onClick={() => {
+                                  setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
+                                  setActionMenuOpen(null);
+                                }}
                                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -655,11 +661,14 @@ export default function AdminsManagement() {
       <Modal
         isOpen={!!deleteConfirmation}
         onClose={() => setDeleteConfirmation(null)}
-        title="Delete Invitation"
+        title={deleteConfirmation?.type === 'admin' ? 'Remove Admin' : 'Delete Invitation'}
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Are you sure you want to permanently delete the invitation for <span className="font-medium text-gray-900 dark:text-gray-100">{deleteConfirmation?.email}</span>?
+            {deleteConfirmation?.type === 'admin'
+              ? <>Are you sure you want to remove <span className="font-medium text-gray-900 dark:text-gray-100">{deleteConfirmation?.email}</span> as an admin?</>
+              : <>Are you sure you want to permanently delete the invitation for <span className="font-medium text-gray-900 dark:text-gray-100">{deleteConfirmation?.email}</span>?</>
+            }
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             This action cannot be undone.
@@ -667,15 +676,16 @@ export default function AdminsManagement() {
           <div className="flex justify-end gap-3 pt-4">
             <button
               onClick={() => setDeleteConfirmation(null)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
             >
               Cancel
             </button>
             <button
-              onClick={handleDeleteInvitation}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              onClick={handleDeleteAction}
+              className="group px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-all active:scale-95 flex items-center gap-2"
             >
-              Delete
+              <span>{deleteConfirmation?.type === 'admin' ? 'Remove' : 'Delete'}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
         </div>
