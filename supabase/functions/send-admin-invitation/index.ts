@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
         const emailPayload = {
           from: fromEmail,
           to: email,
-          subject: `You've been invited to join Revoa as ${role === 'super_admin' ? 'a Super Admin' : 'an Admin'}`,
+          subject: `You've been invited to join Revoa as ${role === 'super_admin' ? 'a' : 'an'} ${role === 'super_admin' ? 'Super Admin' : 'Admin'}`,
           html: generateInvitationEmail(role, invitationLink),
         };
 
@@ -150,44 +150,81 @@ Deno.serve(async (req: Request) => {
 
 function generateInvitationEmail(role: string, invitationLink: string): string {
   const roleDisplay = role === 'super_admin' ? 'Super Admin' : 'Admin';
-  
+  const article = role === 'super_admin' ? 'a' : 'an';
+
   return `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Admin Invitation</title>
+        <title>Join Revoa as ${article} ${roleDisplay}</title>
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
-        <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-          <div style="background: linear-gradient(135deg, #E85B81 0%, #E87D55 100%); border-radius: 16px 16px 0 0; padding: 40px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Admin Invitation</h1>
-          </div>
-          
-          <div style="background-color: white; border-radius: 0 0 16px 16px; padding: 40px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-              You've been invited to join Revoa as a <strong>${roleDisplay}</strong>.
-            </p>
-            
-            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
-              Click the button below to accept your invitation and set up your account:
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${invitationLink}" style="display: inline-block; background: linear-gradient(135deg, #E85B81 0%, #E87D55 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">Accept Invitation</a>
-            </div>
-            
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-              This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
-            </p>
-            
-            <p style="color: #6b7280; font-size: 12px; line-height: 1.6; margin: 20px 0 0 0;">
-              If the button doesn't work, copy and paste this link into your browser:<br>
-              <a href="${invitationLink}" style="color: #E85B81; word-break: break-all;">${invitationLink}</a>
-            </p>
-          </div>
-        </div>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #0f1419;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #0f1419; padding: 60px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;">
+                <!-- Header with Gradient -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #E85B81 0%, #E87D55 100%); border-radius: 20px 20px 0 0; padding: 50px 40px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      You're Invited!
+                    </h1>
+                    <p style="color: rgba(255, 255, 255, 0.95); margin: 12px 0 0 0; font-size: 18px; font-weight: 500;">
+                      Join Revoa as ${article} ${roleDisplay}
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Content -->
+                <tr>
+                  <td style="background-color: #1a1f2e; padding: 50px 40px; border-radius: 0 0 20px 20px;">
+                    <p style="color: #e5e7eb; font-size: 17px; line-height: 1.7; margin: 0 0 24px 0; text-align: center;">
+                      You've been invited to join the Revoa team! Click below to accept your invitation and get started.
+                    </p>
+
+                    <!-- CTA Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 40px 0;">
+                      <tr>
+                        <td align="center">
+                          <a href="${invitationLink}" style="display: inline-block; background: linear-gradient(135deg, #E85B81 0%, #E87D55 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 12px; font-weight: 600; font-size: 17px; box-shadow: 0 4px 12px rgba(232, 91, 129, 0.3); transition: all 0.3s ease;">
+                            Accept Invitation
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Info Box -->
+                    <div style="background: rgba(232, 91, 129, 0.08); border-left: 3px solid #E85B81; border-radius: 8px; padding: 20px; margin: 40px 0;">
+                      <p style="color: #d1d5db; font-size: 14px; line-height: 1.6; margin: 0;">
+                        <strong style="color: #E85B81;">Note:</strong> This invitation expires in 7 days. If you didn't expect this, you can safely ignore this email.
+                      </p>
+                    </div>
+
+                    <!-- Footer Link -->
+                    <p style="color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 30px 0 0 0; text-align: center; padding-top: 30px; border-top: 1px solid #2d3748;">
+                      Button not working? Copy and paste this link:<br>
+                      <a href="${invitationLink}" style="color: #E87D55; word-break: break-all; text-decoration: underline;">${invitationLink}</a>
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Branding Footer -->
+                <tr>
+                  <td style="padding: 30px 20px; text-align: center;">
+                    <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">
+                      Revoa
+                    </p>
+                    <p style="color: #4b5563; font-size: 12px; margin: 0;">
+                      Intelligent Analytics & Attribution Platform
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `;
