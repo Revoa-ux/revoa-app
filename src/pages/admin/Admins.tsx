@@ -15,7 +15,9 @@ import {
   MoreVertical,
   Trash2,
   RotateCw,
-  ArrowRight
+  ArrowRight,
+  User,
+  Image
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -233,6 +235,43 @@ export default function AdminsManagement() {
     } catch (error) {
       console.error('Error removing admin:', error);
       toast.error('Failed to remove admin');
+    }
+  };
+
+  const handleResetProfilePicture = async (userId: string, email: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ profile_picture_url: null })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast.success(`Reset profile picture for ${email}`);
+      setActionMenuOpen(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error resetting profile picture:', error);
+      toast.error('Failed to reset profile picture');
+    }
+  };
+
+  const handleResetUsername = async (userId: string, email: string) => {
+    try {
+      // Reset name to null, which will make the system fall back to email or first/last name
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ name: null })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast.success(`Reset username for ${email}`);
+      setActionMenuOpen(null);
+      fetchData();
+    } catch (error) {
+      console.error('Error resetting username:', error);
+      toast.error('Failed to reset username');
     }
   };
 
@@ -595,7 +634,7 @@ export default function AdminsManagement() {
                         {actionMenuOpen === row.id && (
                           (row.type === 'invitation' && (row.status === 'pending' || row.status === 'revoked')) || (row.type === 'admin' && row.userId)
                         ) && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+                          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
                             {row.type === 'invitation' && row.status === 'pending' && (
                               <>
                                 <button
@@ -627,16 +666,33 @@ export default function AdminsManagement() {
                               </button>
                             )}
                             {row.type === 'admin' && row.userId && (
-                              <button
-                                onClick={() => {
-                                  setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
-                                  setActionMenuOpen(null);
-                                }}
-                                className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                <span>Remove Admin</span>
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleResetProfilePicture(row.userId!, row.email)}
+                                  className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                                >
+                                  <Image className="w-4 h-4" />
+                                  <span>Reset Profile Picture</span>
+                                </button>
+                                <button
+                                  onClick={() => handleResetUsername(row.userId!, row.email)}
+                                  className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                                >
+                                  <User className="w-4 h-4" />
+                                  <span>Reset Username</span>
+                                </button>
+                                <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                <button
+                                  onClick={() => {
+                                    setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
+                                    setActionMenuOpen(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  <span>Remove Admin</span>
+                                </button>
+                              </>
                             )}
                           </div>
                         )}

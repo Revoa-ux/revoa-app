@@ -309,14 +309,62 @@ export default function Invoices() {
 
   useEffect(() => {
     loadData();
-  }, [filters]);
+    if (isSuperAdmin) {
+      fetchAdmins();
+    }
+  }, [filters, isSuperAdmin, selectedAdminFilter]);
+
+  const fetchAdmins = async () => {
+    try {
+      const { data: adminProfiles, error } = await supabase
+        .from('user_profiles')
+        .select('user_id, name, first_name, last_name, email')
+        .eq('is_admin', true);
+
+      if (error) throw error;
+
+      const transformedAdmins = (adminProfiles || []).map(admin => ({
+        id: admin.user_id,
+        name: admin.name || (admin.first_name && admin.last_name ? `${admin.first_name} ${admin.last_name}` : admin.email),
+        email: admin.email
+      }));
+
+      setAdmins(transformedAdmins);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+    }
+  };
 
   const loadData = async () => {
     try {
       setIsLoading(true);
 
+      // Build filters with admin assignment if needed
+      let effectiveFilters = { ...filters };
+
+      // For regular admins, filter by their assigned users
+      if (!isSuperAdmin && adminUser?.userId) {
+        const { data: assignments } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', adminUser.userId);
+
+        const assignedUserIds = assignments?.map(a => a.user_id) || [];
+        effectiveFilters = { ...effectiveFilters, userIds: assignedUserIds };
+      }
+      // For super admins, filter by selected admin if not 'all'
+      else if (isSuperAdmin && selectedAdminFilter !== 'all') {
+        const { data: assignments } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', selectedAdminFilter);
+
+        const assignedUserIds = assignments?.map(a => a.user_id) || [];
+        effectiveFilters = { ...effectiveFilters, userIds: assignedUserIds };
+      }
+
       const [invoicesResult, statsData] = await Promise.all([
-        invoiceService.getInvoices(filters),
+        invoiceService.getInvoices(effectiveFilters),
         invoiceService.getInvoiceStats()
       ]);
 
@@ -564,6 +612,51 @@ export default function Invoices() {
               </div>
             )}
           </div>
+
+          {isSuperAdmin && (
+            <div className="relative" ref={adminFilterDropdownRef}>
+              <button
+                onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
+                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              >
+                <span>
+                  Admin: {selectedAdminFilter === 'all'
+                    ? 'All Admins'
+                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400" />
+              </button>
+
+              {showAdminFilterDropdown && (
+                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      setSelectedAdminFilter('all');
+                      setShowAdminFilterDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <span>All Admins</span>
+                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                  {admins.map((admin) => (
+                    <button
+                      key={admin.id}
+                      onClick={() => {
+                        setSelectedAdminFilter(admin.id);
+                        setShowAdminFilterDropdown(false);
+                      }}
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    >
+                      <span className="truncate">{admin.name}</span>
+                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex items-center space-x-3">

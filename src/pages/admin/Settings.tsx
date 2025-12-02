@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { useAdmin } from '@/contexts/AdminContext';
 
 export default function AdminSettings() {
-  useAdmin();
+  const { isSuperAdmin } = useAdmin();
   const [settings, setSettings] = useState({
     notifications: {
       newUsers: true,
@@ -158,7 +158,8 @@ export default function AdminSettings() {
       </div>
 
       {/* User Assignment Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      {isSuperAdmin && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">User Assignment</h2>
         </div>
@@ -217,6 +218,7 @@ export default function AdminSettings() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Communication Settings */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
@@ -280,7 +282,8 @@ export default function AdminSettings() {
       </div>
 
       {/* Reporting Settings */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+      {isSuperAdmin && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Reporting</h2>
         </div>
@@ -339,6 +342,7 @@ export default function AdminSettings() {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }
