@@ -433,7 +433,7 @@ export default function Invoices() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   ${stats.total_outstanding.toLocaleString()}
                 </p>
               </div>
@@ -447,7 +447,7 @@ export default function Invoices() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Paid This Month</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   ${stats.paid_this_month.toLocaleString()}
                 </p>
               </div>
@@ -461,7 +461,7 @@ export default function Invoices() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   {stats.pending_count}
                 </p>
               </div>
@@ -475,7 +475,7 @@ export default function Invoices() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
-                <p className="text-xl font-semibold text-gray-900 dark:text-white">
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                   {stats.overdue_count}
                 </p>
               </div>
@@ -568,7 +568,7 @@ export default function Invoices() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[120px]">Due Date</th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[130px]">Amount</th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[110px]">Status</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[80px] last:rounded-tr-xl">Actions</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[80px] last:rounded-tr-xl">View</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -630,7 +630,7 @@ export default function Invoices() {
                         <td className="px-4 py-4 whitespace-nowrap text-center text-sm" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleViewInvoice(invoice)}
-                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
