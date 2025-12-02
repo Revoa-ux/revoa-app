@@ -485,91 +485,102 @@ export default function Invoices() {
       )}
 
       {/* Filters and Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Search by invoice number or client..."
-                className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Status Filter */}
-            <div className="relative" ref={statusDropdownRef}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className="relative w-[280px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search invoices..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+            />
+            {searchTerm && (
               <button
-                onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
               >
-                <Filter className="w-4 h-4" />
-                <span className="capitalize">{filters.status || 'All'}</span>
-                <ChevronDown className="w-4 h-4" />
-              </button>
-
-              {showStatusDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
-                  {(['all', 'pending', 'paid', 'unpaid', 'overdue', 'cancelled'] as const).map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleStatusFilterChange(status)}
-                      className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg capitalize"
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Bulk Actions */}
-            {selectedInvoices.length > 0 && (
-              <button
-                onClick={handleBulkMarkAsPaid}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Check className="w-4 h-4" />
-                Mark {selectedInvoices.length} as Paid
+                <X className="w-4 h-4 text-gray-400" />
               </button>
             )}
+          </div>
+
+          <div className="relative" ref={statusDropdownRef}>
+            <button
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+            >
+              <Filter className="w-4 h-4 text-gray-400" />
+              <span>Status: {filters.status === 'all' ? 'All' : filters.status || 'All'}</span>
+              <ChevronDown className="w-4 h-4 text-gray-400" />
+            </button>
+
+            {showStatusDropdown && (
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+                {(['all', 'pending', 'paid', 'unpaid', 'overdue', 'cancelled'] as const).map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => {
+                      handleStatusFilterChange(status);
+                      setShowStatusDropdown(false);
+                    }}
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 capitalize"
+                  >
+                    <span>{status === 'all' ? 'All' : status}</span>
+                    {filters.status === status && <Check className="w-4 h-4 text-gray-900 dark:text-gray-100" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-3">
+          {selectedInvoices.length > 0 && (
+            <button
+              onClick={handleBulkMarkAsPaid}
+              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Mark {selectedInvoices.length} as Paid
+            </button>
+          )}
         </div>
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="relative overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left">
+                <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap first:rounded-tl-xl w-12">
                     <CustomCheckbox
                       checked={selectAll}
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Invoice #</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Client</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Due Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Invoice #</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Client</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Date</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Due Date</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Amount</th>
+                  <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">Status</th>
+                  <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap last:rounded-tr-xl">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                       Loading invoices...
                     </td>
                   </tr>
                 ) : invoices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
                       No invoices found
                     </td>
                   </tr>
@@ -579,7 +590,7 @@ export default function Invoices() {
                     return (
                       <tr
                         key={invoice.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
                         onClick={() => handleViewInvoice(invoice)}
                       >
                         <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
@@ -588,27 +599,35 @@ export default function Invoices() {
                             onChange={() => handleSelectInvoice(invoice.id)}
                           />
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                          {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+                        <td className="px-4 py-4">
+                          <span className="text-sm text-gray-900 dark:text-white">
+                            {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                          {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                        <td className="px-3 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                           ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
                             {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                        <td className="px-3 py-4 whitespace-nowrap text-right text-sm" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleViewInvoice(invoice)}
                             className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
