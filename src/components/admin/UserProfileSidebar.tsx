@@ -388,14 +388,14 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           {/* Overview Section */}
           <div className="px-6 pt-4 pb-4">
             <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-4 -mx-6 px-6 py-2.5 bg-gray-50 dark:bg-gray-900/50 border-l-4 border-[#E85B81]/30">OVERVIEW</h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {stats.phone && (
-                <div className="flex items-start space-x-3">
-                  <Phone className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
-                    <p className="text-sm text-gray-900 dark:text-white">{stats.phone}</p>
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                    <Phone className="w-4 h-4 mr-2" />
+                    <span className="text-xs">Phone</span>
                   </div>
+                  <span className="text-sm text-gray-900 dark:text-white">{stats.phone}</span>
                 </div>
               )}
               {stats.company && (
@@ -408,14 +408,14 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                 </div>
               )}
               {stats.last_login && (
-                <div className="flex items-start space-x-3">
-                  <Clock className="w-4 h-4 text-gray-400 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Last Active</p>
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      {formatDistanceToNow(new Date(stats.last_login), { addSuffix: true })}
-                    </p>
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
+                    <Clock className="w-4 h-4 mr-2" />
+                    <span className="text-xs">Last Active</span>
                   </div>
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {formatDistanceToNow(new Date(stats.last_login), { addSuffix: true })}
+                  </span>
                 </div>
               )}
               <div className="flex items-center justify-between py-2">
