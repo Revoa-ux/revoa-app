@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { InviteAdminModal } from '@/components/admin/InviteAdminModal';
+import Modal from '@/components/Modal';
 import { format, formatDistanceToNow } from 'date-fns';
 
 type AdminType = 'super_admin' | 'admin';
@@ -55,6 +56,7 @@ export default function AdminsManagement() {
     direction: 'desc'
   });
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string; email: string } | null>(null);
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -235,19 +237,18 @@ export default function AdminsManagement() {
     }
   };
 
-  const handleDeleteInvitation = async (invitationId: string, email: string) => {
-    if (!confirm(`Are you sure you want to permanently delete the invitation for ${email}?`)) {
-      return;
-    }
+  const handleDeleteInvitation = async () => {
+    if (!deleteConfirmation) return;
 
     try {
       const { error } = await supabase
         .from('admin_invitations')
         .delete()
-        .eq('id', invitationId);
+        .eq('id', deleteConfirmation.id);
 
       if (error) throw error;
-      toast.success(`Deleted invitation for ${email}`);
+      toast.success(`Deleted invitation for ${deleteConfirmation.email}`);
+      setDeleteConfirmation(null);
       setActionMenuOpen(null);
       fetchData();
     } catch (error) {
@@ -612,7 +613,10 @@ export default function AdminsManagement() {
                             )}
                             {row.type === 'invitation' && row.status === 'revoked' && (
                               <button
-                                onClick={() => handleDeleteInvitation(row.id, row.email)}
+                                onClick={() => {
+                                  setDeleteConfirmation({ id: row.id, email: row.email });
+                                  setActionMenuOpen(null);
+                                }}
                                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -646,6 +650,36 @@ export default function AdminsManagement() {
         onClose={() => setShowInviteModal(false)}
         onSuccess={handleInviteSuccess}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirmation}
+        onClose={() => setDeleteConfirmation(null)}
+        title="Delete Invitation"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Are you sure you want to permanently delete the invitation for <span className="font-medium text-gray-900 dark:text-gray-100">{deleteConfirmation?.email}</span>?
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            This action cannot be undone.
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <button
+              onClick={() => setDeleteConfirmation(null)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteInvitation}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
