@@ -13,7 +13,9 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Receipt
+  Receipt,
+  Menu,
+  X as CloseIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -34,7 +36,12 @@ const bottomNavigation = [
   { name: 'Settings', href: '/admin/settings', icon: Settings }
 ];
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
+}
+
+export default function AdminSidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: AdminSidebarProps) {
   const location = useLocation();
   const { signOut } = useAuth();
   const { isSuperAdmin, adminUser } = useAdmin();
@@ -85,9 +92,33 @@ export default function AdminSidebar() {
   const adminInitials = adminName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   return (
-    <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
-      isCollapsed ? 'w-[70px]' : 'w-[280px]'
-    }`}>
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+      >
+        {isMobileMenuOpen ? (
+          <CloseIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        ) : (
+          <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        )}
+      </button>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
+        isCollapsed ? 'w-[70px]' : 'w-[280px]'
+      } ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
       <div className="flex flex-col h-full">
         {/* Logo and Collapse Button */}
         {isCollapsed ? (
@@ -169,6 +200,7 @@ export default function AdminSidebar() {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   title={isCollapsed ? item.name : undefined}
                   className={cn(
                     'flex items-center rounded-lg transition-colors',
@@ -197,6 +229,7 @@ export default function AdminSidebar() {
                 <Link
                   key={item.name}
                   to={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
                   title={isCollapsed ? item.name : undefined}
                   className={cn(
                     'flex items-center text-[13px] rounded-lg transition-colors',
@@ -245,5 +278,6 @@ export default function AdminSidebar() {
         </div>
       </div>
     </div>
+    </>
   );
 }

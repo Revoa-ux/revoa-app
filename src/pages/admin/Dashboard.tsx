@@ -360,7 +360,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-      <div className="grid grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {metrics.map(metric => (
           <div key={metric.id} className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-4">
@@ -403,8 +403,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <AdReportsTimeSelector
             selectedTime={selectedTime}
             onTimeChange={handleTimeChange}
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
 
       {/* Backend Health Section for Super Admins */}
       {isSuperAdmin && (
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {/* API Health */}
           <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
