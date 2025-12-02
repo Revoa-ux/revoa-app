@@ -432,7 +432,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-1 text-xs rounded-full ${
                 backendHealth.api.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
                 backendHealth.api.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
                 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
@@ -444,15 +444,15 @@ export default function AdminDashboard() {
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Requests/min</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.requestsPerMinute}</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.requestsPerMinute}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Avg Response</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.averageResponseTime}ms</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.averageResponseTime}ms</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Error Rate</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.api.errorRate}%</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.api.errorRate}%</span>
               </div>
             </div>
           </div>
@@ -463,7 +463,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Database className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-1 text-xs rounded-full ${
                 backendHealth.database.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
                 backendHealth.database.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
                 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
@@ -475,15 +475,15 @@ export default function AdminDashboard() {
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Connections</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.connections}</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.connections}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Query Time</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.averageQueryTime}ms</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.averageQueryTime}ms</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Disk Usage</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.database.diskUsage}%</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.database.diskUsage}%</span>
               </div>
             </div>
           </div>
@@ -494,7 +494,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Memory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-1 text-xs rounded-full ${
                 backendHealth.memory.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
                 backendHealth.memory.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
                 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
@@ -506,15 +506,15 @@ export default function AdminDashboard() {
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Used</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.used}GB</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.used}GB</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.total}GB</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.total}GB</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Usage</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.memory.percentage}%</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.memory.percentage}%</span>
               </div>
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function AdminDashboard() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Shield className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-1 text-xs rounded-full ${
                 backendHealth.security.status === 'healthy' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
                 backendHealth.security.status === 'degraded' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
                 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
@@ -537,15 +537,15 @@ export default function AdminDashboard() {
             <div className="mt-2 space-y-1">
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Active Users</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.security.activeUsers}</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.security.activeUsers}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Failed Logins</span>
-                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{backendHealth.security.failedLogins}</span>
+                <span className="text-xs text-gray-900 dark:text-gray-100">{backendHealth.security.failedLogins}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-500 dark:text-gray-400">Threat Level</span>
-                <span className={`text-xs font-medium ${
+                <span className={`text-xs ${
                   backendHealth.security.threatLevel === 'low' ? 'text-green-600' :
                   backendHealth.security.threatLevel === 'medium' ? 'text-yellow-600' :
                   'text-red-600'
@@ -598,7 +598,7 @@ export default function AdminDashboard() {
                       <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {notification.title}
                       </h4>
-                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                      <span className={`px-2 py-0.5 text-xs rounded-full ${
                         notification.priority === 'high'
                           ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
                           : notification.priority === 'medium'
