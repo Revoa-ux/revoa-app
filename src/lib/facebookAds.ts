@@ -26,6 +26,7 @@ export class FacebookAdsService {
     return {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
     };
   };
 

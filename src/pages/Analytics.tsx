@@ -696,6 +696,29 @@ setCurrentTemplate(template);
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {visibleCards.map((cardId) => {
             const data = cardData[cardId];
+
+            // Show skeleton card during initial load
+            if (!data && isLoading) {
+              return (
+                <MetricCard
+                  key={cardId}
+                  data={{
+                    id: cardId,
+                    title: 'Loading...',
+                    mainValue: '---',
+                    change: '---',
+                    changeType: 'positive',
+                    dataPoint1: { label: 'Loading', value: '---' },
+                    dataPoint2: { label: 'Loading', value: '---' },
+                    icon: 'RefreshCw',
+                    visible: true
+                  }}
+                  isLoading={true}
+                  isDragging={false}
+                />
+              );
+            }
+
             if (!data) return null;
 
             return (

@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 import NotificationBell from './NotificationBell';
+import { supabase } from '../lib/supabase';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: Home },
@@ -45,6 +46,7 @@ export default function Layout() {
   const { signOut, user } = useAuth();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ display_name?: string; store_type?: string } | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     // Check local storage first, then system preference
     const stored = localStorage.getItem('color-theme');
@@ -68,6 +70,51 @@ export default function Layout() {
       localStorage.setItem('color-theme', 'light');
     }
   }, [isDarkMode]);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchUserProfile = async () => {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('display_name, store_type')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data && !error) {
+        setUserProfile(data);
+      }
+    };
+
+    fetchUserProfile();
+
+    // Subscribe to profile changes
+    const subscription = supabase
+      .channel('user_profile_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_profiles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new && typeof payload.new === 'object') {
+            setUserProfile({
+              display_name: (payload.new as any).display_name,
+              store_type: (payload.new as any).store_type
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user?.id]);
 
   // Initialize connections when user is available
   useEffect(() => {
@@ -97,6 +144,21 @@ export default function Layout() {
 
   // Compute store name from connection state
   const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
+
+  // Get initials from display name
+  const getInitials = () => {
+    if (userProfile?.display_name) {
+      const names = userProfile.display_name.trim().split(' ');
+      if (names.length >= 2) {
+        return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
+      }
+      return names[0].charAt(0).toUpperCase();
+    }
+    if (shopifyStore) {
+      return shopifyStore.charAt(0).toUpperCase();
+    }
+    return user?.email?.charAt(0).toUpperCase() || 'Y';
+  };
 
   const handleLogout = async () => {
     try {
@@ -166,11 +228,11 @@ export default function Layout() {
               <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
                 <div className="flex items-center space-x-3">
                   <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
-                    {shopifyStore ? shopifyStore.charAt(0).toUpperCase() : 'Y'}
+                    {getInitials()}
                   </div>
                   <div className="text-left">
                     <div className="text-base font-medium text-gray-900 dark:text-white">
-                      {shopifyStore || 'Your Store'}
+                      {userProfile?.display_name || shopifyStore || user?.email || 'Your Account'}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
                       {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
@@ -183,7 +245,7 @@ export default function Layout() {
           {isCollapsed && (
             <div className="px-2 py-4 flex justify-center">
               <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
-                {shopifyStore ? shopifyStore.charAt(0).toUpperCase() : 'Y'}
+                {getInitials()}
               </div>
             </div>
           )}
