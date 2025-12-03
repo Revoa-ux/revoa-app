@@ -933,6 +933,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       )}
       <div className="flex items-center justify-between flex-shrink-0">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+          {viewLevel === 'campaigns' ? 'Campaign Manager' : viewLevel === 'adsets' ? 'Ad Set Manager' : 'Ad Manager'}
+        </h2>
         <div className="flex items-center space-x-3">
           {selectedCreatives.size > 0 && (
             <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
