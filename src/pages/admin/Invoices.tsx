@@ -556,15 +556,17 @@ export default function Invoices() {
       )}
 
       {/* Filters and Actions */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full lg:w-auto">
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={handleDateRangeChange}
-          />
-          <div className="relative w-full sm:w-[280px]">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+          <div className="w-full sm:w-auto">
+            <AdReportsTimeSelector
+              selectedTime={selectedTime}
+              onTimeChange={handleTimeChange}
+              dateRange={dateRange}
+              onDateRangeChange={handleDateRangeChange}
+            />
+          </div>
+          <div className="relative flex-1 sm:flex-initial sm:min-w-[240px] lg:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
@@ -584,13 +586,15 @@ export default function Invoices() {
             )}
           </div>
 
-          <div className="relative" ref={statusDropdownRef}>
+          <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
             >
-              <Filter className="w-4 h-4 text-gray-400" />
-              <span>Status: {filters.status === 'all' ? 'All' : filters.status || 'All'}</span>
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <span>Status: {filters.status === 'all' ? 'All' : filters.status || 'All'}</span>
+              </div>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
@@ -614,17 +618,17 @@ export default function Invoices() {
           </div>
 
           {isSuperAdmin && (
-            <div className="relative" ref={adminFilterDropdownRef}>
+            <div className="relative flex-1 sm:flex-initial" ref={adminFilterDropdownRef}>
               <button
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+                className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
               >
-                <span>
+                <span className="truncate">
                   Admin: {selectedAdminFilter === 'all'
                     ? 'All Admins'
                     : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
               </button>
 
               {showAdminFilterDropdown && (

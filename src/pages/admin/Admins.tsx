@@ -431,10 +431,10 @@ export default function AdminsManagement() {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
           {/* Search */}
-          <div className="relative w-full sm:w-[280px]">
+          <div className="relative flex-1 sm:flex-initial sm:min-w-[240px] lg:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
@@ -454,15 +454,17 @@ export default function AdminsManagement() {
           </div>
 
           {/* Filter */}
-          <div className="relative" ref={filterDropdownRef}>
+          <div className="relative flex-1 sm:flex-initial" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
             >
-              <Filter className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-700 dark:text-gray-300">
-                {filterOptions.find(f => f.value === filterType)?.label}
-              </span>
+              <div className="flex items-center space-x-2">
+                <Filter className="w-4 h-4 text-gray-400" />
+                <span className="text-gray-700 dark:text-gray-300">
+                  {filterOptions.find(f => f.value === filterType)?.label}
+                </span>
+              </div>
               <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
 
@@ -488,10 +490,10 @@ export default function AdminsManagement() {
           </div>
 
           {/* Sort */}
-          <div className="relative" ref={sortDropdownRef}>
+          <div className="relative flex-1 sm:flex-initial" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
             >
               <span className="text-gray-700 dark:text-gray-300">
                 Sort by: {sortOptions.find(s => s.value === sortBy.field)?.label}
@@ -534,7 +536,7 @@ export default function AdminsManagement() {
         {/* Invite Button */}
         <button
           onClick={() => setShowInviteModal(true)}
-          className="group px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
+          className="group w-full lg:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center gap-2 whitespace-nowrap"
         >
           <UserPlus className="w-4 h-4 flex-shrink-0" />
           <span>Invite Admin</span>
