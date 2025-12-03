@@ -1031,7 +1031,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
         <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900/50 border-b-2 border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
               ref={headerRef}
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
@@ -1047,7 +1047,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-12 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 capitalize tracking-wider whitespace-nowrap ${
+                      className={`relative flex items-center h-12 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap ${
                         index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
                       }`}
                       style={columnStyle}

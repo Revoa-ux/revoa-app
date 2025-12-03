@@ -125,41 +125,53 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Modern Tabs */}
-      <div className="flex items-center gap-1 px-6 pt-3 pb-3 flex-shrink-0 bg-white dark:bg-gray-800">
+      {/* Browser-style Tabs */}
+      <div className="flex items-end gap-1 px-6 pt-6 flex-shrink-0 bg-gray-50 dark:bg-gray-900">
         {tabs.map((tab) => {
           const isActive = viewLevel === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative ${
+              className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative rounded-t-xl border-t-2 border-x-2 ${
                 isActive
-                  ? 'text-gray-900 dark:text-white font-medium'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-800 border-transparent'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-gray-100/50 dark:bg-gray-800/50 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
+              style={isActive ? {
+                borderImage: 'linear-gradient(135deg, rgb(239 68 68), rgb(251 146 60), rgb(245 158 11)) 1',
+                borderBottom: 'none',
+                marginBottom: '-2px',
+                zIndex: 10,
+                position: 'relative'
+              } : undefined}
             >
               <span className="text-sm">{tab.label}</span>
               <span
                 className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${
                   isActive
-                    ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 text-red-600 dark:text-red-400'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}
               >
                 {tab.count}
               </span>
-              {isActive && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 dark:bg-red-500 rounded-t-full" />
-              )}
             </button>
           );
         })}
       </div>
 
-      {/* Content area */}
-      <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-800">
-        <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
+      {/* Content area with gradient border */}
+      <div className="relative mx-6 mb-6 flex-1 min-h-0 flex flex-col">
+        <div
+          className="flex-1 min-h-0 flex flex-col rounded-b-xl rounded-tr-xl"
+          style={{
+            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(251 146 60), rgb(245 158 11))',
+            padding: '2px'
+          }}
+        >
+          <div className="h-full w-full bg-white dark:bg-gray-800 rounded-b-xl rounded-tr-xl overflow-hidden flex flex-col">
+            <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (
             <div className="flex items-center gap-2 text-sm flex-wrap flex-shrink-0">
@@ -243,6 +255,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               onAcceptSuggestion={onAcceptSuggestion}
               onDismissSuggestion={onDismissSuggestion}
             />
+              </div>
+            </div>
           </div>
         </div>
       </div>
