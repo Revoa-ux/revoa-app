@@ -85,8 +85,10 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[quick-refresh] Found ${existingCampaigns?.length || 0} campaigns, ${existingAdSets?.length || 0} ad sets, ${existingAds?.length || 0} ads`);
 
-    // Step 2: Check for new campaigns (quick check)
-    console.log('[quick-refresh] Checking for new campaigns...');
+    // Step 2: Check for new campaigns, ad sets, and ads (quick check)
+    console.log('[quick-refresh] Checking for new items...');
+
+    // Check campaigns
     const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id&limit=1000&access_token=${accessToken}`;
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
@@ -96,17 +98,60 @@ Deno.serve(async (req: Request) => {
     const newCampaignIds = [...apiCampaignIds].filter(id => !dbCampaignIds.has(id));
 
     if (newCampaignIds.length > 0) {
-      console.log(`[quick-refresh] Found ${newCampaignIds.length} new campaigns, triggering full sync...`);
-      // If new campaigns exist, we need a full sync
+      console.log(`[quick-refresh] Found ${newCampaignIds.length} new campaigns`);
       return new Response(
         JSON.stringify({
           success: false,
           needsFullSync: true,
-          message: `Found ${newCampaignIds.length} new campaigns. Please run a full sync.`
+          message: `Found ${newCampaignIds.length} new campaigns`
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Check ad sets (get first 1000 for quick check)
+    const adSetsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/adsets?fields=id&limit=1000&access_token=${accessToken}`;
+    const adSetsResponse = await fetch(adSetsUrl);
+    const adSetsData = await adSetsResponse.json();
+
+    const apiAdSetIds = new Set(adSetsData.data?.map((as: any) => as.id) || []);
+    const dbAdSetIds = new Set(existingAdSets?.map(as => as.platform_adset_id) || []);
+    const newAdSetIds = [...apiAdSetIds].filter(id => !dbAdSetIds.has(id));
+
+    if (newAdSetIds.length > 0) {
+      console.log(`[quick-refresh] Found ${newAdSetIds.length} new ad sets`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: `Found ${newAdSetIds.length} new ad sets`
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check ads (get first 1000 for quick check)
+    const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id&limit=1000&access_token=${accessToken}`;
+    const adsResponse = await fetch(adsUrl);
+    const adsData = await adsResponse.json();
+
+    const apiAdIds = new Set(adsData.data?.map((a: any) => a.id) || []);
+    const dbAdIds = new Set(existingAds?.map(a => a.platform_ad_id) || []);
+    const newAdIds = [...apiAdIds].filter(id => !dbAdIds.has(id));
+
+    if (newAdIds.length > 0) {
+      console.log(`[quick-refresh] Found ${newAdIds.length} new ads`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: `Found ${newAdIds.length} new ads`
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('[quick-refresh] No new items detected, proceeding with metrics update...');
 
     // Step 3: Fetch fresh metrics for existing items
     console.log('[quick-refresh] Fetching fresh metrics...');

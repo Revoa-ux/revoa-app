@@ -535,6 +535,7 @@ export async function getCreativePerformance(
         },
         performance,
         fatigueScore,
+        status: ad.status || 'UNKNOWN', // Add status field
         adName: ad.name,
         platform: ad.platform || 'facebook',
         adAccountId: ad.ad_account?.platform_account_id || undefined,
