@@ -202,7 +202,8 @@ export async function updateCardPositions(
 export async function computeMetricCardData(
   cardIds: string[],
   startDate: string,
-  endDate: string
+  endDate: string,
+  onCardComputed?: (cardId: string, cardData: MetricCardData) => void
 ): Promise<Record<string, MetricCardData>> {
   // Fetch combined metrics
   const combined = await getCombinedDashboardMetrics(startDate, endDate);
@@ -923,6 +924,11 @@ export async function computeMetricCardData(
           icon: 'HelpCircle',
           category: 'overview'
         };
+    }
+
+    // Call progressive callback if provided
+    if (onCardComputed && cardData[cardId]) {
+      onCardComputed(cardId, cardData[cardId]);
     }
   });
 

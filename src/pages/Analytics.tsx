@@ -178,6 +178,10 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
       if (visibleCards.length === 0) return;
 
       setIsLoading(true);
+
+      // Clear existing card data to show skeletons
+      setCardData({});
+
       try {
         // Trigger incremental sync and WAIT for it to complete
         const { facebook } = useConnectionStore.getState();
@@ -196,7 +200,14 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
         const startDateStr = dateRange.startDate.toISOString();
         const endDateStr = dateRange.endDate.toISOString();
-        const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr);
+
+        // Compute cards progressively and update as each completes
+        const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr, (cardId, cardData) => {
+          // Update card data progressively as each card is computed
+          setCardData(prev => ({ ...prev, [cardId]: cardData }));
+        });
+
+        // Final update with all data (in case progressive updates were skipped)
         setCardData(data);
 } catch (error) {
         console.error('Error fetching card data:', error);
@@ -876,8 +887,8 @@ setCurrentTemplate(template);
         </div>
       )}
 
-      {/* Empty state when no cards */}
-      {visibleCards.length === 0 && (
+      {/* Empty state when no cards (only show if not loading) */}
+      {visibleCards.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600 mb-4">
             <Edit3 className="w-12 h-12 mx-auto" />
