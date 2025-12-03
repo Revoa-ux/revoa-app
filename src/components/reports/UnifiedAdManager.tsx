@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Layers, Target, Zap, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
@@ -43,19 +43,16 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     {
       id: 'campaigns' as ViewLevel,
       label: 'Campaigns',
-      icon: Layers,
       count: campaigns.length
     },
     {
       id: 'adsets' as ViewLevel,
       label: 'Ad Sets',
-      icon: Target,
       count: adSets.length
     },
     {
       id: 'ads' as ViewLevel,
       label: 'Ads',
-      icon: Zap,
       count: creatives.length
     }
   ];
@@ -141,7 +138,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       {/* Level Tabs */}
       <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-thin flex-shrink-0">
         {tabs.map((tab) => {
-          const Icon = tab.icon;
           const isActive = viewLevel === tab.id;
           return (
             <button
@@ -153,7 +149,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
-              <Icon className="w-4 h-4" />
               <span className="font-medium">{tab.label}</span>
               <span
                 className={`px-2 py-0.5 text-xs rounded-full ${
