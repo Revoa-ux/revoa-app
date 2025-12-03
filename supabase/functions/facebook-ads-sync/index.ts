@@ -39,10 +39,7 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
-    console.log('[facebook-ads-sync] ===== SYNC REQUEST START ===== (v3.0 with pagination)');
-    console.log('[facebook-ads-sync] Account ID:', accountId);
-    console.log('[facebook-ads-sync] Date range:', startDate, 'to', endDate);
-    console.log('[facebook-ads-sync] User ID:', user.id);
+    console.log('[facebook-ads-sync-optimized] Starting FAST sync for account:', accountId);
 
     if (!accountId) {
       return new Response(
@@ -58,20 +55,12 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    console.log('[facebook-ads-sync] Ad account query result:', { account: account?.id, error: accountError?.message });
-
     if (accountError || !account) {
-      console.error('[facebook-ads-sync] Ad account not found!');
-      console.error('[facebook-ads-sync] Searched for platform_account_id:', accountId);
-      console.error('[facebook-ads-sync] User ID:', user.id);
-      console.error('[facebook-ads-sync] Error:', accountError);
       return new Response(
         JSON.stringify({ success: false, error: 'Ad account not found or not accessible' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('[facebook-ads-sync] Found ad account:', { id: account.id, name: account.account_name });
 
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
@@ -80,457 +69,270 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', user.id)
       .maybeSingle();
 
-    console.log('[facebook-ads-sync] Token query result:', { found: !!tokenData, error: tokenError?.message });
-
     if (tokenError || !tokenData) {
-      console.error('[facebook-ads-sync] Access token not found!');
-      console.error('[facebook-ads-sync] Searched for ad_account_id:', accountId);
-      console.error('[facebook-ads-sync] Error:', tokenError);
       return new Response(
         JSON.stringify({ success: false, error: 'Access token not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('[facebook-ads-sync] Token expires at:', tokenData.expires_at);
-
     if (new Date(tokenData.expires_at) < new Date()) {
-      console.error('[facebook-ads-sync] Token expired!');
       return new Response(
         JSON.stringify({ success: false, error: 'Access token expired. Please reconnect your Facebook account.' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('[facebook-ads-sync] Token is valid, proceeding with sync...');
-
     const accessToken = tokenData.access_token;
-    let campaignsCount = 0;
-    let adSetsCount = 0;
-    let adsCount = 0;
-    let metricsCount = 0;
 
-    // Helper function to fetch all pages
-    const fetchAllPages = async (url: string): Promise<any[]> => {
-      const results: any[] = [];
-      let nextUrl: string | null = url;
-      let pageCount = 0;
+    // Helper: Batch upsert with conflict resolution
+    const batchUpsert = async (table: string, records: any[], conflictKeys?: string) => {
+      if (records.length === 0) return [];
+      const batchSize = 200;
+      const results = [];
 
-      while (nextUrl && pageCount < 100) { // Safety limit of 100 pages
-        pageCount++;
-        console.log(`[facebook-ads-sync] Fetching page ${pageCount}:`, nextUrl.replace(accessToken, '[REDACTED]'));
-
-        const response = await fetch(nextUrl);
-        const data = await response.json();
-
-        if (!response.ok || data.error) {
-          console.error('[facebook-ads-sync] Error on page', pageCount, ':', data.error);
-          break;
+      for (let i = 0; i < records.length; i += batchSize) {
+        const batch = records.slice(i, i + batchSize);
+        const opts = conflictKeys ? { onConflict: conflictKeys } : {};
+        const { data, error } = await supabase.from(table).upsert(batch, opts).select();
+        if (error) {
+          console.error(`[sync] Error upserting to ${table}:`, error);
+        } else {
+          results.push(...(data || []));
         }
-
-        if (data.data && Array.isArray(data.data)) {
-          results.push(...data.data);
-          console.log(`[facebook-ads-sync] Page ${pageCount}: fetched ${data.data.length} items (total so far: ${results.length})`);
-        }
-
-        nextUrl = data.paging?.next || null;
       }
 
-      console.log(`[facebook-ads-sync] Finished pagination: ${results.length} total items from ${pageCount} pages`);
       return results;
     };
 
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=500&access_token=${accessToken}`;
-    console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
-    console.log('[facebook-ads-sync] Account ID being queried:', accountId);
+    // Helper: Fetch single page from API
+    const fetchPage = async (url: string) => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (!response.ok || data.error) {
+          console.error('[sync] API error:', data.error);
+          return { data: [], paging: null };
+        }
+        return data;
+      } catch (error) {
+        console.error('[sync] Fetch error:', error);
+        return { data: [], paging: null };
+      }
+    };
 
-    const allCampaigns = await fetchAllPages(campaignsUrl);
-    const campaignsData = { data: allCampaigns };
+    // Step 1: Fetch all campaigns (parallel pagination)
+    console.log('[sync] 1/5 Fetching campaigns...');
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
+    const allCampaigns = [];
+    let campaignPages = [campaignsUrl];
 
-    console.log('[facebook-ads-sync] Number of campaigns found:', campaignsData.data?.length || 0);
-
-    if (campaignsData.data?.length > 0) {
-      console.log('[facebook-ads-sync] Campaign IDs:', campaignsData.data.map((c: any) => c.id));
-      console.log('[facebook-ads-sync] Campaign names:', campaignsData.data.map((c: any) => c.name));
+    while (campaignPages.length > 0) {
+      const results = await Promise.all(campaignPages.map(fetchPage));
+      campaignPages = [];
+      results.forEach(result => {
+        allCampaigns.push(...result.data);
+        if (result.paging?.next) campaignPages.push(result.paging.next);
+      });
     }
 
-    if (!campaignsData.data || campaignsData.data.length === 0) {
-      console.log('[facebook-ads-sync] No campaigns found, fetching account-level insights');
+    console.log(`[sync] Found ${allCampaigns.length} campaigns`);
 
-      const accountInsightsUrl = `https://graph.facebook.com/v21.0/${accountId}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,account_name,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-      console.log('[facebook-ads-sync] Fetching account insights for date range:', startDate, 'to', endDate);
-      const accountInsightsResponse = await fetch(accountInsightsUrl);
-      const accountInsightsData = await accountInsightsResponse.json();
-
-      console.log('[facebook-ads-sync] Account insights response status:', accountInsightsResponse.status);
-      console.log('[facebook-ads-sync] Account insights response:', JSON.stringify(accountInsightsData, null, 2));
-
-      if (accountInsightsData.error) {
-        console.error('[facebook-ads-sync] Error fetching account insights:', accountInsightsData.error);
-        console.error('[facebook-ads-sync] This might mean:');
-        console.error('[facebook-ads-sync]   - No ad spend in this date range');
-        console.error('[facebook-ads-sync]   - Missing permissions for insights');
-        console.error('[facebook-ads-sync]   - Account has no historical data');
-      }
-
-      if (accountInsightsResponse.ok && accountInsightsData.data && accountInsightsData.data.length > 0) {
-        console.log('[facebook-ads-sync] Processing', accountInsightsData.data.length, 'daily records from account insights');
-
-        const { data: syntheticCampaign, error: syntheticError } = await supabase
-          .from('ad_campaigns')
-          .upsert({
-            platform_campaign_id: `${accountId}_account_total`,
-            name: 'Account Total',
-            status: 'active',
-            ad_account_id: account.id,
-            platform: 'facebook',
-            objective: 'account_overview',
-            daily_budget: null,
-            lifetime_budget: null,
-          }, { onConflict: 'ad_account_id,platform_campaign_id' })
-          .select()
-          .single();
-
-        if (!syntheticError && syntheticCampaign) {
-          for (const insights of accountInsightsData.data) {
-            const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-            const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-            const metricDate = insights.date_start || endDate;
-
-            console.log('[facebook-ads-sync] Inserting account-level metrics for date:', metricDate, {
-              spend: insights.spend,
-              impressions: insights.impressions,
-              clicks: insights.clicks,
-            });
-
-            const { error: metricError } = await supabase.from('ad_metrics').upsert(
-              {
-                entity_id: syntheticCampaign.id,
-                entity_type: 'campaign',
-                date: metricDate,
-                impressions: parseInt(insights.impressions || '0'),
-                clicks: parseInt(insights.clicks || '0'),
-                spend: parseFloat(insights.spend || '0'),
-                reach: parseInt(insights.reach || '0'),
-                conversions: parseInt(conversions),
-                conversion_value: parseFloat(conversionValue) * 10,
-                cpc: parseFloat(insights.cpc || '0'),
-                cpm: parseFloat(insights.cpm || '0'),
-                ctr: parseFloat(insights.ctr || '0'),
-                roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
-              },
-              { onConflict: 'entity_type,entity_id,date' }
-            );
-
-            if (!metricError) {
-              metricsCount++;
-            } else {
-              console.error('[facebook-ads-sync] Error saving account-level metrics for', metricDate, ':', metricError);
-            }
-          }
-          campaignsCount++;
-          console.log('[facebook-ads-sync] Successfully saved account-level metrics for', metricsCount, 'days');
-        }
-      }
+    if (allCampaigns.length === 0) {
+      console.log('[sync] No campaigns found');
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'No campaigns to sync',
+          data: { campaigns: 0, adSets: 0, ads: 0, metrics: 0 },
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    if (campaignsData.data && campaignsData.data.length > 0) {
-      for (const campaign of campaignsData.data) {
-        const { data: dbCampaign, error: campaignError } = await supabase.from('ad_campaigns').upsert(
-          {
-            platform_campaign_id: campaign.id,
-            name: campaign.name,
-            status: campaign.status?.toLowerCase() || 'unknown',
-            ad_account_id: account.id,
-            platform: 'facebook',
-            objective: campaign.objective,
-            daily_budget: null,
-            lifetime_budget: null,
-          },
-          { onConflict: 'ad_account_id,platform_campaign_id' }
-        )
-        .select()
-        .single();
+    // Step 2: Batch insert campaigns
+    console.log('[sync] 2/5 Saving campaigns...');
+    const campaignRecords = allCampaigns.map(c => ({
+      platform_campaign_id: c.id,
+      name: c.name,
+      status: c.status?.toLowerCase() || 'unknown',
+      ad_account_id: account.id,
+      platform: 'facebook',
+      objective: c.objective,
+      daily_budget: null,
+      lifetime_budget: null,
+    }));
 
-        if (campaignError || !dbCampaign) {
-          console.error('[facebook-ads-sync] Error upserting campaign:', campaign.id, campaign.name);
-          console.error('[facebook-ads-sync] Campaign error details:', JSON.stringify(campaignError, null, 2));
-          continue;
-        }
+    const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
+    const campaignMap = new Map(dbCampaigns.map(c => [c.platform_campaign_id, c]));
 
-        campaignsCount++;
-        console.log('[facebook-ads-sync] Campaign saved with ID:', dbCampaign.id);
+    // Step 3: Fetch all ad sets in parallel (5 campaigns at a time)
+    console.log('[sync] 3/5 Fetching ad sets...');
+    const allAdSets = [];
+    const CAMPAIGN_BATCH_SIZE = 10;
 
-        // First, fetch campaign-level insights
-        const campaignInsightsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-        console.log('[facebook-ads-sync] Fetching campaign insights for:', campaign.name);
-        const campaignInsightsResponse = await fetch(campaignInsightsUrl);
-        const campaignInsightsData = await campaignInsightsResponse.json();
-
-        console.log('[facebook-ads-sync] Campaign insights response status:', campaignInsightsResponse.status);
-        console.log('[facebook-ads-sync] Campaign insights response data:', JSON.stringify(campaignInsightsData, null, 2));
-
-        if (campaignInsightsResponse.ok && campaignInsightsData.data && campaignInsightsData.data.length > 0) {
-          console.log('[facebook-ads-sync] Found', campaignInsightsData.data.length, 'daily records for campaign:', campaign.name);
-          for (const insights of campaignInsightsData.data) {
-            const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-            const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-            const metricDate = insights.date_start || endDate;
-
-            console.log('[facebook-ads-sync] Saving campaign metrics for date:', metricDate, {
-              spend: insights.spend,
-              impressions: insights.impressions,
-              clicks: insights.clicks,
-            });
-
-            const { error: metricError } = await supabase.from('ad_metrics').upsert(
-              {
-                entity_id: dbCampaign.id,
-                entity_type: 'campaign',
-                date: metricDate,
-                impressions: parseInt(insights.impressions || '0'),
-                clicks: parseInt(insights.clicks || '0'),
-                spend: parseFloat(insights.spend || '0'),
-                reach: parseInt(insights.reach || '0'),
-                conversions: parseInt(conversions),
-                conversion_value: parseFloat(conversionValue) * 10,
-                cpc: parseFloat(insights.cpc || '0'),
-                cpm: parseFloat(insights.cpm || '0'),
-                ctr: parseFloat(insights.ctr || '0'),
-                roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
-              },
-              { onConflict: 'entity_type,entity_id,date' }
-            );
-
-            if (!metricError) {
-              metricsCount++;
-            } else {
-              console.error('[facebook-ads-sync] Error saving campaign metrics for', metricDate, ':', metricError);
-            }
-          }
-        } else {
-          console.log('[facebook-ads-sync] No insights data for campaign:', campaign.name);
-          if (campaignInsightsData.error) {
-            console.error('[facebook-ads-sync] Campaign insights error:', campaignInsightsData.error);
-          }
-        }
-
-        // Then fetch ad sets with pagination
-        console.log('[facebook-ads-sync] Fetching ad sets for campaign:', campaign.name, 'ID:', campaign.id);
-        const adSetsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
-        const allAdSets = await fetchAllPages(adSetsUrl);
-
-        console.log('[facebook-ads-sync] Ad sets result for campaign', campaign.name, ':', allAdSets.length, 'ad sets');
-
-        if (allAdSets && allAdSets.length > 0) {
-          console.log('[facebook-ads-sync] Processing', allAdSets.length, 'ad sets for campaign:', campaign.name);
-          for (const adSet of allAdSets) {
-            const { data: dbAdSet, error: adSetError } = await supabase.from('ad_sets').upsert(
-              {
-                platform_adset_id: adSet.id,
-                name: adSet.name,
-                status: adSet.status?.toLowerCase() || 'unknown',
-                ad_campaign_id: dbCampaign.id,
-                campaign_id: dbCampaign.id,
-                platform: 'facebook',
-                daily_budget: adSet.daily_budget ? parseFloat(adSet.daily_budget) / 100 : null,
-                lifetime_budget: adSet.lifetime_budget ? parseFloat(adSet.lifetime_budget) / 100 : null,
-              },
-              { onConflict: 'ad_campaign_id,platform_adset_id' }
-            )
-            .select()
-            .single();
-
-            if (adSetError || !dbAdSet) {
-              console.error('[facebook-ads-sync] Error upserting ad set:', adSet.id, adSet.name);
-              console.error('[facebook-ads-sync] Ad set error details:', JSON.stringify(adSetError, null, 2));
-              continue;
-            }
-
-            adSetsCount++;
-
-            // Fetch ads with pagination
-            console.log('[facebook-ads-sync] Fetching ads for ad set:', adSet.name);
-            const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url,title,body,image_url,video_id,call_to_action_type,object_story_spec}&limit=500&access_token=${accessToken}`;
-            const allAds = await fetchAllPages(adsUrl);
-
-            if (allAds && allAds.length > 0) {
-              console.log('[facebook-ads-sync] Found', allAds.length, 'ads for ad set:', adSet.name);
-              for (const ad of allAds) {
-                const creativeData: any = {};
-                if (ad.creative) {
-                  if (ad.creative.title) creativeData.title = ad.creative.title;
-                  if (ad.creative.body) creativeData.body = ad.creative.body;
-                  if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
-                  if (ad.creative.video_id) {
-                    creativeData.video_id = ad.creative.video_id;
-
-                    // Fetch video details to get the source URL
-                    try {
-                      const videoUrl = `https://graph.facebook.com/v21.0/${ad.creative.video_id}?fields=source,picture&access_token=${accessToken}`;
-                      const videoResponse = await fetch(videoUrl);
-                      const videoData = await videoResponse.json();
-
-                      if (videoResponse.ok && videoData.source) {
-                        creativeData.video_url = videoData.source;
-                      }
-                      if (videoData.picture) {
-                        creativeData.video_thumbnail = videoData.picture;
-                      }
-                    } catch (videoError) {
-                      console.error('[facebook-ads-sync] Error fetching video source:', videoError);
-                    }
-                  }
-                  if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
-                  if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
-                }
-
-                const { data: dbAd, error: adError } = await supabase.from('ads').upsert(
-                  {
-                    platform_ad_id: ad.id,
-                    name: ad.name,
-                    status: ad.status?.toLowerCase() || 'unknown',
-                    ad_set_id: dbAdSet.id,
-                    ad_account_id: account.id,
-                    platform: 'facebook',
-                    creative_id: ad.creative?.id || null,
-                    creative_name: ad.creative?.name || null,
-                    creative_thumbnail_url: ad.creative?.thumbnail_url || null,
-                    creative_type: ad.creative?.video_id ? 'video' : 'image',
-                    creative_data: creativeData,
-                  },
-                  { onConflict: 'ad_set_id,platform_ad_id' }
-                )
-                .select()
-                .single();
-
-                if (adError || !dbAd) {
-                  console.error('[facebook-ads-sync] Error upserting ad:', ad.id, ad.name);
-                  console.error('[facebook-ads-sync] Ad error details:', JSON.stringify(adError, null, 2));
-                  continue;
-                }
-
-                adsCount++;
-
-                // Fetch ad-level insights
-                console.log('[facebook-ads-sync] Fetching ad-level insights for:', ad.name);
-                const adInsightsUrl = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-                const adInsightsResponse = await fetch(adInsightsUrl);
-                const adInsightsData = await adInsightsResponse.json();
-
-                if (adInsightsResponse.ok && adInsightsData.data && adInsightsData.data.length > 0) {
-                  console.log('[facebook-ads-sync] Found', adInsightsData.data.length, 'daily records for ad:', ad.name);
-                  for (const insights of adInsightsData.data) {
-                    const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-                    const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-                    const metricDate = insights.date_start || endDate;
-
-                    const { error: metricError } = await supabase.from('ad_metrics').upsert(
-                      {
-                        entity_id: dbAd.id,
-                        entity_type: 'ad',
-                        date: metricDate,
-                        impressions: parseInt(insights.impressions || '0'),
-                        clicks: parseInt(insights.clicks || '0'),
-                        spend: parseFloat(insights.spend || '0'),
-                        reach: parseInt(insights.reach || '0'),
-                        conversions: parseInt(conversions),
-                        conversion_value: parseFloat(conversionValue) * 10,
-                        cpc: parseFloat(insights.cpc || '0'),
-                        cpm: parseFloat(insights.cpm || '0'),
-                        ctr: parseFloat(insights.ctr || '0'),
-                        roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
-                      },
-                      { onConflict: 'entity_type,entity_id,date' }
-                    );
-
-                    if (!metricError) {
-                      metricsCount++;
-                    } else {
-                      console.error('[facebook-ads-sync] Error saving ad metrics for', ad.name, 'date:', metricDate);
-                      console.error('[facebook-ads-sync] Metric error:', metricError);
-                    }
-                  }
-                } else {
-                  console.log('[facebook-ads-sync] No insights data for ad:', ad.name);
-                  if (adInsightsData.error) {
-                    console.error('[facebook-ads-sync] Ad insights error:', adInsightsData.error);
-                  }
-                }
-              }
-
-              const insightsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-              const insightsResponse = await fetch(insightsUrl);
-              const insightsData = await insightsResponse.json();
-
-              if (insightsResponse.ok && insightsData.data && insightsData.data.length > 0) {
-                for (const insights of insightsData.data) {
-                  const conversions = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-                  const conversionValue = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-                  const metricDate = insights.date_start || endDate;
-
-                  const { error: metricError } = await supabase.from('ad_metrics').upsert(
-                    {
-                      entity_id: dbAdSet.id,
-                      entity_type: 'adset',
-                      date: metricDate,
-                      impressions: parseInt(insights.impressions || '0'),
-                      clicks: parseInt(insights.clicks || '0'),
-                      spend: parseFloat(insights.spend || '0'),
-                      reach: parseInt(insights.reach || '0'),
-                      conversions: parseInt(conversions),
-                      conversion_value: parseFloat(conversionValue) * 10,
-                      cpc: parseFloat(insights.cpc || '0'),
-                      cpm: parseFloat(insights.cpm || '0'),
-                      ctr: parseFloat(insights.ctr || '0'),
-                      roas: parseFloat(insights.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insights.spend || '1') : 0,
-                    },
-                    { onConflict: 'entity_type,entity_id,date' }
-                  );
-
-                  if (!metricError) {
-                    metricsCount++;
-                  } else {
-                    console.error('[facebook-ads-sync] Error saving metrics for ad set:', adSet.id, 'date:', metricDate);
-                    console.error('[facebook-ads-sync] Metric error:', metricError);
-                  }
-                }
-              }
-            }
-          }
-        } else {
-          console.log('[facebook-ads-sync] No ad sets found for campaign:', campaign.name);
-        }
-      }
+    for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
+      const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
+      const adSetResults = await Promise.all(
+        batch.map(async (campaign) => {
+          const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
+          const result = await fetchPage(url);
+          return result.data.map((adSet: any) => ({
+            ...adSet,
+            campaign_id: campaign.id,
+          }));
+        })
+      );
+      adSetResults.forEach(adSets => allAdSets.push(...adSets));
     }
 
-    console.log('[facebook-ads-sync] Successfully synced:', {
-      campaigns: campaignsCount,
-      adSets: adSetsCount,
-      ads: adsCount,
-      metrics: metricsCount,
-    });
+    console.log(`[sync] Found ${allAdSets.length} ad sets`);
 
+    // Step 4: Batch insert ad sets
+    console.log('[sync] 4/5 Saving ad sets...');
+    const adSetRecords = allAdSets
+      .map(as => {
+        const dbCampaign = campaignMap.get(as.campaign_id);
+        if (!dbCampaign) return null;
+        return {
+          platform_adset_id: as.id,
+          name: as.name,
+          status: as.status?.toLowerCase() || 'unknown',
+          ad_campaign_id: dbCampaign.id,
+          campaign_id: dbCampaign.id,
+          platform: 'facebook',
+          daily_budget: as.daily_budget ? parseFloat(as.daily_budget) / 100 : null,
+          lifetime_budget: as.lifetime_budget ? parseFloat(as.lifetime_budget) / 100 : null,
+        };
+      })
+      .filter(Boolean);
+
+    const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
+    const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
+
+    // Step 5: Fetch all ads in parallel
+    console.log('[sync] 5/5 Fetching and saving ads...');
+    const allAds = [];
+    const ADSET_BATCH_SIZE = 10;
+
+    for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
+      const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
+      const adResults = await Promise.all(
+        batch.map(async (adSet) => {
+          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,thumbnail_url}&limit=500&access_token=${accessToken}`;
+          const result = await fetchPage(url);
+          return result.data.map((ad: any) => ({
+            ...ad,
+            adset_id: adSet.id,
+          }));
+        })
+      );
+      adResults.forEach(ads => allAds.push(...ads));
+    }
+
+    console.log(`[sync] Found ${allAds.length} ads`);
+
+    // Batch insert ads
+    const adRecords = allAds
+      .map(ad => {
+        const dbAdSet = adSetMap.get(ad.adset_id);
+        if (!dbAdSet) return null;
+
+        const creativeData: any = {};
+        if (ad.creative) {
+          if (ad.creative.title) creativeData.title = ad.creative.title;
+          if (ad.creative.body) creativeData.body = ad.creative.body;
+          if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
+        }
+
+        return {
+          platform_ad_id: ad.id,
+          name: ad.name,
+          status: ad.status?.toLowerCase() || 'unknown',
+          ad_set_id: dbAdSet.id,
+          ad_account_id: account.id,
+          platform: 'facebook',
+          creative_id: ad.creative?.id || null,
+          creative_name: ad.creative?.name || null,
+          creative_thumbnail_url: ad.creative?.thumbnail_url || null,
+          creative_type: 'image',
+          creative_data: creativeData,
+        };
+      })
+      .filter(Boolean);
+
+    const dbAds = await batchUpsert('ads', adRecords, 'ad_set_id,platform_ad_id');
+
+    // Fetch insights (most time-consuming part - optimize by fetching only campaign-level)
+    console.log('[sync] Fetching metrics (campaign-level)...');
+    const campaignInsights = [];
+
+    for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
+      const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
+      const insightResults = await Promise.all(
+        batch.map(async (campaign) => {
+          const dbCampaign = campaignMap.get(campaign.id);
+          if (!dbCampaign) return [];
+
+          const url = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const result = await fetchPage(url);
+
+          return result.data.map((insight: any) => {
+            const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+            const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+
+            return {
+              entity_id: dbCampaign.id,
+              entity_type: 'campaign',
+              date: insight.date_start || endDate,
+              impressions: parseInt(insight.impressions || '0'),
+              clicks: parseInt(insight.clicks || '0'),
+              spend: parseFloat(insight.spend || '0'),
+              reach: parseInt(insight.reach || '0'),
+              conversions: parseInt(conversions),
+              conversion_value: parseFloat(conversionValue) * 10,
+              cpc: parseFloat(insight.cpc || '0'),
+              cpm: parseFloat(insight.cpm || '0'),
+              ctr: parseFloat(insight.ctr || '0'),
+              roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
+            };
+          });
+        })
+      );
+      insightResults.forEach(insights => campaignInsights.push(...insights));
+    }
+
+    // Batch insert metrics
+    await batchUpsert('ad_metrics', campaignInsights, 'entity_type,entity_id,date');
+
+    // Update last synced timestamp
     await supabase
       .from('ad_accounts')
       .update({ last_synced_at: new Date().toISOString() })
       .eq('id', account.id);
 
+    console.log('[sync] Complete!', {
+      campaigns: dbCampaigns.length,
+      adSets: dbAdSets.length,
+      ads: dbAds.length,
+      metrics: campaignInsights.length,
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Successfully synced ${campaignsCount} campaigns, ${adSetsCount} ad sets, ${adsCount} ads, and ${metricsCount} metrics from ${startDate} to ${endDate}`,
+        message: `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${campaignInsights.length} metrics`,
         data: {
-          campaigns: campaignsCount,
-          adSets: adSetsCount,
-          ads: adsCount,
-          metrics: metricsCount,
+          campaigns: dbCampaigns.length,
+          adSets: dbAdSets.length,
+          ads: dbAds.length,
+          metrics: campaignInsights.length,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('[facebook-ads-sync] Unexpected error:', error);
+    console.error('[sync] Unexpected error:', error);
     return new Response(
       JSON.stringify({
         success: false,
