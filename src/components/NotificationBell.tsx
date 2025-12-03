@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Check, X, AlertCircle } from 'lucide-react';
+import { Bell, Check, X, AlertCircle, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   getUnreadCount,
   getRecentNotifications,
   markAsRead,
   markAllAsRead,
+  deleteNotification,
   Notification,
 } from '@/lib/notificationService';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -31,7 +32,7 @@ export default function NotificationBell() {
     try {
       const [count, recent] = await Promise.all([
         getUnreadCount(),
-        getRecentNotifications(5),
+        getRecentNotifications(10), // Show more notifications
       ]);
       setUnreadCount(count);
       setNotifications(recent);
@@ -40,7 +41,12 @@ export default function NotificationBell() {
     }
   };
 
-  const handleNotificationClick = async (notification: Notification) => {
+  const handleNotificationClick = async (notification: Notification, e: React.MouseEvent) => {
+    // Don't navigate if clicking on action buttons
+    if ((e.target as HTMLElement).closest('button[data-action]')) {
+      return;
+    }
+
     try {
       if (!notification.read) {
         await markAsRead(notification.id);
@@ -54,6 +60,21 @@ export default function NotificationBell() {
       }
     } catch (error) {
       console.error('Error handling notification click:', error);
+    }
+  };
+
+  const handleDismissNotification = async (notificationId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteNotification(notificationId);
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      // Update unread count if it was unread
+      const wasUnread = notifications.find(n => n.id === notificationId)?.read === false;
+      if (wasUnread) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error('Error dismissing notification:', error);
     }
   };
 
@@ -125,10 +146,9 @@ export default function NotificationBell() {
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
                 {notifications.map((notification) => (
-                  <button
+                  <div
                     key={notification.id}
-                    onClick={() => handleNotificationClick(notification)}
-                    className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                    className={`w-full px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group ${
                       !notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                     }`}
                   >
@@ -136,7 +156,10 @@ export default function NotificationBell() {
                       <div className="flex-shrink-0 mt-1">
                         {getNotificationIcon(notification.action_type)}
                       </div>
-                      <div className="flex-1 min-w-0">
+                      <button
+                        onClick={(e) => handleNotificationClick(notification, e)}
+                        className="flex-1 min-w-0 text-left"
+                      >
                         <div className="flex items-start justify-between">
                           <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {notification.title}
@@ -153,9 +176,17 @@ export default function NotificationBell() {
                             addSuffix: true,
                           })}
                         </p>
-                      </div>
+                      </button>
+                      <button
+                        data-action="dismiss"
+                        onClick={(e) => handleDismissNotification(notification.id, e)}
+                        className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all flex-shrink-0"
+                        title="Dismiss notification"
+                      >
+                        <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             )}

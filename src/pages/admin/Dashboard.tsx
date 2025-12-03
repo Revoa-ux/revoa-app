@@ -197,6 +197,15 @@ export default function AdminDashboard() {
       });
 
       setNotifications(mappedNotifications);
+
+      // Auto-mark unread notifications as read when dashboard loads (they've seen them now)
+      const unreadIds = dbNotifications.filter(n => !n.read).map(n => n.id);
+      if (unreadIds.length > 0) {
+        // Mark them as read in the background
+        Promise.all(unreadIds.map(id => markAsRead(id))).catch(err =>
+          console.error('Error auto-marking notifications as read:', err)
+        );
+      }
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
