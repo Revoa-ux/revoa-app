@@ -119,6 +119,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
+  const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
 
   // Rex AI state
   const [generatedInsights, setGeneratedInsights] = useState<Map<string, GeneratedInsight[]>>(new Map());
@@ -212,6 +213,94 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'google', name: 'Google Ads', icon: ImageIcon }
   ];
 
+  // Toggle status handler
+  const handleToggleStatus = async (creative: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (togglingIds.has(creative.id)) return;
+
+    const currentStatus = creative.status;
+    const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
+
+    setTogglingIds(prev => new Set([...prev, creative.id]));
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Determine the entity type and ID
+      let entityType: 'campaign' | 'adset' | 'ad';
+      let entityId: string;
+
+      if (viewLevel === 'campaigns') {
+        entityType = 'campaign';
+        entityId = creative.id;
+      } else if (viewLevel === 'adsets') {
+        entityType = 'adset';
+        entityId = creative.id;
+      } else {
+        entityType = 'ad';
+        entityId = creative.id;
+      }
+
+      // Call the appropriate platform API to update status
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-toggle-status`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            platform: creative.platform || 'facebook',
+            entityType,
+            entityId,
+            newStatus
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update status');
+      }
+
+      // Trigger quick refresh to update metrics
+      const refreshFunction = creative.platform === 'facebook' ? 'facebook-ads-quick-refresh' :
+                               creative.platform === 'google' ? 'google-ads-quick-refresh' :
+                               creative.platform === 'tiktok' ? 'tiktok-ads-quick-refresh' :
+                               'facebook-ads-quick-refresh';
+
+      await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${refreshFunction}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            adAccountId: creative.adAccountId
+          })
+        }
+      );
+
+      toast.success(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${newStatus === 'ACTIVE' ? 'activated' : 'paused'} successfully`);
+    } catch (error) {
+      console.error('Error toggling status:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update status');
+    } finally {
+      setTogglingIds(prev => {
+        const next = new Set(prev);
+        next.delete(creative.id);
+        return next;
+      });
+    }
+  };
+
   // Helper function to determine which metrics should glow based on trigger conditions
   const getGlowingMetrics = (suggestion: RexSuggestionWithPerformance): Set<string> => {
     const glowMetrics = new Set<string>();
@@ -267,10 +356,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       flexGrow: 0,
       flexShrink: 0,
       sortable: true,
-      render: (value: string) => {
+      render: (value: string, creative: any) => {
+        const isToggling = togglingIds.has(creative.id);
+        const canToggle = value === 'ACTIVE' || value === 'PAUSED';
+
         const statusStyles = {
-          ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-          PAUSED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+          ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/30',
+          PAUSED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800/30',
           ARCHIVED: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
           DELETED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
         };
@@ -280,10 +372,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                            value === 'ARCHIVED' ? 'Archived' :
                            value === 'DELETED' ? 'Deleted' :
                            value || 'Unknown';
+
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
+          <button
+            onClick={(e) => canToggle && !isToggling ? handleToggleStatus(creative, e) : e.stopPropagation()}
+            disabled={!canToggle || isToggling}
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${style} ${canToggle && !isToggling ? 'cursor-pointer' : 'cursor-default'}`}
+            title={canToggle ? (value === 'ACTIVE' ? 'Click to pause' : 'Click to activate') : undefined}
+          >
+            {isToggling ? (
+              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : null}
             {displayText}
-          </span>
+          </button>
         );
       }
     },
