@@ -24,6 +24,7 @@ import { useAdmin } from '@/contexts/AdminContext';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { getRecentNotifications, markAsRead, type Notification as DBNotification } from '@/lib/notificationService';
 
 interface DateRange {
   startDate: Date;
@@ -105,28 +106,7 @@ export default function AdminDashboard() {
     assignedClients: 0,
     lastLoginTime: null as string | null
   });
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: '1',
-      title: 'High Server Load Detected',
-      message: 'Server CPU usage has exceeded 80% for the past 5 minutes.',
-      timestamp: new Date().toISOString(),
-      status: 'unread',
-      priority: 'high',
-      icon: <AlertTriangle className="w-4 h-4 text-red-500" />
-    },
-    {
-      id: '2',
-      title: 'New User Registration Spike',
-      message: '50+ new users registered in the last hour.',
-      timestamp: new Date().toISOString(),
-      status: 'unread',
-      priority: 'medium',
-      icon: <Users className="w-4 h-4 text-yellow-500" />,
-      actionUrl: '/admin/users',
-      actionLabel: 'View Users'
-    }
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const [backendHealth] = useState<BackendHealthMetrics>({
     api: {
@@ -157,6 +137,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardStats();
+    fetchNotifications();
     if (!isSuperAdmin && adminUser) {
       fetchAdminStats();
     }
@@ -173,6 +154,54 @@ export default function AdminDashboard() {
       subscription.unsubscribe();
     };
   }, [isSuperAdmin, adminUser]);
+
+  const fetchNotifications = async () => {
+    try {
+      const dbNotifications = await getRecentNotifications(10);
+      const mappedNotifications: Notification[] = dbNotifications.map(n => {
+        let icon = <Bell className="w-4 h-4 text-gray-500" />;
+        let priority: 'low' | 'medium' | 'high' = 'low';
+
+        switch (n.action_type) {
+          case 'quote_review':
+            icon = <FileText className="w-4 h-4 text-blue-500" />;
+            priority = n.action_required ? 'high' : 'medium';
+            break;
+          case 'invoice_payment':
+            icon = <DollarSign className="w-4 h-4 text-green-500" />;
+            priority = 'high';
+            break;
+          case 'cogs_update':
+            icon = <Package className="w-4 h-4 text-orange-500" />;
+            priority = 'medium';
+            break;
+          case 'system':
+            icon = <AlertTriangle className="w-4 h-4 text-red-500" />;
+            priority = 'high';
+            break;
+          default:
+            icon = <Bell className="w-4 h-4 text-gray-500" />;
+            priority = 'low';
+        }
+
+        return {
+          id: n.id,
+          title: n.title,
+          message: n.message,
+          timestamp: n.created_at,
+          status: n.read ? 'read' : 'unread',
+          priority,
+          icon,
+          actionUrl: n.link_to,
+          actionLabel: n.action_required ? 'Take Action' : 'View'
+        };
+      });
+
+      setNotifications(mappedNotifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
 
   const fetchDashboardStats = async () => {
     try {
@@ -640,14 +669,19 @@ export default function AdminDashboard() {
                 </div>
                 <button
                   className="p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                  onClick={() => {
-                    setNotifications(prev =>
-                      prev.map(n =>
-                        n.id === notification.id
-                          ? { ...n, status: 'read' }
-                          : n
-                      )
-                    );
+                  onClick={async () => {
+                    try {
+                      await markAsRead(notification.id);
+                      setNotifications(prev =>
+                        prev.map(n =>
+                          n.id === notification.id
+                            ? { ...n, status: 'read' }
+                            : n
+                        )
+                      );
+                    } catch (error) {
+                      console.error('Error marking notification as read:', error);
+                    }
                   }}
                 >
                   <X className="w-4 h-4 text-gray-400 dark:text-gray-500" />
