@@ -139,20 +139,68 @@ export default function AdminQuotes() {
     try {
       setIsLoadingQuotes(true);
 
-      let query = supabase
-        .from('product_quotes')
-        .select('*, user_assignments!inner(admin_id, user_id)');
+      // For super admins with no filter, get all quotes
+      if (isSuperAdmin && selectedAdminFilter === 'all') {
+        const { data, error } = await supabase
+          .from('product_quotes')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      // For regular admins, filter by assigned users
+        if (error) throw error;
+
+        const transformedQuotes: Quote[] = (data || []).map(quote => ({
+          id: quote.id,
+          productUrl: quote.product_url || '',
+          platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+          productName: quote.product_name || 'Unknown Product',
+          requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
+          status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+          variants: [],
+          shopifyProductId: quote.shopify_product_id,
+          shopDomain: quote.shop_domain
+        }));
+
+        setQuotes(transformedQuotes);
+        setIsLoadingQuotes(false);
+        return;
+      }
+
+      // For admins with filters, get assigned user IDs first
+      let assignedUserIds: string[] = [];
+
       if (!isSuperAdmin && adminUser?.userId) {
-        query = query.eq('user_assignments.admin_id', adminUser.userId);
-      }
-      // For super admins with admin filter selected
-      else if (isSuperAdmin && selectedAdminFilter !== 'all') {
-        query = query.eq('user_assignments.admin_id', selectedAdminFilter);
+        // Regular admin - get their assigned users
+        const { data: assignments, error: assignError } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', adminUser.userId);
+
+        if (assignError) throw assignError;
+        assignedUserIds = assignments?.map(a => a.user_id) || [];
+      } else if (isSuperAdmin && selectedAdminFilter !== 'all') {
+        // Super admin with filter - get that admin's assigned users
+        const { data: assignments, error: assignError } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', selectedAdminFilter);
+
+        if (assignError) throw assignError;
+        assignedUserIds = assignments?.map(a => a.user_id) || [];
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      // If no assigned users, return empty array
+      if (assignedUserIds.length === 0) {
+        setQuotes([]);
+        setIsLoadingQuotes(false);
+        return;
+      }
+
+      // Fetch quotes for assigned users
+      const { data, error } = await supabase
+        .from('product_quotes')
+        .select('*')
+        .in('user_id', assignedUserIds)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
