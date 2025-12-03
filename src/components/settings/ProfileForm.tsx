@@ -104,14 +104,7 @@ const ProfileForm = ({ firstName, lastName, email, onUpdate }: ProfileFormProps)
   return (
     <div className="max-w-2xl mx-auto">
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Profile Information</h3>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Update your personal information and contact details.
-          </p>
-        </div>
-        
-        <div className="px-6 py-4 space-y-6">
+        <div className="px-6 py-6 space-y-6">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
