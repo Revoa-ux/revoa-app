@@ -1404,22 +1404,16 @@ const SettingsPage = () => {
       console.log('[Settings] Starting manual incremental sync');
 
       // Show immediate feedback
-      toast.info('Syncing new data in background...');
+      toast.info('Syncing Facebook Ads data...');
 
-      // Start incremental sync from last_synced_at in background
-      facebookAdsService.syncAdAccount(platformAccountId, undefined, undefined, true)
-        .then((result) => {
-          console.log('[Settings] Sync result:', result);
-          toast.success('Data synced successfully');
-          refreshFacebookAccounts();
-        })
-        .catch((error) => {
-          console.error('[Settings] Sync failed:', error);
-          toast.error('Sync failed - check console for details');
-        });
+      // Wait for incremental sync to complete
+      const result = await facebookAdsService.syncAdAccount(platformAccountId, undefined, undefined, true);
+      console.log('[Settings] Sync result:', result);
 
-      // Refresh accounts immediately to show sync started
+      // Refresh accounts after sync completes
       await refreshFacebookAccounts();
+
+      toast.success('Data synced successfully');
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sync Facebook Ads data';
