@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
-    console.log('[facebook-ads-sync] ===== SYNC REQUEST START ===== (v2.0)');
+    console.log('[facebook-ads-sync] ===== SYNC REQUEST START ===== (v3.0 with pagination)');
     console.log('[facebook-ads-sync] Account ID:', accountId);
     console.log('[facebook-ads-sync] Date range:', startDate, 'to', endDate);
     console.log('[facebook-ads-sync] User ID:', user.id);
@@ -110,33 +110,44 @@ Deno.serve(async (req: Request) => {
     let adsCount = 0;
     let metricsCount = 0;
 
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=100&access_token=${accessToken}`;
+    // Helper function to fetch all pages
+    const fetchAllPages = async (url: string): Promise<any[]> => {
+      const results: any[] = [];
+      let nextUrl: string | null = url;
+      let pageCount = 0;
+
+      while (nextUrl && pageCount < 100) { // Safety limit of 100 pages
+        pageCount++;
+        console.log(`[facebook-ads-sync] Fetching page ${pageCount}:`, nextUrl.replace(accessToken, '[REDACTED]'));
+
+        const response = await fetch(nextUrl);
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          console.error('[facebook-ads-sync] Error on page', pageCount, ':', data.error);
+          break;
+        }
+
+        if (data.data && Array.isArray(data.data)) {
+          results.push(...data.data);
+          console.log(`[facebook-ads-sync] Page ${pageCount}: fetched ${data.data.length} items (total so far: ${results.length})`);
+        }
+
+        nextUrl = data.paging?.next || null;
+      }
+
+      console.log(`[facebook-ads-sync] Finished pagination: ${results.length} total items from ${pageCount} pages`);
+      return results;
+    };
+
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective,created_time,updated_time&limit=500&access_token=${accessToken}`;
     console.log('[facebook-ads-sync] Fetching campaigns from:', campaignsUrl.replace(accessToken, '[REDACTED]'));
     console.log('[facebook-ads-sync] Account ID being queried:', accountId);
 
-    const campaignsResponse = await fetch(campaignsUrl);
-    const campaignsData = await campaignsResponse.json();
-
-    console.log('[facebook-ads-sync] Campaigns response status:', campaignsResponse.status);
-    console.log('[facebook-ads-sync] Campaigns response headers:', Object.fromEntries(campaignsResponse.headers.entries()));
-    console.log('[facebook-ads-sync] Campaigns data:', JSON.stringify(campaignsData, null, 2));
-
-    if (!campaignsResponse.ok || campaignsData.error) {
-      console.error('[facebook-ads-sync] Error fetching campaigns:', campaignsData.error);
-      console.error('[facebook-ads-sync] Full error details:', JSON.stringify(campaignsData, null, 2));
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: campaignsData.error?.message || 'Failed to fetch campaigns',
-          errorDetails: campaignsData.error,
-          accountId,
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const allCampaigns = await fetchAllPages(campaignsUrl);
+    const campaignsData = { data: allCampaigns };
 
     console.log('[facebook-ads-sync] Number of campaigns found:', campaignsData.data?.length || 0);
-    console.log('[facebook-ads-sync] Has paging?', campaignsData.paging ? 'yes' : 'no');
 
     if (campaignsData.data?.length > 0) {
       console.log('[facebook-ads-sync] Campaign IDs:', campaignsData.data.map((c: any) => c.id));
@@ -304,13 +315,16 @@ Deno.serve(async (req: Request) => {
           }
         }
 
-        // Then fetch ad sets
-        const adSetsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&access_token=${accessToken}`;
-        const adSetsResponse = await fetch(adSetsUrl);
-        const adSetsData = await adSetsResponse.json();
+        // Then fetch ad sets with pagination
+        console.log('[facebook-ads-sync] Fetching ad sets for campaign:', campaign.name, 'ID:', campaign.id);
+        const adSetsUrl = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,created_time,updated_time,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
+        const allAdSets = await fetchAllPages(adSetsUrl);
 
-        if (adSetsResponse.ok && adSetsData.data) {
-          for (const adSet of adSetsData.data) {
+        console.log('[facebook-ads-sync] Ad sets result for campaign', campaign.name, ':', allAdSets.length, 'ad sets');
+
+        if (allAdSets && allAdSets.length > 0) {
+          console.log('[facebook-ads-sync] Processing', allAdSets.length, 'ad sets for campaign:', campaign.name);
+          for (const adSet of allAdSets) {
             const { data: dbAdSet, error: adSetError } = await supabase.from('ad_sets').upsert(
               {
                 platform_adset_id: adSet.id,
@@ -335,12 +349,14 @@ Deno.serve(async (req: Request) => {
 
             adSetsCount++;
 
-            const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url,title,body,image_url,video_id,call_to_action_type,object_story_spec}&access_token=${accessToken}`;
-            const adsResponse = await fetch(adsUrl);
-            const adsData = await adsResponse.json();
+            // Fetch ads with pagination
+            console.log('[facebook-ads-sync] Fetching ads for ad set:', adSet.name);
+            const adsUrl = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,created_time,updated_time,creative{id,name,thumbnail_url,title,body,image_url,video_id,call_to_action_type,object_story_spec}&limit=500&access_token=${accessToken}`;
+            const allAds = await fetchAllPages(adsUrl);
 
-            if (adsResponse.ok && adsData.data) {
-              for (const ad of adsData.data) {
+            if (allAds && allAds.length > 0) {
+              console.log('[facebook-ads-sync] Found', allAds.length, 'ads for ad set:', adSet.name);
+              for (const ad of allAds) {
                 const creativeData: any = {};
                 if (ad.creative) {
                   if (ad.creative.title) creativeData.title = ad.creative.title;
@@ -396,7 +412,7 @@ Deno.serve(async (req: Request) => {
 
                 adsCount++;
 
-                // Fetch ad-level insights (CRITICAL FIX: This was missing!)
+                // Fetch ad-level insights
                 console.log('[facebook-ads-sync] Fetching ad-level insights for:', ad.name);
                 const adInsightsUrl = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start,date_stop&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
                 const adInsightsResponse = await fetch(adInsightsUrl);
@@ -482,6 +498,8 @@ Deno.serve(async (req: Request) => {
               }
             }
           }
+        } else {
+          console.log('[facebook-ads-sync] No ad sets found for campaign:', campaign.name);
         }
       }
     }
