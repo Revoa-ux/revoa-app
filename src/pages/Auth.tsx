@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
+import { CustomCheckbox } from '../components/CustomCheckbox';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useAdmin } from '../contexts/AdminContext';
@@ -385,16 +386,11 @@ const Auth = () => {
                 {mode === 'signin' && (
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
+                      <CustomCheckbox
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-primary-600 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0 transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={isLoading}
                       />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300 cursor-pointer">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-gray-300 cursor-pointer">
                         Remember me
                       </label>
                     </div>
