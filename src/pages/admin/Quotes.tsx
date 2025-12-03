@@ -60,7 +60,7 @@ export default function AdminQuotes() {
       fetchAdmins();
       fetchQuoteStats();
     }
-  }, [isSuperAdmin]);
+  }, [isSuperAdmin, selectedAdminFilter]);
 
   const fetchAdmins = async () => {
     try {
@@ -146,6 +146,10 @@ export default function AdminQuotes() {
       // For regular admins, filter by assigned users
       if (!isSuperAdmin && adminUser?.userId) {
         query = query.eq('user_assignments.admin_id', adminUser.userId);
+      }
+      // For super admins with admin filter selected
+      else if (isSuperAdmin && selectedAdminFilter !== 'all') {
+        query = query.eq('user_assignments.admin_id', selectedAdminFilter);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
