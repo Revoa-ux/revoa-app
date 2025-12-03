@@ -1034,8 +1034,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div className="sticky top-0 z-20 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
               ref={headerRef}
-              className="overflow-x-auto scrollbar-thin"
-              style={{ overflow: 'hidden' }}
+              className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               <div className="flex w-full">
                 {columns.map((column, index) => {
@@ -1224,9 +1224,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), inset 0 -2px 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
                   } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), inset 0 -2px 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
                   } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
