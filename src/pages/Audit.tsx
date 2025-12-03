@@ -411,6 +411,18 @@ export default function Audit() {
     setDateRange({ startDate, endDate });
   };
 
+  // Helper: Convert time option to Facebook date preset
+  const getDatePreset = (time: TimeOption): string => {
+    const presetMap: Record<TimeOption, string> = {
+      '7d': 'last_7d',
+      '14d': 'last_14d',
+      '28d': 'last_28d',
+      '90d': 'last_90d',
+      'custom': 'last_28d', // fallback for custom
+    };
+    return presetMap[time] || 'last_28d';
+  };
+
   const refreshData = async (showSuccessToast = false) => {
     if (!facebook.isConnected) {
       return;
@@ -418,14 +430,32 @@ export default function Audit() {
 
     setIsLoading(true);
     try {
-      // Trigger incremental sync and WAIT for it to complete
+      // Use quick refresh for fast stats updates
       if (facebook.accounts && facebook.accounts.length > 0) {
         const { facebookAdsService } = await import('@/lib/facebookAds');
+        const datePreset = getDatePreset(selectedTime);
+
+        let needsFullSync = false;
+
+        // Try quick refresh for all accounts
         await Promise.all(
-          facebook.accounts.map(account =>
-            facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
-              .catch(err => console.error('[Audit] Auto-sync failed:', err))
-          )
+          facebook.accounts.map(async account => {
+            try {
+              const result = await facebookAdsService.quickRefresh(
+                account.platform_account_id,
+                datePreset
+              );
+
+              if (result.needsFullSync) {
+                needsFullSync = true;
+                toast.info('New campaigns detected. Running full sync...');
+                // Run full sync if new items detected
+                await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+              }
+            } catch (err) {
+              console.error('[Audit] Quick refresh failed:', err);
+            }
+          })
         );
 
         // Refresh account data to update last_synced_at in UI

@@ -121,6 +121,34 @@ export class FacebookAdsService {
     }
   }
 
+  async quickRefresh(accountId: string, datePreset: string = 'last_28d'): Promise<{ success: boolean; needsFullSync?: boolean; message?: string }> {
+    try {
+      const headers = await this.getAuthHeaders();
+
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/facebook-ads-quick-refresh`,
+        {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            adAccountId: accountId,
+            datePreset,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Quick refresh failed');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('[FacebookAds] Quick refresh error:', error);
+      throw error;
+    }
+  }
+
   async syncAdAccount(
     accountId: string,
     startDate?: string,
