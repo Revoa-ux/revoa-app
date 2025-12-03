@@ -607,7 +607,7 @@ export default function Audit() {
       </div>
 
       {/* View Toggle and Controls */}
-      <div className="flex items-center justify-between gap-4 flex-shrink-0">
+      <div className="flex items-start justify-between gap-4 flex-shrink-0 mb-[-12px]">
         <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 w-fit">
           <button
             onClick={() => setAuditView('admanager')}
@@ -634,7 +634,7 @@ export default function Audit() {
         </div>
 
         {/* Controls - shown for both views */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pt-3">
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
@@ -687,7 +687,7 @@ export default function Audit() {
           )}
 
           {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+            <div className="bg-white dark:bg-gray-800 rounded-tr-xl rounded-br-xl rounded-bl-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}
