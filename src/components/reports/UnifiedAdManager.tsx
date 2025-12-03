@@ -170,7 +170,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
             padding: '2px'
           }}
         >
-          <div className="h-full w-full bg-white dark:bg-gray-800 rounded-b-xl rounded-tr-xl overflow-hidden flex flex-col">
+          <div className="h-full w-full bg-white dark:bg-gray-800 rounded-b-xl rounded-tr-xl flex flex-col overflow-hidden">
             <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (
@@ -217,6 +217,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               showAIInsights={false}
               viewLevel={viewLevel}
               onDrillDown={handleDrillDown}
+              embedded={true}
               selectedItems={
                 viewLevel === 'campaigns' ? selectedCampaigns :
                 viewLevel === 'adsets' ? selectedAdSets :

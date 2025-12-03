@@ -46,6 +46,7 @@ interface CreativeAnalysisEnhancedProps {
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
+  embedded?: boolean;
 }
 
 interface Column {
@@ -72,7 +73,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
-  onDismissSuggestion
+  onDismissSuggestion,
+  embedded = false
 }) => {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -1029,7 +1031,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+      <div className={`bg-white dark:bg-gray-800 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
+        embedded ? '' : 'rounded-xl border border-gray-200 dark:border-gray-700'
+      }`}>
         <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
           <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900/50 border-b-2 border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
@@ -1224,9 +1228,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), inset 0 -2px 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), inset 0 -1px 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
                   } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), inset 0 -2px 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), inset 0 -1px 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
                   } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
