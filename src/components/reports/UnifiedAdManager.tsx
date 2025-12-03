@@ -35,6 +35,9 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   const [selectedAdSet, setSelectedAdSet] = useState<string | null>(null);
+  const [selectedCampaigns, setSelectedCampaigns] = useState<Set<string>>(new Set());
+  const [selectedAdSets, setSelectedAdSets] = useState<Set<string>>(new Set());
+  const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
 
   const tabs = [
     {
@@ -57,22 +60,39 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     }
   ];
 
-  // Filter data based on drill-down selection
+  // Filter data based on drill-down or checkbox selection
   const getFilteredData = () => {
     if (viewLevel === 'campaigns') {
       return campaigns;
     } else if (viewLevel === 'adsets') {
+      // If viewing after drill-down
       if (selectedCampaign) {
         return adSets.filter(adSet => adSet.campaignId === selectedCampaign);
       }
+      // If campaigns are selected via checkbox, filter ad sets by those campaigns
+      if (selectedCampaigns.size > 0) {
+        return adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
+      }
       return adSets;
     } else {
+      // If viewing after drill-down
       if (selectedAdSet) {
         return creatives.filter(ad => ad.adSetId === selectedAdSet);
       } else if (selectedCampaign) {
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
-          .map(adSet => adSet.id);
+          .map(adSet => adSet.adSetId);
+        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+      }
+      // If ad sets are selected via checkbox, filter ads by those ad sets
+      if (selectedAdSets.size > 0) {
+        return creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+      }
+      // If campaigns are selected via checkbox (but no ad sets), show ads from those campaigns
+      if (selectedCampaigns.size > 0) {
+        const campaignAdSetIds = adSets
+          .filter(adSet => selectedCampaigns.has(adSet.campaignId))
+          .map(adSet => adSet.adSetId);
         return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
       return creatives;
@@ -196,6 +216,38 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         showAIInsights={false}
         viewLevel={viewLevel}
         onDrillDown={handleDrillDown}
+        selectedItems={
+          viewLevel === 'campaigns' ? selectedCampaigns :
+          viewLevel === 'adsets' ? selectedAdSets :
+          selectedAds
+        }
+        onToggleSelect={(id: string) => {
+          if (viewLevel === 'campaigns') {
+            const newSet = new Set(selectedCampaigns);
+            if (newSet.has(id)) {
+              newSet.delete(id);
+            } else {
+              newSet.add(id);
+            }
+            setSelectedCampaigns(newSet);
+          } else if (viewLevel === 'adsets') {
+            const newSet = new Set(selectedAdSets);
+            if (newSet.has(id)) {
+              newSet.delete(id);
+            } else {
+              newSet.add(id);
+            }
+            setSelectedAdSets(newSet);
+          } else {
+            const newSet = new Set(selectedAds);
+            if (newSet.has(id)) {
+              newSet.delete(id);
+            } else {
+              newSet.add(id);
+            }
+            setSelectedAds(newSet);
+          }
+        }}
         rexSuggestions={rexSuggestions}
         topDisplayedSuggestionIds={topDisplayedSuggestionIds}
         onViewSuggestion={onViewSuggestion}

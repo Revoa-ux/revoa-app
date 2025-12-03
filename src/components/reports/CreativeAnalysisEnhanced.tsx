@@ -39,6 +39,8 @@ interface CreativeAnalysisEnhancedProps {
   showAIInsights?: boolean;
   viewLevel?: 'campaigns' | 'adsets' | 'ads';
   onDrillDown?: (item: any) => void;
+  selectedItems?: Set<string>;
+  onToggleSelect?: (id: string) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
   topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
@@ -64,6 +66,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   showAIInsights = true,
   viewLevel = 'ads',
   onDrillDown,
+  selectedItems: externalSelectedItems,
+  onToggleSelect: externalOnToggleSelect,
   rexSuggestions = new Map(),
   topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
@@ -73,7 +77,30 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
-  const [selectedCreatives, setSelectedCreatives] = useState<Set<string>>(new Set());
+  const [internalSelectedItems, setInternalSelectedItems] = useState<Set<string>>(new Set());
+
+  // Use external selection if provided, otherwise use internal
+  const selectedCreatives = externalSelectedItems || internalSelectedItems;
+
+  const toggleSelection = (id: string) => {
+    if (externalOnToggleSelect) {
+      externalOnToggleSelect(id);
+    } else {
+      const newSet = new Set(internalSelectedItems);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      setInternalSelectedItems(newSet);
+    }
+  };
+
+  const setSelectedCreatives = (newSet: Set<string>) => {
+    if (!externalOnToggleSelect) {
+      setInternalSelectedItems(newSet);
+    }
+  };
   const [sortConfig, setSortConfig] = useState<{
     field: string;
     direction: SortDirection;
@@ -228,13 +255,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           checked={selectedCreatives.has(creative.id)}
           onChange={(e) => {
             e.stopPropagation();
-            const newSelected = new Set(selectedCreatives);
-            if (newSelected.has(creative.id)) {
-              newSelected.delete(creative.id);
-            } else {
-              newSelected.add(creative.id);
-            }
-            setSelectedCreatives(newSelected);
+            toggleSelection(creative.id);
           }}
         />
       )

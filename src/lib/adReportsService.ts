@@ -315,12 +315,12 @@ export async function getCreativePerformance(
     const accountIds = accounts.map(acc => acc.id);
     console.log('[AdReportsService] Found', accountIds.length, 'ad accounts');
 
-    // Get campaigns for these accounts (no limit - need all campaigns)
+    // Get campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('id')
       .in('ad_account_id', accountIds)
-      .limit(10000);
+      .limit(100000);
 
     if (campaignsError) throw campaignsError;
 
@@ -329,14 +329,15 @@ export async function getCreativePerformance(
       return [];
     }
 
+    console.log('[AdReportsService] Found', campaigns.length, 'campaigns');
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get ad sets for these campaigns (no limit - need all ad sets)
+    // Get ad sets for these campaigns (high limit to get all)
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('id')
-      .in('campaign_id', campaignIds)
-      .limit(10000);
+      .in('ad_campaign_id', campaignIds)
+      .limit(100000);
 
     if (adSetsError) throw adSetsError;
 
@@ -345,9 +346,10 @@ export async function getCreativePerformance(
       return [];
     }
 
+    console.log('[AdReportsService] Found', adSets.length, 'ad sets');
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets with ad account info (no limit - need all ads)
+    // Fetch ads for these ad sets with ad account info (high limit to get all)
     const { data: ads, error } = await supabase
       .from('ads')
       .select(`
@@ -355,7 +357,7 @@ export async function getCreativePerformance(
         ad_account:ad_accounts!ad_account_id(platform_account_id)
       `)
       .in('ad_set_id', adSetIds)
-      .limit(10000);
+      .limit(100000);
 
     if (error) throw error;
 
@@ -507,6 +509,7 @@ export async function getCreativePerformance(
 
       return {
         id: ad.platform_ad_id,
+        adSetId: ad.ad_set_id, // Add for filtering in UnifiedAdManager
         type: isVideo ? 'video' : 'image',
         url: mediaUrl,
         videoUrl: creativeData.video_url || undefined,
@@ -639,18 +642,20 @@ export async function getCampaignPerformance(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Get all campaigns for these accounts (no limit - need all campaigns)
+    // Get all campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('*')
       .in('ad_account_id', accountIds)
-      .limit(10000); // Explicitly set high limit to get all campaigns
+      .limit(100000);
 
     if (campaignsError) throw campaignsError;
 
     if (!campaigns || campaigns.length === 0) {
       return [];
     }
+
+    console.log('[AdReportsService] getCampaignPerformance: Found', campaigns.length, 'campaigns');
 
     // Use internal UUID for metrics lookup (entity_id is UUID type)
     const campaignUuids = campaigns.map(c => c.id);
@@ -811,12 +816,12 @@ export async function getAdSetPerformance(
 
     const accountIds = accounts.map(acc => acc.id);
 
-    // Get all campaigns for these accounts (no limit - need all campaigns)
+    // Get all campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('id')
       .in('ad_account_id', accountIds)
-      .limit(10000);
+      .limit(100000);
 
     if (campaignsError) throw campaignsError;
 
@@ -824,20 +829,23 @@ export async function getAdSetPerformance(
       return [];
     }
 
+    console.log('[AdReportsService] getAdSetPerformance: Found', campaigns.length, 'campaigns');
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get all ad sets for these campaigns (no limit - need all ad sets)
+    // Get all ad sets for these campaigns (high limit to get all)
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('*')
       .in('ad_campaign_id', campaignIds)
-      .limit(10000);
+      .limit(100000);
 
     if (adSetsError) throw adSetsError;
 
     if (!adSets || adSets.length === 0) {
       return [];
     }
+
+    console.log('[AdReportsService] getAdSetPerformance: Found', adSets.length, 'ad sets');
 
     // Use internal UUID for metrics lookup (entity_id is UUID type)
     const adSetUuids = adSets.map(a => a.id);
