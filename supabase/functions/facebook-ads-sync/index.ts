@@ -121,6 +121,23 @@ Deno.serve(async (req: Request) => {
       }
     };
 
+    // Helper: Fetch all pages for a single endpoint
+    const fetchAllPagesForUrl = async (initialUrl: string): Promise<any[]> => {
+      const allResults = [];
+      let nextUrl: string | null = initialUrl;
+      let pageCount = 0;
+      const maxPages = 50; // Safety limit
+
+      while (nextUrl && pageCount < maxPages) {
+        const result = await fetchPage(nextUrl);
+        allResults.push(...result.data);
+        nextUrl = result.paging?.next || null;
+        pageCount++;
+      }
+
+      return allResults;
+    };
+
     // Step 1: Fetch all campaigns (parallel pagination)
     console.log('[sync] 1/5 Fetching campaigns...');
     const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
@@ -166,7 +183,7 @@ Deno.serve(async (req: Request) => {
     const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
     const campaignMap = new Map(dbCampaigns.map(c => [c.platform_campaign_id, c]));
 
-    // Step 3: Fetch all ad sets in parallel (5 campaigns at a time)
+    // Step 3: Fetch all ad sets in parallel (with full pagination)
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
     const CAMPAIGN_BATCH_SIZE = 10;
@@ -176,17 +193,18 @@ Deno.serve(async (req: Request) => {
       const adSetResults = await Promise.all(
         batch.map(async (campaign) => {
           const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
-          const result = await fetchPage(url);
-          return result.data.map((adSet: any) => ({
+          const adSets = await fetchAllPagesForUrl(url);
+          return adSets.map((adSet: any) => ({
             ...adSet,
             campaign_id: campaign.id,
           }));
         })
       );
       adSetResults.forEach(adSets => allAdSets.push(...adSets));
+      console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns processed, ${allAdSets.length} ad sets found so far`);
     }
 
-    console.log(`[sync] Found ${allAdSets.length} ad sets`);
+    console.log(`[sync] Found ${allAdSets.length} total ad sets`);
 
     // Step 4: Batch insert ad sets
     console.log('[sync] 4/5 Saving ad sets...');
@@ -210,7 +228,7 @@ Deno.serve(async (req: Request) => {
     const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
     const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
 
-    // Step 5: Fetch all ads in parallel
+    // Step 5: Fetch all ads in parallel (with full pagination)
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
     const ADSET_BATCH_SIZE = 10;
@@ -220,17 +238,18 @@ Deno.serve(async (req: Request) => {
       const adResults = await Promise.all(
         batch.map(async (adSet) => {
           const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,thumbnail_url}&limit=500&access_token=${accessToken}`;
-          const result = await fetchPage(url);
-          return result.data.map((ad: any) => ({
+          const ads = await fetchAllPagesForUrl(url);
+          return ads.map((ad: any) => ({
             ...ad,
             adset_id: adSet.id,
           }));
         })
       );
       adResults.forEach(ads => allAds.push(...ads));
+      console.log(`[sync] Progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length} ad sets processed, ${allAds.length} ads found so far`);
     }
 
-    console.log(`[sync] Found ${allAds.length} ads`);
+    console.log(`[sync] Found ${allAds.length} total ads`);
 
     // Batch insert ads
     const adRecords = allAds
