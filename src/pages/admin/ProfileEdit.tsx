@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Save, Lock, Mail, Bell, User, Phone, Clock, FileText, Eye, EyeOff, Loader2, ChevronDown, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdmin } from '@/contexts/AdminContext';
 import { adminProfileService, AdminProfile } from '@/lib/adminProfileService';
 import { validatePasswordChange, validateProfileSetup, commonTimezones } from '@/lib/adminProfileValidation';
 import { ProfilePictureUpload } from '@/components/admin/ProfilePictureUpload';
 
 export default function AdminProfileEdit() {
   const { user } = useAuth();
+  const { checkAdminStatus } = useAdmin();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<AdminProfile | null>(null);
@@ -126,6 +128,7 @@ export default function AdminProfileEdit() {
       await adminProfileService.updateProfile(user!.id, formData);
       toast.success('Profile updated successfully');
       await loadProfile();
+      await checkAdminStatus();
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
@@ -227,6 +230,8 @@ export default function AdminProfileEdit() {
                 <ProfilePictureUpload
                   currentPictureUrl={profile.profile_picture_url}
                   userId={user!.id}
+                  firstName={formData.first_name}
+                  lastName={formData.last_name}
                   onUploadSuccess={(url) => setProfile({ ...profile, profile_picture_url: url })}
                   onDeleteSuccess={() => setProfile({ ...profile, profile_picture_url: null })}
                 />

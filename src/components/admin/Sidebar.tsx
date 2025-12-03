@@ -93,8 +93,27 @@ export default function AdminSidebar() {
     }
   };
 
-  const adminName = adminUser?.name || adminUser?.email || 'Admin';
-  const adminInitials = adminName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const getAdminInitials = () => {
+    if (adminUser?.first_name && adminUser?.last_name) {
+      return `${adminUser.first_name.charAt(0)}${adminUser.last_name.charAt(0)}`.toUpperCase();
+    }
+    if (adminUser?.name) {
+      const nameParts = adminUser.name.split(' ');
+      if (nameParts.length >= 2) {
+        return `${nameParts[0].charAt(0)}${nameParts[nameParts.length - 1].charAt(0)}`.toUpperCase();
+      }
+      return adminUser.name.substring(0, 2).toUpperCase();
+    }
+    if (adminUser?.email) {
+      return adminUser.email.substring(0, 2).toUpperCase();
+    }
+    return 'AD';
+  };
+
+  const adminName = adminUser?.first_name && adminUser?.last_name
+    ? `${adminUser.first_name} ${adminUser.last_name}`
+    : adminUser?.name || adminUser?.email || 'Admin';
+  const adminInitials = getAdminInitials();
 
   const effectiveCollapsed = !isLargeScreen || isCollapsed;
 

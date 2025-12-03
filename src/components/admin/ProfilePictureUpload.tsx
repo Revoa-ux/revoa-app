@@ -8,6 +8,8 @@ import { profilePictureSchema } from '@/lib/adminProfileValidation';
 interface ProfilePictureUploadProps {
   currentPictureUrl: string | null;
   userId: string;
+  firstName?: string | null;
+  lastName?: string | null;
   onUploadSuccess: (url: string) => void;
   onDeleteSuccess: () => void;
 }
@@ -15,6 +17,8 @@ interface ProfilePictureUploadProps {
 export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   currentPictureUrl,
   userId,
+  firstName,
+  lastName,
   onUploadSuccess,
   onDeleteSuccess,
 }) => {
@@ -90,7 +94,16 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     setSelectedFile(null);
   };
 
-  const getInitials = (userId: string) => {
+  const getInitials = () => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+    if (firstName) {
+      return firstName.substring(0, 2).toUpperCase();
+    }
+    if (lastName) {
+      return lastName.substring(0, 2).toUpperCase();
+    }
     return userId.substring(0, 2).toUpperCase();
   };
 
@@ -107,7 +120,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
               />
             ) : (
               <span className="text-4xl font-semibold text-gray-700 dark:text-gray-200">
-                {getInitials(userId)}
+                {getInitials()}
               </span>
             )}
           </div>

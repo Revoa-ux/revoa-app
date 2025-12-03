@@ -7,6 +7,9 @@ export interface AdminUser {
   userId: string;
   role: AdminRole;
   email: string;
+  name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   assignedUsersCount: number;
   avgResponseTime?: string;
   totalTransactionVolume: number;
