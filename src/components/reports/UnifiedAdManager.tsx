@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, RefreshCw } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
+import AdReportsTimeSelector, { TimeOption } from './AdReportsTimeSelector';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface UnifiedAdManagerProps {
@@ -15,6 +16,10 @@ interface UnifiedAdManagerProps {
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
+  onRefresh?: () => void;
+  dateRange?: { startDate: Date; endDate: Date };
+  onDateRangeChange?: (range: { startDate: Date; endDate: Date }) => void;
+  onApplyDateRange?: () => void;
 }
 
 type ViewLevel = 'campaigns' | 'adsets' | 'ads';
@@ -30,7 +35,11 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
-  onDismissSuggestion
+  onDismissSuggestion,
+  onRefresh,
+  dateRange,
+  onDateRangeChange,
+  onApplyDateRange
 }) => {
   const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
@@ -129,11 +138,42 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col gap-4 p-4 sm:p-6 overflow-hidden">
-      {/* Title */}
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex-shrink-0">
-        Ad Manager
-      </h2>
+    <div
+      className="h-full flex flex-col gap-4 p-4 sm:p-6 overflow-hidden relative"
+      style={{
+        clipPath: 'polygon(0 0, calc(100% - 100px) 0, 100% 60px, 100% 100%, 0 100%)'
+      }}
+    >
+      {/* Title and Controls Row */}
+      <div className="flex items-start justify-between gap-4 flex-shrink-0">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          Ad Manager
+        </h2>
+
+        {/* Controls in top-right diagonal space */}
+        <div className="flex items-center gap-3 flex-shrink-0">
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isLoading}
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          )}
+
+          {selectedTime && onTimeChange && dateRange && onDateRangeChange && onApplyDateRange && (
+            <AdReportsTimeSelector
+              selectedTime={selectedTime as TimeOption}
+              onTimeChange={onTimeChange}
+              dateRange={dateRange}
+              onDateRangeChange={onDateRangeChange}
+              onApply={onApplyDateRange}
+            />
+          )}
+        </div>
+      </div>
 
       {/* Level Tabs */}
       <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 overflow-x-auto scrollbar-thin flex-shrink-0">

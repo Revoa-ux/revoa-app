@@ -606,53 +606,30 @@ export default function Audit() {
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 flex-shrink-0">
-        <div className="flex items-center gap-3 overflow-x-auto">
-          {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
-            <button
-              onClick={() => setAuditView('admanager')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-                auditView === 'admanager'
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <Layers className="w-4 h-4 mr-1.5" />
-              Ad Manager
-            </button>
-            <button
-              onClick={() => setAuditView('performance')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-                auditView === 'performance'
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <BarChart3 className="w-4 h-4 mr-1.5" />
-              Performance
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 sm:flex-shrink-0">
-          <button
-            onClick={() => refreshData(true)}
-            disabled={isLoading || !facebook.isConnected}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
-
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            onApply={refreshData}
-          />
-        </div>
+      {/* View Toggle */}
+      <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 w-fit flex-shrink-0">
+        <button
+          onClick={() => setAuditView('admanager')}
+          className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
+            auditView === 'admanager'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          <Layers className="w-4 h-4 mr-1.5" />
+          Ad Manager
+        </button>
+        <button
+          onClick={() => setAuditView('performance')}
+          className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
+            auditView === 'performance'
+              ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 mr-1.5" />
+          Performance
+        </button>
       </div>
 
       {!facebook.loading && !facebook.isConnected && (
@@ -681,6 +658,24 @@ export default function Audit() {
         <>
           {auditView === 'performance' && (
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
+              <div className="flex items-center justify-end gap-3 mb-4 flex-shrink-0">
+                <button
+                  onClick={() => refreshData(true)}
+                  disabled={isLoading || !facebook.isConnected}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+
+                <AdReportsTimeSelector
+                  selectedTime={selectedTime}
+                  onTimeChange={handleTimeChange}
+                  dateRange={dateRange}
+                  onDateRangeChange={setDateRange}
+                  onApply={refreshData}
+                />
+              </div>
               <div className="overflow-auto flex-1">
                 <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
               </div>
@@ -701,6 +696,10 @@ export default function Audit() {
                 onViewSuggestion={handleViewSuggestion}
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onDismissSuggestion={handleDismissSuggestion}
+                onRefresh={() => refreshData(true)}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onApplyDateRange={refreshData}
               />
             </div>
           )}
