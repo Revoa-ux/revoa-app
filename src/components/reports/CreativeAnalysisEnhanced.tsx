@@ -1218,13 +1218,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg ring-2 ring-inset ring-red-400/60 dark:ring-red-500/60 bg-gradient-to-r from-red-50/80 via-pink-50/60 to-red-50/80 dark:from-red-900/20 dark:via-pink-900/15 dark:to-red-900/20 rounded-lg my-1 border-l-4 border-l-red-500 dark:border-l-red-400 animate-pulse-slow'
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/80 via-pink-50/60 to-red-50/80 dark:from-red-900/20 dark:via-pink-900/15 dark:to-red-900/20 animate-pulse-slow'
                       : onDrillDown ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/80' : ''
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'ring-2 ring-inset ring-green-400/50 dark:ring-green-500/50 bg-green-50/40 dark:bg-green-900/10 rounded-lg my-1 shadow-sm border-l-4 border-l-green-500'
+                      ? 'bg-green-50/40 dark:bg-green-900/10 shadow-sm'
                       : ''
                   }`}
+                  style={hasPendingSuggestion ? {
+                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
+                  } : hasActiveRule && suggestion?.performance?.is_improving ? {
+                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
+                  } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
                   {columns.map((column, colIndex) => {
