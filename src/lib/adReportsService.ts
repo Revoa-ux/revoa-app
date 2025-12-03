@@ -450,7 +450,7 @@ export async function getCreativePerformance(
       const totalImpressions = adMetrics.reduce((sum, m) => sum + (m.impressions || 0), 0);
       const totalClicks = adMetrics.reduce((sum, m) => sum + (m.clicks || 0), 0);
 
-      // DEBUG: Log first ad to see what's happening
+      // DEBUG: Log first ad to see what's happening including creative data
       if (index === 0) {
         console.log('[AdReportsService] First ad debug:', {
           adId: ad.id,
@@ -458,7 +458,10 @@ export async function getCreativePerformance(
           metricsFound: adMetrics.length,
           totalSpend,
           totalImpressions,
-          totalClicks
+          totalClicks,
+          creativeData: ad.creative_data,
+          creativeThumbnailUrl: ad.creative_thumbnail_url,
+          creativeType: ad.creative_type
         });
       }
 
@@ -550,10 +553,14 @@ export async function getCreativePerformance(
     const adsWithRealData = creatives.filter(c => c.hasRealConversionData).length;
     console.log('[AdReportsService] ✓ Returned', creatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
 
-    // DEBUG: Log first 3 creatives to see actual data
+    // DEBUG: Log first 3 creatives to see actual data including thumbnails
     console.log('[DEBUG AdReportsService] First 3 creatives sample:', creatives.slice(0, 3).map(c => ({
       id: c.id,
       name: c.adName,
+      thumbnail: c.thumbnail,
+      url: c.url,
+      hasThumbnail: !!c.thumbnail,
+      hasUrl: !!c.url,
       metrics: {
         impressions: c.metrics.impressions,
         clicks: c.metrics.clicks,

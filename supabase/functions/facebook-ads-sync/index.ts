@@ -237,7 +237,7 @@ Deno.serve(async (req: Request) => {
       const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
       const adResults = await Promise.all(
         batch.map(async (adSet) => {
-          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,thumbnail_url}&limit=500&access_token=${accessToken}`;
+          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id,call_to_action_type,object_story_spec}&limit=500&access_token=${accessToken}`;
           const ads = await fetchAllPagesForUrl(url);
           return ads.map((ad: any) => ({
             ...ad,
@@ -262,7 +262,24 @@ Deno.serve(async (req: Request) => {
           if (ad.creative.title) creativeData.title = ad.creative.title;
           if (ad.creative.body) creativeData.body = ad.creative.body;
           if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
+          if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
+          if (ad.creative.video_id) creativeData.video_id = ad.creative.video_id;
+          if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
+
+          // Extract image URLs from object_story_spec if available
+          if (ad.creative.object_story_spec) {
+            const spec = ad.creative.object_story_spec;
+            if (spec.link_data?.picture) creativeData.image_url = creativeData.image_url || spec.link_data.picture;
+            if (spec.video_data?.image_url) creativeData.image_url = creativeData.image_url || spec.video_data.image_url;
+            if (spec.video_data?.video_id) creativeData.video_id = creativeData.video_id || spec.video_data.video_id;
+          }
         }
+
+        // Determine creative type
+        const creativeType = ad.creative?.video_id || creativeData.video_id ? 'video' : 'image';
+
+        // Best available thumbnail URL
+        const thumbnailUrl = creativeData.image_url || ad.creative?.thumbnail_url || ad.creative?.image_url || null;
 
         return {
           platform_ad_id: ad.id,
@@ -273,8 +290,8 @@ Deno.serve(async (req: Request) => {
           platform: 'facebook',
           creative_id: ad.creative?.id || null,
           creative_name: ad.creative?.name || null,
-          creative_thumbnail_url: ad.creative?.thumbnail_url || null,
-          creative_type: 'image',
+          creative_thumbnail_url: thumbnailUrl,
+          creative_type: creativeType,
           creative_data: creativeData,
         };
       })
