@@ -281,11 +281,18 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   );
 
   return (
-    <div className="space-y-6">
-      <div
-        className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={toggleCollapse}
-      >
+    <>
+      <style>{`
+        .metric-chart-wrapper:hover .recharts-line-curve {
+          stroke: url(#line-gradient) !important;
+          transition: stroke 0.3s ease;
+        }
+      `}</style>
+      <div className="space-y-6">
+        <div
+          className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={toggleCollapse}
+        >
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white">Performance Overview</h2>
           <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -364,9 +371,21 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                   {formatMetricValue(metricDef.id, metricData.value)}
                 </div>
                 {metricData.data.length > 0 ? (
-                  <div className="h-32">
+                  <div className="h-32 metric-chart-wrapper">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={metricData.data} margin={{ left: 0, right: 5 }}>
+                        <defs>
+                          <linearGradient id="line-gradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#E11D48" />
+                            <stop offset="50%" stopColor="#EC4899" />
+                            <stop offset="100%" stopColor="#E8795A" />
+                          </linearGradient>
+                          <linearGradient id={`gradient-${metricDef.id}`} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="#E11D48" />
+                            <stop offset="50%" stopColor="#EC4899" />
+                            <stop offset="100%" stopColor="#E8795A" />
+                          </linearGradient>
+                        </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
                         <XAxis
                           dataKey="date"
@@ -389,10 +408,16 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                         <Tooltip
                           contentStyle={{
                             borderRadius: '0.5rem',
-                            border: '1px solid #E5E7EB',
+                            border: 'none',
                             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            backgroundColor: '#1F2937'
+                            backgroundColor: 'rgba(31, 41, 55, 0.95)',
+                            backdropFilter: 'blur(8px)',
                           }}
+                          wrapperStyle={{
+                            outline: 'none',
+                          }}
+                          cursor={false}
+                          position={{ y: -40 }}
                           formatter={(value: number) => [formatMetricValue(metricDef.id, value), metricDef.label]}
                           itemStyle={{ color: '#F9FAFB' }}
                           labelStyle={{ color: '#F9FAFB' }}
@@ -403,7 +428,13 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                           stroke="#6B7280"
                           strokeWidth={2}
                           dot={false}
-                          activeDot={{ r: 4, strokeWidth: 1 }}
+                          activeDot={{
+                            r: 4,
+                            strokeWidth: 2,
+                            stroke: `url(#gradient-${metricDef.id})`,
+                            fill: '#fff'
+                          }}
+                          className="hover-gradient-line"
                         />
                       </LineChart>
                     </ResponsiveContainer>
@@ -443,5 +474,6 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
         onSave={handleSaveCustomization}
       />
     </div>
+    </>
   );
 };
