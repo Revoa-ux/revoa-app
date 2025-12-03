@@ -625,7 +625,7 @@ export default function Audit() {
         </div>
       </div>
 
-      {!facebook.isConnected && (
+      {!facebook.loading && !facebook.isConnected && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 flex-shrink-0">
           <div className="flex items-center space-x-4">
             <div className="p-3 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg">
