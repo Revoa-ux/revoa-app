@@ -261,6 +261,33 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       )
     },
     {
+      id: 'status',
+      label: 'Status',
+      width: 100,
+      flexGrow: 0,
+      flexShrink: 0,
+      sortable: true,
+      render: (value: string) => {
+        const statusStyles = {
+          ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+          PAUSED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+          ARCHIVED: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+          DELETED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+        };
+        const style = statusStyles[value as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
+        const displayText = value === 'ACTIVE' ? 'Active' :
+                           value === 'PAUSED' ? 'Paused' :
+                           value === 'ARCHIVED' ? 'Archived' :
+                           value === 'DELETED' ? 'Deleted' :
+                           value || 'Unknown';
+        return (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
+            {displayText}
+          </span>
+        );
+      }
+    },
+    {
       id: 'creative',
       label: 'Creative',
       width: 80,
@@ -336,33 +363,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
-    {
-      id: 'status',
-      label: 'Status',
-      width: 100,
-      flexGrow: 0,
-      flexShrink: 0,
-      sortable: true,
-      render: (value: string) => {
-        const statusStyles = {
-          ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-          PAUSED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-          ARCHIVED: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-          DELETED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        const style = statusStyles[value as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
-        const displayText = value === 'ACTIVE' ? 'Active' :
-                           value === 'PAUSED' ? 'Paused' :
-                           value === 'ARCHIVED' ? 'Archived' :
-                           value === 'DELETED' ? 'Deleted' :
-                           value || 'Unknown';
-        return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
-            {displayText}
-          </span>
-        );
-      }
-    },
     { id: 'impressions', label: 'Impressions', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'clicks', label: 'Clicks', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'ctr', label: 'CTR', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
@@ -418,10 +418,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       }
 
       const headers = [
+        'Status',
         'Ad Name',
         'Platform',
         'Performance',
-        'Status',
         'Impressions',
         'Clicks',
         'CTR (%)',
@@ -435,10 +435,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       ];
 
       const rows = filteredCreatives.map(c => [
+        c.status || 'Unknown',
         c.adName || '-',
         c.platform || 'facebook',
         c.performance,
-        c.status || 'Unknown',
         c.metrics.impressions,
         c.metrics.clicks,
         c.metrics.ctr.toFixed(2),
