@@ -1189,6 +1189,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           setGeneratedInsights(newInsights);
 
                           console.log('[CreativeAnalysis] Insights saved to state');
+
+                          // Automatically open modal with first insight after generation
+                          if (insights.length > 0) {
+                            setOpenInsightModal({
+                              creativeId: creative.id,
+                              insight: insights[0],
+                              creative
+                            });
+                          }
                         } catch (error) {
                           console.error('[CreativeAnalysis] Error analyzing entity:', error);
                           toast.error('Failed to generate AI insights');
