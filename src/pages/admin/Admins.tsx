@@ -222,19 +222,28 @@ export default function AdminsManagement() {
     if (!deleteConfirmation || deleteConfirmation.type !== 'admin' || !deleteConfirmation.userId) return;
 
     try {
-      const { error } = await supabase
+      console.log('Removing admin:', deleteConfirmation.email, deleteConfirmation.userId);
+
+      const { data, error } = await supabase
         .from('user_profiles')
         .update({ is_admin: false, is_super_admin: false })
-        .eq('user_id', deleteConfirmation.userId);
+        .eq('user_id', deleteConfirmation.userId)
+        .select();
 
-      if (error) throw error;
+      console.log('Update result:', { data, error });
+
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+
       toast.success(`Removed ${deleteConfirmation.email} as admin`);
       setDeleteConfirmation(null);
       setActionMenuOpen(null);
       await fetchData();
     } catch (error) {
       console.error('Error removing admin:', error);
-      toast.error('Failed to remove admin');
+      toast.error(`Failed to remove admin: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
