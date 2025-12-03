@@ -830,7 +830,7 @@ export async function getAdSetPerformance(
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
       .select('*')
-      .in('campaign_id', campaignIds)
+      .in('ad_campaign_id', campaignIds)
       .limit(10000);
 
     if (adSetsError) throw adSetsError;
@@ -856,7 +856,7 @@ export async function getAdSetPerformance(
       const { data: batchMetrics, error: metricsError} = await supabase
         .from('ad_metrics')
         .select('*')
-        .eq('entity_type', 'ad_set')
+        .eq('entity_type', 'adset')
         .in('entity_id', batch)
         .gte('date', startDate)
         .lte('date', endDate);
@@ -927,7 +927,7 @@ export async function getAdSetPerformance(
         adName: adSet.name, // Add for table compatibility
         status: adSet.status,
         platform: adSet.platform || 'facebook',
-        campaignId: adSet.campaign_id,
+        campaignId: adSet.ad_campaign_id,
         targeting: adSet.targeting,
         budget: adSet.daily_budget || adSet.lifetime_budget,
         adSetId: adSet.id,
