@@ -126,7 +126,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Modern Tabs */}
-      <div className="flex items-center gap-1 px-6 pt-3 pb-3 flex-shrink-0 bg-white dark:bg-gray-800 border-t border-r border-gray-200 dark:border-gray-700 rounded-tr-xl">
+      <div className="flex items-center gap-1 px-6 pt-3 pb-3 flex-shrink-0 bg-white dark:bg-gray-800">
         {tabs.map((tab) => {
           const isActive = viewLevel === tab.id;
           return (
