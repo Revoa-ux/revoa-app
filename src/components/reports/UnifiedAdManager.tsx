@@ -125,40 +125,40 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Browser-Style Tabs */}
-      <div className="flex items-end gap-1 px-4 pt-4 flex-shrink-0 bg-gray-50 dark:bg-gray-900/50">
+      {/* Modern Tabs */}
+      <div className="flex items-center gap-1 px-6 pt-3 pb-0 flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         {tabs.map((tab) => {
           const isActive = viewLevel === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 transition-all whitespace-nowrap ${
+              className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative ${
                 isActive
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-t border-x border-gray-200 dark:border-gray-700 rounded-t-lg relative z-10'
-                  : 'bg-gray-100 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded-t-lg hover:bg-gray-200 dark:hover:bg-gray-700/70 mb-[-1px]'
+                  ? 'text-gray-900 dark:text-white font-medium'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
-              style={{
-                marginBottom: isActive ? '-1px' : '0'
-              }}
             >
-              <span className="font-medium text-sm">{tab.label}</span>
+              <span className="text-sm">{tab.label}</span>
               <span
-                className={`px-2 py-0.5 text-xs rounded-full ${
+                className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${
                   isActive
-                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}
               >
                 {tab.count}
               </span>
+              {isActive && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 dark:bg-red-500 rounded-t-full" />
+              )}
             </button>
           );
         })}
       </div>
 
-      {/* Content area with top border */}
-      <div className="flex-1 min-h-0 flex flex-col border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      {/* Content area */}
+      <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-800">
         <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (

@@ -687,12 +687,7 @@ export default function Audit() {
           )}
 
           {auditView === 'admanager' && (
-            <div
-              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0"
-              style={{
-                clipPath: 'polygon(0 0, 45% 0, 48% 40px, 100% 40px, 100% 100%, 0 100%)'
-              }}
-            >
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
               <UnifiedAdManager
                 creatives={creatives}
                 campaigns={campaigns}
