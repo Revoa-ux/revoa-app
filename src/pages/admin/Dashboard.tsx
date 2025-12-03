@@ -102,7 +102,6 @@ export default function AdminDashboard() {
   const [adminStats, setAdminStats] = useState({
     unreadMessages: 0,
     newQuoteRequests: 0,
-    pendingApprovals: 0,
     assignedClients: 0,
     lastLoginTime: null as string | null
   });
@@ -279,7 +278,6 @@ export default function AdminDashboard() {
         setAdminStats({
           unreadMessages: 0,
           newQuoteRequests: 0,
-          pendingApprovals: 0,
           assignedClients: 0,
           lastLoginTime: lastLogin
         });
@@ -302,17 +300,9 @@ export default function AdminDashboard() {
         .eq('status', 'pending')
         .gte('created_at', lastLogin || new Date(0).toISOString());
 
-      // Get pending approvals (products awaiting approval)
-      const { count: pendingApprovals } = await supabase
-        .from('products')
-        .select('*', { count: 'exact', head: true })
-        .in('created_by', assignedUserIds)
-        .eq('status', 'pending');
-
       setAdminStats({
         unreadMessages: unreadMessages || 0,
         newQuoteRequests: newQuoteRequests || 0,
-        pendingApprovals: pendingApprovals || 0,
         assignedClients: assignedUserIds.length,
         lastLoginTime: lastLogin
       });
@@ -600,29 +590,32 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-            <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+      {/* Only show Active Alerts section if there are unread notifications (for super admins) or if regular admin has activity */}
+      {(isSuperAdmin && notifications.filter(n => n.status === 'unread').length > 0) || (!isSuperAdmin && (adminStats.unreadMessages > 0 || adminStats.newQuoteRequests > 0)) ? (
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {isSuperAdmin ? 'Active Alerts' : 'What\'s New Since Your Last Visit'}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {isSuperAdmin
+                  ? `${notifications.filter(n => n.status === 'unread').length} unread notifications`
+                  : adminStats.lastLoginTime
+                    ? `Last login: ${new Date(adminStats.lastLoginTime).toLocaleString()}`
+                    : 'Welcome back!'
+                }
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              {isSuperAdmin ? 'Active Alerts' : 'What\'s New Since Your Last Visit'}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {isSuperAdmin
-                ? `${notifications.filter(n => n.status === 'unread').length} unread notifications`
-                : adminStats.lastLoginTime
-                  ? `Last login: ${new Date(adminStats.lastLoginTime).toLocaleString()}`
-                  : 'Welcome back!'
-              }
-            </p>
-          </div>
-        </div>
 
-        <div className="mt-4 space-y-3">
-          {isSuperAdmin ? (
-            notifications.map((notification) => (
+          <div className="mt-4 space-y-3">
+            {isSuperAdmin ? (
+              // Only show unread notifications for super admins
+              notifications.filter(n => n.status === 'unread').map((notification) => (
               <div
                 key={notification.id}
                 className={`flex items-start justify-between p-4 rounded-lg border ${
@@ -687,8 +680,8 @@ export default function AdminDashboard() {
                   <X className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                 </button>
               </div>
-            ))
-          ) : (
+              ))
+            ) : (
             <>
               <Link
                 to="/admin/chat"
@@ -728,25 +721,6 @@ export default function AdminDashboard() {
                 </div>
               </Link>
 
-              <Link
-                to="/admin/product-approvals"
-                className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-transparent dark:from-orange-900/20 dark:to-transparent hover:from-orange-100 dark:hover:from-orange-900/30 transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                    <Package className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Pending Approvals</h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Products awaiting review</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">{adminStats.pendingApprovals}</span>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors" />
-                </div>
-              </Link>
-
               <div className="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-transparent dark:from-gray-700/50 dark:to-transparent">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -760,9 +734,10 @@ export default function AdminDashboard() {
                 <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{adminStats.assignedClients}</span>
               </div>
             </>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {getMetricCards()}
 
