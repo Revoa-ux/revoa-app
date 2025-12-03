@@ -211,7 +211,7 @@ export default function AdminsManagement() {
       if (error) throw error;
       toast.success(`Invitation cancelled for ${email}`);
       setActionMenuOpen(null);
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error cancelling invitation:', error);
       toast.error('Failed to cancel invitation');
@@ -231,7 +231,7 @@ export default function AdminsManagement() {
       toast.success(`Removed ${deleteConfirmation.email} as admin`);
       setDeleteConfirmation(null);
       setActionMenuOpen(null);
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error removing admin:', error);
       toast.error('Failed to remove admin');
@@ -249,7 +249,7 @@ export default function AdminsManagement() {
 
       toast.success(`Reset profile picture for ${email}`);
       setActionMenuOpen(null);
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error resetting profile picture:', error);
       toast.error('Failed to reset profile picture');
@@ -268,7 +268,7 @@ export default function AdminsManagement() {
 
       toast.success(`Reset username for ${email}`);
       setActionMenuOpen(null);
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error resetting username:', error);
       toast.error('Failed to reset username');
@@ -289,7 +289,7 @@ export default function AdminsManagement() {
         toast.success(`Deleted invitation for ${deleteConfirmation.email}`);
         setDeleteConfirmation(null);
         setActionMenuOpen(null);
-        fetchData();
+        await fetchData();
       } catch (error) {
         console.error('Error deleting invitation:', error);
         toast.error('Failed to delete invitation');
@@ -525,11 +525,11 @@ export default function AdminsManagement() {
         {/* Invite Button */}
         <button
           onClick={() => setShowInviteModal(true)}
-          className="group px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center gap-2"
+          className="group px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
         >
-          <UserPlus className="w-4 h-4" />
+          <UserPlus className="w-4 h-4 flex-shrink-0" />
           <span>Invite Admin</span>
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-4 h-4 flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
 
