@@ -155,13 +155,20 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     const handleScroll = () => {
       if (headerElement) {
-        headerElement.scrollLeft = tableElement.scrollLeft;
+        // Use requestAnimationFrame for smoother sync
+        requestAnimationFrame(() => {
+          headerElement.scrollLeft = tableElement.scrollLeft;
+        });
       }
     };
 
-    tableElement.addEventListener('scroll', handleScroll);
+    tableElement.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Initial sync
+    headerElement.scrollLeft = tableElement.scrollLeft;
+
     return () => tableElement.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [creatives.length]);
 
   useEffect(() => {
     // Initialize loading state for all creatives with images

@@ -140,7 +140,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
-                  className={`flex items-center gap-2.5 px-5 py-2 transition-all whitespace-nowrap rounded-lg ${
+                  className={`flex items-center gap-2.5 px-5 py-2 transition-all whitespace-nowrap rounded-lg focus:outline-none ${
                     isActive
                       ? 'text-gray-900 dark:text-white font-semibold bg-gray-100 dark:bg-gray-800'
                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
@@ -150,7 +150,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   <span
                     className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                       isActive
-                        ? 'bg-red-600 text-white'
+                        ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                     }`}
                   >
