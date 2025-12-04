@@ -962,23 +962,25 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between flex-shrink-0 px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-        <div className="flex items-center space-x-3">
-          {selectedCreatives.size > 0 && (
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-              <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                {selectedCreatives.size} selected
-              </span>
-              <button
-                onClick={() => setSelectedCreatives(new Set())}
-                className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
-              >
-                Clear
-              </button>
-            </div>
-          )}
+      {/* Only show controls if not embedded or if there are selected items */}
+      {(!embedded || selectedCreatives.size > 0) && (
+        <div className="flex items-center justify-between flex-shrink-0 px-6 py-3 border-b border-gray-100 dark:border-gray-700">
+          <div className="flex items-center space-x-3">
+            {selectedCreatives.size > 0 && (
+              <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <span className="text-sm font-medium text-red-700 dark:text-red-300">
+                  {selectedCreatives.size} selected
+                </span>
+                <button
+                  onClick={() => setSelectedCreatives(new Set())}
+                  className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
 
-          {!hidePlatformFilter && (
+            {!hidePlatformFilter && (
             <div className="relative" ref={platformFilterRef}>
               <button
                 onClick={() => setShowPlatformFilter(!showPlatformFilter)}
@@ -1046,7 +1048,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             )}
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       <div className={`overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
         embedded ? 'bg-transparent' : 'bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'

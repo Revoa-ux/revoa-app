@@ -129,56 +129,40 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Smart gradient border with seamless tab integration */}
-      <div className="relative mx-6 mt-6 mb-6 flex-1 min-h-0 flex flex-col">
-        {/* Tabs with smart border integration */}
-        <div className="flex items-center justify-between gap-4 px-0 relative z-10 flex-shrink-0">
-          <div className="flex items-end gap-0.5">
+      {/* Clean tab layout without gradient borders */}
+      <div className="relative flex-1 min-h-0 flex flex-col">
+        {/* Tabs and Search */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 pt-4 pb-3 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-1 overflow-x-auto">
             {tabs.map((tab, index) => {
               const isActive = viewLevel === tab.id;
               return (
-                <div key={tab.id} className="relative">
-                  {/* Active tab with gradient border on top and sides only */}
-                  {isActive && (
-                    <div
-                      className="absolute inset-0 rounded-t-xl"
-                      style={{
-                        background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
-                        padding: '2px',
-                        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-                      }}
-                    >
-                      <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
-                    </div>
-                  )}
-
-                  <button
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`relative flex items-center gap-3 px-6 py-3.5 transition-all whitespace-nowrap ${
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`flex items-center gap-2.5 px-5 py-2 transition-all whitespace-nowrap rounded-lg ${
+                    isActive
+                      ? 'text-gray-900 dark:text-white font-semibold bg-gray-100 dark:bg-gray-800'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                  }`}
+                >
+                  <span className="text-sm">{tab.label}</span>
+                  <span
+                    className={`px-2 py-0.5 text-xs font-bold rounded-full ${
                       isActive
-                        ? 'text-gray-900 dark:text-white font-semibold rounded-t-xl'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                     }`}
-                    style={isActive ? { marginBottom: '-2px' } : undefined}
                   >
-                    <span className="text-sm">{tab.label}</span>
-                    <span
-                      className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
-                        isActive
-                          ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                      }`}
-                    >
-                      {tab.count}
-                    </span>
-                  </button>
-                </div>
+                    {tab.count}
+                  </span>
+                </button>
               );
             })}
           </div>
 
-          {/* Search moved to tab level */}
-          <div className="relative w-[320px]">
+          {/* Search - responsive */}
+          <div className="relative w-full sm:w-[280px] lg:w-[320px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
@@ -198,17 +182,9 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
           </div>
         </div>
 
-        {/* Content area with gradient border */}
-        <div
-          className="flex-1 min-h-0 flex flex-col rounded-b-xl rounded-tr-xl"
-          style={{
-            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
-            padding: '2px',
-            marginTop: '-2px'
-          }}
-        >
-          <div className="h-full w-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden rounded-b-xl rounded-tr-xl">
-            <div className="flex-1 min-h-0 flex flex-col">
+        {/* Content area - no gradient border */}
+        <div className="flex-1 min-h-0 flex flex-col bg-white dark:bg-gray-800">
+          <div className="flex-1 min-h-0 flex flex-col">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (
             <div className="flex items-center gap-2 text-sm flex-wrap flex-shrink-0 px-6 pt-4">
@@ -297,10 +273,9 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               onAcceptSuggestion={onAcceptSuggestion}
               onDismissSuggestion={onDismissSuggestion}
             />
-              </div>
-            </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
