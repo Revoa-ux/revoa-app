@@ -1215,13 +1215,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 return (
                 <div key={creative.id} className="relative">
                   <div
-                    onClick={hasPendingSuggestion ? handleMetricClick : () => onDrillDown && onDrillDown(creative)}
+                    onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${
                     hasPendingSuggestion
                       ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/80 via-pink-50/60 to-red-50/80 dark:from-red-900/20 dark:via-pink-900/15 dark:to-red-900/20 animate-pulse-slow'
-                      : onDrillDown ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/80' : ''
+                      : ''
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'bg-green-50/40 dark:bg-green-900/10 shadow-sm'

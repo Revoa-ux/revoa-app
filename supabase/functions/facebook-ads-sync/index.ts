@@ -126,7 +126,7 @@ Deno.serve(async (req: Request) => {
       const allResults = [];
       let nextUrl: string | null = initialUrl;
       let pageCount = 0;
-      const maxPages = 50; // Safety limit
+      const maxPages = 1000; // Increased safety limit for large accounts (500 items/page × 1000 = 500k items max)
 
       while (nextUrl && pageCount < maxPages) {
         const result = await fetchPage(nextUrl);
@@ -213,7 +213,7 @@ Deno.serve(async (req: Request) => {
         const dbCampaign = campaignMap.get(as.campaign_id);
         if (!dbCampaign) return null;
         return {
-          platform_adset_id: as.id,
+          platform_ad_set_id: as.id,
           name: as.name,
           status: as.status?.toLowerCase() || 'unknown',
           ad_campaign_id: dbCampaign.id,
@@ -225,8 +225,8 @@ Deno.serve(async (req: Request) => {
       })
       .filter(Boolean);
 
-    const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
-    const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
+    const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_ad_set_id');
+    const adSetMap = new Map(dbAdSets.map(as => [as.platform_ad_set_id, as]));
 
     // Step 5: Fetch all ads in parallel (with full pagination)
     console.log('[sync] 5/5 Fetching and saving ads...');

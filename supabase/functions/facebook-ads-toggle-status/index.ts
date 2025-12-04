@@ -70,13 +70,12 @@ Deno.serve(async (req: Request) => {
 
       // Update local database
       const tableName = entityType === 'campaign' ? 'ad_campaigns' : entityType === 'adset' ? 'ad_sets' : 'ads';
-      const idColumn = entityType === 'campaign' ? 'platform_campaign_id' : entityType === 'adset' ? 'platform_adset_id' : 'platform_ad_id';
+      const idColumn = entityType === 'campaign' ? 'platform_campaign_id' : entityType === 'adset' ? 'platform_ad_set_id' : 'platform_ad_id';
 
       await supabase
         .from(tableName)
-        .update({ status: fbStatus, updated_at: new Date().toISOString() })
-        .eq(idColumn, entityId)
-        .eq('user_id', userId);
+        .update({ status: fbStatus.toLowerCase(), updated_at: new Date().toISOString() })
+        .eq(idColumn, entityId);
 
       console.log(`[toggle-status] Successfully toggled ${entityType} ${entityId} to ${fbStatus}`);
 
