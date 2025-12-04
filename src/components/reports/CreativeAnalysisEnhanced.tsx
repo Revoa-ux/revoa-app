@@ -506,24 +506,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
 
   const handleSelectAll = () => {
-    if (externalOnToggleSelect) {
-      // When using external selection control, toggle each item
-      const allSelected = selectedCreatives.size === filteredCreatives.length;
-      filteredCreatives.forEach(c => {
-        const isCurrentlySelected = selectedCreatives.has(c.id);
-        if (allSelected && isCurrentlySelected) {
-          externalOnToggleSelect(c.id); // Deselect
-        } else if (!allSelected && !isCurrentlySelected) {
-          externalOnToggleSelect(c.id); // Select
-        }
-      });
+    if (selectedCreatives.size === filteredCreatives.length) {
+      setSelectedCreatives(new Set());
     } else {
-      // Internal selection control
-      if (selectedCreatives.size === filteredCreatives.length) {
-        setInternalSelectedItems(new Set());
-      } else {
-        setInternalSelectedItems(new Set(filteredCreatives.map(c => c.id)));
-      }
+      setSelectedCreatives(new Set(filteredCreatives.map(c => c.id)));
     }
   };
 
@@ -1055,7 +1041,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              <div className="flex min-w-max">
+              <div className="flex w-full">
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
                   const columnStyle = customWidth
@@ -1115,7 +1101,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 Array.from({ length: 15 }).map((_, index) => (
                   <div
                     key={`skeleton-${index}`}
-                    className="flex items-center min-h-[60px] min-w-max border-b border-gray-200 dark:border-gray-700 animate-pulse"
+                    className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"
                   >
                     {columns.map((column) => {
                       const columnStyle = columnWidths[column.id]
@@ -1230,7 +1216,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div key={creative.id} className="relative">
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`flex items-center min-h-[60px] min-w-max border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${
                     index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
                   } ${
                     hasPendingSuggestion
@@ -1355,8 +1341,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                  <div className="flex items-center min-h-[56px] min-w-max">
+                <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                  <div className="flex items-center min-h-[56px] w-full">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const columnStyle = customWidth
@@ -1377,7 +1363,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
                             Total Results
                           </span>
-                        ) : column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' || column.id === 'status' ? (
+                        ) : column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
                           ''
                         ) : column.id === 'impressions' ? (
                           totals.impressions.toLocaleString()
