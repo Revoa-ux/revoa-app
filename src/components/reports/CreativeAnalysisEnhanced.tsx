@@ -23,6 +23,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import ToggleSwitch from '@/components/ToggleSwitch';
 import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';
 import { RexIntroductionModal } from './RexIntroductionModal';
 import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
@@ -51,6 +52,7 @@ interface CreativeAnalysisEnhancedProps {
   hideSearch?: boolean;
   selectedPlatforms?: string[];
   hidePlatformFilter?: boolean;
+  onOptimisticUpdate?: (updatedCreatives: any[]) => void;
 }
 
 interface Column {
@@ -82,7 +84,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   searchTerm: externalSearchTerm,
   hideSearch = false,
   selectedPlatforms: externalSelectedPlatforms,
-  hidePlatformFilter = false
+  hidePlatformFilter = false,
+  onOptimisticUpdate
 }) => {
   const { user } = useAuth();
   const [internalSearchTerm, setInternalSearchTerm] = useState('');
@@ -232,16 +235,33 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'google', name: 'Google Ads', icon: ImageIcon }
   ];
 
-  // Toggle status handler
-  const handleToggleStatus = async (creative: any, e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Toggle status handler with optimistic updates
+  const handleToggleStatus = async (creative: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
 
     if (togglingIds.has(creative.id)) return;
 
-    const currentStatus = creative.status;
+    const currentStatus = creative.status?.toUpperCase() || 'UNKNOWN';
+    if (currentStatus !== 'ACTIVE' && currentStatus !== 'PAUSED') {
+      toast.error('Can only toggle between Active and Paused states');
+      return;
+    }
+
     const newStatus = currentStatus === 'ACTIVE' ? 'PAUSED' : 'ACTIVE';
 
+    // Mark as toggling
     setTogglingIds(prev => new Set([...prev, creative.id]));
+
+    // Optimistic UI update
+    const originalCreatives = [...creatives];
+    const updatedCreatives = creatives.map(c =>
+      c.id === creative.id ? { ...c, status: newStatus } : c
+    );
+
+    // Update state immediately for instant feedback
+    if (onOptimisticUpdate) {
+      onOptimisticUpdate(updatedCreatives);
+    }
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -290,13 +310,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         throw new Error(error.message || 'Failed to update status');
       }
 
-      // Trigger quick refresh to update metrics
+      // Trigger quick refresh to update metrics (non-blocking)
       const refreshFunction = creative.platform === 'facebook' ? 'facebook-ads-quick-refresh' :
                                creative.platform === 'google' ? 'google-ads-quick-refresh' :
                                creative.platform === 'tiktok' ? 'tiktok-ads-quick-refresh' :
                                'facebook-ads-quick-refresh';
 
-      await fetch(
+      fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${refreshFunction}`,
         {
           method: 'POST',
@@ -309,12 +329,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             adAccountId: creative.adAccountId
           })
         }
-      );
+      ).catch(err => console.error('Error refreshing data:', err));
 
       toast.success(`${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${newStatus === 'ACTIVE' ? 'activated' : 'paused'} successfully`);
     } catch (error) {
       console.error('Error toggling status:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to update status');
+
+      // Revert optimistic update on error
+      if (onOptimisticUpdate) {
+        onOptimisticUpdate(originalCreatives);
+      }
     } finally {
       setTogglingIds(prev => {
         const next = new Set(prev);
@@ -381,33 +406,44 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       sortable: true,
       render: (value: string, creative: any) => {
         const isToggling = togglingIds.has(creative.id);
-        const canToggle = value === 'ACTIVE' || value === 'PAUSED';
+        const normalizedValue = value?.toUpperCase() || 'UNKNOWN';
+        const canToggle = normalizedValue === 'ACTIVE' || normalizedValue === 'PAUSED';
 
+        const displayText = normalizedValue === 'ACTIVE' ? 'Active' :
+                           normalizedValue === 'PAUSED' ? 'Paused' :
+                           normalizedValue === 'ARCHIVED' ? 'Archived' :
+                           normalizedValue === 'DELETED' ? 'Deleted' :
+                           'Unknown';
+
+        // For toggleable statuses, show toggle switch
+        if (canToggle) {
+          return (
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <ToggleSwitch
+                checked={normalizedValue === 'ACTIVE'}
+                onChange={() => handleToggleStatus(creative)}
+                disabled={isToggling}
+                loading={isToggling}
+                size="sm"
+              />
+              <span className={`text-xs font-medium ${normalizedValue === 'ACTIVE' ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                {displayText}
+              </span>
+            </div>
+          );
+        }
+
+        // For non-toggleable statuses, show badge
         const statusStyles = {
-          ACTIVE: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-800/30',
-          PAUSED: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 hover:bg-yellow-200 dark:hover:bg-yellow-800/30',
           ARCHIVED: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
           DELETED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
         };
-        const style = statusStyles[value as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
-        const displayText = value === 'ACTIVE' ? 'Active' :
-                           value === 'PAUSED' ? 'Paused' :
-                           value === 'ARCHIVED' ? 'Archived' :
-                           value === 'DELETED' ? 'Deleted' :
-                           value || 'Unknown';
+        const style = statusStyles[normalizedValue as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
 
         return (
-          <button
-            onClick={(e) => canToggle && !isToggling ? handleToggleStatus(creative, e) : e.stopPropagation()}
-            disabled={!canToggle || isToggling}
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${style} ${canToggle && !isToggling ? 'cursor-pointer' : 'cursor-default'}`}
-            title={canToggle ? (value === 'ACTIVE' ? 'Click to pause' : 'Click to activate') : undefined}
-          >
-            {isToggling ? (
-              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-            ) : null}
+          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
             {displayText}
-          </button>
+          </span>
         );
       }
     },

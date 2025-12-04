@@ -48,64 +48,46 @@ Deno.serve(async (req: Request) => {
 
     const accessToken = adAccounts.integration_connections.access_token;
 
-    // Handle Facebook Ads
-    if (platform === 'facebook') {
-      const fbStatus = newStatus === 'ACTIVE' ? 'ACTIVE' : 'PAUSED';
-      const url = `https://graph.facebook.com/v21.0/${entityId}?access_token=${accessToken}`;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: fbStatus })
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('[toggle-status] Facebook error:', error);
-        return new Response(
-          JSON.stringify({ success: false, message: error.error?.message || 'Failed to update status' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Update local database
-      const tableName = entityType === 'campaign' ? 'ad_campaigns' : entityType === 'adset' ? 'ad_sets' : 'ads';
-      const idColumn = entityType === 'campaign' ? 'platform_campaign_id' : entityType === 'adset' ? 'platform_ad_set_id' : 'platform_ad_id';
-
-      await supabase
-        .from(tableName)
-        .update({ status: fbStatus.toLowerCase(), updated_at: new Date().toISOString() })
-        .eq(idColumn, entityId);
-
-      console.log(`[toggle-status] Successfully toggled ${entityType} ${entityId} to ${fbStatus}`);
-
+    // Only handle Facebook Ads (other platforms have their own functions)
+    if (platform !== 'facebook') {
       return new Response(
-        JSON.stringify({ success: true, status: fbStatus }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, message: 'This function only handles Facebook Ads' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Handle Google Ads
-    if (platform === 'google') {
-      // TODO: Implement Google Ads status toggle
+    const fbStatus = newStatus === 'ACTIVE' ? 'ACTIVE' : 'PAUSED';
+    const url = `https://graph.facebook.com/v21.0/${entityId}?access_token=${accessToken}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: fbStatus })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[toggle-status] Facebook error:', error);
       return new Response(
-        JSON.stringify({ success: false, message: 'Google Ads toggle not yet implemented' }),
-        { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: false, message: error.error?.message || 'Failed to update status' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Handle TikTok Ads
-    if (platform === 'tiktok') {
-      // TODO: Implement TikTok Ads status toggle
-      return new Response(
-        JSON.stringify({ success: false, message: 'TikTok Ads toggle not yet implemented' }),
-        { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Update local database (keep uppercase to match Facebook)
+    const tableName = entityType === 'campaign' ? 'ad_campaigns' : entityType === 'adset' ? 'ad_sets' : 'ads';
+    const idColumn = entityType === 'campaign' ? 'platform_campaign_id' : entityType === 'adset' ? 'platform_ad_set_id' : 'platform_ad_id';
+
+    await supabase
+      .from(tableName)
+      .update({ status: fbStatus, updated_at: new Date().toISOString() })
+      .eq(idColumn, entityId);
+
+    console.log(`[toggle-status] Successfully toggled ${entityType} ${entityId} to ${fbStatus}`);
 
     return new Response(
-      JSON.stringify({ success: false, message: 'Unsupported platform' }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ success: true, status: fbStatus }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('[toggle-status] Error:', error);
