@@ -125,49 +125,81 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Content area with gradient border including tabs */}
+      {/* Smart gradient border with seamless tab integration */}
       <div className="relative mx-6 mt-6 mb-6 flex-1 min-h-0 flex flex-col">
-        <div
-          className="flex-1 min-h-0 flex flex-col rounded-lg"
-          style={{
-            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
-            padding: '2px'
-          }}
-        >
-          <div className="h-full w-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden rounded-lg">
-            {/* Browser-style Tabs - now inside gradient border */}
-            <div className="flex items-end gap-1 px-6 pt-6 flex-shrink-0">
-              {tabs.map((tab, index) => {
-                const isActive = viewLevel === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => handleTabChange(tab.id)}
-                    className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative rounded-t-lg ${
+        {/* Tabs positioned above the bordered container */}
+        <div className="flex items-end gap-0.5 px-0 relative z-10 flex-shrink-0">
+          {tabs.map((tab, index) => {
+            const isActive = viewLevel === tab.id;
+            return (
+              <div key={tab.id} className="relative">
+                {/* Gradient border for inactive tabs */}
+                {!isActive && (
+                  <div
+                    className="absolute inset-0 rounded-t-xl"
+                    style={{
+                      background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
+                      padding: '2px',
+                      clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 2px), 0 calc(100% - 2px))'
+                    }}
+                  >
+                    <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
+                  </div>
+                )}
+
+                {/* Active tab with gradient border on top and sides only */}
+                {isActive && (
+                  <div
+                    className="absolute inset-0 rounded-t-xl"
+                    style={{
+                      background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
+                      padding: '2px',
+                      clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+                    }}
+                  >
+                    <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
+                  </div>
+                )}
+
+                <button
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`relative flex items-center gap-3 px-6 py-3.5 transition-all whitespace-nowrap rounded-t-xl ${
+                    isActive
+                      ? 'text-gray-900 dark:text-white font-semibold'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                  style={isActive ? { marginBottom: '-2px' } : undefined}
+                >
+                  <span className="text-sm">{tab.label}</span>
+                  <span
+                    className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
                       isActive
-                        ? 'text-gray-900 dark:text-white font-medium bg-gray-50 dark:bg-gray-900'
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50'
+                        ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                     }`}
                   >
-                    <span className="text-sm">{tab.label}</span>
-                    <span
-                      className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${
-                        isActive
-                          ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                      }`}
-                    >
-                      {tab.count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    {tab.count}
+                  </span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
 
-            <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
+        {/* Content area with gradient border */}
+        <div
+          className="flex-1 min-h-0 flex flex-col rounded-b-xl rounded-tr-xl"
+          style={{
+            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
+            padding: '2px',
+            marginTop: '-2px'
+          }}
+        >
+          <div className="h-full w-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden rounded-b-xl rounded-tr-xl">
+            <div className="flex-1 min-h-0 flex flex-col">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (
-            <div className="flex items-center gap-2 text-sm flex-wrap flex-shrink-0">
+            <div className="flex items-center gap-2 text-sm flex-wrap flex-shrink-0 px-6 pt-4">
               <button
                 onClick={() => handleBreadcrumbClick('campaigns')}
                 className="text-red-600 dark:text-red-400 hover:underline"

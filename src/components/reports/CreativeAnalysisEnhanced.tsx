@@ -116,8 +116,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [imageLoading, setImageLoading] = useState<Set<string>>(new Set());
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [openInsightModal, setOpenInsightModal] = useState<{ creativeId: string; insight: GeneratedInsight; creative: any } | null>(null);
-  const [itemsToShow, setItemsToShow] = useState(20);
-  const [showAllItems, setShowAllItems] = useState(true);
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
@@ -678,9 +676,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
 
-  // Pagination logic
-  const displayedCreatives = showAllItems ? sortedCreatives : sortedCreatives.slice(0, itemsToShow);
-
   // Calculate totals for all sorted creatives
   const totals = sortedCreatives.reduce((acc, creative) => {
     // Sum up actual revenue from metrics (already calculated from attribution system)
@@ -955,17 +950,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
         </div>
       )}
-      <div className="flex items-center justify-between flex-shrink-0">
-        <div></div>
+      <div className="flex items-center justify-between flex-shrink-0 px-6 py-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           {selectedCreatives.size > 0 && (
-            <div className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <span className="text-sm font-medium text-red-700 dark:text-red-300">
                 {selectedCreatives.size} selected
               </span>
               <button
                 onClick={() => setSelectedCreatives(new Set())}
-                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium"
               >
                 Clear
               </button>
@@ -975,18 +969,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div className="relative" ref={platformFilterRef}>
             <button
               onClick={() => setShowPlatformFilter(!showPlatformFilter)}
-              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <Filter className="w-4 h-4" />
               <span>Platform</span>
               {!selectedPlatforms.includes('all') && (
-                <span className="px-1.5 py-0.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-full">
+                <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
                   {selectedPlatforms.length}
                 </span>
               )}
             </button>
             {showPlatformFilter && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+              <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
                 {platforms.map((platform) => (
                   <button
                     key={platform.id}
@@ -998,7 +992,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <span>{platform.name}</span>
                     </div>
                     {(selectedPlatforms.includes(platform.id) || (platform.id === 'all' && selectedPlatforms.includes('all'))) && (
-                      <Check className="w-4 h-4" />
+                      <Check className="w-4 h-4 text-red-600" />
                     )}
                   </button>
                 ))}
@@ -1006,57 +1000,43 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             )}
           </div>
 
+          {activeFilters.length > 0 && (
+            <button
+              onClick={() => {
+                setSelectedPlatforms(['all']);
+              }}
+              className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 underline"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
 
-          <button
-            onClick={handleExportCSV}
-            disabled={filteredCreatives.length === 0}
-            className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Download className="w-4 h-4" />
-            <span>Export CSV</span>
-          </button>
-
-          <div className="relative w-[280px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-600 text-gray-900 dark:text-white"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full"
-              >
-                <X className="w-4 h-4 text-gray-400" />
-              </button>
-            )}
-          </div>
+        <div className="relative w-[320px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+            >
+              <X className="w-3.5 h-3.5 text-gray-400" />
+            </button>
+          )}
         </div>
       </div>
 
-      {activeFilters.length > 0 && (
-        <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">
-          <span>Active filters:</span>
-          <span className="font-medium">{activeFilters.join(', ')}</span>
-          <button
-            onClick={() => {
-              setSelectedPlatforms(['all']);
-            }}
-            className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 underline"
-          >
-            Clear all
-          </button>
-        </div>
-      )}
-
-      <div className={`bg-white dark:bg-gray-800 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
-        embedded ? '' : 'rounded-xl border border-gray-200 dark:border-gray-700'
+      <div className={`overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
+        embedded ? 'bg-transparent' : 'bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700'
       }`}>
         <div className="relative flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
-          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900/50 border-b-2 border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="sticky top-0 z-20 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div
               ref={headerRef}
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
@@ -1072,9 +1052,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-12 px-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider whitespace-nowrap ${
-                        index === 0 ? 'rounded-tl-xl' : index === columns.length - 1 ? 'rounded-tr-xl' : ''
-                      }`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1150,7 +1128,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   </div>
                 ))
               ) : (
-                displayedCreatives.map((creative, index) => {
+                sortedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
                 const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
@@ -1237,21 +1215,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div key={creative.id} className="relative">
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 transition-all duration-300 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/30 dark:bg-gray-700/30'
+                    className={`flex items-center min-h-[56px] border-b border-gray-100 dark:border-gray-700/50 transition-all duration-200 ${
+                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/80 via-pink-50/60 to-red-50/80 dark:from-red-900/20 dark:via-pink-900/15 dark:to-red-900/20 animate-pulse-slow'
-                      : ''
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/90 via-pink-50/70 to-red-50/90 dark:from-red-900/25 dark:via-pink-900/20 dark:to-red-900/25 animate-pulse-slow'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50/40 dark:bg-green-900/10 shadow-sm'
+                      ? 'bg-green-50/50 dark:bg-green-900/15 shadow-sm'
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), inset 0 -1px 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.4)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.3)'
                   } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), inset 0 -1px 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.3)'
+                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.25)'
                   } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
@@ -1362,8 +1340,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]" style={{ minWidth: '100%', width: 'max-content' }}>
-                  <div className="flex items-center min-h-[56px]">
+                <div className="sticky bottom-0 left-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-red-200 dark:border-red-900/50 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.1)]" style={{ minWidth: '100%', width: 'max-content' }}>
+                  <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const columnStyle = customWidth
@@ -1373,16 +1351,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       return (
                         <div
                           key={column.id}
-                          className="flex items-center px-4 py-3 text-sm font-semibold text-gray-900 dark:text-white"
+                          className="flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white"
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
-                          <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+                          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
                             {sortedCreatives.length} total
                           </span>
                         ) : column.id === 'creative' ? (
-                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                            Total Results
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
+                            Totals
                           </span>
                         ) : column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
                           ''
@@ -1429,35 +1407,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               )}
             </div>
           </div>
-
-          {/* Pagination Info and View More Button */}
-          {sortedCreatives.length > itemsToShow && (
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 flex items-center justify-between flex-shrink-0">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing <span className="font-medium text-gray-900 dark:text-white">{displayedCreatives.length}</span> of <span className="font-medium text-gray-900 dark:text-white">{sortedCreatives.length}</span> {viewLevel}
-              </div>
-              {!showAllItems ? (
-                <button
-                  onClick={() => setShowAllItems(true)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                >
-                  View All
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setShowAllItems(false);
-                    if (tableRef.current) {
-                      tableRef.current.scrollTop = 0;
-                    }
-                  }}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  Show Less
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>
