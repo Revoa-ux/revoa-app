@@ -245,9 +245,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         entityId = creative.id;
       }
 
+      // Determine platform-specific toggle function
+      const platform = creative.platform || 'facebook';
+      const toggleFunction = `${platform}-ads-toggle-status`;
+
       // Call the appropriate platform API to update status
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-toggle-status`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${toggleFunction}`,
         {
           method: 'POST',
           headers: {
@@ -256,7 +260,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           },
           body: JSON.stringify({
             userId: user.id,
-            platform: creative.platform || 'facebook',
+            platform,
             entityType,
             entityId,
             newStatus
@@ -506,10 +510,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
 
   const handleSelectAll = () => {
-    if (selectedCreatives.size === filteredCreatives.length) {
-      setSelectedCreatives(new Set());
+    const allSelected = selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0;
+
+    if (externalOnToggleSelect) {
+      // When using external state management, toggle each item individually
+      filteredCreatives.forEach(c => {
+        const isSelected = selectedCreatives.has(c.id);
+        if (allSelected && isSelected) {
+          // Deselect all
+          externalOnToggleSelect(c.id);
+        } else if (!allSelected && !isSelected) {
+          // Select all
+          externalOnToggleSelect(c.id);
+        }
+      });
     } else {
-      setSelectedCreatives(new Set(filteredCreatives.map(c => c.id)));
+      // When using internal state, bulk update
+      if (allSelected) {
+        setInternalSelectedItems(new Set());
+      } else {
+        setInternalSelectedItems(new Set(filteredCreatives.map(c => c.id)));
+      }
     }
   };
 
@@ -1041,7 +1062,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              <div className="flex w-full">
+              <div className="flex" style={{ minWidth: '100%', width: 'max-content' }}>
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
                   const columnStyle = customWidth
@@ -1095,7 +1116,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin flex-1"
           >
-            <div className="w-full">
+            <div style={{ minWidth: '100%', width: 'max-content' }}>
               {isLoading ? (
                 // Skeleton loading rows - enough to fill viewport
                 Array.from({ length: 15 }).map((_, index) => (
@@ -1341,8 +1362,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                  <div className="flex items-center min-h-[56px] w-full">
+                <div className="sticky bottom-0 left-0 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-900 dark:to-gray-800 border-t-2 border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]" style={{ minWidth: '100%', width: 'max-content' }}>
+                  <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const columnStyle = customWidth
