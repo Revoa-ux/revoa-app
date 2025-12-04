@@ -156,21 +156,40 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     if (!tableElement || !headerElement) return;
 
-    const handleScroll = () => {
-      if (headerElement) {
-        // Use requestAnimationFrame for smoother sync
+    let isScrolling = false;
+
+    // Sync header scroll when table scrolls
+    const handleTableScroll = () => {
+      if (!isScrolling && headerElement) {
+        isScrolling = true;
         requestAnimationFrame(() => {
           headerElement.scrollLeft = tableElement.scrollLeft;
+          isScrolling = false;
         });
       }
     };
 
-    tableElement.addEventListener('scroll', handleScroll, { passive: true });
+    // Sync table scroll when header scrolls
+    const handleHeaderScroll = () => {
+      if (!isScrolling && tableElement) {
+        isScrolling = true;
+        requestAnimationFrame(() => {
+          tableElement.scrollLeft = headerElement.scrollLeft;
+          isScrolling = false;
+        });
+      }
+    };
+
+    tableElement.addEventListener('scroll', handleTableScroll, { passive: true });
+    headerElement.addEventListener('scroll', handleHeaderScroll, { passive: true });
 
     // Initial sync
     headerElement.scrollLeft = tableElement.scrollLeft;
 
-    return () => tableElement.removeEventListener('scroll', handleScroll);
+    return () => {
+      tableElement.removeEventListener('scroll', handleTableScroll);
+      headerElement.removeEventListener('scroll', handleHeaderScroll);
+    };
   }, [creatives.length]);
 
   useEffect(() => {
@@ -1303,7 +1322,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                     // No more individual metric glow - entire row glows now
                     const metricContent = column.render ? (
-                      column.render(null, creative)
+                      column.render(creative[column.id as keyof typeof creative], creative)
                     ) : column.id === 'platform' ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 capitalize">
                         {creative.platform || 'facebook'}
