@@ -426,43 +426,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       render: (value: string, creative: any) => {
         const isToggling = togglingIds.has(creative.id);
         const normalizedValue = value?.toUpperCase() || 'UNKNOWN';
-        const canToggle = normalizedValue === 'ACTIVE' || normalizedValue === 'PAUSED';
-
-        const displayText = normalizedValue === 'ACTIVE' ? 'Active' :
-                           normalizedValue === 'PAUSED' ? 'Paused' :
-                           normalizedValue === 'ARCHIVED' ? 'Archived' :
-                           normalizedValue === 'DELETED' ? 'Deleted' :
-                           'Unknown';
-
-        // For toggleable statuses, show toggle switch
-        if (canToggle) {
-          return (
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              <ToggleSwitch
-                checked={normalizedValue === 'ACTIVE'}
-                onChange={() => handleToggleStatus(creative)}
-                disabled={isToggling}
-                loading={isToggling}
-                size="sm"
-              />
-              <span className={`text-xs font-medium ${normalizedValue === 'ACTIVE' ? 'text-green-700 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
-                {displayText}
-              </span>
-            </div>
-          );
-        }
-
-        // For non-toggleable statuses, show badge
-        const statusStyles = {
-          ARCHIVED: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-          DELETED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        const style = statusStyles[normalizedValue as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400';
 
         return (
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
-            {displayText}
-          </span>
+          <div className="flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <ToggleSwitch
+              checked={normalizedValue === 'ACTIVE'}
+              onChange={() => handleToggleStatus(creative)}
+              disabled={isToggling}
+              loading={isToggling}
+              size="sm"
+            />
+          </div>
         );
       }
     },
@@ -745,7 +719,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       selectedPlatforms.includes('all') ||
       selectedPlatforms.includes(creative.platform || 'facebook');
 
-    return matchesSearch && matchesPlatform;
+    const normalizedStatus = creative.status?.toUpperCase() || 'UNKNOWN';
+    const isToggleableStatus = normalizedStatus === 'ACTIVE' || normalizedStatus === 'PAUSED';
+
+    return matchesSearch && matchesPlatform && isToggleableStatus;
   });
 
   const sortedCreatives = getSortedCreatives(filteredCreatives);
@@ -1126,9 +1103,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               <div className="flex" style={{ minWidth: '100%', width: 'max-content' }}>
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
-                  const columnStyle = customWidth
-                    ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
-                    : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+                  const finalWidth = customWidth || column.width;
+                  const columnStyle = {
+                    width: finalWidth,
+                    minWidth: finalWidth,
+                    maxWidth: finalWidth,
+                    flexShrink: 0,
+                    flexGrow: 0
+                  };
 
                   return (
                     <div
@@ -1184,9 +1166,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"
                   >
                     {columns.map((column) => {
-                      const columnStyle = columnWidths[column.id]
-                        ? { width: columnWidths[column.id], minWidth: columnWidths[column.id], flexGrow: 0, flexShrink: 0 }
-                        : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+                      const customWidth = columnWidths[column.id];
+                      const finalWidth = customWidth || column.width;
+                      const columnStyle = {
+                        width: finalWidth,
+                        minWidth: finalWidth,
+                        maxWidth: finalWidth,
+                        flexShrink: 0,
+                        flexGrow: 0
+                      };
 
                       return (
                         <div key={column.id} className="px-4 py-3" style={columnStyle}>
@@ -1316,9 +1304,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 >
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
-                    const columnStyle = customWidth
-                      ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
-                      : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+                    const finalWidth = customWidth || column.width;
+                    const columnStyle = {
+                      width: finalWidth,
+                      minWidth: finalWidth,
+                      maxWidth: finalWidth,
+                      flexShrink: 0,
+                      flexGrow: 0
+                    };
 
                     // No more individual metric glow - entire row glows now
                     const metricContent = column.render ? (
@@ -1425,9 +1418,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
-                      const columnStyle = customWidth
-                        ? { width: customWidth, minWidth: customWidth, flexGrow: 0, flexShrink: 0 }
-                        : { minWidth: column.width, flexGrow: column.flexGrow || 0, flexShrink: column.flexShrink || 0, flexBasis: column.width };
+                      const finalWidth = customWidth || column.width;
+                      const columnStyle = {
+                        width: finalWidth,
+                        minWidth: finalWidth,
+                        maxWidth: finalWidth,
+                        flexShrink: 0,
+                        flexGrow: 0
+                      };
 
                       return (
                         <div
