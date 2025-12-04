@@ -127,20 +127,19 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     <div className="h-full flex flex-col overflow-hidden">
       {/* Browser-style Tabs */}
       <div className="flex items-end gap-1 px-6 pt-6 flex-shrink-0 bg-gray-50 dark:bg-gray-900">
-        {tabs.map((tab) => {
+        {tabs.map((tab, index) => {
           const isActive = viewLevel === tab.id;
+          const isFirst = index === 0;
           return (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative rounded-t-xl border-t-2 border-x-2 ${
+              className={`flex items-center gap-3 px-5 py-3 transition-all whitespace-nowrap relative rounded-t-lg ${
                 isActive
-                  ? 'text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-800 border-transparent'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-gray-100/50 dark:bg-gray-800/50 border-transparent hover:bg-gray-100 dark:hover:bg-gray-800'
+                  ? 'text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-800'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 bg-gray-100/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
               style={isActive ? {
-                borderImage: 'linear-gradient(135deg, rgb(239 68 68), rgb(251 146 60), rgb(245 158 11)) 1',
-                borderBottom: 'none',
                 marginBottom: '-2px',
                 zIndex: 10,
                 position: 'relative'
@@ -150,7 +149,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               <span
                 className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${
                   isActive
-                    ? 'bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 text-red-600 dark:text-red-400'
+                    ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                 }`}
               >
@@ -164,13 +163,13 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       {/* Content area with gradient border */}
       <div className="relative mx-6 mb-6 flex-1 min-h-0 flex flex-col">
         <div
-          className="flex-1 min-h-0 flex flex-col rounded-b-xl rounded-tr-xl"
+          className={`flex-1 min-h-0 flex flex-col ${viewLevel === 'campaigns' ? 'rounded-b-lg rounded-tr-lg' : 'rounded-lg rounded-tl-none'}`}
           style={{
-            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(251 146 60), rgb(245 158 11))',
+            background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
             padding: '2px'
           }}
         >
-          <div className="h-full w-full bg-white dark:bg-gray-800 rounded-b-xl rounded-tr-xl flex flex-col overflow-hidden">
+          <div className={`h-full w-full bg-white dark:bg-gray-800 flex flex-col overflow-hidden ${viewLevel === 'campaigns' ? 'rounded-b-lg rounded-tr-lg' : 'rounded-lg rounded-tl-none'}`}>
             <div className="p-4 sm:p-6 flex-1 min-h-0 flex flex-col gap-4">
           {/* Breadcrumb Navigation */}
           {(selectedCampaign || selectedAdSet) && (
