@@ -47,6 +47,10 @@ interface CreativeAnalysisEnhancedProps {
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
   embedded?: boolean;
+  searchTerm?: string;
+  hideSearch?: boolean;
+  selectedPlatforms?: string[];
+  hidePlatformFilter?: boolean;
 }
 
 interface Column {
@@ -74,11 +78,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   onViewSuggestion,
   onAcceptSuggestion,
   onDismissSuggestion,
-  embedded = false
+  embedded = false,
+  searchTerm: externalSearchTerm,
+  hideSearch = false,
+  selectedPlatforms: externalSelectedPlatforms,
+  hidePlatformFilter = false
 }) => {
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
+  const [internalSearchTerm, setInternalSearchTerm] = useState('');
+  const [internalSelectedPlatforms, setInternalSelectedPlatforms] = useState<string[]>(['all']);
+
+  // Use external search term if provided, otherwise use internal
+  const searchTerm = externalSearchTerm !== undefined ? externalSearchTerm : internalSearchTerm;
+  const selectedPlatforms = externalSelectedPlatforms !== undefined ? externalSelectedPlatforms : internalSelectedPlatforms;
   const [internalSelectedItems, setInternalSelectedItems] = useState<Set<string>>(new Set());
 
   // Use external selection if provided, otherwise use internal
@@ -494,14 +506,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
   const handlePlatformFilter = (platformId: string) => {
     if (platformId === 'all') {
-      setSelectedPlatforms(['all']);
+      setInternalSelectedPlatforms(['all']);
     } else {
       const newPlatforms = selectedPlatforms.filter(p => p !== 'all');
       if (newPlatforms.includes(platformId)) {
         const filtered = newPlatforms.filter(p => p !== platformId);
-        setSelectedPlatforms(filtered.length === 0 ? ['all'] : filtered);
+        setInternalSelectedPlatforms(filtered.length === 0 ? ['all'] : filtered);
       } else {
-        setSelectedPlatforms([...newPlatforms, platformId]);
+        setInternalSelectedPlatforms([...newPlatforms, platformId]);
       }
     }
   };
@@ -966,44 +978,46 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             </div>
           )}
 
-          <div className="relative" ref={platformFilterRef}>
-            <button
-              onClick={() => setShowPlatformFilter(!showPlatformFilter)}
-              className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Filter className="w-4 h-4" />
-              <span>Platform</span>
-              {!selectedPlatforms.includes('all') && (
-                <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
-                  {selectedPlatforms.length}
-                </span>
+          {!hidePlatformFilter && (
+            <div className="relative" ref={platformFilterRef}>
+              <button
+                onClick={() => setShowPlatformFilter(!showPlatformFilter)}
+                className="flex items-center space-x-2 px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Filter className="w-4 h-4" />
+                <span>Platform</span>
+                {!selectedPlatforms.includes('all') && (
+                  <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                    {selectedPlatforms.length}
+                  </span>
+                )}
+              </button>
+              {showPlatformFilter && (
+                <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                  {platforms.map((platform) => (
+                    <button
+                      key={platform.id}
+                      onClick={() => handlePlatformFilter(platform.id)}
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <platform.icon className="w-4 h-4" />
+                        <span>{platform.name}</span>
+                      </div>
+                      {(selectedPlatforms.includes(platform.id) || (platform.id === 'all' && selectedPlatforms.includes('all'))) && (
+                        <Check className="w-4 h-4 text-red-600" />
+                      )}
+                    </button>
+                  ))}
+                </div>
               )}
-            </button>
-            {showPlatformFilter && (
-              <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
-                {platforms.map((platform) => (
-                  <button
-                    key={platform.id}
-                    onClick={() => handlePlatformFilter(platform.id)}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <platform.icon className="w-4 h-4" />
-                      <span>{platform.name}</span>
-                    </div>
-                    {(selectedPlatforms.includes(platform.id) || (platform.id === 'all' && selectedPlatforms.includes('all'))) && (
-                      <Check className="w-4 h-4 text-red-600" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {activeFilters.length > 0 && (
+          {!hidePlatformFilter && activeFilters.length > 0 && (
             <button
               onClick={() => {
-                setSelectedPlatforms(['all']);
+                setInternalSelectedPlatforms(['all']);
               }}
               className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 underline"
             >
@@ -1012,24 +1026,26 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           )}
         </div>
 
-        <div className="relative w-[320px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
-            >
-              <X className="w-3.5 h-3.5 text-gray-400" />
-            </button>
-          )}
-        </div>
+        {!hideSearch && (
+          <div className="relative w-[320px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
+              value={searchTerm}
+              onChange={(e) => setInternalSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-1.5 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setInternalSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+              >
+                <X className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className={`overflow-hidden flex-1 flex flex-col min-h-0 min-w-0 ${
@@ -1340,7 +1356,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-red-200 dark:border-red-900/50 shadow-[0_-8px_16px_-4px_rgba(0,0,0,0.1)]" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];

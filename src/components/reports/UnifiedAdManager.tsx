@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Search, X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
@@ -12,6 +13,7 @@ interface UnifiedAdManagerProps {
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
   onAcceptSuggestion?: (suggestion: RexSuggestionWithPerformance) => Promise<void>;
   onDismissSuggestion?: (suggestion: RexSuggestionWithPerformance, reason?: string) => Promise<void>;
+  selectedPlatforms?: string[];
 }
 
 type ViewLevel = 'campaigns' | 'adsets' | 'ads';
@@ -25,7 +27,8 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
   onAcceptSuggestion,
-  onDismissSuggestion
+  onDismissSuggestion,
+  selectedPlatforms = ['all']
 }) => {
   const [viewLevel, setViewLevel] = useState<ViewLevel>('campaigns');
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
@@ -33,6 +36,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedCampaigns, setSelectedCampaigns] = useState<Set<string>>(new Set());
   const [selectedAdSets, setSelectedAdSets] = useState<Set<string>>(new Set());
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   const tabs = [
     {
@@ -127,63 +131,71 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     <div className="h-full flex flex-col overflow-hidden">
       {/* Smart gradient border with seamless tab integration */}
       <div className="relative mx-6 mt-6 mb-6 flex-1 min-h-0 flex flex-col">
-        {/* Tabs positioned above the bordered container */}
-        <div className="flex items-end gap-0.5 px-0 relative z-10 flex-shrink-0">
-          {tabs.map((tab, index) => {
-            const isActive = viewLevel === tab.id;
-            return (
-              <div key={tab.id} className="relative">
-                {/* Gradient border for inactive tabs */}
-                {!isActive && (
-                  <div
-                    className="absolute inset-0 rounded-t-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
-                      padding: '2px',
-                      clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 2px), 0 calc(100% - 2px))'
-                    }}
-                  >
-                    <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
-                  </div>
-                )}
+        {/* Tabs with smart border integration */}
+        <div className="flex items-center justify-between gap-4 px-0 relative z-10 flex-shrink-0">
+          <div className="flex items-end gap-0.5">
+            {tabs.map((tab, index) => {
+              const isActive = viewLevel === tab.id;
+              return (
+                <div key={tab.id} className="relative">
+                  {/* Active tab with gradient border on top and sides only */}
+                  {isActive && (
+                    <div
+                      className="absolute inset-0 rounded-t-xl"
+                      style={{
+                        background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
+                        padding: '2px',
+                        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
+                      }}
+                    >
+                      <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
+                    </div>
+                  )}
 
-                {/* Active tab with gradient border on top and sides only */}
-                {isActive && (
-                  <div
-                    className="absolute inset-0 rounded-t-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgb(239 68 68), rgb(236 72 153))',
-                      padding: '2px',
-                      clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
-                    }}
-                  >
-                    <div className="h-full w-full bg-white dark:bg-gray-800 rounded-t-xl" />
-                  </div>
-                )}
-
-                <button
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`relative flex items-center gap-3 px-6 py-3.5 transition-all whitespace-nowrap rounded-t-xl ${
-                    isActive
-                      ? 'text-gray-900 dark:text-white font-semibold'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  style={isActive ? { marginBottom: '-2px' } : undefined}
-                >
-                  <span className="text-sm">{tab.label}</span>
-                  <span
-                    className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                  <button
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`relative flex items-center gap-3 px-6 py-3.5 transition-all whitespace-nowrap ${
                       isActive
-                        ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        ? 'text-gray-900 dark:text-white font-semibold rounded-t-xl'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg'
                     }`}
+                    style={isActive ? { marginBottom: '-2px' } : undefined}
                   >
-                    {tab.count}
-                  </span>
-                </button>
-              </div>
-            );
-          })}
+                    <span className="text-sm">{tab.label}</span>
+                    <span
+                      className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                        isActive
+                          ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Search moved to tab level */}
+          <div className="relative w-[320px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder={`Search ${viewLevel === 'campaigns' ? 'campaigns' : viewLevel === 'adsets' ? 'ad sets' : 'ads'}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-2 text-sm bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-400"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors"
+              >
+                <X className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Content area with gradient border */}
@@ -243,6 +255,10 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
               viewLevel={viewLevel}
               onDrillDown={handleDrillDown}
               embedded={true}
+              searchTerm={searchTerm}
+              hideSearch={true}
+              selectedPlatforms={selectedPlatforms}
+              hidePlatformFilter={true}
               selectedItems={
                 viewLevel === 'campaigns' ? selectedCampaigns :
                 viewLevel === 'adsets' ? selectedAdSets :

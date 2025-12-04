@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Facebook, AlertTriangle, RefreshCw, Sparkles, BarChart3, Layers } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Facebook, AlertTriangle, RefreshCw, Sparkles, BarChart3, Layers, Filter, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { useClickOutside } from '@/lib/useClickOutside';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
 import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
@@ -40,8 +41,32 @@ export default function Audit() {
   const [topDisplayedSuggestionIds, setTopDisplayedSuggestionIds] = useState<Set<string>>(new Set());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
   const [auditView, setAuditView] = useState<'performance' | 'admanager'>('admanager');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
+  const [showPlatformFilter, setShowPlatformFilter] = useState(false);
+  const platformFilterRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
 
   const { facebook } = useConnectionStore();
+
+  const platforms = [
+    { id: 'all', name: 'All Platforms', icon: Filter },
+    { id: 'facebook', name: 'Facebook', icon: Facebook },
+  ];
+
+  const handlePlatformFilter = (platformId: string) => {
+    if (platformId === 'all') {
+      setSelectedPlatforms(['all']);
+    } else {
+      const newPlatforms = selectedPlatforms.filter(p => p !== 'all');
+      if (newPlatforms.includes(platformId)) {
+        const filtered = newPlatforms.filter(p => p !== platformId);
+        setSelectedPlatforms(filtered.length === 0 ? ['all'] : filtered);
+      } else {
+        setSelectedPlatforms([...newPlatforms, platformId]);
+      }
+    }
+  };
 
   // Helper: Get top 3 pending suggestions for display
   const getTopPendingSuggestions = (allSuggestions: Map<string, RexSuggestionWithPerformance>): Set<string> => {
@@ -635,6 +660,42 @@ export default function Audit() {
 
         {/* Controls - shown for both views */}
         <div className="flex items-center gap-3">
+          {/* Platform Filter */}
+          <div className="relative" ref={platformFilterRef}>
+            <button
+              onClick={() => setShowPlatformFilter(!showPlatformFilter)}
+              disabled={!facebook.isConnected}
+              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Platform</span>
+              {!selectedPlatforms.includes('all') && (
+                <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
+                  {selectedPlatforms.length}
+                </span>
+              )}
+            </button>
+            {showPlatformFilter && (
+              <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+                {platforms.map((platform) => (
+                  <button
+                    key={platform.id}
+                    onClick={() => handlePlatformFilter(platform.id)}
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <platform.icon className="w-4 h-4" />
+                      <span>{platform.name}</span>
+                    </div>
+                    {(selectedPlatforms.includes(platform.id) || (platform.id === 'all' && selectedPlatforms.includes('all'))) && (
+                      <Check className="w-4 h-4 text-red-600" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
@@ -698,6 +759,7 @@ export default function Audit() {
                 onViewSuggestion={handleViewSuggestion}
                 onAcceptSuggestion={handleAcceptSuggestion}
                 onDismissSuggestion={handleDismissSuggestion}
+                selectedPlatforms={selectedPlatforms}
               />
             </div>
           )}
