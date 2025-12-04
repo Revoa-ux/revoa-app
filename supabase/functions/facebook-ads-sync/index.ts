@@ -172,7 +172,7 @@ Deno.serve(async (req: Request) => {
     const campaignRecords = allCampaigns.map(c => ({
       platform_campaign_id: c.id,
       name: c.name,
-      status: c.status?.toLowerCase() || 'unknown',
+      status: c.status?.toUpperCase() || 'UNKNOWN',
       ad_account_id: account.id,
       platform: 'facebook',
       objective: c.objective,
@@ -215,7 +215,7 @@ Deno.serve(async (req: Request) => {
         return {
           platform_ad_set_id: as.id,
           name: as.name,
-          status: as.status?.toLowerCase() || 'unknown',
+          status: as.status?.toUpperCase() || 'UNKNOWN',
           ad_campaign_id: dbCampaign.id,
           campaign_id: dbCampaign.id,
           platform: 'facebook',
@@ -284,7 +284,7 @@ Deno.serve(async (req: Request) => {
         return {
           platform_ad_id: ad.id,
           name: ad.name,
-          status: ad.status?.toLowerCase() || 'unknown',
+          status: ad.status?.toUpperCase() || 'UNKNOWN',
           ad_set_id: dbAdSet.id,
           ad_account_id: account.id,
           platform: 'facebook',
