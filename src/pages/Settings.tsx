@@ -1327,12 +1327,30 @@ const SettingsPage = () => {
     try {
       // Update email if it changed
       if (profile.email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: profile.email
-        });
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session) {
+          throw new Error('Not authenticated');
+        }
 
-        if (emailError) throw emailError;
-        toast.success('Confirmation email sent to your new address. Please verify to complete the change.');
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email-verification`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${session.session.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newEmail: profile.email }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to send verification email');
+        }
+
+        toast.success('Verification email sent! Please check your inbox to confirm the change.');
       }
 
       // Update profile data

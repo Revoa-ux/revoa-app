@@ -38,6 +38,7 @@ import Products from './pages/Products';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import DataDeletion from './pages/DataDeletion';
+import VerifyEmail from './pages/VerifyEmail';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -228,6 +229,7 @@ function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="quotes/review/:id" element={<QuoteReview />} />
               <Route path="automation" element={<AutomationRules />} />
+              <Route path="verify-email" element={<VerifyEmail />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />
               <Route path="*" element={<Analytics />} />
