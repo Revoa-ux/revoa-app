@@ -449,13 +449,7 @@ const Chat = () => {
               <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Online</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-            <button
-              onClick={() => setShowSearchModal(true)}
-              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             {chat && (
               <ChannelDropdown
                 threads={threads}
@@ -464,79 +458,12 @@ const Chat = () => {
                 onCreateThread={() => setShowCreateThreadModal(true)}
               />
             )}
-            <div className="relative" ref={moreMenuRef}>
-              <button
-                onClick={() => setShowMoreMenu(!showMoreMenu)}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-              {showMoreMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                  <button
-                    onClick={async () => {
-                      if (!chat) return;
-                      const newMuteStatus = !isMuted;
-                      setIsMuted(newMuteStatus);
-                      setShowMoreMenu(false);
-
-                      // Persist to database
-                      try {
-                        const { error } = await chatService.updateChatMetadata(chat.id, {
-                          ...chat.metadata,
-                          muted: newMuteStatus
-                        });
-                        if (error) throw error;
-                        toast.success(newMuteStatus ? 'Notifications muted' : 'Notifications unmuted');
-                      } catch (error) {
-                        console.error('Error updating mute status:', error);
-                        setIsMuted(!newMuteStatus); // Revert on error
-                        toast.error('Failed to update notification settings');
-                      }
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    {isMuted ? (
-                      <>
-                        <VolumeX className="w-4 h-4 mr-3" />
-                        Unmute Notifications
-                      </>
-                    ) : (
-                      <>
-                        <Volume2 className="w-4 h-4 mr-3" />
-                        Mute Notifications
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMoreMenu(false);
-                      // Send report email
-                      window.location.href = `mailto:help@revoa.app?subject=Chat Issue Report&body=Chat ID: ${chat?.id}%0D%0A%0D%0APlease describe the issue:`;
-                      toast.success('Opening email to report issue');
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    <Flag className="w-4 h-4 mr-3" />
-                    Report Issue
-                  </button>
-                  <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
-                  <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to clear all messages? This cannot be undone.')) {
-                        setMessages([]);
-                        setShowMoreMenu(false);
-                        toast.success('Chat cleared');
-                      }
-                    }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                  >
-                    <Trash2 className="w-4 h-4 mr-3" />
-                    Clear Messages
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <Search className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
@@ -871,7 +798,7 @@ const Chat = () => {
                   </div>
                   <button
                     onClick={() => setShowCreateThreadModal(true)}
-                    className="p-1.5 text-gray-400 hover:text-[#e83653] hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:bg-gray-600 rounded-lg transition-all"
                     title="Assign to Order"
                   >
                     <Package className="w-5 h-5" />

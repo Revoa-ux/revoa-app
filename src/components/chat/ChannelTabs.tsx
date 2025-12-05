@@ -6,7 +6,7 @@ export interface ChannelThread {
   id: string;
   order_id: string;
   order_number?: string;
-  tag?: 'issue' | 'question' | 'shipping' | 'payment' | 'quality' | 'other';
+  tag?: 'return' | 'replacement' | 'damaged' | 'defective' | 'inquiry' | 'other';
   unread_count?: number;
   status: 'open' | 'closed';
 }
@@ -19,20 +19,20 @@ interface ChannelTabsProps {
 }
 
 const TAG_COLORS = {
-  issue: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  question: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  shipping: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  payment: 'bg-green-500/10 text-green-600 dark:text-green-400',
-  quality: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  return: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  damaged: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
+  defective: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  inquiry: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   other: 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
 };
 
 const TAG_LABELS = {
-  issue: 'Issue',
-  question: 'Question',
-  shipping: 'Shipping',
-  payment: 'Payment',
-  quality: 'Quality',
+  return: 'Return',
+  replacement: 'Replacement',
+  damaged: 'Damaged',
+  defective: 'Defective',
+  inquiry: 'Inquiry',
   other: 'Other',
 };
 
@@ -51,9 +51,9 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
         <button
           onClick={() => onThreadSelect(null)}
           className={cn(
-            'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap',
+            'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap',
             selectedThreadId === null
-              ? 'bg-[#e83653] text-white'
+              ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
           )}
         >
@@ -66,9 +66,9 @@ export const ChannelTabs: React.FC<ChannelTabsProps> = ({
           <div
             key={thread.id}
             className={cn(
-              'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors group relative',
+              'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all group relative',
               selectedThreadId === thread.id
-                ? 'bg-[#e83653] text-white'
+                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             )}
           >

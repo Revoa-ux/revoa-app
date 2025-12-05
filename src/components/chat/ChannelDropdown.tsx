@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ChevronDown, MessageSquare, Package, Plus } from 'lucide-react';
+import { ChevronDown, Hash, Package, Plus } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -12,20 +12,20 @@ interface ChannelDropdownProps {
 }
 
 const TAG_COLORS = {
-  issue: 'bg-red-500/10 text-red-600 dark:text-red-400',
-  question: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  shipping: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
-  payment: 'bg-green-500/10 text-green-600 dark:text-green-400',
-  quality: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  return: 'bg-red-500/10 text-red-600 dark:text-red-400',
+  replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  damaged: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
+  defective: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
+  inquiry: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   other: 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
 };
 
 const TAG_LABELS = {
-  issue: 'Issue',
-  question: 'Question',
-  shipping: 'Shipping',
-  payment: 'Payment',
-  quality: 'Quality',
+  return: 'Return',
+  replacement: 'Replacement',
+  damaged: 'Damaged',
+  defective: 'Defective',
+  inquiry: 'Inquiry',
   other: 'Other',
 };
 
@@ -45,22 +45,18 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
 
   const getCurrentLabel = () => {
     if (!selectedThreadId) {
-      return 'Main Chat';
+      return 'main-chat';
     }
-    return `#${selectedThread?.order_number || selectedThread?.order_id.slice(0, 8)}`;
+    return selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       >
-        {selectedThreadId ? (
-          <Package className="w-4 h-4" />
-        ) : (
-          <MessageSquare className="w-4 h-4" />
-        )}
+        <Hash className="w-4 h-4" />
         <span>{getCurrentLabel()}</span>
         <ChevronDown className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
       </button>
@@ -74,14 +70,14 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               setIsOpen(false);
             }}
             className={cn(
-              'w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-colors',
+              'w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-all',
               selectedThreadId === null
-                ? 'bg-[#e83653] text-white'
+                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             )}
           >
-            <MessageSquare className="w-4 h-4" />
-            Main Chat
+            <Hash className="w-4 h-4" />
+            main-chat
           </button>
 
           {/* Divider */}
@@ -98,15 +94,15 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full px-4 py-2 text-left text-sm flex items-center justify-between gap-2 transition-colors',
+                'w-full px-4 py-2 text-left text-sm flex items-center justify-between gap-2 transition-all',
                 selectedThreadId === thread.id
-                  ? 'bg-[#e83653] text-white'
+                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               )}
             >
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <Package className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">#{thread.order_number || thread.order_id.slice(0, 8)}</span>
+              <div className="flex items-center gap-1 flex-1 min-w-0">
+                <Hash className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{thread.order_number || thread.order_id.slice(0, 8)}</span>
               </div>
               <div className="flex items-center gap-1">
                 {thread.tag && (
@@ -137,10 +133,10 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               onCreateThread();
               setIsOpen(false);
             }}
-            className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 text-[#e83653] hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
           >
-            <Plus className="w-4 h-4" />
-            New Order Thread
+            <Plus className="w-4 h-4 text-red-500" />
+            <span className="bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text">New Order Thread</span>
           </button>
         </div>
       )}
