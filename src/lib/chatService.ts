@@ -707,23 +707,66 @@ export const chatService = {
     orderId: string,
     tag?: string
   ): Promise<string | null> {
-    const { data, error } = await supabase
-      .from('chat_threads')
-      .insert({
-        chat_id: chatId,
-        order_id: orderId,
-        tag: tag || null,
-        status: 'open'
-      })
-      .select('id')
-      .single();
+    try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('Error getting current user:', userError);
+        throw new Error('Authentication required to create thread');
+      }
 
-    if (error) {
-      console.error('Error creating thread:', error);
-      return null;
+      // Get order details for title
+      const { data: order, error: orderError } = await supabase
+        .from('shopify_orders')
+        .select('order_number, customer_first_name, customer_last_name')
+        .eq('id', orderId)
+        .single();
+
+      if (orderError) {
+        console.error('Error fetching order:', orderError);
+        throw new Error('Order not found');
+      }
+
+      // Check if user is admin
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('is_admin, is_super_admin')
+        .eq('user_id', user.id)
+        .single();
+
+      const isAdmin = profile?.is_admin || profile?.is_super_admin || false;
+
+      // Generate title
+      const customerName = [order.customer_first_name, order.customer_last_name]
+        .filter(Boolean)
+        .join(' ') || 'Customer';
+      const tagLabel = tag ? ` - ${tag.charAt(0).toUpperCase() + tag.slice(1)}` : '';
+      const title = `${order.order_number}${tagLabel} (${customerName})`;
+
+      const { data, error } = await supabase
+        .from('chat_threads')
+        .insert({
+          chat_id: chatId,
+          order_id: orderId,
+          title: title,
+          tag: tag || null,
+          status: 'open',
+          created_by_user_id: user.id,
+          created_by_admin: isAdmin
+        })
+        .select('id')
+        .single();
+
+      if (error) {
+        console.error('Error creating thread:', error);
+        throw new Error(error.message || 'Failed to create thread');
+      }
+
+      return data?.id || null;
+    } catch (error) {
+      console.error('Error in createThread:', error);
+      throw error;
     }
-
-    return data?.id || null;
   },
 
   async getUserOrders(userId: string) {
