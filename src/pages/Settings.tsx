@@ -37,6 +37,7 @@ import { useConnectionStore } from '@/lib/connectionStore';
 interface UserProfile {
   first_name: string;
   last_name: string;
+  email: string;
   phone: string;
   company: string;
   profile_picture_url: string | null;
@@ -77,6 +78,7 @@ const SettingsPage = () => {
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
     last_name: '',
+    email: '',
     phone: '',
     company: '',
     profile_picture_url: null
@@ -139,6 +141,7 @@ const SettingsPage = () => {
           setProfile({
             first_name: data.first_name || '',
             last_name: data.last_name || '',
+            email: user?.email || '',
             phone: data.phone || '',
             company: data.company || '',
             profile_picture_url: data.profile_picture_url || null
@@ -1282,6 +1285,10 @@ const SettingsPage = () => {
     const errors: Record<string, string> = {};
     if (!profile.first_name.trim()) errors.first_name = 'First name is required';
     if (!profile.last_name.trim()) errors.last_name = 'Last name is required';
+    if (!profile.email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
     setProfileErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -1304,6 +1311,17 @@ const SettingsPage = () => {
 
     setSavingProfile(true);
     try {
+      // Update email if it changed
+      if (profile.email !== user.email) {
+        const { error: emailError } = await supabase.auth.updateUser({
+          email: profile.email
+        });
+
+        if (emailError) throw emailError;
+        toast.success('Confirmation email sent to your new address. Please verify to complete the change.');
+      }
+
+      // Update profile data
       const updateData = {
         first_name: profile.first_name,
         last_name: profile.last_name,
@@ -1319,10 +1337,13 @@ const SettingsPage = () => {
         .eq('user_id', user.id);
 
       if (error) throw error;
-      toast.success('Profile updated successfully');
-    } catch (error) {
+
+      if (profile.email === user.email) {
+        toast.success('Profile updated successfully');
+      }
+    } catch (error: any) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
+      toast.error(error.message || 'Failed to update profile');
     } finally {
       setSavingProfile(false);
     }
@@ -1874,20 +1895,28 @@ const SettingsPage = () => {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      value={profile.email}
+                      onChange={(e) => handleProfileChange('email', e.target.value)}
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        profileErrors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                      placeholder="you@example.com"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    To change your email, please contact support at help@revoa.app
-                  </p>
+                  {profileErrors.email && (
+                    <p className="mt-1 text-sm text-red-600">{profileErrors.email}</p>
+                  )}
+                  {profile.email !== user?.email && (
+                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      You'll receive a confirmation email to verify your new address
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone & Company */}
