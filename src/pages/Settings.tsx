@@ -69,6 +69,7 @@ const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [shopifyConnecting, setShopifyConnecting] = useState(false);
+  const [shopifySyncing, setShopifySyncing] = useState(false);
   const [showToken, setShowToken] = useState(false);
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -1546,6 +1547,48 @@ const SettingsPage = () => {
     toast.success('Shopify store connected successfully!');
   };
 
+  const handleSyncShopifyOrders = async () => {
+    if (!user?.id || !shopify.installation) return;
+
+    try {
+      setShopifySyncing(true);
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-shopify-orders`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            storeUrl: shopify.installation.store_url,
+            accessToken: shopify.installation.access_token,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to sync orders');
+      }
+
+      toast.success(`Synced ${result.processedCount || 0} orders from Shopify`);
+    } catch (error: any) {
+      console.error('Error syncing orders:', error);
+      toast.error(error.message || 'Failed to sync orders');
+    } finally {
+      setShopifySyncing(false);
+    }
+  };
+
   const handleDisconnectShopify = async () => {
     if (!user?.id) return;
 
@@ -2383,22 +2426,43 @@ const SettingsPage = () => {
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
-                    disabled={shopifyConnecting}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                      integrationStatus.shopify
-                        ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                        : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
-                      <>
-                        Connect
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </>
+                  <div className="flex items-center gap-2">
+                    {integrationStatus.shopify && (
+                      <button
+                        onClick={handleSyncShopifyOrders}
+                        disabled={shopifySyncing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                      >
+                        {shopifySyncing ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            Syncing...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5" />
+                            Sync Orders
+                          </>
+                        )}
+                      </button>
                     )}
-                  </button>
+                    <button
+                      onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
+                      disabled={shopifyConnecting}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                        integrationStatus.shopify
+                          ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                          : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
+                        <>
+                          Connect
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
