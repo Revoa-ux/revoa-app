@@ -12,7 +12,15 @@ import {
   Eye,
   EyeOff,
   DollarSign,
-  RefreshCw
+  RefreshCw,
+  User,
+  Phone,
+  Building,
+  Lock,
+  Camera,
+  Upload,
+  Save,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -25,6 +33,14 @@ import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
+
+interface UserProfile {
+  first_name: string;
+  last_name: string;
+  phone: string;
+  company: string;
+  profile_picture_url: string | null;
+}
 
 interface UserSettings {
   language: string;
@@ -57,9 +73,31 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  const [profile, setProfile] = useState<UserProfile>({
+    first_name: '',
+    last_name: '',
+    phone: '',
+    company: '',
+    profile_picture_url: null
+  });
+  const [passwordData, setPasswordData] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
+  });
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [profileErrors, setProfileErrors] = useState<Record<string, string>>({});
+  const [savingProfile, setSavingProfile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPicture, setUploadingPicture] = useState(false);
 
   // Use centralized connection store
-  const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus } = useConnectionStore();
+  const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus} = useConnectionStore();
   const shopifyStore = shopify.installation?.store_url || null;
   const facebookAccounts = facebook.accounts;
   const integrationStatusShopify = shopify.isConnected;
@@ -84,6 +122,43 @@ const SettingsPage = () => {
     google: false,
     tiktok: false
   });
+
+  // Load user profile data
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data } = await supabase
+          .from('user_profiles')
+          .select('is_admin, first_name, last_name, phone, company, profile_picture_url')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data) {
+          setProfile({
+            first_name: data.first_name || '',
+            last_name: data.last_name || '',
+            phone: data.phone || '',
+            company: data.company || '',
+            profile_picture_url: data.profile_picture_url || null
+          });
+
+          if (data.is_admin) {
+            setIsAdmin(true);
+            const { data: session } = await supabase.auth.getSession();
+            if (session?.session?.access_token) {
+              setAdminToken(session.session.access_token);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    };
+
+    loadProfile();
+  }, [user?.id]);
 
   // Sync integration status from store - use direct values instead of state
   useEffect(() => {
@@ -1181,6 +1256,186 @@ const SettingsPage = () => {
   useClickOutside(currencyDropdownRef, () => setShowCurrencyDropdown(false));
   useClickOutside(themeDropdownRef, () => setShowThemeDropdown(false));
 
+  const handleProfileChange = (field: keyof UserProfile, value: string) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+    if (profileErrors[field]) {
+      setProfileErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
+    if (profileErrors[field]) {
+      setProfileErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateProfile = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!profile.first_name.trim()) errors.first_name = 'First name is required';
+    if (!profile.last_name.trim()) errors.last_name = 'Last name is required';
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validatePassword = (): boolean => {
+    const errors: Record<string, string> = {};
+    if (!passwordData.current_password) errors.current_password = 'Current password is required';
+    if (!passwordData.new_password) errors.new_password = 'New password is required';
+    else if (passwordData.new_password.length < 8) errors.new_password = 'Password must be at least 8 characters';
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      errors.confirm_password = 'Passwords do not match';
+    }
+    setProfileErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateProfile() || !user?.id) return;
+
+    setSavingProfile(true);
+    try {
+      const updateData = {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        phone: profile.phone,
+        company: profile.company,
+        display_name: `${profile.first_name} ${profile.last_name}`.trim(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('user_profiles')
+        .update(updateData)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePassword()) return;
+
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordData.new_password
+      });
+
+      if (error) throw error;
+
+      toast.success('Password changed successfully');
+      setPasswordData({
+        current_password: '',
+        new_password: '',
+        confirm_password: '',
+      });
+      setProfileErrors({});
+    } catch (error: any) {
+      console.error('Error changing password:', error);
+      toast.error(error.message || 'Failed to change password');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error('Only JPEG, PNG, and WebP images are allowed');
+      return;
+    }
+
+    setUploadingPicture(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-pictures')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(filePath);
+
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({ profile_picture_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, profile_picture_url: publicUrl }));
+      toast.success('Profile picture updated successfully');
+    } catch (error) {
+      console.error('Error uploading picture:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setUploadingPicture(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemovePicture = async () => {
+    if (!user?.id) return;
+
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({ profile_picture_url: null })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setProfile(prev => ({ ...prev, profile_picture_url: null }));
+      toast.success('Profile picture removed successfully');
+    } catch (error) {
+      console.error('Error removing picture:', error);
+      toast.error('Failed to remove profile picture');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const getInitials = () => {
+    if (profile.first_name && profile.last_name) {
+      return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
+    }
+    if (profile.first_name) {
+      return profile.first_name.substring(0, 2).toUpperCase();
+    }
+    return user?.email?.substring(0, 2).toUpperCase() || 'U';
+  };
+
   const handleNotificationToggle = async (type: keyof UserSettings['notifications']) => {
     try {
       setIsLoading(true);
@@ -1478,7 +1733,340 @@ const SettingsPage = () => {
       </div>
 
       <div className="flex-1 space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        {/* Profile Settings */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <div className="flex space-x-8 px-6">
+              {[
+                { id: 'profile', label: 'Profile', icon: User },
+                { id: 'security', label: 'Security', icon: Lock },
+              ].map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setActiveTab(id as any)}
+                  className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors ${
+                    activeTab === id
+                      ? 'border-red-500 text-red-500'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="font-medium text-sm">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6">
+            {activeTab === 'profile' && (
+              <form onSubmit={handleSaveProfile} className="space-y-6">
+                {/* Profile Picture */}
+                <div className="flex justify-center">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-red-500/20 to-pink-500/20 dark:from-red-500/30 dark:to-pink-500/30 flex items-center justify-center">
+                        {profile.profile_picture_url ? (
+                          <img
+                            src={profile.profile_picture_url}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-4xl font-semibold text-gray-700 dark:text-gray-200">
+                            {getInitials()}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingPicture}
+                        className="absolute bottom-0 right-0 p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+                      >
+                        <Camera className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingPicture}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                      >
+                        <Upload className="w-4 h-4 inline mr-2" />
+                        {uploadingPicture ? 'Uploading...' : 'Upload New'}
+                      </button>
+
+                      {profile.profile_picture_url && (
+                        <button
+                          type="button"
+                          onClick={handleRemovePicture}
+                          disabled={savingProfile}
+                          className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4 inline mr-2" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                      Max file size: 5MB<br />
+                      Supported: JPEG, PNG, WebP
+                    </p>
+                  </div>
+                </div>
+
+                {/* Name Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      First Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={profile.first_name}
+                        onChange={(e) => handleProfileChange('first_name', e.target.value)}
+                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          profileErrors.first_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                        placeholder="John"
+                      />
+                    </div>
+                    {profileErrors.first_name && (
+                      <p className="mt-1 text-sm text-red-600">{profileErrors.first_name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Last Name <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={profile.last_name}
+                        onChange={(e) => handleProfileChange('last_name', e.target.value)}
+                        className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          profileErrors.last_name ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                        } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                        placeholder="Doe"
+                      />
+                    </div>
+                    {profileErrors.last_name && (
+                      <p className="mt-1 text-sm text-red-600">{profileErrors.last_name}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      value={user?.email || ''}
+                      disabled
+                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    To change your email, please contact support at help@revoa.app
+                  </p>
+                </div>
+
+                {/* Phone & Company */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="tel"
+                        value={profile.phone}
+                        onChange={(e) => handleProfileChange('phone', e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                      Company
+                    </label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={profile.company}
+                        onChange={(e) => handleProfileChange('company', e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700"
+                        placeholder="Your Company"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="group px-6 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {savingProfile ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save Changes
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {activeTab === 'security' && (
+              <form onSubmit={handleChangePassword} className="space-y-4 max-w-xl">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    Change Password
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Ensure your account is using a strong password with at least 8 characters.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type={showPassword.current ? 'text' : 'password'}
+                      value={passwordData.current_password}
+                      onChange={(e) => handlePasswordChange('current_password', e.target.value)}
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        profileErrors.current_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => ({ ...prev, current: !prev.current }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showPassword.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {profileErrors.current_password && (
+                    <p className="mt-1 text-sm text-red-600">{profileErrors.current_password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type={showPassword.new ? 'text' : 'password'}
+                      value={passwordData.new_password}
+                      onChange={(e) => handlePasswordChange('new_password', e.target.value)}
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        profileErrors.new_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {profileErrors.new_password && (
+                    <p className="mt-1 text-sm text-red-600">{profileErrors.new_password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type={showPassword.confirm ? 'text' : 'password'}
+                      value={passwordData.confirm_password}
+                      onChange={(e) => handlePasswordChange('confirm_password', e.target.value)}
+                      className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        profileErrors.confirm_password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                      } focus:ring-2 focus:ring-red-500/50 focus:bg-white dark:focus:bg-gray-700`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
+                      {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  {profileErrors.confirm_password && (
+                    <p className="mt-1 text-sm text-red-600">{profileErrors.confirm_password}</p>
+                  )}
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="group px-6 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {savingProfile ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        Update Password
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Preferences Section */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
             </div>

@@ -19,8 +19,7 @@ import {
   ChevronRight,
   Plug,
   Zap,
-  Target,
-  User
+  Target
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -291,20 +290,6 @@ export default function Layout() {
           {/* Preferences */}
           <div className="px-3 py-4">
             <nav className="space-y-0.5">
-              <Link
-                to="/profile"
-                title={isCollapsed ? 'Profile' : undefined}
-                className={cn(
-                  'flex items-center text-[13px] rounded-lg transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-                  location.pathname === '/profile'
-                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                )}
-              >
-                <User className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Profile'}
-              </Link>
               <Link
                 to="/settings"
                 title={isCollapsed ? 'Settings' : undefined}
