@@ -59,16 +59,22 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const searchOrders = async (searchTerm: string) => {
     setIsSearching(true);
     try {
+      // Try to find orders by order_number containing the search term
+      // This will match partial numbers like "1001" in "#1001"
       const { data, error } = await supabase
         .from('shopify_orders')
         .select('id, order_number, total, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
         .eq('user_id', userId)
-        .ilike('order_number', `%${searchTerm}%`)
+        .or(`order_number.ilike.%${searchTerm}%,order_number.ilike.%#${searchTerm}%`)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Search error:', error);
+        throw error;
+      }
 
+      console.log('Order search results:', data);
       setMatchingOrders(data || []);
       setShowDropdown(true);
     } catch (error) {

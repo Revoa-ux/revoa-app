@@ -55,7 +55,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({ onSelect, onClose }) =
   return (
     <div
       ref={pickerRef}
-      className="absolute bottom-full right-0 mb-2 w-[352px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[10000]"
+      className="absolute bottom-full right-0 mb-2 w-[352px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[99999]"
       style={{
         transformOrigin: 'bottom right',
         animation: 'dropdown-in 0.2s ease-out'

@@ -69,7 +69,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               setIsOpen(false);
             }}
             className={cn(
-              'w-full px-4 py-3 text-left text-sm flex items-center gap-2 transition-all',
+              'w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-all',
               selectedThreadId === null
                 ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -93,7 +93,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full px-4 py-3 text-left text-sm flex items-center justify-between gap-2 transition-all',
+                'w-full px-3 py-2 text-left text-sm flex items-center justify-between gap-2 transition-all',
                 selectedThreadId === thread.id
                   ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -132,7 +132,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               onCreateThread();
               setIsOpen(false);
             }}
-            className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
+            className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
           >
             <Plus className="w-4 h-4 text-red-500" />
             <span className="bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text">New Order Thread</span>
