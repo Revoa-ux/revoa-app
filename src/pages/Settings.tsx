@@ -2491,11 +2491,11 @@ const SettingsPage = () => {
                     </div>
                   </div>
                   {integrationStatus.facebook ? (
-                    <div className="flex gap-3">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {facebookSyncing ? 'Syncing...' : 'Sync'}
                       </button>
