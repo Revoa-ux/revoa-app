@@ -9,10 +9,8 @@ interface Order {
   order_number: string;
   total_price: number;
   created_at: string;
-  financial_status?: string;
-  fulfillment_status?: string;
-  customer_name?: string;
-  line_items_count?: number;
+  customer_email?: string;
+  ordered_at?: string;
 }
 
 interface AssignToOrderModalProps {
@@ -63,7 +61,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
       // This will match partial numbers like "1001" in "#1001"
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, order_number, total_price, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
+        .select('id, order_number, total_price, created_at, customer_email, ordered_at')
         .eq('user_id', userId)
         .ilike('order_number', `%${searchTerm}%`)
         .order('created_at', { ascending: false })
@@ -210,25 +208,18 @@ Items sent back to us without first requesting a return will not be accepted.`,
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-gray-900 dark:text-white">#{order.order_number}</span>
-                    <div className="flex items-center gap-2">
-                      {order.financial_status && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
-                          {order.financial_status}
-                        </span>
-                      )}
-                      {order.fulfillment_status && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                          {order.fulfillment_status}
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-medium text-gray-900 dark:text-white">{order.order_number}</span>
+                    <span className="text-sm font-medium text-[#e83653]">
+                      ${Number(order.total_price).toFixed(2)}
+                    </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {order.customer_name && <span>{order.customer_name} • </span>}
-                    {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                    {' • '}${Number(order.total_price).toFixed(2)}
-                    {order.line_items_count && ` for ${order.line_items_count} item${order.line_items_count !== 1 ? 's' : ''}`}
+                    {order.customer_email && <span>{order.customer_email} • </span>}
+                    {new Date(order.ordered_at || order.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                   </div>
                 </button>
               ))}
@@ -245,7 +236,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
           {selectedOrder && !showDropdown && (
             <div className="mt-2 p-3 bg-gradient-to-r from-red-500/10 to-pink-600/10 border border-red-500/20 rounded-lg">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium text-gray-900 dark:text-white">Selected: #{selectedOrder.order_number}</span>
+                <span className="font-medium text-gray-900 dark:text-white">Selected: {selectedOrder.order_number}</span>
                 <button
                   onClick={() => {
                     setSelectedOrder(null);
