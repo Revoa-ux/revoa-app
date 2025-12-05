@@ -47,6 +47,8 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
+  const [existingThread, setExistingThread] = useState<{ id: string; tag: string | null } | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
     if (selectedOrder) {
@@ -101,6 +103,35 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
     }
   };
 
+  const checkExistingThread = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('chat_threads')
+        .select('id, tag')
+        .eq('chat_id', chatId)
+        .eq('order_id', orderId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setExistingThread(data);
+        setShowWarning(true);
+      } else {
+        setExistingThread(null);
+        setShowWarning(false);
+      }
+    } catch (error) {
+      console.error('Error checking existing thread:', error);
+    }
+  };
+
+  const handleOrderSelect = async (order: Order) => {
+    setSelectedOrder(order);
+    setOrderNumber(`#${order.order_number}`);
+    await checkExistingThread(order.id);
+  };
+
   const handleCreate = async () => {
     if (!selectedOrder) {
       toast.error('Please select an order first');
@@ -109,23 +140,40 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
 
     setIsCreating(true);
     try {
-      console.log('🔧 Creating thread for order:', selectedOrder.order_number);
-      console.log('📊 Thread params:', { chatId, orderId: selectedOrder.id, tag: selectedTag });
+      let threadId: string;
 
-      const threadId = await chatService.createThread(
-        chatId,
-        selectedOrder.id,
-        selectedTag || undefined
-      );
+      // If thread exists, update its tag instead of creating new
+      if (existingThread) {
+        console.log('🔄 Updating existing thread tag:', existingThread.id);
 
-      console.log('✅ Thread created with ID:', threadId);
+        const { error } = await supabase
+          .from('chat_threads')
+          .update({ tag: selectedTag || null })
+          .eq('id', existingThread.id);
 
-      if (!threadId) {
-        throw new Error('Failed to create thread - no thread ID returned');
+        if (error) throw error;
+
+        threadId = existingThread.id;
+        toast.success('Thread tag updated successfully');
+      } else {
+        console.log('🔧 Creating thread for order:', selectedOrder.order_number);
+        console.log('📊 Thread params:', { chatId, orderId: selectedOrder.id, tag: selectedTag });
+
+        threadId = await chatService.createThread(
+          chatId,
+          selectedOrder.id,
+          selectedTag || undefined
+        );
+
+        console.log('✅ Thread created with ID:', threadId);
+
+        if (!threadId) {
+          throw new Error('Failed to create thread - no thread ID returned');
+        }
       }
 
-      // If it's a return, send auto-message with instructions
-      if (selectedTag === 'return') {
+      // If it's a return and this is a NEW thread, send auto-message with instructions
+      if (selectedTag === 'return' && !existingThread) {
         console.log('📤 Sending auto-message for return category...');
         try {
           const message = await chatService.sendThreadMessage(
@@ -165,7 +213,9 @@ Items sent back to us without first requesting a return will not be accepted.`,
         }
       }
 
-      toast.success('Thread created successfully');
+      if (!existingThread) {
+        toast.success('Thread created successfully');
+      }
       onThreadCreated(threadId);
       handleClose();
     } catch (error) {
@@ -181,6 +231,8 @@ Items sent back to us without first requesting a return will not be accepted.`,
     setSelectedOrder(null);
     setSelectedTag('');
     setMatchingOrders([]);
+    setExistingThread(null);
+    setShowWarning(false);
     onClose();
   };
 
@@ -244,10 +296,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
               {matchingOrders.map(order => (
                 <button
                   key={order.id}
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setOrderNumber(order.order_number);
-                  }}
+                  onClick={() => handleOrderSelect(order)}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -288,12 +337,31 @@ Items sent back to us without first requesting a return will not be accepted.`,
                   onClick={() => {
                     setSelectedOrder(null);
                     setOrderNumber('');
+                    setExistingThread(null);
+                    setShowWarning(false);
                   }}
                   className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Warning for existing thread */}
+          {showWarning && existingThread && (
+            <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">
+                A thread for this order already exists
+                {existingThread.tag && (
+                  <span className="ml-1">
+                    with tag: <span className="font-bold">{existingThread.tag}</span>
+                  </span>
+                )}
+              </p>
+              <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-1">
+                Continuing will update the tag/category instead of creating a new thread.
+              </p>
             </div>
           )}
         </div>
@@ -311,7 +379,12 @@ Items sent back to us without first requesting a return will not be accepted.`,
             disabled={!selectedOrder || isCreating}
             className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center gap-2"
           >
-            <span>{isCreating ? 'Creating...' : 'Create Thread'}</span>
+            <span>
+              {isCreating
+                ? (existingThread ? 'Updating...' : 'Creating...')
+                : (existingThread ? 'Update Tag' : 'Create Thread')
+              }
+            </span>
             {!isCreating && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
           </button>
         </div>
