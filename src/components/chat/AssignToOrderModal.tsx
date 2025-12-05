@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 interface Order {
   id: string;
   order_number: string;
-  total: number;
+  total_price: number;
   created_at: string;
   financial_status?: string;
   fulfillment_status?: string;
@@ -63,7 +63,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
       // This will match partial numbers like "1001" in "#1001"
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, order_number, total, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
+        .select('id, order_number, total_price, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
         .eq('user_id', userId)
         .ilike('order_number', `%${searchTerm}%`)
         .order('created_at', { ascending: false })
@@ -227,7 +227,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {order.customer_name && <span>{order.customer_name} • </span>}
                     {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                    {' • '}${order.total.toFixed(2)}
+                    {' • '}${Number(order.total_price).toFixed(2)}
                     {order.line_items_count && ` for ${order.line_items_count} item${order.line_items_count !== 1 ? 's' : ''}`}
                   </div>
                 </button>
