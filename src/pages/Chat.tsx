@@ -15,7 +15,8 @@ import {
   FileText,
   Image as ImageIcon,
   X,
-  Reply
+  Reply,
+  Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -23,12 +24,14 @@ import { Message } from '@/types/chat';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { useAuth } from '@/contexts/AuthContext';
 import { chatService, Chat as ChatType } from '@/lib/chatService';
+import { supabase } from '@/lib/supabase';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
-import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
-import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
+import { ChannelTabs, ChannelThread } from '@/components/chat/ChannelTabs';
+import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
+import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -122,6 +125,16 @@ const Chat = () => {
           setChat(userChat);
           if (userChat.admin_profile) {
             setAdminName(userChat.admin_profile.name || 'Revoa Fulfillment Team');
+            // Get admin's profile picture from admin_profiles table
+            const { data: adminProfile } = await supabase
+              .from('admin_profiles')
+              .select('profile_picture_url')
+              .eq('user_id', userChat.admin_id)
+              .single();
+
+            if (adminProfile?.profile_picture_url) {
+              setAdminAvatar(adminProfile.profile_picture_url);
+            }
           }
           const msgs = await chatService.getChatMessages(userChat.id);
           setMessages(msgs);
@@ -437,12 +450,20 @@ const Chat = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-            <button 
+            <button
               onClick={() => setShowSearchModal(true)}
               className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               <Search className="w-5 h-5" />
             </button>
+            {chat && (
+              <ChannelDropdown
+                threads={threads}
+                selectedThreadId={selectedThreadId}
+                onThreadSelect={handleThreadSelect}
+                onCreateThread={() => setShowCreateThreadModal(true)}
+              />
+            )}
             <div className="relative" ref={moreMenuRef}>
               <button
                 onClick={() => setShowMoreMenu(!showMoreMenu)}
@@ -518,6 +539,16 @@ const Chat = () => {
             </div>
           </div>
         </div>
+
+        {/* Channel Tabs */}
+        {chat && threads.length > 0 && (
+          <ChannelTabs
+            threads={threads}
+            selectedThreadId={selectedThreadId}
+            onThreadSelect={handleThreadSelect}
+            onCloseThread={handleCloseThread}
+          />
+        )}
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {isLoading ? (
@@ -752,18 +783,6 @@ const Chat = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Thread Selector */}
-        {chat && (
-          <ThreadSelector
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onThreadSelect={handleThreadSelect}
-            onCreateThread={() => setShowCreateThreadModal(true)}
-            onCloseThread={handleCloseThread}
-            isLoading={isLoadingThreads}
-          />
-        )}
-
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
             <div className="min-h-[44px] p-3">
@@ -850,6 +869,13 @@ const Chat = () => {
                       </div>
                     )}
                   </div>
+                  <button
+                    onClick={() => setShowCreateThreadModal(true)}
+                    className="p-1.5 text-gray-400 hover:text-[#e83653] hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    title="Assign to Order"
+                  >
+                    <Package className="w-5 h-5" />
+                  </button>
                 </div>
 
                 <button
@@ -949,13 +975,13 @@ const Chat = () => {
         </Modal>
       )}
 
-      {/* Create Thread Modal */}
-      {chat && (
-        <CreateThreadModal
+      {/* Assign to Order Modal */}
+      {chat && user && (
+        <AssignToOrderModal
           isOpen={showCreateThreadModal}
           onClose={() => setShowCreateThreadModal(false)}
           chatId={chat.id}
-          userId={user?.id || ''}
+          userId={user.id}
           onThreadCreated={handleThreadCreated}
         />
       )}

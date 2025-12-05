@@ -700,6 +700,46 @@ export const chatService = {
     return true;
   },
 
+  async createThread(
+    chatId: string,
+    orderId: string,
+    tag?: string
+  ): Promise<string | null> {
+    const { data, error } = await supabase
+      .from('chat_threads')
+      .insert({
+        chat_id: chatId,
+        order_id: orderId,
+        tag: tag || null,
+        status: 'open'
+      })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error creating thread:', error);
+      return null;
+    }
+
+    return data?.id || null;
+  },
+
+  async getUserOrders(userId: string) {
+    const { data, error } = await supabase
+      .from('shopify_orders')
+      .select('id, order_number, total, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error fetching user orders:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
   async closeThread(threadId: string): Promise<boolean> {
     // When closing, we actually delete the thread
     // Messages stay in the database but are orphaned (thread_id becomes null via CASCADE)
