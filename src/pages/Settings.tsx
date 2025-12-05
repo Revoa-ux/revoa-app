@@ -19,7 +19,6 @@ import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import { PaymentMethodManager } from '@/components/payments/PaymentMethodManager';
 import { useClickOutside } from '@/lib/useClickOutside';
-import ProfileForm from '@/components/settings/ProfileForm';
 import { supabase } from '@/lib/supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus } from '@/lib/shopify/status';
 import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
@@ -27,14 +26,9 @@ import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
 
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatar?: string;
+interface UserSettings {
   language: string;
   currency: string;
-  theme: 'light' | 'dark' | 'system';
   notifications: {
     email: boolean;
     push: boolean;
@@ -70,13 +64,9 @@ const SettingsPage = () => {
   const facebookAccounts = facebook.accounts;
   const integrationStatusShopify = shopify.isConnected;
   const integrationStatusFacebook = facebook.isConnected;
-  const [profile, setProfile] = useState<UserProfile>({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: user?.email || '',
+  const [settings, setSettings] = useState<UserSettings>({
     language: 'English',
     currency: 'USD',
-    theme: 'system',
     notifications: {
       email: true,
       push: true,
@@ -1191,57 +1181,11 @@ const SettingsPage = () => {
   useClickOutside(currencyDropdownRef, () => setShowCurrencyDropdown(false));
   useClickOutside(themeDropdownRef, () => setShowThemeDropdown(false));
 
-  const handleProfileUpdate = async (updates: Partial<UserProfile>) => {
-    if (!user?.id) return;
-
-    try {
-      setIsLoading(true);
-
-      const updateData: Record<string, any> = {};
-
-      if (updates.firstName !== undefined) {
-        updateData.first_name = updates.firstName;
-      }
-      if (updates.lastName !== undefined) {
-        updateData.last_name = updates.lastName;
-      }
-      if (updates.phone !== undefined) {
-        updateData.phone = updates.phone;
-      }
-      if (updates.company !== undefined) {
-        updateData.company = updates.company;
-      }
-
-      if (updates.firstName !== undefined || updates.lastName !== undefined) {
-        const firstName = updates.firstName ?? profile.firstName;
-        const lastName = updates.lastName ?? profile.lastName;
-        updateData.display_name = `${firstName} ${lastName}`.trim();
-      }
-
-      updateData.updated_at = new Date().toISOString();
-
-      const { error } = await supabase
-        .from('user_profiles')
-        .update(updateData)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      setProfile(prev => ({ ...prev, ...updates }));
-      toast.success('Profile updated successfully');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error('Failed to update profile');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleNotificationToggle = async (type: keyof UserProfile['notifications']) => {
+  const handleNotificationToggle = async (type: keyof UserSettings['notifications']) => {
     try {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500));
-      setProfile(prev => ({
+      setSettings(prev => ({
         ...prev,
         notifications: {
           ...prev.notifications,
@@ -1255,11 +1199,11 @@ const SettingsPage = () => {
     }
   };
 
-  const handleDataSharingToggle = async (type: keyof UserProfile['dataSharing']) => {
+  const handleDataSharingToggle = async (type: keyof UserSettings['dataSharing']) => {
     try {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 500));
-      setProfile(prev => ({
+      setSettings(prev => ({
         ...prev,
         dataSharing: {
           ...prev.dataSharing,
@@ -1287,19 +1231,6 @@ const SettingsPage = () => {
 
     // Immediately refresh the connection store to update UI
     await refreshShopifyStatus();
-
-    // Also refresh the user profile to update sidebar
-    if (user?.id) {
-      const { data: profileData } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData) {
-        setProfile(profileData);
-      }
-    }
 
     toast.success('Shopify store connected successfully!');
   };
@@ -1490,7 +1421,7 @@ const SettingsPage = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const data = {
-        profile,
+        settings,
       };
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1546,9 +1477,7 @@ const SettingsPage = () => {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Left column - Scrollable content */}
-        <div className="flex-1 max-w-[650px] space-y-6">
+      <div className="flex-1 space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
@@ -1563,7 +1492,7 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Language</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{profile.language}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{settings.language}</p>
                     </div>
                   </div>
                   <div className="relative" ref={languageDropdownRef}>
@@ -1571,7 +1500,7 @@ const SettingsPage = () => {
                       onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
                       className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
                     >
-                      <span>{profile.language}</span>
+                      <span>{settings.language}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
                     
@@ -1581,13 +1510,13 @@ const SettingsPage = () => {
                           <button
                             key={lang}
                             onClick={() => {
-                              handleProfileUpdate({ language: lang });
+                              setSettings(prev => ({ ...prev, language: lang }));
                               setShowLanguageDropdown(false);
                             }}
                             className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                           >
                             <span>{lang}</span>
-                            {profile.language === lang && <Check className="w-4 h-4 text-primary-500" />}
+                            {settings.language === lang && <Check className="w-4 h-4 text-primary-500" />}
                           </button>
                         ))}
                       </div>
@@ -1604,7 +1533,7 @@ const SettingsPage = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Currency</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{profile.currency}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{settings.currency}</p>
                     </div>
                   </div>
                   <div className="relative" ref={currencyDropdownRef}>
@@ -1612,7 +1541,7 @@ const SettingsPage = () => {
                       onClick={() => setShowCurrencyDropdown(!showCurrencyDropdown)}
                       className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
                     >
-                      <span>{profile.currency}</span>
+                      <span>{settings.currency}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
                     
@@ -1622,13 +1551,13 @@ const SettingsPage = () => {
                           <button
                             key={currency}
                             onClick={() => {
-                              handleProfileUpdate({ currency });
+                              setSettings(prev => ({ ...prev, currency }));
                               setShowCurrencyDropdown(false);
                             }}
                             className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                           >
                             <span>{currency}</span>
-                            {profile.currency === currency && <Check className="w-4 h-4 text-primary-500" />}
+                            {settings.currency === currency && <Check className="w-4 h-4 text-primary-500" />}
                           </button>
                         ))}
                       </div>
@@ -1706,12 +1635,12 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('email')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.notifications.email ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.email ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.notifications.email ? 'translate-x-6' : 'translate-x-1'
+                        settings.notifications.email ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
@@ -1732,12 +1661,12 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('push')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.notifications.push ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.push ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.notifications.push ? 'translate-x-6' : 'translate-x-1'
+                        settings.notifications.push ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
@@ -1758,12 +1687,12 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleNotificationToggle('inApp')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.notifications.inApp ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.notifications.inApp ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.notifications.inApp ? 'translate-x-6' : 'translate-x-1'
+                        settings.notifications.inApp ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
@@ -1941,12 +1870,12 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleDataSharingToggle('analytics')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.dataSharing.analytics ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.dataSharing.analytics ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.dataSharing.analytics ? 'translate-x-6' : 'translate-x-1'
+                        settings.dataSharing.analytics ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
@@ -1962,12 +1891,12 @@ const SettingsPage = () => {
                   <button
                     onClick={() => handleDataSharingToggle('marketing')}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profile.dataSharing.marketing ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
+                      settings.dataSharing.marketing ? 'bg-primary-500' : 'bg-gray-200 dark:bg-gray-700'
                     }`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        profile.dataSharing.marketing ? 'translate-x-6' : 'translate-x-1'
+                        settings.dataSharing.marketing ? 'translate-x-6' : 'translate-x-1'
                       }`}
                     />
                   </button>
@@ -2120,25 +2049,6 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Right column - Fixed profile section */}
-        <div className="w-[400px] sticky top-6 h-fit">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Profile Settings</h2>
-            </div>
-            <div className="p-6">
-              <ProfileForm
-                firstName={profile.firstName}
-                lastName={profile.lastName}
-                email={profile.email}
-                avatar={profile.avatar}
-                onUpdate={handleProfileUpdate}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
       </div>
     </>
   );

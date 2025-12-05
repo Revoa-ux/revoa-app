@@ -11,6 +11,7 @@ import Balance from './pages/Balance';
 import Audit from './pages/Audit';
 import Attribution from './pages/Attribution';
 import SettingsPage from './pages/Settings';
+import Profile from './pages/Profile';
 import AutomationRules from './pages/AutomationRules';
 import Auth from './pages/Auth';
 import AdminChat from './pages/admin/Chat';
@@ -228,6 +229,7 @@ function App() {
               <Route path="notifications" element={<Notifications />} />
               <Route path="quotes/review/:id" element={<QuoteReview />} />
               <Route path="automation" element={<AutomationRules />} />
+              <Route path="profile" element={<Profile />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="pricing" element={<Pricing />} />
               <Route path="*" element={<Analytics />} />
