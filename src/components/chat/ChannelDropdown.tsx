@@ -47,7 +47,9 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     if (!selectedThreadId) {
       return 'main-chat';
     }
-    return selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
+    const orderNumber = selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
+    // Remove leading # if present since we show Hash icon
+    return orderNumber.replace(/^#/, '');
   };
 
   return (
@@ -101,7 +103,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {thread.order_number || `#${thread.order_id.slice(0, 8)}`}
+                    {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
                   </span>
                   {thread.tag && (
                     <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>

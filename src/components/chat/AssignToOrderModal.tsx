@@ -128,7 +128,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
 
   const handleOrderSelect = async (order: Order) => {
     setSelectedOrder(order);
-    setOrderNumber(`#${order.order_number}`);
+    setOrderNumber(order.order_number);
     await checkExistingThread(order.id);
   };
 
