@@ -665,7 +665,7 @@ const Chat = () => {
                     </div>
                   )}
                   </div>
-                  <div className="relative mt-1 self-start">
+                  <div className="relative mt-2 self-start">
                     <button
                       onClick={() => setMessageActionsOpen(messageActionsOpen === message.id ? null : message.id)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded flex-shrink-0"
@@ -678,8 +678,11 @@ const Chat = () => {
                         ref={messageActionsRef}
                         className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
                         style={{
-                          top: messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0,
-                          right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
+                          top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
+                          ...(message.sender === 'user'
+                            ? { right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0) }
+                            : { left: messageRefs.current[message.id]?.getBoundingClientRect().left || 0 }
+                          )
                         }}
                       >
                         <button
@@ -706,13 +709,12 @@ const Chat = () => {
                               <MoveRight className="w-4 h-4" />
                               Move to Thread
                             </button>
-                            <div className="h-px bg-gray-200 dark:border-gray-700 mx-2 my-1" />
                             <button
                               onClick={() => {
                                 openDeleteModal(message.id);
                                 setMessageActionsOpen(null);
                               }}
-                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 text-red-600 dark:text-red-400"
                             >
                               <Trash2 className="w-4 h-4" />
                               Delete
