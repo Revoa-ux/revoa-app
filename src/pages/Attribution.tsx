@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { GlassCard } from '@/components/GlassCard';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { PixelInstallation } from '@/components/settings/PixelInstallation';
 
 interface AttributionMetrics {
   totalOrders: number;
@@ -452,6 +453,18 @@ export default function Attribution() {
         </div>
       </div>
 
+      <GlassCard className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Tracking Pixel</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Install the Revoa pixel for accurate attribution and conversion tracking
+          </p>
+        </div>
+        <div className="p-6">
+          {user?.id && <PixelInstallation userId={user.id} />}
+        </div>
+      </GlassCard>
+
       {metrics.attributionRate < 50 && metrics.totalOrders > 5 && (
         <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -464,7 +477,7 @@ export default function Attribution() {
                 Only {metrics.attributionRate.toFixed(1)}% of your orders are being attributed to ads. To improve:
               </p>
               <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-                <li>Install the Revoa pixel on your store (Settings → Tracking Pixel)</li>
+                <li>Install the Revoa pixel on your store using the section above</li>
                 <li>Ensure your ad URLs include utm_term parameter with the ad ID</li>
                 <li>Check that Shopify integration is active and syncing</li>
               </ul>
