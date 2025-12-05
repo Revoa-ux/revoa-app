@@ -126,10 +126,12 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
 
       // If it's a return, send auto-message with instructions
       if (selectedTag === 'return') {
-        await chatService.sendThreadMessage(
-          threadId,
-          chatId,
-          `**Important Return Instructions:**
+        console.log('📤 Sending auto-message for return category...');
+        try {
+          const message = await chatService.sendThreadMessage(
+            threadId,
+            chatId,
+            `**Important Return Instructions:**
 
 Let us know the reason for the return. If the customer changed their mind, there will be a fee. If the reason for the return is our fault, we may cover the cost of the return.
 
@@ -147,10 +149,20 @@ In addition to this, your customer will need to include a note inside the packag
 ⚠️ **Important:** Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
 
 Items sent back to us without first requesting a return will not be accepted.`,
-          'text',
-          'team',
-          {}
-        );
+            'text',
+            'team',
+            {}
+          );
+
+          if (message) {
+            console.log('✅ Auto-message sent successfully:', message.id);
+          } else {
+            console.warn('⚠️ Auto-message failed to send (no message returned)');
+          }
+        } catch (msgError) {
+          console.error('❌ Error sending auto-message:', msgError);
+          // Don't fail the whole operation if just the message fails
+        }
       }
 
       toast.success('Thread created successfully');
