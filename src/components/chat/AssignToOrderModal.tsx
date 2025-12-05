@@ -65,7 +65,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
         .from('shopify_orders')
         .select('id, order_number, total, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
         .eq('user_id', userId)
-        .or(`order_number.ilike.%${searchTerm}%,order_number.ilike.%#${searchTerm}%`)
+        .ilike('order_number', `%${searchTerm}%`)
         .order('created_at', { ascending: false })
         .limit(10);
 
