@@ -873,7 +873,7 @@ const Chat = () => {
                   </div>
                   <button
                     onClick={() => setShowCreateThreadModal(true)}
-                    className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     title="Assign to Order"
                   >
                     <Package className="w-5 h-5" />
