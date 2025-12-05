@@ -13,7 +13,8 @@ import {
   Info,
   MoreHorizontal,
   Trash2,
-  Tag
+  Tag,
+  Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -797,6 +798,13 @@ const AdminChat = () => {
                         className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                       >
                         <Paperclip className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => setShowCreateThreadModal(true)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Assign to order"
+                      >
+                        <Package className="w-5 h-5" />
                       </button>
                       <div className="relative">
                         <button

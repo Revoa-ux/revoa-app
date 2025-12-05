@@ -32,6 +32,7 @@ export function CreateThreadModal({
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
   const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -54,6 +55,7 @@ export function CreateThreadModal({
       if (error) throw error;
 
       setOrders(data || []);
+      setAllOrders(data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast.error('Failed to load orders');
@@ -196,46 +198,68 @@ export function CreateThreadModal({
               <p className="text-sm text-gray-500 dark:text-gray-400">No orders found for this user</p>
             </div>
           ) : (
-            <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
-              {orders.map((order) => (
-                <button
-                  key={order.id}
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
-                    selectedOrderId === order.id
-                      ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-l-pink-500'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Package className={`w-5 h-5 ${
+            <>
+              {/* Search Input */}
+              <div className="mb-3">
+                <input
+                  type="text"
+                  placeholder="Search order number..."
+                  onChange={(e) => {
+                    const search = e.target.value.toLowerCase();
+                    if (search) {
+                      const filtered = allOrders.filter(order =>
+                        order.order_number.toLowerCase().includes(search)
+                      );
+                      setOrders(filtered);
+                    } else {
+                      setOrders(allOrders); // Show all orders
+                    }
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
+                />
+              </div>
+
+              <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                {orders.map((order) => (
+                  <button
+                    key={order.id}
+                    onClick={() => setSelectedOrderId(order.id)}
+                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
                       selectedOrderId === order.id
-                        ? 'text-pink-600 dark:text-pink-400'
-                        : 'text-gray-400'
-                    }`} />
-                    <div className="text-left">
-                      <p className={`font-medium ${
+                        ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-l-pink-500'
+                        : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Package className={`w-5 h-5 ${
                         selectedOrderId === order.id
-                          ? 'text-pink-900 dark:text-pink-100'
-                          : 'text-gray-900 dark:text-white'
-                      }`}>
-                        {order.order_number}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatDate(order.ordered_at)}
-                      </p>
+                          ? 'text-pink-600 dark:text-pink-400'
+                          : 'text-gray-400'
+                      }`} />
+                      <div className="text-left">
+                        <p className={`font-medium ${
+                          selectedOrderId === order.id
+                            ? 'text-pink-900 dark:text-pink-100'
+                            : 'text-gray-900 dark:text-white'
+                        }`}>
+                          {order.order_number}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatDate(order.ordered_at)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <span className={`font-medium ${
-                    selectedOrderId === order.id
-                      ? 'text-pink-900 dark:text-pink-100'
-                      : 'text-gray-600 dark:text-gray-300'
-                  }`}>
-                    {formatCurrency(order.total_price, order.currency)}
-                  </span>
-                </button>
-              ))}
-            </div>
+                    <span className={`font-medium ${
+                      selectedOrderId === order.id
+                        ? 'text-pink-900 dark:text-pink-100'
+                        : 'text-gray-600 dark:text-gray-300'
+                    }`}>
+                      {formatCurrency(order.total_price, order.currency)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </div>
 
