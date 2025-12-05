@@ -1553,6 +1553,9 @@ const SettingsPage = () => {
     try {
       setShopifySyncing(true);
 
+      // Show immediate feedback
+      toast.info('Syncing Shopify orders...');
+
       const { data: session } = await supabase.auth.getSession();
       if (!session.session) {
         throw new Error('Not authenticated');
@@ -1568,8 +1571,6 @@ const SettingsPage = () => {
           },
           body: JSON.stringify({
             userId: user.id,
-            storeUrl: shopify.installation.store_url,
-            accessToken: shopify.installation.access_token,
           }),
         }
       );
@@ -1580,7 +1581,15 @@ const SettingsPage = () => {
         throw new Error(result.error || 'Failed to sync orders');
       }
 
-      toast.success(`Synced ${result.totalOrders || 0} orders from Shopify (${result.processedCount || 0} new)`);
+      // Refresh Shopify status to update last_synced_at
+      await refreshShopifyStatus();
+
+      // Show detailed success message
+      const message = result.pages > 1
+        ? `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes, ${result.pages} pages)`
+        : `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes)`;
+
+      toast.success(message);
     } catch (error: any) {
       console.error('Error syncing orders:', error);
       toast.error(error.message || 'Failed to sync orders');
@@ -2422,7 +2431,12 @@ const SettingsPage = () => {
                     <div>
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
                       {shopifyStore && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{shopifyStore}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {shopifyStore}
+                          {shopify.installation?.last_synced_at && (
+                            <span className="text-gray-400"> • Last synced {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
+                          )}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -2431,19 +2445,9 @@ const SettingsPage = () => {
                       <button
                         onClick={handleSyncShopifyOrders}
                         disabled={shopifySyncing}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {shopifySyncing ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            Syncing...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="w-3.5 h-3.5" />
-                            Sync Orders
-                          </>
-                        )}
+                        {shopifySyncing ? 'Syncing...' : 'Sync'}
                       </button>
                     )}
                     <button

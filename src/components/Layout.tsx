@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 import { supabase } from '../lib/supabase';
+import { startAutoSync } from '../lib/shopifyAutoSync';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: Home },
@@ -131,6 +132,9 @@ export default function Layout() {
 
     const unsubscribePromise = initConnections();
 
+    // Start automatic Shopify order syncing
+    const stopAutoSync = startAutoSync(user.id);
+
     return () => {
       unsubscribePromise.then(unsubscribe => {
         if (unsubscribe) {
@@ -138,6 +142,7 @@ export default function Layout() {
           unsubscribe();
         }
       });
+      stopAutoSync();
     };
   }, [user?.id]);
 

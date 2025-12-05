@@ -5,6 +5,13 @@ export interface ShopifyInstallation {
   store_url: string;
   status: string;
   uninstalled_at: string | null;
+  last_synced_at?: string | null;
+  orders_synced_count?: number;
+}
+
+// Internal type for backend use only - includes access_token
+export interface ShopifyInstallationWithToken extends ShopifyInstallation {
+  access_token: string;
 }
 
 /**
@@ -17,7 +24,7 @@ export async function getActiveShopifyInstallation(
   try {
     const { data, error } = await supabase
       .from('shopify_installations')
-      .select('id, store_url, status, uninstalled_at')
+      .select('id, store_url, status, uninstalled_at, last_synced_at, orders_synced_count')
       .eq('user_id', userId)
       .eq('status', 'installed')
       .is('uninstalled_at', null)

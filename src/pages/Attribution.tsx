@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { syncShopifyOrders } from '@/lib/attributionService';
+import { manualSync } from '@/lib/shopifyAutoSync';
+import { matchOrdersToAds } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';
 import { GlassCard } from '@/components/GlassCard';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
@@ -201,21 +202,29 @@ export default function Attribution() {
 
     setIsSyncing(true);
     try {
-      toast.loading('Syncing orders from Shopify...');
+      toast.info('Syncing Shopify orders...');
 
-      const daysDiff = Math.ceil((dateRange.endDate.getTime() - dateRange.startDate.getTime()) / (1000 * 60 * 60 * 24));
-      const result = await syncShopifyOrders(user.id, daysDiff);
+      // Use new sync service with pagination
+      const syncResult = await manualSync(user.id);
 
-      toast.dismiss();
-
-      if (result.success) {
-        toast.success(`Synced ${result.synced} orders, matched ${result.matched} to ads`);
-        loadAttributionMetrics();
-      } else {
-        toast.error(result.error || 'Failed to sync orders');
+      if (!syncResult.success) {
+        toast.error(syncResult.error || 'Failed to sync orders');
+        return;
       }
+
+      // After syncing orders, match them to ads
+      const startDate = dateRange.startDate.toISOString();
+      const endDate = dateRange.endDate.toISOString();
+      const matchResult = await matchOrdersToAds(user.id, startDate, endDate);
+
+      // Show success message with detailed stats
+      const message = syncResult.pages && syncResult.pages > 1
+        ? `Synced ${syncResult.totalOrders} orders (${syncResult.fulfillmentsCreated} matched to quotes, ${syncResult.pages} pages) and attributed ${matchResult.matches} to ads`
+        : `Synced ${syncResult.totalOrders} orders (${syncResult.fulfillmentsCreated} matched to quotes) and attributed ${matchResult.matches} to ads`;
+
+      toast.success(message);
+      loadAttributionMetrics();
     } catch (error) {
-      toast.dismiss();
       console.error('Sync error:', error);
       toast.error('Failed to sync orders');
     } finally {
