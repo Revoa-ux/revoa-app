@@ -747,15 +747,15 @@ const AdminChat = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Thread Selector */}
-            <ThreadSelector
+            {/* Thread Selector - Hidden */}
+            {/* <ThreadSelector
               threads={threads}
               selectedThreadId={selectedThreadId}
               onThreadSelect={handleThreadSelect}
               onCreateThread={() => setShowCreateThreadModal(true)}
               onCloseThread={handleCloseThread}
               isLoading={isLoadingThreads}
-            />
+            /> */}
 
             {/* Input */}
             <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">

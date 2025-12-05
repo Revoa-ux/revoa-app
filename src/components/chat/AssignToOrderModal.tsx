@@ -151,7 +151,7 @@ In addition to this, your customer will need to include a note inside the packag
 Items sent back to us without first requesting a return will not be accepted.`,
             'text',
             'team',
-            {}
+            { automated: 'true' }
           );
 
           if (message) {
