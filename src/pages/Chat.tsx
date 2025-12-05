@@ -27,6 +27,8 @@ import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
+import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
+import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -93,6 +95,10 @@ const Chat = () => {
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const [messageActionsOpen, setMessageActionsOpen] = useState<string | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const [threads, setThreads] = useState<ChatThread[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [isLoadingThreads, setIsLoadingThreads] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -120,6 +126,12 @@ const Chat = () => {
           const msgs = await chatService.getChatMessages(userChat.id);
           setMessages(msgs);
           await chatService.markMessagesAsRead(userChat.id, false);
+
+          // Load threads
+          setIsLoadingThreads(true);
+          const chatThreads = await chatService.getChatThreads(userChat.id);
+          setThreads(chatThreads);
+          setIsLoadingThreads(false);
         } else {
           toast.error('Unable to initialize chat. Please contact support.');
         }
@@ -134,20 +146,54 @@ const Chat = () => {
     loadChat();
   }, [user]);
 
+  // Load thread messages when thread is selected
+  useEffect(() => {
+    if (!chat || !selectedThreadId) return;
+
+    const loadThreadMessages = async () => {
+      const msgs = await chatService.getThreadMessages(selectedThreadId);
+      setMessages(msgs);
+    };
+
+    loadThreadMessages();
+  }, [chat, selectedThreadId]);
+
   useEffect(() => {
     if (!chat) return;
 
-    const channel = chatService.subscribeToMessages(chat.id, (newMessage) => {
-      setMessages(prev => [...prev, newMessage]);
-      if (newMessage.sender === 'team') {
-        setIsTyping(false);
-      }
+    let mainChannel;
+    let threadChannel;
+    let threadsChannel;
+
+    if (selectedThreadId) {
+      // Subscribe to thread messages
+      threadChannel = chatService.subscribeToThreadMessages(selectedThreadId, (newMessage) => {
+        setMessages(prev => [...prev, newMessage]);
+        if (newMessage.sender === 'team') {
+          setIsTyping(false);
+        }
+      });
+    } else {
+      // Subscribe to main chat messages
+      mainChannel = chatService.subscribeToMessages(chat.id, (newMessage) => {
+        setMessages(prev => [...prev, newMessage]);
+        if (newMessage.sender === 'team') {
+          setIsTyping(false);
+        }
+      });
+    }
+
+    // Subscribe to thread list changes
+    threadsChannel = chatService.subscribeToThreads(chat.id, (updatedThreads) => {
+      setThreads(updatedThreads);
     });
 
     return () => {
-      channel.unsubscribe();
+      mainChannel?.unsubscribe();
+      threadChannel?.unsubscribe();
+      threadsChannel?.unsubscribe();
     };
-  }, [chat]);
+  }, [chat, selectedThreadId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -230,12 +276,25 @@ const Chat = () => {
 
     setMessages([...messages, tempMessage]);
 
-    const savedMessage = await chatService.sendMessage(
-      chat.id,
-      messageText,
-      'text',
-      'user'
-    );
+    let savedMessage;
+    if (selectedThreadId) {
+      // Send to thread
+      savedMessage = await chatService.sendThreadMessage(
+        selectedThreadId,
+        chat.id,
+        messageText,
+        'text',
+        'user'
+      );
+    } else {
+      // Send to main chat
+      savedMessage = await chatService.sendMessage(
+        chat.id,
+        messageText,
+        'text',
+        'user'
+      );
+    }
 
     if (savedMessage) {
       setMessages(prev => prev.map(msg =>
@@ -309,6 +368,44 @@ const Chat = () => {
       setHighlightedMessageId(messageId);
       setTimeout(() => setHighlightedMessageId(null), 2000);
       setShowSearchModal(false);
+    }
+  };
+
+  const handleThreadSelect = (threadId: string | null) => {
+    setSelectedThreadId(threadId);
+  };
+
+  const handleThreadCreated = async (threadId: string) => {
+    // Reload threads
+    if (chat) {
+      const updatedThreads = await chatService.getChatThreads(chat.id);
+      setThreads(updatedThreads);
+      // Switch to the newly created thread
+      setSelectedThreadId(threadId);
+    }
+  };
+
+  const handleCloseThread = async (threadId: string) => {
+    const thread = threads.find(t => t.id === threadId);
+    if (!thread) return;
+
+    const confirmMessage = `Are you sure you want to close "${thread.title}"? This will permanently delete the thread and its messages.`;
+    if (!confirm(confirmMessage)) return;
+
+    const success = await chatService.closeThread(threadId);
+    if (success) {
+      toast.success('Thread closed');
+      // Reload threads
+      if (chat) {
+        const updatedThreads = await chatService.getChatThreads(chat.id);
+        setThreads(updatedThreads);
+      }
+      // If we were viewing this thread, switch to main chat
+      if (selectedThreadId === threadId) {
+        setSelectedThreadId(null);
+      }
+    } else {
+      toast.error('Failed to close thread');
     }
   };
 
@@ -598,7 +695,11 @@ const Chat = () => {
                     {messageActionsOpen === message.id && (
                       <div
                         ref={messageActionsRef}
-                        className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 min-w-[140px]"
+                        className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                        style={{
+                          top: messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0,
+                          right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
+                        }}
                       >
                         <button
                           onClick={() => {
@@ -650,6 +751,18 @@ const Chat = () => {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Thread Selector */}
+        {chat && (
+          <ThreadSelector
+            threads={threads}
+            selectedThreadId={selectedThreadId}
+            onThreadSelect={handleThreadSelect}
+            onCreateThread={() => setShowCreateThreadModal(true)}
+            onCloseThread={handleCloseThread}
+            isLoading={isLoadingThreads}
+          />
+        )}
 
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
@@ -834,6 +947,17 @@ const Chat = () => {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Create Thread Modal */}
+      {chat && (
+        <CreateThreadModal
+          isOpen={showCreateThreadModal}
+          onClose={() => setShowCreateThreadModal(false)}
+          chatId={chat.id}
+          userId={user?.id || ''}
+          onThreadCreated={handleThreadCreated}
+        />
       )}
     </div>
   );
