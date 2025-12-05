@@ -142,7 +142,20 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
     try {
       let threadId: string;
 
-      // If thread exists, update its tag instead of creating new
+      // If thread exists with same tag, just open it
+      const normalizedExistingTag = existingThread?.tag || '';
+      const normalizedSelectedTag = selectedTag || '';
+
+      if (existingThread && normalizedExistingTag === normalizedSelectedTag) {
+        threadId = existingThread.id;
+        toast.success('Opening existing thread');
+        setIsCreating(false);
+        onThreadCreated(threadId);
+        handleClose();
+        return;
+      }
+
+      // If thread exists with different tag, update it
       if (existingThread) {
         console.log('🔄 Updating existing thread tag:', existingThread.id);
 
@@ -350,19 +363,35 @@ Items sent back to us without first requesting a return will not be accepted.`,
 
           {/* Warning for existing thread */}
           {showWarning && existingThread && (
-            <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-              <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">
-                A thread for this order already exists
-                {existingThread.tag && (
-                  <span className="ml-1">
-                    with tag: <span className="font-bold">{existingThread.tag}</span>
-                  </span>
-                )}
-              </p>
-              <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-1">
-                Continuing will update the tag/category instead of creating a new thread.
-              </p>
-            </div>
+            <>
+              {(existingThread.tag || '') === (selectedTag || '') ? (
+                <div className="mt-2 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">
+                    A thread for this order already exists
+                    {existingThread.tag && (
+                      <span className="ml-1">with tag: <span className="font-bold">{existingThread.tag}</span></span>
+                    )}
+                  </p>
+                  <p className="text-xs text-blue-600 dark:text-blue-500 mt-1">
+                    Click "Open Thread" to navigate to the existing conversation.
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">
+                    A thread for this order already exists
+                    {existingThread.tag && (
+                      <span className="ml-1">
+                        with tag: <span className="font-bold">{existingThread.tag}</span>
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-yellow-600 dark:text-yellow-500 mt-1">
+                    Continuing will update the tag/category instead of creating a new thread.
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -380,10 +409,13 @@ Items sent back to us without first requesting a return will not be accepted.`,
             className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center gap-2"
           >
             <span>
-              {isCreating
-                ? (existingThread ? 'Updating...' : 'Creating...')
-                : (existingThread ? 'Update Tag' : 'Create Thread')
-              }
+              {isCreating ? (
+                existingThread && (existingThread.tag || '') === (selectedTag || '') ? 'Opening...' :
+                existingThread ? 'Updating...' : 'Creating...'
+              ) : (
+                existingThread && (existingThread.tag || '') === (selectedTag || '') ? 'Open Thread' :
+                existingThread ? 'Update Tag' : 'Create Thread'
+              )}
             </span>
             {!isCreating && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
           </button>
