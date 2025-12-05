@@ -172,13 +172,15 @@ export async function trackShopifyOrder(
 // ============================================================================
 
 /**
- * Match orders to ads based on UTM term
+ * Match orders to ads based on UTM parameters and click IDs
  *
  * This is the core matching logic. We try multiple strategies:
- * 1. Exact match on utm_term = platform_ad_id
- * 2. Exact match on utm_term = ad name
- * 3. Partial match on ad name contains utm_term
- * 4. Facebook click ID (fbclid) matching via CAPI data
+ * 1. Exact match on utm_term = platform_ad_id (confidence: 1.0)
+ * 2. Exact match on utm_term = ad name (confidence: 0.95)
+ * 3. Partial match on ad name contains utm_term (confidence: 0.8)
+ * 4. Facebook click ID (fbclid) matching (confidence: 0.75)
+ *
+ * Supports all ad platforms: Facebook, Google Ads, TikTok, Microsoft Ads
  */
 export async function matchOrdersToAds(
   userId: string,
@@ -188,13 +190,13 @@ export async function matchOrdersToAds(
   try {
     console.log('[Attribution] Starting conversion matching for user:', userId);
 
-    // Get unmatched orders in date range
+    // Get unmatched orders in date range with UTM tracking
     let ordersQuery = supabase
       .from('shopify_orders')
       .select('*')
       .eq('user_id', userId)
-      .is('utm_source', 'facebook') // Start with Facebook ads only
-      .not('utm_term', 'is', null);
+      .not('utm_term', 'is', null)
+      .not('utm_source', 'is', null);
 
     if (startDate) ordersQuery = ordersQuery.gte('ordered_at', startDate);
     if (endDate) ordersQuery = ordersQuery.lte('ordered_at', endDate);
@@ -213,7 +215,7 @@ export async function matchOrdersToAds(
 
     console.log('[Attribution] Found', orders.length, 'orders to match');
 
-    // Get all ads for this user
+    // Get all ads for this user with platform info
     const { data: ads, error: adsError } = await supabase
       .from('ads')
       .select(
@@ -226,6 +228,7 @@ export async function matchOrdersToAds(
           campaign_id,
           ad_campaigns!inner (
             ad_account_id,
+            platform,
             ad_accounts!inner (
               user_id
             )
@@ -253,13 +256,37 @@ export async function matchOrdersToAds(
       const utmTerm = order.utm_term?.toLowerCase().trim();
       if (!utmTerm) continue;
 
+      // Map utm_source to platform names
+      const platformMap: Record<string, string> = {
+        'facebook': 'facebook',
+        'fb': 'facebook',
+        'instagram': 'facebook',
+        'ig': 'facebook',
+        'google': 'google',
+        'googleads': 'google',
+        'tiktok': 'tiktok',
+        'tt': 'tiktok'
+      };
+
+      const orderPlatform = platformMap[order.utm_source?.toLowerCase()] || order.utm_source?.toLowerCase();
+
+      // Filter ads by matching platform
+      const platformAds = ads.filter(
+        (ad) => ad.ad_sets?.ad_campaigns?.platform?.toLowerCase() === orderPlatform
+      );
+
+      if (platformAds.length === 0) {
+        console.log(`[Attribution] No ${orderPlatform} ads found for order ${order.order_number}`);
+        continue;
+      }
+
       // Try to find matching ad
       let matchedAd = null;
       let attributionMethod: ConversionMatch['attribution_method'] = 'utm_match';
       let confidenceScore = 0;
 
       // Strategy 1: Exact match on platform_ad_id
-      matchedAd = ads.find(
+      matchedAd = platformAds.find(
         (ad) => ad.platform_ad_id === order.utm_term
       );
       if (matchedAd) {
@@ -270,7 +297,7 @@ export async function matchOrdersToAds(
 
       // Strategy 2: Exact match on ad name
       if (!matchedAd) {
-        matchedAd = ads.find(
+        matchedAd = platformAds.find(
           (ad) => ad.name.toLowerCase().trim() === utmTerm
         );
         if (matchedAd) {
@@ -282,13 +309,27 @@ export async function matchOrdersToAds(
 
       // Strategy 3: Partial match on ad name
       if (!matchedAd) {
-        matchedAd = ads.find(
+        matchedAd = platformAds.find(
           (ad) => ad.name.toLowerCase().includes(utmTerm)
         );
         if (matchedAd) {
           confidenceScore = 0.8;
           attributionMethod = 'ad_name_match';
           console.log('[Attribution] Partial name match:', order.order_number, '→', matchedAd.name);
+        }
+      }
+
+      // Strategy 4: Facebook Click ID (fbclid) matching
+      // If order has fbclid but no match yet, use it as utm_term
+      if (!matchedAd && order.fbclid && orderPlatform === 'facebook') {
+        const fbclid = order.fbclid.toLowerCase().trim();
+        matchedAd = platformAds.find(
+          (ad) => ad.platform_ad_id === fbclid || ad.name.toLowerCase().includes(fbclid)
+        );
+        if (matchedAd) {
+          confidenceScore = 0.75;
+          attributionMethod = 'fbclid';
+          console.log('[Attribution] Facebook Click ID match:', order.order_number, '→', matchedAd.name);
         }
       }
 
@@ -301,7 +342,7 @@ export async function matchOrdersToAds(
               user_id: userId,
               ad_id: matchedAd.id,
               order_id: order.id,
-              platform: 'facebook',
+              platform: orderPlatform,
               conversion_value: order.total_price,
               attribution_method: attributionMethod,
               confidence_score: confidenceScore,

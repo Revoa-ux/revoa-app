@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { createHmac } from 'node:crypto';
+import { createHash } from 'node:crypto';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,7 +31,7 @@ interface ConversionEvent {
 }
 
 function hashData(data: string): string {
-  return createHmac('sha256', '')
+  return createHash('sha256')
     .update(data.toLowerCase().trim())
     .digest('hex');
 }
