@@ -43,50 +43,49 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (orderNumber.length >= 2 && !selectedOrder) {
         searchOrders(orderNumber);
-      } else {
+      } else if (orderNumber.length < 2) {
         setMatchingOrders([]);
-        setShowDropdown(false);
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [orderNumber]);
+  }, [orderNumber, selectedOrder]);
 
   const searchOrders = async (searchTerm: string) => {
     setIsSearching(true);
-    setShowDropdown(false);
     try {
       // Clean up search term - remove # if present, trim whitespace
       const cleanTerm = searchTerm.replace(/^#/, '').trim();
 
-      console.log('Searching for orders with term:', cleanTerm, 'for userId:', userId);
+      console.log('🔍 Searching for orders with term:', cleanTerm);
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('👤 Current user ID:', user?.id);
 
       // Don't filter by user_id - let RLS handle it based on auth.uid()
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, order_number, total_price, created_at, customer_email, ordered_at')
+        .select('id, order_number, total_price, created_at, customer_email, ordered_at, user_id')
         .ilike('order_number', `%${cleanTerm}%`)
         .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) {
-        console.error('Search error:', error);
+        console.error('❌ Search error:', error);
         throw error;
       }
 
-      console.log('Order search results:', data);
+      console.log('✅ Order search results:', data);
       setMatchingOrders(data || []);
-      setShowDropdown(true);
     } catch (error) {
-      console.error('Error searching orders:', error);
+      console.error('❌ Error searching orders:', error);
       setMatchingOrders([]);
-      setShowDropdown(true);
     } finally {
       setIsSearching(false);
     }
@@ -148,7 +147,6 @@ Items sent back to us without first requesting a return will not be accepted.`,
     setSelectedOrder(null);
     setSelectedTag('');
     setMatchingOrders([]);
-    setShowDropdown(false);
     onClose();
   };
 
@@ -204,7 +202,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
           </div>
 
           {/* Dropdown Results */}
-          {showDropdown && matchingOrders.length > 0 && (
+          {!selectedOrder && matchingOrders.length > 0 && orderNumber.length >= 2 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
               {matchingOrders.map(order => (
                 <button
@@ -212,7 +210,6 @@ Items sent back to us without first requesting a return will not be accepted.`,
                   onClick={() => {
                     setSelectedOrder(order);
                     setOrderNumber(order.order_number);
-                    setShowDropdown(false);
                   }}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
@@ -235,14 +232,14 @@ Items sent back to us without first requesting a return will not be accepted.`,
             </div>
           )}
 
-          {showDropdown && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
+          {!selectedOrder && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
               No orders found
             </div>
           )}
 
           {/* Selected Order Display */}
-          {selectedOrder && !showDropdown && (
+          {selectedOrder && (
             <div className="mt-2 p-3 bg-gradient-to-r from-red-500/10 to-pink-600/10 border border-red-500/20 rounded-lg">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium text-gray-900 dark:text-white">Selected: {selectedOrder.order_number}</span>
