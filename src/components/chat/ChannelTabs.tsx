@@ -6,6 +6,7 @@ export interface ChannelThread {
   id: string;
   order_id: string;
   order_number?: string;
+  customer_name?: string | null;
   tag?: 'return' | 'replacement' | 'damaged' | 'defective' | 'inquiry' | 'other';
   unread_count?: number;
   status: 'open' | 'closed';

@@ -61,7 +61,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[220px] max-h-[400px] overflow-hidden">
+        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[280px] max-h-[400px] overflow-y-auto">
           {/* Main Chat */}
           <button
             onClick={() => {
@@ -69,20 +69,18 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               setIsOpen(false);
             }}
             className={cn(
-              'w-full px-3 py-2 text-left text-sm flex items-center gap-2 transition-all',
+              'w-full px-3 py-2.5 text-left flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
               selectedThreadId === null
-                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'bg-gray-100 dark:bg-gray-700/50'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
             )}
           >
-            <Hash className="w-4 h-4" />
-            main-chat
+            <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">main-chat</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">General conversation</div>
+            </div>
           </button>
-
-          {/* Divider */}
-          {openThreads.length > 0 && (
-            <div className="border-t border-gray-200 dark:border-gray-700" />
-          )}
 
           {/* Order Threads */}
           {openThreads.map(thread => (
@@ -93,49 +91,48 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full px-3 py-2 text-left text-sm flex items-center justify-between gap-2 transition-all',
+                'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
                 selectedThreadId === thread.id
-                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? 'bg-gray-100 dark:bg-gray-700/50'
+                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
               )}
             >
-              <div className="flex items-center gap-1 flex-1 min-w-0">
-                <Hash className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">{thread.order_number || thread.order_id.slice(0, 8)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                {thread.tag && (
-                  <span
-                    className={cn(
-                      'text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap',
-                      selectedThreadId === thread.id
-                        ? 'bg-white/20 text-white'
-                        : TAG_COLORS[thread.tag]
-                    )}
-                  >
-                    {TAG_LABELS[thread.tag]}
+              <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {thread.order_number || `#${thread.order_id.slice(0, 8)}`}
                   </span>
-                )}
-                {thread.unread_count && thread.unread_count > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                    {thread.unread_count}
-                  </span>
+                  {thread.tag && (
+                    <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
+                      {TAG_LABELS[thread.tag]}
+                    </span>
+                  )}
+                  {thread.unread_count && thread.unread_count > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
+                      {thread.unread_count}
+                    </span>
+                  )}
+                </div>
+                {thread.customer_name && (
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {thread.customer_name}
+                  </div>
                 )}
               </div>
             </button>
           ))}
 
           {/* Create New Thread */}
-          <div className="border-t border-gray-200 dark:border-gray-700" />
           <button
             onClick={() => {
               onCreateThread();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
+            className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
           >
-            <Plus className="w-4 h-4 text-red-500" />
-            <span className="bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text">New Order Thread</span>
+            <Plus className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
           </button>
         </div>
       )}

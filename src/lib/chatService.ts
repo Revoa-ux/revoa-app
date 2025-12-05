@@ -580,7 +580,8 @@ export const chatService = {
       .select(`
         *,
         shopify_orders (
-          order_number
+          order_number,
+          customer_name
         )
       `)
       .eq('chat_id', chatId)
@@ -593,7 +594,8 @@ export const chatService = {
 
     return (data || []).map(thread => ({
       ...thread,
-      order_number: thread.shopify_orders?.order_number || null
+      order_number: thread.shopify_orders?.order_number || null,
+      customer_name: thread.shopify_orders?.customer_name || null
     }));
   },
 
