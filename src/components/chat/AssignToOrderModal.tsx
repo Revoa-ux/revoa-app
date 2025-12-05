@@ -3,6 +3,7 @@ import { X, Package, Tag as TagIcon, Search, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { chatService } from '@/lib/chatService';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface Order {
   id: string;
@@ -10,6 +11,8 @@ interface Order {
   total_price: number;
   created_at: string;
   customer_email?: string;
+  customer_first_name?: string;
+  customer_last_name?: string;
   ordered_at?: string;
 }
 
@@ -78,7 +81,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
       // Don't filter by user_id - let RLS handle it based on auth.uid()
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, order_number, total_price, created_at, customer_email, ordered_at, user_id')
+        .select('id, order_number, total_price, created_at, customer_email, customer_first_name, customer_last_name, ordered_at, user_id')
         .ilike('order_number', `%${cleanTerm}%`)
         .order('created_at', { ascending: false })
         .limit(10);
@@ -99,23 +102,34 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   };
 
   const handleCreate = async () => {
-    if (!selectedOrder) return;
+    if (!selectedOrder) {
+      toast.error('Please select an order first');
+      return;
+    }
 
     setIsCreating(true);
     try {
+      console.log('🔧 Creating thread for order:', selectedOrder.order_number);
+      console.log('📊 Thread params:', { chatId, orderId: selectedOrder.id, tag: selectedTag });
+
       const threadId = await chatService.createThread(
         chatId,
         selectedOrder.id,
         selectedTag || undefined
       );
 
-      if (threadId) {
-        // If it's a return, send auto-message with instructions
-        if (selectedTag === 'return') {
-          await chatService.sendThreadMessage(
-            threadId,
-            chatId,
-            `**Important Return Instructions:**
+      console.log('✅ Thread created with ID:', threadId);
+
+      if (!threadId) {
+        throw new Error('Failed to create thread - no thread ID returned');
+      }
+
+      // If it's a return, send auto-message with instructions
+      if (selectedTag === 'return') {
+        await chatService.sendThreadMessage(
+          threadId,
+          chatId,
+          `**Important Return Instructions:**
 
 Let us know the reason for the return. If the customer changed their mind, there will be a fee. If the reason for the return is our fault, we may cover the cost of the return.
 
@@ -133,17 +147,18 @@ In addition to this, your customer will need to include a note inside the packag
 ⚠️ **Important:** Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
 
 Items sent back to us without first requesting a return will not be accepted.`,
-            'text',
-            'team',
-            {}
-          );
-        }
-
-        onThreadCreated(threadId);
-        handleClose();
+          'text',
+          'team',
+          {}
+        );
       }
+
+      toast.success('Thread created successfully');
+      onThreadCreated(threadId);
+      handleClose();
     } catch (error) {
-      console.error('Error creating thread:', error);
+      console.error('❌ Error creating thread:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create thread. Please try again.');
     } finally {
       setIsCreating(false);
     }
@@ -230,7 +245,11 @@ Items sent back to us without first requesting a return will not be accepted.`,
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {order.customer_email && <span>{order.customer_email} • </span>}
+                    {(order.customer_first_name || order.customer_last_name) && (
+                      <span className="font-medium">
+                        {[order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')} • {' '}
+                      </span>
+                    )}
                     {new Date(order.ordered_at || order.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',

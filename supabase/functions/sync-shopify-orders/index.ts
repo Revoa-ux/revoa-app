@@ -27,6 +27,8 @@ interface ShopifyOrder {
   customer: {
     id: number;
     email: string;
+    first_name?: string;
+    last_name?: string;
   };
 }
 
@@ -248,6 +250,8 @@ Deno.serve(async (req: Request) => {
               total_price: parseFloat(order.total_price || '0'),
               currency: order.currency || 'USD',
               customer_email: order.customer?.email || null,
+              customer_first_name: order.customer?.first_name || null,
+              customer_last_name: order.customer?.last_name || null,
               ordered_at: order.created_at,
             }, {
               onConflict: 'user_id,shopify_order_id',
