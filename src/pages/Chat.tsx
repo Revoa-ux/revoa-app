@@ -129,7 +129,7 @@ const Chat = () => {
           setChat(userChat);
           // Get admin's profile info from admin_profiles table
           if (userChat.admin_id) {
-            const { data: adminProfile, error: profileError } = await supabase
+            const { data: adminProfile } = await supabase
               .from('admin_profiles')
               .select('first_name, last_name, profile_picture_url')
               .eq('user_id', userChat.admin_id)
@@ -141,41 +141,18 @@ const Chat = () => {
                 .filter(Boolean)
                 .join(' ');
 
+              // Only update name if admin has set up their profile
               if (fullName) {
                 setAdminName(fullName);
-              } else {
-                // If admin exists but has no name, get their email from user_profiles
-                const { data: userProfile } = await supabase
-                  .from('user_profiles')
-                  .select('email')
-                  .eq('id', userChat.admin_id)
-                  .single();
-
-                if (userProfile?.email) {
-                  // Show first part of email (before @)
-                  setAdminName(userProfile.email.split('@')[0]);
-                }
               }
+              // Otherwise, keep default "Revoa Fulfillment Team"
 
               // Set profile picture if available
               if (adminProfile.profile_picture_url) {
                 setAdminAvatar(adminProfile.profile_picture_url);
               }
-            } else if (profileError) {
-              console.error('Error fetching admin profile:', profileError);
-              // If profile doesn't exist but admin_id does, get email from user_profiles
-              const { data: userProfile } = await supabase
-                .from('user_profiles')
-                .select('email')
-                .eq('id', userChat.admin_id)
-                .single();
-
-              if (userProfile?.email) {
-                setAdminName(userProfile.email.split('@')[0]);
-              }
             }
           }
-          // Only use "Revoa Fulfillment Team" (default) if no admin is assigned
           const msgs = await chatService.getChatMessages(userChat.id);
           setMessages(msgs);
           await chatService.markMessagesAsRead(userChat.id, false);
