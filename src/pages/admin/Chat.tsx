@@ -784,7 +784,7 @@ const AdminChat = () => {
                     onChange={handleTyping}
                     onKeyDown={handleKeyPress}
                     placeholder="Type a message..."
-                    className="w-full min-h-[24px] max-h-[120px] text-sm text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
+                    className="w-full min-h-[24px] max-h-[120px] text-sm text-gray-900 dark:text-gray-100 bg-transparent focus:outline-none focus:ring-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                     style={{
                       height: '24px',
                       overflowY: 'hidden'

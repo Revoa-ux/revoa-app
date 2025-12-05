@@ -127,17 +127,23 @@ const Chat = () => {
         const userChat = await chatService.getUserChat(user.id);
         if (userChat) {
           setChat(userChat);
-          if (userChat.admin_profile) {
-            setAdminName(userChat.admin_profile.name || 'Revoa Fulfillment Team');
-            // Get admin's profile picture from admin_profiles table
+          // Get admin's profile info from admin_profiles table
+          if (userChat.admin_id) {
             const { data: adminProfile } = await supabase
               .from('admin_profiles')
-              .select('profile_picture_url')
+              .select('first_name, last_name, profile_picture_url')
               .eq('user_id', userChat.admin_id)
               .single();
 
-            if (adminProfile?.profile_picture_url) {
-              setAdminAvatar(adminProfile.profile_picture_url);
+            if (adminProfile) {
+              const fullName = [adminProfile.first_name, adminProfile.last_name]
+                .filter(Boolean)
+                .join(' ');
+              setAdminName(fullName || 'Revoa Fulfillment Team');
+
+              if (adminProfile.profile_picture_url) {
+                setAdminAvatar(adminProfile.profile_picture_url);
+              }
             }
           }
           const msgs = await chatService.getChatMessages(userChat.id);
@@ -794,7 +800,7 @@ const Chat = () => {
                 onChange={handleTyping}
                 onKeyDown={handleKeyPress}
                 placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message..."}
-                className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
+                className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none focus:ring-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                 style={{
                   height: '24px',
                   overflowY: 'hidden'

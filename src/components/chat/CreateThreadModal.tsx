@@ -192,7 +192,7 @@ export function CreateThreadModal({
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
-          ) : orders.length === 0 ? (
+          ) : allOrders.length === 0 ? (
             <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
               <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
               <p className="text-sm text-gray-500 dark:text-gray-400">No orders found for this user</p>
@@ -219,8 +219,14 @@ export function CreateThreadModal({
                 />
               </div>
 
-              <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
-                {orders.map((order) => (
+              {orders.length === 0 ? (
+                <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
+                </div>
+              ) : (
+                <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                  {orders.map((order) => (
                   <button
                     key={order.id}
                     onClick={() => setSelectedOrderId(order.id)}
@@ -257,8 +263,9 @@ export function CreateThreadModal({
                       {formatCurrency(order.total_price, order.currency)}
                     </span>
                   </button>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
