@@ -30,6 +30,8 @@ import { SearchResults } from '@/components/chat/SearchResults';
 import { ConversationListSkeleton } from '@/components/PageSkeletons';
 import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientProfile';
 import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
+import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
+import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -92,6 +94,10 @@ const AdminChat = () => {
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [threads, setThreads] = useState<ChatThread[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
+  const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [isLoadingThreads, setIsLoadingThreads] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -123,29 +129,74 @@ const AdminChat = () => {
   useEffect(() => {
     if (!selectedChat) return;
 
+    // Reset thread selection when chat changes
+    setSelectedThreadId(null);
+
     const loadMessages = async () => {
       const msgs = await chatService.getChatMessages(selectedChat.id);
       setMessages(msgs);
       await chatService.markMessagesAsRead(selectedChat.id, true);
     };
 
+    const loadThreads = async () => {
+      setIsLoadingThreads(true);
+      const chatThreads = await chatService.getChatThreads(selectedChat.id);
+      setThreads(chatThreads);
+      setIsLoadingThreads(false);
+    };
+
     loadMessages();
+    loadThreads();
   }, [selectedChat]);
+
+  // Load messages when thread is selected
+  useEffect(() => {
+    if (!selectedChat || !selectedThreadId) return;
+
+    const loadThreadMessages = async () => {
+      const msgs = await chatService.getThreadMessages(selectedThreadId);
+      setMessages(msgs);
+    };
+
+    loadThreadMessages();
+  }, [selectedChat, selectedThreadId]);
 
   useEffect(() => {
     if (!selectedChat) return;
 
-    const channel = chatService.subscribeToMessages(selectedChat.id, (newMessage) => {
-      setMessages(prev => [...prev, newMessage]);
-      if (newMessage.sender === 'user') {
-        setIsTyping(false);
-      }
+    let mainChannel;
+    let threadChannel;
+    let threadsChannel;
+
+    if (selectedThreadId) {
+      // Subscribe to thread messages
+      threadChannel = chatService.subscribeToThreadMessages(selectedThreadId, (newMessage) => {
+        setMessages(prev => [...prev, newMessage]);
+        if (newMessage.sender === 'user') {
+          setIsTyping(false);
+        }
+      });
+    } else {
+      // Subscribe to main chat messages
+      mainChannel = chatService.subscribeToMessages(selectedChat.id, (newMessage) => {
+        setMessages(prev => [...prev, newMessage]);
+        if (newMessage.sender === 'user') {
+          setIsTyping(false);
+        }
+      });
+    }
+
+    // Subscribe to thread list changes
+    threadsChannel = chatService.subscribeToThreads(selectedChat.id, (updatedThreads) => {
+      setThreads(updatedThreads);
     });
 
     return () => {
-      channel.unsubscribe();
+      mainChannel?.unsubscribe();
+      threadChannel?.unsubscribe();
+      threadsChannel?.unsubscribe();
     };
-  }, [selectedChat]);
+  }, [selectedChat, selectedThreadId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -199,12 +250,25 @@ const AdminChat = () => {
 
     setMessages([...messages, tempMessage]);
 
-    const savedMessage = await chatService.sendMessage(
-      selectedChat.id,
-      messageText,
-      'text',
-      'team'
-    );
+    let savedMessage;
+    if (selectedThreadId) {
+      // Send to thread
+      savedMessage = await chatService.sendThreadMessage(
+        selectedThreadId,
+        selectedChat.id,
+        messageText,
+        'text',
+        'team'
+      );
+    } else {
+      // Send to main chat
+      savedMessage = await chatService.sendMessage(
+        selectedChat.id,
+        messageText,
+        'text',
+        'team'
+      );
+    }
 
     if (savedMessage) {
       setMessages(prev => prev.map(msg =>
@@ -282,6 +346,44 @@ const AdminChat = () => {
       setHighlightedMessageId(messageId);
       setTimeout(() => setHighlightedMessageId(null), 2000);
       setShowSearchModal(false);
+    }
+  };
+
+  const handleThreadSelect = (threadId: string | null) => {
+    setSelectedThreadId(threadId);
+  };
+
+  const handleThreadCreated = async (threadId: string) => {
+    // Reload threads
+    if (selectedChat) {
+      const updatedThreads = await chatService.getChatThreads(selectedChat.id);
+      setThreads(updatedThreads);
+      // Switch to the newly created thread
+      setSelectedThreadId(threadId);
+    }
+  };
+
+  const handleCloseThread = async (threadId: string) => {
+    const thread = threads.find(t => t.id === threadId);
+    if (!thread) return;
+
+    const confirmMessage = `Are you sure you want to close "${thread.title}"? This will permanently delete the thread and its messages.`;
+    if (!confirm(confirmMessage)) return;
+
+    const success = await chatService.closeThread(threadId);
+    if (success) {
+      toast.success('Thread closed');
+      // Reload threads
+      if (selectedChat) {
+        const updatedThreads = await chatService.getChatThreads(selectedChat.id);
+        setThreads(updatedThreads);
+      }
+      // If we were viewing this thread, switch to main chat
+      if (selectedThreadId === threadId) {
+        setSelectedThreadId(null);
+      }
+    } else {
+      toast.error('Failed to close thread');
     }
   };
 
@@ -594,7 +696,11 @@ const AdminChat = () => {
                         {messageActionsOpen === message.id && (
                           <div
                             ref={messageActionsRef}
-                            className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50 min-w-[140px]"
+                            className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
+                            style={{
+                              top: messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0,
+                              right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
+                            }}
                           >
                             <button
                               onClick={() => {
@@ -639,6 +745,16 @@ const AdminChat = () => {
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Thread Selector */}
+            <ThreadSelector
+              threads={threads}
+              selectedThreadId={selectedThreadId}
+              onThreadSelect={handleThreadSelect}
+              onCreateThread={() => setShowCreateThreadModal(true)}
+              onCloseThread={handleCloseThread}
+              isLoading={isLoadingThreads}
+            />
 
             {/* Input */}
             <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
@@ -825,6 +941,17 @@ const AdminChat = () => {
               </div>
             </div>
           </Modal>
+        )}
+
+        {/* Create Thread Modal */}
+        {selectedChat && (
+          <CreateThreadModal
+            isOpen={showCreateThreadModal}
+            onClose={() => setShowCreateThreadModal(false)}
+            chatId={selectedChat.id}
+            userId={selectedChat.user_id}
+            onThreadCreated={handleThreadCreated}
+          />
         )}
     </>
   );

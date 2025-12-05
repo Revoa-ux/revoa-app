@@ -571,5 +571,199 @@ export const chatService = {
       .eq('id', chatId);
 
     return { error };
+  },
+
+  // Thread / Ticket Management
+  async getChatThreads(chatId: string) {
+    const { data, error } = await supabase
+      .from('chat_threads')
+      .select(`
+        *,
+        shopify_orders (
+          order_number
+        )
+      `)
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching threads:', error);
+      return [];
+    }
+
+    return (data || []).map(thread => ({
+      ...thread,
+      order_number: thread.shopify_orders?.order_number || null
+    }));
+  },
+
+  async getThreadMessages(threadId: string): Promise<Message[]> {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('thread_id', threadId)
+      .is('deleted_at', null)
+      .order('timestamp', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching thread messages:', error);
+      return [];
+    }
+
+    return (data || []).map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      type: msg.type as 'text' | 'image' | 'file' | 'link' | 'invoice',
+      sender: msg.sender as 'user' | 'team',
+      timestamp: new Date(msg.timestamp),
+      status: msg.status,
+      statusTimeline: {},
+      fileUrl: msg.metadata?.fileUrl,
+      fileName: msg.metadata?.fileName,
+      fileSize: msg.metadata?.fileSize,
+      metadata: msg.metadata
+    }));
+  },
+
+  async sendThreadMessage(
+    threadId: string,
+    chatId: string,
+    content: string,
+    type: 'text' | 'image' | 'file' | 'link' | 'invoice',
+    sender: 'user' | 'team',
+    metadata?: any
+  ): Promise<Message | null> {
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        chat_id: chatId,
+        thread_id: threadId,
+        content,
+        type,
+        sender,
+        status: 'sent',
+        metadata: metadata || {}
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error sending thread message:', error);
+      return null;
+    }
+
+    // Update thread updated_at
+    await supabase
+      .from('chat_threads')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', threadId);
+
+    // Update main chat
+    await supabase
+      .from('chats')
+      .update({
+        last_message_at: new Date().toISOString(),
+        unread_count_user: sender === 'team' ? supabase.rpc('increment', { row_id: chatId }) : undefined,
+        unread_count_admin: sender === 'user' ? supabase.rpc('increment', { row_id: chatId }) : undefined,
+      })
+      .eq('id', chatId);
+
+    return {
+      id: data.id,
+      content: data.content,
+      type: data.type as any,
+      sender: data.sender as any,
+      timestamp: new Date(data.timestamp),
+      status: data.status,
+      statusTimeline: {},
+      fileUrl: data.metadata?.fileUrl,
+      fileName: data.metadata?.fileName,
+      fileSize: data.metadata?.fileSize,
+      metadata: data.metadata
+    };
+  },
+
+  async updateThreadStatus(
+    threadId: string,
+    status: 'open' | 'resolved' | 'closed'
+  ): Promise<boolean> {
+    const { error } = await supabase
+      .from('chat_threads')
+      .update({ status })
+      .eq('id', threadId);
+
+    if (error) {
+      console.error('Error updating thread status:', error);
+      return false;
+    }
+
+    return true;
+  },
+
+  async closeThread(threadId: string): Promise<boolean> {
+    // When closing, we actually delete the thread
+    // Messages stay in the database but are orphaned (thread_id becomes null via CASCADE)
+    const { error } = await supabase
+      .from('chat_threads')
+      .delete()
+      .eq('id', threadId);
+
+    if (error) {
+      console.error('Error closing thread:', error);
+      return false;
+    }
+
+    return true;
+  },
+
+  subscribeToThreads(chatId: string, callback: (threads: any[]) => void) {
+    return supabase
+      .channel(`threads:${chatId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chat_threads',
+          filter: `chat_id=eq.${chatId}`
+        },
+        async () => {
+          // Reload threads when any change occurs
+          const threads = await this.getChatThreads(chatId);
+          callback(threads);
+        }
+      )
+      .subscribe();
+  },
+
+  subscribeToThreadMessages(threadId: string, callback: (message: Message) => void) {
+    return supabase
+      .channel(`thread-messages:${threadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `thread_id=eq.${threadId}`
+        },
+        (payload) => {
+          const msg = payload.new;
+          callback({
+            id: msg.id,
+            content: msg.content,
+            type: msg.type,
+            sender: msg.sender,
+            timestamp: new Date(msg.timestamp),
+            status: msg.status,
+            statusTimeline: {},
+            fileUrl: msg.metadata?.fileUrl,
+            fileName: msg.metadata?.fileName,
+            fileSize: msg.metadata?.fileSize,
+            metadata: msg.metadata
+          });
+        }
+      )
+      .subscribe();
   }
 };
