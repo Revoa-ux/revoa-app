@@ -260,6 +260,186 @@ export class RexSuggestionService {
     }
   }
 
+  /**
+   * Update performance metrics and calculate improvement
+   * Should be called 7 days after suggestion is applied
+   */
+  async updatePerformanceComparison(
+    suggestionId: string,
+    currentMetrics: {
+      spend: number;
+      revenue: number;
+      profit: number;
+      roas: number;
+      conversions: number;
+      cpa: number;
+      impressions: number;
+      clicks: number;
+      ctr: number;
+      periodStart: Date;
+      periodEnd: Date;
+    }
+  ): Promise<RexSuggestionPerformance> {
+    try {
+      // Get existing performance record
+      const performance = await this.getPerformance(suggestionId);
+
+      if (!performance) {
+        throw new Error('Performance baseline not found for suggestion');
+      }
+
+      // Calculate deltas
+      const spendDelta = currentMetrics.spend - performance.baseline_spend;
+      const revenueDelta = currentMetrics.revenue - performance.baseline_revenue;
+      const profitDelta = currentMetrics.profit - performance.baseline_profit;
+      const roasDelta = currentMetrics.roas - performance.baseline_roas;
+      const conversionsDelta = currentMetrics.conversions - performance.baseline_conversions;
+      const cpaDelta = currentMetrics.cpa - performance.baseline_cpa;
+      const impressionsDelta = currentMetrics.impressions - performance.baseline_impressions;
+      const clicksDelta = currentMetrics.clicks - performance.baseline_clicks;
+      const ctrDelta = currentMetrics.ctr - performance.baseline_ctr;
+
+      // Determine if performance is improving
+      // Consider it improving if profit increased OR (revenue increased AND ROAS improved)
+      const isImproving = profitDelta > 0 || (revenueDelta > 0 && roasDelta > 0);
+
+      // Update performance record
+      const { data, error } = await supabase
+        .from('rex_suggestion_performance')
+        .update({
+          current_spend: currentMetrics.spend,
+          current_revenue: currentMetrics.revenue,
+          current_profit: currentMetrics.profit,
+          current_roas: currentMetrics.roas,
+          current_conversions: currentMetrics.conversions,
+          current_cpa: currentMetrics.cpa,
+          current_impressions: currentMetrics.impressions,
+          current_clicks: currentMetrics.clicks,
+          current_ctr: currentMetrics.ctr,
+          current_period_start: currentMetrics.periodStart.toISOString(),
+          current_period_end: currentMetrics.periodEnd.toISOString(),
+          spend_delta: spendDelta,
+          revenue_delta: revenueDelta,
+          profit_delta: profitDelta,
+          roas_delta: roasDelta,
+          conversions_delta: conversionsDelta,
+          cpa_delta: cpaDelta,
+          impressions_delta: impressionsDelta,
+          clicks_delta: clicksDelta,
+          ctr_delta: ctrDelta,
+          is_improving: isImproving,
+          last_comparison_at: new Date().toISOString()
+        })
+        .eq('suggestion_id', suggestionId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log(`[RexSuggestion] Updated performance for suggestion ${suggestionId}. Improving: ${isImproving}, Profit Delta: $${profitDelta.toFixed(2)}`);
+
+      return data as RexSuggestionPerformance;
+    } catch (error) {
+      console.error('[RexSuggestion] Error updating performance comparison:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Automatically update performance for suggestions applied 7+ days ago
+   */
+  async updatePerformanceForAppliedSuggestions(userId: string): Promise<number> {
+    try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      // Get suggestions that were applied 7+ days ago and haven't been compared recently
+      const { data: suggestions, error } = await supabase
+        .from('rex_suggestions')
+        .select(`
+          id,
+          entity_id,
+          entity_type,
+          platform,
+          applied_at,
+          rex_suggestion_performance (
+            id,
+            last_comparison_at
+          )
+        `)
+        .eq('user_id', userId)
+        .eq('status', 'applied')
+        .lte('applied_at', sevenDaysAgo.toISOString())
+        .or('rex_suggestion_performance.last_comparison_at.is.null,rex_suggestion_performance.last_comparison_at.lt.' + new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+      if (error) throw error;
+      if (!suggestions || suggestions.length === 0) return 0;
+
+      let updatedCount = 0;
+
+      for (const suggestion of suggestions) {
+        try {
+          // Fetch current metrics for this entity
+          const endDate = new Date();
+          const startDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+          const { data: metrics } = await supabase
+            .from('ad_metrics')
+            .select('*')
+            .eq('user_id', userId)
+            .gte('date', startDate.toISOString().split('T')[0])
+            .lte('date', endDate.toISOString().split('T')[0]);
+
+          if (!metrics || metrics.length === 0) continue;
+
+          // Filter metrics for this entity
+          const entityMetrics = metrics.filter((m: any) => {
+            if (suggestion.entity_type === 'campaign') {
+              return m.campaign_id === suggestion.entity_id;
+            } else if (suggestion.entity_type === 'ad_set') {
+              return m.ad_set_id === suggestion.entity_id;
+            } else {
+              return m.ad_id === suggestion.entity_id;
+            }
+          });
+
+          if (entityMetrics.length === 0) continue;
+
+          // Aggregate metrics
+          const totalSpend = entityMetrics.reduce((sum: number, m: any) => sum + (m.spend || 0), 0);
+          const totalRevenue = entityMetrics.reduce((sum: number, m: any) => sum + (m.revenue || 0), 0);
+          const totalConversions = entityMetrics.reduce((sum: number, m: any) => sum + (m.conversions || 0), 0);
+          const totalClicks = entityMetrics.reduce((sum: number, m: any) => sum + (m.clicks || 0), 0);
+          const totalImpressions = entityMetrics.reduce((sum: number, m: any) => sum + (m.impressions || 0), 0);
+
+          const currentMetrics = {
+            spend: totalSpend,
+            revenue: totalRevenue,
+            profit: totalRevenue - totalSpend,
+            roas: totalSpend > 0 ? totalRevenue / totalSpend : 0,
+            conversions: totalConversions,
+            cpa: totalConversions > 0 ? totalSpend / totalConversions : 0,
+            impressions: totalImpressions,
+            clicks: totalClicks,
+            ctr: totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0,
+            periodStart: startDate,
+            periodEnd: endDate
+          };
+
+          await this.updatePerformanceComparison(suggestion.id, currentMetrics);
+          updatedCount++;
+        } catch (err) {
+          console.error(`[RexSuggestion] Error updating performance for suggestion ${suggestion.id}:`, err);
+        }
+      }
+
+      console.log(`[RexSuggestion] Updated performance for ${updatedCount} suggestions`);
+      return updatedCount;
+    } catch (error) {
+      console.error('[RexSuggestion] Error updating performance for applied suggestions:', error);
+      throw error;
+    }
+  }
+
   async expireOldSuggestions(): Promise<number> {
     try {
       const { error } = await supabase.rpc('expire_old_rex_suggestions');

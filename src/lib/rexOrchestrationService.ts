@@ -282,9 +282,43 @@ export class RexOrchestrationService {
 
   // Platform-specific implementations
   private async updateFacebookBudget(entity: AdEntity, newBudget: number) {
-    // TODO: Call Facebook Marketing API to update budget
-    console.log('[RexOrchestration] Would update Facebook budget to:', newBudget);
-    return { success: true, message: `Budget updated to $${newBudget.toFixed(2)}/day` };
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        return { success: false, message: 'Not authenticated' };
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-update-budget`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            userId: this.userId,
+            platform: 'facebook',
+            entityType: entity.type === 'ad_set' ? 'adset' : entity.type,
+            entityId: entity.platformId,
+            newBudget,
+            budgetType: 'daily'
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (!result.success) {
+        console.error('[RexOrchestration] Failed to update Facebook budget:', result.message);
+        return { success: false, message: result.message };
+      }
+
+      console.log('[RexOrchestration] Successfully updated Facebook budget to:', newBudget);
+      return { success: true, message: `Budget updated to $${newBudget.toFixed(2)}/day` };
+    } catch (error) {
+      console.error('[RexOrchestration] Error updating Facebook budget:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
   private async updateGoogleBudget(entity: AdEntity, newBudget: number) {
@@ -300,9 +334,42 @@ export class RexOrchestrationService {
   }
 
   private async pauseFacebookEntity(entity: AdEntity) {
-    // TODO: Call Facebook Marketing API to pause
-    console.log('[RexOrchestration] Would pause Facebook entity:', entity.name);
-    return { success: true, message: `${entity.name} has been paused` };
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        return { success: false, message: 'Not authenticated' };
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-toggle-status`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            userId: this.userId,
+            platform: 'facebook',
+            entityType: entity.type === 'ad_set' ? 'adset' : entity.type,
+            entityId: entity.platformId,
+            newStatus: 'PAUSED'
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (!result.success) {
+        console.error('[RexOrchestration] Failed to pause Facebook entity:', result.message);
+        return { success: false, message: result.message };
+      }
+
+      console.log('[RexOrchestration] Successfully paused Facebook entity:', entity.name);
+      return { success: true, message: `${entity.name} has been paused` };
+    } catch (error) {
+      console.error('[RexOrchestration] Error pausing Facebook entity:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
   private async pauseGoogleEntity(entity: AdEntity) {
@@ -318,9 +385,44 @@ export class RexOrchestrationService {
   }
 
   private async duplicateFacebookEntity(entity: AdEntity, parameters: any) {
-    // TODO: Call Facebook Marketing API to duplicate
-    console.log('[RexOrchestration] Would duplicate Facebook entity:', entity.name);
-    return { success: true, message: `Created copy of ${entity.name}` };
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        return { success: false, message: 'Not authenticated' };
+      }
+
+      const nameSuffix = parameters?.nameSuffix || 'Rex Auto-Copy';
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-duplicate-entity`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            userId: this.userId,
+            platform: 'facebook',
+            entityType: entity.type === 'ad_set' ? 'adset' : entity.type,
+            entityId: entity.platformId,
+            nameSuffix
+          }),
+        }
+      );
+
+      const result = await response.json();
+      if (!result.success) {
+        console.error('[RexOrchestration] Failed to duplicate Facebook entity:', result.message);
+        return { success: false, message: result.message };
+      }
+
+      console.log('[RexOrchestration] Successfully duplicated Facebook entity:', entity.name);
+      return { success: true, message: result.message || `Created copy of ${entity.name}` };
+    } catch (error) {
+      console.error('[RexOrchestration] Error duplicating Facebook entity:', error);
+      return { success: false, message: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
   private async duplicateGoogleEntity(entity: AdEntity, parameters: any) {
