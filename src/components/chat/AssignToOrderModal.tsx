@@ -43,14 +43,21 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
 
   useEffect(() => {
+    if (selectedOrder) {
+      setMatchingOrders([]);
+      return;
+    }
+
+    if (orderNumber.length < 2) {
+      setMatchingOrders([]);
+      return;
+    }
+
     const timer = setTimeout(() => {
-      if (orderNumber.length >= 2 && !selectedOrder) {
-        searchOrders(orderNumber);
-      } else if (orderNumber.length < 2) {
-        setMatchingOrders([]);
-      }
+      searchOrders(orderNumber);
     }, 300);
 
     return () => clearTimeout(timer);
@@ -191,8 +198,11 @@ Items sent back to us without first requesting a return will not be accepted.`,
               type="text"
               value={orderNumber}
               onChange={(e) => setOrderNumber(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setTimeout(() => setInputFocused(false), 200)}
               placeholder="Type order number..."
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+              disabled={!!selectedOrder}
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {isSearching && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -202,7 +212,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
           </div>
 
           {/* Dropdown Results */}
-          {!selectedOrder && matchingOrders.length > 0 && orderNumber.length >= 2 && (
+          {!selectedOrder && inputFocused && matchingOrders.length > 0 && orderNumber.length >= 2 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
               {matchingOrders.map(order => (
                 <button
@@ -232,7 +242,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
             </div>
           )}
 
-          {!selectedOrder && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
+          {!selectedOrder && inputFocused && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
               No orders found
             </div>
