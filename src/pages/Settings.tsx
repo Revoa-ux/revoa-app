@@ -133,14 +133,28 @@ const SettingsPage = () => {
       try {
         const { data } = await supabase
           .from('user_profiles')
-          .select('is_admin, first_name, last_name, phone, company, profile_picture_url')
+          .select('is_admin, first_name, last_name, display_name, phone, company, profile_picture_url')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (data) {
+          // If first_name/last_name are empty but display_name exists, try to parse it
+          let firstName = data.first_name || '';
+          let lastName = data.last_name || '';
+
+          if (!firstName && !lastName && data.display_name) {
+            const names = data.display_name.trim().split(' ');
+            if (names.length >= 2) {
+              firstName = names[0];
+              lastName = names.slice(1).join(' ');
+            } else {
+              firstName = names[0];
+            }
+          }
+
           setProfile({
-            first_name: data.first_name || '',
-            last_name: data.last_name || '',
+            first_name: firstName,
+            last_name: lastName,
             email: user?.email || '',
             phone: data.phone || '',
             company: data.company || '',
@@ -1454,6 +1468,9 @@ const SettingsPage = () => {
     if (profile.first_name) {
       return profile.first_name.substring(0, 2).toUpperCase();
     }
+    if (profile.last_name) {
+      return profile.last_name.substring(0, 2).toUpperCase();
+    }
     return user?.email?.substring(0, 2).toUpperCase() || 'U';
   };
 
@@ -1968,9 +1985,7 @@ const SettingsPage = () => {
                       </>
                     ) : (
                       <>
-                        <Save className="w-4 h-4" />
-                        Save Changes
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        {savingProfile ? 'Saving...' : 'Save Changes'}
                       </>
                     )}
                   </button>
