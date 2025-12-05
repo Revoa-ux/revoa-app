@@ -756,6 +756,26 @@ export const chatService = {
     return true;
   },
 
+  async moveMessageToThread(messageId: string, threadId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('messages')
+      .update({ thread_id: threadId })
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Error moving message to thread:', error);
+      return false;
+    }
+
+    // Update thread updated_at timestamp
+    await supabase
+      .from('chat_threads')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', threadId);
+
+    return true;
+  },
+
   subscribeToThreads(chatId: string, callback: (threads: any[]) => void) {
     return supabase
       .channel(`threads:${chatId}`)

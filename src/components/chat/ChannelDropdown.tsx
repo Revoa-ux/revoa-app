@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ChevronDown, Hash, Package, Plus } from 'lucide-react';
+import { Hash, Plus } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -54,15 +54,14 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
       >
         <Hash className="w-4 h-4" />
         <span>{getCurrentLabel()}</span>
-        <ChevronDown className={cn('w-4 h-4 transition-transform', isOpen && 'rotate-180')} />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[220px] max-h-[400px] overflow-y-auto">
+        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[220px] max-h-[400px] overflow-hidden">
           {/* Main Chat */}
           <button
             onClick={() => {
@@ -70,7 +69,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               setIsOpen(false);
             }}
             className={cn(
-              'w-full px-4 py-2 text-left text-sm flex items-center gap-2 transition-all',
+              'w-full px-4 py-3 text-left text-sm flex items-center gap-2 transition-all',
               selectedThreadId === null
                 ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -82,7 +81,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
 
           {/* Divider */}
           {openThreads.length > 0 && (
-            <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
+            <div className="border-t border-gray-200 dark:border-gray-700" />
           )}
 
           {/* Order Threads */}
@@ -94,7 +93,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 setIsOpen(false);
               }}
               className={cn(
-                'w-full px-4 py-2 text-left text-sm flex items-center justify-between gap-2 transition-all',
+                'w-full px-4 py-3 text-left text-sm flex items-center justify-between gap-2 transition-all',
                 selectedThreadId === thread.id
                   ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -127,13 +126,13 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
           ))}
 
           {/* Create New Thread */}
-          <div className="mt-1 border-t border-gray-200 dark:border-gray-700" />
+          <div className="border-t border-gray-200 dark:border-gray-700" />
           <button
             onClick={() => {
               onCreateThread();
               setIsOpen(false);
             }}
-            className="w-full px-4 py-2 text-left text-sm flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
+            className="w-full px-4 py-3 text-left text-sm flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
           >
             <Plus className="w-4 h-4 text-red-500" />
             <span className="bg-gradient-to-r from-red-500 to-pink-600 text-transparent bg-clip-text">New Order Thread</span>

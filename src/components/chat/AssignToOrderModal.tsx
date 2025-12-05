@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, Tag as TagIcon } from 'lucide-react';
+import { X, Package, Tag as TagIcon, Search, ArrowRight } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { chatService } from '@/lib/chatService';
+import { supabase } from '@/lib/supabase';
 
 interface Order {
   id: string;
   order_number: string;
   total: number;
   created_at: string;
+  financial_status?: string;
+  fulfillment_status?: string;
+  customer_name?: string;
+  line_items_count?: number;
 }
 
 interface AssignToOrderModalProps {
@@ -19,12 +24,12 @@ interface AssignToOrderModalProps {
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
-  { value: 'return', label: 'Return', color: 'bg-gradient-to-r from-red-500 to-pink-600' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-gradient-to-r from-orange-500 to-red-500' },
-  { value: 'damaged', label: 'Damaged', color: 'bg-gradient-to-r from-yellow-500 to-orange-500' },
-  { value: 'defective', label: 'Defective', color: 'bg-gradient-to-r from-purple-500 to-pink-500' },
-  { value: 'inquiry', label: 'Inquiry', color: 'bg-gradient-to-r from-blue-500 to-cyan-500' },
-  { value: 'other', label: 'Other', color: 'bg-gradient-to-r from-gray-500 to-gray-600' },
+  { value: 'return', label: 'Return', color: 'bg-red-500/20 text-red-600 dark:text-red-400' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400' },
+  { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' },
+  { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' },
+  { value: 'inquiry', label: 'Inquiry', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
+  { value: 'other', label: 'Other', color: 'bg-gray-500/20 text-gray-600 dark:text-gray-400' },
 ];
 
 export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
@@ -34,38 +39,54 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   userId,
   onThreadCreated,
 }) => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedOrderId, setSelectedOrderId] = useState<string>('');
+  const [orderNumber, setOrderNumber] = useState<string>('');
+  const [matchingOrders, setMatchingOrders] = useState<Order[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedTag, setSelectedTag] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      loadOrders();
+    if (orderNumber.length >= 2) {
+      searchOrders(orderNumber);
+    } else {
+      setMatchingOrders([]);
+      setShowDropdown(false);
     }
-  }, [isOpen, userId]);
+  }, [orderNumber]);
 
-  const loadOrders = async () => {
-    setIsLoading(true);
+  const searchOrders = async (searchTerm: string) => {
+    setIsSearching(true);
     try {
-      const userOrders = await chatService.getUserOrders(userId);
-      setOrders(userOrders);
+      const { data, error } = await supabase
+        .from('shopify_orders')
+        .select('id, order_number, total, created_at, financial_status, fulfillment_status, customer_name, line_items_count')
+        .eq('user_id', userId)
+        .ilike('order_number', `%${searchTerm}%`)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+
+      setMatchingOrders(data || []);
+      setShowDropdown(true);
     } catch (error) {
-      console.error('Error loading orders:', error);
+      console.error('Error searching orders:', error);
+      setMatchingOrders([]);
     } finally {
-      setIsLoading(false);
+      setIsSearching(false);
     }
   };
 
   const handleCreate = async () => {
-    if (!selectedOrderId) return;
+    if (!selectedOrder) return;
 
     setIsCreating(true);
     try {
       const threadId = await chatService.createThread(
         chatId,
-        selectedOrderId,
+        selectedOrder.id,
         selectedTag || undefined
       );
 
@@ -110,8 +131,11 @@ Items sent back to us without first requesting a return will not be accepted.`,
   };
 
   const handleClose = () => {
-    setSelectedOrderId('');
+    setOrderNumber('');
+    setSelectedOrder(null);
     setSelectedTag('');
+    setMatchingOrders([]);
+    setShowDropdown(false);
     onClose();
   };
 
@@ -135,7 +159,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
                 onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedTag === tag.value
-                    ? `${tag.color} text-white shadow-lg`
+                    ? tag.color
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
@@ -145,46 +169,87 @@ Items sent back to us without first requesting a return will not be accepted.`,
           </div>
         </div>
 
-        {/* Order Selection */}
-        <div>
+        {/* Order Number Search */}
+        <div className="relative">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <Package className="w-4 h-4 inline mr-1" />
-            Select Order *
+            <Search className="w-4 h-4 inline mr-1" />
+            Order Number *
           </label>
-          {isLoading ? (
-            <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[#e83653]" />
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              No orders found
-            </div>
-          ) : (
-            <div className="max-h-64 overflow-y-auto space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-2">
-              {orders.map(order => (
+          <div className="relative">
+            <input
+              type="text"
+              value={orderNumber}
+              onChange={(e) => setOrderNumber(e.target.value)}
+              placeholder="Type order number..."
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50"
+            />
+            {isSearching && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#e83653]" />
+              </div>
+            )}
+          </div>
+
+          {/* Dropdown Results */}
+          {showDropdown && matchingOrders.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl overflow-hidden z-50 max-h-64 overflow-y-auto">
+              {matchingOrders.map(order => (
                 <button
                   key={order.id}
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className={`w-full p-3 rounded-lg text-left transition-all ${
-                    selectedOrderId === order.id
-                      ? 'bg-[#e83653] text-white shadow-md'
-                      : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
-                  }`}
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setOrderNumber(order.order_number);
+                    setShowDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-medium text-gray-900 dark:text-white">#{order.order_number}</span>
                     <div className="flex items-center gap-2">
-                      <Package className="w-4 h-4" />
-                      <span className="font-medium">#{order.order_number}</span>
+                      {order.financial_status && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
+                          {order.financial_status}
+                        </span>
+                      )}
+                      {order.fulfillment_status && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                          {order.fulfillment_status}
+                        </span>
+                      )}
                     </div>
-                    <span className="text-sm">${order.total.toFixed(2)}</span>
                   </div>
-                  <div className={`text-xs mt-1 ${
-                    selectedOrderId === order.id ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'
-                  }`}>
-                    {new Date(order.created_at).toLocaleDateString()}
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {order.customer_name && <span>{order.customer_name} • </span>}
+                    {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    {' • '}${order.total.toFixed(2)}
+                    {order.line_items_count && ` for ${order.line_items_count} item${order.line_items_count !== 1 ? 's' : ''}`}
                   </div>
                 </button>
               ))}
+            </div>
+          )}
+
+          {showDropdown && matchingOrders.length === 0 && !isSearching && orderNumber.length >= 2 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-4 text-center text-gray-500 dark:text-gray-400 text-sm z-50">
+              No orders found
+            </div>
+          )}
+
+          {/* Selected Order Display */}
+          {selectedOrder && !showDropdown && (
+            <div className="mt-2 p-3 bg-gradient-to-r from-red-500/10 to-pink-600/10 border border-red-500/20 rounded-lg">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium text-gray-900 dark:text-white">Selected: #{selectedOrder.order_number}</span>
+                <button
+                  onClick={() => {
+                    setSelectedOrder(null);
+                    setOrderNumber('');
+                  }}
+                  className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -199,10 +264,11 @@ Items sent back to us without first requesting a return will not be accepted.`,
           </button>
           <button
             onClick={handleCreate}
-            disabled={!selectedOrderId || isCreating}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#e83653] hover:bg-[#d63043] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!selectedOrder || isCreating}
+            className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center gap-2"
           >
-            {isCreating ? 'Creating...' : 'Create Thread'}
+            <span>{isCreating ? 'Creating...' : 'Create Thread'}</span>
+            {!isCreating && <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
           </button>
         </div>
       </div>

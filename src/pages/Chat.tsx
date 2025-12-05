@@ -16,7 +16,8 @@ import {
   Image as ImageIcon,
   X,
   Reply,
-  Package
+  Package,
+  MoveRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -32,6 +33,7 @@ import { LoadingSpinner } from '@/components/PageSkeletons';
 import { ChannelTabs, ChannelThread } from '@/components/chat/ChannelTabs';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
 import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
+import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -102,6 +104,8 @@ const Chat = () => {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
+  const [messageToMove, setMessageToMove] = useState<Message | null>(null);
+  const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -422,6 +426,25 @@ const Chat = () => {
     }
   };
 
+  const handleMoveToThread = async (threadId: string) => {
+    if (!messageToMove || !chat) return;
+
+    try {
+      // Move message to the selected thread
+      await chatService.moveMessageToThread(messageToMove.id, threadId);
+
+      // Remove message from current view
+      setMessages(prev => prev.filter(m => m.id !== messageToMove.id));
+
+      toast.success('Message moved to thread');
+      setMessageToMove(null);
+      setShowMoveToThreadModal(false);
+    } catch (error) {
+      console.error('Error moving message:', error);
+      toast.error('Failed to move message');
+    }
+  };
+
   return (
     <div className="flex flex-col h-full w-full max-w-[1050px] mx-auto">
       <div className="mb-6 flex-shrink-0">
@@ -671,16 +694,30 @@ const Chat = () => {
                           Reply
                         </button>
                         {message.sender === 'user' && (
-                          <button
-                            onClick={() => {
-                              openDeleteModal(message.id);
-                              setMessageActionsOpen(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete
-                          </button>
+                          <>
+                            <button
+                              onClick={() => {
+                                setMessageToMove(message);
+                                setShowMoveToThreadModal(true);
+                                setMessageActionsOpen(null);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                            >
+                              <MoveRight className="w-4 h-4" />
+                              Move to Thread
+                            </button>
+                            <div className="h-px bg-gray-200 dark:border-gray-700 mx-2 my-1" />
+                            <button
+                              onClick={() => {
+                                openDeleteModal(message.id);
+                                setMessageActionsOpen(null);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </button>
+                          </>
                         )}
                       </div>
                     )}
@@ -912,6 +949,18 @@ const Chat = () => {
           onThreadCreated={handleThreadCreated}
         />
       )}
+
+      {/* Move to Thread Modal */}
+      <MoveToThreadModal
+        isOpen={showMoveToThreadModal}
+        onClose={() => {
+          setShowMoveToThreadModal(false);
+          setMessageToMove(null);
+        }}
+        threads={threads}
+        onMoveToThread={handleMoveToThread}
+        currentThreadId={selectedThreadId}
+      />
     </div>
   );
 };
