@@ -12,6 +12,8 @@ interface ShopifyOrder {
   created_at: string;
   financial_status: string;
   fulfillment_status: string | null;
+  total_price: string;
+  currency: string;
   line_items: Array<{
     id: number;
     sku: string;
@@ -48,11 +50,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Get orders from last 30 days that are paid
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Get orders from last 3 years
+    const threeYearsAgo = new Date();
+    threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
 
-    const ordersUrl = `https://${storeUrl}/admin/api/2024-01/orders.json?status=any&financial_status=paid&created_at_min=${thirtyDaysAgo.toISOString()}`;
+    const ordersUrl = `https://${storeUrl}/admin/api/2024-01/orders.json?status=any&financial_status=paid&created_at_min=${threeYearsAgo.toISOString()}&limit=250`;
 
     const shopifyResponse = await fetch(ordersUrl, {
       headers: {
@@ -73,13 +75,33 @@ Deno.serve(async (req: Request) => {
 
     for (const order of orders) {
       try {
-        // Check if we already processed this order
+        // First, insert/update in shopify_orders table for chat threads
+        const { error: orderInsertError } = await supabase
+          .from('shopify_orders')
+          .upsert({
+            user_id: userId,
+            shopify_order_id: order.id.toString(),
+            order_number: order.name,
+            total_price: parseFloat(order.total_price || '0'),
+            currency: order.currency || 'USD',
+            customer_email: order.customer?.email || null,
+            ordered_at: order.created_at,
+          }, {
+            onConflict: 'user_id,shopify_order_id',
+            ignoreDuplicates: false
+          });
+
+        if (orderInsertError) {
+          console.error('Error inserting order:', orderInsertError);
+        }
+
+        // Check if we already processed this order for fulfillment
         const { data: existingFulfillment } = await supabase
           .from('shopify_order_fulfillment')
           .select('id')
           .eq('shopify_order_id', order.id.toString())
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
 
         if (existingFulfillment) {
           skippedCount++;
@@ -179,7 +201,9 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        processed: processedCount,
+        processedCount: orders.length - skippedCount,
+        totalOrders: orders.length,
+        fulfillmentsProcessed: processedCount,
         skipped: skippedCount,
         errors: errors.length > 0 ? errors : undefined,
       }),

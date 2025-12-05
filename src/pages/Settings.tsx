@@ -1580,7 +1580,7 @@ const SettingsPage = () => {
         throw new Error(result.error || 'Failed to sync orders');
       }
 
-      toast.success(`Synced ${result.processedCount || 0} orders from Shopify`);
+      toast.success(`Synced ${result.totalOrders || 0} orders from Shopify (${result.processedCount || 0} new)`);
     } catch (error: any) {
       console.error('Error syncing orders:', error);
       toast.error(error.message || 'Failed to sync orders');

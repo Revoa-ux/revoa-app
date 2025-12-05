@@ -233,6 +233,35 @@ async function handleOAuthCompletion(req: Request, supabase: any) {
     })
     .eq('state', state);
 
+  // Trigger automatic order sync in the background
+  console.log('[OAuth] Triggering automatic order sync...');
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (supabaseUrl && serviceRoleKey) {
+    // Fire and forget - don't wait for sync to complete
+    fetch(`${supabaseUrl}/functions/v1/sync-shopify-orders`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${serviceRoleKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        storeUrl: shop,
+        accessToken: access_token,
+      }),
+    }).then(res => {
+      if (res.ok) {
+        console.log('[OAuth] ✅ Order sync triggered successfully');
+      } else {
+        console.warn('[OAuth] ⚠️ Order sync trigger failed, but OAuth completed');
+      }
+    }).catch(err => {
+      console.warn('[OAuth] ⚠️ Order sync trigger error (non-fatal):', err.message);
+    });
+  }
+
   console.log('[OAuth] OAuth completion successful');
   return { success: true, shop, access_token, scope };
 }
