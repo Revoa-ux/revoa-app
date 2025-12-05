@@ -46,24 +46,32 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
-    if (orderNumber.length >= 2) {
-      searchOrders(orderNumber);
-    } else {
-      setMatchingOrders([]);
-      setShowDropdown(false);
-    }
+    const timer = setTimeout(() => {
+      if (orderNumber.length >= 2 && !selectedOrder) {
+        searchOrders(orderNumber);
+      } else {
+        setMatchingOrders([]);
+        setShowDropdown(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [orderNumber]);
 
   const searchOrders = async (searchTerm: string) => {
     setIsSearching(true);
+    setShowDropdown(false);
     try {
-      // Try to find orders by order_number containing the search term
-      // This will match partial numbers like "1001" in "#1001"
+      // Clean up search term - remove # if present, trim whitespace
+      const cleanTerm = searchTerm.replace(/^#/, '').trim();
+
+      console.log('Searching for orders with term:', cleanTerm, 'for userId:', userId);
+
+      // Don't filter by user_id - let RLS handle it based on auth.uid()
       const { data, error } = await supabase
         .from('shopify_orders')
         .select('id, order_number, total_price, created_at, customer_email, ordered_at')
-        .eq('user_id', userId)
-        .ilike('order_number', `%${searchTerm}%`)
+        .ilike('order_number', `%${cleanTerm}%`)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -78,6 +86,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
     } catch (error) {
       console.error('Error searching orders:', error);
       setMatchingOrders([]);
+      setShowDropdown(true);
     } finally {
       setIsSearching(false);
     }
