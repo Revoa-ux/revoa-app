@@ -24,14 +24,14 @@ interface AssignToOrderModalProps {
   onThreadCreated: (threadId: string) => void;
 }
 
-interface ConversationTag {
-  id: string;
-  name: string;
-  slug: string;
-  color: string;
-  description: string | null;
-  is_active: boolean;
-}
+const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
+  { value: 'return', label: 'Return', color: 'bg-red-500/20 text-red-600 dark:text-red-400' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400' },
+  { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' },
+  { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' },
+  { value: 'inquiry', label: 'Inquiry', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
+  { value: 'other', label: 'Other', color: 'bg-gray-500/20 text-gray-600 dark:text-gray-400' },
+];
 
 export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   isOpen,
@@ -49,34 +49,6 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [inputFocused, setInputFocused] = useState(false);
   const [existingThread, setExistingThread] = useState<{ id: string; tag: string | null } | null>(null);
   const [showWarning, setShowWarning] = useState(false);
-  const [tags, setTags] = useState<ConversationTag[]>([]);
-  const [isLoadingTags, setIsLoadingTags] = useState(true);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchTags();
-    }
-  }, [isOpen]);
-
-  const fetchTags = async () => {
-    setIsLoadingTags(true);
-    try {
-      const { data, error } = await supabase
-        .from('conversation_tags')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
-
-      setTags(data || []);
-    } catch (error) {
-      console.error('Error fetching conversation tags:', error);
-      toast.error('Failed to load tags');
-    } finally {
-      setIsLoadingTags(false);
-    }
-  };
 
   useEffect(() => {
     if (selectedOrder) {
@@ -213,20 +185,41 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
         }
       }
 
-      // Send auto-message if category was selected and this is a NEW thread
-      if (selectedTag && !existingThread) {
-        console.log('📤 Sending auto-message for category:', selectedTag);
+      // If it's a return and this is a NEW thread, send auto-message with instructions
+      if (selectedTag === 'return' && !existingThread) {
+        console.log('📤 Sending auto-message for return category...');
         try {
-          const { sendAutoMessageForThread } = await import('@/lib/threadAutoMessageService');
-          await sendAutoMessageForThread(
+          const message = await chatService.sendThreadMessage(
             threadId,
             chatId,
-            [selectedTag],
-            {
-              order_number: selectedOrder.order_number,
-            }
+            `**Important Return Instructions:**
+
+Let us know the reason for the return. If the customer changed their mind, there will be a fee. If the reason for the return is our fault, we may cover the cost of the return.
+
+**📋 Return Process:**
+
+We will provide you a "Warehouse Entry Number" that you need to send to your customer first. Your customer will then need to clearly write this number on the outside of the package near the shipping label.
+
+In addition to this, your customer will need to include a note inside the package with their:
+
+• Full name
+• Your order number
+• Product name(s)
+• Quantity (number of boxes, not individual units)
+
+⚠️ **Important:** Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
+
+Items sent back to us without first requesting a return will not be accepted.`,
+            'text',
+            'team',
+            { automated: 'true' }
           );
-          console.log('✅ Auto-message sent successfully');
+
+          if (message) {
+            console.log('✅ Auto-message sent successfully:', message.id);
+          } else {
+            console.warn('⚠️ Auto-message failed to send (no message returned)');
+          }
         } catch (msgError) {
           console.error('❌ Error sending auto-message:', msgError);
           // Don't fail the whole operation if just the message fails
@@ -269,28 +262,21 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
             <TagIcon className="w-4 h-4 inline mr-1" />
             Category (Optional)
           </label>
-          {isLoadingTags ? (
-            <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
-              Loading categories...
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {tags.map(tag => (
-                <button
-                  key={tag.id}
-                  onClick={() => setSelectedTag(selectedTag === tag.slug ? '' : tag.slug)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                    selectedTag === tag.slug
-                      ? `${tag.color}/20 ${tag.color.replace('bg-', 'text-')}`
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                  }`}
-                  title={tag.description || undefined}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-3 gap-2">
+            {TAG_OPTIONS.map(tag => (
+              <button
+                key={tag.value}
+                onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedTag === tag.value
+                    ? tag.color
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+              >
+                {tag.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Order Number Search */}

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Hash, Plus, X } from 'lucide-react';
+import { Hash, Plus } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -9,7 +9,6 @@ interface ChannelDropdownProps {
   selectedThreadId: string | null;
   onThreadSelect: (threadId: string | null) => void;
   onCreateThread: () => void;
-  onCloseThread: (threadId: string) => void;
 }
 
 const TAG_COLORS = {
@@ -35,7 +34,6 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
   selectedThreadId,
   onThreadSelect,
   onCreateThread,
-  onCloseThread,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -48,9 +46,6 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
   const getCurrentLabel = () => {
     if (!selectedThreadId) {
       return 'main-chat';
-    }
-    if (selectedThread?.customer_name) {
-      return selectedThread.customer_name;
     }
     const orderNumber = selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
     // Remove leading # if present since we show Hash icon
@@ -91,26 +86,24 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
 
           {/* Order Threads */}
           {openThreads.map(thread => (
-            <div
+            <button
               key={thread.id}
+              onClick={() => {
+                onThreadSelect(thread.id);
+                setIsOpen(false);
+              }}
               className={cn(
-                'w-full px-3 py-2.5 flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 group',
+                'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
                 selectedThreadId === thread.id
                   ? 'bg-gray-100 dark:bg-gray-700/50'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
               )}
             >
               <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
-              <button
-                onClick={() => {
-                  onThreadSelect(thread.id);
-                  setIsOpen(false);
-                }}
-                className="flex-1 min-w-0 text-left"
-              >
+              <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {thread.customer_name || (thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
+                    {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
                   </span>
                   {thread.tag && (
                     <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
@@ -123,23 +116,13 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     </span>
                   )}
                 </div>
-                {thread.customer_name && thread.order_number && (
+                {thread.customer_name && (
                   <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    Order {thread.order_number.replace(/^#/, '')}
+                    {thread.customer_name}
                   </div>
                 )}
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCloseThread(thread.id);
-                }}
-                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-opacity flex-shrink-0"
-                title="Close thread"
-              >
-                <X className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
-              </button>
-            </div>
+              </div>
+            </button>
           ))}
 
           {/* Create New Thread */}

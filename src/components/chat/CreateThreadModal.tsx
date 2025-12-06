@@ -11,8 +11,6 @@ interface Order {
   total_price: string;
   ordered_at: string;
   currency: string;
-  customer_first_name: string | null;
-  customer_last_name: string | null;
 }
 
 interface CreateThreadModalProps {
@@ -33,12 +31,10 @@ export function CreateThreadModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (isOpen && userId) {
@@ -51,7 +47,7 @@ export function CreateThreadModal({
     try {
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name')
+        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency')
         .eq('user_id', userId)
         .order('ordered_at', { ascending: false })
         .limit(50);
@@ -68,25 +64,6 @@ export function CreateThreadModal({
     }
   };
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const filtered = allOrders.filter(order => {
-        const customerName = [order.customer_first_name, order.customer_last_name]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase();
-        const query = searchQuery.toLowerCase();
-        return (
-          order.order_number.toLowerCase().includes(query) ||
-          customerName.includes(query)
-        );
-      });
-      setOrders(filtered);
-    } else {
-      setOrders(allOrders);
-    }
-  }, [searchQuery, allOrders]);
-
   const handleCreate = async () => {
     if (!title.trim()) {
       toast.error('Please enter a title for this thread');
@@ -101,9 +78,6 @@ export function CreateThreadModal({
     setIsCreating(true);
     try {
       const selectedOrder = orders.find(o => o.id === selectedOrderId);
-      const { data: currentUser } = await supabase.auth.getUser();
-
-      const threadTags = selectedCategory ? [selectedCategory] : [];
 
       const { data, error } = await supabase
         .from('chat_threads')
@@ -113,28 +87,14 @@ export function CreateThreadModal({
           shopify_order_id: selectedOrder?.shopify_order_id,
           title: title.trim(),
           description: description.trim() || null,
-          tags: threadTags,
-          created_by_user_id: currentUser?.user?.id,
-          created_by_admin: true,
+          created_by_user_id: (await supabase.auth.getUser()).data.user?.id,
+          created_by_admin: true, // Assuming admin creates it from admin panel
           status: 'open',
         })
         .select('id')
         .single();
 
       if (error) throw error;
-
-      // Send auto-message if category was selected
-      if (selectedCategory) {
-        const { sendAutoMessageForThread } = await import('@/lib/threadAutoMessageService');
-        await sendAutoMessageForThread(
-          data.id,
-          chatId,
-          [selectedCategory],
-          {
-            order_number: selectedOrder?.order_number,
-          }
-        );
-      }
 
       toast.success('Thread created successfully');
       onThreadCreated(data.id);
@@ -151,8 +111,6 @@ export function CreateThreadModal({
     setTitle('');
     setDescription('');
     setSelectedOrderId('');
-    setSelectedCategory('');
-    setSearchQuery('');
     onClose();
   };
 
@@ -225,41 +183,6 @@ export function CreateThreadModal({
           </p>
         </div>
 
-        {/* Category Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-            Category (Optional) <span className="text-gray-500 font-normal">- Will send auto-message</span>
-          </label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { value: 'return', label: 'Return', color: 'red' },
-              { value: 'replacement', label: 'Replacement', color: 'orange' },
-              { value: 'damaged', label: 'Damaged', color: 'yellow' },
-              { value: 'defective', label: 'Defective', color: 'purple' },
-              { value: 'inquiry', label: 'Inquiry', color: 'blue' },
-              { value: '', label: 'Other', color: 'gray' },
-            ].map((category) => (
-              <button
-                key={category.value}
-                type="button"
-                onClick={() => setSelectedCategory(category.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  selectedCategory === category.value
-                    ? category.color === 'red' ? 'bg-red-600 text-white' :
-                      category.color === 'orange' ? 'bg-orange-600 text-white' :
-                      category.color === 'yellow' ? 'bg-yellow-600 text-white' :
-                      category.color === 'purple' ? 'bg-purple-600 text-white' :
-                      category.color === 'blue' ? 'bg-blue-600 text-white' :
-                      'bg-gray-600 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                }`}
-              >
-                {category.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Order Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -280,9 +203,18 @@ export function CreateThreadModal({
               <div className="mb-3">
                 <input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search order number or customer name..."
+                  placeholder="Search order number..."
+                  onChange={(e) => {
+                    const search = e.target.value.toLowerCase();
+                    if (search) {
+                      const filtered = allOrders.filter(order =>
+                        order.order_number.toLowerCase().includes(search)
+                      );
+                      setOrders(filtered);
+                    } else {
+                      setOrders(allOrders); // Show all orders
+                    }
+                  }}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
                 />
               </div>
@@ -316,10 +248,10 @@ export function CreateThreadModal({
                             ? 'text-pink-900 dark:text-pink-100'
                             : 'text-gray-900 dark:text-white'
                         }`}>
-                          #{order.order_number}
+                          {order.order_number}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {[order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ') || 'Customer'} • {formatDate(order.ordered_at)}
+                          {formatDate(order.ordered_at)}
                         </p>
                       </div>
                     </div>
