@@ -9,6 +9,7 @@ export interface ChatThread {
   order_id: string | null;
   shopify_order_id: string | null;
   order_number?: string;
+  customer_name?: string | null;
   tag?: string | null;
   unread_count?: number;
   created_at: string;
@@ -126,7 +127,7 @@ export function ThreadSelector({
                               ? 'text-pink-900 dark:text-pink-100'
                               : 'text-gray-900 dark:text-white'
                           }`}>
-                            {thread.title}
+                            {thread.customer_name || `Order #${thread.order_number || thread.title}`}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -206,7 +207,7 @@ export function ThreadSelector({
                               ? 'text-green-900 dark:text-green-100'
                               : 'text-gray-900 dark:text-white'
                           }`}>
-                            {thread.title}
+                            {thread.customer_name || `Order #${thread.order_number || thread.title}`}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
