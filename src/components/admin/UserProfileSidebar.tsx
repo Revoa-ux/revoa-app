@@ -21,11 +21,13 @@ import {
   CheckCircle,
   AlertCircle,
   Clipboard,
-  Receipt
+  Receipt,
+  FileEdit
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
 import { ActiveQuotesModal } from './ActiveQuotesModal';
+import { ProductTemplateSelectorModal } from './ProductTemplateSelectorModal';
 
 interface UserProfileSidebarProps {
   userId: string;
@@ -88,6 +90,7 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
   const [stats, setStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showActiveQuotesModal, setShowActiveQuotesModal] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
 
   useEffect(() => {
     fetchUserStats();
@@ -534,6 +537,19 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
                   </span>
                 </div>
               )}
+
+              {/* Email Templates */}
+              <div className="w-full flex items-center justify-between py-2">
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  <button
+                    onClick={() => setShowTemplateSelector(true)}
+                    className="text-sm underline hover:no-underline text-gray-900 dark:text-white transition-all"
+                  >
+                    Email Templates
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -669,6 +685,16 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
           userId={userId}
           userName={stats.first_name && stats.last_name ? `${stats.first_name} ${stats.last_name}` : stats.name || stats.email.split('@')[0]}
           onClose={() => setShowActiveQuotesModal(false)}
+        />
+      )}
+
+      {/* Email Templates Modal */}
+      {showTemplateSelector && stats && (
+        <ProductTemplateSelectorModal
+          isOpen={showTemplateSelector}
+          onClose={() => setShowTemplateSelector(false)}
+          userId={userId}
+          userName={stats.first_name && stats.last_name ? `${stats.first_name} ${stats.last_name}` : stats.name || stats.email.split('@')[0]}
         />
       )}
     </div>

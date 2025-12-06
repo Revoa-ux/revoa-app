@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
+import { ProductConfigurationModal } from '@/components/admin/ProductConfigurationModal';
 import { QuoteVariant } from '@/types/quotes';
 import { getStatusText } from '@/components/quotes/QuoteStatus';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -29,6 +30,8 @@ interface Quote {
   expiresIn?: number;
   shopifyProductId?: string;
   shopDomain?: string;
+  userId?: string;
+  productId?: string;
 }
 
 export default function AdminQuotes() {
@@ -39,6 +42,8 @@ export default function AdminQuotes() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showAdminFilterDropdown, setShowAdminFilterDropdown] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [pendingVariants, setPendingVariants] = useState<QuoteVariant[] | null>(null);
   const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [quoteStats, setQuoteStats] = useState({
     avgResponseTime: 0,
@@ -213,7 +218,9 @@ export default function AdminQuotes() {
         status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
         variants: [],
         shopifyProductId: quote.shopify_product_id,
-        shopDomain: quote.shop_domain
+        shopDomain: quote.shop_domain,
+        userId: quote.user_id,
+        productId: quote.product_id
       }));
 
       setQuotes(transformedQuotes);
@@ -228,20 +235,31 @@ export default function AdminQuotes() {
   const handleProcessQuote = async (variants: QuoteVariant[]) => {
     if (!selectedQuote) return;
 
+    // Store variants temporarily and show configuration modal
+    setPendingVariants(variants);
+    setShowConfigModal(true);
+  };
+
+  const handleConfigurationComplete = async () => {
+    if (!selectedQuote || !pendingVariants) return;
+
     try {
+      // Now that configuration is complete, finalize the quote
       const { error } = await supabase
         .from('product_quotes')
         .update({
           status: 'quoted',
-          variants: variants,
+          variants: pendingVariants,
           expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
         })
         .eq('id', selectedQuote.id);
 
       if (error) throw error;
 
-      toast.success('Quote processed successfully');
+      toast.success('Quote processed and sent to merchant');
       setSelectedQuote(null);
+      setPendingVariants(null);
+      setShowConfigModal(false);
       fetchQuotes();
     } catch (error) {
       console.error('Error processing quote:', error);
@@ -505,11 +523,25 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      {selectedQuote && (
+      {selectedQuote && !showConfigModal && (
         <NewProcessQuoteModal
           quote={selectedQuote}
           onClose={() => setSelectedQuote(null)}
           onSubmit={handleProcessQuote}
+        />
+      )}
+
+      {showConfigModal && selectedQuote && selectedQuote.productId && selectedQuote.userId && (
+        <ProductConfigurationModal
+          isOpen={showConfigModal}
+          onClose={() => {
+            setShowConfigModal(false);
+            setPendingVariants(null);
+          }}
+          productId={selectedQuote.productId}
+          productName={selectedQuote.productName}
+          userId={selectedQuote.userId}
+          onComplete={handleConfigurationComplete}
         />
       )}
     </div>
