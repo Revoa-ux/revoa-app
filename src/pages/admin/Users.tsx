@@ -8,7 +8,7 @@ import {
   X,
   UserPlus,
   ArrowUpDown,
-  Users
+  Users as UsersIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
@@ -451,7 +451,7 @@ export default function Users() {
                   ? 'Unassigned'
                   : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
               >
-                <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <UsersIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </button>
 
               {showAdminFilterDropdown && (
