@@ -460,10 +460,9 @@ const AdminChat = () => {
             {showUserProfile && (
               <div className="flex flex-col overflow-y-auto">
                 {chats.map((chat, index) => {
-                  const profile = chat.user_profiles;
-                  const userName = profile?.first_name && profile?.last_name
-                    ? `${profile.first_name} ${profile.last_name}`
-                    : profile?.company ||
+                  const profile = chat.user_profile;
+                  const userName = profile?.name ||
+                    profile?.company ||
                       (chat.shopify_installations && chat.shopify_installations.length > 0
                         ? chat.shopify_installations[0].store_url.replace('https://', '').replace('.myshopify.com', '')
                         : profile?.email?.split('@')[0] || 'User');
@@ -1005,10 +1004,8 @@ const AdminChat = () => {
             onClose={() => setShowEmailComposer(false)}
             threadId={selectedThreadId || ''}
             orderId={linkedOrderId || undefined}
-            customerEmail={selectedChat.user_profiles?.email || ''}
-            customerName={selectedChat.user_profiles?.first_name && selectedChat.user_profiles?.last_name
-              ? `${selectedChat.user_profiles.first_name} ${selectedChat.user_profiles.last_name}`
-              : selectedChat.user_profiles?.company || 'Customer'}
+            customerEmail={selectedChat.user_profile?.email || ''}
+            customerName={selectedChat.user_profile?.name || selectedChat.user_profile?.company || 'Customer'}
             threadTags={threadTags}
           />
         )}
