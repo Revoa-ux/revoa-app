@@ -114,14 +114,14 @@ export const chatService = {
     const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('name, email')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     // Fetch admin profile
     const { data: adminProfile } = await supabase
       .from('user_profiles')
       .select('name, email')
-      .eq('user_id', adminId)
+      .eq('id', adminId)
       .maybeSingle();
 
     return {
@@ -146,9 +146,9 @@ export const chatService = {
       // Get the first available admin (preferably super_admin)
       const { data: adminProfile, error: adminError } = await supabase
         .from('user_profiles')
-        .select('user_id')
+        .select('id')
         .eq('is_admin', true)
-        .order('admin_role', { ascending: false }) // super_admin before admin
+        .order('is_super_admin', { ascending: false }) // super_admin before admin
         .limit(1)
         .maybeSingle();
 
@@ -157,15 +157,15 @@ export const chatService = {
         return null;
       }
 
-      if (adminProfile?.user_id) {
-        console.log('Found admin:', adminProfile.user_id, 'Creating assignment...');
+      if (adminProfile?.id) {
+        console.log('Found admin:', adminProfile.id, 'Creating assignment...');
 
         // Create the assignment
         const { error: assignError } = await supabase
           .from('user_assignments')
           .insert({
             user_id: userId,
-            admin_id: adminProfile.user_id
+            admin_id: adminProfile.id
           });
 
         if (assignError) {
@@ -174,7 +174,7 @@ export const chatService = {
         }
 
         console.log('Assignment created successfully');
-        assignment = { admin_id: adminProfile.user_id } as any;
+        assignment = { admin_id: adminProfile.id } as any;
       } else {
         console.error('No admin profile found');
         return null;
@@ -195,7 +195,7 @@ export const chatService = {
     const { data: adminProfile } = await supabase
       .from('user_profiles')
       .select('is_super_admin')
-      .eq('user_id', adminId)
+      .eq('id', adminId)
       .maybeSingle();
 
     const isSuperAdmin = adminProfile?.is_super_admin || false;
@@ -268,8 +268,8 @@ export const chatService = {
     const userIds = chats.map(c => c.user_id);
     const { data: userProfiles } = await supabase
       .from('user_profiles')
-      .select('user_id, name, email, company, created_at')
-      .in('user_id', userIds);
+      .select('id, name, email, company, created_at')
+      .in('id', userIds);
 
     // Fetch shopify installations for these users
     const { data: shopifyData } = await supabase
@@ -281,8 +281,8 @@ export const chatService = {
     // Fetch admin profile details (already fetched is_super_admin above)
     const { data: adminProfileDetails } = await supabase
       .from('user_profiles')
-      .select('user_id, name, email')
-      .eq('user_id', adminId)
+      .select('id, name, email')
+      .eq('id', adminId)
       .maybeSingle();
 
     // Fetch last message for each chat
@@ -311,7 +311,7 @@ export const chatService = {
 
     // Map profiles to chats
     const userProfileMap = new Map(
-      (userProfiles || []).map(p => [p.user_id, { name: p.name, email: p.email, company: p.company, created_at: p.created_at }])
+      (userProfiles || []).map(p => [p.id, { name: p.name, email: p.email, company: p.company, created_at: p.created_at }])
     );
 
     // Map shopify installations by user_id
