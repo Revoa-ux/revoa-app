@@ -15,6 +15,7 @@ interface UserActionsMenuProps {
   userEmail?: string;
   isActive?: boolean;
   isAssigned?: boolean;
+  currentUserEmail?: string;
   onViewProfile: (userId: string) => void;
   onResetPassword: (userId: string) => void;
   onToggleStatus: (userId: string, active: boolean) => void;
@@ -27,12 +28,14 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   userEmail, // eslint-disable-line @typescript-eslint/no-unused-vars
   isActive = true,
   isAssigned = false,
+  currentUserEmail,
   onViewProfile,
   onResetPassword,
   onToggleStatus,
   onReassign,
   onRemoveAssignment
 }) => {
+  const canDisableAccounts = currentUserEmail === 'tyler@revoa.app';
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom');
   const menuRef = useRef<HTMLDivElement>(null);
@@ -101,13 +104,15 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
             Reset Password
           </button>
 
-          <button
-            onClick={handleAction(() => onToggleStatus(userId, !isActive))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
-          >
-            <Power className="w-4 h-4 mr-3" />
-            {isActive ? 'Disable Account' : 'Enable Account'}
-          </button>
+          {canDisableAccounts && (
+            <button
+              onClick={handleAction(() => onToggleStatus(userId, !isActive))}
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            >
+              <Power className="w-4 h-4 mr-3" />
+              {isActive ? 'Disable Account' : 'Enable Account'}
+            </button>
+          )}
 
           <button
             onClick={handleAction(() => onReassign(userId))}

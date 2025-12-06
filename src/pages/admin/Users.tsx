@@ -6,7 +6,9 @@ import {
   ChevronDown,
   Check,
   X,
-  UserPlus
+  UserPlus,
+  ArrowUpDown,
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
@@ -412,11 +414,10 @@ export default function Users() {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+              title={`Filter: ${selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}`}
             >
-              <Filter className="w-4 h-4 text-gray-400" />
-              <span>Filter: {selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {showFilterDropdown && (
@@ -443,16 +444,14 @@ export default function Users() {
             <div className="relative" ref={adminFilterDropdownRef}>
               <button
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+                title={`Admin: ${selectedAdminFilter === 'all'
+                  ? 'All Admins'
+                  : selectedAdminFilter === 'unassigned'
+                  ? 'Unassigned'
+                  : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
               >
-                <span>
-                  Admin: {selectedAdminFilter === 'all'
-                    ? 'All Admins'
-                    : selectedAdminFilter === 'unassigned'
-                    ? 'Unassigned'
-                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </button>
 
               {showAdminFilterDropdown && (
@@ -499,10 +498,10 @@ export default function Users() {
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+              title={`Sort by: ${sortOptions.find(opt => opt.value === sortBy.field)?.label}`}
             >
-              <span>Sort by: {sortOptions.find(opt => opt.value === sortBy.field)?.label}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {showSortDropdown && (
@@ -531,7 +530,7 @@ export default function Users() {
             className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2 whitespace-nowrap"
           >
             <UserPlus className="w-4 h-4" />
-            <span>Assign Selected ({selectedUsers.length})</span>
+            <span>Assign ({selectedUsers.length})</span>
           </button>
         )}
       </div>
@@ -647,6 +646,7 @@ export default function Users() {
                           userEmail={user.email}
                           isActive={true}
                           isAssigned={user.isAssigned}
+                          currentUserEmail={currentUser?.email}
                          onViewProfile={() => {
                             setSelectedUserId(user.user_id);
                             setShowUserProfile(true);
