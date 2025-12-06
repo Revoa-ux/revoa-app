@@ -5,8 +5,7 @@ import {
   Key,
   Power,
   UserMinus,
-  UserPlus,
-  Trash2
+  UserPlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -21,7 +20,6 @@ interface UserActionsMenuProps {
   onToggleStatus: (userId: string, active: boolean) => void;
   onReassign: (userId: string) => void;
   onRemoveAssignment: (userId: string) => void;
-  onArchive?: (userId: string) => void;
 }
 
 export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
@@ -33,8 +31,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onResetPassword,
   onToggleStatus,
   onReassign,
-  onRemoveAssignment,
-  onArchive
+  onRemoveAssignment
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom');
@@ -123,22 +120,12 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           {isAssigned && (
             <button
               onClick={handleAction(() => onRemoveAssignment(userId))}
-              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group rounded-b-lg"
             >
               <UserMinus className="w-4 h-4 mr-3" />
               Remove Assignment
             </button>
           )}
-
-          <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
-
-          <button
-            onClick={handleAction(() => onArchive?.(userId))}
-            className="flex items-center w-full px-4 py-2.5 text-sm text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors relative group rounded-b-lg"
-          >
-            <Trash2 className="w-4 h-4 mr-3" />
-            Archive User
-          </button>
         </div>
       )}
     </div>

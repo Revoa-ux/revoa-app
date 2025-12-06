@@ -165,8 +165,7 @@ export default function Users() {
           .from('user_profiles')
           .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
           .in('user_id', assignedUserIds)
-          .eq('is_admin', false)
-          .is('archived_at', null);
+          .eq('is_admin', false);
 
         profiles = assignedProfiles;
         profilesError = assignedError;
@@ -175,8 +174,7 @@ export default function Users() {
         const { data: allProfiles, error: allError } = await supabase
           .from('user_profiles')
           .select('user_id, name, first_name, last_name, email, created_at, is_admin, company')
-          .eq('is_admin', false)
-          .is('archived_at', null);
+          .eq('is_admin', false);
 
         profiles = allProfiles;
         profilesError = allError;
@@ -368,16 +366,16 @@ export default function Users() {
 
       if (error) throw error;
 
-      toast.success('User assigned successfully');
-      fetchUsers();
+      await fetchUsers();
     } catch (error) {
       console.error('Error assigning user:', error);
       toast.error('Failed to assign user');
+      throw error;
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[1400px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
           User Management
@@ -677,22 +675,6 @@ export default function Users() {
                             } catch (error) {
                               console.error('Error removing assignment:', error);
                               toast.error('Failed to remove assignment');
-                            }
-                          }}
-                         onArchive={async () => {
-                            try {
-                              const { error } = await supabase
-                                .from('user_profiles')
-                                .update({ archived_at: new Date().toISOString() })
-                                .eq('user_id', user.user_id);
-
-                              if (error) throw error;
-
-                              toast.success('User archived');
-                              await fetchUsers();
-                            } catch (error) {
-                              console.error('Error archiving user:', error);
-                              toast.error('Failed to archive user');
                             }
                           }}
                         />

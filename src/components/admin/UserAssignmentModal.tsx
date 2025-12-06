@@ -191,11 +191,13 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                     <button
                       onClick={handleDistributeEvenly}
                       disabled={loadingAdmins}
-                      className="w-full flex items-center justify-between p-3 text-left bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full flex items-center justify-between p-4 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200 dark:border-gray-600"
                     >
-                      <div className="flex items-center">
-                        <Users className="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
-                        <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">Distribute Evenly</span>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                          <Users className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Distribute Evenly</span>
                       </div>
                       <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
                     </button>
@@ -214,21 +216,25 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                           <button
                             key={admin.id}
                             onClick={() => setSelectedAdmin(admin.id)}
-                            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all group ${
+                            className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all group ${
                               selectedAdmin === admin.id
-                                ? 'border-gray-900 dark:border-gray-300 bg-gray-50 dark:bg-gray-700/50'
-                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/50'
+                                ? 'border-gray-900 dark:border-gray-300 bg-gray-50 dark:bg-gray-700'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/30'
                             }`}
                           >
                             <div className="flex items-center space-x-3 min-w-0 flex-1">
-                              <UserPlus className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                              <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                                <UserPlus className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                              </div>
                               <div className="min-w-0 flex-1">
                                 <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{admin.email}</h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{admin.assignedUsers} users assigned</p>
                               </div>
                             </div>
                             {selectedAdmin === admin.id ? (
-                              <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />
+                              <div className="w-5 h-5 rounded-full bg-gray-900 dark:bg-white flex items-center justify-center flex-shrink-0 ml-2">
+                                <Check className="w-3 h-3 text-white dark:text-gray-900" />
+                              </div>
                             ) : (
                               <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-2" />
                             )}
