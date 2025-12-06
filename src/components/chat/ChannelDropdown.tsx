@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Hash, Plus } from 'lucide-react';
+import { Hash, Plus, X } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -9,6 +9,7 @@ interface ChannelDropdownProps {
   selectedThreadId: string | null;
   onThreadSelect: (threadId: string | null) => void;
   onCreateThread: () => void;
+  onCloseThread: (threadId: string) => void;
 }
 
 const TAG_COLORS = {
@@ -34,6 +35,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
   selectedThreadId,
   onThreadSelect,
   onCreateThread,
+  onCloseThread,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -89,24 +91,26 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
 
           {/* Order Threads */}
           {openThreads.map(thread => (
-            <button
+            <div
               key={thread.id}
-              onClick={() => {
-                onThreadSelect(thread.id);
-                setIsOpen(false);
-              }}
               className={cn(
-                'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
+                'w-full px-3 py-2.5 flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700 group',
                 selectedThreadId === thread.id
                   ? 'bg-gray-100 dark:bg-gray-700/50'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
               )}
             >
               <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
+              <button
+                onClick={() => {
+                  onThreadSelect(thread.id);
+                  setIsOpen(false);
+                }}
+                className="flex-1 min-w-0 text-left"
+              >
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {thread.customer_name || `Order #${thread.order_number || thread.order_id.slice(0, 8)}`}
+                    {thread.customer_name || (thread.order_number || thread.order_id.slice(0, 8))}
                   </span>
                   {thread.tag && (
                     <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
@@ -119,13 +123,23 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     </span>
                   )}
                 </div>
-                {thread.order_number && (
+                {thread.customer_name && thread.order_number && (
                   <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     Order #{thread.order_number}
                   </div>
                 )}
-              </div>
-            </button>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCloseThread(thread.id);
+                }}
+                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-opacity flex-shrink-0"
+                title="Close thread"
+              >
+                <X className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+              </button>
+            </div>
           ))}
 
           {/* Create New Thread */}

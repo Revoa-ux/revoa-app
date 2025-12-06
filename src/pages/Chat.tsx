@@ -492,6 +492,7 @@ const Chat = () => {
                 selectedThreadId={selectedThreadId}
                 onThreadSelect={handleThreadSelect}
                 onCreateThread={() => setShowCreateThreadModal(true)}
+                onCloseThread={handleCloseThread}
               />
             )}
             <button
