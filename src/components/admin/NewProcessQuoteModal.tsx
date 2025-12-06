@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, ArrowRight, Shield, Truck, Calendar } from 'lucide-react';
+import { ExternalLink, ArrowRight, Truck, Calendar } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';
 import { NewQuoteVariant, QuoteVariant, FinalVariant } from '@/types/quotes';
@@ -48,8 +48,9 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
   }]);
 
   // Policy fields
-  const [hasWarranty, setHasWarranty] = useState(true);
+  const [hasWarranty, setHasWarranty] = useState(false);
   const [warrantyDays, setWarrantyDays] = useState(30);
+  const [hasShippingCoverage, setHasShippingCoverage] = useState(false);
   const [coversLostItems, setCoversLostItems] = useState(false);
   const [coversDamagedItems, setCoversDamagedItems] = useState(false);
   const [coversLateDelivery, setCoversLateDelivery] = useState(false);
@@ -86,9 +87,9 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
     const policies: ProductPolicies = {
       warrantyDays: hasWarranty ? warrantyDays : null,
-      coversLostItems,
-      coversDamagedItems,
-      coversLateDelivery
+      coversLostItems: hasShippingCoverage ? coversLostItems : false,
+      coversDamagedItems: hasShippingCoverage ? coversDamagedItems : false,
+      coversLateDelivery: hasShippingCoverage ? coversLateDelivery : false
     };
 
     onSubmit(legacyVariants, policies);
@@ -128,16 +129,13 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
         {/* Product Policies Section */}
         <div>
-          <div className="flex items-start gap-2 mb-3">
-            <Shield className="w-4 h-4 text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-                Product Policies
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                These policies will be used in email templates for customer support
-              </p>
-            </div>
+          <div className="mb-3">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+              Product Policies
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              These policies will be used in email templates for customer support
+            </p>
           </div>
 
           <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -148,7 +146,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Product Warranty from Factory
+                      Factory's Product Warranty
                     </label>
                   </div>
                   <ToggleSwitch
@@ -186,46 +184,64 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
 
               {/* Shipping Policy Coverage */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Shipping Policy Coverage
-                  </label>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Logistics Shipment Coverage
+                    </label>
+                  </div>
+                  <ToggleSwitch
+                    checked={hasShippingCoverage}
+                    onChange={setHasShippingCoverage}
+                    size="sm"
+                  />
                 </div>
-                <div className="space-y-2.5">
-                  <label className="flex items-center gap-2.5 cursor-pointer group">
-                    <CustomCheckbox
-                      checked={coversLostItems}
-                      onChange={(e) => setCoversLostItems(e.target.checked)}
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      Covers lost items in transit
-                    </span>
-                  </label>
 
-                  <label className="flex items-center gap-2.5 cursor-pointer group">
-                    <CustomCheckbox
-                      checked={coversDamagedItems}
-                      onChange={(e) => setCoversDamagedItems(e.target.checked)}
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      Covers damaged items in transit
-                    </span>
-                  </label>
+                {hasShippingCoverage && (
+                  <>
+                    <div className="space-y-2.5">
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <CustomCheckbox
+                          checked={coversLostItems}
+                          onChange={(e) => setCoversLostItems(e.target.checked)}
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                          Covers lost items in transit
+                        </span>
+                      </label>
 
-                  <label className="flex items-center gap-2.5 cursor-pointer group">
-                    <CustomCheckbox
-                      checked={coversLateDelivery}
-                      onChange={(e) => setCoversLateDelivery(e.target.checked)}
-                    />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      Covers late delivery
-                    </span>
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Select which issues your logistics provider covers
-                </p>
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <CustomCheckbox
+                          checked={coversDamagedItems}
+                          onChange={(e) => setCoversDamagedItems(e.target.checked)}
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                          Covers damaged items in transit
+                        </span>
+                      </label>
+
+                      <label className="flex items-center gap-2.5 cursor-pointer group">
+                        <CustomCheckbox
+                          checked={coversLateDelivery}
+                          onChange={(e) => setCoversLateDelivery(e.target.checked)}
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                          Covers late delivery
+                        </span>
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      Select which issues your logistics provider covers
+                    </p>
+                  </>
+                )}
+
+                {!hasShippingCoverage && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    No shipping coverage
+                  </p>
+                )}
               </div>
             </div>
           </div>
