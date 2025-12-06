@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, Check, UserPlus, Loader2, Users, ChevronRight } from 'lucide-react';
+import { X, Search, Check, UserPlus, Loader2, Users, ChevronRight, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 
@@ -226,6 +226,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                                 <div className="flex items-center space-x-2">
                                   <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{admin.name}</h3>
                                 </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{admin.email}</p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{admin.assignedUsers} users assigned</p>
                               </div>
                             </div>
@@ -260,7 +261,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                     ) : (
                       <>
                         Assign Users
-                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
                   </button>

@@ -388,8 +388,8 @@ export default function Users() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <div className="relative w-full sm:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
@@ -495,9 +495,7 @@ export default function Users() {
               )}
             </div>
           )}
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
@@ -508,7 +506,7 @@ export default function Users() {
             </button>
 
             {showSortDropdown && (
-              <div className="absolute z-50 w-48 mt-2 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
@@ -525,17 +523,17 @@ export default function Users() {
               </div>
             )}
           </div>
-
-          {selectedUsers.length > 0 && (
-            <button
-              onClick={() => setShowAssignModal(true)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Assign Selected ({selectedUsers.length})</span>
-            </button>
-          )}
         </div>
+
+        {selectedUsers.length > 0 && (
+          <button
+            onClick={() => setShowAssignModal(true)}
+            className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2 whitespace-nowrap"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Assign Selected ({selectedUsers.length})</span>
+          </button>
+        )}
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
