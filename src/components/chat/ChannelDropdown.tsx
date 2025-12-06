@@ -110,7 +110,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               >
                 <div className="flex items-center gap-2 mb-0.5">
                   <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {thread.customer_name || (thread.order_number || thread.order_id.slice(0, 8))}
+                    {thread.customer_name || (thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
                   </span>
                   {thread.tag && (
                     <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
@@ -125,7 +125,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                 </div>
                 {thread.customer_name && thread.order_number && (
                   <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    Order #{thread.order_number}
+                    Order {thread.order_number.replace(/^#/, '')}
                   </div>
                 )}
               </button>

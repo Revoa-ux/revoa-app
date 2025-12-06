@@ -17,7 +17,9 @@ import {
   X,
   Reply,
   Package,
-  MoveRight
+  MoveRight,
+  Mail,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -26,6 +28,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { useAuth } from '@/contexts/AuthContext';
 import { chatService, Chat as ChatType } from '@/lib/chatService';
 import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 import { EmojiPicker } from '@/components/chat/EmojiPicker';
 import { MessageSearch } from '@/components/chat/MessageSearch';
 import { SearchResults } from '@/components/chat/SearchResults';
@@ -34,6 +37,8 @@ import { ChannelTabs, ChannelThread } from '@/components/chat/ChannelTabs';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
 import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
+import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
+import { ThreadOrderInfo } from '@/components/chat/ThreadOrderInfo';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -106,6 +111,9 @@ const Chat = () => {
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [messageToMove, setMessageToMove] = useState<Message | null>(null);
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
+  const [closeThreadConfirmation, setCloseThreadConfirmation] = useState<{ threadId: string; threadTitle: string } | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -419,10 +427,14 @@ const Chat = () => {
     const thread = threads.find(t => t.id === threadId);
     if (!thread) return;
 
-    const confirmMessage = `Are you sure you want to close "${thread.title}"? This will permanently delete the thread and its messages.`;
-    if (!confirm(confirmMessage)) return;
+    const threadTitle = thread.customer_name || thread.order_number || `Order ${threadId.slice(0, 8)}`;
+    setCloseThreadConfirmation({ threadId, threadTitle });
+  };
 
-    const success = await chatService.closeThread(threadId);
+  const confirmCloseThread = async () => {
+    if (!closeThreadConfirmation) return;
+
+    const success = await chatService.closeThread(closeThreadConfirmation.threadId);
     if (success) {
       toast.success('Thread closed');
       // Reload threads
@@ -431,12 +443,13 @@ const Chat = () => {
         setThreads(updatedThreads);
       }
       // If we were viewing this thread, switch to main chat
-      if (selectedThreadId === threadId) {
+      if (selectedThreadId === closeThreadConfirmation.threadId) {
         setSelectedThreadId(null);
       }
     } else {
       toast.error('Failed to close thread');
     }
+    setCloseThreadConfirmation(null);
   };
 
   const handleMoveToThread = async (threadId: string) => {
@@ -470,7 +483,8 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col min-h-0">
+      <div className="flex gap-4 flex-1 min-h-0">
+        <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col min-h-0">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
@@ -494,6 +508,30 @@ const Chat = () => {
                 onCreateThread={() => setShowCreateThreadModal(true)}
                 onCloseThread={handleCloseThread}
               />
+            )}
+            {selectedThreadId && threads.find(t => t.id === selectedThreadId) && (
+              <>
+                <button
+                  onClick={() => setShowEmailComposer(true)}
+                  className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  title="Email Customer"
+                >
+                  <Mail className="w-4 h-4" />
+                  <span className="text-sm font-medium">Email</span>
+                </button>
+                <button
+                  onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
+                  className={cn(
+                    "p-2 rounded-lg transition-colors",
+                    showCustomerSidebar
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  )}
+                  title="Customer Info"
+                >
+                  <User className="w-5 h-5" />
+                </button>
+              </>
             )}
             <button
               onClick={() => setShowSearchModal(true)}
@@ -881,6 +919,17 @@ const Chat = () => {
             </div>
           </div>
         </div>
+        </div>
+
+        {/* Customer Profile Sidebar */}
+        {selectedThreadId && showCustomerSidebar && threads.find(t => t.id === selectedThreadId) && (
+          <div className="w-80 flex-shrink-0">
+            <ThreadOrderInfo
+              threadId={selectedThreadId}
+              orderId={threads.find(t => t.id === selectedThreadId)!.order_id}
+            />
+          </div>
+        )}
       </div>
 
       {showSearchModal && (
@@ -977,6 +1026,48 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
+
+      {/* Email Composer Modal */}
+      {selectedThreadId && threads.find(t => t.id === selectedThreadId) && (
+        <EmailComposerModal
+          isOpen={showEmailComposer}
+          onClose={() => setShowEmailComposer(false)}
+          threadId={selectedThreadId}
+          orderId={threads.find(t => t.id === selectedThreadId)?.order_id || ''}
+          customerEmail={threads.find(t => t.id === selectedThreadId)?.customer_name || ''}
+          customerName={threads.find(t => t.id === selectedThreadId)?.customer_name || ''}
+          threadTags={threads.find(t => t.id === selectedThreadId)?.tag ? [threads.find(t => t.id === selectedThreadId)!.tag!] : []}
+        />
+      )}
+
+      {/* Close Thread Confirmation Modal */}
+      {closeThreadConfirmation && (
+        <Modal
+          isOpen={true}
+          onClose={() => setCloseThreadConfirmation(null)}
+          title="Close Thread"
+        >
+          <div className="p-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Are you sure you want to close <span className="font-semibold">"{closeThreadConfirmation.threadTitle}"</span>? This will mark the thread as closed.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setCloseThreadConfirmation(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmCloseThread}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              >
+                Close Thread
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

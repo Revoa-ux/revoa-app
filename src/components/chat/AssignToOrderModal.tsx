@@ -24,14 +24,14 @@ interface AssignToOrderModalProps {
   onThreadCreated: (threadId: string) => void;
 }
 
-const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
-  { value: 'return', label: 'Return', color: 'bg-red-500/20 text-red-600 dark:text-red-400' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400' },
-  { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' },
-  { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' },
-  { value: 'inquiry', label: 'Inquiry', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
-  { value: 'other', label: 'Other', color: 'bg-gray-500/20 text-gray-600 dark:text-gray-400' },
-];
+interface ConversationTag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+  description: string | null;
+  is_active: boolean;
+}
 
 export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   isOpen,
@@ -49,6 +49,34 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   const [inputFocused, setInputFocused] = useState(false);
   const [existingThread, setExistingThread] = useState<{ id: string; tag: string | null } | null>(null);
   const [showWarning, setShowWarning] = useState(false);
+  const [tags, setTags] = useState<ConversationTag[]>([]);
+  const [isLoadingTags, setIsLoadingTags] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchTags();
+    }
+  }, [isOpen]);
+
+  const fetchTags = async () => {
+    setIsLoadingTags(true);
+    try {
+      const { data, error } = await supabase
+        .from('conversation_tags')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+
+      setTags(data || []);
+    } catch (error) {
+      console.error('Error fetching conversation tags:', error);
+      toast.error('Failed to load tags');
+    } finally {
+      setIsLoadingTags(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedOrder) {
@@ -241,21 +269,28 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
             <TagIcon className="w-4 h-4 inline mr-1" />
             Category (Optional)
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {TAG_OPTIONS.map(tag => (
-              <button
-                key={tag.value}
-                onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  selectedTag === tag.value
-                    ? tag.color
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                }`}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
+          {isLoadingTags ? (
+            <div className="text-center py-4 text-sm text-gray-500 dark:text-gray-400">
+              Loading categories...
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {tags.map(tag => (
+                <button
+                  key={tag.id}
+                  onClick={() => setSelectedTag(selectedTag === tag.slug ? '' : tag.slug)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedTag === tag.slug
+                      ? `${tag.color}/20 ${tag.color.replace('bg-', 'text-')}`
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  title={tag.description || undefined}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Order Number Search */}
