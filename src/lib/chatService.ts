@@ -582,7 +582,8 @@ export const chatService = {
         shopify_orders (
           order_number,
           customer_first_name,
-          customer_last_name
+          customer_last_name,
+          customer_email
         )
       `)
       .eq('chat_id', chatId)
@@ -599,7 +600,8 @@ export const chatService = {
       customer_name: [
         thread.shopify_orders?.customer_first_name,
         thread.shopify_orders?.customer_last_name
-      ].filter(Boolean).join(' ') || null
+      ].filter(Boolean).join(' ') || null,
+      customer_email: thread.shopify_orders?.customer_email || null
     }));
   },
 

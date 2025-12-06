@@ -1034,7 +1034,7 @@ const Chat = () => {
           onClose={() => setShowEmailComposer(false)}
           threadId={selectedThreadId}
           orderId={threads.find(t => t.id === selectedThreadId)?.order_id || ''}
-          customerEmail={threads.find(t => t.id === selectedThreadId)?.customer_name || ''}
+          customerEmail={threads.find(t => t.id === selectedThreadId)?.customer_email || ''}
           customerName={threads.find(t => t.id === selectedThreadId)?.customer_name || ''}
           threadTags={threads.find(t => t.id === selectedThreadId)?.tag ? [threads.find(t => t.id === selectedThreadId)!.tag!] : []}
         />
