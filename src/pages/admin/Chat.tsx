@@ -33,6 +33,7 @@ import { CollapsibleClientProfile } from '@/components/admin/CollapsibleClientPr
 import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
 import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
+import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -98,6 +99,9 @@ const AdminChat = () => {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
+  const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -959,6 +963,21 @@ const AdminChat = () => {
             chatId={selectedChat.id}
             userId={selectedChat.user_id}
             onThreadCreated={handleThreadCreated}
+          />
+        )}
+
+        {/* Email Composer Modal */}
+        {showEmailComposer && selectedChat && (
+          <EmailComposerModal
+            isOpen={showEmailComposer}
+            onClose={() => setShowEmailComposer(false)}
+            threadId={selectedThreadId || ''}
+            orderId={linkedOrderId || undefined}
+            customerEmail={selectedChat.user_profiles?.email || ''}
+            customerName={selectedChat.user_profiles?.first_name && selectedChat.user_profiles?.last_name
+              ? `${selectedChat.user_profiles.first_name} ${selectedChat.user_profiles.last_name}`
+              : selectedChat.user_profiles?.company || 'Customer'}
+            threadTags={threadTags}
           />
         )}
     </>
