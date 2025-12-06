@@ -92,7 +92,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
       <form onSubmit={handleSubmit}>
-        <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl">
+        <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl focus-within:outline-none focus-within:ring-0">
           <div className="min-h-[44px] p-3">
             <textarea
               ref={textareaRef}
