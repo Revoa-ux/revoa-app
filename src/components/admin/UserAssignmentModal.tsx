@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Search, Check, UserPlus, Loader2, Users, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 interface UserAssignmentModalProps {
   onClose: () => void;
@@ -16,29 +17,60 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<string | null>(null);
-  const [admins] = useState([
-    {
-      id: '1',
-      name: 'Sarah Wilson',
-      role: 'admin',
-      assignedUsers: 156,
-      email: 'sarah@revoa.app'
-    },
-    {
-      id: '2',
-      name: 'Michael Chen',
-      role: 'admin',
-      assignedUsers: 98,
-      email: 'michael@revoa.app'
-    },
-    {
-      id: '3',
-      name: 'Emily Rodriguez',
-      role: 'admin',
-      assignedUsers: 88,
-      email: 'emily@revoa.app'
+  const [admins, setAdmins] = useState<Array<{
+    id: string;
+    name: string;
+    role: string;
+    assignedUsers: number;
+    email: string;
+  }>>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(true);
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  const fetchAdmins = async () => {
+    try {
+      setLoadingAdmins(true);
+
+      const { data: adminProfiles, error: adminError } = await supabase
+        .from('user_profiles')
+        .select('user_id, email, first_name, last_name, is_super_admin, admin_role')
+        .eq('is_admin', true)
+        .order('email');
+
+      if (adminError) throw adminError;
+
+      const { data: assignmentCounts, error: countError } = await supabase
+        .from('user_assignments')
+        .select('admin_id, count')
+        .order('admin_id');
+
+      if (countError) throw countError;
+
+      const countMap = new Map(
+        assignmentCounts?.map((c: { admin_id: string; count: number }) => [c.admin_id, c.count]) || []
+      );
+
+      const adminList = adminProfiles?.map(admin => ({
+        id: admin.user_id,
+        name: admin.first_name && admin.last_name
+          ? `${admin.first_name} ${admin.last_name}`
+          : admin.email.split('@')[0],
+        role: admin.is_super_admin ? 'super_admin' : 'admin',
+        assignedUsers: countMap.get(admin.user_id) || 0,
+        email: admin.email
+      })) || [];
+
+      setAdmins(adminList);
+    } catch (error) {
+      console.error('Error fetching admins:', error);
+      toast.error('Failed to load admins');
+    } finally {
+      setLoadingAdmins(false);
     }
-  ]);
+  };
 
   const handleAssign = async (adminId: string) => {
     if (!selectedUsers.length) {
@@ -155,58 +187,68 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                   <div className="mt-3 space-y-2">
                     <button
                       onClick={handleDistributeEvenly}
-                      className="w-full flex items-center justify-between p-3 text-left bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+                      disabled={loadingAdmins}
+                      className="w-full flex items-center justify-between p-3 text-left bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <div className="flex items-center">
-                        <Users className="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
-                        <span className="ml-3 text-sm text-gray-700 dark:text-gray-300">Distribute Evenly</span>
+                        <Users className="w-5 h-5 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+                        <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">Distribute Evenly</span>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                      <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
-                    {admins
-                      .filter(admin => 
-                        admin.role === 'admin' && // Only show regular admins
-                        (admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        admin.email.toLowerCase().includes(searchTerm.toLowerCase()))
-                      )
-                      .map((admin) => (
-                        <button
-                          key={admin.id}
-                          onClick={() => setSelectedAdmin(admin.id)}
-                          className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors ${
-                            selectedAdmin === admin.id
-                              ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                              : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-3">
-                            <UserPlus className="w-5 h-5 text-gray-400" />
-                            <div>
-                              <h3 className="text-sm font-medium text-gray-900 dark:text-white">{admin.name}</h3>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{admin.assignedUsers} users assigned</p>
+                    {loadingAdmins ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                      </div>
+                    ) : (
+                      admins
+                        .filter(admin =>
+                          admin.role === 'admin' &&
+                          (admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          admin.email.toLowerCase().includes(searchTerm.toLowerCase()))
+                        )
+                        .map((admin) => (
+                          <button
+                            key={admin.id}
+                            onClick={() => setSelectedAdmin(admin.id)}
+                            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all group ${
+                              selectedAdmin === admin.id
+                                ? 'border-gray-900 dark:border-gray-300 bg-gray-50 dark:bg-gray-700/50'
+                                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-700/50'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-3 min-w-0 flex-1">
+                              <UserPlus className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{admin.name}</h3>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{admin.assignedUsers} users assigned</p>
+                              </div>
                             </div>
-                          </div>
-                          {selectedAdmin === admin.id && (
-                            <Check className="w-4 h-4 text-primary-500" />
-                          )}
-                        </button>
-                      ))
-                    }
+                            {selectedAdmin === admin.id ? (
+                              <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-2" />
+                            )}
+                          </button>
+                        ))
+                    )}
                   </div>
                 </div>
 
                 <div className="flex space-x-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => selectedAdmin && handleAssign(selectedAdmin)}
                     disabled={isLoading || !selectedAdmin}
-                    className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
                   >
                     {isLoading ? (
                       <>
@@ -214,7 +256,10 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                         Assigning...
                       </>
                     ) : (
-                      'Assign Users'
+                      <>
+                        Assign Users
+                        <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                      </>
                     )}
                   </button>
                 </div>
