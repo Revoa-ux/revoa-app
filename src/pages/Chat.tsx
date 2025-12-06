@@ -824,7 +824,7 @@ const Chat = () => {
                 onChange={handleTyping}
                 onKeyDown={handleKeyPress}
                 placeholder={selectedFile ? "Add a caption (optional)..." : "Type a message..."}
-                className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none focus:ring-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
+                className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none focus:ring-0 focus:border-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                 style={{
                   height: '24px',
                   overflowY: 'hidden'

@@ -92,7 +92,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <div className="px-4 py-4 border-t border-gray-200 dark:border-gray-700">
       <form onSubmit={handleSubmit}>
-        <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl focus-within:outline-none focus-within:ring-0">
+        <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl focus-within:outline-none focus-within:ring-0 focus-within:border-transparent">
           <div className="min-h-[44px] p-3">
             <textarea
               ref={textareaRef}
@@ -100,7 +100,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
               onChange={handleTyping}
               onKeyDown={handleKeyPress}
               placeholder="Type a message..."
-              className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none resize-none placeholder-gray-400 dark:placeholder-gray-500"
+              className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none focus:ring-0 focus:border-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
               style={{
                 height: '24px',
                 overflowY: 'hidden'
