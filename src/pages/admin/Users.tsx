@@ -645,9 +645,10 @@ export default function Users() {
                     <td className={`px-6 py-4 whitespace-nowrap text-right text-sm relative ${index === sortedUsers.length - 1 ? 'rounded-br-xl' : ''}`}>
                       <div className="relative flex justify-end">
                         <UserActionsMenu
-                          userId={user.id}
+                          userId={user.user_id}
                           userEmail={user.email}
                           isActive={true}
+                          isAssigned={user.isAssigned}
                          onViewProfile={() => {
                             setSelectedUserId(user.user_id);
                             setShowUserProfile(true);
@@ -658,17 +659,21 @@ export default function Users() {
                          onToggleStatus={(_, active) => {
                             toast.success(`User ${active ? 'enabled' : 'disabled'} successfully`);
                           }}
+                         onReassign={() => {
+                            setSelectedUsers([user.user_id]);
+                            setShowAssignModal(true);
+                          }}
                          onRemoveAssignment={async () => {
                             try {
                               const { error } = await supabase
                                 .from('user_assignments')
                                 .delete()
-                                .eq('user_id', user.id);
+                                .eq('user_id', user.user_id);
 
                               if (error) throw error;
 
                               toast.success('User assignment removed');
-                              fetchUsers();
+                              await fetchUsers();
                             } catch (error) {
                               console.error('Error removing assignment:', error);
                               toast.error('Failed to remove assignment');

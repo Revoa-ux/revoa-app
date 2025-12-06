@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
+import {
   MoreVertical,
   User,
   Key,
   Power,
   UserMinus,
+  UserPlus,
   Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,19 +13,25 @@ import { useClickOutside } from '@/lib/useClickOutside';
 
 interface UserActionsMenuProps {
   userId: string;
+  userEmail?: string;
   isActive?: boolean;
+  isAssigned?: boolean;
   onViewProfile: (userId: string) => void;
   onResetPassword: (userId: string) => void;
   onToggleStatus: (userId: string, active: boolean) => void;
+  onReassign: (userId: string) => void;
   onRemoveAssignment: (userId: string) => void;
 }
 
 export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   userId,
+  userEmail, // eslint-disable-line @typescript-eslint/no-unused-vars
   isActive = true,
+  isAssigned = false,
   onViewProfile,
   onResetPassword,
   onToggleStatus,
+  onReassign,
   onRemoveAssignment
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -104,12 +111,22 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           </button>
 
           <button
-            onClick={handleAction(() => onRemoveAssignment(userId))}
+            onClick={handleAction(() => onReassign(userId))}
             className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
           >
-            <UserMinus className="w-4 h-4 mr-3" />
-            Remove Assignment
+            <UserPlus className="w-4 h-4 mr-3" />
+            {isAssigned ? 'Reassign User' : 'Assign User'}
           </button>
+
+          {isAssigned && (
+            <button
+              onClick={handleAction(() => onRemoveAssignment(userId))}
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            >
+              <UserMinus className="w-4 h-4 mr-3" />
+              Remove Assignment
+            </button>
+          )}
 
           <div className="h-px bg-gray-200 dark:bg-gray-700 mx-3 my-1"></div>
 
