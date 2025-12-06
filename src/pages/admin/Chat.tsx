@@ -629,8 +629,8 @@ const AdminChat = () => {
                     ref={el => messageRefs.current[message.id] = el}
                     className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2`}>
-                      <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-md'} ${
+                    <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[70%]`}>
+                      <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
                         message.sender === 'team'
                           ? 'message-bubble-user text-white'
                           : (() => {
@@ -704,7 +704,7 @@ const AdminChat = () => {
                       ) : (
                         <div className="flex flex-col">
                           <div className="px-3 pt-2 pb-1.5">
-                            <p className="text-sm whitespace-nowrap">{message.content}</p>
+                            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                             message.sender === 'team'
