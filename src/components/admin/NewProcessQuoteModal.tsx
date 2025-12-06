@@ -4,6 +4,7 @@ import Modal from '@/components/Modal';
 import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';
 import { NewQuoteVariant, QuoteVariant, FinalVariant } from '@/types/quotes';
 import { toast } from 'sonner';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 
 interface Quote {
   id: string;
@@ -124,80 +125,80 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
         />
 
         {/* Product Policies Section */}
-        <div className="space-y-6 p-6 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Shield className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-              Product Policies
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-              These policies will be used in email templates for customer support
-            </p>
-          </div>
-
-          {/* Product Warranty */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Product Warranty from Factory
-            </label>
-            <input
-              type="text"
-              value={productWarranty}
-              onChange={(e) => setProductWarranty(e.target.value)}
-              placeholder="e.g., 30 days, 60 days, 90 days"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white text-sm"
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Defect coverage period from delivery date
-            </p>
-          </div>
-
-          {/* Shipping Policy Coverage */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <Truck className="w-4 h-4" />
-              Shipping Policy Coverage
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={coversLostItems}
-                  onChange={(e) => setCoversLostItems(e.target.checked)}
-                  className="w-4 h-4 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Covers lost items in transit
-                </span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={coversDamagedItems}
-                  onChange={(e) => setCoversDamagedItems(e.target.checked)}
-                  className="w-4 h-4 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Covers damaged items in transit
-                </span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={coversLateDelivery}
-                  onChange={(e) => setCoversLateDelivery(e.target.checked)}
-                  className="w-4 h-4 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Covers late delivery
-                </span>
-              </label>
+        <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-start gap-2 mb-3">
+            <Shield className="w-4 h-4 text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                Product Policies
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                These policies will be used in email templates for customer support
+              </p>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              Select which issues your logistics provider covers
-            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+            {/* Product Warranty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Product Warranty from Factory
+              </label>
+              <input
+                type="text"
+                value={productWarranty}
+                onChange={(e) => setProductWarranty(e.target.value)}
+                placeholder="e.g., 30 days, 60 days, 90 days"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:bg-gray-800 dark:text-white text-sm"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                Defect coverage period from delivery date
+              </p>
+            </div>
+
+            {/* Shipping Policy Coverage */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Shipping Policy Coverage
+                </label>
+              </div>
+              <div className="space-y-2.5">
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <CustomCheckbox
+                    checked={coversLostItems}
+                    onChange={(e) => setCoversLostItems(e.target.checked)}
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    Covers lost items in transit
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <CustomCheckbox
+                    checked={coversDamagedItems}
+                    onChange={(e) => setCoversDamagedItems(e.target.checked)}
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    Covers damaged items in transit
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <CustomCheckbox
+                    checked={coversLateDelivery}
+                    onChange={(e) => setCoversLateDelivery(e.target.checked)}
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                    Covers late delivery
+                  </span>
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                Select which issues your logistics provider covers
+              </p>
+            </div>
           </div>
         </div>
 
