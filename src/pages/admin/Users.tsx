@@ -529,10 +529,10 @@ export default function Users() {
           {selectedUsers.length > 0 && (
             <button
               onClick={() => setShowAssignModal(true)}
-              className="px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors flex items-center"
+              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
             >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Assign Selected ({selectedUsers.length})
+              <UserPlus className="w-4 h-4" />
+              <span>Assign Selected ({selectedUsers.length})</span>
             </button>
           )}
         </div>

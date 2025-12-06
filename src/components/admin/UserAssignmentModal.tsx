@@ -207,9 +207,8 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                     ) : (
                       admins
                         .filter(admin =>
-                          admin.role === 'admin' &&
-                          (admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          admin.email.toLowerCase().includes(searchTerm.toLowerCase()))
+                          admin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          admin.email.toLowerCase().includes(searchTerm.toLowerCase())
                         )
                         .map((admin) => (
                           <button
