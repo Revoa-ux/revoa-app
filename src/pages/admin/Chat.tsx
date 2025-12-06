@@ -34,6 +34,9 @@ import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
 import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
+import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
+import { ChannelThread } from '@/components/chat/ChannelTabs';
+import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -62,6 +65,20 @@ const shouldShowDateLabel = (currentMessage: Message, previousMessage: Message |
   previousDate.setHours(0, 0, 0, 0);
 
   return currentDate.getTime() !== previousDate.getTime();
+};
+
+const getThreadBubbleColor = (tag?: string) => {
+  if (!tag) return '';
+
+  const colorMap: Record<string, string> = {
+    return: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200 dark:border-red-800',
+    replacement: 'from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800',
+    damaged: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-800',
+    defective: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800',
+    delivery_exception: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800',
+  };
+
+  return colorMap[tag] || '';
 };
 
 const AdminChat = () => {
@@ -552,6 +569,14 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                {selectedChat && threads.length > 0 && (
+                  <ChannelDropdown
+                    threads={threads}
+                    selectedThreadId={selectedThreadId}
+                    onThreadSelect={handleThreadSelect}
+                    onCreateThread={() => setShowCreateThreadModal(true)}
+                  />
+                )}
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
                   className={`hidden md:flex p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
@@ -609,7 +634,13 @@ const AdminChat = () => {
                       <div className={`${message.type === 'text' ? 'max-w-max' : 'max-w-md'} ${
                         message.sender === 'team'
                           ? 'message-bubble-user text-white'
-                          : 'message-bubble-team text-gray-900 dark:text-white'
+                          : (() => {
+                              const currentThread = threads.find(t => t.id === selectedThreadId);
+                              const threadColor = currentThread ? getThreadBubbleColor(currentThread.tag) : '';
+                              return threadColor
+                                ? `bg-gradient-to-br ${threadColor} border text-gray-900 dark:text-white`
+                                : 'message-bubble-team text-gray-900 dark:text-white';
+                            })()
                       } rounded-lg overflow-hidden`}>
                       {message.type === 'image' && message.fileUrl ? (
                         <div className="flex flex-col">
@@ -803,13 +834,6 @@ const AdminChat = () => {
                       >
                         <Paperclip className="w-5 h-5" />
                       </button>
-                      <button
-                        onClick={() => setShowCreateThreadModal(true)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                        title="Assign to order"
-                      >
-                        <Package className="w-5 h-5" />
-                      </button>
                       <div className="relative">
                         <button
                           onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -866,11 +890,19 @@ const AdminChat = () => {
         )}
       </div>
 
-      {/* Collapsible Client Profile - Now a sibling of chat area */}
-      {selectedChat && (
+      {/* Context-Aware Sidebar: Merchant profile in main chat, Customer profile in threads */}
+      {selectedChat && !selectedThreadId && (
         <CollapsibleClientProfile
           userId={selectedChat.user_id}
           isExpanded={showUserProfile}
+        />
+      )}
+
+      {selectedChat && selectedThreadId && (
+        <CustomerProfileSidebar
+          threadId={selectedThreadId}
+          isExpanded={showUserProfile}
+          onClose={() => setShowUserProfile(false)}
         />
       )}
         </div>

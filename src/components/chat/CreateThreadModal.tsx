@@ -11,6 +11,8 @@ interface Order {
   total_price: string;
   ordered_at: string;
   currency: string;
+  customer_first_name?: string;
+  customer_last_name?: string;
 }
 
 interface CreateThreadModalProps {
@@ -47,7 +49,7 @@ export function CreateThreadModal({
     try {
       const { data, error } = await supabase
         .from('shopify_orders')
-        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency')
+        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name')
         .eq('user_id', userId)
         .order('ordered_at', { ascending: false })
         .limit(50);
@@ -251,6 +253,11 @@ export function CreateThreadModal({
                           {order.order_number}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {(order.customer_first_name || order.customer_last_name) && (
+                            <span className="font-medium">
+                              {[order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')} • {' '}
+                            </span>
+                          )}
                           {formatDate(order.ordered_at)}
                         </p>
                       </div>
