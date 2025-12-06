@@ -185,41 +185,20 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
         }
       }
 
-      // If it's a return and this is a NEW thread, send auto-message with instructions
-      if (selectedTag === 'return' && !existingThread) {
-        console.log('📤 Sending auto-message for return category...');
+      // Send auto-message if category was selected and this is a NEW thread
+      if (selectedTag && !existingThread) {
+        console.log('📤 Sending auto-message for category:', selectedTag);
         try {
-          const message = await chatService.sendThreadMessage(
+          const { sendAutoMessageForThread } = await import('@/lib/threadAutoMessageService');
+          await sendAutoMessageForThread(
             threadId,
             chatId,
-            `**Important Return Instructions:**
-
-Let us know the reason for the return. If the customer changed their mind, there will be a fee. If the reason for the return is our fault, we may cover the cost of the return.
-
-**📋 Return Process:**
-
-We will provide you a "Warehouse Entry Number" that you need to send to your customer first. Your customer will then need to clearly write this number on the outside of the package near the shipping label.
-
-In addition to this, your customer will need to include a note inside the package with their:
-
-• Full name
-• Your order number
-• Product name(s)
-• Quantity (number of boxes, not individual units)
-
-⚠️ **Important:** Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
-
-Items sent back to us without first requesting a return will not be accepted.`,
-            'text',
-            'team',
-            { automated: 'true' }
+            [selectedTag],
+            {
+              order_number: selectedOrder.order_number,
+            }
           );
-
-          if (message) {
-            console.log('✅ Auto-message sent successfully:', message.id);
-          } else {
-            console.warn('⚠️ Auto-message failed to send (no message returned)');
-          }
+          console.log('✅ Auto-message sent successfully');
         } catch (msgError) {
           console.error('❌ Error sending auto-message:', msgError);
           // Don't fail the whole operation if just the message fails
