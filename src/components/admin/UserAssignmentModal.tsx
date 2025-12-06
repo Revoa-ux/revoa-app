@@ -42,16 +42,19 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
 
       if (adminError) throw adminError;
 
-      const { data: assignmentCounts, error: countError } = await supabase
+      // Get assignment counts per admin
+      const { data: assignments, error: assignError } = await supabase
         .from('user_assignments')
-        .select('admin_id, count')
-        .order('admin_id');
+        .select('admin_id');
 
-      if (countError) throw countError;
+      if (assignError) throw assignError;
 
-      const countMap = new Map(
-        assignmentCounts?.map((c: { admin_id: string; count: number }) => [c.admin_id, c.count]) || []
-      );
+      // Count assignments per admin
+      const countMap = new Map<string, number>();
+      assignments?.forEach((assignment: { admin_id: string }) => {
+        const currentCount = countMap.get(assignment.admin_id) || 0;
+        countMap.set(assignment.admin_id, currentCount + 1);
+      });
 
       const adminList = adminProfiles?.map(admin => ({
         id: admin.user_id,
@@ -138,8 +141,8 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-[100]">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
