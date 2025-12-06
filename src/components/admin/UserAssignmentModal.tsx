@@ -223,10 +223,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
                             <div className="flex items-center space-x-3 min-w-0 flex-1">
                               <UserPlus className="w-5 h-5 text-gray-400 flex-shrink-0" />
                               <div className="min-w-0 flex-1">
-                                <div className="flex items-center space-x-2">
-                                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{admin.name}</h3>
-                                </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{admin.email}</p>
+                                <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{admin.email}</h3>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{admin.assignedUsers} users assigned</p>
                               </div>
                             </div>
