@@ -780,7 +780,7 @@ const Chat = () => {
         </div>
 
         <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl !outline-none !ring-0 focus-within:!outline-none focus-within:!ring-0 focus-within:!border-transparent">
+          <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
             <div className="min-h-[44px] p-3">
               {replyToMessage && (
                 <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
@@ -827,7 +827,10 @@ const Chat = () => {
                 className="w-full min-h-[24px] max-h-[120px] text-sm bg-transparent dark:text-white focus:outline-none focus:ring-0 focus:border-0 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                 style={{
                   height: '24px',
-                  overflowY: 'hidden'
+                  overflowY: 'hidden',
+                  border: 'none',
+                  outline: 'none',
+                  boxShadow: 'none'
                 }}
               />
 

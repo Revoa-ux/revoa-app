@@ -93,6 +93,26 @@ input[type="number"] {
     @apply ring-1 !important;
   }
 
+  /* Remove focus ring from chat input textareas */
+  textarea[placeholder*="Type a message"],
+  textarea[placeholder*="Add a caption"] {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
+
+  textarea[placeholder*="Type a message"]:focus,
+  textarea[placeholder*="Add a caption"]:focus,
+  textarea[placeholder*="Type a message"]:focus-visible,
+  textarea[placeholder*="Add a caption"]:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+    --tw-ring-shadow: none !important;
+  }
+
   /* Search Input */
   .search-input {
     @apply interactive-element pl-10 pr-4 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark hover:border-gray-300 dark:hover:border-dark-hover rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-dark-hover focus:border-gray-200 dark:focus:border-dark;
