@@ -495,7 +495,9 @@ export default function Users() {
               )}
             </div>
           )}
+        </div>
 
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
@@ -506,7 +508,7 @@ export default function Users() {
             </button>
 
             {showSortDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 w-48 mt-2 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
@@ -523,9 +525,7 @@ export default function Users() {
               </div>
             )}
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {selectedUsers.length > 0 && (
             <button
               onClick={() => setShowAssignModal(true)}
