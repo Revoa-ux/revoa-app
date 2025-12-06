@@ -130,119 +130,117 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
         {/* Product Policies Section */}
         <div>
           <div className="mb-3">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Product Policies
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               These policies will be used in email templates for customer support
             </p>
           </div>
 
-          <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Product Warranty */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Factory's Product Warranty
-                    </label>
-                  </div>
-                  <ToggleSwitch
-                    checked={hasWarranty}
-                    onChange={setHasWarranty}
-                    size="sm"
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Product Warranty Card */}
+            <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Factory's Product Warranty
+                  </label>
                 </div>
+                <ToggleSwitch
+                  checked={hasWarranty}
+                  onChange={setHasWarranty}
+                  size="sm"
+                />
+              </div>
 
-                {hasWarranty && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        value={warrantyDays}
-                        onChange={(e) => setWarrantyDays(parseInt(e.target.value) || 0)}
-                        placeholder="30"
-                        className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+              {hasWarranty && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      value={warrantyDays}
+                      onChange={(e) => setWarrantyDays(parseInt(e.target.value) || 0)}
+                      placeholder="30"
+                      className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Defect coverage period from delivery date
+                  </p>
+                </>
+              )}
+
+              {!hasWarranty && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  No warranty coverage
+                </p>
+              )}
+            </div>
+
+            {/* Shipping Coverage Card */}
+            <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Logistics Shipment Coverage
+                  </label>
+                </div>
+                <ToggleSwitch
+                  checked={hasShippingCoverage}
+                  onChange={setHasShippingCoverage}
+                  size="sm"
+                />
+              </div>
+
+              {hasShippingCoverage && (
+                <>
+                  <div className="space-y-2.5">
+                    <label className="flex items-center gap-2.5 cursor-pointer group">
+                      <CustomCheckbox
+                        checked={coversLostItems}
+                        onChange={(e) => setCoversLostItems(e.target.checked)}
                       />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">days</span>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      Defect coverage period from delivery date
-                    </p>
-                  </>
-                )}
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                        Covers lost items in transit
+                      </span>
+                    </label>
 
-                {!hasWarranty && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    No warranty coverage
-                  </p>
-                )}
-              </div>
+                    <label className="flex items-center gap-2.5 cursor-pointer group">
+                      <CustomCheckbox
+                        checked={coversDamagedItems}
+                        onChange={(e) => setCoversDamagedItems(e.target.checked)}
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                        Covers damaged items in transit
+                      </span>
+                    </label>
 
-              {/* Shipping Policy Coverage */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Logistics Shipment Coverage
+                    <label className="flex items-center gap-2.5 cursor-pointer group">
+                      <CustomCheckbox
+                        checked={coversLateDelivery}
+                        onChange={(e) => setCoversLateDelivery(e.target.checked)}
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                        Covers late delivery
+                      </span>
                     </label>
                   </div>
-                  <ToggleSwitch
-                    checked={hasShippingCoverage}
-                    onChange={setHasShippingCoverage}
-                    size="sm"
-                  />
-                </div>
-
-                {hasShippingCoverage && (
-                  <>
-                    <div className="space-y-2.5">
-                      <label className="flex items-center gap-2.5 cursor-pointer group">
-                        <CustomCheckbox
-                          checked={coversLostItems}
-                          onChange={(e) => setCoversLostItems(e.target.checked)}
-                        />
-                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                          Covers lost items in transit
-                        </span>
-                      </label>
-
-                      <label className="flex items-center gap-2.5 cursor-pointer group">
-                        <CustomCheckbox
-                          checked={coversDamagedItems}
-                          onChange={(e) => setCoversDamagedItems(e.target.checked)}
-                        />
-                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                          Covers damaged items in transit
-                        </span>
-                      </label>
-
-                      <label className="flex items-center gap-2.5 cursor-pointer group">
-                        <CustomCheckbox
-                          checked={coversLateDelivery}
-                          onChange={(e) => setCoversLateDelivery(e.target.checked)}
-                        />
-                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                          Covers late delivery
-                        </span>
-                      </label>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                      Select which issues your logistics provider covers
-                    </p>
-                  </>
-                )}
-
-                {!hasShippingCoverage && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    No shipping coverage
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Select which issues your logistics provider covers
                   </p>
-                )}
-              </div>
+                </>
+              )}
+
+              {!hasShippingCoverage && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  No shipping coverage
+                </p>
+              )}
             </div>
           </div>
         </div>
