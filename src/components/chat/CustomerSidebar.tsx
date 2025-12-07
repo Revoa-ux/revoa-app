@@ -257,48 +257,33 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </div>
                   <button
                     onClick={() => setShowTemplateSelector(true)}
-                    className={`text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 ${
-                      customerInfo.customer_email
-                        ? 'text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20'
-                        : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                    }`}
-                    disabled={!customerInfo.customer_email}
-                    title={customerInfo.customer_email ? 'Email templates' : 'No email available'}
+                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20"
+                    title="Email templates"
                   >
                     <FileText className="w-3 h-3" />
                     Templates
                   </button>
                 </div>
 
-                {customerInfo.customer_email ? (
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>Email</span>
-                    </div>
-                    <p className="text-sm text-gray-900 dark:text-white break-all">
-                      {customerInfo.customer_email}
-                    </p>
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
                   </div>
-                ) : (
-                  <div className="mb-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 italic">
-                      No contact information available
-                    </p>
-                  </div>
-                )}
+                  <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
+                    {customerInfo.customer_email || 'Not provided'}
+                  </p>
+                </div>
 
-                {customerInfo.customer_phone && (
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>Phone</span>
-                    </div>
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      {customerInfo.customer_phone}
-                    </p>
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Phone</span>
                   </div>
-                )}
+                  <p className={`text-sm ${customerInfo.customer_phone ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'}`}>
+                    {customerInfo.customer_phone || 'Not provided'}
+                  </p>
+                </div>
               </div>
 
               {/* Order Information */}
@@ -360,15 +345,15 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               </div>
 
               {/* Line Items */}
-              {lineItems.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Items Purchased
-                    </h4>
-                  </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Items Purchased
+                  </h4>
+                </div>
 
+                {lineItems.length > 0 ? (
                   <div className="space-y-3">
                     {lineItems.map((item, idx) => (
                       <div key={`${item.product_name}-${idx}`} className="text-sm">
@@ -395,8 +380,12 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                    No items available
+                  </p>
+                )}
+              </div>
 
               {/* Transaction Breakdown */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -520,15 +509,15 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               )}
 
               {/* Shipping Address */}
-              {customerInfo.shipping_address_line1 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Shipping Address
-                    </h4>
-                  </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Shipping Address
+                  </h4>
+                </div>
 
+                {customerInfo.shipping_address_line1 ? (
                   <div className="flex items-start gap-2">
                     <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="text-sm text-gray-700 dark:text-gray-300">
@@ -550,19 +539,23 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       )}
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                    No shipping address provided
+                  </p>
+                )}
+              </div>
 
               {/* Billing Address */}
-              {customerInfo.billing_address_line1 && (
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Billing Address
-                    </h4>
-                  </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Billing Address
+                  </h4>
+                </div>
 
+                {customerInfo.billing_address_line1 ? (
                   <div className="flex items-start gap-2">
                     <CreditCard className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div className="text-sm text-gray-700 dark:text-gray-300">
@@ -584,8 +577,12 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       )}
                     </div>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-gray-400 dark:text-gray-500 italic">
+                    No billing address provided
+                  </p>
+                )}
+              </div>
 
               {/* Customer Notes */}
               {customerInfo.note && (

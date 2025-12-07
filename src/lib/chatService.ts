@@ -404,6 +404,7 @@ export const chatService = {
       .from('messages')
       .select('*')
       .eq('chat_id', chatId)
+      .is('thread_id', null)
       .is('deleted_at', null)
       .order('timestamp', { ascending: true });
 
@@ -542,7 +543,7 @@ export const chatService = {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
-          filter: `chat_id=eq.${chatId}`
+          filter: `chat_id=eq.${chatId}&thread_id=is.null`
         },
         (payload) => {
           const msg = payload.new;
@@ -593,7 +594,7 @@ export const chatService = {
       return [];
     }
 
-    return (data || []).map(thread => ({
+    const threads = (data || []).map(thread => ({
       ...thread,
       order_number: thread.shopify_orders?.order_number || null,
       customer_name: [
@@ -601,6 +602,20 @@ export const chatService = {
         thread.shopify_orders?.customer_last_name
       ].filter(Boolean).join(' ') || null
     }));
+
+    // Sort by order number (numerically)
+    threads.sort((a, b) => {
+      if (!a.order_number || !b.order_number) return 0;
+
+      // Extract numeric part from order numbers (e.g., "#1010" -> 1010)
+      const numA = parseInt(a.order_number.replace(/\D/g, ''), 10) || 0;
+      const numB = parseInt(b.order_number.replace(/\D/g, ''), 10) || 0;
+
+      // Sort in descending order (highest order number first)
+      return numB - numA;
+    });
+
+    return threads;
   },
 
   async getThreadMessages(threadId: string): Promise<Message[]> {
@@ -766,7 +781,43 @@ export const chatService = {
         throw new Error(error.message || 'Failed to create thread');
       }
 
-      return data?.id || null;
+      const threadId = data?.id;
+
+      // Send automated welcome message if tag is specified
+      if (threadId && tag) {
+        try {
+          const { data: autoMessage } = await supabase
+            .from('thread_category_auto_messages')
+            .select('message_body')
+            .eq('category_tag', tag)
+            .eq('is_active', true)
+            .maybeSingle();
+
+          if (autoMessage?.message_body) {
+            // Replace variables in message
+            let messageContent = autoMessage.message_body;
+            messageContent = messageContent.replace(/\{\{order_number\}\}/g, order.order_number);
+
+            await supabase.from('messages').insert({
+              chat_id: chatId,
+              thread_id: threadId,
+              content: messageContent,
+              type: 'text',
+              sender: 'team',
+              metadata: {
+                automated: true,
+                thread_welcome: true,
+                thread_tag: tag
+              }
+            });
+          }
+        } catch (messageError) {
+          console.error('Error sending welcome message:', messageError);
+          // Don't fail thread creation if message fails
+        }
+      }
+
+      return threadId;
     } catch (error) {
       console.error('Error in createThread:', error);
       throw error;
