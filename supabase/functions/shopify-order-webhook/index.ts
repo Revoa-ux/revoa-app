@@ -53,21 +53,36 @@ async function processOrderCOGS(supabase: any, userId: string, orderData: any, s
     return;
   }
   let totalCOGS = 0;
-  const orderLineItemsToInsert = [];
+  const orderLineItemsToUpsert = [];
   for (const item of lineItems) {
     const { data: product } = await supabase.from('products').select('id, name, cogs_cost, supplier_id').or(`shopify_product_id.eq.${item.product_id},sku.eq.${item.sku}`).maybeSingle();
     const unitCost = product?.cogs_cost || 0;
     const totalCost = unitCost * item.quantity;
+    const unitPrice = parseFloat(item.price || '0');
     totalCOGS += totalCost;
-    orderLineItemsToInsert.push({user_id: userId, shopify_order_id: orderData.id.toString(), product_id: product?.id || null, product_name: item.name || item.title || 'Unknown Product', variant_name: item.variant_title, quantity: item.quantity, unit_cost: unitCost, total_cost: totalCost, fulfillment_status: 'pending'});
-    console.log('[Order Webhook] Line item:', {product: item.name, quantity: item.quantity, unit_cost: unitCost, total_cost: totalCost});
+    orderLineItemsToUpsert.push({
+      user_id: userId,
+      shopify_order_id: orderData.id.toString(),
+      product_id: product?.id || null,
+      product_name: item.name || item.title || 'Unknown Product',
+      variant_name: item.variant_title || null,
+      quantity: item.quantity,
+      unit_cost: unitCost,
+      total_cost: totalCost,
+      unit_price: unitPrice,
+      fulfillment_status: 'pending'
+    });
+    console.log('[Order Webhook] Line item:', {product: item.name, quantity: item.quantity, unit_price: unitPrice, unit_cost: unitCost, total_cost: totalCost});
   }
-  const { error: lineItemsError } = await supabase.from('order_line_items').insert(orderLineItemsToInsert);
+  const { error: lineItemsError } = await supabase.from('order_line_items').upsert(orderLineItemsToUpsert, {
+    onConflict: 'shopify_order_id,product_name,variant_name',
+    ignoreDuplicates: false
+  });
   if (lineItemsError) {
-    console.error('[Order Webhook] Error inserting line items:', lineItemsError);
-    throw new Error(`Failed to insert order line items: ${lineItemsError.message}`);
+    console.error('[Order Webhook] Error upserting line items:', lineItemsError);
+    throw new Error(`Failed to upsert order line items: ${lineItemsError.message}`);
   }
-  console.log('[Order Webhook] Inserted', orderLineItemsToInsert.length, 'line items');
+  console.log('[Order Webhook] Upserted', orderLineItemsToUpsert.length, 'line items');
   if (totalCOGS > 0) {
     const { data: balanceAccount } = await supabase.from('balance_accounts').select('*').eq('user_id', userId).maybeSingle();
     if (!balanceAccount) {
@@ -192,6 +207,16 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Log customer data for debugging
+    console.log('[Order Webhook] Customer data:', {
+      has_customer_object: !!orderData.customer,
+      customer_first_name: orderData.customer?.first_name,
+      customer_last_name: orderData.customer?.last_name,
+      customer_email: orderData.customer?.email || orderData.email,
+      shipping_first_name: shippingAddress.first_name,
+      shipping_last_name: shippingAddress.last_name
+    });
+
     const { data: storedOrder, error: orderError } = await supabase.from('shopify_orders').upsert({
       user_id: userId,
       shopify_order_id: orderData.id.toString(),
@@ -199,9 +224,9 @@ Deno.serve(async (req: Request) => {
       total_price: parseFloat(orderData.total_price || orderData.current_total_price || '0'),
       currency: orderData.currency || 'USD',
       customer_email: customerEmail,
-      customer_first_name: orderData.customer?.first_name || shippingAddress.first_name || null,
-      customer_last_name: orderData.customer?.last_name || shippingAddress.last_name || null,
-      customer_phone: orderData.customer?.phone || shippingAddress.phone || orderData.phone || null,
+      customer_first_name: orderData.customer?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
+      customer_last_name: orderData.customer?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
+      customer_phone: orderData.customer?.phone || shippingAddress.phone || billingAddress.phone || orderData.phone || null,
       // Shipping address
       shipping_address_line1: shippingAddress.address1 || null,
       shipping_address_line2: shippingAddress.address2 || null,

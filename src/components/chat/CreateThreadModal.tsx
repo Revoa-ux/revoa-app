@@ -103,7 +103,7 @@ export function CreateThreadModal({
       const welcomeMessage = getThreadWelcomeMessage(threadData.tag, selectedOrder);
 
       if (welcomeMessage) {
-        await supabase.from('messages').insert({
+        const { error: messageError } = await supabase.from('messages').insert({
           chat_id: chatId,
           thread_id: threadData.id,
           content: welcomeMessage,
@@ -116,6 +116,11 @@ export function CreateThreadModal({
             thread_tag: threadData.tag
           }
         });
+
+        if (messageError) {
+          console.error('Error creating welcome message:', messageError);
+          // Don't fail the thread creation if message fails
+        }
       }
 
       toast.success('Thread created successfully');
@@ -297,10 +302,12 @@ export function CreateThreadModal({
                           {order.order_number}
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {(order.customer_first_name || order.customer_last_name) && (
+                          {(order.customer_first_name || order.customer_last_name) ? (
                             <span className="font-medium">
                               {[order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')} • {' '}
                             </span>
+                          ) : (
+                            <span className="font-medium">Guest Customer • </span>
                           )}
                           {formatDate(order.ordered_at)}
                         </p>

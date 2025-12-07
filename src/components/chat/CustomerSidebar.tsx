@@ -180,13 +180,17 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   }
 
   const getCustomerName = () => {
-    if (!customerInfo) return 'Customer';
+    if (!customerInfo) return 'Guest Customer';
     if (customerInfo.customer_first_name || customerInfo.customer_last_name) {
       return [customerInfo.customer_first_name, customerInfo.customer_last_name]
         .filter(Boolean)
         .join(' ');
     }
-    return 'Customer';
+    if (customerInfo.customer_email) {
+      const emailPrefix = customerInfo.customer_email.split('@')[0];
+      return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    }
+    return 'Guest Customer';
   };
 
   const formatCurrency = (amount: number, currency: string) => {
@@ -230,47 +234,56 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       {getCustomerName()}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Customer
-                      </p>
-                      {customerInfo.is_repeat_customer && (
+                    {customerInfo.is_repeat_customer && (
+                      <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center gap-1">
                           <TrendingUp className="w-3 h-3" />
-                          Repeat ({customerInfo.order_count})
+                          Repeat Customer ({customerInfo.order_count})
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Contact Information */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Contact
-                  </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      Contact
+                    </h4>
+                  </div>
+                  <button
+                    onClick={() => setShowTemplateSelector(true)}
+                    className={`text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 ${
+                      customerInfo.customer_email
+                        ? 'text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20'
+                        : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                    }`}
+                    disabled={!customerInfo.customer_email}
+                    title={customerInfo.customer_email ? 'Email templates' : 'No email available'}
+                  >
+                    <FileText className="w-3 h-3" />
+                    Templates
+                  </button>
                 </div>
 
-                {customerInfo.customer_email && (
+                {customerInfo.customer_email ? (
                   <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                        <Mail className="w-3.5 h-3.5" />
-                        <span>Email</span>
-                      </div>
-                      <button
-                        onClick={() => setShowTemplateSelector(true)}
-                        className="text-xs text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1"
-                      >
-                        <FileText className="w-3 h-3" />
-                        Templates
-                      </button>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email</span>
                     </div>
                     <p className="text-sm text-gray-900 dark:text-white break-all">
                       {customerInfo.customer_email}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                      No contact information available
                     </p>
                   </div>
                 )}
@@ -299,10 +312,9 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                      <Package className="w-3.5 h-3.5" />
-                      <span>Order Number</span>
-                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Order Number
+                    </span>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {customerInfo.order_number}
                     </p>
@@ -347,12 +359,51 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
               </div>
 
+              {/* Line Items */}
+              {lineItems.length > 0 && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      Items Purchased
+                    </h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    {lineItems.map((item, idx) => (
+                      <div key={`${item.product_name}-${idx}`} className="text-sm">
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="flex-1">
+                            <p className="text-gray-900 dark:text-white font-medium">
+                              {item.product_name}
+                            </p>
+                            {item.variant_name && item.variant_name !== item.product_name && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {item.variant_name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                          <span>Qty: {item.quantity}</span>
+                          {item.unit_price > 0 && (
+                            <span>
+                              {formatCurrency(item.unit_price * item.quantity, customerInfo.currency)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Transaction Breakdown */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
                   <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Transaction
+                    Order Summary
                   </h4>
                 </div>
 

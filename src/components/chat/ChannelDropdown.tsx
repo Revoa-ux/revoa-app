@@ -116,11 +116,9 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                     </span>
                   )}
                 </div>
-                {thread.customer_name && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {thread.customer_name}
-                  </div>
-                )}
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {thread.customer_name || 'Guest Customer'}
+                </div>
               </div>
             </button>
           ))}
