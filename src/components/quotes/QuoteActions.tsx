@@ -189,7 +189,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         onClose={() => setShowDeleteModal(false)}
         maxWidth="max-w-md"
       >
-        <div className="text-center">
+        <div className="text-center px-4">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
             <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
           </div>
@@ -197,13 +197,13 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Cancel Quote
             </h3>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 break-words">
               Are you sure you want to cancel this quote? The admin will be notified and you can submit a new quote request if needed.
             </p>
           </div>
         </div>
 
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex gap-3 px-4">
           <button
             onClick={() => setShowDeleteModal(false)}
             className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"

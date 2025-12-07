@@ -141,7 +141,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     ))}
 
                     {/* Pending Quote Message */}
-                    {quote.status === 'quote_pending' && !quote.variants && (
+                    {quote.status === 'quote_pending' && (!quote.variants || quote.variants.length === 0) && (
                       <tr className="bg-blue-50/50 dark:bg-blue-900/10 border-t border-blue-200 dark:border-blue-800">
                         <td colSpan={7} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center gap-3">
@@ -251,7 +251,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     )}
 
                     {/* Fallback: Basic Quote Details (when no advanced settings exist) */}
-                    {!quote.variants?.slice(1).length &&
+                    {(!quote.variants || quote.variants.length <= 1) &&
                       quote.status !== 'quote_pending' &&
                       !quote.warrantyDays &&
                       !quote.coversLostItems &&
