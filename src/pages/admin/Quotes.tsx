@@ -171,6 +171,17 @@ export default function AdminQuotes() {
 
         const transformedQuotes: Quote[] = (quotesData || []).map(quote => {
           const userProfile = usersMap.get(quote.user_id);
+
+          // Calculate days until expiration
+          let expiresIn: number | undefined;
+          if (quote.expires_at) {
+            const expiresAt = new Date(quote.expires_at);
+            const now = new Date();
+            const diffTime = expiresAt.getTime() - now.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            expiresIn = diffDays > 0 ? diffDays : 0;
+          }
+
           return {
             id: quote.id,
             productUrl: quote.product_url || '',
@@ -179,6 +190,7 @@ export default function AdminQuotes() {
             requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
             status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
             variants: quote.variants || [],
+            expiresIn,
             shopifyProductId: quote.shopify_product_id,
             shopDomain: quote.shop_domain,
             userId: quote.user_id,
@@ -249,6 +261,17 @@ export default function AdminQuotes() {
 
       const transformedQuotes: Quote[] = (quotesData || []).map(quote => {
         const userProfile = usersMap.get(quote.user_id);
+
+        // Calculate days until expiration
+        let expiresIn: number | undefined;
+        if (quote.expires_at) {
+          const expiresAt = new Date(quote.expires_at);
+          const now = new Date();
+          const diffTime = expiresAt.getTime() - now.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          expiresIn = diffDays > 0 ? diffDays : 0;
+        }
+
         return {
           id: quote.id,
           productUrl: quote.product_url || '',
@@ -257,6 +280,7 @@ export default function AdminQuotes() {
           requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
           status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
           variants: quote.variants || [],
+          expiresIn,
           shopifyProductId: quote.shopify_product_id,
           shopDomain: quote.shop_domain,
           userId: quote.user_id,
@@ -563,7 +587,9 @@ export default function AdminQuotes() {
                       </button>
                     ) : (
                       <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {quote.status === 'quoted' ? `Expires in ${quote.expiresIn}d` : '-'}
+                        {quote.status === 'quoted' && quote.expiresIn !== undefined
+                          ? `Expires in ${quote.expiresIn}d`
+                          : '-'}
                       </span>
                     )}
                   </td>
