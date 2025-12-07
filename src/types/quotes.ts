@@ -24,7 +24,7 @@ export interface QuoteVariant {
 // New simplified types
 export interface QuantityTier {
   minQty: number;
-  shippingCost: number;
+  discountAmount: number;  // Discount applied to (baseRate × quantity)
 }
 
 export interface ShippingRules {

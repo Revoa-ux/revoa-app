@@ -512,8 +512,7 @@ export default function AdminQuotes() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Request ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Product</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
@@ -524,9 +523,6 @@ export default function AdminQuotes() {
               {filteredQuotes.map((quote, index) => (
                 <tr key={quote.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className={`px-6 py-4 ${index === filteredQuotes.length - 1 ? 'rounded-bl-xl' : ''}`}>
-                    <span className="text-xs text-gray-900 dark:text-gray-100">{quote.id}</span>
-                  </td>
-                  <td className="px-6 py-4">
                     <a
                       href={
                         quote.shopifyProductId && quote.shopDomain

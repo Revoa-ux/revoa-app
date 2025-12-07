@@ -15,12 +15,15 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
 
   const calculateTotal = (variant: NewQuoteVariant, quantity: number) => {
     const productCost = variant.costPerItem * quantity;
-    let shippingCost = variant.shippingRules.default;
 
+    // Start with base shipping rate
+    let shippingCost = variant.shippingRules.default * quantity;
+
+    // Apply quantity discount if applicable
     if (variant.shippingRules.byQuantity) {
       for (const tier of [...variant.shippingRules.byQuantity].reverse()) {
         if (quantity >= tier.minQty) {
-          shippingCost = tier.shippingCost;
+          shippingCost = Math.max(0, shippingCost - tier.discountAmount);
           break;
         }
       }

@@ -63,19 +63,19 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
 
   const addQuantityTier = () => {
     const minQty = parseInt(newTierMinQty);
-    const cost = parseFloat(newTierCost);
+    const discount = parseFloat(newTierCost);
 
     if (isNaN(minQty) || minQty < 1) {
       toast.error('Please enter a valid minimum quantity');
       return;
     }
 
-    if (isNaN(cost) || cost < 0) {
-      toast.error('Please enter a valid shipping cost');
+    if (isNaN(discount) || discount < 0) {
+      toast.error('Please enter a valid discount amount');
       return;
     }
 
-    const newTiers = [...(rules.byQuantity || []), { minQty, shippingCost: cost }];
+    const newTiers = [...(rules.byQuantity || []), { minQty, discountAmount: discount }];
     newTiers.sort((a, b) => a.minQty - b.minQty);
 
     onRulesChange({
@@ -85,7 +85,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
 
     setNewTierMinQty('');
     setNewTierCost('');
-    toast.success('Quantity tier added');
+    toast.success('Quantity discount added');
   };
 
   const removeQuantityTier = (index: number) => {
@@ -254,8 +254,8 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                   {tier.minQty}+ units
                 </span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    ${tier.shippingCost.toFixed(2)}
+                  <span className="text-sm font-medium text-green-600 dark:text-green-400">
+                    -${tier.discountAmount.toFixed(2)} discount
                   </span>
                   <button
                     type="button"
@@ -275,7 +275,10 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
         )}
 
         {showQuantityTiers && (
-          <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="space-y-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded">
+              Discount formula: (Base rate × Quantity) - Discount amount
+            </p>
             <div className="grid grid-cols-2 gap-2">
               <input
                 type="number"
@@ -295,7 +298,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
                   min="0"
                   value={newTierCost}
                   onChange={(e) => setNewTierCost(e.target.value)}
-                  placeholder="Shipping cost"
+                  placeholder="Discount amount"
                   className="w-full pl-7 pr-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
