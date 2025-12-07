@@ -29,8 +29,7 @@ const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
   { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400' },
   { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' },
   { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' },
-  { value: 'delivery_exception', label: 'Delivery Issue', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
-  { value: 'other', label: 'Other', color: 'bg-gray-500/20 text-gray-600 dark:text-gray-400' },
+  { value: 'inquiry', label: 'General', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
 ];
 
 export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({

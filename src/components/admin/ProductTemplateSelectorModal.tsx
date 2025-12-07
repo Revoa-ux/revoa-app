@@ -41,11 +41,36 @@ export function ProductTemplateSelectorModal({
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Fetch products for this user (all statuses)
-      const { data: productsData, error: productsError } = await supabase
+      // Check if current user is super admin
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('is_super_admin')
+        .eq('user_id', user?.id || '')
+        .maybeSingle();
+
+      let query = supabase
         .from('products')
-        .select('id, name, sku, status, created_at')
-        .eq('user_id', userId)
+        .select('id, name, sku, status, created_at, user_id');
+
+      // If user is super admin, fetch their products
+      // If user is regular merchant, fetch products from all super admins
+      if (profile?.is_super_admin) {
+        query = query.eq('user_id', userId);
+      } else {
+        // Fetch products from super admins
+        const { data: superAdmins } = await supabase
+          .from('user_profiles')
+          .select('user_id')
+          .eq('is_super_admin', true);
+
+        const superAdminIds = superAdmins?.map(sa => sa.user_id) || [];
+        if (superAdminIds.length > 0) {
+          query = query.in('user_id', superAdminIds);
+        }
+      }
+
+      const { data: productsData, error: productsError } = await query
         .order('created_at', { ascending: false });
 
       if (productsError) throw productsError;
