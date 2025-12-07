@@ -22,7 +22,7 @@ export default function ProductQuotes() {
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [expandedQuotes, setExpandedQuotes] = useState<string[]>([]);
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
   const [shopifySyncMethod, setShopifySyncMethod] = useState<'new' | 'existing' | null>(null);
@@ -33,7 +33,13 @@ export default function ProductQuotes() {
 
   // Load quotes on mount and check URL for review parameter
   useEffect(() => {
-    loadQuotes();
+    // Wait for auth to load before fetching quotes
+    if (!authLoading && user) {
+      loadQuotes();
+    } else if (!authLoading && !user) {
+      // If auth is done loading but no user, stop loading
+      setIsLoading(false);
+    }
 
     // Check if URL has review parameter
     const params = new URLSearchParams(window.location.search);
@@ -41,7 +47,7 @@ export default function ProductQuotes() {
     if (reviewId) {
       setReviewQuoteId(reviewId);
     }
-  }, []);
+  }, [authLoading, user]);
 
   // Fetch quote details when reviewQuoteId is set
   useEffect(() => {
@@ -184,7 +190,7 @@ export default function ProductQuotes() {
 
   const pendingReacceptanceCount = quotes.filter(q => q.status === 'pending_reacceptance').length;
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -192,6 +198,22 @@ export default function ProductQuotes() {
           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-8"></div>
           <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
           <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            Authentication Required
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Please sign in to view your quotes.
+          </p>
         </div>
       </div>
     );
@@ -261,18 +283,46 @@ export default function ProductQuotes() {
         </div>
 
         {/* Quotes Table */}
-        <QuoteTable
-          quotes={filteredQuotes}
-          expandedQuotes={expandedQuotes}
-          onToggleExpand={toggleQuoteExpansion}
-          onAcceptQuote={handleAcceptQuote}
-          onConnectShopify={(quote, method) => {
-            setSelectedQuote(quote);
-            setShopifySyncMethod(method || null);
-            setShowShopifyModal(true);
-          }}
-          onDeleteQuote={handleDeleteQuote}
-        />
+        {filteredQuotes.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                {quotes.length === 0 ? 'No quotes yet' : 'No quotes found'}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                {quotes.length === 0
+                  ? 'Submit a product link to receive competitive pricing from our team.'
+                  : 'Try adjusting your search or filters to find what you\'re looking for.'}
+              </p>
+              {quotes.length === 0 && (
+                <button
+                  onClick={() => setShowQuoteForm(true)}
+                  className="px-6 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                >
+                  Request Your First Quote
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <QuoteTable
+            quotes={filteredQuotes}
+            expandedQuotes={expandedQuotes}
+            onToggleExpand={toggleQuoteExpansion}
+            onAcceptQuote={handleAcceptQuote}
+            onConnectShopify={(quote, method) => {
+              setSelectedQuote(quote);
+              setShopifySyncMethod(method || null);
+              setShowShopifyModal(true);
+            }}
+            onDeleteQuote={handleDeleteQuote}
+          />
+        )}
       </div>
 
       {/* Quote Form Modal */}
