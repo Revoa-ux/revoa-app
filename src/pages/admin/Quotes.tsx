@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
-import { ProductConfigurationModal } from '@/components/admin/ProductConfigurationModal';
 import { QuoteVariant } from '@/types/quotes';
 import { getStatusText } from '@/components/quotes/QuoteStatus';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -44,9 +43,6 @@ export default function AdminQuotes() {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const [showAdminFilterDropdown, setShowAdminFilterDropdown] = useState(false);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [pendingVariants, setPendingVariants] = useState<QuoteVariant[] | null>(null);
-  const [pendingPolicies, setPendingPolicies] = useState<any>(null);
   const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [quoteStats, setQuoteStats] = useState({
     avgResponseTime: 0,
@@ -281,31 +277,21 @@ export default function AdminQuotes() {
   const handleProcessQuote = async (variants: QuoteVariant[], policies: any) => {
     if (!selectedQuote) return;
 
-    // Store variants and policies temporarily and show configuration modal
-    setPendingVariants(variants);
-    setPendingPolicies(policies);
-    setShowConfigModal(true);
-  };
-
-  const handleConfigurationComplete = async () => {
-    if (!selectedQuote || !pendingVariants) return;
-
     try {
       const updateData: any = {
         status: 'quoted',
-        variants: pendingVariants,
+        variants: variants,
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       };
 
       // Add policies if they exist
-      if (pendingPolicies) {
-        updateData.warranty_days = pendingPolicies.warrantyDays;
-        updateData.covers_lost_items = pendingPolicies.coversLostItems;
-        updateData.covers_damaged_items = pendingPolicies.coversDamagedItems;
-        updateData.covers_late_delivery = pendingPolicies.coversLateDelivery;
+      if (policies) {
+        updateData.warranty_days = policies.warrantyDays;
+        updateData.covers_lost_items = policies.coversLostItems;
+        updateData.covers_damaged_items = policies.coversDamagedItems;
+        updateData.covers_late_delivery = policies.coversLateDelivery;
       }
 
-      // Now that configuration is complete, finalize the quote
       const { error } = await supabase
         .from('product_quotes')
         .update(updateData)
@@ -315,15 +301,13 @@ export default function AdminQuotes() {
 
       toast.success('Quote processed and sent to merchant');
       setSelectedQuote(null);
-      setPendingVariants(null);
-      setPendingPolicies(null);
-      setShowConfigModal(false);
       fetchQuotes();
     } catch (error) {
       console.error('Error processing quote:', error);
       toast.error('Failed to process quote');
     }
   };
+
 
   const filteredQuotes = quotes.filter(quote => {
     const matchesSearch =
@@ -590,26 +574,11 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      {selectedQuote && !showConfigModal && (
+      {selectedQuote && (
         <NewProcessQuoteModal
           quote={selectedQuote}
           onClose={() => setSelectedQuote(null)}
           onSubmit={handleProcessQuote}
-        />
-      )}
-
-      {showConfigModal && selectedQuote && selectedQuote.productId && selectedQuote.userId && (
-        <ProductConfigurationModal
-          isOpen={showConfigModal}
-          onClose={() => {
-            setShowConfigModal(false);
-            setPendingVariants(null);
-            setPendingPolicies(null);
-          }}
-          productId={selectedQuote.productId}
-          productName={selectedQuote.productName}
-          userId={selectedQuote.userId}
-          onComplete={handleConfigurationComplete}
         />
       )}
     </div>
