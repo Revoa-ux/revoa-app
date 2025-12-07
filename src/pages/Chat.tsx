@@ -130,19 +130,19 @@ const Chat = () => {
         const userChat = await chatService.getUserChat(user.id);
         if (userChat) {
           setChat(userChat);
-          // Get admin's profile info from admin_profiles table
+          // Get admin's profile info from user_profiles table
           if (userChat.admin_id) {
             const { data: adminProfile } = await supabase
-              .from('admin_profiles')
-              .select('first_name, last_name, profile_picture_url')
-              .eq('user_id', userChat.admin_id)
+              .from('user_profiles')
+              .select('first_name, last_name, name, profile_picture_url')
+              .eq('id', userChat.admin_id)
               .single();
 
             if (adminProfile) {
-              // Build full name from first and last name
+              // Build full name from first and last name, fallback to name field
               const fullName = [adminProfile.first_name, adminProfile.last_name]
                 .filter(Boolean)
-                .join(' ');
+                .join(' ') || adminProfile.name;
 
               // Only update name if admin has set up their profile
               if (fullName) {
@@ -486,7 +486,7 @@ const Chat = () => {
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Online</p>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
             </div>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
