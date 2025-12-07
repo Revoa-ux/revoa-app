@@ -294,6 +294,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-sm text-rose-600 dark:text-rose-400 hover:underline break-all"
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     {quote.productUrl}
                                   </a>
@@ -301,13 +302,13 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               )}
                             </div>
 
-                            {quote.status === 'pending' && (
+                            {!quote.variants?.[0] && (
                               <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                                 <AlertCircle className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                  <p className="text-xs font-medium text-gray-900 dark:text-white">Awaiting Response</p>
+                                  <p className="text-xs font-medium text-gray-900 dark:text-white">Standard Quote</p>
                                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                                    Additional pricing details and policies will appear here once provided by the supplier.
+                                    This is a standard quote without additional policies or advanced shipping options.
                                   </p>
                                 </div>
                               </div>

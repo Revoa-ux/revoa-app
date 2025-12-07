@@ -47,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({
         <div className="flex min-h-full items-center justify-center p-4">
           <div
             ref={modalRef}
-            className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full`}
+            className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden`}
             role="dialog"
             aria-modal="true"
           >
@@ -64,8 +64,8 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
               </div>
             )}
-            
-            <div className="p-6">
+
+            <div className="p-6 overflow-y-auto max-h-[calc(100vh-8rem)]">
               {children}
             </div>
           </div>
