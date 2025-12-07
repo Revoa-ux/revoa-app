@@ -114,7 +114,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               </button>
             )}
 
-            {quote.status === 'accepted' && !quote.shopifyConnected && onConnectShopify && (
+            {(quote.status === 'accepted' || quote.status === 'quote_pending') && !quote.shopifyConnected && onConnectShopify && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();

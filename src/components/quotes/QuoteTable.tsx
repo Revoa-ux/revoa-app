@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -40,23 +40,34 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {quotes.map((quote) => (
               <React.Fragment key={quote.id}>
-                <tr 
+                <tr
                   className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={() => quote.variants && onToggleExpand(quote.id)}
+                  onClick={() => {
+                    if (quote.variants && quote.variants.length > 0) {
+                      onToggleExpand(quote.id);
+                    } else if (quote.status === 'quote_pending') {
+                      onConnectShopify(quote);
+                    }
+                  }}
                 >
                   <td className="px-6 py-4">
                     <div>
                       <div className="text-gray-900 dark:text-white flex items-center">
                         {quote.productName}
-                        {quote.variants && (
-                          <ChevronRight 
+                        {quote.variants && quote.variants.length > 0 ? (
+                          <ChevronRight
                             className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
                               expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
                             }`}
                           />
-                        )}
+                        ) : quote.status === 'quote_pending' ? (
+                          <ShoppingBag
+                            className="w-4 h-4 ml-2 text-blue-500 dark:text-blue-400"
+                            title="Click to add to Shopify"
+                          />
+                        ) : null}
                       </div>
                       <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <a
