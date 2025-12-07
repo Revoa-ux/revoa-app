@@ -80,8 +80,9 @@ export function CreateThreadModal({
     setIsCreating(true);
     try {
       const selectedOrder = orders.find(o => o.id === selectedOrderId);
+      const currentUser = (await supabase.auth.getUser()).data.user;
 
-      const { data, error } = await supabase
+      const { data: threadData, error } = await supabase
         .from('chat_threads')
         .insert({
           chat_id: chatId,
@@ -89,23 +90,66 @@ export function CreateThreadModal({
           shopify_order_id: selectedOrder?.shopify_order_id,
           title: title.trim(),
           description: description.trim() || null,
-          created_by_user_id: (await supabase.auth.getUser()).data.user?.id,
-          created_by_admin: true, // Assuming admin creates it from admin panel
+          created_by_user_id: currentUser?.id,
+          created_by_admin: false, // User is creating this
           status: 'open',
         })
-        .select('id')
+        .select('id, tag')
         .single();
 
       if (error) throw error;
 
+      // Send automated welcome message for the thread
+      const welcomeMessage = getThreadWelcomeMessage(threadData.tag, selectedOrder);
+
+      if (welcomeMessage) {
+        await supabase.from('messages').insert({
+          chat_id: chatId,
+          thread_id: threadData.id,
+          content: welcomeMessage,
+          type: 'text',
+          sender: 'team',
+          timestamp: new Date().toISOString(),
+          metadata: {
+            automated: true,
+            thread_welcome: true,
+            thread_tag: threadData.tag
+          }
+        });
+      }
+
       toast.success('Thread created successfully');
-      onThreadCreated(data.id);
+      onThreadCreated(threadData.id);
       handleClose();
     } catch (error) {
       console.error('Error creating thread:', error);
       toast.error('Failed to create thread');
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const getThreadWelcomeMessage = (tag: string | null, order: Order | undefined): string => {
+    const orderNum = order?.order_number || 'your order';
+
+    switch (tag) {
+      case 'defective':
+        return `Thank you for reaching out about ${orderNum}. I'm here to help resolve this defective item issue.\n\nTo assist you quickly, could you please provide:\n• Photos of the defective item\n• A brief description of the issue\n• Your preferred resolution (replacement or refund)\n\nI'll review your case and get back to you with next steps as soon as possible.`;
+
+      case 'return':
+        return `I've received your return request for ${orderNum}.\n\nI'll provide you with return instructions shortly, including:\n• Return shipping address\n• Warehouse Entry Number (WEN) for tracking\n• Any specific packaging requirements\n\nPlease don't ship anything yet - wait for the complete instructions to ensure smooth processing.`;
+
+      case 'replacement':
+        return `Thank you for contacting us about a replacement for ${orderNum}.\n\nI'll review your order details and get back to you with:\n• Replacement options available\n• Processing timeline\n• Any additional information needed\n\nI'm here to make this as smooth as possible for you.`;
+
+      case 'damaged':
+        return `I'm sorry to hear about the damaged item from ${orderNum}.\n\nTo help resolve this quickly, please provide:\n• Photos showing the damage\n• Photos of the packaging (if available)\n• Brief description of the damage\n\nI'll work with our logistics partner to determine the best solution for you.`;
+
+      case 'shipping':
+        return `I see you have a question about shipping for ${orderNum}.\n\nI'm here to help with:\n• Tracking updates\n• Delivery estimates\n• Address changes (if still possible)\n• Any shipping concerns\n\nWhat specific information can I help you with?`;
+
+      default:
+        return `Thank you for creating this thread about ${orderNum}.\n\nI'm here to help resolve any issues or answer questions you have. Please share any relevant details, and I'll get back to you with a solution as quickly as possible.`;
     }
   };
 

@@ -59,7 +59,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
       const { data, error } = await supabase
         .from('user_profiles')
         .select('first_name, last_name, company, email')
-        .eq('user_id', userId)
+        .eq('id', userId)
         .single();
 
       if (error) throw error;
@@ -67,7 +67,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
       if (data) {
         const name = data.first_name && data.last_name
           ? `${data.first_name} ${data.last_name}`
-          : data.company || data.email.split('@')[0];
+          : data.company || data.email?.split('@')[0];
         setUserName(name);
       }
     } catch (error) {
@@ -178,18 +178,13 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Header Section */}
               <div>
                 <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 flex items-center justify-center">
-                      <User className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        {getCustomerName()}
-                      </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Customer
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {getCustomerName()}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Customer
+                    </p>
                   </div>
                 </div>
               </div>
