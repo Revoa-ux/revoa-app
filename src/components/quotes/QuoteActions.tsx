@@ -94,17 +94,23 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               </button>
             )}
 
-            {quote.status === 'quoted' && quote.variants && quote.variants.length > 0 && onAcceptQuote && (
+            {(quote.status === 'quoted' || quote.status === 'pending_reacceptance') && quote.variants && quote.variants.length > 0 && onAcceptQuote && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  console.log('🔍 [QuoteActions] Accepting quote:', {
+                    id: quote.id,
+                    status: quote.status,
+                    hasVariants: !!quote.variants,
+                    variantsCount: quote.variants?.length
+                  });
                   onAcceptQuote(quote);
                   setShowMenu(false);
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
-                Accept Quote
+                {quote.status === 'pending_reacceptance' ? 'Review & Accept' : 'Accept Quote'}
               </button>
             )}
 

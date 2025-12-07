@@ -106,7 +106,14 @@ export default function ProductQuotes() {
   };
 
   const handleAcceptQuote = async (quote: Quote) => {
-    if (quote.status !== 'quoted') return;
+    if (quote.status !== 'quoted' && quote.status !== 'pending_reacceptance') return;
+
+    console.log('📝 [ProductQuotes] Accepting quote:', {
+      id: quote.id,
+      status: quote.status,
+      hasVariants: !!quote.variants,
+      variantsCount: quote.variants?.length
+    });
 
     try {
       const updatedQuote = await acceptQuote(quote.id);
@@ -116,6 +123,8 @@ export default function ProductQuotes() {
 
       setSelectedQuote(updatedQuote);
       setShowShopifyModal(true);
+
+      toast.success('Quote accepted successfully');
     } catch (error) {
       console.error('Error accepting quote:', error);
       toast.error('Failed to accept quote');

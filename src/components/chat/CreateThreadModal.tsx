@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Package, AlertCircle, Loader2, Tag as TagIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
@@ -23,6 +23,14 @@ interface CreateThreadModalProps {
   onThreadCreated: (threadId: string) => void;
 }
 
+const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
+  { value: 'return', label: 'Return', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
+  { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
+  { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600' },
+  { value: 'inquiry', label: 'Inquiry', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
+];
+
 export function CreateThreadModal({
   isOpen,
   onClose,
@@ -33,6 +41,7 @@ export function CreateThreadModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
+  const [selectedTag, setSelectedTag] = useState<string>('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
@@ -67,6 +76,11 @@ export function CreateThreadModal({
   };
 
   const handleCreate = async () => {
+    if (!selectedTag) {
+      toast.error('Please select an issue category');
+      return;
+    }
+
     if (!title.trim()) {
       toast.error('Please enter a title for this thread');
       return;
@@ -90,6 +104,7 @@ export function CreateThreadModal({
           shopify_order_id: selectedOrder?.shopify_order_id,
           title: title.trim(),
           description: description.trim() || null,
+          tag: selectedTag || null,
           created_by_user_id: currentUser?.id,
           created_by_admin: false, // User is creating this
           status: 'open',
@@ -162,6 +177,7 @@ export function CreateThreadModal({
     setTitle('');
     setDescription('');
     setSelectedOrderId('');
+    setSelectedTag('');
     onClose();
   };
 
@@ -195,6 +211,30 @@ export function CreateThreadModal({
                 Create a dedicated thread to track defective items, shipping issues, or other order-specific problems. Keep conversations organized and easy to reference.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Category Selection */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <TagIcon className="w-4 h-4 inline mr-1" />
+            Issue Category *
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {TAG_OPTIONS.map(tag => (
+              <button
+                key={tag.value}
+                type="button"
+                onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+                  selectedTag === tag.value
+                    ? tag.color + ' border'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600'
+                }`}
+              >
+                {tag.label}
+              </button>
+            ))}
           </div>
         </div>
 

@@ -220,6 +220,16 @@ const AdminChat = () => {
     };
   }, [selectedChat, selectedThreadId]);
 
+  // Auto-open sidebar when switching to order thread
+  useEffect(() => {
+    if (!selectedThreadId) return;
+
+    const currentThread = threads.find(t => t.id === selectedThreadId);
+    if (currentThread?.order_id) {
+      setShowUserProfile(true);
+    }
+  }, [selectedThreadId, threads]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
