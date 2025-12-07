@@ -59,7 +59,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
               <span>All Products</span>
               {statusFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
             </button>
-            {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'synced_with_shopify'] as const).map((status) => (
+            {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'pending_reacceptance', 'synced_with_shopify', 'cancelled'] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => {
