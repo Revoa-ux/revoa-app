@@ -47,8 +47,6 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   onClick={() => {
                     if (quote.variants && quote.variants.length > 0) {
                       onToggleExpand(quote.id);
-                    } else if (quote.status === 'quote_pending') {
-                      onConnectShopify(quote);
                     }
                   }}
                 >

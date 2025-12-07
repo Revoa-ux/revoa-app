@@ -94,6 +94,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               </button>
             )}
 
+            {/* Accept Quote for quoted/pending_reacceptance status */}
             {(quote.status === 'quoted' || quote.status === 'pending_reacceptance') && quote.variants && quote.variants.length > 0 && onAcceptQuote && (
               <button
                 onClick={(e) => {
@@ -114,7 +115,23 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               </button>
             )}
 
-            {(quote.status === 'accepted' || quote.status === 'quote_pending') && !quote.shopifyConnected && onConnectShopify && (
+            {/* Accept Quote for quote_pending - opens modal with sync options */}
+            {quote.status === 'quote_pending' && onConnectShopify && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onConnectShopify(quote);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                Accept Quote
+              </button>
+            )}
+
+            {/* Shopify sync options for accepted quotes */}
+            {quote.status === 'accepted' && !quote.shopifyConnected && onConnectShopify && (
               <>
                 <button
                   onClick={(e) => {

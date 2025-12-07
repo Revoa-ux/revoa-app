@@ -134,14 +134,25 @@ export default function ProductQuotes() {
 
   const handleShopifyConnect = async (quoteId: string) => {
     try {
-      // The shopify product ID will be set by the ShopifyConnectModal after creating the product
-      // For now, we'll update the status
-      const updatedQuote = await updateShopifySync(quoteId, 'pending');
-      setQuotes(prev => prev.map(q =>
-        q.id === quoteId ? updatedQuote : q
-      ));
+      // Find the quote to check its status
+      const quote = quotes.find(q => q.id === quoteId);
 
-      toast.success('Product successfully synced with Shopify');
+      // If quote is pending (quote_pending), accept it first
+      if (quote?.status === 'quote_pending') {
+        const acceptedQuote = await acceptQuote(quoteId);
+        setQuotes(prev => prev.map(q =>
+          q.id === quoteId ? acceptedQuote : q
+        ));
+        toast.success('Quote accepted and synced with Shopify');
+      } else {
+        // The shopify product ID will be set by the ShopifyConnectModal after creating the product
+        const updatedQuote = await updateShopifySync(quoteId, 'pending');
+        setQuotes(prev => prev.map(q =>
+          q.id === quoteId ? updatedQuote : q
+        ));
+        toast.success('Product successfully synced with Shopify');
+      }
+
       setShowShopifyModal(false);
     } catch (error) {
       console.error('Error syncing with Shopify:', error);
