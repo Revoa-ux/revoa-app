@@ -32,6 +32,8 @@ interface Quote {
   shopDomain?: string;
   userId?: string;
   productId?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
 export default function AdminQuotes() {
@@ -148,7 +150,10 @@ export default function AdminQuotes() {
       if (isSuperAdmin && selectedAdminFilter === 'all') {
         const { data, error } = await supabase
           .from('product_quotes')
-          .select('*')
+          .select(`
+            *,
+            user_profiles!inner(name, email)
+          `)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -160,9 +165,12 @@ export default function AdminQuotes() {
           productName: quote.product_name || 'Unknown Product',
           requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
           status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
-          variants: [],
+          variants: quote.variants || [],
           shopifyProductId: quote.shopify_product_id,
-          shopDomain: quote.shop_domain
+          shopDomain: quote.shop_domain,
+          userId: quote.user_id,
+          userName: quote.user_profiles?.name || 'Unknown User',
+          userEmail: quote.user_profiles?.email || ''
         }));
 
         setQuotes(transformedQuotes);
@@ -203,9 +211,12 @@ export default function AdminQuotes() {
       // Fetch quotes for assigned users
       const { data, error } = await supabase
         .from('product_quotes')
-        .select('*')
+        .select(`
+          *,
+          user_profiles!inner(name, email)
+        `)
         .in('user_id', assignedUserIds)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (error) throw error;
 
@@ -216,11 +227,12 @@ export default function AdminQuotes() {
         productName: quote.product_name || 'Unknown Product',
         requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
         status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
-        variants: [],
+        variants: quote.variants || [],
         shopifyProductId: quote.shopify_product_id,
         shopDomain: quote.shop_domain,
         userId: quote.user_id,
-        productId: quote.product_id
+        userName: quote.user_profiles?.name || 'Unknown User',
+        userEmail: quote.user_profiles?.email || ''
       }));
 
       setQuotes(transformedQuotes);
@@ -456,6 +468,7 @@ export default function AdminQuotes() {
               <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Request ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
@@ -481,6 +494,18 @@ export default function AdminQuotes() {
                       {quote.productName}
                       <ExternalLink className="w-3 h-3 ml-1.5" />
                     </a>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-gray-900 dark:text-gray-100">
+                        {quote.userName || 'Unknown'}
+                      </span>
+                      {quote.userEmail && (
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {quote.userEmail}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
