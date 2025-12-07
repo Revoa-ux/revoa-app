@@ -22,6 +22,27 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   onConnectShopify,
   onDeleteQuote
 }) => {
+  // Check if a quote has expandable content
+  const isExpandable = (quote: Quote): boolean => {
+    // Has multiple variants
+    if (quote.variants && quote.variants.length > 1) return true;
+
+    // Has policies or coverage
+    if (quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) return true;
+
+    // Has advanced shipping
+    if (quote.variants?.[0]?.finalVariants?.[0] &&
+        Object.keys(quote.variants[0].finalVariants[0].shippingCosts).length > 1) return true;
+
+    // Has at least one variant (quoted status)
+    if (quote.status !== 'quote_pending' && quote.variants && quote.variants.length > 0) return true;
+
+    // Is pending with no variants (show pending message)
+    if (quote.status === 'quote_pending' && (!quote.variants || quote.variants.length === 0)) return true;
+
+    return false;
+  };
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <div className="overflow-x-auto">
@@ -38,23 +59,28 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {quotes.map((quote) => (
+            {quotes.map((quote) => {
+              const canExpand = isExpandable(quote);
+
+              return (
               <React.Fragment key={quote.id}>
                 <tr
-                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                  className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' : ''} ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={() => onToggleExpand(quote.id)}
+                  onClick={canExpand ? () => onToggleExpand(quote.id) : undefined}
                 >
                   <td className="px-6 py-4">
                     <div>
                       <div className="text-gray-900 dark:text-white flex items-center">
                         {quote.productName}
-                        <ChevronRight
-                          className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
-                            expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
-                          }`}
-                        />
+                        {canExpand && (
+                          <ChevronRight
+                            className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
+                              expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
+                            }`}
+                          />
+                        )}
                       </div>
                       <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <a
@@ -320,7 +346,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   </>
                 )}
               </React.Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -101,8 +101,8 @@ export default function ProductQuotes() {
   const toggleQuoteExpansion = (quoteId: string) => {
     setExpandedQuotes(prev =>
       prev.includes(quoteId)
-        ? prev.filter(id => id !== quoteId)
-        : [...prev, quoteId]
+        ? []
+        : [quoteId]
     );
   };
 
