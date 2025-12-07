@@ -56,7 +56,6 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
 
     setSelectedCountry('');
     setCountryRate('');
-    toast.success('Country rate added');
   };
 
   const removeCountryRate = (countryCode: string) => {
@@ -89,7 +88,6 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
 
     setNewTierMinQty('');
     setNewTierCost('');
-    toast.success('Quantity discount added');
   };
 
   const removeQuantityTier = (index: number) => {
@@ -195,6 +193,7 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
               label="Select a country"
               availableCountries={availableCountries}
               onSelect={setSelectedCountry}
+              selectedValue={selectedCountry}
             />
             <div className="flex space-x-2">
               <div className="relative flex-1">

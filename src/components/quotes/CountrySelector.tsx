@@ -34,12 +34,14 @@ interface CountrySelectorProps {
   label?: string;
   availableCountries: Array<{ code: string; name: string }>;
   onSelect: (code: string) => void;
+  selectedValue?: string;
 }
 
 export const CountrySelector: React.FC<CountrySelectorProps> = ({
   label = 'Add Country',
   availableCountries,
-  onSelect
+  onSelect,
+  selectedValue
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,6 +49,10 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useClickOutside(dropdownRef, () => setIsOpen(false));
+
+  const selectedCountryName = selectedValue
+    ? COMMON_COUNTRIES.find(c => c.code === selectedValue)?.name || selectedValue
+    : null;
 
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
@@ -77,7 +83,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
       >
         <span className="flex items-center space-x-2">
           <Plus className="w-4 h-4" />
-          <span>{label}</span>
+          <span>{selectedCountryName || label}</span>
         </span>
         <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
