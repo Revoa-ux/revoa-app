@@ -99,11 +99,14 @@ export default function ProductQuotes() {
   };
 
   const toggleQuoteExpansion = (quoteId: string) => {
-    setExpandedQuotes(prev => 
-      prev.includes(quoteId)
+    console.log('Toggle expansion called for:', quoteId);
+    setExpandedQuotes(prev => {
+      const newExpanded = prev.includes(quoteId)
         ? prev.filter(id => id !== quoteId)
-        : [...prev, quoteId]
-    );
+        : [...prev, quoteId];
+      console.log('New expanded quotes:', newExpanded);
+      return newExpanded;
+    });
   };
 
   const handleAcceptQuote = async (quote: Quote) => {

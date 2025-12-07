@@ -44,7 +44,10 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={() => onToggleExpand(quote.id)}
+                  onClick={() => {
+                    console.log('Row clicked:', quote.id, 'Expanded:', expandedQuotes.includes(quote.id));
+                    onToggleExpand(quote.id);
+                  }}
                 >
                   <td className="px-6 py-4">
                     <div>
