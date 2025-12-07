@@ -21,10 +21,10 @@ import { useAdmin } from '@/contexts/AdminContext';
 interface Quote {
   id: string;
   productUrl: string;
-  platform: 'aliexpress' | 'amazon';
+  platform: 'aliexpress' | 'amazon' | 'other';
   productName: string;
   requestDate: string;
-  status: 'quote_pending' | 'quoted' | 'rejected' | 'expired' | 'accepted';
+  status: 'quote_pending' | 'quoted' | 'rejected' | 'expired' | 'accepted' | 'pending_reacceptance' | 'synced_with_shopify' | 'cancelled';
   variants?: QuoteVariant[];
   expiresIn?: number;
   shopifyProductId?: string;
@@ -93,7 +93,7 @@ export default function AdminQuotes() {
       const { count: pendingCount } = await supabase
         .from('product_quotes')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+        .eq('status', 'quote_pending');
 
       // Calculate average response time (time from created to quoted status)
       const { data: quotedQuotes } = await supabase
@@ -185,10 +185,10 @@ export default function AdminQuotes() {
           return {
             id: quote.id,
             productUrl: quote.product_url || '',
-            platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+            platform: quote.platform as Quote['platform'] || 'other',
             productName: quote.product_name || 'Unknown Product',
             requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
-            status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+            status: quote.status as Quote['status'] || 'quote_pending',
             variants: quote.variants || [],
             expiresIn,
             shopifyProductId: quote.shopify_product_id,
@@ -275,10 +275,10 @@ export default function AdminQuotes() {
         return {
           id: quote.id,
           productUrl: quote.product_url || '',
-          platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+          platform: quote.platform as Quote['platform'] || 'other',
           productName: quote.product_name || 'Unknown Product',
           requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
-          status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+          status: quote.status as Quote['status'] || 'quote_pending',
           variants: quote.variants || [],
           expiresIn,
           shopifyProductId: quote.shopify_product_id,
