@@ -148,33 +148,47 @@ export default function AdminQuotes() {
 
       // For super admins with no filter, get all quotes
       if (isSuperAdmin && selectedAdminFilter === 'all') {
-        const { data, error } = await supabase
+        const { data: quotesData, error: quotesError } = await supabase
           .from('product_quotes')
-          .select(`
-            *,
-            user_profiles(name, email)
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error fetching quotes:', error);
-          throw error;
+        if (quotesError) {
+          console.error('Error fetching quotes:', quotesError);
+          throw quotesError;
         }
 
-        const transformedQuotes: Quote[] = (data || []).map(quote => ({
-          id: quote.id,
-          productUrl: quote.product_url || '',
-          platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
-          productName: quote.product_name || 'Unknown Product',
-          requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
-          status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
-          variants: quote.variants || [],
-          shopifyProductId: quote.shopify_product_id,
-          shopDomain: quote.shop_domain,
-          userId: quote.user_id,
-          userName: quote.user_profiles?.name || 'Unknown User',
-          userEmail: quote.user_profiles?.email || ''
-        }));
+        // Fetch user profiles for all user_ids
+        const userIds = [...new Set(quotesData?.map(q => q.user_id).filter(Boolean) || [])];
+        const { data: usersData, error: usersError } = await supabase
+          .from('user_profiles')
+          .select('id, name, email')
+          .in('id', userIds);
+
+        if (usersError) {
+          console.error('Error fetching user profiles:', usersError);
+        }
+
+        // Create a map of user_id to user data
+        const usersMap = new Map(usersData?.map(u => [u.id, u]) || []);
+
+        const transformedQuotes: Quote[] = (quotesData || []).map(quote => {
+          const userProfile = usersMap.get(quote.user_id);
+          return {
+            id: quote.id,
+            productUrl: quote.product_url || '',
+            platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+            productName: quote.product_name || 'Unknown Product',
+            requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
+            status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+            variants: quote.variants || [],
+            shopifyProductId: quote.shopify_product_id,
+            shopDomain: quote.shop_domain,
+            userId: quote.user_id,
+            userName: userProfile?.name || 'Unknown User',
+            userEmail: userProfile?.email || ''
+          };
+        });
 
         setQuotes(transformedQuotes);
         setIsLoadingQuotes(false);
@@ -212,34 +226,47 @@ export default function AdminQuotes() {
       }
 
       // Fetch quotes for assigned users
-      const { data, error } = await supabase
+      const { data: quotesData, error: quotesError } = await supabase
         .from('product_quotes')
-        .select(`
-          *,
-          user_profiles(name, email)
-        `)
+        .select('*')
         .in('user_id', assignedUserIds)
         .order('created_at', { ascending: false});
 
-      if (error) {
-        console.error('Error fetching quotes:', error);
-        throw error;
+      if (quotesError) {
+        console.error('Error fetching quotes:', quotesError);
+        throw quotesError;
       }
 
-      const transformedQuotes: Quote[] = (data || []).map(quote => ({
-        id: quote.id,
-        productUrl: quote.product_url || '',
-        platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
-        productName: quote.product_name || 'Unknown Product',
-        requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
-        status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
-        variants: quote.variants || [],
-        shopifyProductId: quote.shopify_product_id,
-        shopDomain: quote.shop_domain,
-        userId: quote.user_id,
-        userName: quote.user_profiles?.name || 'Unknown User',
-        userEmail: quote.user_profiles?.email || ''
-      }));
+      // Fetch user profiles for assigned users
+      const { data: usersData, error: usersError } = await supabase
+        .from('user_profiles')
+        .select('id, name, email')
+        .in('id', assignedUserIds);
+
+      if (usersError) {
+        console.error('Error fetching user profiles:', usersError);
+      }
+
+      // Create a map of user_id to user data
+      const usersMap = new Map(usersData?.map(u => [u.id, u]) || []);
+
+      const transformedQuotes: Quote[] = (quotesData || []).map(quote => {
+        const userProfile = usersMap.get(quote.user_id);
+        return {
+          id: quote.id,
+          productUrl: quote.product_url || '',
+          platform: (quote.platform as 'aliexpress' | 'amazon' | 'other') || 'other',
+          productName: quote.product_name || 'Unknown Product',
+          requestDate: quote.created_at ? new Date(quote.created_at).toLocaleDateString() : '',
+          status: (quote.status as 'quote_pending' | 'quoted' | 'accepted' | 'declined') || 'quote_pending',
+          variants: quote.variants || [],
+          shopifyProductId: quote.shopify_product_id,
+          shopDomain: quote.shop_domain,
+          userId: quote.user_id,
+          userName: userProfile?.name || 'Unknown User',
+          userEmail: userProfile?.email || ''
+        };
+      });
 
       setQuotes(transformedQuotes);
     } catch (error) {
