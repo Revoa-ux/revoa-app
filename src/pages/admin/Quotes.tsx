@@ -152,11 +152,14 @@ export default function AdminQuotes() {
           .from('product_quotes')
           .select(`
             *,
-            user_profiles!inner(name, email)
+            user_profiles(name, email)
           `)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching quotes:', error);
+          throw error;
+        }
 
         const transformedQuotes: Quote[] = (data || []).map(quote => ({
           id: quote.id,
@@ -213,12 +216,15 @@ export default function AdminQuotes() {
         .from('product_quotes')
         .select(`
           *,
-          user_profiles!inner(name, email)
+          user_profiles(name, email)
         `)
         .in('user_id', assignedUserIds)
         .order('created_at', { ascending: false});
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching quotes:', error);
+        throw error;
+      }
 
       const transformedQuotes: Quote[] = (data || []).map(quote => ({
         id: quote.id,
