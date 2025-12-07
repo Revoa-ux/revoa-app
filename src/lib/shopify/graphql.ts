@@ -492,6 +492,82 @@ export const createProduct = async (input: {
   return response.data.productCreate.product;
 };
 
+const UPDATE_PRODUCT_MUTATION = `
+  mutation productUpdate($input: ProductInput!) {
+    productUpdate(input: $input) {
+      product {
+        id
+        title
+        descriptionHtml
+        vendor
+        productType
+        variants(first: 100) {
+          edges {
+            node {
+              id
+              title
+              price
+              compareAtPrice
+              sku
+              inventoryQuantity
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const updateProduct = async (
+  productId: string,
+  input: {
+    title?: string;
+    descriptionHtml?: string;
+    vendor?: string;
+    productType?: string;
+    status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
+    variants?: Array<{
+      id?: string;
+      price?: string;
+      compareAtPrice?: string;
+      sku?: string;
+      inventoryQuantity?: number;
+    }>;
+  }
+): Promise<Product> => {
+  const updateInput = {
+    id: productId,
+    ...input,
+  };
+
+  const response = await executeGraphQL<{
+    productUpdate: {
+      product: Product;
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  }>(UPDATE_PRODUCT_MUTATION, { input: updateInput });
+
+  if (response.errors) {
+    throw new Error(`GraphQL error: ${response.errors[0].message}`);
+  }
+
+  if (!response.data) {
+    throw new Error('No data returned from GraphQL mutation');
+  }
+
+  if (response.data.productUpdate.userErrors.length > 0) {
+    throw new Error(
+      `Product update error: ${response.data.productUpdate.userErrors[0].message}`
+    );
+  }
+
+  return response.data.productUpdate.product;
+};
+
 export const RETURNS_QUERY = `
   query GetReturns($first: Int!, $after: String, $query: String) {
     returns(first: $first, after: $after, query: $query) {

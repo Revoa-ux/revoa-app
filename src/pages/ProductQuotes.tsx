@@ -25,6 +25,7 @@ export default function ProductQuotes() {
   const { user } = useAuth();
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showShopifyModal, setShowShopifyModal] = useState(false);
+  const [shopifySyncMethod, setShopifySyncMethod] = useState<'new' | 'existing' | null>(null);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [reviewQuoteId, setReviewQuoteId] = useState<string | null>(null);
@@ -241,8 +242,9 @@ export default function ProductQuotes() {
           expandedQuotes={expandedQuotes}
           onToggleExpand={toggleQuoteExpansion}
           onAcceptQuote={handleAcceptQuote}
-          onConnectShopify={(quote) => {
+          onConnectShopify={(quote, method) => {
             setSelectedQuote(quote);
+            setShopifySyncMethod(method || null);
             setShowShopifyModal(true);
           }}
           onDeleteQuote={handleDeleteQuote}
@@ -261,9 +263,11 @@ export default function ProductQuotes() {
       {showShopifyModal && selectedQuote && (
         <ShopifyConnectModal
           quote={selectedQuote}
+          initialMethod={shopifySyncMethod}
           onClose={() => {
             setShowShopifyModal(false);
             setSelectedQuote(null);
+            setShopifySyncMethod(null);
           }}
           onConnect={handleShopifyConnect}
         />

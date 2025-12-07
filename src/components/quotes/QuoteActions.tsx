@@ -1,13 +1,13 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag, AlertTriangle } from 'lucide-react';
+import { MoreVertical, Eye, Download, Trash2, CheckCircle, ShoppingBag, AlertTriangle, Plus, RefreshCw } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import Modal from '../Modal';
 
 interface QuoteActionsProps {
   quote: Quote;
   onAcceptQuote?: (quote: Quote) => void;
-  onConnectShopify?: (quote: Quote) => void;
+  onConnectShopify?: (quote: Quote, method?: 'new' | 'existing') => void;
   onDeleteQuote?: (quoteId: string) => void;
 }
 
@@ -115,17 +115,30 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             )}
 
             {(quote.status === 'accepted' || quote.status === 'quote_pending') && !quote.shopifyConnected && onConnectShopify && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onConnectShopify(quote);
-                  setShowMenu(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                Add to Shopify
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onConnectShopify(quote, 'new');
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-rose-600 dark:text-rose-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add as New Product
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onConnectShopify(quote, 'existing');
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Sync to Existing Product
+                </button>
+              </>
             )}
 
             <button

@@ -25,7 +25,7 @@ export interface ProductPolicies {
 interface NewProcessQuoteModalProps {
   quote: Quote;
   onClose: () => void;
-  onSubmit: (variants: QuoteVariant[], policies?: ProductPolicies) => void;
+  onSubmit: (variants: QuoteVariant[], policies: ProductPolicies) => void;
 }
 
 export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({

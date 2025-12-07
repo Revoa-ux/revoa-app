@@ -73,6 +73,11 @@ export interface Quote {
   shopifyConnected?: boolean;
   shopifyProductId?: string;
   shopifyStatus?: 'pending' | 'synced';
+  shopDomain?: string;
+  warrantyDays?: number | null;
+  coversLostItems?: boolean;
+  coversDamagedItems?: boolean;
+  coversLateDelivery?: boolean;
 }
 
 export interface ShopifyProduct {

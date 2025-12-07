@@ -1,33 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Store, Loader2, Package, CheckCircle } from 'lucide-react';
+import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { createShopifyProduct } from '@/lib/shopify/api';
+import { updateProduct } from '@/lib/shopify/graphql';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { Quote } from '@/types/quotes';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { ShopifyProductPicker } from './ShopifyProductPicker';
+
+type SyncMethod = 'new' | 'existing' | null;
 
 interface ShopifyConnectModalProps {
   quote: Quote;
   onClose: () => void;
   onConnect: (quoteId: string) => void;
+  initialMethod?: SyncMethod;
 }
 
 const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   quote,
   onClose,
-  onConnect
+  onConnect,
+  initialMethod = null
 }) => {
   const { user } = useAuth();
   const [shopDomain, setShopDomain] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [step, setStep] = useState<'checking' | 'input' | 'connecting' | 'sync'>('checking');
+  const [step, setStep] = useState<'checking' | 'method_select' | 'input' | 'connecting' | 'sync' | 'product_picker'>('checking');
   const [existingStore, setExistingStore] = useState<{ store_url: string; access_token: string } | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
-  
+  const [syncMethod, setSyncMethod] = useState<SyncMethod>(initialMethod);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);
 
@@ -49,7 +57,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
         if (!error && data) {
           setExistingStore(data);
-          setStep('sync');
+          // If method is pre-selected, go to appropriate step
+          if (initialMethod === 'new') {
+            setStep('sync');
+          } else if (initialMethod === 'existing') {
+            setStep('product_picker');
+          } else {
+            // Show method selector
+            setStep('method_select');
+          }
         } else {
           setStep('input');
         }
@@ -60,7 +76,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     };
 
     checkExistingConnection();
-  }, [user?.id]);
+  }, [user?.id, initialMethod]);
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -277,18 +293,76 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     }
   };
 
+  const handleUpdateProduct = async () => {
+    if (!selectedProduct || !existingStore) return;
+
+    setIsSyncing(true);
+    try {
+      // Prepare update data based on quote variants
+      const updateData: any = {};
+
+      // Update pricing based on first variant
+      if (quote.variants && quote.variants.length > 0) {
+        const firstVariant = quote.variants[0];
+        // Get the first variant ID from the selected product
+        const firstProductVariant = selectedProduct.variants.edges[0]?.node;
+
+        if (firstProductVariant) {
+          updateData.variants = [{
+            id: firstProductVariant.id,
+            price: firstVariant.costPerItem.toFixed(2)
+          }];
+        }
+      }
+
+      console.log('[Shopify Update] Updating product:', selectedProduct.id, updateData);
+
+      // Update the product in Shopify
+      await updateProduct(selectedProduct.id, updateData);
+
+      console.log('[Shopify Update] Product updated successfully');
+
+      // Update quote in database
+      await supabase
+        .from('product_quotes')
+        .update({
+          shopify_product_id: selectedProduct.id,
+          shopify_status: 'synced',
+          shop_domain: existingStore.store_url
+        })
+        .eq('id', quote.id);
+
+      onConnect(quote.id);
+      toast.success(`Quote pricing synced to "${selectedProduct.title}"`);
+      onClose();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error(
+        error instanceof Error
+          ? `Failed to update product: ${error.message}`
+          : 'Failed to update product in Shopify'
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
       <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl w-full max-w-md" ref={modalRef}>
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className={`relative bg-white dark:bg-gray-900 rounded-xl w-full ${
+          step === 'product_picker' ? 'max-w-2xl' : 'max-w-md'
+        }`} ref={modalRef}>
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Connect Shopify Store</h3>
-              <button 
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {step === 'product_picker' ? 'Select Shopify Product' : 'Connect Shopify Store'}
+              </h3>
+              <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -299,7 +373,74 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             {step === 'checking' ? (
               <div className="text-center py-8">
                 <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-                <p className="text-sm text-gray-600">Checking connection...</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Checking connection...</p>
+              </div>
+            ) : step === 'method_select' ? (
+              <div className="space-y-4">
+                <div className="mb-6">
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">How would you like to sync this quote?</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Choose whether to create a new product or update an existing one in your Shopify store.</p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSyncMethod('new');
+                    setStep('sync');
+                  }}
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-rose-100 dark:bg-rose-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Plus className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Create New Product</h5>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Add this quote as a brand new product in your Shopify store with all pricing details.</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setSyncMethod('existing');
+                    setStep('product_picker');
+                  }}
+                  className="group w-full p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border-2 border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-xl transition-all text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <RefreshCw className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">Sync to Existing Product</h5>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Update pricing on an existing Shopify product with this quote's details.</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            ) : step === 'product_picker' ? (
+              <div className="h-[500px] flex flex-col">
+                <div className="flex items-center gap-2 mb-4">
+                  <button
+                    onClick={() => setStep('method_select')}
+                    className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </button>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Select Product</h4>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">Choose which product to update with this quote</p>
+                  </div>
+                </div>
+                <div className="flex-1 -mx-6 -mb-6">
+                  <ShopifyProductPicker
+                    onSelect={(product) => {
+                      setSelectedProduct(product);
+                      handleUpdateProduct();
+                    }}
+                    onCancel={() => setStep('method_select')}
+                  />
+                </div>
               </div>
             ) : step === 'sync' ? (
               <div className="space-y-6">

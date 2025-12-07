@@ -70,22 +70,43 @@ export const getAllQuotes = async (): Promise<Quote[]> => {
   return quotes.map(mapDbQuoteToQuote);
 };
 
+export interface QuotePolicies {
+  warrantyDays: number | null;
+  coversLostItems: boolean;
+  coversDamagedItems: boolean;
+  coversLateDelivery: boolean;
+  shopDomain?: string;
+}
+
 // Update quote with pricing
 export const updateQuoteWithPricing = async (
   quoteId: string,
   variants: QuoteVariant[],
-  expiresInDays: number = 7
+  expiresInDays: number = 7,
+  policies?: QuotePolicies
 ): Promise<Quote> => {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + expiresInDays);
 
+  const updateData: any = {
+    status: 'quoted',
+    variants: variants,
+    expires_at: expiresAt.toISOString(),
+  };
+
+  if (policies) {
+    updateData.warranty_days = policies.warrantyDays;
+    updateData.covers_lost_items = policies.coversLostItems;
+    updateData.covers_damaged_items = policies.coversDamagedItems;
+    updateData.covers_late_delivery = policies.coversLateDelivery;
+    if (policies.shopDomain) {
+      updateData.shop_domain = policies.shopDomain;
+    }
+  }
+
   const { data: quote, error } = await supabase
     .from('product_quotes')
-    .update({
-      status: 'quoted',
-      variants: variants,
-      expires_at: expiresAt.toISOString(),
-    })
+    .update(updateData)
     .eq('id', quoteId)
     .select()
     .single();
@@ -213,5 +234,10 @@ function mapDbQuoteToQuote(dbQuote: any): Quote {
     shopifyConnected: !!dbQuote.shopify_product_id,
     shopifyProductId: dbQuote.shopify_product_id || undefined,
     shopifyStatus: dbQuote.shopify_status || undefined,
+    shopDomain: dbQuote.shop_domain || undefined,
+    warrantyDays: dbQuote.warranty_days !== null ? dbQuote.warranty_days : undefined,
+    coversLostItems: dbQuote.covers_lost_items || false,
+    coversDamagedItems: dbQuote.covers_damaged_items || false,
+    coversLateDelivery: dbQuote.covers_late_delivery || false,
   };
 }

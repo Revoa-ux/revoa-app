@@ -46,6 +46,7 @@ export default function AdminQuotes() {
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [pendingVariants, setPendingVariants] = useState<QuoteVariant[] | null>(null);
+  const [pendingPolicies, setPendingPolicies] = useState<any>(null);
   const [admins, setAdmins] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [quoteStats, setQuoteStats] = useState({
     avgResponseTime: 0,
@@ -277,11 +278,12 @@ export default function AdminQuotes() {
     }
   };
 
-  const handleProcessQuote = async (variants: QuoteVariant[]) => {
+  const handleProcessQuote = async (variants: QuoteVariant[], policies: any) => {
     if (!selectedQuote) return;
 
-    // Store variants temporarily and show configuration modal
+    // Store variants and policies temporarily and show configuration modal
     setPendingVariants(variants);
+    setPendingPolicies(policies);
     setShowConfigModal(true);
   };
 
@@ -289,14 +291,24 @@ export default function AdminQuotes() {
     if (!selectedQuote || !pendingVariants) return;
 
     try {
+      const updateData: any = {
+        status: 'quoted',
+        variants: pendingVariants,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      };
+
+      // Add policies if they exist
+      if (pendingPolicies) {
+        updateData.warranty_days = pendingPolicies.warrantyDays;
+        updateData.covers_lost_items = pendingPolicies.coversLostItems;
+        updateData.covers_damaged_items = pendingPolicies.coversDamagedItems;
+        updateData.covers_late_delivery = pendingPolicies.coversLateDelivery;
+      }
+
       // Now that configuration is complete, finalize the quote
       const { error } = await supabase
         .from('product_quotes')
-        .update({
-          status: 'quoted',
-          variants: pendingVariants,
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-        })
+        .update(updateData)
         .eq('id', selectedQuote.id);
 
       if (error) throw error;
@@ -304,6 +316,7 @@ export default function AdminQuotes() {
       toast.success('Quote processed and sent to merchant');
       setSelectedQuote(null);
       setPendingVariants(null);
+      setPendingPolicies(null);
       setShowConfigModal(false);
       fetchQuotes();
     } catch (error) {
@@ -595,6 +608,7 @@ export default function AdminQuotes() {
           onClose={() => {
             setShowConfigModal(false);
             setPendingVariants(null);
+            setPendingPolicies(null);
           }}
           productId={selectedQuote.productId}
           productName={selectedQuote.productName}

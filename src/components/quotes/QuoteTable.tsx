@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag } from 'lucide-react';
+import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -121,35 +121,130 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   </td>
                 </tr>
                 {quote.variants && expandedQuotes.includes(quote.id) && (
-                  quote.variants.slice(1).map((variant) => (
-                    <tr
-                      key={`${quote.id}-${variant.quantity}`}
-                      className="bg-gray-50/95 dark:bg-gray-700/95 border-t border-gray-100 dark:border-gray-600"
-                    >
-                      <td className="px-6 py-3 pl-12">
-                        <div className="space-y-1">
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {variant.quantity} Pack Option
+                  <>
+                    {quote.variants.slice(1).map((variant) => (
+                      <tr
+                        key={`${quote.id}-${variant.quantity}`}
+                        className="bg-gray-50/95 dark:bg-gray-700/95 border-t border-gray-100 dark:border-gray-600"
+                      >
+                        <td className="px-6 py-3 pl-12">
+                          <div className="space-y-1">
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {variant.quantity} Pack Option
+                            </div>
+                            {variant.attributes && variant.attributes.length > 0 && (
+                              <ProductAttributesBadge attributes={variant.attributes} />
+                            )}
                           </div>
-                          {variant.attributes && variant.attributes.length > 0 && (
-                            <ProductAttributesBadge attributes={variant.attributes} />
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-3" />
-                      <td className="px-6 py-3" />
-                      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                        ${variant.costPerItem.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                        ${variant.shippingCost.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                        ${variant.totalCost.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-3" />
-                    </tr>
-                  ))
+                        </td>
+                        <td className="px-6 py-3" />
+                        <td className="px-6 py-3" />
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
+                          ${variant.costPerItem.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
+                          ${variant.shippingCost.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
+                          ${variant.totalCost.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-3" />
+                      </tr>
+                    ))}
+
+                    {/* Product Policies & Advanced Shipping Section */}
+                    {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery ||
+                      (quote.variants?.[0]?.finalVariants?.[0] && Object.keys(quote.variants[0].finalVariants[0].shippingCosts).length > 1)) && (
+                      <tr className="bg-gradient-to-br from-gray-50/95 to-gray-100/95 dark:from-gray-700/95 dark:to-gray-800/95 border-t border-gray-200 dark:border-gray-600">
+                        <td colSpan={7} className="px-6 py-6">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Product Policies */}
+                            {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Shield className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Product Policies</h4>
+                                </div>
+
+                                <div className="space-y-3">
+                                  {/* Warranty */}
+                                  {quote.warrantyDays && (
+                                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                      <Calendar className="w-4 h-4 text-rose-500 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+                                      <div>
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white">Factory Warranty</p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                          {quote.warrantyDays} days coverage for defects from delivery
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Shipping Coverage */}
+                                  {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
+                                    <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                      <Truck className="w-4 h-4 text-rose-500 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+                                      <div className="flex-1">
+                                        <p className="text-sm font-medium text-gray-900 dark:text-white mb-1.5">Logistics Coverage</p>
+                                        <div className="space-y-1">
+                                          {quote.coversLostItems && (
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                              <span className="w-1 h-1 rounded-full bg-green-500 flex-shrink-0"></span>
+                                              Covers lost items in transit
+                                            </p>
+                                          )}
+                                          {quote.coversDamagedItems && (
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                              <span className="w-1 h-1 rounded-full bg-green-500 flex-shrink-0"></span>
+                                              Covers damaged items in transit
+                                            </p>
+                                          )}
+                                          {quote.coversLateDelivery && (
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                              <span className="w-1 h-1 rounded-full bg-green-500 flex-shrink-0"></span>
+                                              Covers late delivery
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Advanced Shipping */}
+                            {quote.variants?.[0]?.finalVariants?.[0] && (() => {
+                              const shippingCosts = quote.variants[0].finalVariants[0].shippingCosts;
+                              const countries = Object.keys(shippingCosts).filter(k => k !== '_default');
+                              return countries.length > 0 && (
+                                <div className="space-y-4">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Globe className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Advanced Shipping</h4>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Default (Global)</span>
+                                      <span className="text-xs font-semibold text-gray-900 dark:text-white">${shippingCosts._default.toFixed(2)}</span>
+                                    </div>
+
+                                    {countries.map(country => (
+                                      <div key={country} className="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{country.toUpperCase()}</span>
+                                        <span className="text-xs font-semibold text-gray-900 dark:text-white">${shippingCosts[country].toFixed(2)}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
                 )}
               </React.Fragment>
             ))}
