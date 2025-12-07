@@ -166,7 +166,81 @@ Deno.serve(async (req: Request) => {
     const utmParams = parseUTMFromURL(landingSite);
     const clickIDs = parseClickIDsFromURL(landingSite);
     console.log('[Order Webhook] UTM data:', {has_utm_source: !!utmParams.utm_source, has_utm_term: !!utmParams.utm_term, has_fbclid: !!clickIDs.fbclid});
-    const { data: storedOrder, error: orderError } = await supabase.from('shopify_orders').upsert({user_id: userId, shopify_order_id: orderData.id.toString(), order_number: orderData.name || orderData.order_number, total_price: parseFloat(orderData.total_price || orderData.current_total_price || '0'), currency: orderData.currency || 'USD', customer_email: orderData.email || orderData.customer?.email, customer_first_name: orderData.customer?.first_name || null, customer_last_name: orderData.customer?.last_name || null, landing_site: landingSite, referring_site: referringSite, ordered_at: orderData.created_at || new Date().toISOString(), ...utmParams, ...clickIDs}, {onConflict: 'user_id,shopify_order_id', ignoreDuplicates: false}).select('id').single();
+
+    // Extract addresses
+    const billingAddress = orderData.billing_address || {};
+    const shippingAddress = orderData.shipping_address || {};
+
+    // Extract discount codes
+    const discountCodes = (orderData.discount_codes || []).map((dc: any) => dc.code);
+
+    // Check if repeat customer
+    const customerEmail = orderData.email || orderData.customer?.email;
+    let isRepeatCustomer = false;
+    let orderCount = 1;
+
+    if (customerEmail) {
+      const { data: existingOrders } = await supabase
+        .from('shopify_orders')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('customer_email', customerEmail);
+
+      if (existingOrders && existingOrders.length > 0) {
+        isRepeatCustomer = true;
+        orderCount = existingOrders.length + 1;
+      }
+    }
+
+    const { data: storedOrder, error: orderError } = await supabase.from('shopify_orders').upsert({
+      user_id: userId,
+      shopify_order_id: orderData.id.toString(),
+      order_number: orderData.name || orderData.order_number,
+      total_price: parseFloat(orderData.total_price || orderData.current_total_price || '0'),
+      currency: orderData.currency || 'USD',
+      customer_email: customerEmail,
+      customer_first_name: orderData.customer?.first_name || shippingAddress.first_name || null,
+      customer_last_name: orderData.customer?.last_name || shippingAddress.last_name || null,
+      customer_phone: orderData.customer?.phone || shippingAddress.phone || orderData.phone || null,
+      // Shipping address
+      shipping_address_line1: shippingAddress.address1 || null,
+      shipping_address_line2: shippingAddress.address2 || null,
+      shipping_city: shippingAddress.city || null,
+      shipping_state: shippingAddress.province || shippingAddress.province_code || null,
+      shipping_zip: shippingAddress.zip || null,
+      shipping_country: shippingAddress.country || shippingAddress.country_code || null,
+      // Billing address
+      billing_address_line1: billingAddress.address1 || null,
+      billing_address_line2: billingAddress.address2 || null,
+      billing_city: billingAddress.city || null,
+      billing_state: billingAddress.province || billingAddress.province_code || null,
+      billing_zip: billingAddress.zip || null,
+      billing_country: billingAddress.country || billingAddress.country_code || null,
+      // Pricing details
+      subtotal_price: parseFloat(orderData.subtotal_price || '0'),
+      total_tax: parseFloat(orderData.total_tax || '0'),
+      total_shipping: parseFloat(orderData.total_shipping_price_set?.shop_money?.amount || orderData.shipping_lines?.[0]?.price || '0'),
+      total_discounts: parseFloat(orderData.total_discounts || '0'),
+      discount_codes: discountCodes,
+      // Order metadata
+      note: orderData.note || null,
+      tags: orderData.tags || null,
+      financial_status: orderData.financial_status || null,
+      fulfillment_status: orderData.fulfillment_status || null,
+      order_status_url: orderData.order_status_url || null,
+      // Customer tracking
+      is_repeat_customer: isRepeatCustomer,
+      order_count: orderCount,
+      // Timestamps
+      cancelled_at: orderData.cancelled_at || null,
+      cancel_reason: orderData.cancel_reason || null,
+      processed_at: orderData.processed_at || null,
+      landing_site: landingSite,
+      referring_site: referringSite,
+      ordered_at: orderData.created_at || new Date().toISOString(),
+      ...utmParams,
+      ...clickIDs
+    }, {onConflict: 'user_id,shopify_order_id', ignoreDuplicates: false}).select('id').single();
     if (orderError) {
       console.error('[Order Webhook] Error storing order:', orderError);
       throw new Error(`Failed to store order: ${orderError.message}`);
