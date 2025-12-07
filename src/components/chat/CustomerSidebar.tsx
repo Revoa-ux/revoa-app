@@ -14,7 +14,8 @@ import {
   CreditCard,
   XCircle,
   Truck,
-  ExternalLink
+  ExternalLink,
+  Edit2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -171,6 +172,18 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
       if (orderError) throw orderError;
 
+      // Debug logging
+      console.log('📋 [CustomerSidebar] Loaded order data:', {
+        order_id: thread.order_id,
+        order_number: order.order_number,
+        customer_first_name: order.customer_first_name,
+        customer_last_name: order.customer_last_name,
+        customer_email: order.customer_email,
+        customer_phone: order.customer_phone,
+        has_shipping: !!order.shipping_address_line1,
+        has_billing: !!order.billing_address_line1
+      });
+
       setCustomerInfo(order);
       setOrderId(thread.order_id); // Store order ID for actions
 
@@ -281,17 +294,23 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </button>
                 </div>
 
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Email</span>
+                <button
+                  onClick={() => setShowUpdateEmailModal(true)}
+                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-pink-300 dark:hover:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/10 transition-colors text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email</span>
+                    </div>
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors" />
                   </div>
                   <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
                     {customerInfo.customer_email || 'Not provided'}
                   </p>
-                </div>
+                </button>
 
-                <div className="mb-4">
+                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <Phone className="w-3.5 h-3.5" />
                     <span>Phone</span>
@@ -304,11 +323,28 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
               {/* Order Information */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Order Details
-                  </h4>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      Order Details
+                    </h4>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const url = await getShopifyOrderUrl(orderId);
+                      if (url) {
+                        window.open(url, '_blank');
+                      } else {
+                        toast.error('Unable to open Shopify order');
+                      }
+                    }}
+                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    title="View in Shopify"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    Shopify
+                  </button>
                 </div>
 
                 <div className="space-y-3">
@@ -357,6 +393,26 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       </span>
                     </div>
                   )}
+                </div>
+
+                {/* Order Actions */}
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setShowCancelModal(true)}
+                    disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
+                    className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                    title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Cancel Order
+                  </button>
+                  <button
+                    onClick={() => setShowRefundModal(true)}
+                    className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  >
+                    <DollarSign className="w-4 h-4" />
+                    Issue Refund
+                  </button>
                 </div>
               </div>
 
@@ -533,33 +589,45 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </h4>
                 </div>
 
-                {customerInfo.shipping_address_line1 ? (
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                      <p>{customerInfo.shipping_address_line1}</p>
-                      {customerInfo.shipping_address_line2 && (
-                        <p>{customerInfo.shipping_address_line2}</p>
-                      )}
-                      <p>
-                        {[
-                          customerInfo.shipping_city,
-                          customerInfo.shipping_state,
-                          customerInfo.shipping_zip,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')}
-                      </p>
-                      {customerInfo.shipping_country && (
-                        <p>{customerInfo.shipping_country}</p>
-                      )}
+                <button
+                  onClick={() => setShowEditShippingModal(true)}
+                  disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
+                  title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2 flex-1">
+                      <Truck className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div className={`text-sm ${customerInfo.shipping_address_line1 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500 italic'}`}>
+                        {customerInfo.shipping_address_line1 ? (
+                          <>
+                            <p>{customerInfo.shipping_address_line1}</p>
+                            {customerInfo.shipping_address_line2 && (
+                              <p>{customerInfo.shipping_address_line2}</p>
+                            )}
+                            <p>
+                              {[
+                                customerInfo.shipping_city,
+                                customerInfo.shipping_state,
+                                customerInfo.shipping_zip,
+                              ]
+                                .filter(Boolean)
+                                .join(', ')}
+                            </p>
+                            {customerInfo.shipping_country && (
+                              <p>{customerInfo.shipping_country}</p>
+                            )}
+                          </>
+                        ) : (
+                          <p>No shipping address provided</p>
+                        )}
+                      </div>
                     </div>
+                    {!(customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped') && (
+                      <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2 mt-1" />
+                    )}
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-400 dark:text-gray-500 italic">
-                    No shipping address provided
-                  </p>
-                )}
+                </button>
               </div>
 
               {/* Billing Address */}
@@ -571,110 +639,41 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </h4>
                 </div>
 
-                {customerInfo.billing_address_line1 ? (
-                  <div className="flex items-start gap-2">
-                    <CreditCard className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                      <p>{customerInfo.billing_address_line1}</p>
-                      {customerInfo.billing_address_line2 && (
-                        <p>{customerInfo.billing_address_line2}</p>
-                      )}
-                      <p>
-                        {[
-                          customerInfo.billing_city,
-                          customerInfo.billing_state,
-                          customerInfo.billing_zip,
-                        ]
-                          .filter(Boolean)
-                          .join(', ')}
-                      </p>
-                      {customerInfo.billing_country && (
-                        <p>{customerInfo.billing_country}</p>
-                      )}
+                <button
+                  onClick={() => setShowEditBillingModal(true)}
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors text-left group"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2 flex-1">
+                      <CreditCard className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                      <div className={`text-sm ${customerInfo.billing_address_line1 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500 italic'}`}>
+                        {customerInfo.billing_address_line1 ? (
+                          <>
+                            <p>{customerInfo.billing_address_line1}</p>
+                            {customerInfo.billing_address_line2 && (
+                              <p>{customerInfo.billing_address_line2}</p>
+                            )}
+                            <p>
+                              {[
+                                customerInfo.billing_city,
+                                customerInfo.billing_state,
+                                customerInfo.billing_zip,
+                              ]
+                                .filter(Boolean)
+                                .join(', ')}
+                            </p>
+                            {customerInfo.billing_country && (
+                              <p>{customerInfo.billing_country}</p>
+                            )}
+                          </>
+                        ) : (
+                          <p>No billing address provided</p>
+                        )}
+                      </div>
                     </div>
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex-shrink-0 ml-2 mt-1" />
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-400 dark:text-gray-500 italic">
-                    No billing address provided
-                  </p>
-                )}
-              </div>
-
-              {/* Quick Actions */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Quick Actions
-                  </h4>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Cancel Order */}
-                  <button
-                    onClick={() => setShowCancelModal(true)}
-                    disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-600 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:cursor-not-allowed"
-                    title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
-                  >
-                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Cancel</span>
-                  </button>
-
-                  {/* Issue Refund */}
-                  <button
-                    onClick={() => setShowRefundModal(true)}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors flex flex-col items-center gap-2"
-                  >
-                    <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Refund</span>
-                  </button>
-
-                  {/* Edit Shipping */}
-                  <button
-                    onClick={() => setShowEditShippingModal(true)}
-                    disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:cursor-not-allowed"
-                    title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
-                  >
-                    <Truck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shipping</span>
-                  </button>
-
-                  {/* Edit Billing */}
-                  <button
-                    onClick={() => setShowEditBillingModal(true)}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-colors flex flex-col items-center gap-2"
-                  >
-                    <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Billing</span>
-                  </button>
-
-                  {/* Update Email */}
-                  <button
-                    onClick={() => setShowUpdateEmailModal(true)}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-colors flex flex-col items-center gap-2"
-                  >
-                    <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Email</span>
-                  </button>
-
-                  {/* View in Shopify */}
-                  <button
-                    onClick={async () => {
-                      const url = await getShopifyOrderUrl(orderId);
-                      if (url) {
-                        window.open(url, '_blank');
-                      } else {
-                        toast.error('Unable to open Shopify order');
-                      }
-                    }}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors flex flex-col items-center gap-2"
-                  >
-                    <ExternalLink className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shopify</span>
-                  </button>
-                </div>
+                </button>
               </div>
 
               {/* Customer Notes */}
