@@ -1,0 +1,359 @@
+import { supabase } from './supabase';
+
+/**
+ * Template Variable Replacement Service
+ *
+ * Replaces template variables like {{variable_name}} with actual data
+ * from orders, customers, products, and configuration.
+ */
+
+interface VariableContext {
+  orderId?: string;
+  userId?: string;
+  threadId?: string;
+  productIds?: string[];
+}
+
+interface VariableData {
+  // Order variables
+  order_number?: string;
+  order_date?: string;
+  order_total?: string;
+  order_subtotal?: string;
+  order_tax?: string;
+  order_shipping?: string;
+  order_currency?: string;
+  fulfillment_status?: string;
+  financial_status?: string;
+  order_note?: string;
+  ordered_at?: string;
+
+  // Customer variables
+  customer_first_name?: string;
+  customer_last_name?: string;
+  customer_full_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+
+  // Address variables
+  shipping_address_full?: string;
+  shipping_address_line1?: string;
+  shipping_address_line2?: string;
+  shipping_city?: string;
+  shipping_state?: string;
+  shipping_zip?: string;
+  shipping_country?: string;
+  billing_address_full?: string;
+  billing_city?: string;
+  billing_state?: string;
+  billing_zip?: string;
+  billing_country?: string;
+
+  // Tracking variables
+  tracking_number?: string;
+  tracking_company?: string;
+  tracking_url?: string;
+  last_mile_tracking_number?: string;
+  last_mile_carrier?: string;
+  shipment_status?: string;
+
+  // Merchant variables
+  merchant_name?: string;
+  merchant_email?: string;
+  merchant_company?: string;
+
+  // Product policy variables (dynamic)
+  product_damage_claim_deadline_days?: string;
+  product_replacement_ship_time_days?: string;
+  product_defect_coverage_days?: string;
+  product_return_window_days?: string;
+  product_factory_name?: string;
+  product_warranty_period?: string;
+
+  // Thread-specific
+  warehouse_entry_number?: string;
+
+  // Dynamic variables
+  current_date?: string;
+  current_time?: string;
+
+  // Additional product variables
+  [key: string]: string | undefined;
+}
+
+/**
+ * Fetch all variable data from database based on context
+ */
+export async function fetchVariableData(context: VariableContext): Promise<VariableData> {
+  const data: VariableData = {
+    current_date: new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }),
+    current_time: new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+  };
+
+  try {
+    // Fetch order data if orderId provided
+    if (context.orderId) {
+      const { data: orderData, error: orderError } = await supabase
+        .from('shopify_orders')
+        .select(`
+          order_number,
+          total_price,
+          subtotal_price,
+          total_tax,
+          total_shipping,
+          currency,
+          customer_first_name,
+          customer_last_name,
+          customer_email,
+          customer_phone,
+          shipping_address_line1,
+          shipping_address_line2,
+          shipping_city,
+          shipping_state,
+          shipping_zip,
+          shipping_country,
+          billing_address_line1,
+          billing_address_line2,
+          billing_city,
+          billing_state,
+          billing_zip,
+          billing_country,
+          fulfillment_status,
+          financial_status,
+          note,
+          ordered_at,
+          shopify_order_id,
+          created_at
+        `)
+        .eq('id', context.orderId)
+        .maybeSingle();
+
+      if (orderData && !orderError) {
+        // Order variables
+        data.order_number = orderData.order_number;
+        data.order_date = orderData.ordered_at
+          ? new Date(orderData.ordered_at).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+            })
+          : undefined;
+        data.ordered_at = orderData.ordered_at
+          ? new Date(orderData.ordered_at).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })
+          : undefined;
+        data.order_total = orderData.total_price
+          ? `${orderData.currency || 'USD'} ${Number(orderData.total_price).toFixed(2)}`
+          : undefined;
+        data.order_subtotal = orderData.subtotal_price
+          ? `${orderData.currency || 'USD'} ${Number(orderData.subtotal_price).toFixed(2)}`
+          : undefined;
+        data.order_tax = orderData.total_tax
+          ? `${orderData.currency || 'USD'} ${Number(orderData.total_tax).toFixed(2)}`
+          : undefined;
+        data.order_shipping = orderData.total_shipping
+          ? `${orderData.currency || 'USD'} ${Number(orderData.total_shipping).toFixed(2)}`
+          : undefined;
+        data.order_currency = orderData.currency;
+        data.fulfillment_status = orderData.fulfillment_status || 'Pending';
+        data.financial_status = orderData.financial_status || 'Pending';
+        data.order_note = orderData.note || undefined;
+
+        // Customer variables
+        data.customer_first_name = orderData.customer_first_name || undefined;
+        data.customer_last_name = orderData.customer_last_name || undefined;
+        data.customer_full_name = [orderData.customer_first_name, orderData.customer_last_name]
+          .filter(Boolean)
+          .join(' ') || undefined;
+        data.customer_email = orderData.customer_email || undefined;
+        data.customer_phone = orderData.customer_phone || undefined;
+
+        // Address variables
+        data.shipping_address_line1 = orderData.shipping_address_line1 || undefined;
+        data.shipping_address_line2 = orderData.shipping_address_line2 || undefined;
+        data.shipping_city = orderData.shipping_city || undefined;
+        data.shipping_state = orderData.shipping_state || undefined;
+        data.shipping_zip = orderData.shipping_zip || undefined;
+        data.shipping_country = orderData.shipping_country || undefined;
+
+        // Build full shipping address
+        const shippingParts = [
+          orderData.shipping_address_line1,
+          orderData.shipping_address_line2,
+          [orderData.shipping_city, orderData.shipping_state].filter(Boolean).join(', '),
+          orderData.shipping_zip,
+          orderData.shipping_country
+        ].filter(Boolean);
+        data.shipping_address_full = shippingParts.length > 0 ? shippingParts.join(', ') : undefined;
+
+        data.billing_city = orderData.billing_city || undefined;
+        data.billing_state = orderData.billing_state || undefined;
+        data.billing_zip = orderData.billing_zip || undefined;
+        data.billing_country = orderData.billing_country || undefined;
+
+        // Build full billing address
+        const billingParts = [
+          orderData.billing_address_line1,
+          orderData.billing_address_line2,
+          [orderData.billing_city, orderData.billing_state].filter(Boolean).join(', '),
+          orderData.billing_zip,
+          orderData.billing_country
+        ].filter(Boolean);
+        data.billing_address_full = billingParts.length > 0 ? billingParts.join(', ') : undefined;
+
+        // Fetch tracking/fulfillment data
+        const { data: fulfillmentData } = await supabase
+          .from('shopify_order_fulfillments')
+          .select('*')
+          .eq('order_id', context.orderId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (fulfillmentData) {
+          data.tracking_number = fulfillmentData.tracking_number || undefined;
+          data.tracking_company = fulfillmentData.tracking_company || undefined;
+          data.tracking_url = fulfillmentData.tracking_url || undefined;
+          data.last_mile_tracking_number = fulfillmentData.last_mile_tracking_number || undefined;
+          data.last_mile_carrier = fulfillmentData.last_mile_carrier || undefined;
+          data.shipment_status = fulfillmentData.shipment_status || undefined;
+        }
+
+        // Fetch product IDs from order line items if not provided
+        if (!context.productIds || context.productIds.length === 0) {
+          const { data: lineItems } = await supabase
+            .from('order_line_items')
+            .select('product_id')
+            .eq('shopify_order_id', orderData.shopify_order_id);
+
+          if (lineItems && lineItems.length > 0) {
+            context.productIds = lineItems
+              .map(item => item.product_id)
+              .filter(Boolean) as string[];
+          }
+        }
+      }
+    }
+
+    // Fetch product policy variables if productIds provided
+    if (context.productIds && context.productIds.length > 0) {
+      const { data: policyVars } = await supabase
+        .from('product_policy_variables')
+        .select('variable_key, variable_value')
+        .in('product_id', context.productIds);
+
+      if (policyVars && policyVars.length > 0) {
+        // Use first product's variables (or we could aggregate)
+        policyVars.forEach(varItem => {
+          data[varItem.variable_key] = varItem.variable_value;
+        });
+      }
+
+      // Fetch factory config
+      const { data: factoryConfig } = await supabase
+        .from('product_factory_configs')
+        .select('factory_name, contact_name, contact_email, contact_phone')
+        .in('product_id', context.productIds)
+        .limit(1)
+        .maybeSingle();
+
+      if (factoryConfig) {
+        data.product_factory_name = factoryConfig.factory_name || undefined;
+      }
+    }
+
+    // Fetch merchant/user data if userId provided
+    if (context.userId) {
+      const { data: userData } = await supabase
+        .from('user_profiles')
+        .select('first_name, last_name, company, email')
+        .eq('user_id', context.userId)
+        .maybeSingle();
+
+      if (userData) {
+        data.merchant_name = userData.first_name && userData.last_name
+          ? `${userData.first_name} ${userData.last_name}`
+          : userData.company || undefined;
+        data.merchant_email = userData.email || undefined;
+        data.merchant_company = userData.company || undefined;
+      }
+    }
+
+    // Fetch thread-specific data if threadId provided
+    if (context.threadId) {
+      const { data: threadData } = await supabase
+        .from('chat_threads')
+        .select('warehouse_entry_number')
+        .eq('id', context.threadId)
+        .maybeSingle();
+
+      if (threadData) {
+        data.warehouse_entry_number = threadData.warehouse_entry_number || undefined;
+      }
+    }
+
+  } catch (error) {
+    console.error('Error fetching variable data:', error);
+  }
+
+  return data;
+}
+
+/**
+ * Replace all {{variable}} placeholders in content with actual data
+ */
+export function replaceVariables(content: string, data: VariableData): string {
+  let result = content;
+
+  // Replace all {{variable}} patterns
+  const variablePattern = /\{\{([a-zA-Z0-9_]+)\}\}/g;
+
+  result = result.replace(variablePattern, (match, variableName) => {
+    const value = data[variableName];
+
+    if (value !== undefined && value !== null && value !== '') {
+      return value;
+    }
+
+    // Provide sensible fallbacks for common missing variables
+    const fallbacks: Record<string, string> = {
+      'product_damage_claim_deadline_days': '30 days',
+      'product_replacement_ship_time_days': '7-14 business days',
+      'product_defect_coverage_days': '90 days',
+      'product_return_window_days': '30 days',
+      'last_mile_carrier': 'your local postal service',
+      'product_factory_name': 'our partner factory',
+      'tracking_number': 'not yet available',
+      'tracking_company': 'carrier',
+      'warehouse_entry_number': 'to be provided',
+      'customer_first_name': 'Customer',
+      'customer_full_name': 'Customer'
+    };
+
+    return fallbacks[variableName] || match; // Keep {{variable}} if no fallback
+  });
+
+  return result;
+}
+
+/**
+ * Main function: Fetch data and replace variables in content
+ */
+export async function renderTemplate(
+  content: string,
+  context: VariableContext
+): Promise<string> {
+  const variableData = await fetchVariableData(context);
+  return replaceVariables(content, variableData);
+}

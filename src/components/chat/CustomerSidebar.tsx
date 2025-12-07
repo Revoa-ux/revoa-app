@@ -11,11 +11,20 @@ import {
   DollarSign,
   Tag,
   TrendingUp,
-  CreditCard
+  CreditCard,
+  XCircle,
+  Truck,
+  ExternalLink
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { ProductTemplateSelectorModal } from '@/components/admin/ProductTemplateSelectorModal';
+import { CancelOrderModal } from './CancelOrderModal';
+import { RefundOrderModal } from './RefundOrderModal';
+import { EditShippingAddressModal } from './EditShippingAddressModal';
+import { EditBillingAddressModal } from './EditBillingAddressModal';
+import { UpdateEmailModal } from './UpdateEmailModal';
+import { getShopifyOrderUrl } from '@/lib/shopifyOrders';
 
 interface CustomerSidebarProps {
   threadId: string;
@@ -67,6 +76,12 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [userName, setUserName] = useState('');
   const [lineItems, setLineItems] = useState<any[]>([]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [showEditShippingModal, setShowEditShippingModal] = useState(false);
+  const [showEditBillingModal, setShowEditBillingModal] = useState(false);
+  const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
+  const [orderId, setOrderId] = useState<string>('');
 
   useEffect(() => {
     if (threadId && isExpanded) {
@@ -157,6 +172,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
       if (orderError) throw orderError;
 
       setCustomerInfo(order);
+      setOrderId(thread.order_id); // Store order ID for actions
 
       // Load line items
       const { data: items } = await supabase
@@ -584,6 +600,83 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 )}
               </div>
 
+              {/* Quick Actions */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Quick Actions
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Cancel Order */}
+                  <button
+                    onClick={() => setShowCancelModal(true)}
+                    disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-600 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:cursor-not-allowed"
+                    title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
+                  >
+                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Cancel</span>
+                  </button>
+
+                  {/* Issue Refund */}
+                  <button
+                    onClick={() => setShowRefundModal(true)}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors flex flex-col items-center gap-2"
+                  >
+                    <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Refund</span>
+                  </button>
+
+                  {/* Edit Shipping */}
+                  <button
+                    onClick={() => setShowEditShippingModal(true)}
+                    disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-colors flex flex-col items-center gap-2 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:cursor-not-allowed"
+                    title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
+                  >
+                    <Truck className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shipping</span>
+                  </button>
+
+                  {/* Edit Billing */}
+                  <button
+                    onClick={() => setShowEditBillingModal(true)}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-colors flex flex-col items-center gap-2"
+                  >
+                    <CreditCard className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Billing</span>
+                  </button>
+
+                  {/* Update Email */}
+                  <button
+                    onClick={() => setShowUpdateEmailModal(true)}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-colors flex flex-col items-center gap-2"
+                  >
+                    <Mail className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Email</span>
+                  </button>
+
+                  {/* View in Shopify */}
+                  <button
+                    onClick={async () => {
+                      const url = await getShopifyOrderUrl(orderId);
+                      if (url) {
+                        window.open(url, '_blank');
+                      } else {
+                        toast.error('Unable to open Shopify order');
+                      }
+                    }}
+                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors flex flex-col items-center gap-2"
+                  >
+                    <ExternalLink className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shopify</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Customer Notes */}
               {customerInfo.note && (
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -611,6 +704,82 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
           userId={userId}
           userName={userName}
         />
+      )}
+
+      {/* Order Action Modals */}
+      {customerInfo && orderId && (
+        <>
+          <CancelOrderModal
+            isOpen={showCancelModal}
+            onClose={() => setShowCancelModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            totalPrice={customerInfo.total_price}
+            currency={customerInfo.currency}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+
+          <RefundOrderModal
+            isOpen={showRefundModal}
+            onClose={() => setShowRefundModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            totalPrice={customerInfo.total_price}
+            currency={customerInfo.currency}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+
+          <EditShippingAddressModal
+            isOpen={showEditShippingModal}
+            onClose={() => setShowEditShippingModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            currentAddress={{
+              address1: customerInfo.shipping_address_line1 || '',
+              address2: customerInfo.shipping_address_line2 || '',
+              city: customerInfo.shipping_city || '',
+              province: customerInfo.shipping_state || '',
+              zip: customerInfo.shipping_zip || '',
+              country: customerInfo.shipping_country || '',
+            }}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+
+          <EditBillingAddressModal
+            isOpen={showEditBillingModal}
+            onClose={() => setShowEditBillingModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            currentAddress={{
+              address1: customerInfo.billing_address_line1 || '',
+              address2: customerInfo.billing_address_line2 || '',
+              city: customerInfo.billing_city || '',
+              province: customerInfo.billing_state || '',
+              zip: customerInfo.billing_zip || '',
+              country: customerInfo.billing_country || '',
+            }}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+
+          <UpdateEmailModal
+            isOpen={showUpdateEmailModal}
+            onClose={() => setShowUpdateEmailModal(false)}
+            orderId={orderId}
+            orderNumber={customerInfo.order_number}
+            currentEmail={customerInfo.customer_email || ''}
+            onSuccess={() => {
+              loadCustomerInfo();
+            }}
+          />
+        </>
       )}
     </>
   );

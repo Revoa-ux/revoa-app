@@ -794,9 +794,17 @@ export const chatService = {
             .maybeSingle();
 
           if (autoMessage?.message_body) {
-            // Replace variables in message
-            let messageContent = autoMessage.message_body;
-            messageContent = messageContent.replace(/\{\{order_number\}\}/g, order.order_number);
+            // Use comprehensive variable replacement service
+            const { renderTemplate } = await import('./templateVariableService');
+
+            let messageContent = await renderTemplate(autoMessage.message_body, {
+              orderId: orderId,
+              userId: user.id,
+              threadId: threadId
+            });
+
+            // Add template suggestion footer
+            messageContent += '\n\n---\n\n💡 **Tip:** Click the **Templates** button in the sidebar to send a curated email to your customer relevant to their order and situation.';
 
             await supabase.from('messages').insert({
               chat_id: chatId,

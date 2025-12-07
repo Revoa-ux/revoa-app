@@ -41,12 +41,11 @@ export function ProductTemplateSelectorModal({
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Fetch products for this user
+      // Fetch products for this user (all statuses)
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('id, name, sku, status, created_at')
         .eq('user_id', userId)
-        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (productsError) throw productsError;
@@ -122,7 +121,10 @@ export function ProductTemplateSelectorModal({
           <div className="text-center py-12">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 dark:text-gray-400">
-              No approved products found for this merchant
+              No products found for this merchant
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Products will appear here after the merchant submits a quote
             </p>
           </div>
         ) : (
@@ -139,9 +141,20 @@ export function ProductTemplateSelectorModal({
                       <Package className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-rose-600 dark:group-hover:text-rose-400" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                        {product.name}
-                      </h3>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white">
+                          {product.name}
+                        </h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          product.status === 'approved'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : product.status === 'pending'
+                            ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-400'
+                        }`}>
+                          {product.status}
+                        </span>
+                      </div>
                       {product.sku && (
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                           SKU: {product.sku}

@@ -319,13 +319,15 @@ Items sent back to us without first requesting a return will not be accepted.`,
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {(order.customer_first_name || order.customer_last_name) ? (
-                      <span className="font-medium">
-                        {[order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')} • {' '}
-                      </span>
-                    ) : (
-                      <span className="font-medium">Guest Customer • </span>
-                    )}
+                    <span className="font-medium">
+                      {(order.customer_first_name || order.customer_last_name) ? (
+                        [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
+                      ) : order.customer_email ? (
+                        order.customer_email.split('@')[0].charAt(0).toUpperCase() + order.customer_email.split('@')[0].slice(1)
+                      ) : (
+                        'Guest Customer'
+                      )} • {' '}
+                    </span>
                     {new Date(order.ordered_at || order.created_at).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
