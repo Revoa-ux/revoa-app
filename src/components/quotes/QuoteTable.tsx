@@ -108,17 +108,17 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     <QuoteStatus status={quote.status} expiresIn={quote.expiresIn} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-                    {quote.variants?.[0]
+                    {quote.variants?.[0]?.costPerItem != null
                       ? `$${quote.variants[0].costPerItem.toFixed(2)}`
                       : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-                    {quote.variants?.[0]
+                    {quote.variants?.[0]?.shippingCost != null
                       ? `$${quote.variants[0].shippingCost.toFixed(2)}`
                       : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
-                    {quote.variants?.[0]
+                    {quote.variants?.[0]?.totalCost != null
                       ? `$${quote.variants[0].totalCost.toFixed(2)}`
                       : '-'}
                   </td>
@@ -154,13 +154,13 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                         <td className="px-6 py-3" />
                         <td className="px-6 py-3" />
                         <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                          ${variant.costPerItem.toFixed(2)}
+                          {variant.costPerItem != null ? `$${variant.costPerItem.toFixed(2)}` : '-'}
                         </td>
                         <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                          ${variant.shippingCost.toFixed(2)}
+                          {variant.shippingCost != null ? `$${variant.shippingCost.toFixed(2)}` : '-'}
                         </td>
                         <td className="px-6 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white text-right">
-                          ${variant.totalCost.toFixed(2)}
+                          {variant.totalCost != null ? `$${variant.totalCost.toFixed(2)}` : '-'}
                         </td>
                         <td className="px-6 py-3" />
                       </tr>
@@ -258,13 +258,17 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                       <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Default (Global)</span>
-                                      <span className="text-xs font-semibold text-gray-900 dark:text-white">${shippingCosts._default.toFixed(2)}</span>
+                                      <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                                        {shippingCosts._default != null ? `$${shippingCosts._default.toFixed(2)}` : '-'}
+                                      </span>
                                     </div>
 
                                     {countries.map(country => (
                                       <div key={country} className="flex items-center justify-between p-2.5 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{country.toUpperCase()}</span>
-                                        <span className="text-xs font-semibold text-gray-900 dark:text-white">${shippingCosts[country].toFixed(2)}</span>
+                                        <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                                          {shippingCosts[country] != null ? `$${shippingCosts[country].toFixed(2)}` : '-'}
+                                        </span>
                                       </div>
                                     ))}
                                   </div>
@@ -302,12 +306,16 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
                                   <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Unit Cost</p>
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">${quote.variants[0].costPerItem.toFixed(2)}</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                      {quote.variants[0].costPerItem != null ? `$${quote.variants[0].costPerItem.toFixed(2)}` : '-'}
+                                    </p>
                                   </div>
 
                                   <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
-                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">${quote.variants[0].totalCost.toFixed(2)}</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                      {quote.variants[0].totalCost != null ? `$${quote.variants[0].totalCost.toFixed(2)}` : '-'}
+                                    </p>
                                   </div>
                                 </>
                               )}
