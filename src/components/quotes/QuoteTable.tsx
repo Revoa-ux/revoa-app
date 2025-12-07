@@ -44,28 +44,17 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={() => {
-                    if (quote.variants && quote.variants.length > 0) {
-                      onToggleExpand(quote.id);
-                    }
-                  }}
+                  onClick={() => onToggleExpand(quote.id)}
                 >
                   <td className="px-6 py-4">
                     <div>
                       <div className="text-gray-900 dark:text-white flex items-center">
                         {quote.productName}
-                        {quote.variants && quote.variants.length > 0 ? (
-                          <ChevronRight
-                            className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
-                              expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
-                            }`}
-                          />
-                        ) : quote.status === 'quote_pending' ? (
-                          <ShoppingBag
-                            className="w-4 h-4 ml-2 text-blue-500 dark:text-blue-400"
-                            title="Click to add to Shopify"
-                          />
-                        ) : null}
+                        <ChevronRight
+                          className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
+                            expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
+                          }`}
+                        />
                       </div>
                       <div className="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <a
@@ -118,9 +107,9 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     </div>
                   </td>
                 </tr>
-                {quote.variants && expandedQuotes.includes(quote.id) && (
+                {expandedQuotes.includes(quote.id) && (
                   <>
-                    {quote.variants.slice(1).map((variant) => (
+                    {quote.variants && quote.variants.slice(1).map((variant) => (
                       <tr
                         key={`${quote.id}-${variant.quantity}`}
                         className="bg-gray-50/95 dark:bg-gray-700/95 border-t border-gray-100 dark:border-gray-600"
@@ -149,6 +138,23 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                         <td className="px-6 py-3" />
                       </tr>
                     ))}
+
+                    {/* Pending Quote Message */}
+                    {quote.status === 'quote_pending' && !quote.variants && (
+                      <tr className="bg-blue-50/50 dark:bg-blue-900/10 border-t border-blue-200 dark:border-blue-800">
+                        <td colSpan={7} className="px-6 py-8 text-center">
+                          <div className="flex flex-col items-center gap-3">
+                            <ShoppingBag className="w-8 h-8 text-blue-500 dark:text-blue-400" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Quote Pending</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                Waiting for pricing and variant details from supplier
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
 
                     {/* Product Policies & Advanced Shipping Section */}
                     {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery ||
