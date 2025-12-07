@@ -164,10 +164,10 @@ export default function ProductQuotes() {
     try {
       await deleteQuote(quoteId);
       setQuotes(prev => prev.filter(q => q.id !== quoteId));
-      toast.success('Quote deleted successfully');
+      toast.success('Quote cancelled successfully');
     } catch (error) {
-      console.error('Error deleting quote:', error);
-      toast.error('Failed to delete quote');
+      console.error('Error cancelling quote:', error);
+      toast.error('Failed to cancel quote');
     }
   };
 

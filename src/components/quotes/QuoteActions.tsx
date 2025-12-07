@@ -167,7 +167,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
               className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700"
             >
               <Trash2 className="w-4 h-4" />
-              Delete Quote
+              Cancel Quote
             </button>
           </div>
         </>
@@ -195,10 +195,10 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
           </div>
           <div className="mt-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Delete Quote
+              Cancel Quote
             </h3>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this quote? This action cannot be undone.
+              Are you sure you want to cancel this quote? The admin will be notified and you can submit a new quote request if needed.
             </p>
           </div>
         </div>
@@ -208,7 +208,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             onClick={() => setShowDeleteModal(false)}
             className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
-            Cancel
+            Keep Quote
           </button>
           <button
             onClick={() => {
@@ -219,7 +219,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             }}
             className="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
           >
-            Delete
+            Cancel Quote
           </button>
         </div>
       </Modal>

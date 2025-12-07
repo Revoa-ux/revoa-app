@@ -45,6 +45,7 @@ export const getUserQuotes = async (): Promise<Quote[]> => {
     .from('product_quotes')
     .select('*')
     .eq('user_id', user.id)
+    .neq('status', 'cancelled')  // Exclude cancelled quotes
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -181,7 +182,7 @@ export const updateShopifySync = async (
   return mapDbQuoteToQuote(quote);
 };
 
-// Delete a quote
+// Delete a quote (soft delete - sets status to cancelled)
 export const deleteQuote = async (quoteId: string): Promise<void> => {
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -191,12 +192,12 @@ export const deleteQuote = async (quoteId: string): Promise<void> => {
 
   const { error } = await supabase
     .from('product_quotes')
-    .delete()
+    .update({ status: 'cancelled' })
     .eq('id', quoteId)
     .eq('user_id', user.id);
 
   if (error) {
-    console.error('Error deleting quote:', error);
+    console.error('Error cancelling quote:', error);
     throw error;
   }
 };
