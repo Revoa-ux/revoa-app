@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe } from 'lucide-react';
+import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -44,10 +44,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   className={`hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
                     expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={() => {
-                    console.log('Row clicked:', quote.id, 'Expanded:', expandedQuotes.includes(quote.id));
-                    onToggleExpand(quote.id);
-                  }}
+                  onClick={() => onToggleExpand(quote.id)}
                 >
                   <td className="px-6 py-4">
                     <div>
@@ -112,6 +109,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                 </tr>
                 {expandedQuotes.includes(quote.id) && (
                   <>
+                    {/* Additional Variants */}
                     {quote.variants && quote.variants.slice(1).map((variant) => (
                       <tr
                         key={`${quote.id}-${variant.quantity}`}
@@ -247,6 +245,73 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                 </div>
                               );
                             })()}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+
+                    {/* Fallback: Basic Quote Details (when no advanced settings exist) */}
+                    {!quote.variants?.slice(1).length &&
+                      quote.status !== 'quote_pending' &&
+                      !quote.warrantyDays &&
+                      !quote.coversLostItems &&
+                      !quote.coversDamagedItems &&
+                      !quote.coversLateDelivery &&
+                      !(quote.variants?.[0]?.finalVariants?.[0] && Object.keys(quote.variants[0].finalVariants[0].shippingCosts).length > 1) && (
+                      <tr className="bg-gray-50/50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
+                        <td colSpan={7} className="px-6 py-6">
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Package className="w-4 h-4 text-gray-400" />
+                              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Quote Details</h4>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {quote.variants?.[0] && (
+                                <>
+                                  <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Quantity</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{quote.variants[0].quantity} units</p>
+                                  </div>
+
+                                  <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Unit Cost</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">${quote.variants[0].costPerItem.toFixed(2)}</p>
+                                  </div>
+
+                                  <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
+                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">${quote.variants[0].totalCost.toFixed(2)}</p>
+                                  </div>
+                                </>
+                              )}
+
+                              {quote.productUrl && (
+                                <div className="p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 lg:col-span-3">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Source URL</p>
+                                  <a
+                                    href={quote.productUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-rose-600 dark:text-rose-400 hover:underline break-all"
+                                  >
+                                    {quote.productUrl}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+
+                            {quote.status === 'pending' && (
+                              <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                <AlertCircle className="w-4 h-4 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <p className="text-xs font-medium text-gray-900 dark:text-white">Awaiting Response</p>
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                    Additional pricing details and policies will appear here once provided by the supplier.
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
