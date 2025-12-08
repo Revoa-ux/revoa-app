@@ -41,56 +41,35 @@ export function ProductTemplateSelectorModal({
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Check if current user is super admin
-      const { data: { user } } = await supabase.auth.getUser();
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('is_super_admin')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-
-      let query = supabase
-        .from('products')
-        .select('id, name, sku, status, created_at, user_id');
-
-      // If user is super admin, fetch their products
-      // If user is regular merchant, fetch products from all super admins
-      if (profile?.is_super_admin) {
-        query = query.eq('user_id', userId);
-      } else {
-        // Fetch products from super admins
-        const { data: superAdmins } = await supabase
-          .from('user_profiles')
-          .select('user_id')
-          .eq('is_super_admin', true);
-
-        const superAdminIds = superAdmins?.map(sa => sa.user_id) || [];
-        if (superAdminIds.length > 0) {
-          query = query.in('user_id', superAdminIds);
-        }
-      }
-
-      const { data: productsData, error: productsError } = await query
+      // Fetch product quotes for this merchant
+      const { data: quotesData, error: quotesError } = await supabase
+        .from('product_quotes')
+        .select('id, product_name, status, created_at')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (productsError) throw productsError;
+      if (quotesError) throw quotesError;
 
-      // For each product, count templates
-      const productsWithCounts = await Promise.all(
-        (productsData || []).map(async (product) => {
+      // For each quote, count templates
+      const quotesWithCounts = await Promise.all(
+        (quotesData || []).map(async (quote) => {
           const { count } = await supabase
             .from('email_response_templates')
             .select('*', { count: 'exact', head: true })
-            .eq('product_id', product.id);
+            .eq('product_id', quote.id);
 
           return {
-            ...product,
+            id: quote.id,
+            name: quote.product_name,
+            sku: null,
+            status: quote.status,
+            created_at: quote.created_at,
             template_count: count || 0,
           };
         })
       );
 
-      setProducts(productsWithCounts);
+      setProducts(quotesWithCounts);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Failed to load products');
