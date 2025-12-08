@@ -31,7 +31,6 @@ import { startAutoSync } from '../lib/shopifyAutoSync';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: Home },
-  { name: 'Find Products', href: '/products', icon: LayoutGrid },
   { name: 'My Quotes', href: '/quotes', icon: ArrowRightLeft },
   { name: 'Supplier Chat', href: '/chat', icon: MessageSquare },
   { name: 'Inventory', href: '/inventory', icon: Package },
