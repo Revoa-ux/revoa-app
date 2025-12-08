@@ -386,9 +386,9 @@ export default function VariantMappingModal({
                           </div>
                         )}
 
-                        <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-center">
+                        <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-stretch">
                           {/* Column 1: Shopify Variant with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             <div className="w-full">
                               <ShopifyVariantCard
                                 variant={shopifyVariant}
@@ -406,7 +406,7 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 3: Quote Variant Dropdown with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             <div className="w-full">
                               <QuoteVariantDropdown
                                 value={selectedQuoteIndex ?? null}
@@ -423,7 +423,7 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 5: Profit Info with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             {selectedQuote ? (
                               <div className="w-full">
                                 <SellingPriceEditor
