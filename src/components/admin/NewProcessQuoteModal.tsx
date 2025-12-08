@@ -118,7 +118,8 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
           _default: variant.shippingRules.default,
           ...variant.shippingRules.byCountry
         },
-        variantName: variant.name
+        variantName: variant.name,
+        quantityTiers: variant.shippingRules.byQuantity
       };
 
       return {

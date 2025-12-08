@@ -146,6 +146,11 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                         if (key !== '_default') allCountries.add(key);
                       });
 
+                      // Collect quantity tiers
+                      if (fv.quantityTiers && fv.quantityTiers.length > 0) {
+                        fv.quantityTiers.forEach(tier => allQuantityTiers.add(tier.minQty));
+                      }
+
                       variantDetails.push({
                         name: fv.variantName || fv.attributes.map(a => a.value).join(' - ') || `Variant ${idx + 1}`,
                         sku: fv.sku,
@@ -155,12 +160,13 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                         countryShipping: Object.fromEntries(
                           Object.entries(fv.shippingCosts).filter(([k]) => k !== '_default')
                         ),
-                        quantityTiers: undefined // Will add quantity tier support later
+                        quantityTiers: fv.quantityTiers
                       });
                     });
                   });
 
                   const sortedCountries = Array.from(allCountries).sort();
+                  const sortedQuantityTiers = Array.from(allQuantityTiers).sort((a, b) => a - b);
                   const hasProtection = !!(
                     quote.warrantyDays ||
                     quote.coversLostItems ||
@@ -195,6 +201,11 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                       {country.toUpperCase()} Ship
                                     </th>
                                   ))}
+                                  {sortedQuantityTiers.map(minQty => (
+                                    <th key={minQty} className="text-right py-3 px-4 font-semibold text-green-600 dark:text-green-400 min-w-[110px]">
+                                      {minQty}+ Units
+                                    </th>
+                                  ))}
                                   <th className="text-right py-3 px-4 font-semibold text-rose-600 dark:text-rose-400 min-w-[100px]">
                                     Total (1 unit)
                                   </th>
@@ -227,6 +238,14 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                           : '-'}
                                       </td>
                                     ))}
+                                    {sortedQuantityTiers.map(minQty => {
+                                      const tier = variant.quantityTiers?.find(t => t.minQty === minQty);
+                                      return (
+                                        <td key={minQty} className="py-3 px-4 text-right font-medium text-green-600 dark:text-green-400">
+                                          {tier ? `-${formatCurrency(tier.discountAmount)}` : '-'}
+                                        </td>
+                                      );
+                                    })}
                                     <td className="py-3 px-4 text-right font-bold text-rose-600 dark:text-rose-400">
                                       {formatCurrency(variant.unitPrice + variant.defaultShipping)}
                                     </td>

@@ -13,6 +13,7 @@ export interface FinalVariant {
     _default: number;
   };
   variantName?: string;  // Display name for the variant (e.g., "Highland Cow", "Angus Bull")
+  quantityTiers?: QuantityTier[];  // Quantity-based shipping discounts
 }
 
 // Legacy support - kept for backward compatibility
