@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hash, X } from 'lucide-react';
+import { Hash, X, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
 
@@ -8,8 +8,7 @@ interface ChannelSidebarProps {
   selectedThreadId: string | null;
   onThreadSelect: (threadId: string | null) => void;
   onCreateThread: () => void;
-  isOpen: boolean;
-  onClose: () => void;
+  isExpanded: boolean;
 }
 
 const TAG_COLORS = {
@@ -31,38 +30,24 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   selectedThreadId,
   onThreadSelect,
   onCreateThread,
-  isOpen,
-  onClose,
+  isExpanded,
 }) => {
   const openThreads = threads.filter(t => t.status === 'open');
 
-  return (
-    <>
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onClose}
-        />
-      )}
+  if (!isExpanded) {
+    return null;
+  }
 
-      {/* Sidebar */}
-      <div
-        className={cn(
-          'fixed top-0 left-0 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-50 transition-transform duration-300 flex flex-col',
-          'w-[280px]',
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        )}
-      >
+  return (
+    <div
+      className={cn(
+        'border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col rounded-r-xl overflow-hidden',
+        'w-[280px] flex-shrink-0'
+      )}
+    >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Threads</h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          </button>
         </div>
 
         {/* Scrollable thread list */}
@@ -142,6 +127,5 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
           <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
         </button>
       </div>
-    </>
   );
 };

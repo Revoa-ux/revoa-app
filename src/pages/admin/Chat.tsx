@@ -562,7 +562,7 @@ const AdminChat = () => {
 
       {/* Chat Area */}
       <div className={`flex-1 flex flex-col overflow-hidden ${
-        showUserProfile ? '' : 'rounded-r-xl'
+        showUserProfile || showThreadSidebar ? '' : 'rounded-r-xl'
       }`}>
         {selectedChat ? (
           <>
@@ -580,15 +580,17 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-                {selectedChat && threads.length > 0 && (
-                  <button
-                    onClick={() => setShowThreadSidebar(true)}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600"
-                  >
-                    <Hash className="w-4 h-4" />
-                    <span className="hidden sm:inline">{selectedThreadId ? (threads.find(t => t.id === selectedThreadId)?.order_number || 'thread').replace(/^#/, '') : 'main-chat'}</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowThreadSidebar(!showThreadSidebar)}
+                  className={`p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                    showThreadSidebar
+                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
+                  title="View threads"
+                >
+                  <Hash className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
                   className={`hidden md:flex p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
@@ -902,6 +904,17 @@ const AdminChat = () => {
         )}
       </div>
 
+      {/* Threads Sidebar */}
+      {selectedChat && (
+        <ChannelSidebar
+          threads={threads}
+          selectedThreadId={selectedThreadId}
+          onThreadSelect={handleThreadSelect}
+          onCreateThread={() => setShowCreateThreadModal(true)}
+          isExpanded={showThreadSidebar}
+        />
+      )}
+
       {/* Context-Aware Sidebar: Merchant profile in main chat, Customer profile in threads */}
       {selectedChat && !selectedThreadId && (
         <CollapsibleClientProfile
@@ -1020,18 +1033,6 @@ const AdminChat = () => {
             customerEmail={selectedChat.user_profile?.email || ''}
             customerName={selectedChat.user_profile?.name || selectedChat.user_profile?.company || 'Customer'}
             threadTags={threadTags}
-          />
-        )}
-
-        {/* Thread Sidebar */}
-        {selectedChat && (
-          <ChannelSidebar
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onThreadSelect={handleThreadSelect}
-            onCreateThread={() => setShowCreateThreadModal(true)}
-            isOpen={showThreadSidebar}
-            onClose={() => setShowThreadSidebar(false)}
           />
         )}
     </>
