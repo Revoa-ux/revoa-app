@@ -232,7 +232,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         // Multiple pricing tiers - create variants with "Quantity" option
         productData = {
           title: quote.productName,
-          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          body_html: '',
           vendor: 'Revoa',
           product_type: 'Imported Product',
           options: [
@@ -260,7 +260,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         const price = variant.finalVariants?.[0]?.costPerItem || 0;
         productData = {
           title: quote.productName,
-          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          body_html: '',
           vendor: 'Revoa',
           product_type: 'Imported Product',
           variants: [{
@@ -273,7 +273,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         // No variants from quote
         productData = {
           title: quote.productName,
-          body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
+          body_html: '',
           vendor: 'Revoa',
           product_type: 'Imported Product',
         };
