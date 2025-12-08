@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react';
-import { useClickOutside } from '@/lib/useClickOutside';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 
 interface VariantMappingModalProps {
@@ -27,8 +26,6 @@ export default function VariantMappingModal({
   const [mappings, setMappings] = useState<Map<string, number | null>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useClickOutside(modalRef, onClose);
 
   const isNewQuoteVariant = (variant: any): variant is NewQuoteVariant => {
     return 'shippingRules' in variant && 'costPerItem' in variant;
@@ -161,14 +158,19 @@ export default function VariantMappingModal({
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={onClose}
+      />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 overflow-y-auto">
+      <div className="fixed inset-0 overflow-y-auto pointer-events-none">
         <div className="flex min-h-full items-center justify-center p-4">
           <div
             ref={modalRef}
-            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col"
+            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">

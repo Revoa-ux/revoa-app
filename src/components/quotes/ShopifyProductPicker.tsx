@@ -80,7 +80,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
   };
 
   return (
-    <div className="flex flex-col max-h-[80vh]">
+    <div className="flex flex-col h-full">
       {/* Search Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="relative">
