@@ -484,20 +484,8 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0">
-        {/* Thread Sidebar */}
-        {chat && (
-          <ChannelSidebar
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onThreadSelect={handleThreadSelect}
-            onCreateThread={() => setShowCreateThreadModal(true)}
-            isOpen={showThreadSidebar}
-            onClose={() => setShowThreadSidebar(false)}
-          />
-        )}
-
-        <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden min-h-0">
+        {/* Header - Full Width */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
@@ -552,17 +540,33 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Channel Tabs - Hidden */}
-        {/* {chat && threads.length > 0 && (
-          <ChannelTabs
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onThreadSelect={handleThreadSelect}
-            onCloseThread={handleCloseThread}
-          />
-        )} */}
+        {/* Content Area with Sidebar and Messages */}
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {/* Thread Sidebar */}
+          {chat && (
+            <ChannelSidebar
+              threads={threads}
+              selectedThreadId={selectedThreadId}
+              onThreadSelect={handleThreadSelect}
+              onCreateThread={() => setShowCreateThreadModal(true)}
+              isOpen={showThreadSidebar}
+              onClose={() => setShowThreadSidebar(false)}
+            />
+          )}
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          {/* Main Chat Content */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Channel Tabs - Hidden */}
+            {/* {chat && threads.length > 0 && (
+              <ChannelTabs
+                threads={threads}
+                selectedThreadId={selectedThreadId}
+                onThreadSelect={handleThreadSelect}
+                onCloseThread={handleCloseThread}
+              />
+            )} */}
+
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {isLoading ? (
             <div className="space-y-4 animate-pulse">
               {/* Team message skeleton */}
@@ -938,7 +942,7 @@ const Chat = () => {
               </div>
             </div>
           </div>
-        </div>
+          </div>
         </div>
 
         {/* Customer Sidebar - Only shows when viewing a thread */}
@@ -1045,6 +1049,7 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
+    </div>
     </div>
   );
 };

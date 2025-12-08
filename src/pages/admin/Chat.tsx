@@ -926,7 +926,8 @@ const AdminChat = () => {
           selectedThreadId={selectedThreadId}
           onThreadSelect={handleThreadSelect}
           onCreateThread={() => setShowCreateThreadModal(true)}
-          isExpanded={showThreadSidebar}
+          isOpen={showThreadSidebar}
+          onClose={() => setShowThreadSidebar(false)}
         />
       )}
 

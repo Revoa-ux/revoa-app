@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hash, X, ChevronLeft } from 'lucide-react';
+import { Hash, X, ChevronLeft, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
 
@@ -52,10 +52,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
           onClick={() => {
             onCreateThread();
           }}
-          className="w-full px-3 py-3 text-left flex items-center gap-2.5 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex-shrink-0"
+          className="w-full px-3 py-3 text-left flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-all border-b border-gray-200 dark:border-gray-700 flex-shrink-0 text-white font-medium"
         >
-          <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
+          <Plus className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm">New Order Thread</span>
         </button>
 
         {/* Scrollable thread list */}
