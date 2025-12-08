@@ -227,8 +227,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                       <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[90px] whitespace-nowrap">
                                         Damaged
                                       </th>
-                                      <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px] whitespace-nowrap">
-                                        Late Del.
+                                      <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px] whitespace-nowrap">
+                                        Late Delivery
                                       </th>
                                     </>
                                   )}
