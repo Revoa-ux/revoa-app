@@ -130,7 +130,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
             }}
             className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 rounded-b-lg"
           >
-            <Plus className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+            <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
           </button>
         </div>

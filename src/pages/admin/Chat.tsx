@@ -14,7 +14,8 @@ import {
   MoreHorizontal,
   Trash2,
   Tag,
-  Package
+  Package,
+  Hash
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -35,6 +36,7 @@ import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
+import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
 import { ChannelThread } from '@/components/chat/ChannelTabs';
 import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
 
@@ -119,6 +121,7 @@ const AdminChat = () => {
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
+  const [showThreadSidebar, setShowThreadSidebar] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -578,12 +581,13 @@ const AdminChat = () => {
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                 {selectedChat && threads.length > 0 && (
-                  <ChannelDropdown
-                    threads={threads}
-                    selectedThreadId={selectedThreadId}
-                    onThreadSelect={handleThreadSelect}
-                    onCreateThread={() => setShowCreateThreadModal(true)}
-                  />
+                  <button
+                    onClick={() => setShowThreadSidebar(true)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600"
+                  >
+                    <Hash className="w-4 h-4" />
+                    <span className="hidden sm:inline">{selectedThreadId ? (threads.find(t => t.id === selectedThreadId)?.order_number || 'thread').replace(/^#/, '') : 'main-chat'}</span>
+                  </button>
                 )}
                 <button
                   onClick={() => setShowUserProfile(!showUserProfile)}
@@ -1016,6 +1020,18 @@ const AdminChat = () => {
             customerEmail={selectedChat.user_profile?.email || ''}
             customerName={selectedChat.user_profile?.name || selectedChat.user_profile?.company || 'Customer'}
             threadTags={threadTags}
+          />
+        )}
+
+        {/* Thread Sidebar */}
+        {selectedChat && (
+          <ChannelSidebar
+            threads={threads}
+            selectedThreadId={selectedThreadId}
+            onThreadSelect={handleThreadSelect}
+            onCreateThread={() => setShowCreateThreadModal(true)}
+            isOpen={showThreadSidebar}
+            onClose={() => setShowThreadSidebar(false)}
           />
         )}
     </>
