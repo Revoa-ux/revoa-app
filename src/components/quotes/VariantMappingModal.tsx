@@ -113,9 +113,10 @@ function WarningModal({ isOpen, onClose, onConfirm, unmappedCount, priceChangesC
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all shadow-sm"
+            className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all shadow-sm flex items-center gap-2"
           >
-            {unmappedCount > 0 ? 'Continue Anyway' : 'Confirm & Sync'}
+            <span>{unmappedCount > 0 ? 'Continue Anyway' : 'Confirm & Sync'}</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
       </div>
@@ -295,7 +296,7 @@ export default function VariantMappingModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50">
+      <div className="fixed inset-0 z-40">
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm"
@@ -303,7 +304,7 @@ export default function VariantMappingModal({
         />
 
         {/* Modal Container */}
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-40 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
             <div
               ref={modalRef}
@@ -445,17 +446,6 @@ export default function VariantMappingModal({
                   })}
                 </div>
 
-                {/* Unmapped Warning */}
-                {unmappedCount > 0 && (
-                  <div className="mt-6 bg-gray-100/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
-                      <p className="text-xs text-gray-700 dark:text-gray-300">
-                        <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Footer */}

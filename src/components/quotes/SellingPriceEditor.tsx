@@ -104,17 +104,18 @@ export function SellingPriceEditor({
 
       {/* Suggested Price Button */}
       {Math.abs(suggestedPrice - displayPrice) > 0.01 ? (
-        <div className="flex-1 flex flex-col items-end">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 self-start">
+        <div className="flex-1 flex flex-col">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             Suggested Price
           </div>
           <button
             type="button"
             onClick={handleUseSuggested}
-            className="px-3 py-1.5 text-sm font-normal text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm font-normal bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5 self-start"
           >
-            Change to ${suggestedPrice.toFixed(2)}
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span className="text-gray-500 dark:text-gray-400">Change to</span>
+            <span className="text-gray-700 dark:text-gray-200 font-medium">${suggestedPrice.toFixed(2)}</span>
+            <ArrowRight className="w-3.5 h-3.5 text-gray-700 dark:text-gray-200" />
           </button>
         </div>
       ) : hasChanged && (
