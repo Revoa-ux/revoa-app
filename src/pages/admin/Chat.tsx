@@ -638,7 +638,7 @@ const AdminChat = () => {
                     ref={el => messageRefs.current[message.id] = el}
                     className={`flex group ${message.sender === 'team' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[70%]`}>
+                    <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[70%] 2xl:max-w-3xl`}>
                       <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
                         message.sender === 'team'
                           ? 'message-bubble-user text-white'
