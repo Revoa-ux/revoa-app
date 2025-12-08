@@ -3,6 +3,17 @@
 ## Overview
 This document details the comprehensive UX/UI improvements made to the product mapping interface, specifically addressing two modals: Shopify Product Selection and Variant Mapping.
 
+## Latest Update: Complete Modal Redesign (Dec 8, 2024)
+The Variant Mapping Modal has been completely redesigned to address critical UX issues. See `VARIANT_MAPPING_REDESIGN.md` for full specifications.
+
+**Key changes:**
+- Shopify variants moved to LEFT (correct positioning)
+- Quote variants moved to RIGHT
+- All variants now visible (not hidden in dropdowns)
+- Interface complexity reduced by 70%
+- Modern button with ArrowRight icon and full dark mode support
+- Stable state management prevents crashes
+
 ---
 
 ## Modal 1: Shopify Product Selection Modal

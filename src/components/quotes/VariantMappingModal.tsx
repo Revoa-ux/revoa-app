@@ -1,8 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { X, AlertTriangle, CheckCircle2, Package, DollarSign, Truck, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, AlertTriangle, ArrowRight } from 'lucide-react';
 import Modal from '../Modal';
-import Button from '../Button';
-import type { VariantMapping, VariantMappingState, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
+import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 
 interface VariantMappingModalProps {
   isOpen: boolean;
@@ -17,6 +16,11 @@ interface VariantMappingModalProps {
   };
 }
 
+interface ShopifyToQuoteMapping {
+  shopifyVariantId: string;
+  quoteVariantIndex: number | null;
+}
+
 export default function VariantMappingModal({
   isOpen,
   onClose,
@@ -25,18 +29,7 @@ export default function VariantMappingModal({
   quoteVariants,
   shopifyProduct,
 }: VariantMappingModalProps) {
-  const [mappingState, setMappingState] = useState<VariantMappingState>({
-    quoteId,
-    shopifyProductId: shopifyProduct.id,
-    shopifyProductTitle: shopifyProduct.title,
-    mappings: [],
-    isValid: false,
-    warnings: [],
-    changes: {
-      skuUpdates: 0,
-      priceUpdates: 0,
-    },
-  });
+  const [mappings, setMappings] = useState<Map<string, number | null>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isNewQuoteVariant = (variant: any): variant is NewQuoteVariant => {
@@ -44,8 +37,38 @@ export default function VariantMappingModal({
   };
 
   useEffect(() => {
-    const initialMappings: VariantMapping[] = quoteVariants.map((qVariant, index) => {
-      const quoteVariantSku = qVariant.sku;
+    const initialMappings = new Map<string, number | null>();
+    shopifyProduct.variants.forEach((shopifyVariant, index) => {
+      const matchingQuoteIndex = quoteVariants.findIndex(
+        (qVariant) => qVariant.sku === shopifyVariant.sku
+      );
+      initialMappings.set(
+        shopifyVariant.id,
+        matchingQuoteIndex >= 0 ? matchingQuoteIndex : (index < quoteVariants.length ? index : null)
+      );
+    });
+    setMappings(initialMappings);
+  }, [shopifyProduct, quoteVariants]);
+
+  const handleMappingChange = (shopifyVariantId: string, quoteIndex: number | null) => {
+    setMappings(prev => {
+      const newMappings = new Map(prev);
+      newMappings.set(shopifyVariantId, quoteIndex);
+      return newMappings;
+    });
+  };
+
+  const buildVariantMappings = (): VariantMapping[] => {
+    const result: VariantMapping[] = [];
+
+    mappings.forEach((quoteIndex, shopifyVariantId) => {
+      if (quoteIndex === null) return;
+
+      const shopifyVariant = shopifyProduct.variants.find(v => v.id === shopifyVariantId);
+      const qVariant = quoteVariants[quoteIndex];
+
+      if (!shopifyVariant || !qVariant) return;
+
       const quoteVariantName = isNewQuoteVariant(qVariant)
         ? qVariant.name
         : qVariant.variantName || 'Unnamed Variant';
@@ -64,154 +87,36 @@ export default function VariantMappingModal({
             byQuantity: qVariant.quantityTiers,
           };
 
-      const matchingShopifyVariant = shopifyProduct.variants.find(
-        (sVariant) => sVariant.sku === quoteVariantSku
-      ) || shopifyProduct.variants[index];
-
-      if (!matchingShopifyVariant) {
-        return null;
-      }
-
-      const shopifyPrice = parseFloat(matchingShopifyVariant.price);
-      const willUpdateSku = matchingShopifyVariant.sku !== quoteVariantSku;
+      const shopifyPrice = parseFloat(shopifyVariant.price);
+      const willUpdateSku = shopifyVariant.sku !== qVariant.sku;
       const willUpdatePrice = Math.abs(shopifyPrice - quoteUnitCost) > 0.01;
       const priceDifference = willUpdatePrice ? quoteUnitCost - shopifyPrice : undefined;
 
-      return {
-        quoteVariantIndex: index,
-        quoteVariantSku,
+      result.push({
+        quoteVariantIndex: quoteIndex,
+        quoteVariantSku: qVariant.sku,
         quoteVariantName,
         quoteUnitCost,
         quotePackSize: 1,
         quoteShippingRules,
-        shopifyVariantId: matchingShopifyVariant.id,
-        shopifyVariantTitle: matchingShopifyVariant.title,
-        shopifyVariantSku: matchingShopifyVariant.sku,
-        shopifyVariantPrice: matchingShopifyVariant.price,
+        shopifyVariantId: shopifyVariant.id,
+        shopifyVariantTitle: shopifyVariant.title,
+        shopifyVariantSku: shopifyVariant.sku,
+        shopifyVariantPrice: shopifyVariant.price,
         willUpdateSku,
         willUpdatePrice,
         priceDifference,
-      };
-    }).filter((m): m is VariantMapping => m !== null);
-
-    const warnings: string[] = [];
-    const skuUpdates = initialMappings.filter(m => m.willUpdateSku).length;
-    const priceUpdates = initialMappings.filter(m => m.willUpdatePrice).length;
-
-    if (skuUpdates > 0) {
-      warnings.push(`${skuUpdates} variant SKU${skuUpdates > 1 ? 's' : ''} will be updated`);
-    }
-
-    if (priceUpdates > 0) {
-      warnings.push(`${priceUpdates} variant price${priceUpdates > 1 ? 's' : ''} will be updated`);
-    }
-
-    const largePriceDifferences = initialMappings.filter(
-      m => m.priceDifference && Math.abs(m.priceDifference) > 5
-    );
-
-    if (largePriceDifferences.length > 0) {
-      warnings.push(`${largePriceDifferences.length} variant${largePriceDifferences.length > 1 ? 's have' : ' has'} significant price differences (>$5)`);
-    }
-
-    setMappingState({
-      quoteId,
-      shopifyProductId: shopifyProduct.id,
-      shopifyProductTitle: shopifyProduct.title,
-      mappings: initialMappings,
-      isValid: initialMappings.length === quoteVariants.length,
-      warnings,
-      changes: {
-        skuUpdates,
-        priceUpdates,
-      },
+      });
     });
-  }, [quoteId, quoteVariants, shopifyProduct]);
 
-  const handleMappingChange = (quoteIndex: number, shopifyVariantId: string) => {
-    const shopifyVariant = shopifyProduct.variants.find(v => v.id === shopifyVariantId);
-    if (!shopifyVariant) return;
-
-    const qVariant = quoteVariants[quoteIndex];
-    const quoteVariantSku = qVariant.sku;
-    const quoteVariantName = isNewQuoteVariant(qVariant)
-      ? qVariant.name
-      : qVariant.variantName || 'Unnamed Variant';
-
-    const quoteUnitCost = isNewQuoteVariant(qVariant)
-      ? qVariant.costPerItem
-      : qVariant.costPerItem;
-
-    const quoteShippingRules: ShippingRules = isNewQuoteVariant(qVariant)
-      ? qVariant.shippingRules
-      : {
-          default: qVariant.shippingCosts._default,
-          byCountry: Object.fromEntries(
-            Object.entries(qVariant.shippingCosts).filter(([k]) => k !== '_default')
-          ),
-          byQuantity: qVariant.quantityTiers,
-        };
-
-    const shopifyPrice = parseFloat(shopifyVariant.price);
-    const willUpdateSku = shopifyVariant.sku !== quoteVariantSku;
-    const willUpdatePrice = Math.abs(shopifyPrice - quoteUnitCost) > 0.01;
-    const priceDifference = willUpdatePrice ? quoteUnitCost - shopifyPrice : undefined;
-
-    const newMappings = [...mappingState.mappings];
-    newMappings[quoteIndex] = {
-      quoteVariantIndex: quoteIndex,
-      quoteVariantSku,
-      quoteVariantName,
-      quoteUnitCost,
-      quotePackSize: 1,
-      quoteShippingRules,
-      shopifyVariantId: shopifyVariant.id,
-      shopifyVariantTitle: shopifyVariant.title,
-      shopifyVariantSku: shopifyVariant.sku,
-      shopifyVariantPrice: shopifyVariant.price,
-      willUpdateSku,
-      willUpdatePrice,
-      priceDifference,
-    };
-
-    const warnings: string[] = [];
-    const skuUpdates = newMappings.filter(m => m.willUpdateSku).length;
-    const priceUpdates = newMappings.filter(m => m.willUpdatePrice).length;
-
-    if (skuUpdates > 0) {
-      warnings.push(`${skuUpdates} variant SKU${skuUpdates > 1 ? 's' : ''} will be updated`);
-    }
-
-    if (priceUpdates > 0) {
-      warnings.push(`${priceUpdates} variant price${priceUpdates > 1 ? 's' : ''} will be updated`);
-    }
-
-    const largePriceDifferences = newMappings.filter(
-      m => m.priceDifference && Math.abs(m.priceDifference) > 5
-    );
-
-    if (largePriceDifferences.length > 0) {
-      warnings.push(`${largePriceDifferences.length} variant${largePriceDifferences.length > 1 ? 's have' : ' has'} significant price differences (>$5)`);
-    }
-
-    setMappingState({
-      ...mappingState,
-      mappings: newMappings,
-      isValid: newMappings.length === quoteVariants.length && newMappings.every(m => m.shopifyVariantId),
-      warnings,
-      changes: {
-        skuUpdates,
-        priceUpdates,
-      },
-    });
+    return result;
   };
 
   const handleConfirm = async () => {
-    if (!mappingState.isValid) return;
-
     setIsSubmitting(true);
     try {
-      await onConfirm(mappingState.mappings);
+      const variantMappings = buildVariantMappings();
+      await onConfirm(variantMappings);
     } catch (error) {
       console.error('Error confirming mappings:', error);
     } finally {
@@ -219,227 +124,268 @@ export default function VariantMappingModal({
     }
   };
 
-  const formatShippingRules = (rules: ShippingRules) => {
-    const countries = Object.entries(rules.byCountry)
-      .slice(0, 2)
-      .map(([code, cost]) => `${code}: $${cost.toFixed(2)}`)
-      .join(', ');
+  const getChangesSummary = () => {
+    const variantMappings = buildVariantMappings();
+    const skuUpdates = variantMappings.filter(m => m.willUpdateSku).length;
+    const priceUpdates = variantMappings.filter(m => m.willUpdatePrice).length;
+    const largePriceDiffs = variantMappings.filter(
+      m => m.priceDifference && Math.abs(m.priceDifference) > 5
+    ).length;
 
-    const moreCountries = Object.keys(rules.byCountry).length > 2
-      ? `, +${Object.keys(rules.byCountry).length - 2} more`
-      : '';
-
-    const tiers = rules.byQuantity && rules.byQuantity.length > 0
-      ? ` • Discounts at ${rules.byQuantity.map(t => `${t.minQty} units`).join(', ')}`
-      : '';
-
-    return `Default: $${rules.default.toFixed(2)}${countries ? ` • ${countries}${moreCountries}` : ''}${tiers}`;
+    return { skuUpdates, priceUpdates, largePriceDiffs };
   };
 
+  const isValid = () => {
+    let mappedCount = 0;
+    mappings.forEach(quoteIndex => {
+      if (quoteIndex !== null) mappedCount++;
+    });
+    return mappedCount > 0;
+  };
+
+  const { skuUpdates, priceUpdates, largePriceDiffs } = getChangesSummary();
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Map Quote Variants to Shopify" maxWidth="max-w-5xl">
-      <div className="space-y-6">
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-900 dark:text-blue-100">
-              <p className="font-medium mb-1">Syncing to: {shopifyProduct.title}</p>
-              <p className="text-blue-700 dark:text-blue-300">
-                Map each quote variant to a Shopify variant. SKUs and prices will be automatically updated in your store.
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-6xl">
+      <div className="flex flex-col max-h-[85vh]">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Map Variants to Shopify
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {shopifyProduct.title}
               </p>
             </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {quoteVariants.map((qVariant, index) => {
-            const mapping = mappingState.mappings[index];
-            const quoteVariantName = isNewQuoteVariant(qVariant)
-              ? qVariant.name
-              : qVariant.variantName || 'Unnamed Variant';
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Shopify Variants */}
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                  Shopify Variants
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {shopifyProduct.variants.length} variant{shopifyProduct.variants.length !== 1 ? 's' : ''} in store
+                </p>
+              </div>
 
-            const quoteUnitCost = isNewQuoteVariant(qVariant)
-              ? qVariant.costPerItem
-              : qVariant.costPerItem;
+              <div className="space-y-3">
+                {shopifyProduct.variants.map((shopifyVariant) => {
+                  const selectedQuoteIndex = mappings.get(shopifyVariant.id);
+                  const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
+                    ? quoteVariants[selectedQuoteIndex]
+                    : null;
 
-            const quoteShippingRules: ShippingRules = isNewQuoteVariant(qVariant)
-              ? qVariant.shippingRules
-              : {
-                  default: qVariant.shippingCosts._default,
-                  byCountry: Object.fromEntries(
-                    Object.entries(qVariant.shippingCosts).filter(([k]) => k !== '_default')
-                  ),
-                  byQuantity: qVariant.quantityTiers,
-                };
-
-            return (
-              <div
-                key={index}
-                className="border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800"
-              >
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-0">
-                  {/* Left Column - Quote Variant */}
-                  <div className="p-5 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-900/10 dark:to-transparent border-r border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                      <h4 className="font-semibold text-gray-900 dark:text-white">
-                        Quote Variant {index + 1}
-                      </h4>
-                    </div>
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <span className="font-semibold text-gray-900 dark:text-white text-base">
-                          {quoteVariantName}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-600">
-                          SKU: {qVariant.sku}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                        <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-                        <span className="font-medium">${quoteUnitCost.toFixed(2)} per unit</span>
-                      </div>
-                      <div className="flex items-start gap-2 text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
-                        <Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-500" />
-                        <div className="text-xs leading-relaxed">
-                          <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">Shipping:</p>
-                          <p>{formatShippingRules(quoteShippingRules)}</p>
+                  return (
+                    <div
+                      key={shopifyVariant.id}
+                      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+                    >
+                      <div className="mb-3">
+                        <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-1">
+                          {shopifyVariant.title}
+                        </h4>
+                        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
+                          {shopifyVariant.sku && (
+                            <span className="font-mono">{shopifyVariant.sku}</span>
+                          )}
+                          <span>${shopifyVariant.price}</span>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Arrow Separator */}
-                  <div className="flex items-center justify-center px-4 py-5 bg-gray-50 dark:bg-gray-900/30">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="text-3xl text-gray-400 dark:text-gray-500 font-light">→</div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">maps to</span>
-                    </div>
-                  </div>
+                      <div className="space-y-2">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                          Maps to quote variant:
+                        </label>
+                        <select
+                          value={selectedQuoteIndex ?? ''}
+                          onChange={(e) => handleMappingChange(
+                            shopifyVariant.id,
+                            e.target.value === '' ? null : parseInt(e.target.value)
+                          )}
+                          className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-all"
+                        >
+                          <option value="">No mapping</option>
+                          {quoteVariants.map((qVariant, index) => {
+                            const qName = isNewQuoteVariant(qVariant)
+                              ? qVariant.name
+                              : qVariant.variantName || 'Unnamed';
+                            const qCost = isNewQuoteVariant(qVariant)
+                              ? qVariant.costPerItem
+                              : qVariant.costPerItem;
+                            return (
+                              <option key={index} value={index}>
+                                {qName} • {qVariant.sku} • ${qCost.toFixed(2)}
+                              </option>
+                            );
+                          })}
+                        </select>
 
-                  {/* Right Column - Shopify Variant */}
-                  <div className="p-5 bg-gradient-to-bl from-rose-50 to-transparent dark:from-rose-900/10 dark:to-transparent">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Package className="w-5 h-5 text-rose-600 dark:text-rose-400" />
-                      <h4 className="font-semibold text-gray-900 dark:text-white">
-                        Shopify Variant
-                      </h4>
-                    </div>
-                    <div className="mb-4">
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Select destination variant:
-                      </label>
-                      <select
-                        value={mapping?.shopifyVariantId || ''}
-                        onChange={(e) => handleMappingChange(index, e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-rose-500 dark:focus:border-rose-400 text-gray-900 dark:text-white font-medium transition-all"
-                      >
-                        <option value="">Choose a Shopify variant...</option>
-                        {shopifyProduct.variants.map((sVariant) => (
-                          <option key={sVariant.id} value={sVariant.id}>
-                            {sVariant.title} {sVariant.sku ? `• SKU: ${sVariant.sku}` : '• No SKU'} • ${sVariant.price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                        {selectedQuote && (
+                          <div className="mt-2 space-y-1.5">
+                            {(() => {
+                              const qCost = isNewQuoteVariant(selectedQuote)
+                                ? selectedQuote.costPerItem
+                                : selectedQuote.costPerItem;
+                              const shopifyPrice = parseFloat(shopifyVariant.price);
+                              const willUpdateSku = shopifyVariant.sku !== selectedQuote.sku;
+                              const willUpdatePrice = Math.abs(shopifyPrice - qCost) > 0.01;
 
-                    {mapping && (
-                      <div className="space-y-2.5">
-                        {mapping.willUpdateSku && (
-                          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                            <div className="text-xs">
-                              <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">SKU Update</p>
-                              <p className="text-amber-700 dark:text-amber-300">
-                                "{mapping.shopifyVariantSku || 'none'}" → "{mapping.quoteVariantSku}"
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                        {mapping.willUpdatePrice && (
-                          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
-                            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
-                            <div className="text-xs">
-                              <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">Price Update</p>
-                              <p className="text-amber-700 dark:text-amber-300">
-                                ${mapping.shopifyVariantPrice} → ${mapping.quoteUnitCost.toFixed(2)}
-                                {mapping.priceDifference && (
-                                  <span className="ml-1 font-semibold">
-                                    ({mapping.priceDifference > 0 ? '+' : ''}${mapping.priceDifference.toFixed(2)})
-                                  </span>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        )}
-                        {!mapping.willUpdateSku && !mapping.willUpdatePrice && (
-                          <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                            <span className="text-xs font-medium text-green-700 dark:text-green-300">Perfect match - no changes needed</span>
+                              return (
+                                <>
+                                  {willUpdateSku && (
+                                    <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                                      <span>SKU will update to {selectedQuote.sku}</span>
+                                    </div>
+                                  )}
+                                  {willUpdatePrice && (
+                                    <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                                      <span>Price will update to ${qCost.toFixed(2)}</span>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </div>
                         )}
                       </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right Column - Quote Variants */}
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                  Quote Variants
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {quoteVariants.length} variant{quoteVariants.length !== 1 ? 's' : ''} from quote
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {quoteVariants.map((qVariant, index) => {
+                  const qName = isNewQuoteVariant(qVariant)
+                    ? qVariant.name
+                    : qVariant.variantName || 'Unnamed Variant';
+                  const qCost = isNewQuoteVariant(qVariant)
+                    ? qVariant.costPerItem
+                    : qVariant.costPerItem;
+
+                  const mappedTo = Array.from(mappings.entries())
+                    .filter(([_, quoteIndex]) => quoteIndex === index)
+                    .map(([shopifyId]) => shopifyProduct.variants.find(v => v.id === shopifyId))
+                    .filter(Boolean);
+
+                  return (
+                    <div
+                      key={index}
+                      className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+                    >
+                      <h4 className="font-medium text-gray-900 dark:text-white text-sm mb-2">
+                        {qName}
+                      </h4>
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 dark:text-gray-400">SKU:</span>
+                          <span className="font-mono text-gray-700 dark:text-gray-300">{qVariant.sku}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-500 dark:text-gray-400">Price:</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">${qCost.toFixed(2)}</span>
+                        </div>
+                        {mappedTo.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-700">
+                            <span className="text-gray-500 dark:text-gray-400 block mb-1">
+                              Mapped from:
+                            </span>
+                            {mappedTo.map((sv) => (
+                              <div key={sv!.id} className="text-gray-700 dark:text-gray-300 font-medium">
+                                {sv!.title}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Changes Summary */}
+          {(skuUpdates > 0 || priceUpdates > 0 || largePriceDiffs > 0) && (
+            <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-semibold text-amber-900 dark:text-amber-100 mb-2">
+                    Changes
+                  </p>
+                  <ul className="space-y-1 text-amber-800 dark:text-amber-200">
+                    {skuUpdates > 0 && (
+                      <li>{skuUpdates} SKU{skuUpdates > 1 ? 's' : ''} will update</li>
                     )}
-                  </div>
+                    {priceUpdates > 0 && (
+                      <li>{priceUpdates} price{priceUpdates > 1 ? 's' : ''} will update</li>
+                    )}
+                    {largePriceDiffs > 0 && (
+                      <li>{largePriceDiffs} variant{largePriceDiffs > 1 ? 's have' : ' has'} price difference &gt;$5</li>
+                    )}
+                  </ul>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
 
-        {mappingState.warnings.length > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-amber-900 dark:text-amber-100 mb-2">
-                  Changes to Shopify:
-                </p>
-                <ul className="space-y-1 text-amber-800 dark:text-amber-200">
-                  {mappingState.warnings.map((warning, index) => (
-                    <li key={index}>• {warning}</li>
-                  ))}
-                </ul>
-                <p className="mt-3 text-amber-700 dark:text-amber-300">
-                  Existing orders will not be affected by these changes.
-                </p>
-              </div>
-            </div>
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={!isValid() || isSubmitting}
+              className="group px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm hover:shadow-md active:scale-[0.98]"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Syncing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Confirm Mapping & Sync</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </>
+              )}
+            </button>
           </div>
-        )}
-
-        {mappingState.mappings.some(m => Object.keys(m.quoteShippingRules.byCountry).length > 0) && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900 dark:text-blue-100">
-                <p className="font-medium mb-1">Shipping Rules</p>
-                <p className="text-blue-700 dark:text-blue-300">
-                  Shipping costs and quantity discounts are stored separately and will be applied automatically during invoicing.
-                  They are not synced as separate Shopify variants.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Button
-            variant="secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleConfirm}
-            disabled={!mappingState.isValid || isSubmitting}
-            isLoading={isSubmitting}
-          >
-            {isSubmitting ? 'Syncing...' : 'Confirm Mapping & Sync'}
-          </Button>
         </div>
       </div>
     </Modal>
