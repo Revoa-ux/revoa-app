@@ -243,7 +243,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           ],
           variants: quote.variants.map(variant => ({
             option1: `${variant.quantity} pack`,
-            price: variant.costPerItem.toFixed(2),
+            price: (variant.costPerItem || 0).toFixed(2),
             inventory_quantity: 100, // Default inventory
             sku: `${quote.id}-${variant.quantity}`,
           }))
@@ -257,7 +257,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           vendor: 'Revoa',
           product_type: 'Imported Product',
           variants: [{
-            price: variant.costPerItem.toFixed(2),
+            price: (variant.costPerItem || 0).toFixed(2),
             inventory_quantity: 100,
             sku: `${quote.id}-${variant.quantity}`,
           }]
@@ -347,7 +347,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         // Get the first variant ID from the selected product
         const firstProductVariant = selectedProduct.variants.edges[0]?.node;
 
-        if (firstProductVariant) {
+        if (firstProductVariant && firstVariant.costPerItem) {
           updateData.variants = [{
             id: firstProductVariant.id,
             price: firstVariant.costPerItem.toFixed(2)
@@ -511,7 +511,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                           <p className="text-xs text-gray-500">Pricing Tiers:</p>
                           {quote.variants.map((variant, idx) => (
                             <p key={idx} className="text-xs text-gray-600">
-                              Qty {variant.quantity}: ${variant.costPerItem.toFixed(2)}/item
+                              Qty {variant.quantity}: ${variant.costPerItem ? variant.costPerItem.toFixed(2) : '0.00'}/item
                             </p>
                           ))}
                         </div>
