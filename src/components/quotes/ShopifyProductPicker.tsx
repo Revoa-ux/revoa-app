@@ -101,9 +101,33 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       {/* Products List */}
       <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-rose-500 animate-spin mb-3" />
-            <p className="text-sm text-gray-600 dark:text-gray-400">Loading products...</p>
+          <div className="space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-full p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+              >
+                <div className="flex items-start gap-3">
+                  {/* Image Skeleton */}
+                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
+
+                  {/* Content Skeleton */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    {/* Title */}
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+
+                    {/* Price and variants */}
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20" />
+                    </div>
+
+                    {/* SKU */}
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           <div className="flex flex-col items-center justify-center py-12">
