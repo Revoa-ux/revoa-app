@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Search, Check, Minus } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ChevronDown, Check, Minus } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import type { NewQuoteVariant, FinalVariant } from '@/types/quotes';
 
@@ -17,17 +17,9 @@ export function QuoteVariantDropdown({
   isNewQuoteVariant,
 }: QuoteVariantDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useClickOutside(dropdownRef, () => setIsOpen(false));
-
-  useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isOpen]);
 
   const selectedVariant = value !== null && value !== undefined ? quoteVariants[value] : null;
   const selectedName = selectedVariant
@@ -36,26 +28,14 @@ export function QuoteVariantDropdown({
       : selectedVariant.variantName || 'Unnamed Variant'
     : null;
 
-  const filteredVariants = quoteVariants.filter((variant, index) => {
-    const name = isNewQuoteVariant(variant) ? variant.name : variant.variantName || 'Unnamed Variant';
-    const sku = variant.sku;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      name.toLowerCase().includes(searchLower) ||
-      sku.toLowerCase().includes(searchLower)
-    );
-  });
-
   const handleSelect = (index: number) => {
     onChange(index);
     setIsOpen(false);
-    setSearchTerm('');
   };
 
   const handleClear = () => {
     onChange(null);
     setIsOpen(false);
-    setSearchTerm('');
   };
 
   return (
@@ -86,72 +66,48 @@ export function QuoteVariantDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-hidden">
-          {/* Search Input */}
-          <div className="p-2 border-b border-gray-200 dark:border-gray-700">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search variants..."
-                className="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-sm text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400"
-              />
-            </div>
-          </div>
+        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+          {/* No mapping option */}
+          <button
+            type="button"
+            onClick={handleClear}
+            className="w-full px-3 py-2.5 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700"
+          >
+            No mapping
+          </button>
 
           {/* Variant List */}
-          <div className="max-h-64 overflow-y-auto">
-            {/* No mapping option */}
-            <button
-              type="button"
-              onClick={handleClear}
-              className="w-full px-3 py-2.5 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700"
-            >
-              No mapping
-            </button>
+          {quoteVariants.map((variant, index) => {
+            const name = isNewQuoteVariant(variant)
+              ? variant.name
+              : variant.variantName || 'Unnamed Variant';
+            const cost = isNewQuoteVariant(variant)
+              ? variant.costPerItem
+              : variant.costPerItem;
 
-            {filteredVariants.length > 0 ? (
-              filteredVariants.map((variant, index) => {
-                const actualIndex = quoteVariants.indexOf(variant);
-                const name = isNewQuoteVariant(variant)
-                  ? variant.name
-                  : variant.variantName || 'Unnamed Variant';
-                const cost = isNewQuoteVariant(variant)
-                  ? variant.costPerItem
-                  : variant.costPerItem;
-
-                return (
-                  <button
-                    key={actualIndex}
-                    type="button"
-                    onClick={() => handleSelect(actualIndex)}
-                    className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-                      value === actualIndex
-                        ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex-1 font-medium truncate">{name}</span>
-                      <span className="text-gray-600 dark:text-gray-400 flex-shrink-0">
-                        ${cost.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
-                      SKU: {variant.sku}
-                    </div>
-                  </button>
-                );
-              })
-            ) : (
-              <div className="px-3 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
-                No variants found
-              </div>
-            )}
-          </div>
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleSelect(index)}
+                className={`w-full px-3 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                  value === index
+                    ? 'bg-gray-100 dark:bg-gray-700'
+                    : ''
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="flex-1 font-medium truncate text-gray-700 dark:text-gray-300">{name}</span>
+                  <span className="text-gray-600 dark:text-gray-400 flex-shrink-0">
+                    ${cost.toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
+                  SKU: {variant.sku}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
