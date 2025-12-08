@@ -110,6 +110,42 @@ export async function markAllAsRead(): Promise<void> {
   }
 }
 
+export async function createNotification(params: {
+  userId: string;
+  type: string;
+  actionType?: 'quote_review' | 'cogs_update' | 'invoice_payment' | 'general' | 'system';
+  title: string;
+  message: string;
+  actionRequired?: boolean;
+  linkTo?: string;
+  referenceId?: string;
+  metadata?: Record<string, any>;
+}): Promise<Notification> {
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert({
+      user_id: params.userId,
+      type: params.type,
+      action_type: params.actionType,
+      title: params.title,
+      message: params.message,
+      read: false,
+      action_required: params.actionRequired || false,
+      link_to: params.linkTo,
+      reference_id: params.referenceId,
+      metadata: params.metadata,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating notification:', error);
+    throw error;
+  }
+
+  return data;
+}
+
 export async function deleteNotification(notificationId: string): Promise<void> {
   const { error } = await supabase.from('notifications').delete().eq('id', notificationId);
 

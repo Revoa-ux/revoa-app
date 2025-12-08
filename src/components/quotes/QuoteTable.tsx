@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronRight, ExternalLink, ShoppingBag, Package, Check, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, ExternalLink, ShoppingBag, Package, Check, X, Info } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -27,6 +27,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   onConnectShopify,
   onDeleteQuote
 }) => {
+  const [showStatusTooltip, setShowStatusTooltip] = useState(false);
   const handleRowClick = (quote: Quote, canExpand: boolean) => {
     if (!canExpand) return;
     onToggleExpand(quote.id);
@@ -61,7 +62,24 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
             <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[40%]">Product</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Request Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">
+                <div className="flex items-center gap-1.5 relative">
+                  <span>Status</span>
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setShowStatusTooltip(true)}
+                    onMouseLeave={() => setShowStatusTooltip(false)}
+                  >
+                    <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
+                    {showStatusTooltip && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 px-3 py-2 text-xs font-normal text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
+                        <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white dark:bg-gray-700 border-l border-t border-gray-200 dark:border-gray-600 rotate-45"></div>
+                        Quotes are valid for 7 days from the date they are provided. Please accept before expiration.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Actions</th>
             </tr>
           </thead>

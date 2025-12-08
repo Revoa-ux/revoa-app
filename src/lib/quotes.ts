@@ -1,5 +1,21 @@
 import { supabase } from './supabase';
 import type { Quote, QuoteVariant } from '@/types/quotes';
+import { createNotification } from './notificationService';
+
+// Helper function to get all super admin user IDs
+const getSuperAdminIds = async (): Promise<string[]> => {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('is_super_admin', true);
+
+  if (error) {
+    console.error('Error fetching super admin IDs:', error);
+    return [];
+  }
+
+  return data?.map(admin => admin.id) || [];
+};
 
 // Create a new quote request
 export const createQuoteRequest = async (data: {
@@ -136,6 +152,26 @@ export const acceptQuote = async (quoteId: string): Promise<Quote> => {
     throw error;
   }
 
+  // Notify all super admins about the accepted quote
+  try {
+    const adminIds = await getSuperAdminIds();
+    const notificationPromises = adminIds.map(adminId =>
+      createNotification({
+        userId: adminId,
+        type: 'quote_accepted',
+        actionType: 'general',
+        title: 'Quote Accepted',
+        message: `A user has accepted a quote for "${quote.product_name || 'a product'}"`,
+        actionRequired: false,
+        linkTo: '/admin/quotes',
+        referenceId: quoteId,
+      })
+    );
+    await Promise.all(notificationPromises);
+  } catch (notifError) {
+    console.error('Error creating accept notifications:', notifError);
+  }
+
   return mapDbQuoteToQuote(quote);
 };
 
@@ -190,6 +226,13 @@ export const deleteQuote = async (quoteId: string): Promise<void> => {
     throw new Error('User not authenticated');
   }
 
+  // Get the quote details first for the notification
+  const { data: quoteData } = await supabase
+    .from('product_quotes')
+    .select('product_name, status')
+    .eq('id', quoteId)
+    .single();
+
   const { error } = await supabase
     .from('product_quotes')
     .update({ status: 'cancelled' })
@@ -199,6 +242,29 @@ export const deleteQuote = async (quoteId: string): Promise<void> => {
   if (error) {
     console.error('Error cancelling quote:', error);
     throw error;
+  }
+
+  // Notify all super admins about the cancelled/declined quote
+  try {
+    const adminIds = await getSuperAdminIds();
+    const wasQuoted = quoteData?.status === 'quoted' || quoteData?.status === 'pending_reacceptance';
+    const actionText = wasQuoted ? 'declined' : 'cancelled';
+
+    const notificationPromises = adminIds.map(adminId =>
+      createNotification({
+        userId: adminId,
+        type: `quote_${actionText}`,
+        actionType: 'general',
+        title: `Quote ${wasQuoted ? 'Declined' : 'Cancelled'}`,
+        message: `A user has ${actionText} a quote for "${quoteData?.product_name || 'a product'}"`,
+        actionRequired: false,
+        linkTo: '/admin/quotes',
+        referenceId: quoteId,
+      })
+    );
+    await Promise.all(notificationPromises);
+  } catch (notifError) {
+    console.error('Error creating cancel/decline notifications:', notifError);
   }
 };
 
