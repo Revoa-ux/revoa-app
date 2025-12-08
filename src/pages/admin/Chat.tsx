@@ -121,7 +121,7 @@ const AdminChat = () => {
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
-  const [showThreadSidebar, setShowThreadSidebar] = useState(false);
+  const [showThreadSidebar, setShowThreadSidebar] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
