@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { X, ChevronDown, Check } from 'lucide-react';
+import { X, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import type { Quote } from '../../types/quotes';
 
@@ -128,15 +128,16 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                className="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 active:bg-gray-950 dark:active:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 group"
               >
-                Submit Quote Request
+                <span>Submit Quote Request</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </button>
             </div>
           </form>
