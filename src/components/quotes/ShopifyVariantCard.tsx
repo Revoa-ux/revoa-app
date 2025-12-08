@@ -5,12 +5,14 @@ interface ShopifyVariantCardProps {
   variant: ShopifyVariant;
   productOptions?: ShopifyProductOption[];
   productTitle: string;
+  showPrice?: boolean;
 }
 
 export function ShopifyVariantCard({
   variant,
   productOptions,
   productTitle,
+  showPrice = true,
 }: ShopifyVariantCardProps) {
   const hasOptions = variant.selectedOptions && variant.selectedOptions.length > 0;
   const displayTitle = variant.title === 'Default Title' ? productTitle : variant.title;
@@ -26,29 +28,21 @@ export function ShopifyVariantCard({
     : null;
 
   return (
-    <div className="flex items-start gap-2.5">
+    <div className="flex items-center gap-2.5 w-full">
       <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center flex-shrink-0">
         <ShoppingBag className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
-          {displayTitle}
-        </h4>
-
-        {groupedOptions && groupedOptions.length > 0 && (
-          <div className="space-y-0.5 mb-1">
-            {groupedOptions.map((option, index) => (
-              <div key={index} className="flex items-center gap-1.5 text-xs">
-                <span className="text-gray-500 dark:text-gray-400">
-                  {option.name}:
-                </span>
-                <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  {option.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center justify-between gap-2">
+          <h4 className="font-medium text-sm text-gray-900 dark:text-white">
+            {displayTitle}
+          </h4>
+          {showPrice && (
+            <span className="text-sm font-semibold text-gray-900 dark:text-white flex-shrink-0">
+              ${parseFloat(variant.price).toFixed(2)}
+            </span>
+          )}
+        </div>
 
         {variant.sku && (
           <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">

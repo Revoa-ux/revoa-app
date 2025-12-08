@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, DollarSign } from 'lucide-react';
+import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, TrendingUp } from 'lucide-react';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 import Modal from '../Modal';
 import { QuoteVariantDropdown } from './QuoteVariantDropdown';
@@ -336,7 +336,7 @@ export default function VariantMappingModal({
               {/* Content */}
               <div className="flex-1 overflow-y-auto p-6 min-h-0 bg-gray-50 dark:bg-gray-900/30">
                 {/* Column Headers */}
-                <div className="grid grid-cols-[1fr,40px,1fr,1fr] gap-4 mb-5 px-2">
+                <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <ShoppingBag className="w-4 h-4" />
                     <span>Shopify Variant</span>
@@ -346,14 +346,15 @@ export default function VariantMappingModal({
                     <Package className="w-4 h-4" />
                     <span>Quote Variant</span>
                   </div>
+                  <div></div>
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    <DollarSign className="w-4 h-4" />
-                    <span>Selling Price</span>
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Profit</span>
                   </div>
                 </div>
 
                 {/* Variant Mapping List */}
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {shopifyProduct.variants.map((shopifyVariant) => {
                     const selectedQuoteIndex = mappings.get(shopifyVariant.id);
                     const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
@@ -368,14 +369,15 @@ export default function VariantMappingModal({
                     return (
                       <div
                         key={shopifyVariant.id}
-                        className="grid grid-cols-[1fr,40px,1fr,1fr] gap-4 items-start"
+                        className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-start"
                       >
                         {/* Column 1: Shopify Variant with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
                           <ShopifyVariantCard
                             variant={shopifyVariant}
                             productOptions={shopifyProduct.options}
                             productTitle={shopifyProduct.title}
+                            showPrice={true}
                           />
                         </div>
 
@@ -385,7 +387,7 @@ export default function VariantMappingModal({
                         </div>
 
                         {/* Column 3: Quote Variant Dropdown with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
                           <div className="w-full">
                             <QuoteVariantDropdown
                               value={selectedQuoteIndex ?? null}
@@ -396,8 +398,13 @@ export default function VariantMappingModal({
                           </div>
                         </div>
 
-                        {/* Column 4: Selling Price Editor with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
+                        {/* Column 4: Arrow */}
+                        <div className="flex items-center justify-center h-full">
+                          <ArrowRight className="w-5 h-5 text-gray-400" />
+                        </div>
+
+                        {/* Column 5: Profit Info with Card */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
                           {selectedQuote ? (
                             <div className="w-full">
                               <SellingPriceEditor
