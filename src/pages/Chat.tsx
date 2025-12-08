@@ -16,7 +16,7 @@ import {
   Image as ImageIcon,
   X,
   Reply,
-  Package,
+  Hash,
   MoveRight,
   Info
 } from 'lucide-react';
@@ -883,7 +883,7 @@ const Chat = () => {
                     className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     title="Assign to Order"
                   >
-                    <Package className="w-5 h-5" />
+                    <Hash className="w-5 h-5" />
                   </button>
                 </div>
 

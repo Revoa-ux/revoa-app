@@ -11,16 +11,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const getStoredTheme = (): Theme => {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return 'light';
   try {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (!savedTheme) {
-      localStorage.setItem('theme', 'system');
-      return 'system';
+      localStorage.setItem('theme', 'light');
+      return 'light';
     }
     return savedTheme;
   } catch {
-    return 'system';
+    return 'light';
   }
 };
 
