@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ShoppingBag, Package } from 'lucide-react';
+import { ChevronRight, ExternalLink, ShoppingBag, Package, Check, X } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -184,37 +184,60 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                             <table className="w-full text-xs border-collapse">
                               <thead>
                                 <tr className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 min-w-[200px]">
+                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 min-w-[200px] whitespace-nowrap">
                                     Variant
                                   </th>
-                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px] whitespace-nowrap">
                                     SKU
                                   </th>
-                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px] whitespace-nowrap">
                                     Unit Price
                                   </th>
-                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
-                                    Default Shipping
+                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px] whitespace-nowrap">
+                                    Default Ship
                                   </th>
                                   {sortedCountries.map(country => (
-                                    <th key={country} className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                                    <th key={country} className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px] whitespace-nowrap">
                                       {country.toUpperCase()} Ship
                                     </th>
                                   ))}
                                   {sortedQuantityTiers.map(minQty => (
-                                    <th key={minQty} className="text-right py-3 px-4 font-semibold text-green-600 dark:text-green-400 min-w-[110px]">
-                                      {minQty}+ Units
+                                    <th key={`discount-${minQty}`} className="text-right py-3 px-4 font-semibold text-amber-600 dark:text-amber-400 min-w-[90px] whitespace-nowrap">
+                                      {minQty}+ Disc
                                     </th>
                                   ))}
-                                  <th className="text-right py-3 px-4 font-semibold text-rose-600 dark:text-rose-400 min-w-[100px]">
-                                    Total (1 unit)
+                                  {sortedQuantityTiers.map(minQty => (
+                                    <th key={`total-${minQty}`} className="text-right py-3 px-4 font-semibold text-green-600 dark:text-green-400 min-w-[100px] whitespace-nowrap">
+                                      {minQty}+ Total
+                                    </th>
+                                  ))}
+                                  <th className="text-right py-3 px-4 font-semibold text-rose-600 dark:text-rose-400 min-w-[100px] whitespace-nowrap">
+                                    Total (1)
                                   </th>
+                                  {quote.warrantyDays && (
+                                    <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[90px] whitespace-nowrap">
+                                      Warranty
+                                    </th>
+                                  )}
+                                  {(quote.coversLostItems !== undefined || quote.coversDamagedItems !== undefined || quote.coversLateDelivery !== undefined) && (
+                                    <>
+                                      <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[80px] whitespace-nowrap">
+                                        Lost
+                                      </th>
+                                      <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[90px] whitespace-nowrap">
+                                        Damaged
+                                      </th>
+                                      <th className="text-center py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px] whitespace-nowrap">
+                                        Late Del.
+                                      </th>
+                                    </>
+                                  )}
                                 </tr>
                               </thead>
                               <tbody>
                                 {variantDetails.map((variant, index) => (
-                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800/50">
-                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 z-10">
+                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-gray-100 dark:hover:bg-gray-800/50">
+                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-800/50 z-10 transition-colors">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
                                         {variant.attributes.length > 0 && (
@@ -241,52 +264,60 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                     {sortedQuantityTiers.map(minQty => {
                                       const tier = variant.quantityTiers?.find(t => t.minQty === minQty);
                                       return (
-                                        <td key={minQty} className="py-3 px-4 text-right font-medium text-green-600 dark:text-green-400">
+                                        <td key={`discount-${minQty}`} className="py-3 px-4 text-right font-medium text-amber-600 dark:text-amber-400">
                                           {tier ? `-${formatCurrency(tier.discountAmount)}` : '-'}
+                                        </td>
+                                      );
+                                    })}
+                                    {sortedQuantityTiers.map(minQty => {
+                                      const tier = variant.quantityTiers?.find(t => t.minQty === minQty);
+                                      const totalCost = tier
+                                        ? (variant.unitPrice * minQty) + (variant.defaultShipping * minQty) - tier.discountAmount
+                                        : (variant.unitPrice + variant.defaultShipping) * minQty;
+                                      return (
+                                        <td key={`total-${minQty}`} className="py-3 px-4 text-right font-bold text-green-600 dark:text-green-400">
+                                          {formatCurrency(totalCost)}
                                         </td>
                                       );
                                     })}
                                     <td className="py-3 px-4 text-right font-bold text-rose-600 dark:text-rose-400">
                                       {formatCurrency(variant.unitPrice + variant.defaultShipping)}
                                     </td>
+                                    {quote.warrantyDays && (
+                                      <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400 text-xs">
+                                        {quote.warrantyDays}d
+                                      </td>
+                                    )}
+                                    {(quote.coversLostItems !== undefined || quote.coversDamagedItems !== undefined || quote.coversLateDelivery !== undefined) && (
+                                      <>
+                                        <td className="py-3 px-4 text-center">
+                                          {quote.coversLostItems ? (
+                                            <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                          ) : (
+                                            <X className="w-4 h-4 text-gray-300 dark:text-gray-600 mx-auto" />
+                                          )}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {quote.coversDamagedItems ? (
+                                            <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                          ) : (
+                                            <X className="w-4 h-4 text-gray-300 dark:text-gray-600 mx-auto" />
+                                          )}
+                                        </td>
+                                        <td className="py-3 px-4 text-center">
+                                          {quote.coversLateDelivery ? (
+                                            <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                          ) : (
+                                            <X className="w-4 h-4 text-gray-300 dark:text-gray-600 mx-auto" />
+                                          )}
+                                        </td>
+                                      </>
+                                    )}
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                           </div>
-
-                          {/* Coverage/Protection Section */}
-                          {hasProtection && (
-                            <div className="px-6 py-4 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-                              <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Coverage & Protection</h5>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                {quote.warrantyDays && (
-                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                    <span>Warranty: {quote.warrantyDays} days</span>
-                                  </div>
-                                )}
-                                {quote.coversLostItems && (
-                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                    <span>Lost items covered</span>
-                                  </div>
-                                )}
-                                {quote.coversDamagedItems && (
-                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                    <span>Damaged items covered</span>
-                                  </div>
-                                )}
-                                {quote.coversLateDelivery && (
-                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                    <span>Late delivery covered</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </td>
                       </tr>
                     )}
