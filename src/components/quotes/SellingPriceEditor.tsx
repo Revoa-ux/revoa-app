@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { DollarSign, Edit3, TrendingUp, AlertTriangle, Check, X } from 'lucide-react';
+import { DollarSign, Edit3, TrendingUp, AlertTriangle, Check, X, ArrowRight } from 'lucide-react';
 
 interface SellingPriceEditorProps {
   currentPrice: string;
@@ -75,33 +75,41 @@ export function SellingPriceEditor({
   return (
     <div className="flex items-center justify-between gap-3">
       {/* Profit Margin */}
-      <div className="flex-1">
+      <div className="flex-shrink-0">
         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-          Margin:
+          Margin
         </div>
-        <div className="px-2.5 py-1 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
+        <div className="px-2.5 py-1 bg-gray-50 dark:bg-gray-900/30 rounded-lg flex items-center gap-2">
           <div className={`text-sm font-semibold ${
             isLowMargin
               ? 'text-amber-600 dark:text-amber-400'
-              : 'text-green-600 dark:text-green-400'
+              : 'text-gray-900 dark:text-white'
           }`}>
-            ${margin.toFixed(2)} ({marginPercent.toFixed(1)}%)
+            ${margin.toFixed(2)}
           </div>
+          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-normal ${
+            isLowMargin
+              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+              : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+          }`}>
+            {marginPercent.toFixed(0)}%
+          </span>
         </div>
       </div>
 
       {/* Suggested Price Button */}
       {Math.abs(suggestedPrice - displayPrice) > 0.01 ? (
-        <div className="flex-shrink-0 text-right">
+        <div className="flex-1 text-right">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
             Suggested Price
           </div>
           <button
             type="button"
             onClick={handleUseSuggested}
-            className="px-3 py-1 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all whitespace-nowrap"
+            className="px-3 py-1 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
           >
-            ${suggestedPrice.toFixed(2)}
+            Change to ${suggestedPrice.toFixed(2)}
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       ) : hasChanged && (

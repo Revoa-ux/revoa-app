@@ -382,13 +382,15 @@ export default function VariantMappingModal({
 
                         <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-center">
                           {/* Column 1: Shopify Variant with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                            <ShopifyVariantCard
-                              variant={shopifyVariant}
-                              productOptions={shopifyProduct.options}
-                              productTitle={shopifyProduct.title}
-                              showPrice={true}
-                            />
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                            <div className="w-full">
+                              <ShopifyVariantCard
+                                variant={shopifyVariant}
+                                productOptions={shopifyProduct.options}
+                                productTitle={shopifyProduct.title}
+                                showPrice={true}
+                              />
+                            </div>
                           </div>
 
                           {/* Column 2: Arrow */}
@@ -397,13 +399,15 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 3: Quote Variant Dropdown with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                            <QuoteVariantDropdown
-                              value={selectedQuoteIndex ?? null}
-                              onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
-                              quoteVariants={quoteVariants}
-                              isNewQuoteVariant={isNewQuoteVariant}
-                            />
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                            <div className="w-full">
+                              <QuoteVariantDropdown
+                                value={selectedQuoteIndex ?? null}
+                                onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                                quoteVariants={quoteVariants}
+                                isNewQuoteVariant={isNewQuoteVariant}
+                              />
+                            </div>
                           </div>
 
                           {/* Column 4: Arrow */}
@@ -412,7 +416,7 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 5: Profit Info with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow flex items-center">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
                             {selectedQuote ? (
                               <div className="w-full">
                                 <SellingPriceEditor
