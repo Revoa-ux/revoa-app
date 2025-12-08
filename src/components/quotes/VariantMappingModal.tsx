@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, ArrowRight, Package, Link2, Info } from 'lucide-react';
+import { X, AlertTriangle, ArrowRight } from 'lucide-react';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 import Modal from '../Modal';
 
@@ -27,6 +27,34 @@ interface VariantMappingModalProps {
   };
 }
 
+interface CustomDropdownProps {
+  value: number | null;
+  onChange: (value: number | null) => void;
+  quoteVariants: NewQuoteVariant[] | FinalVariant[];
+  isNewQuoteVariant: (variant: any) => variant is NewQuoteVariant;
+}
+
+function CustomDropdown({ value, onChange, quoteVariants, isNewQuoteVariant }: CustomDropdownProps) {
+  return (
+    <select
+      value={value === null ? '' : value}
+      onChange={(e) => onChange(e.target.value === '' ? null : parseInt(e.target.value))}
+      className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+    >
+      <option value="">No mapping</option>
+      {quoteVariants.map((variant, index) => {
+        const name = isNewQuoteVariant(variant) ? variant.name : variant.variantName || 'Unnamed Variant';
+        const cost = isNewQuoteVariant(variant) ? variant.costPerItem : variant.costPerItem;
+        return (
+          <option key={index} value={index}>
+            {name} - ${cost.toFixed(2)} (SKU: {variant.sku})
+          </option>
+        );
+      })}
+    </select>
+  );
+}
+
 interface WarningModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -39,7 +67,7 @@ function WarningModal({ isOpen, onClose, onConfirm, unmappedCount, totalCount }:
   if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Incomplete Variant Mapping">
+    <Modal isOpen={isOpen} onClose={onClose} title="Incomplete Variant Mapping" maxWidth="max-w-lg">
       <div className="space-y-4">
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -89,7 +117,6 @@ export default function VariantMappingModal({
   shopifyProduct,
 }: VariantMappingModalProps) {
   const [mappings, setMappings] = useState<Map<string, number | null>>(new Map());
-  const [selectedShopifyVariant, setSelectedShopifyVariant] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -112,7 +139,6 @@ export default function VariantMappingModal({
       );
     });
     setMappings(initialMappings);
-    setSelectedShopifyVariant(null);
   }, [isOpen, shopifyProduct, quoteVariants]);
 
   useEffect(() => {
@@ -126,26 +152,12 @@ export default function VariantMappingModal({
     };
   }, [isOpen]);
 
-  const handleQuoteVariantClick = (quoteIndex: number) => {
-    if (selectedShopifyVariant) {
-      const currentMapping = mappings.get(selectedShopifyVariant);
-      if (currentMapping === quoteIndex) {
-        // Unmap if clicking the same one
-        setMappings(prev => {
-          const newMappings = new Map(prev);
-          newMappings.set(selectedShopifyVariant, null);
-          return newMappings;
-        });
-      } else {
-        // Map to new variant
-        setMappings(prev => {
-          const newMappings = new Map(prev);
-          newMappings.set(selectedShopifyVariant, quoteIndex);
-          return newMappings;
-        });
-      }
-      setSelectedShopifyVariant(null);
-    }
+  const handleMappingChange = (shopifyVariantId: string, quoteIndex: number | null) => {
+    setMappings(prev => {
+      const newMappings = new Map(prev);
+      newMappings.set(shopifyVariantId, quoteIndex);
+      return newMappings;
+    });
   };
 
   const buildVariantMappings = (): VariantMapping[] => {
@@ -204,7 +216,6 @@ export default function VariantMappingModal({
 
   const handleConfirmClick = () => {
     const unmappedCount = Array.from(mappings.values()).filter(v => v === null).length;
-    const totalCount = shopifyProduct.variants.length;
 
     if (unmappedCount > 0) {
       setShowWarning(true);
@@ -224,14 +235,6 @@ export default function VariantMappingModal({
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const getMappedQuoteIndex = (shopifyVariantId: string) => {
-    return mappings.get(shopifyVariantId) ?? null;
-  };
-
-  const isQuoteVariantMapped = (quoteIndex: number) => {
-    return Array.from(mappings.values()).includes(quoteIndex);
   };
 
   const isValid = () => {
@@ -261,7 +264,7 @@ export default function VariantMappingModal({
           <div className="flex min-h-full items-center justify-center p-4">
             <div
               ref={modalRef}
-              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col"
+              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -284,162 +287,109 @@ export default function VariantMappingModal({
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-
-                {/* Instructions */}
-                <div className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-blue-900 dark:text-blue-100">
-                      Click a Shopify variant on the left, then click a quote variant on the right to create a mapping. Click again to unmap.
-                    </p>
-                  </div>
-                </div>
               </div>
 
-              {/* Content - Two Column Layout */}
-              <div className="flex-1 overflow-hidden flex min-h-0">
-                {/* Left Column - Shopify Variants */}
-                <div className="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30">
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Shopify Variants ({shopifyProduct.variants.length})
-                    </h3>
-                    {unmappedCount > 0 && (
-                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                        {unmappedCount} unmapped
-                      </p>
-                    )}
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-6 min-h-0">
+                {/* Column Headers */}
+                <div className="grid grid-cols-[1fr,auto,1fr] gap-4 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Shopify Variant
                   </div>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                    {shopifyProduct.variants.map((variant) => {
-                      const mappedIndex = getMappedQuoteIndex(variant.id);
-                      const isSelected = selectedShopifyVariant === variant.id;
-                      const isMapped = mappedIndex !== null;
-
-                      return (
-                        <button
-                          key={variant.id}
-                          onClick={() => setSelectedShopifyVariant(isSelected ? null : variant.id)}
-                          className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                            isSelected
-                              ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20 shadow-md'
-                              : isMapped
-                              ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 hover:border-green-400 dark:hover:border-green-600'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <div className="flex-1 min-w-0">
-                              <h4 className={`font-medium text-sm truncate ${
-                                isSelected
-                                  ? 'text-pink-900 dark:text-pink-100'
-                                  : 'text-gray-900 dark:text-white'
-                              }`}>
-                                {variant.title === 'Default Title' ? shopifyProduct.title : variant.title}
-                              </h4>
-                              {variant.sku && (
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">
-                                  SKU: {variant.sku}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                ${variant.price}
-                              </span>
-                              {isMapped && (
-                                <Link2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              )}
-                            </div>
-                          </div>
-
-                          {isMapped && mappedIndex !== null && (
-                            <div className="text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
-                              Mapped to: {isNewQuoteVariant(quoteVariants[mappedIndex]) ? quoteVariants[mappedIndex].name : quoteVariants[mappedIndex].variantName}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
+                  <div className="w-8"></div>
+                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    Quote Variant
                   </div>
                 </div>
 
-                {/* Right Column - Quote Variants */}
-                <div className="flex-1 flex flex-col bg-gray-50 dark:bg-gray-900/30">
-                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Quote Variants ({quoteVariants.length})
-                    </h3>
-                    {selectedShopifyVariant && (
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        Select a variant to map
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                    {quoteVariants.map((qVariant, index) => {
-                      const qName = isNewQuoteVariant(qVariant) ? qVariant.name : qVariant.variantName || 'Unnamed';
-                      const qCost = isNewQuoteVariant(qVariant) ? qVariant.costPerItem : qVariant.costPerItem;
-                      const isMapped = isQuoteVariantMapped(index);
-                      const suggestedPrice = getSuggestedPrice(qCost);
-                      const showLowMarginWarning = suggestedPrice - qCost < 20;
+                {/* Variant Mapping List */}
+                <div className="space-y-3">
+                  {shopifyProduct.variants.map((shopifyVariant) => {
+                    const selectedQuoteIndex = mappings.get(shopifyVariant.id);
+                    const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
+                      ? quoteVariants[selectedQuoteIndex]
+                      : null;
 
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => handleQuoteVariantClick(index)}
-                          disabled={!selectedShopifyVariant}
-                          className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                            !selectedShopifyVariant
-                              ? 'opacity-50 cursor-not-allowed'
-                              : ''
-                          } ${
-                            isMapped
-                              ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 hover:border-green-400 dark:hover:border-green-600'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm text-gray-900 dark:text-white truncate">
-                                {qName}
-                              </h4>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">
-                                SKU: {qVariant.sku}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                ${qCost.toFixed(2)}
-                              </span>
-                              {isMapped && (
-                                <Package className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              )}
-                            </div>
+                    return (
+                      <div
+                        key={shopifyVariant.id}
+                        className="grid grid-cols-[1fr,auto,1fr] gap-4 items-start"
+                      >
+                        {/* Left: Shopify Variant Info */}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium text-sm text-gray-900 dark:text-white">
+                              {shopifyVariant.title === 'Default Title' ? shopifyProduct.title : shopifyVariant.title}
+                            </h4>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              ${shopifyVariant.price}
+                            </span>
                           </div>
+                          {shopifyVariant.sku && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                              SKU: {shopifyVariant.sku}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Center: Arrow */}
+                        <div className="flex items-center justify-center pt-2">
+                          <ArrowRight className="w-4 h-4 text-gray-400" />
+                        </div>
+
+                        {/* Right: Quote Variant Dropdown */}
+                        <div className="flex flex-col gap-2">
+                          <CustomDropdown
+                            value={selectedQuoteIndex ?? null}
+                            onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                            quoteVariants={quoteVariants}
+                            isNewQuoteVariant={isNewQuoteVariant}
+                          />
 
                           {/* Suggested Price Info */}
-                          <div className="text-xs space-y-1">
-                            <div className="text-gray-600 dark:text-gray-400">
-                              <span className="font-medium">Suggested price:</span> ${suggestedPrice.toFixed(2)}
-                            </div>
-                            {showLowMarginWarning && (
-                              <div className="text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">
-                                Low margin - consider packs for better ad ROI
+                          {selectedQuote && (() => {
+                            const qCost = isNewQuoteVariant(selectedQuote)
+                              ? selectedQuote.costPerItem
+                              : selectedQuote.costPerItem;
+                            const suggestedPrice = getSuggestedPrice(qCost);
+                            const showLowMarginWarning = suggestedPrice - qCost < 20;
+
+                            return (
+                              <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                                <div>
+                                  <span className="font-medium">Suggested price:</span> ${suggestedPrice.toFixed(2)}
+                                </div>
+                                {showLowMarginWarning && (
+                                  <div className="text-amber-700 dark:text-amber-300">
+                                    Low margin - consider packs for better ad ROI
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+
+                {/* Unmapped Warning */}
+                {unmappedCount > 0 && (
+                  <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-800 dark:text-amber-200">
+                        <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
                     {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
                   </div>
                   <div className="flex items-center gap-3">
