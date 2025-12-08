@@ -56,16 +56,16 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600"
       >
         <Hash className="w-4 h-4" />
         <span>{getCurrentLabel()}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[280px] max-h-[400px] flex flex-col">
+        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[280px] max-h-[400px] flex flex-col overflow-hidden">
           {/* Scrollable thread list */}
-          <div className="overflow-y-auto flex-1">
+          <div className="overflow-y-auto flex-1 rounded-t-lg">
             {/* Main Chat */}
             <button
               onClick={() => {
@@ -132,7 +132,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               onCreateThread();
               setIsOpen(false);
             }}
-            className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0"
+            className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 rounded-b-lg"
           >
             <Plus className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
             <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
