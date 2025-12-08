@@ -39,8 +39,8 @@ export function ShopifyVariantCard({
 
   return (
     <div className="flex items-center gap-2.5 w-full">
-      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center flex-shrink-0">
-        <ShoppingBag className="w-3.5 h-3.5 text-white" />
+      <div className="w-7 h-7 rounded-lg bg-gray-200/50 dark:bg-gray-700/50 flex items-center justify-center flex-shrink-0">
+        <ShoppingBag className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
@@ -48,9 +48,9 @@ export function ShopifyVariantCard({
             {displayTitle}
           </h4>
           {showPrice && (
-            <div className="flex-shrink-0 text-right">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Current Price</div>
-              <span className={`text-sm font-semibold ${getPriceColorClass()}`}>
+            <div className="flex-shrink-0 flex flex-col items-end">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Current Price</div>
+              <span className={`text-sm font-semibold px-2 py-0.5 rounded ${getPriceColorClass()} ${marginPercent !== undefined ? (marginPercent < 30 ? 'bg-red-100 dark:bg-red-900/30' : marginPercent < 40 ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-green-100 dark:bg-green-900/30') : ''}`}>
                 ${parseFloat(variant.price).toFixed(2)}
               </span>
             </div>

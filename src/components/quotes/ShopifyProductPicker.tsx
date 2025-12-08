@@ -90,7 +90,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search products by name or SKU..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
         <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
@@ -102,7 +102,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-rose-500 animate-spin mb-3" />
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">Loading products...</p>
           </div>
         ) : error ? (
@@ -111,7 +111,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             <p className="text-sm text-red-600 dark:text-red-400 text-center">{error}</p>
             <button
               onClick={fetchProducts}
-              className="mt-4 px-4 py-2 text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition-colors"
+              className="mt-4 px-4 py-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
             >
               Try Again
             </button>
@@ -123,7 +123,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="mt-2 text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-medium transition-colors"
+                className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
               >
                 Clear search
               </button>
@@ -142,7 +142,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                   onClick={() => setSelectedId(product.id)}
                   className={`w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors ${
                     isSelected
-                      ? 'bg-pink-50 dark:bg-pink-900/20'
+                      ? 'bg-blue-50 dark:bg-blue-900/20'
                       : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
