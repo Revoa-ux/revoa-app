@@ -507,9 +507,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
           <div className="p-6">
             {step === 'checking' ? (
-              <div className="text-center py-8">
-                <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">Checking connection...</p>
+              <div className="space-y-4 py-4">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6"></div>
               </div>
             ) : step === 'method_select' ? (
               <div className="space-y-4">
@@ -599,8 +600,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <p className="text-sm text-blue-900 dark:text-blue-300">
+                <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4">
+                  <p className="text-sm text-rose-900 dark:text-rose-300">
                     <strong>Note:</strong> This will create a new product in your Shopify store with the pricing information from this quote.
                   </p>
                 </div>
@@ -749,12 +750,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Connecting to Shopify</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Please complete the authentication process in the popup window.
-                </p>
+              <div className="space-y-4 py-4">
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-2/3 mx-auto mb-4"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-full"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-4/5 mx-auto"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4 mx-auto"></div>
               </div>
             )}
           </div>
