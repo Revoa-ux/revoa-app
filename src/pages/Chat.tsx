@@ -114,6 +114,13 @@ const Chat = () => {
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
   const [showThreadSidebar, setShowThreadSidebar] = useState(true);
 
+  // Auto-open customer sidebar when on order threads
+  useEffect(() => {
+    if (selectedThreadId) {
+      setShowCustomerSidebar(true);
+    }
+  }, [selectedThreadId]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachMenuRef = useRef<HTMLDivElement>(null);

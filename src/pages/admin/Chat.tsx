@@ -124,6 +124,13 @@ const AdminChat = () => {
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [showThreadSidebar, setShowThreadSidebar] = useState(false);
 
+  // Auto-open customer sidebar when on order threads
+  useEffect(() => {
+    if (selectedThreadId) {
+      setShowUserProfile(true);
+    }
+  }, [selectedThreadId]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);

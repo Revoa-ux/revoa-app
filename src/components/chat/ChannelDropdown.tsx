@@ -28,16 +28,8 @@ const TAG_LABELS = {
 export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
   threads,
   selectedThreadId,
-  onThreadSelect,
-  onCreateThread,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useClickOutside(dropdownRef, () => setIsOpen(false));
-
   const selectedThread = threads.find(t => t.id === selectedThreadId);
-  const openThreads = threads.filter(t => t.status === 'open');
 
   const getCurrentLabel = () => {
     if (!selectedThreadId) {
@@ -48,93 +40,20 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     return orderNumber.replace(/^#/, '');
   };
 
+  const getCurrentSubtitle = () => {
+    if (!selectedThreadId) {
+      return 'General conversation';
+    }
+    return selectedThread?.customer_name || 'Guest Customer';
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600"
-      >
-        <Hash className="w-4 h-4" />
-        <span>{getCurrentLabel()}</span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9999] min-w-[280px] max-h-[400px] flex flex-col overflow-hidden">
-          {/* Scrollable thread list */}
-          <div className="overflow-y-auto flex-1 rounded-t-lg">
-            {/* Main Chat */}
-            <button
-              onClick={() => {
-                onThreadSelect(null);
-                setIsOpen(false);
-              }}
-              className={cn(
-                'w-full px-3 py-2.5 text-left flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
-                selectedThreadId === null
-                  ? 'bg-gray-100 dark:bg-gray-700/50'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
-              )}
-            >
-              <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 dark:text-white">main-chat</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">General conversation</div>
-              </div>
-            </button>
-
-            {/* Order Threads */}
-            {openThreads.map(thread => (
-              <button
-                key={thread.id}
-                onClick={() => {
-                  onThreadSelect(thread.id);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
-                  selectedThreadId === thread.id
-                    ? 'bg-gray-100 dark:bg-gray-700/50'
-                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
-                )}
-              >
-                <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
-                    </span>
-                    {thread.tag && (
-                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
-                        {TAG_LABELS[thread.tag]}
-                      </span>
-                    )}
-                    {thread.unread_count && thread.unread_count > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
-                        {thread.unread_count}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {thread.customer_name || 'Guest Customer'}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Create New Thread - Sticky at bottom */}
-          <button
-            onClick={() => {
-              onCreateThread();
-              setIsOpen(false);
-            }}
-            className="w-full px-3 py-2.5 text-left flex items-center gap-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 rounded-b-lg"
-          >
-            <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">New Order Thread</span>
-          </button>
-        </div>
-      )}
+    <div className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">
+      <Hash className="w-4 h-4 flex-shrink-0" />
+      <div className="flex flex-col min-w-0">
+        <span className="truncate">{getCurrentLabel()}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{getCurrentSubtitle()}</span>
+      </div>
     </div>
   );
 };
