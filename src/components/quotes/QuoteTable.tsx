@@ -55,14 +55,14 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div>
+        <table className="w-full table-fixed">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Request Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[40%]">Product</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Request Date</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Status</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -78,12 +78,12 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
                   <td className="px-6 py-4">
-                    <div>
+                    <div className="overflow-hidden">
                       <div className="text-gray-900 dark:text-white flex items-center">
-                        {quote.productName}
+                        <span className="break-words">{quote.productName}</span>
                         {canExpand && (
                           <ChevronRight
-                            className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
+                            className={`w-4 h-4 ml-2 text-gray-400 transition-transform flex-shrink-0 ${
                               expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
                             }`}
                           />

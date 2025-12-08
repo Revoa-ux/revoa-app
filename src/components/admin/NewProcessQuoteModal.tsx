@@ -215,8 +215,11 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
                     <input
                       type="number"
                       min="0"
-                      value={warrantyDays}
-                      onChange={(e) => setWarrantyDays(parseInt(e.target.value) || 0)}
+                      value={warrantyDays === 0 ? '' : warrantyDays}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setWarrantyDays(value === '' ? 0 : parseInt(value));
+                      }}
                       placeholder="30"
                       className="w-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                     />
