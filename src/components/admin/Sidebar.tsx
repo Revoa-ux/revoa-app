@@ -18,6 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/contexts/AdminContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 
 const mainNavigation = [
@@ -38,6 +39,7 @@ export default function AdminSidebar() {
   const location = useLocation();
   const { signOut } = useAuth();
   const { isSuperAdmin, adminUser } = useAdmin();
+  const { effectiveTheme, setTheme } = useTheme();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
 
@@ -51,34 +53,8 @@ export default function AdminSidebar() {
 
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      const stored = localStorage.getItem('color-theme');
-      if (stored) {
-        return stored === 'dark';
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    } catch {
-      return false;
-    }
-  });
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const html = document.documentElement;
-    try {
-      if (isDarkMode) {
-        html.classList.add('dark');
-        localStorage.setItem('color-theme', 'dark');
-      } else {
-        html.classList.remove('dark');
-        localStorage.setItem('color-theme', 'light');
-      }
-    } catch (error) {
-      console.error('Failed to save theme preference:', error);
-    }
-  }, [isDarkMode]);
+  const isDarkMode = effectiveTheme === 'dark';
 
   const filteredMainNavigation = mainNavigation.filter(item =>
     !item.superAdminOnly || (item.superAdminOnly && isSuperAdmin)
@@ -252,7 +228,7 @@ export default function AdminSidebar() {
         {/* Dark Mode and Log Out */}
         <div className="p-3">
           <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
+            onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
             title={effectiveCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',

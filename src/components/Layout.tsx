@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
@@ -43,32 +44,15 @@ const navigation = [
 export default function Layout() {
   const location = useLocation();
   const { signOut, user } = useAuth();
+  const { effectiveTheme, setTheme } = useTheme();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userProfile, setUserProfile] = useState<{ display_name?: string; store_type?: string } | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check local storage first, then system preference
-    const stored = localStorage.getItem('color-theme');
-    if (stored) {
-      return stored === 'dark';
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
 
   // Use centralized connection store
   const { shopify } = useConnectionStore();
 
-  // Apply dark mode class to html element
-  useEffect(() => {
-    const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.add('dark');
-      localStorage.setItem('color-theme', 'dark');
-    } else {
-      html.classList.remove('dark');
-      localStorage.setItem('color-theme', 'light');
-    }
-  }, [isDarkMode]);
+  const isDarkMode = effectiveTheme === 'dark';
 
   // Fetch user profile
   useEffect(() => {
@@ -339,7 +323,7 @@ export default function Layout() {
           {/* Dark Mode and Log Out */}
           <div className="p-3">
             <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
+              onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
               title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
               className={cn(
                 'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
