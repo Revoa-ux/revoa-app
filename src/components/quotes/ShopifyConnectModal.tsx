@@ -528,8 +528,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </button>
               </div>
             ) : step === 'product_picker' ? (
-              <div className="h-[500px] flex flex-col">
-                <div className="flex items-center gap-2 mb-4">
+              <div className="flex flex-col" style={{ height: '500px' }}>
+                <div className="flex items-center gap-2 mb-4 flex-shrink-0">
                   <button
                     onClick={() => setStep('method_select')}
                     className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -541,7 +541,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     <p className="text-xs text-gray-600 dark:text-gray-400">Choose which product to update with this quote</p>
                   </div>
                 </div>
-                <div className="flex-1 -mx-6 -mb-6">
+                <div className="flex-1 -mx-6 -mb-6 min-h-0 overflow-hidden">
                   <ShopifyProductPicker
                     onSelect={handleProductSelection}
                     onCancel={() => setStep('method_select')}

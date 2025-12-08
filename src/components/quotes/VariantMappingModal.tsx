@@ -161,16 +161,25 @@ export default function VariantMappingModal({
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         aria-hidden="true"
-        onClick={onClose}
+        onClick={(e) => {
+          // Only close if clicking the backdrop itself, not its children
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 overflow-y-auto pointer-events-none">
-        <div className="flex min-h-full items-center justify-center p-4">
+      <div className="fixed inset-0 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center p-4" onClick={(e) => {
+          // Close if clicking the padding area
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}>
           <div
             ref={modalRef}
-            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col pointer-events-auto"
-            onClick={(e) => e.stopPropagation()}
+            className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col"
           >
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
