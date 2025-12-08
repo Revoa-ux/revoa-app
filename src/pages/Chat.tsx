@@ -37,6 +37,7 @@ import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
 import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
+import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -604,8 +605,8 @@ const Chat = () => {
                 ref={el => messageRefs.current[message.id] = el}
                 className={`flex group ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-full`}>
-                  <div className={`${message.type === 'text' ? 'max-w-[85%] sm:max-w-[75%] md:max-w-[65%]' : 'max-w-full sm:max-w-md'} ${
+                <div className={`flex ${message.sender === 'user' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[85%] lg:max-w-[75%] xl:max-w-[65%]`}>
+                  <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
                     message.sender === 'user'
                       ? 'message-bubble-user text-white'
                       : 'message-bubble-team text-gray-900 dark:text-white'
@@ -681,7 +682,14 @@ const Chat = () => {
                   ) : (
                     <div className="flex flex-col">
                       <div className="px-3 pt-2 pb-1.5">
-                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                        {shouldFormatAsMarkdown(message.content) ? (
+                          <div
+                            className="text-sm break-words formatted-message"
+                            dangerouslySetInnerHTML={{ __html: formatMessageContent(message.content) }}
+                          />
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                        )}
                       </div>
                       <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
                         message.sender === 'user'
