@@ -80,9 +80,9 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col max-h-[80vh]">
       {/* Search Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -99,7 +99,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Products List */}
-      <div className="flex-1 overflow-y-auto p-4 max-h-[60vh]">
+      <div className="flex-1 overflow-y-auto p-4 min-h-0">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="w-8 h-8 text-rose-500 animate-spin mb-3" />
@@ -204,7 +204,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={onCancel}
