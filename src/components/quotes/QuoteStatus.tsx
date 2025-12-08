@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, X, AlertCircle, Check, Store, RefreshCw, Ban } from 'lucide-react';
+import { Clock, CheckCircle2, X, AlertCircle, Check, CheckCheck, RefreshCw, Ban } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 
 export const getStatusIcon = (status: Quote['status']) => {
@@ -15,7 +15,7 @@ export const getStatusIcon = (status: Quote['status']) => {
     case 'accepted':
       return <Check className="w-4 h-4 text-blue-500" />;
     case 'synced_with_shopify':
-      return <Store className="w-4 h-4 text-purple-500" />;
+      return <CheckCheck className="w-4 h-4 text-purple-500" />;
     case 'pending_reacceptance':
       return <RefreshCw className="w-4 h-4 text-amber-500" />;
     case 'cancelled':
