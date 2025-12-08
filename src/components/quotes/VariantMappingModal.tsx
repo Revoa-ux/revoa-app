@@ -334,7 +334,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-6 min-h-0 bg-gray-50 dark:bg-gray-900/30">
+              <div className="flex-1 overflow-y-auto p-6 min-h-[400px] bg-gray-50 dark:bg-gray-900/30">
                 {/* Column Headers */}
                 <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -354,7 +354,7 @@ export default function VariantMappingModal({
                 </div>
 
                 {/* Variant Mapping List */}
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {shopifyProduct.variants.map((shopifyVariant) => {
                     const selectedQuoteIndex = mappings.get(shopifyVariant.id);
                     const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
@@ -369,10 +369,10 @@ export default function VariantMappingModal({
                     return (
                       <div
                         key={shopifyVariant.id}
-                        className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-start"
+                        className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-center"
                       >
                         {/* Column 1: Shopify Variant with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
                           <ShopifyVariantCard
                             variant={shopifyVariant}
                             productOptions={shopifyProduct.options}
@@ -382,41 +382,37 @@ export default function VariantMappingModal({
                         </div>
 
                         {/* Column 2: Arrow */}
-                        <div className="flex items-center justify-center h-full">
+                        <div className="flex items-center justify-center">
                           <ArrowRight className="w-5 h-5 text-gray-400" />
                         </div>
 
                         {/* Column 3: Quote Variant Dropdown with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
-                          <div className="w-full">
-                            <QuoteVariantDropdown
-                              value={selectedQuoteIndex ?? null}
-                              onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
-                              quoteVariants={quoteVariants}
-                              isNewQuoteVariant={isNewQuoteVariant}
-                            />
-                          </div>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                          <QuoteVariantDropdown
+                            value={selectedQuoteIndex ?? null}
+                            onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                            quoteVariants={quoteVariants}
+                            isNewQuoteVariant={isNewQuoteVariant}
+                          />
                         </div>
 
                         {/* Column 4: Arrow */}
-                        <div className="flex items-center justify-center h-full">
+                        <div className="flex items-center justify-center">
                           <ArrowRight className="w-5 h-5 text-gray-400" />
                         </div>
 
                         {/* Column 5: Profit Info with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[70px] flex items-center">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
                           {selectedQuote ? (
-                            <div className="w-full">
-                              <SellingPriceEditor
-                                currentPrice={shopifyVariant.price}
-                                cost={cost}
-                                suggestedPrice={suggestedPrice}
-                                value={sellingPrices.get(shopifyVariant.id) ?? null}
-                                onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
-                              />
-                            </div>
+                            <SellingPriceEditor
+                              currentPrice={shopifyVariant.price}
+                              cost={cost}
+                              suggestedPrice={suggestedPrice}
+                              value={sellingPrices.get(shopifyVariant.id) ?? null}
+                              onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                            />
                           ) : (
-                            <div className="flex items-center justify-center h-full w-full text-sm text-gray-400 dark:text-gray-500">
+                            <div className="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 py-4">
                               Select a quote variant first
                             </div>
                           )}
@@ -425,54 +421,51 @@ export default function VariantMappingModal({
                     );
                   })}
                 </div>
+
+                {/* Unmapped Warning */}
+                {unmappedCount > 0 && (
+                  <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                      <p className="text-xs text-amber-800 dark:text-amber-200">
+                        <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-                <div className="space-y-3">
-                  {/* Unmapped Warning */}
-                  {unmappedCount > 0 && (
-                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                        <p className="text-xs text-amber-800 dark:text-amber-200">
-                          <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={onClose}
-                        disabled={isSubmitting}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleConfirmClick}
-                        disabled={!isValid() || isSubmitting}
-                        className="group px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span>Syncing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Confirm & Sync</span>
-                            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                          </>
-                        )}
-                      </button>
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={onClose}
+                      disabled={isSubmitting}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmClick}
+                      disabled={!isValid() || isSubmitting}
+                      className="group px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Syncing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirm & Sync</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>

@@ -24,8 +24,8 @@ export function SellingPriceEditor({
   const hasChanged = value !== null && value !== undefined && Math.abs(value - parseFloat(currentPrice)) > 0.01;
 
   const margin = displayPrice - cost;
-  const marginPercent = ((margin / cost) * 100);
-  const isLowMargin = margin < 20;
+  const marginPercent = displayPrice > 0 ? ((margin / displayPrice) * 100) : 0;
+  const isLowMargin = marginPercent < 40;
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
