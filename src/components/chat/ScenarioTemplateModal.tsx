@@ -50,13 +50,13 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  replacement: 'bg-blue-100 text-blue-700',
+  replacement: 'bg-red-100 text-red-700',
   damaged: 'bg-red-100 text-red-700',
   return: 'bg-orange-100 text-orange-700',
   defective: 'bg-red-100 text-red-700',
   shipping: 'bg-green-100 text-green-700',
   confirmation: 'bg-teal-100 text-teal-700',
-  quote_followup: 'bg-purple-100 text-purple-700',
+  quote_followup: 'bg-pink-100 text-pink-700',
   inquiry: 'bg-gray-100 text-gray-700',
   thankyou: 'bg-pink-100 text-pink-700'
 };
@@ -244,11 +244,11 @@ export function ScenarioTemplateModal({
                       <button
                         key={template.id}
                         onClick={() => handleSelectTemplate(template)}
-                        className="w-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all text-left group"
+                        className="w-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all text-left group"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="mt-1 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 transition-colors">
-                            <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                          <div className="mt-1 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                            <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-gray-900 dark:text-white mb-1">
@@ -318,7 +318,7 @@ export function ScenarioTemplateModal({
             <button
               onClick={handleCopyToClipboard}
               disabled={isLoading}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {copied ? (
                 <>

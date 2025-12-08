@@ -9,32 +9,74 @@ const corsHeaders = {
 interface ShopifyOrder {
   id: number;
   name: string;
+  order_number?: string;
   created_at: string;
+  processed_at?: string;
+  cancelled_at?: string;
+  cancel_reason?: string;
   financial_status: string;
   fulfillment_status: string | null;
   total_price: string;
+  subtotal_price?: string;
+  total_tax?: string;
+  total_discounts?: string;
   currency: string;
+  email?: string;
+  phone?: string;
+  note?: string;
+  tags?: string;
+  landing_site?: string;
+  referring_site?: string;
+  order_status_url?: string;
+  discount_codes?: Array<{ code: string }>;
+  total_shipping_price_set?: {
+    shop_money?: {
+      amount: string;
+    };
+  };
+  shipping_lines?: Array<{ price: string }>;
   line_items: Array<{
     id: number;
-    sku: string;
-    name: string;
+    product_id?: number;
+    sku?: string;
+    name?: string;
+    title?: string;
+    variant_title?: string;
     quantity: number;
     price: string;
   }>;
   shipping_address: {
-    country_code: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    province_code?: string;
+    zip?: string;
+    country?: string;
+    country_code?: string;
     first_name?: string;
     last_name?: string;
+    phone?: string;
   } | null;
   billing_address: {
+    address1?: string;
+    address2?: string;
+    city?: string;
+    province?: string;
+    province_code?: string;
+    zip?: string;
+    country?: string;
+    country_code?: string;
     first_name?: string;
     last_name?: string;
+    phone?: string;
   } | null;
   customer: {
     id: number;
     email: string;
     first_name?: string;
     last_name?: string;
+    phone?: string;
   } | null;
 }
 
@@ -246,26 +288,130 @@ Deno.serve(async (req: Request) => {
 
       for (const order of batch) {
         try {
-          // Insert/update in shopify_orders table for chat threads and attribution
-          const { error: orderInsertError } = await supabase
+          // Extract data from order (matching webhook logic)
+          const customerEmail = order.email || order.customer?.email || null;
+          const billingAddress = order.billing_address || {};
+          const shippingAddress = order.shipping_address || {};
+          const discountCodes = (order.discount_codes || []).map((dc: any) => dc.code);
+
+          // Check if repeat customer
+          let isRepeatCustomer = false;
+          let orderCount = 1;
+          if (customerEmail) {
+            const { data: existingOrders } = await supabase
+              .from('shopify_orders')
+              .select('id')
+              .eq('user_id', userId)
+              .eq('customer_email', customerEmail);
+
+            if (existingOrders && existingOrders.length > 0) {
+              isRepeatCustomer = true;
+              orderCount = existingOrders.length + 1;
+            }
+          }
+
+          // Insert/update in shopify_orders table with ALL fields
+          const { data: storedOrder, error: orderInsertError } = await supabase
             .from('shopify_orders')
             .upsert({
               user_id: userId,
               shopify_order_id: order.id.toString(),
-              order_number: order.name,
+              order_number: order.name || order.order_number,
               total_price: parseFloat(order.total_price || '0'),
               currency: order.currency || 'USD',
-              customer_email: order.customer?.email || null,
-              customer_first_name: order.customer?.first_name || order.shipping_address?.first_name || order.billing_address?.first_name || null,
-              customer_last_name: order.customer?.last_name || order.shipping_address?.last_name || order.billing_address?.last_name || null,
+              customer_email: customerEmail,
+              customer_first_name: order.customer?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
+              customer_last_name: order.customer?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
+              customer_phone: order.customer?.phone || shippingAddress.phone || billingAddress.phone || order.phone || null,
+              // Shipping address
+              shipping_address_line1: shippingAddress.address1 || null,
+              shipping_address_line2: shippingAddress.address2 || null,
+              shipping_city: shippingAddress.city || null,
+              shipping_state: shippingAddress.province || shippingAddress.province_code || null,
+              shipping_zip: shippingAddress.zip || null,
+              shipping_country: shippingAddress.country || shippingAddress.country_code || null,
+              // Billing address
+              billing_address_line1: billingAddress.address1 || null,
+              billing_address_line2: billingAddress.address2 || null,
+              billing_city: billingAddress.city || null,
+              billing_state: billingAddress.province || billingAddress.province_code || null,
+              billing_zip: billingAddress.zip || null,
+              billing_country: billingAddress.country || billingAddress.country_code || null,
+              // Pricing details
+              subtotal_price: parseFloat(order.subtotal_price || '0'),
+              total_tax: parseFloat(order.total_tax || '0'),
+              total_shipping: parseFloat(order.total_shipping_price_set?.shop_money?.amount || order.shipping_lines?.[0]?.price || '0'),
+              total_discounts: parseFloat(order.total_discounts || '0'),
+              discount_codes: discountCodes,
+              // Order metadata
+              note: order.note || null,
+              tags: order.tags || null,
+              financial_status: order.financial_status || null,
+              fulfillment_status: order.fulfillment_status || null,
+              order_status_url: order.order_status_url || null,
+              // Customer tracking
+              is_repeat_customer: isRepeatCustomer,
+              order_count: orderCount,
+              // Timestamps
+              cancelled_at: order.cancelled_at || null,
+              cancel_reason: order.cancel_reason || null,
+              processed_at: order.processed_at || null,
               ordered_at: order.created_at,
             }, {
               onConflict: 'user_id,shopify_order_id',
               ignoreDuplicates: false
-            });
+            })
+            .select('id')
+            .single();
 
           if (orderInsertError) {
             console.error('[Sync] Error inserting order:', orderInsertError);
+            errors.push(`Order ${order.name}: ${orderInsertError.message}`);
+            continue;
+          }
+
+          // Insert line items into order_line_items table
+          if (order.line_items && order.line_items.length > 0) {
+            const orderLineItems = [];
+            for (const item of order.line_items) {
+              // Try to find product in database
+              const { data: product } = await supabase
+                .from('products')
+                .select('id, cogs_cost')
+                .or(`shopify_product_id.eq.${item.product_id},sku.eq.${item.sku}`)
+                .maybeSingle();
+
+              const unitCost = product?.cogs_cost || 0;
+              const unitPrice = parseFloat(item.price || '0');
+
+              orderLineItems.push({
+                user_id: userId,
+                shopify_order_id: order.id.toString(),
+                product_id: product?.id || null,
+                product_name: item.name || item.title || 'Unknown Product',
+                variant_name: item.variant_title || null,
+                quantity: item.quantity,
+                unit_cost: unitCost,
+                total_cost: unitCost * item.quantity,
+                unit_price: unitPrice,
+                fulfillment_status: 'pending'
+              });
+            }
+
+            if (orderLineItems.length > 0) {
+              const { error: lineItemsError } = await supabase
+                .from('order_line_items')
+                .upsert(orderLineItems, {
+                  onConflict: 'shopify_order_id,product_name,variant_name',
+                  ignoreDuplicates: false
+                });
+
+              if (lineItemsError) {
+                console.error('[Sync] Error inserting line items:', lineItemsError);
+              } else {
+                console.log(`[Sync] Inserted ${orderLineItems.length} line items for order ${order.name}`);
+              }
+            }
           }
 
           // Check if fulfillment already exists
