@@ -23,13 +23,19 @@ interface ShopifyOrder {
   }>;
   shipping_address: {
     country_code: string;
+    first_name?: string;
+    last_name?: string;
+  } | null;
+  billing_address: {
+    first_name?: string;
+    last_name?: string;
   } | null;
   customer: {
     id: number;
     email: string;
     first_name?: string;
     last_name?: string;
-  };
+  } | null;
 }
 
 interface SyncResult {
@@ -250,8 +256,8 @@ Deno.serve(async (req: Request) => {
               total_price: parseFloat(order.total_price || '0'),
               currency: order.currency || 'USD',
               customer_email: order.customer?.email || null,
-              customer_first_name: order.customer?.first_name || null,
-              customer_last_name: order.customer?.last_name || null,
+              customer_first_name: order.customer?.first_name || order.shipping_address?.first_name || order.billing_address?.first_name || null,
+              customer_last_name: order.customer?.last_name || order.shipping_address?.last_name || order.billing_address?.last_name || null,
               ordered_at: order.created_at,
             }, {
               onConflict: 'user_id,shopify_order_id',
