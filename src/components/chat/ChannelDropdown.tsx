@@ -16,8 +16,6 @@ const TAG_COLORS = {
   replacement: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
   damaged: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
   defective: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
-  delivery_exception: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  other: 'bg-gray-500/10 text-gray-600 dark:text-gray-400',
 };
 
 const TAG_LABELS = {
@@ -25,8 +23,6 @@ const TAG_LABELS = {
   replacement: 'Replacement',
   damaged: 'Damaged',
   defective: 'Defective',
-  delivery_exception: 'Delivery Issue',
-  other: 'Other',
 };
 
 export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({

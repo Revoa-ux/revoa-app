@@ -29,7 +29,6 @@ const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
   { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400' },
   { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' },
   { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400' },
-  { value: 'inquiry', label: 'General', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400' },
 ];
 
 export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
@@ -293,7 +292,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
               onBlur={() => setTimeout(() => setInputFocused(false), 200)}
               placeholder="Type order number..."
               disabled={!!selectedOrder}
-              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             {isSearching && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">

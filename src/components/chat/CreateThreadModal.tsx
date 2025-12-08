@@ -28,7 +28,6 @@ const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
   { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
   { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
   { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600' },
-  { value: 'inquiry', label: 'Inquiry', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
 ];
 
 export function CreateThreadModal({

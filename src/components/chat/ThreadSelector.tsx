@@ -136,7 +136,6 @@ export function ThreadSelector({
                               thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
                               thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
                               thread.tag === 'defective' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
-                              thread.tag === 'inquiry' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
                               'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}>
                               {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
@@ -216,7 +215,6 @@ export function ThreadSelector({
                               thread.tag === 'replacement' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' :
                               thread.tag === 'damaged' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300' :
                               thread.tag === 'defective' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' :
-                              thread.tag === 'inquiry' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' :
                               'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                             }`}>
                               {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
