@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { createShopifyProduct } from '@/lib/shopify/api';
-import { updateProduct, getProductWithVariants } from '@/lib/shopify/graphql';
+import { updateProduct, updateProductVariant, getProductWithVariants } from '@/lib/shopify/graphql';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { Quote, VariantMapping, ShopifyProductWithVariants, FinalVariant, NewQuoteVariant } from '@/types/quotes';
 import { supabase } from '@/lib/supabase';
@@ -387,13 +387,12 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
     setIsSyncing(true);
     try {
-      const variantUpdates = mappings.map(mapping => ({
-        id: mapping.shopifyVariantId,
-        price: mapping.quoteUnitCost.toFixed(2),
-        sku: mapping.quoteVariantSku,
-      }));
-
-      await updateProduct(selectedProduct.id, { variants: variantUpdates });
+      // Update each variant individually (ProductInput doesn't support variants field)
+      for (const mapping of mappings) {
+        await updateProductVariant(mapping.shopifyVariantId, {
+          sku: mapping.quoteVariantSku,
+        });
+      }
 
       for (const mapping of mappings) {
         const { error: mappingError } = await supabase

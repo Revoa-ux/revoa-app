@@ -90,6 +90,17 @@ function CustomDropdown({ value, onChange, quoteVariants, isNewQuoteVariant }: C
   );
 }
 
+// Helper functions for suggested selling prices
+const getSuggestedMultiplier = (cost: number): number => {
+  if (cost > 100) return 2;
+  if (cost > 50) return 2.5;
+  return 3;
+};
+
+const getSuggestedPrice = (cost: number): number => {
+  return cost * getSuggestedMultiplier(cost);
+};
+
 interface VariantMappingModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -346,12 +357,12 @@ export default function VariantMappingModal({
                               <div className="space-y-0.5">
                                 {willUpdateSku && (
                                   <div>
-                                    <span className="font-medium">Will update SKU:</span> {shopifyVariant.sku || '(empty)'} → {selectedQuote.sku}
+                                    <span className="font-medium">Will update variant SKU:</span> {shopifyVariant.sku || '(empty)'} → {selectedQuote.sku}
                                   </div>
                                 )}
                                 {willUpdatePrice && (
-                                  <div>
-                                    <span className="font-medium">Will update price:</span> ${shopifyPrice.toFixed(2)} → ${qCost.toFixed(2)}
+                                  <div className="text-xs text-blue-700 dark:text-blue-300">
+                                    <span className="font-medium">💡 Suggested selling price:</span> ${getSuggestedPrice(qCost).toFixed(2)} ({getSuggestedMultiplier(qCost)}x cost){getSuggestedPrice(qCost) - qCost < 20 && <span className="block mt-1">⚠️ Low margin (&lt;$20) - consider creating packs (2-pack, 4-pack) to improve ad profitability</span>}
                                   </div>
                                 )}
                               </div>
@@ -365,7 +376,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Changes Summary */}
-              {(skuUpdates > 0 || priceUpdates > 0 || largePriceDiffs > 0) && (
+              {skuUpdates > 0 && (
                 <div className="mt-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
@@ -374,9 +385,7 @@ export default function VariantMappingModal({
                         Changes
                       </p>
                       <ul className="space-y-0.5 text-amber-800 dark:text-amber-200">
-                        {skuUpdates > 0 && <li>{skuUpdates} SKU update{skuUpdates > 1 ? 's' : ''}</li>}
-                        {priceUpdates > 0 && <li>{priceUpdates} price update{priceUpdates > 1 ? 's' : ''}</li>}
-                        {largePriceDiffs > 0 && <li>{largePriceDiffs} large price change{largePriceDiffs > 1 ? 's' : ''} (&gt;$5)</li>}
+                        {skuUpdates > 0 && <li>{skuUpdates} variant update{skuUpdates > 1 ? 's' : ''}</li>}
                       </ul>
                     </div>
                   </div>
