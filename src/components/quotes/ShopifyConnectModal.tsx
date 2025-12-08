@@ -387,13 +387,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
     setIsSyncing(true);
     try {
-      // Update each variant individually (ProductInput doesn't support variants field)
-      for (const mapping of mappings) {
-        await updateProductVariant(mapping.shopifyVariantId, {
-          sku: mapping.quoteVariantSku,
-        });
-      }
-
+      // Save variant mappings to database (no Shopify updates needed - just tracking relationships)
       for (const mapping of mappings) {
         const { error: mappingError } = await supabase
           .from('shopify_variant_mappings')
