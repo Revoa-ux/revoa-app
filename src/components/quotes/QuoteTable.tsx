@@ -55,11 +55,10 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
-      <div className="overflow-hidden rounded-xl">
-        <table className="w-full table-fixed">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
+      <table className="w-full table-fixed">
+        <thead>
+          <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[40%]">Product</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Request Date</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">
@@ -364,8 +363,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
               );
             })}
           </tbody>
-        </table>
-      </div>
+      </table>
     </div>
   );
 };
