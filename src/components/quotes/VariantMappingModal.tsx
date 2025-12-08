@@ -366,6 +366,11 @@ export default function VariantMappingModal({
                     const suggestedPrice = cost > 0 ? getSuggestedSellingPrice(cost) : 0;
                     const variantOptions = getVariantOptions(shopifyVariant, shopifyProduct.options);
 
+                    // Calculate margin percentage for current price
+                    const currentPrice = parseFloat(shopifyVariant.price);
+                    const currentMargin = currentPrice - cost;
+                    const currentMarginPercent = currentPrice > 0 ? ((currentMargin / currentPrice) * 100) : 0;
+
                     // Check if this is a new group (option changed from previous variant)
                     const prevVariant = index > 0 ? shopifyProduct.variants[index - 1] : null;
                     const prevOptions = prevVariant ? getVariantOptions(prevVariant, shopifyProduct.options) : null;
@@ -389,6 +394,7 @@ export default function VariantMappingModal({
                                 productOptions={shopifyProduct.options}
                                 productTitle={shopifyProduct.title}
                                 showPrice={true}
+                                marginPercent={selectedQuote ? currentMarginPercent : undefined}
                               />
                             </div>
                           </div>

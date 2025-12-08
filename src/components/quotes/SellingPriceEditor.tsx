@@ -72,6 +72,19 @@ export function SellingPriceEditor({
     }
   };
 
+  // Determine color classes based on margin percentage
+  const getMarginColorClass = () => {
+    if (marginPercent < 30) return 'text-red-600 dark:text-red-400';
+    if (marginPercent < 40) return 'text-amber-600 dark:text-amber-400';
+    return 'text-green-600 dark:text-green-400';
+  };
+
+  const getBadgeColorClass = () => {
+    if (marginPercent < 30) return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+    if (marginPercent < 40) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+    return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+  };
+
   return (
     <div className="flex items-center justify-between gap-3">
       {/* Profit Margin */}
@@ -80,18 +93,10 @@ export function SellingPriceEditor({
           Margin
         </div>
         <div className="px-2.5 py-1 bg-gray-50 dark:bg-gray-900/30 rounded-lg flex items-center gap-2">
-          <div className={`text-sm font-semibold ${
-            isLowMargin
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-gray-900 dark:text-white'
-          }`}>
+          <div className={`text-sm font-semibold ${getMarginColorClass()}`}>
             ${margin.toFixed(2)}
           </div>
-          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-normal ${
-            isLowMargin
-              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-              : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-          }`}>
+          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-normal ${getBadgeColorClass()}`}>
             {marginPercent.toFixed(0)}%
           </span>
         </div>
@@ -106,7 +111,7 @@ export function SellingPriceEditor({
           <button
             type="button"
             onClick={handleUseSuggested}
-            className="px-3 py-1 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:shadow-sm rounded-lg transition-all whitespace-nowrap inline-flex items-center gap-1.5"
           >
             Change to ${suggestedPrice.toFixed(2)}
             <ArrowRight className="w-3.5 h-3.5" />

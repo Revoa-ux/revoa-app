@@ -6,6 +6,7 @@ interface ShopifyVariantCardProps {
   productOptions?: ShopifyProductOption[];
   productTitle: string;
   showPrice?: boolean;
+  marginPercent?: number;
 }
 
 export function ShopifyVariantCard({
@@ -13,6 +14,7 @@ export function ShopifyVariantCard({
   productOptions,
   productTitle,
   showPrice = true,
+  marginPercent,
 }: ShopifyVariantCardProps) {
   const hasOptions = variant.selectedOptions && variant.selectedOptions.length > 0;
   const displayTitle = variant.title === 'Default Title' ? productTitle : variant.title;
@@ -27,6 +29,14 @@ export function ShopifyVariantCard({
       }).filter(opt => opt.value)
     : null;
 
+  // Determine color based on margin percentage
+  const getPriceColorClass = () => {
+    if (marginPercent === undefined) return 'text-gray-900 dark:text-white';
+    if (marginPercent < 30) return 'text-red-600 dark:text-red-400';
+    if (marginPercent < 40) return 'text-amber-600 dark:text-amber-400';
+    return 'text-green-600 dark:text-green-400';
+  };
+
   return (
     <div className="flex items-center gap-2.5 w-full">
       <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center flex-shrink-0">
@@ -40,7 +50,7 @@ export function ShopifyVariantCard({
           {showPrice && (
             <div className="flex-shrink-0 text-right">
               <div className="text-xs text-gray-500 dark:text-gray-400">Current Price</div>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className={`text-sm font-semibold ${getPriceColorClass()}`}>
                 ${parseFloat(variant.price).toFixed(2)}
               </span>
             </div>
