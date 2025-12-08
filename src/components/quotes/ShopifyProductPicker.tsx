@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Package, CheckCircle, ChevronRight } from 'lucide-react';
+import { Search, Loader2, Package, CheckCircle, ArrowRight } from 'lucide-react';
 import { getProducts } from '@/lib/shopify/graphql';
 
 interface ShopifyProduct {
@@ -99,7 +99,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Products List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 max-h-[60vh]">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="w-8 h-8 text-rose-500 animate-spin mb-3" />
@@ -217,8 +217,8 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             disabled={!selectedId || isLoading}
             className="group px-6 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-all active:scale-95 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Select Product
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            Map Product
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
       </div>

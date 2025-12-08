@@ -237,7 +237,7 @@ export default function VariantMappingModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Map Quote Variants to Shopify" size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Map Quote Variants to Shopify" maxWidth="max-w-5xl">
       <div className="space-y-6">
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -275,87 +275,109 @@ export default function VariantMappingModal({
             return (
               <div
                 key={index}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
+                className="border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Package className="w-4 h-4 text-gray-400" />
-                      <h4 className="font-medium text-gray-900 dark:text-white">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-0">
+                  {/* Left Column - Quote Variant */}
+                  <div className="p-5 bg-gradient-to-br from-blue-50 to-transparent dark:from-blue-900/10 dark:to-transparent border-r border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
                         Quote Variant {index + 1}
                       </h4>
                     </div>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       <div>
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                        <span className="font-semibold text-gray-900 dark:text-white text-base">
                           {quoteVariantName}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300 text-xs font-medium border border-gray-200 dark:border-gray-600">
                           SKU: {qVariant.sku}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                        <DollarSign className="w-3.5 h-3.5" />
-                        <span>${quoteUnitCost.toFixed(2)} per unit</span>
+                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+                        <span className="font-medium">${quoteUnitCost.toFixed(2)} per unit</span>
                       </div>
-                      <div className="flex items-start gap-2 text-gray-600 dark:text-gray-400">
-                        <Truck className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                        <span className="text-xs leading-relaxed">
-                          {formatShippingRules(quoteShippingRules)}
-                        </span>
+                      <div className="flex items-start gap-2 text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <Truck className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-500" />
+                        <div className="text-xs leading-relaxed">
+                          <p className="font-medium text-gray-700 dark:text-gray-300 mb-1">Shipping:</p>
+                          <p>{formatShippingRules(quoteShippingRules)}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-2xl">→</span>
-                      <h4 className="font-medium text-gray-900 dark:text-white">
+                  {/* Arrow Separator */}
+                  <div className="flex items-center justify-center px-4 py-5 bg-gray-50 dark:bg-gray-900/30">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="text-3xl text-gray-400 dark:text-gray-500 font-light">→</div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">maps to</span>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Shopify Variant */}
+                  <div className="p-5 bg-gradient-to-bl from-rose-50 to-transparent dark:from-rose-900/10 dark:to-transparent">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Package className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                      <h4 className="font-semibold text-gray-900 dark:text-white">
                         Shopify Variant
                       </h4>
                     </div>
-                    <select
-                      value={mapping?.shopifyVariantId || ''}
-                      onChange={(e) => handleMappingChange(index, e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent text-gray-900 dark:text-white mb-3"
-                    >
-                      <option value="">Select a Shopify variant...</option>
-                      {shopifyProduct.variants.map((sVariant) => (
-                        <option key={sVariant.id} value={sVariant.id}>
-                          {sVariant.title} {sVariant.sku ? `(SKU: ${sVariant.sku})` : '(No SKU)'} - ${sVariant.price}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="mb-4">
+                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Select destination variant:
+                      </label>
+                      <select
+                        value={mapping?.shopifyVariantId || ''}
+                        onChange={(e) => handleMappingChange(index, e.target.value)}
+                        className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-rose-500 dark:focus:border-rose-400 text-gray-900 dark:text-white font-medium transition-all"
+                      >
+                        <option value="">Choose a Shopify variant...</option>
+                        {shopifyProduct.variants.map((sVariant) => (
+                          <option key={sVariant.id} value={sVariant.id}>
+                            {sVariant.title} {sVariant.sku ? `• SKU: ${sVariant.sku}` : '• No SKU'} • ${sVariant.price}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                     {mapping && (
-                      <div className="space-y-2 text-sm">
+                      <div className="space-y-2.5">
                         {mapping.willUpdateSku && (
-                          <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            <span className="text-xs">
-                              Will update SKU from "{mapping.shopifyVariantSku || 'none'}" to "{mapping.quoteVariantSku}"
-                            </span>
+                          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                            <div className="text-xs">
+                              <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">SKU Update</p>
+                              <p className="text-amber-700 dark:text-amber-300">
+                                "{mapping.shopifyVariantSku || 'none'}" → "{mapping.quoteVariantSku}"
+                              </p>
+                            </div>
                           </div>
                         )}
                         {mapping.willUpdatePrice && (
-                          <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400">
-                            <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                            <span className="text-xs">
-                              Will update price from ${mapping.shopifyVariantPrice} to ${mapping.quoteUnitCost.toFixed(2)}
-                              {mapping.priceDifference && (
-                                <span className="ml-1">
-                                  ({mapping.priceDifference > 0 ? '+' : ''}${mapping.priceDifference.toFixed(2)})
-                                </span>
-                              )}
-                            </span>
+                          <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                            <div className="text-xs">
+                              <p className="font-medium text-amber-900 dark:text-amber-100 mb-1">Price Update</p>
+                              <p className="text-amber-700 dark:text-amber-300">
+                                ${mapping.shopifyVariantPrice} → ${mapping.quoteUnitCost.toFixed(2)}
+                                {mapping.priceDifference && (
+                                  <span className="ml-1 font-semibold">
+                                    ({mapping.priceDifference > 0 ? '+' : ''}${mapping.priceDifference.toFixed(2)})
+                                  </span>
+                                )}
+                              </p>
+                            </div>
                           </div>
                         )}
                         {!mapping.willUpdateSku && !mapping.willUpdatePrice && (
-                          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span className="text-xs">No changes needed</span>
+                          <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                            <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-300">Perfect match - no changes needed</span>
                           </div>
                         )}
                       </div>
