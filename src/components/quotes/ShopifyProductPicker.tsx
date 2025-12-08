@@ -140,10 +140,10 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                 <button
                   key={product.id}
                   onClick={() => setSelectedId(product.id)}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all group ${
+                  className={`w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors ${
                     isSelected
-                      ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-rose-300 dark:hover:border-rose-700'
+                      ? 'bg-pink-50 dark:bg-pink-900/20'
+                      : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -165,13 +165,13 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <h3 className={`text-sm font-semibold truncate ${
                           isSelected
-                            ? 'text-rose-900 dark:text-rose-100'
+                            ? 'text-pink-900 dark:text-pink-100'
                             : 'text-gray-900 dark:text-white'
                         }`}>
                           {product.title}
                         </h3>
                         {isSelected && (
-                          <CheckCircle className="w-5 h-5 text-rose-500 dark:text-rose-400 flex-shrink-0" />
+                          <CheckCircle className="w-5 h-5 text-pink-600 dark:text-pink-400 flex-shrink-0" />
                         )}
                       </div>
 
@@ -208,14 +208,14 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSelectProduct}
             disabled={!selectedId || isLoading}
-            className="group px-6 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 rounded-lg transition-all active:scale-95 disabled:cursor-not-allowed flex items-center gap-2"
+            className="group px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
           >
             Map Product
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
