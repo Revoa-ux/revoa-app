@@ -278,8 +278,33 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
       console.log('[Shopify Sync] Product created:', createdProduct);
 
+      // Extract the numeric product ID from the GraphQL format
+      // GraphQL IDs are in format: gid://shopify/Product/123456789
+      const numericProductId = createdProduct.id;
+
+      console.log('[Shopify Sync] Updating quote in database with product ID:', numericProductId);
+
+      // Update the quote in database with the Shopify product information
+      const { error: updateError } = await supabase
+        .from('product_quotes')
+        .update({
+          shopify_product_id: numericProductId,
+          shopify_status: 'synced',
+          shop_domain: existingStore.store_url,
+          status: 'synced_with_shopify'
+        })
+        .eq('id', quote.id);
+
+      if (updateError) {
+        console.error('[Shopify Sync] Error updating quote:', updateError);
+        toast.error('Product created in Shopify but failed to update quote. Please try syncing again.');
+        return;
+      }
+
+      console.log('[Shopify Sync] Quote updated successfully');
+
       onConnect(quote.id);
-      toast.success(`Product "${quote.productName}" successfully added to Shopify`);
+      toast.success(`Product "${quote.productName}" successfully added to Shopify and synced`);
       onClose();
     } catch (error) {
       console.error('Error syncing product:', error);
@@ -323,14 +348,23 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       console.log('[Shopify Update] Product updated successfully');
 
       // Update quote in database
-      await supabase
+      const { error: updateError } = await supabase
         .from('product_quotes')
         .update({
           shopify_product_id: selectedProduct.id,
           shopify_status: 'synced',
-          shop_domain: existingStore.store_url
+          shop_domain: existingStore.store_url,
+          status: 'synced_with_shopify'
         })
         .eq('id', quote.id);
+
+      if (updateError) {
+        console.error('[Shopify Update] Error updating quote in database:', updateError);
+        toast.error('Product updated in Shopify but failed to update quote. Please try syncing again.');
+        return;
+      }
+
+      console.log('[Shopify Update] Quote updated in database successfully');
 
       onConnect(quote.id);
       toast.success(`Quote pricing synced to "${selectedProduct.title}"`);

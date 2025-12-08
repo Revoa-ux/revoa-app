@@ -595,11 +595,18 @@ export const createShopifyProduct = async (productData: {
   body_html?: string;
   vendor?: string;
   product_type?: string;
+  options?: Array<{
+    name: string;
+    values: string[];
+  }>;
   variants?: Array<{
     price: string;
     compare_at_price?: string;
     sku?: string;
     inventory_quantity?: number;
+    option1?: string;
+    option2?: string;
+    option3?: string;
   }>;
   images?: Array<{
     src: string;
@@ -616,13 +623,35 @@ export const createShopifyProduct = async (productData: {
     status: 'ACTIVE',
   };
 
-  if (productData.variants && productData.variants.length > 0) {
-    input.variants = productData.variants.map(v => ({
-      price: v.price,
-      compareAtPrice: v.compare_at_price,
-      sku: v.sku,
-      inventoryQuantity: v.inventory_quantity,
+  // Add product options if provided (for creating variants with options)
+  if (productData.options && productData.options.length > 0) {
+    input.productOptions = productData.options.map(opt => ({
+      name: opt.name,
+      values: opt.values.map(val => ({ name: val }))
     }));
+  }
+
+  if (productData.variants && productData.variants.length > 0) {
+    input.variants = productData.variants.map(v => {
+      const variant: any = {
+        price: v.price,
+        compareAtPrice: v.compare_at_price,
+        sku: v.sku,
+        inventoryQuantity: v.inventory_quantity,
+      };
+
+      // Add option values if present (for variant differentiation)
+      const optionValues: any[] = [];
+      if (v.option1) optionValues.push({ optionName: productData.options?.[0]?.name || 'Option1', name: v.option1 });
+      if (v.option2) optionValues.push({ optionName: productData.options?.[1]?.name || 'Option2', name: v.option2 });
+      if (v.option3) optionValues.push({ optionName: productData.options?.[2]?.name || 'Option3', name: v.option3 });
+
+      if (optionValues.length > 0) {
+        variant.optionValues = optionValues;
+      }
+
+      return variant;
+    });
   }
 
   const product = await GraphQL.createProduct(input);

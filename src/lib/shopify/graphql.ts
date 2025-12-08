@@ -1,5 +1,18 @@
 import { supabase } from '../supabase';
 
+// Utility functions for handling Shopify GraphQL IDs
+export const extractNumericId = (graphqlId: string): string => {
+  // GraphQL IDs are in format: gid://shopify/Product/123456789
+  // Extract just the numeric part
+  const parts = graphqlId.split('/');
+  return parts[parts.length - 1];
+};
+
+export const buildGraphQLId = (resourceType: string, numericId: string): string => {
+  // Convert numeric ID back to GraphQL format
+  return `gid://shopify/${resourceType}/${numericId}`;
+};
+
 export interface GraphQLResponse<T> {
   data?: T;
   errors?: Array<{
@@ -461,11 +474,19 @@ export const createProduct = async (input: {
   vendor?: string;
   productType?: string;
   status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
+  productOptions?: Array<{
+    name: string;
+    values: Array<{ name: string }>;
+  }>;
   variants?: Array<{
     price: string;
     compareAtPrice?: string;
     sku?: string;
     inventoryQuantity?: number;
+    optionValues?: Array<{
+      optionName: string;
+      name: string;
+    }>;
   }>;
 }): Promise<Product> => {
   const response = await executeGraphQL<{
