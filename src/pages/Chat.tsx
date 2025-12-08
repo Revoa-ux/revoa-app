@@ -920,6 +920,18 @@ const Chat = () => {
             isExpanded={showCustomerSidebar}
           />
         )}
+
+        {/* Thread Sidebar */}
+        {chat && (
+          <ChannelSidebar
+            threads={threads}
+            selectedThreadId={selectedThreadId}
+            onThreadSelect={handleThreadSelect}
+            onCreateThread={() => setShowCreateThreadModal(true)}
+            isOpen={showThreadSidebar}
+            onClose={() => setShowThreadSidebar(false)}
+          />
+        )}
       </div>
 
       {showSearchModal && (
@@ -1016,18 +1028,6 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
-
-      {/* Thread Sidebar */}
-      {chat && (
-        <ChannelSidebar
-          threads={threads}
-          selectedThreadId={selectedThreadId}
-          onThreadSelect={handleThreadSelect}
-          onCreateThread={() => setShowCreateThreadModal(true)}
-          isOpen={showThreadSidebar}
-          onClose={() => setShowThreadSidebar(false)}
-        />
-      )}
     </div>
   );
 };
