@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft } from 'lucide-react';
+import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -30,11 +30,12 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [shopDomain, setShopDomain] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [step, setStep] = useState<'checking' | 'method_select' | 'input' | 'connecting' | 'sync' | 'product_picker'>('checking');
+  const [step, setStep] = useState<'checking' | 'method_select' | 'input' | 'connecting' | 'sync' | 'product_picker' | 'error'>('checking');
   const [existingStore, setExistingStore] = useState<{ store_url: string; access_token: string } | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMethod, setSyncMethod] = useState<SyncMethod>(initialMethod);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [criticalError, setCriticalError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(modalRef, onClose);
@@ -271,12 +272,33 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         };
       }
 
-      console.log('[Shopify Sync] Creating product:', productData);
+      console.log('[Shopify Sync] Creating product with data:', JSON.stringify(productData, null, 2));
 
-      // Create the product in Shopify
-      const createdProduct = await createShopifyProduct(productData);
+      // Create the product in Shopify with error handling
+      let createdProduct;
+      try {
+        createdProduct = await createShopifyProduct(productData);
+        console.log('[Shopify Sync] Product created successfully:', createdProduct);
+      } catch (productError) {
+        console.error('[Shopify Sync] Failed to create product:', productError);
+        const errorMsg = productError instanceof Error
+          ? productError.message
+          : 'Failed to create product in Shopify';
 
-      console.log('[Shopify Sync] Product created:', createdProduct);
+        setCriticalError(`Product creation failed: ${errorMsg}`);
+        setStep('error');
+        setIsSyncing(false);
+        return;
+      }
+
+      // Validate product was created with an ID
+      if (!createdProduct || !createdProduct.id) {
+        console.error('[Shopify Sync] Product created but no ID returned');
+        setCriticalError('Product was created but no product ID was returned from Shopify');
+        setStep('error');
+        setIsSyncing(false);
+        return;
+      }
 
       // Extract the numeric product ID from the GraphQL format
       // GraphQL IDs are in format: gid://shopify/Product/123456789
@@ -298,21 +320,20 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (updateError) {
         console.error('[Shopify Sync] Error updating quote:', updateError);
         toast.error('Product created in Shopify but failed to update quote. Please try syncing again.');
+        setIsSyncing(false);
         return;
       }
 
       console.log('[Shopify Sync] Quote updated successfully');
 
       onConnect(quote.id);
-      toast.success(`Product "${quote.productName}" successfully added to Shopify and synced`);
+      toast.success(`Product "${quote.productName}" successfully added to Shopify`);
       onClose();
     } catch (error) {
-      console.error('Error syncing product:', error);
-      toast.error(
-        error instanceof Error
-          ? `Failed to add product: ${error.message}`
-          : 'Failed to add product to Shopify'
-      );
+      console.error('[Shopify Sync] Unexpected error in handleSyncProduct:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setCriticalError(errorMessage);
+      setStep('error');
     } finally {
       setIsSyncing(false);
     }
@@ -610,11 +631,55 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   </button>
                 </div>
               </form>
+            ) : step === 'error' ? (
+              <div className="space-y-6">
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-red-900 dark:text-red-200">Error Creating Product</p>
+                      <p className="text-sm text-red-700 dark:text-red-300 mt-1">{criticalError}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <p className="text-sm text-blue-900 dark:text-blue-200">
+                    <strong>What to check:</strong>
+                  </p>
+                  <ul className="text-xs text-blue-800 dark:text-blue-300 mt-2 space-y-1 list-disc list-inside">
+                    <li>Verify your Shopify store is accessible</li>
+                    <li>Check that you have permission to create products</li>
+                    <li>Ensure your store isn't frozen or paused</li>
+                    <li>Review the error message for specific details</li>
+                  </ul>
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCriticalError(null);
+                      setStep('method_select');
+                    }}
+                    className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
             ) : (
               <div className="text-center py-8">
                 <Loader2 className="w-8 h-8 text-gray-400 animate-spin mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Connecting to Shopify</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Connecting to Shopify</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Please complete the authentication process in the popup window.
                 </p>
               </div>

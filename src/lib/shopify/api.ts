@@ -656,27 +656,39 @@ export const createShopifyProduct = async (productData: {
 
   const product = await GraphQL.createProduct(input);
 
+  if (!product) {
+    throw new Error('Product creation returned no data');
+  }
+
+  console.log('[Shopify API] Product response received:', {
+    id: product.id,
+    hasVariants: !!product.variants,
+    variantCount: product.variants?.edges?.length || 0,
+    hasImages: !!product.images,
+    imageCount: product.images?.edges?.length || 0
+  });
+
   // Convert GraphQL response to REST format for backward compatibility
   const restProduct: ShopifyProduct = {
     id: product.id.replace('gid://shopify/Product/', ''),
     title: product.title,
-    vendor: product.vendor,
-    product_type: product.productType,
-    created_at: product.createdAt,
-    updated_at: product.updatedAt,
-    published_at: product.publishedAt,
-    variants: product.variants.edges.map(edge => ({
+    vendor: product.vendor || '',
+    product_type: product.productType || '',
+    created_at: product.createdAt || new Date().toISOString(),
+    updated_at: product.updatedAt || new Date().toISOString(),
+    published_at: product.publishedAt || new Date().toISOString(),
+    variants: product.variants?.edges?.map(edge => ({
       id: edge.node.id.replace('gid://shopify/ProductVariant/', ''),
-      title: edge.node.title,
-      price: edge.node.price,
+      title: edge.node.title || '',
+      price: edge.node.price || '0.00',
       sku: edge.node.sku || '',
-      inventory_quantity: edge.node.inventoryQuantity,
+      inventory_quantity: edge.node.inventoryQuantity || 0,
       inventory_management: edge.node.inventoryManagement || '',
-    })),
-    images: product.images.edges.map(edge => ({
+    })) || [],
+    images: product.images?.edges?.map(edge => ({
       id: edge.node.id.replace('gid://shopify/ProductImage/', ''),
       src: edge.node.url,
-    })),
+    })) || [],
   };
 
   console.log('[Shopify API] Product created successfully:', restProduct.id);
