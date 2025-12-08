@@ -8,7 +8,8 @@ interface ChannelSidebarProps {
   selectedThreadId: string | null;
   onThreadSelect: (threadId: string | null) => void;
   onCreateThread: () => void;
-  isExpanded: boolean;
+  isOpen: boolean;
+  onClose?: () => void;
 }
 
 const TAG_COLORS = {
@@ -30,11 +31,12 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   selectedThreadId,
   onThreadSelect,
   onCreateThread,
-  isExpanded,
+  isOpen,
+  onClose,
 }) => {
   const openThreads = threads.filter(t => t.status === 'open');
 
-  if (!isExpanded) {
+  if (!isOpen) {
     return null;
   }
 
