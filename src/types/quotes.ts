@@ -96,10 +96,19 @@ export interface ShopifyVariant {
   price: string;
   inventoryQuantity: number;
   position: number;
+  selectedOptions?: Array<{ name: string; value: string }>;
+}
+
+export interface ShopifyProductOption {
+  id: string;
+  name: string;
+  position: number;
+  values: string[];
 }
 
 export interface ShopifyProductWithVariants extends ShopifyProduct {
   variants: ShopifyVariant[];
+  options?: ShopifyProductOption[];
 }
 
 export interface VariantMapping {
@@ -116,6 +125,8 @@ export interface VariantMapping {
   willUpdateSku: boolean;
   willUpdatePrice: boolean;
   priceDifference?: number;
+  intendedSellingPrice?: number;
+  currentSellingPrice: string;
 }
 
 export interface VariantMappingState {

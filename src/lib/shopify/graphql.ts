@@ -417,6 +417,12 @@ export const PRODUCT_WITH_VARIANTS_QUERY = `
     product(id: $id) {
       id
       title
+      options {
+        id
+        name
+        position
+        values
+      }
       variants(first: 100) {
         edges {
           node {
@@ -426,6 +432,10 @@ export const PRODUCT_WITH_VARIANTS_QUERY = `
             sku
             inventoryQuantity
             position
+            selectedOptions {
+              name
+              value
+            }
           }
         }
       }
@@ -438,6 +448,12 @@ export const getProductWithVariants = async (productId: string): Promise<any> =>
     product: {
       id: string;
       title: string;
+      options?: Array<{
+        id: string;
+        name: string;
+        position: number;
+        values: string[];
+      }>;
       variants: {
         edges: Array<{
           node: {
@@ -447,6 +463,10 @@ export const getProductWithVariants = async (productId: string): Promise<any> =>
             sku: string | null;
             inventoryQuantity: number;
             position: number;
+            selectedOptions?: Array<{
+              name: string;
+              value: string;
+            }>;
           };
         }>;
       };
@@ -464,6 +484,7 @@ export const getProductWithVariants = async (productId: string): Promise<any> =>
   return {
     id: response.data.product.id,
     title: response.data.product.title,
+    options: response.data.product.options,
     variants: response.data.product.variants.edges.map(edge => edge.node),
   };
 };

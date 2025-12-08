@@ -387,7 +387,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
     setIsSyncing(true);
     try {
-      // Save variant mappings to database (no Shopify updates needed - just tracking relationships)
+      let priceUpdateCount = 0;
+      let priceUpdateFailures: string[] = [];
+
+      // Save variant mappings to database and update Shopify prices
       for (const mapping of mappings) {
         const { error: mappingError } = await supabase
           .from('shopify_variant_mappings')
@@ -405,6 +408,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             shopify_variant_title: mapping.shopifyVariantTitle,
             sync_status: 'synced',
             last_synced_at: new Date().toISOString(),
+            intended_selling_price: mapping.intendedSellingPrice,
+            price_synced_at: mapping.willUpdatePrice ? new Date().toISOString() : null,
             original_variant_data: {
               sku: mapping.shopifyVariantSku,
               price: mapping.shopifyVariantPrice,
@@ -415,6 +420,19 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
         if (mappingError) {
           console.error('Failed to save mapping:', mappingError);
+        }
+
+        // Update Shopify price if changed
+        if (mapping.willUpdatePrice && mapping.intendedSellingPrice) {
+          try {
+            await updateProductVariant(mapping.shopifyVariantId, {
+              price: mapping.intendedSellingPrice.toFixed(2),
+            });
+            priceUpdateCount++;
+          } catch (priceError) {
+            console.error('Failed to update price for variant:', mapping.shopifyVariantId, priceError);
+            priceUpdateFailures.push(mapping.shopifyVariantTitle);
+          }
         }
       }
 
@@ -436,7 +454,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         return;
       }
 
-      toast.success(`Successfully synced ${mappings.length} variant${mappings.length > 1 ? 's' : ''} to "${selectedProduct.title}"`);
+      // Show success message with price update info
+      let successMessage = `Successfully synced ${mappings.length} variant${mappings.length > 1 ? 's' : ''} to "${selectedProduct.title}"`;
+      if (priceUpdateCount > 0) {
+        successMessage += ` and updated ${priceUpdateCount} price${priceUpdateCount > 1 ? 's' : ''}`;
+      }
+      toast.success(successMessage);
+
+      // Show warning for failed price updates
+      if (priceUpdateFailures.length > 0) {
+        toast.warning(`Failed to update prices for: ${priceUpdateFailures.join(', ')}`);
+      }
+
       onConnect(quote.id);
       setShowVariantMapping(false);
       onClose();
