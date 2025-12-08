@@ -334,14 +334,14 @@ export default function VariantMappingModal({
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-6 min-h-0">
+              <div className="flex-1 overflow-y-auto p-6 min-h-0 bg-gray-50 dark:bg-gray-900/30">
                 {/* Column Headers */}
-                <div className="grid grid-cols-[30%,auto,35%,35%] gap-6 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-[1fr,40px,1fr,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <ShoppingBag className="w-4 h-4" />
                     <span>Shopify Variant</span>
                   </div>
-                  <div className="w-8"></div>
+                  <div></div>
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <Package className="w-4 h-4" />
                     <span>Quote Variant</span>
@@ -368,22 +368,24 @@ export default function VariantMappingModal({
                     return (
                       <div
                         key={shopifyVariant.id}
-                        className="grid grid-cols-[30%,auto,35%,35%] gap-6 items-start"
+                        className="grid grid-cols-[1fr,40px,1fr,1fr] gap-4 items-start"
                       >
                         {/* Column 1: Shopify Variant with Card */}
-                        <ShopifyVariantCard
-                          variant={shopifyVariant}
-                          productOptions={shopifyProduct.options}
-                          productTitle={shopifyProduct.title}
-                        />
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                          <ShopifyVariantCard
+                            variant={shopifyVariant}
+                            productOptions={shopifyProduct.options}
+                            productTitle={shopifyProduct.title}
+                          />
+                        </div>
 
                         {/* Column 2: Arrow */}
-                        <div className="flex items-center justify-center pt-6">
+                        <div className="flex items-center justify-center h-full">
                           <ArrowRight className="w-5 h-5 text-gray-400" />
                         </div>
 
                         {/* Column 3: Quote Variant Dropdown with Card */}
-                        <div className="bg-white dark:bg-gray-800/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
                           <QuoteVariantDropdown
                             value={selectedQuoteIndex ?? null}
                             onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
@@ -393,7 +395,7 @@ export default function VariantMappingModal({
                         </div>
 
                         {/* Column 4: Selling Price Editor with Card */}
-                        <div className="bg-white dark:bg-gray-800/50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
                           {selectedQuote ? (
                             <SellingPriceEditor
                               currentPrice={shopifyVariant.price}
@@ -403,7 +405,7 @@ export default function VariantMappingModal({
                               onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
                             />
                           ) : (
-                            <div className="flex items-center justify-center h-full text-sm text-gray-400 dark:text-gray-500">
+                            <div className="flex items-center justify-center h-full min-h-[120px] text-sm text-gray-400 dark:text-gray-500">
                               Select a quote variant first
                             </div>
                           )}
