@@ -48,7 +48,7 @@ function CustomDropdown({ value, onChange, quoteVariants, isNewQuoteVariant }: C
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
           <button
             type="button"
             onClick={() => {
@@ -283,7 +283,7 @@ export default function VariantMappingModal({
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0 bg-gray-50 dark:bg-gray-900/30">
+            <div className="flex-1 overflow-y-auto px-6 py-4 pb-48 min-h-0 bg-gray-50 dark:bg-gray-900/30">
               <div className="space-y-2">
                 {shopifyProduct.variants.map((shopifyVariant) => {
                   const selectedQuoteIndex = mappings.get(shopifyVariant.id);
@@ -294,7 +294,7 @@ export default function VariantMappingModal({
                   return (
                     <div
                       key={shopifyVariant.id}
-                      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+                      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <div className="p-3 flex items-center gap-3">
                         {/* Shopify Variant Info */}
