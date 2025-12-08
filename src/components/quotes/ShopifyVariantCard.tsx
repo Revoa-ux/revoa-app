@@ -34,13 +34,16 @@ export function ShopifyVariantCard({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <h4 className="font-medium text-sm text-gray-900 dark:text-white flex-1 min-w-0">
+          <h4 className="font-normal text-sm text-gray-700 dark:text-gray-300 flex-1 min-w-0">
             {displayTitle}
           </h4>
           {showPrice && (
-            <span className="text-sm font-semibold text-gray-900 dark:text-white flex-shrink-0">
-              ${parseFloat(variant.price).toFixed(2)}
-            </span>
+            <div className="flex-shrink-0 text-right">
+              <div className="text-xs text-gray-500 dark:text-gray-400">Current Price</div>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                ${parseFloat(variant.price).toFixed(2)}
+              </span>
+            </div>
           )}
         </div>
 

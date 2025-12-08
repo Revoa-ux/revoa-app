@@ -354,7 +354,7 @@ export default function VariantMappingModal({
 
                 {/* Variant Mapping List */}
                 <div className="space-y-4">
-                  {shopifyProduct.variants.map((shopifyVariant) => {
+                  {shopifyProduct.variants.map((shopifyVariant, index) => {
                     const selectedQuoteIndex = mappings.get(shopifyVariant.id);
                     const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
                       ? quoteVariants[selectedQuoteIndex]
@@ -366,11 +366,16 @@ export default function VariantMappingModal({
                     const suggestedPrice = cost > 0 ? getSuggestedSellingPrice(cost) : 0;
                     const variantOptions = getVariantOptions(shopifyVariant, shopifyProduct.options);
 
+                    // Check if this is a new group (option changed from previous variant)
+                    const prevVariant = index > 0 ? shopifyProduct.variants[index - 1] : null;
+                    const prevOptions = prevVariant ? getVariantOptions(prevVariant, shopifyProduct.options) : null;
+                    const showGroupHeader = variantOptions && variantOptions !== prevOptions;
+
                     return (
-                      <div key={shopifyVariant.id} className="space-y-2">
-                        {/* Option Names Subtitle */}
-                        {variantOptions && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400 pl-2">
+                      <div key={shopifyVariant.id}>
+                        {/* Option Names Group Header */}
+                        {showGroupHeader && (
+                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5 mt-4 first:mt-0">
                             {variantOptions}
                           </div>
                         )}
@@ -407,17 +412,19 @@ export default function VariantMappingModal({
                           </div>
 
                           {/* Column 5: Profit Info with Card */}
-                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[60px] flex items-center">
                             {selectedQuote ? (
-                              <SellingPriceEditor
-                                currentPrice={shopifyVariant.price}
-                                cost={cost}
-                                suggestedPrice={suggestedPrice}
-                                value={sellingPrices.get(shopifyVariant.id) ?? null}
-                                onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
-                              />
+                              <div className="w-full">
+                                <SellingPriceEditor
+                                  currentPrice={shopifyVariant.price}
+                                  cost={cost}
+                                  suggestedPrice={suggestedPrice}
+                                  value={sellingPrices.get(shopifyVariant.id) ?? null}
+                                  onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                                />
+                              </div>
                             ) : (
-                              <div className="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 py-4">
+                              <div className="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 w-full">
                                 Select a quote variant first
                               </div>
                             )}

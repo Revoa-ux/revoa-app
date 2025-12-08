@@ -72,11 +72,13 @@ export function SellingPriceEditor({
     }
   };
 
+  const multiplier = suggestedPrice > 0 && cost > 0 ? (suggestedPrice / cost) : 0;
+
   return (
     <div className="flex items-center justify-between gap-3">
       {/* Profit Margin */}
-      <div className="flex-1 px-2.5 py-2 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
-        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+      <div className="flex-1 px-2.5 py-1.5 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
+        <div className="text-xs text-gray-600 dark:text-gray-400 mb-0.5">
           Margin:
         </div>
         <div className={`text-sm font-semibold ${
@@ -86,11 +88,6 @@ export function SellingPriceEditor({
         }`}>
           ${margin.toFixed(2)} ({marginPercent.toFixed(1)}%)
         </div>
-        {isLowMargin && (
-          <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-            Low margin - consider packs
-          </p>
-        )}
       </div>
 
       {/* Suggested Price Button */}
@@ -98,12 +95,13 @@ export function SellingPriceEditor({
         <button
           type="button"
           onClick={handleUseSuggested}
-          className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all flex-shrink-0 whitespace-nowrap"
+          className="px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all flex-shrink-0"
         >
-          Use Suggested ${suggestedPrice.toFixed(2)}
+          <div className="whitespace-nowrap">${suggestedPrice.toFixed(2)}</div>
+          <div className="text-xs opacity-90 whitespace-nowrap">{multiplier > 0 ? `${multiplier.toFixed(1)}x profit` : 'Set Price'}</div>
         </button>
       ) : hasChanged && (
-        <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 whitespace-nowrap">
+        <div className="px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 whitespace-nowrap">
           Will sync on confirm
         </div>
       )}
