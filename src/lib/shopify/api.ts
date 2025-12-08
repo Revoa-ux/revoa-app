@@ -612,8 +612,6 @@ export const createShopifyProduct = async (productData: {
     src: string;
   }>;
 }): Promise<ShopifyProduct> => {
-  console.log('[Shopify API] Creating product via GraphQL:', productData.title);
-
   // Convert REST-style input to GraphQL format
   const input: any = {
     title: productData.title,
@@ -660,14 +658,6 @@ export const createShopifyProduct = async (productData: {
     throw new Error('Product creation returned no data');
   }
 
-  console.log('[Shopify API] Product response received:', {
-    id: product.id,
-    hasVariants: !!product.variants,
-    variantCount: product.variants?.edges?.length || 0,
-    hasImages: !!product.images,
-    imageCount: product.images?.edges?.length || 0
-  });
-
   // Convert GraphQL response to REST format for backward compatibility
   const restProduct: ShopifyProduct = {
     id: product.id.replace('gid://shopify/Product/', ''),
@@ -691,7 +681,6 @@ export const createShopifyProduct = async (productData: {
     })) || [],
   };
 
-  console.log('[Shopify API] Product created successfully:', restProduct.id);
   return restProduct;
 };
 

@@ -71,7 +71,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           setStep('input');
         }
       } catch (error) {
-        console.error('Error checking Shopify connection:', error);
+        const errorMsg = error instanceof Error ? error.message : 'Failed to check connection';
+        toast.error(`Connection check failed: ${errorMsg}`);
         setStep('input');
       }
     };
@@ -122,8 +123,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               });
             
             if (error) {
-              console.error('Error persisting Shopify token:', error);
-              toast.error('Failed to save Shopify connection');
+              const errorMsg = error.message || 'Unknown error occurred';
+              toast.error(`Failed to save Shopify connection: ${errorMsg}`);
               return;
             }
             
@@ -132,17 +133,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             onClose();
             toast.success('Successfully connected to Shopify');
           } catch (error) {
-            console.error('Error persisting token:', error);
-            toast.error('Failed to save Shopify connection');
+            const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+            toast.error(`Failed to save Shopify connection: ${errorMsg}`);
           }
         };
         
         persistToken();
       } else if (event.data.type === 'shopify:error') {
-        console.error('OAuth error:', event.data);
+        const errorMsg = event.data.error || 'Authentication failed';
         setStep('input');
-        setValidationError(event.data.error);
-        toast.error('Failed to connect to Shopify store');
+        setValidationError(errorMsg);
+        toast.error(`Failed to connect to Shopify: ${errorMsg}`);
       }
     };
 
@@ -209,11 +210,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       return () => clearInterval(checkTabClosed);
 
     } catch (error) {
-      console.error('Error connecting to Shopify:', error);
-      setValidationError(
-        error instanceof Error ? error.message : 'Failed to connect to Shopify store'
-      );
+      const errorMsg = error instanceof Error ? error.message : 'Failed to connect to Shopify store';
+      setValidationError(errorMsg);
       setStep('input');
+      toast.error(`Connection failed: ${errorMsg}`);
     } finally {
       setIsValidating(false);
     }
@@ -272,19 +272,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         };
       }
 
-      console.log('[Shopify Sync] Creating product with data:', JSON.stringify(productData, null, 2));
-
       // Create the product in Shopify with error handling
       let createdProduct;
       try {
         createdProduct = await createShopifyProduct(productData);
-        console.log('[Shopify Sync] Product created successfully:', createdProduct);
+        toast.success('Product created in Shopify successfully');
       } catch (productError) {
-        console.error('[Shopify Sync] Failed to create product:', productError);
         const errorMsg = productError instanceof Error
           ? productError.message
           : 'Failed to create product in Shopify';
 
+        toast.error(`Product creation failed: ${errorMsg}`);
         setCriticalError(`Product creation failed: ${errorMsg}`);
         setStep('error');
         setIsSyncing(false);
@@ -293,18 +291,16 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
       // Validate product was created with an ID
       if (!createdProduct || !createdProduct.id) {
-        console.error('[Shopify Sync] Product created but no ID returned');
-        setCriticalError('Product was created but no product ID was returned from Shopify');
+        const errorMsg = 'Product was created but no product ID was returned from Shopify';
+        toast.error(errorMsg);
+        setCriticalError(errorMsg);
         setStep('error');
         setIsSyncing(false);
         return;
       }
 
-      // Extract the numeric product ID from the GraphQL format
-      // GraphQL IDs are in format: gid://shopify/Product/123456789
+      // Extract the numeric product ID
       const numericProductId = createdProduct.id;
-
-      console.log('[Shopify Sync] Updating quote in database with product ID:', numericProductId);
 
       // Update the quote in database with the Shopify product information
       const { error: updateError } = await supabase
@@ -318,20 +314,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         .eq('id', quote.id);
 
       if (updateError) {
-        console.error('[Shopify Sync] Error updating quote:', updateError);
-        toast.error('Product created in Shopify but failed to update quote. Please try syncing again.');
+        const errorMsg = updateError.message || 'Failed to update quote in database';
+        toast.error(`Product created in Shopify but failed to update quote: ${errorMsg}`);
         setIsSyncing(false);
         return;
       }
-
-      console.log('[Shopify Sync] Quote updated successfully');
 
       onConnect(quote.id);
       toast.success(`Product "${quote.productName}" successfully added to Shopify`);
       onClose();
     } catch (error) {
-      console.error('[Shopify Sync] Unexpected error in handleSyncProduct:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      toast.error(`Unexpected error: ${errorMessage}`);
       setCriticalError(errorMessage);
       setStep('error');
     } finally {
@@ -361,12 +355,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         }
       }
 
-      console.log('[Shopify Update] Updating product:', selectedProduct.id, updateData);
-
       // Update the product in Shopify
-      await updateProduct(selectedProduct.id, updateData);
-
-      console.log('[Shopify Update] Product updated successfully');
+      try {
+        await updateProduct(selectedProduct.id, updateData);
+        toast.success('Product updated in Shopify successfully');
+      } catch (updateErr) {
+        const errorMsg = updateErr instanceof Error ? updateErr.message : 'Failed to update product';
+        toast.error(`Failed to update product: ${errorMsg}`);
+        return;
+      }
 
       // Update quote in database
       const { error: updateError } = await supabase
@@ -380,23 +377,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         .eq('id', quote.id);
 
       if (updateError) {
-        console.error('[Shopify Update] Error updating quote in database:', updateError);
-        toast.error('Product updated in Shopify but failed to update quote. Please try syncing again.');
+        const errorMsg = updateError.message || 'Failed to update quote in database';
+        toast.error(`Product updated in Shopify but failed to update quote: ${errorMsg}`);
         return;
       }
-
-      console.log('[Shopify Update] Quote updated in database successfully');
 
       onConnect(quote.id);
       toast.success(`Quote pricing synced to "${selectedProduct.title}"`);
       onClose();
     } catch (error) {
-      console.error('Error updating product:', error);
-      toast.error(
-        error instanceof Error
-          ? `Failed to update product: ${error.message}`
-          : 'Failed to update product in Shopify'
-      );
+      const errorMsg = error instanceof Error ? error.message : 'Failed to update product in Shopify';
+      toast.error(`Unexpected error: ${errorMsg}`);
     } finally {
       setIsSyncing(false);
     }
