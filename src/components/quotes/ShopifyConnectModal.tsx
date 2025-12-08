@@ -42,7 +42,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [criticalError, setCriticalError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
-  useClickOutside(modalRef, onClose);
 
   // Check if Shopify store is already connected
   useEffect(() => {
@@ -458,12 +457,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
 
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <div className={`relative bg-white dark:bg-gray-900 rounded-xl w-full ${
-          step === 'product_picker' ? 'max-w-2xl' : 'max-w-md'
-        }`} ref={modalRef}>
+      <div className="fixed inset-0 flex items-center justify-center p-4" onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}>
+        <div
+          className={`relative bg-white dark:bg-gray-900 rounded-xl w-full ${
+            step === 'product_picker' ? 'max-w-2xl' : 'max-w-md'
+          }`}
+          ref={modalRef}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
