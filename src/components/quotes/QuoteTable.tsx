@@ -132,8 +132,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   <td className="px-6 py-4">
                     <QuoteStatus status={quote.status} expiresIn={quote.expiresIn} />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm relative">
-                    <div className="flex justify-end">
+                  <td className="px-6 py-4 text-right text-sm">
+                    <div className="flex justify-end relative">
                       <QuoteActions
                         quote={quote}
                         onAcceptQuote={onAcceptQuote}
