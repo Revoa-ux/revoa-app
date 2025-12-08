@@ -164,6 +164,7 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
         <QuickModeBulkEditor
           variants={variants}
           onVariantsChange={setVariants}
+          productName={quoteName}
         />
 
         <div>

@@ -9,20 +9,29 @@ import { toast } from 'sonner';
 interface QuickModeBulkEditorProps {
   variants: NewQuoteVariant[];
   onVariantsChange: (variants: NewQuoteVariant[]) => void;
+  productName?: string;
 }
 
 export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
   variants,
-  onVariantsChange
+  onVariantsChange,
+  productName = ''
 }) => {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [advancedSettingsVariantId, setAdvancedSettingsVariantId] = useState<string | null>(null);
+
+  const generateSKU = (variantName: string): string => {
+    if (!variantName.trim()) return '';
+    const productPrefix = productName.slice(0, 3).toUpperCase();
+    const variantSlug = variantName.toLowerCase().replace(/\s+/g, '-');
+    return `${productPrefix}-${variantSlug}`;
+  };
 
   const addRow = () => {
     const newVariant: NewQuoteVariant = {
       id: `var_${Date.now()}`,
       sku: '',
-      name: `Variant ${variants.length + 1}`,
+      name: '',
       attributes: [],
       costPerItem: 0,
       shippingRules: {
@@ -268,9 +277,13 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                     <input
                       type="text"
                       value={variant.name}
-                      onChange={(e) => updateVariant(variant.id, { name: e.target.value })}
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        const newSKU = generateSKU(newName);
+                        updateVariant(variant.id, { name: newName, sku: newSKU });
+                      }}
                       className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
-                      placeholder="Variant name"
+                      placeholder="e.g., White"
                     />
                   </td>
                   <td className="p-3">
@@ -278,8 +291,8 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
                       type="text"
                       value={variant.sku}
                       onChange={(e) => updateVariant(variant.id, { sku: e.target.value })}
-                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
-                      placeholder="SKU-123"
+                      className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 hover:border-gray-400 dark:hover:border-gray-500 transition-colors font-mono"
+                      placeholder="Auto-generated"
                     />
                   </td>
                   <td className="p-3">

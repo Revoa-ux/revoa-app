@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
-import { ChevronRight, ExternalLink, LayoutGrid, List, ShoppingBag, Package } from 'lucide-react';
+import React from 'react';
+import { ChevronRight, ExternalLink, ShoppingBag, Package } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
 import { ProductAttributesBadge } from './ProductAttributesBadge';
-import { QuoteDetailsModal } from './QuoteDetailsModal';
 import {
   analyzeShippingVariance,
   getVariantDisplayData,
-  formatCurrency,
-  getQuoteDisplayMode,
-  setQuoteDisplayMode
+  formatCurrency
 } from '@/lib/quoteDisplayUtils';
 
 interface QuoteTableProps {
@@ -30,23 +27,11 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   onConnectShopify,
   onDeleteQuote
 }) => {
-  const [viewMode, setViewMode] = useState<'modal' | 'expanded'>(() => getQuoteDisplayMode());
-  const [modalQuote, setModalQuote] = useState<Quote | null>(null);
-
-  const handleViewModeChange = (mode: 'modal' | 'expanded') => {
-    setViewMode(mode);
-    setQuoteDisplayMode(mode);
-  };
-
   const handleRowClick = (quote: Quote, canExpand: boolean) => {
     if (!canExpand) return;
-
-    if (viewMode === 'modal') {
-      setModalQuote(quote);
-    } else {
-      onToggleExpand(quote.id);
-    }
+    onToggleExpand(quote.id);
   };
+
   // Check if a quote has expandable content
   const isExpandable = (quote: Quote): boolean => {
     // Has multiple variants
@@ -70,39 +55,6 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-      {modalQuote && (
-        <QuoteDetailsModal
-          quote={modalQuote}
-          onClose={() => setModalQuote(null)}
-        />
-      )}
-
-      <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-end items-center gap-2 bg-gray-50 dark:bg-gray-900/50">
-        <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">View Mode:</span>
-        <button
-          onClick={() => handleViewModeChange('modal')}
-          className={`p-2 rounded-lg transition-colors ${
-            viewMode === 'modal'
-              ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
-          title="Card View (Modal)"
-        >
-          <LayoutGrid className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => handleViewModeChange('expanded')}
-          className={`p-2 rounded-lg transition-colors ${
-            viewMode === 'expanded'
-              ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-          }`}
-          title="Table View (Expanded)"
-        >
-          <List className="w-4 h-4" />
-        </button>
-      </div>
-
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -121,7 +73,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
               <React.Fragment key={quote.id}>
                 <tr
                   className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' : ''} ${
-                    expandedQuotes.includes(quote.id) && viewMode === 'expanded' ? 'bg-gray-50 dark:bg-gray-700' : ''
+                    expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
@@ -129,7 +81,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     <div>
                       <div className="text-gray-900 dark:text-white flex items-center">
                         {quote.productName}
-                        {canExpand && viewMode === 'expanded' && (
+                        {canExpand && (
                           <ChevronRight
                             className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
                               expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
@@ -173,7 +125,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     </div>
                   </td>
                 </tr>
-                {expandedQuotes.includes(quote.id) && viewMode === 'expanded' && (() => {
+                {expandedQuotes.includes(quote.id) && (() => {
                   const shippingAnalysis = analyzeShippingVariance(quote);
                   const variantData = getVariantDisplayData(quote, shippingAnalysis);
 

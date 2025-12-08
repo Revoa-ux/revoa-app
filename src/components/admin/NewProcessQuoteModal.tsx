@@ -177,6 +177,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
         <QuickModeBulkEditor
           variants={variants}
           onVariantsChange={setVariants}
+          productName={quote.productName}
         />
 
         {/* Product Policies Section */}

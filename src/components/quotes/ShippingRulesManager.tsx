@@ -161,15 +161,36 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
             {Object.entries(rules.byCountry).map(([code, cost]) => (
               <div
                 key={code}
-                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+                className="flex items-center justify-between gap-3 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
               >
-                <span className="text-sm text-gray-900 dark:text-white">
+                <span className="text-sm text-gray-900 dark:text-white flex-shrink-0">
                   {getCountryName(code)}
                 </span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    ${cost.toFixed(2)}
-                  </span>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400">
+                      $
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={cost}
+                      onChange={(e) => {
+                        const newCost = parseFloat(e.target.value);
+                        if (!isNaN(newCost) && newCost >= 0) {
+                          onRulesChange({
+                            ...rules,
+                            byCountry: {
+                              ...rules.byCountry,
+                              [code]: newCost
+                            }
+                          });
+                        }
+                      }}
+                      className="w-20 pl-5 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeCountryRate(code)}
@@ -252,15 +273,54 @@ export const ShippingRulesManager: React.FC<ShippingRulesManagerProps> = ({
             {rules.byQuantity.map((tier, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
+                className="flex items-center justify-between gap-3 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg"
               >
-                <span className="text-sm text-gray-900 dark:text-white">
-                  {tier.minQty}+ units
-                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    value={tier.minQty}
+                    onChange={(e) => {
+                      const newMinQty = parseInt(e.target.value);
+                      if (!isNaN(newMinQty) && newMinQty >= 1) {
+                        const newTiers = [...(rules.byQuantity || [])];
+                        newTiers[index] = { ...tier, minQty: newMinQty };
+                        newTiers.sort((a, b) => a.minQty - b.minQty);
+                        onRulesChange({
+                          ...rules,
+                          byQuantity: newTiers
+                        });
+                      }
+                    }}
+                    className="w-16 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+                  />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">+ units</span>
+                </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium text-green-600 dark:text-green-400">
-                    -${tier.discountAmount.toFixed(2)} discount
-                  </span>
+                  <div className="relative">
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400">
+                      -$
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={tier.discountAmount}
+                      onChange={(e) => {
+                        const newDiscount = parseFloat(e.target.value);
+                        if (!isNaN(newDiscount) && newDiscount >= 0) {
+                          const newTiers = [...(rules.byQuantity || [])];
+                          newTiers[index] = { ...tier, discountAmount: newDiscount };
+                          onRulesChange({
+                            ...rules,
+                            byQuantity: newTiers
+                          });
+                        }
+                      }}
+                      className="w-20 pl-6 pr-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded text-sm text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                    />
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">discount</span>
                   <button
                     type="button"
                     onClick={() => removeQuantityTier(index)}
