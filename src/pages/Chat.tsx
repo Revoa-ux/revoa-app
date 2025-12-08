@@ -18,7 +18,8 @@ import {
   Reply,
   Hash,
   MoveRight,
-  Info
+  Info,
+  PanelLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -505,6 +506,15 @@ const Chat = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+            {!showThreadSidebar && (
+              <button
+                onClick={() => setShowThreadSidebar(true)}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Show threads"
+              >
+                <PanelLeft className="w-5 h-5" />
+              </button>
+            )}
             {chat && (
               <ChannelDropdown
                 threads={threads}
