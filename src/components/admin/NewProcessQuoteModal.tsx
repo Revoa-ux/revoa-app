@@ -50,9 +50,10 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
         converted.push({
           id: `var_${Date.now()}_${idx}`,
           sku: fv.sku,
-          name: fv.attributes.length > 0
-            ? fv.attributes.map(a => a.value).join(' - ')
-            : quote.productName,
+          name: fv.variantName ||
+                (fv.attributes.length > 0
+                  ? fv.attributes.map(a => a.value).join(' - ')
+                  : quote.productName),
           attributes: fv.attributes,
           costPerItem: fv.costPerItem,
           shippingRules: {
@@ -116,7 +117,8 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
         shippingCosts: {
           _default: variant.shippingRules.default,
           ...variant.shippingRules.byCountry
-        }
+        },
+        variantName: variant.name
       };
 
       return {

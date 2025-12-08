@@ -1,9 +1,18 @@
-import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle, CheckSquare, Square } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, ExternalLink, LayoutGrid, List, ShoppingBag } from 'lucide-react';
+import { Package, Calendar, Truck, Shield, Globe, CheckSquare, Square } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
 import { ProductAttributesBadge } from './ProductAttributesBadge';
+import { QuoteDetailsModal } from './QuoteDetailsModal';
+import {
+  analyzeShippingVariance,
+  getVariantDisplayData,
+  formatCurrency,
+  getQuoteDisplayMode,
+  setQuoteDisplayMode
+} from '@/lib/quoteDisplayUtils';
 
 interface QuoteTableProps {
   quotes: Quote[];
@@ -22,6 +31,23 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
   onConnectShopify,
   onDeleteQuote
 }) => {
+  const [viewMode, setViewMode] = useState<'modal' | 'expanded'>(() => getQuoteDisplayMode());
+  const [modalQuote, setModalQuote] = useState<Quote | null>(null);
+
+  const handleViewModeChange = (mode: 'modal' | 'expanded') => {
+    setViewMode(mode);
+    setQuoteDisplayMode(mode);
+  };
+
+  const handleRowClick = (quote: Quote, canExpand: boolean) => {
+    if (!canExpand) return;
+
+    if (viewMode === 'modal') {
+      setModalQuote(quote);
+    } else {
+      onToggleExpand(quote.id);
+    }
+  };
   // Check if a quote has expandable content
   const isExpandable = (quote: Quote): boolean => {
     // Has multiple variants
@@ -45,14 +71,47 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      {modalQuote && (
+        <QuoteDetailsModal
+          quote={modalQuote}
+          onClose={() => setModalQuote(null)}
+        />
+      )}
+
+      <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-end items-center gap-2 bg-gray-50 dark:bg-gray-900/50">
+        <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">View Mode:</span>
+        <button
+          onClick={() => handleViewModeChange('modal')}
+          className={`p-2 rounded-lg transition-colors ${
+            viewMode === 'modal'
+              ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+          title="Card View (Modal)"
+        >
+          <LayoutGrid className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => handleViewModeChange('expanded')}
+          className={`p-2 rounded-lg transition-colors ${
+            viewMode === 'expanded'
+              ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+          }`}
+          title="Table View (Expanded)"
+        >
+          <List className="w-4 h-4" />
+        </button>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 first:rounded-tl-xl">Product</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Product</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Request Date</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Status</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 last:rounded-tr-xl">Actions</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -63,15 +122,15 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
               <React.Fragment key={quote.id}>
                 <tr
                   className={`${canExpand ? 'hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer' : ''} ${
-                    expandedQuotes.includes(quote.id) ? 'bg-gray-50 dark:bg-gray-700' : ''
+                    expandedQuotes.includes(quote.id) && viewMode === 'expanded' ? 'bg-gray-50 dark:bg-gray-700' : ''
                   }`}
-                  onClick={canExpand ? () => onToggleExpand(quote.id) : undefined}
+                  onClick={() => handleRowClick(quote, canExpand)}
                 >
                   <td className="px-6 py-4">
                     <div>
                       <div className="text-gray-900 dark:text-white flex items-center">
                         {quote.productName}
-                        {canExpand && (
+                        {canExpand && viewMode === 'expanded' && (
                           <ChevronRight
                             className={`w-4 h-4 ml-2 text-gray-400 transition-transform ${
                               expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
@@ -115,128 +174,79 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     </div>
                   </td>
                 </tr>
-                {expandedQuotes.includes(quote.id) && (
+                {expandedQuotes.includes(quote.id) && viewMode === 'expanded' && (() => {
+                  const shippingAnalysis = analyzeShippingVariance(quote);
+                  const variantData = getVariantDisplayData(quote, shippingAnalysis);
+                  const hasProtection = !!(
+                    quote.warrantyDays ||
+                    quote.coversLostItems ||
+                    quote.coversDamagedItems ||
+                    quote.coversLateDelivery
+                  );
+
+                  return (
                   <>
-                    {/* Variants */}
-                    {quote.variants && quote.variants.length > 0 && (
-                      <tr className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600">
+                    {/* Variants Table Style */}
+                    {variantData.length > 0 && (
+                      <tr className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
                         <td colSpan={4} className="px-6 py-6">
                           <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-4">
-                              <Package className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Product Variants</h4>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Package className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Product Variants</h4>
                             </div>
 
-                            <div className="space-y-4">
-                              {quote.variants.map((variant, varIndex) => {
-                                // Group finalVariants by unique pricing
-                                const finalVariantGroups = new Map();
-
-                                (variant.finalVariants || []).forEach((fv) => {
-                                  const priceKey = `${fv.costPerItem}-${JSON.stringify(fv.shippingCosts)}-${JSON.stringify(fv.attributes || [])}`;
-                                  if (!finalVariantGroups.has(priceKey)) {
-                                    finalVariantGroups.set(priceKey, { ...fv, quantities: [] });
-                                  }
-                                  finalVariantGroups.get(priceKey).quantities.push(fv.minQty);
-                                });
-
-                                return (
-                                  <div key={`${quote.id}-variant-${varIndex}`} className="space-y-3">
-                                    {/* Variant Header */}
-                                    {quote.variants.length > 1 && (
-                                      <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                          Variant {varIndex + 1}
-                                        </span>
-                                        {variant.finalVariants?.[0]?.attributes && variant.finalVariants[0].attributes.length > 0 && (
-                                          <ProductAttributesBadge attributes={variant.finalVariants[0].attributes} />
-                                        )}
-                                      </div>
-                                    )}
-
-                                    {/* Quantity Tiers */}
-                                    {Array.from(finalVariantGroups.values()).map((finalVariant, fvIndex) => {
-                                      const costPerItem = finalVariant.costPerItem;
-                                      const shippingCost = finalVariant.shippingCosts?._default;
-                                      const countryCosts = Object.entries(finalVariant.shippingCosts || {})
-                                        .filter(([key]) => key !== '_default')
-                                        .sort(([a], [b]) => a.localeCompare(b));
-                                      const hasCountryShipping = countryCosts.length > 0;
-                                      const quantities = finalVariant.quantities.sort((a, b) => a - b);
-                                      const minQty = Math.min(...quantities);
-                                      const maxQty = Math.max(...quantities);
-
-                                      return (
-                                        <div
-                                          key={`${quote.id}-variant-${varIndex}-fv-${fvIndex}`}
-                                          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
-                                        >
-                                          {/* Quantity Range */}
-                                          <div className="flex items-center gap-3 mb-3">
-                                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                              {quantities.length === 1
-                                                ? `${minQty}+ ${minQty === 1 ? 'Unit' : 'Units'}`
-                                                : `${minQty}-${maxQty} Units`
-                                              }
-                                            </span>
-                                            {quote.variants.length === 1 && finalVariant.attributes && finalVariant.attributes.length > 0 && (
-                                              <ProductAttributesBadge attributes={finalVariant.attributes} />
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Variant Name</th>
+                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Unit Price</th>
+                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Shipping</th>
+                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Total (1 unit)</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {variantData.map((variant, index) => (
+                                    <React.Fragment key={index}>
+                                      <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                        <td className="py-2 px-3">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
+                                            {variant.attributes.length > 0 && (
+                                              <ProductAttributesBadge attributes={variant.attributes} />
                                             )}
                                           </div>
-
-                                          {/* Pricing Grid */}
-                                          <div className="grid grid-cols-3 gap-4 mb-3">
-                                            <div>
-                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
-                                              <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {costPerItem != null ? `$${costPerItem.toFixed(2)}` : '-'}
-                                              </p>
+                                        </td>
+                                        <td className="py-2 px-3 text-right font-medium text-gray-900 dark:text-white">
+                                          {formatCurrency(variant.pricePerUnit)}
+                                        </td>
+                                        <td className="py-2 px-3 text-right font-medium text-gray-900 dark:text-white">
+                                          {formatCurrency(variant.standardShipping)}
+                                        </td>
+                                        <td className="py-2 px-3 text-right font-bold text-rose-600 dark:text-rose-400">
+                                          {formatCurrency(variant.totalCost)}
+                                        </td>
+                                      </tr>
+                                      {variant.hasUniqueShipping && Object.keys(variant.countryShipping).length > 0 && (
+                                        <tr>
+                                          <td colSpan={4} className="py-2 px-3 bg-gray-50 dark:bg-gray-800">
+                                            <div className="text-xs">
+                                              <span className="font-medium text-gray-600 dark:text-gray-400 mr-2">Shipping Cost by Country:</span>
+                                              <span className="text-gray-700 dark:text-gray-300">
+                                                {Object.entries(variant.countryShipping)
+                                                  .sort(([a], [b]) => a.localeCompare(b))
+                                                  .map(([country, cost]) => `${country.toUpperCase()}: ${formatCurrency(cost)}`)
+                                                  .join(' • ')}
+                                              </span>
                                             </div>
-                                            <div>
-                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Standard Shipping</p>
-                                              <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                                {shippingCost != null ? `$${shippingCost.toFixed(2)}` : '-'}
-                                              </p>
-                                            </div>
-                                            <div>
-                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost ({minQty} units)</p>
-                                              <p className="text-base font-bold text-rose-600 dark:text-rose-400">
-                                                {costPerItem != null && shippingCost != null
-                                                  ? `$${(costPerItem * minQty + shippingCost).toFixed(2)}`
-                                                  : '-'}
-                                              </p>
-                                            </div>
-                                          </div>
-
-                                          {/* Country-Specific Shipping */}
-                                          {hasCountryShipping && (
-                                            <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                                              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Shipping by Country:
-                                              </p>
-                                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                                {countryCosts.map(([country, cost]) => (
-                                                  <div
-                                                    key={country}
-                                                    className="flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded text-xs"
-                                                  >
-                                                    <span className="font-medium text-gray-700 dark:text-gray-300">
-                                                      {country.toUpperCase()}
-                                                    </span>
-                                                    <span className="font-semibold text-gray-900 dark:text-white">
-                                                      ${cost.toFixed(2)}
-                                                    </span>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                );
-                              })}
+                                          </td>
+                                        </tr>
+                                      )}
+                                    </React.Fragment>
+                                  ))}
+                                </tbody>
+                              </table>
                             </div>
                           </div>
                         </td>
@@ -261,116 +271,103 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                     )}
 
                     {/* Product Protection & Shipping Details */}
-                    {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery ||
-                      (quote.variants?.[0]?.finalVariants?.[0] && Object.keys(quote.variants[0].finalVariants[0].shippingCosts).length > 1)) && (
-                      <tr className="bg-gradient-to-br from-gray-50/95 to-gray-100/95 dark:from-gray-700/95 dark:to-gray-800/95 border-t border-gray-200 dark:border-gray-600">
+                    {(hasProtection || (shippingAnalysis.hasCountryShipping && !shippingAnalysis.hasVariance)) && (
+                      <tr className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
                         <td colSpan={4} className="px-6 py-6">
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Product Protection */}
-                            {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
-                              <div className="space-y-4">
-                                <div className="mb-4">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <Shield className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white">Protection Included</h4>
-                                  </div>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    Based on the factory and logistics company
-                                  </p>
+                            {hasProtection && (
+                              <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Shield className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Protection Included</h4>
                                 </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                  Based on the factory and logistics company
+                                </p>
 
-                                <div className="space-y-3">
-                                  {/* Warranty */}
+                                <div className="space-y-2">
                                   {quote.warrantyDays && (
-                                    <div className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                      <div>
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">Warranty Coverage</p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                                          Protected for {quote.warrantyDays} days if you receive defective items
-                                        </p>
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                                        <p className="text-xs font-medium text-gray-900 dark:text-white">Warranty Coverage</p>
                                       </div>
+                                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                                        Protected for {quote.warrantyDays} days if you receive defective items
+                                      </p>
                                     </div>
                                   )}
 
-                                  {/* Shipping Protection */}
-                                  <div className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                    <div className="flex-1">
-                                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">Shipping Protection</p>
-                                      <div className="space-y-1.5">
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                          {quote.coversLostItems ? (
-                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
-                                          ) : (
-                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                                          )}
-                                          Lost packages will be replaced or refunded
-                                        </p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                          {quote.coversDamagedItems ? (
-                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
-                                          ) : (
-                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                                          )}
-                                          Damaged items during shipping are covered
-                                        </p>
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                          {quote.coversLateDelivery ? (
-                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
-                                          ) : (
-                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-                                          )}
-                                          Compensation for significant delays
-                                        </p>
+                                  {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
+                                    <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                                        <p className="text-xs font-medium text-gray-900 dark:text-white">Shipping Protection</p>
+                                      </div>
+                                      <div className="space-y-1">
+                                        {quote.coversLostItems && (
+                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                            Lost packages replaced/refunded
+                                          </p>
+                                        )}
+                                        {quote.coversDamagedItems && (
+                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                            Damaged items covered
+                                          </p>
+                                        )}
+                                        {quote.coversLateDelivery && (
+                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                            Delay compensation
+                                          </p>
+                                        )}
                                       </div>
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               </div>
                             )}
 
-                            {/* International Shipping */}
-                            {quote.variants?.[0]?.finalVariants?.[0] && (() => {
-                              const shippingCosts = quote.variants[0].finalVariants[0].shippingCosts;
-                              const countries = Object.keys(shippingCosts).filter(k => k !== '_default');
-                              return countries.length > 0 && (
-                                <div className="space-y-4">
-                                  <div className="mb-4">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Globe className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                                      <h4 className="text-base font-semibold text-gray-900 dark:text-white">Shipping Cost By Country</h4>
-                                    </div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                      Different shipping rates apply based on destination
-                                    </p>
-                                  </div>
-
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Standard Shipping</span>
-                                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                        {shippingCosts._default != null ? `$${shippingCosts._default.toFixed(2)}` : '-'}
-                                      </span>
-                                    </div>
-
-                                    {countries.map(country => (
-                                      <div key={country} className="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{country.toUpperCase()}</span>
-                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                          {shippingCosts[country] != null ? `$${shippingCosts[country].toFixed(2)}` : '-'}
+                            {/* Common Shipping Costs */}
+                            {shippingAnalysis.hasCountryShipping && !shippingAnalysis.hasVariance && shippingAnalysis.commonShipping && (
+                              <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                  <Globe className="w-4 h-4 text-rose-500 dark:text-rose-400" />
+                                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Shipping Cost by Country</h4>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                  Same rates apply to all variants
+                                </p>
+                                <div className="space-y-1.5">
+                                  {Object.entries(shippingAnalysis.commonShipping)
+                                    .sort(([a], [b]) => a.localeCompare(b))
+                                    .map(([country, cost]) => (
+                                      <div
+                                        key={country}
+                                        className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs"
+                                      >
+                                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                                          {country.toUpperCase()}
+                                        </span>
+                                        <span className="font-semibold text-gray-900 dark:text-white">
+                                          {formatCurrency(cost)}
                                         </span>
                                       </div>
                                     ))}
-                                  </div>
                                 </div>
-                              );
-                            })()}
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
                     )}
 
                   </>
-                )}
+                  );
+                })()}
               </React.Fragment>
               );
             })}

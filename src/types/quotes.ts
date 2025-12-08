@@ -12,6 +12,7 @@ export interface FinalVariant {
     [countryCode: string]: number;
     _default: number;
   };
+  variantName?: string;  // Display name for the variant (e.g., "Highland Cow", "Angus Bull")
 }
 
 // Legacy support - kept for backward compatibility
