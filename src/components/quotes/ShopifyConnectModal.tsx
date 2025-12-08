@@ -238,15 +238,21 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           options: [
             {
               name: 'Quantity',
-              values: quote.variants.map(v => `${v.packSize} units`)
+              values: quote.variants.map(v => {
+                const unitText = v.packSize === 1 ? 'unit' : 'units';
+                return `${v.packSize} ${unitText}`;
+              })
             }
           ],
-          variants: quote.variants.map(variant => ({
-            option1: `${variant.packSize} units`,
-            price: (variant.finalVariants?.[0]?.costPerItem || 0).toFixed(2),
-            inventory_quantity: 100,
-            sku: `${quote.id}-${variant.packSize}`,
-          }))
+          variants: quote.variants.map(variant => {
+            const unitText = variant.packSize === 1 ? 'unit' : 'units';
+            return {
+              option1: `${variant.packSize} ${unitText}`,
+              price: (variant.finalVariants?.[0]?.costPerItem || 0).toFixed(2),
+              inventory_quantity: 100,
+              sku: `${quote.id}-${variant.packSize}`,
+            };
+          })
         };
       } else if (quote.variants && quote.variants.length === 1) {
         // Single variant - use default
@@ -500,9 +506,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                         <div className="space-y-1">
                           {quote.variants.map((variant, idx) => {
                             const price = variant.finalVariants?.[0]?.costPerItem || 0;
+                            const unitText = variant.packSize === 1 ? 'unit' : 'units';
                             return (
                               <p key={idx} className="text-xs text-gray-600 dark:text-gray-400">
-                                {variant.packSize} units: ${price.toFixed(2)}/item
+                                {variant.packSize} {unitText}: ${price.toFixed(2)}/item
                               </p>
                             );
                           })}
@@ -523,7 +530,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={onClose}
                     disabled={isSyncing}
-                    className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="flex-1 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -531,7 +538,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={handleSyncProduct}
                     disabled={isSyncing}
-                    className="flex-1 px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center group"
+                    className="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none flex items-center justify-center group"
                   >
                     {isSyncing ? (
                       <>
