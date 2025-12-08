@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { ProductTemplateSelectorModal } from '@/components/admin/ProductTemplateSelectorModal';
+import { ScenarioTemplateModal } from './ScenarioTemplateModal';
 import { CancelOrderModal } from './CancelOrderModal';
 import { RefundOrderModal } from './RefundOrderModal';
 import { EditShippingAddressModal } from './EditShippingAddressModal';
@@ -83,6 +83,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   const [showEditBillingModal, setShowEditBillingModal] = useState(false);
   const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
   const [orderId, setOrderId] = useState<string>('');
+  const [threadTag, setThreadTag] = useState<string>('');
 
   useEffect(() => {
     if (threadId && isExpanded) {
@@ -115,14 +116,17 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   const loadCustomerInfo = async () => {
     setIsLoading(true);
     try {
-      // Get thread with order_id
+      // Get thread with order_id and tag
       const { data: thread, error: threadError } = await supabase
         .from('chat_threads')
-        .select('order_id')
+        .select('order_id, tag')
         .eq('id', threadId)
         .single();
 
       if (threadError) throw threadError;
+
+      // Store thread tag for template filtering
+      setThreadTag(thread.tag || '');
 
       if (!thread.order_id) {
         setCustomerInfo(null);
@@ -697,11 +701,14 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
       {/* Template Selector Modal */}
       {showTemplateSelector && customerInfo && (
-        <ProductTemplateSelectorModal
+        <ScenarioTemplateModal
           isOpen={showTemplateSelector}
           onClose={() => setShowTemplateSelector(false)}
+          threadId={threadId}
+          threadCategory={threadTag}
+          orderId={orderId}
           userId={userId}
-          userName={userName}
+          recipientEmail={customerInfo.customer_email || undefined}
         />
       )}
 

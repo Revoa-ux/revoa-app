@@ -77,6 +77,14 @@ interface VariableData {
   current_date?: string;
   current_time?: string;
 
+  // Quote/Product variables
+  product_name?: string;
+  warranty_days?: string;
+  warranty_expiry_date?: string;
+  covers_damaged?: string;
+  covers_lost?: string;
+  order_items?: string;
+
   // Additional product variables
   [key: string]: string | undefined;
 }
@@ -294,12 +302,61 @@ export async function fetchVariableData(context: VariableContext): Promise<Varia
     if (context.threadId) {
       const { data: threadData } = await supabase
         .from('chat_threads')
-        .select('warehouse_entry_number')
+        .select('warehouse_entry_number, order_id')
         .eq('id', context.threadId)
         .maybeSingle();
 
       if (threadData) {
         data.warehouse_entry_number = threadData.warehouse_entry_number || undefined;
+
+        // If thread has order, fetch order items and quote data
+        if (threadData.order_id) {
+          // Fetch order line items
+          const { data: lineItems } = await supabase
+            .from('order_line_items')
+            .select('product_name, variant_name, quantity, unit_price, product_id')
+            .eq('order_id', threadData.order_id);
+
+          if (lineItems && lineItems.length > 0) {
+            // Format order items as bulleted list
+            const itemsList = lineItems.map(item => {
+              const name = item.variant_name
+                ? `${item.product_name} - ${item.variant_name}`
+                : item.product_name;
+              return `- ${name} (Quantity: ${item.quantity})`;
+            }).join('\n');
+            data.order_items = itemsList;
+
+            // Get first product for quote data
+            const firstProductId = lineItems[0].product_id;
+            if (firstProductId) {
+              const { data: quoteData } = await supabase
+                .from('product_quotes')
+                .select('product_name, warranty_days, covers_damaged_items, covers_lost_items')
+                .eq('id', firstProductId)
+                .maybeSingle();
+
+              if (quoteData) {
+                data.product_name = quoteData.product_name;
+                data.warranty_days = quoteData.warranty_days?.toString() || '90';
+                data.covers_damaged = quoteData.covers_damaged_items ? 'Yes' : 'No';
+                data.covers_lost = quoteData.covers_lost_items ? 'Yes' : 'No';
+
+                // Calculate warranty expiry date (from order date + warranty days)
+                if (data.order_date && quoteData.warranty_days) {
+                  const orderDate = new Date(data.order_date);
+                  const expiryDate = new Date(orderDate);
+                  expiryDate.setDate(expiryDate.getDate() + quoteData.warranty_days);
+                  data.warranty_expiry_date = expiryDate.toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  });
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -338,7 +395,14 @@ export function replaceVariables(content: string, data: VariableData): string {
       'tracking_company': 'carrier',
       'warehouse_entry_number': 'to be provided',
       'customer_first_name': 'Customer',
-      'customer_full_name': 'Customer'
+      'customer_full_name': 'Customer',
+      'product_name': 'your product',
+      'warranty_days': '90',
+      'covers_damaged': 'Yes',
+      'covers_lost': 'No',
+      'order_items': 'your order items',
+      'shipping_address_full': 'your shipping address',
+      'estimated_delivery': '7-10 business days'
     };
 
     return fallbacks[variableName] || match; // Keep {{variable}} if no fallback
