@@ -88,3 +88,47 @@ export interface ShopifyProduct {
   price: string;
   variants: number;
 }
+
+export interface ShopifyVariant {
+  id: string;
+  title: string;
+  sku: string | null;
+  price: string;
+  inventoryQuantity: number;
+  position: number;
+}
+
+export interface ShopifyProductWithVariants extends ShopifyProduct {
+  variants: ShopifyVariant[];
+}
+
+export interface VariantMapping {
+  quoteVariantIndex: number;
+  quoteVariantSku: string;
+  quoteVariantName: string;
+  quoteUnitCost: number;
+  quotePackSize: number;
+  quoteShippingRules: ShippingRules;
+  shopifyVariantId: string;
+  shopifyVariantTitle: string;
+  shopifyVariantSku: string | null;
+  shopifyVariantPrice: string;
+  willUpdateSku: boolean;
+  willUpdatePrice: boolean;
+  priceDifference?: number;
+}
+
+export interface VariantMappingState {
+  quoteId: string;
+  shopifyProductId: string;
+  shopifyProductTitle: string;
+  mappings: VariantMapping[];
+  isValid: boolean;
+  warnings: string[];
+  changes: {
+    skuUpdates: number;
+    priceUpdates: number;
+  };
+}
+
+export type ShopifySyncStatus = 'pending' | 'synced' | 'outdated' | 'failed';

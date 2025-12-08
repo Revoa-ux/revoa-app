@@ -412,6 +412,62 @@ export const getProductsCount = async (): Promise<number> => {
   return response.data.productsCount.count;
 };
 
+export const PRODUCT_WITH_VARIANTS_QUERY = `
+  query GetProductWithVariants($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      variants(first: 100) {
+        edges {
+          node {
+            id
+            title
+            price
+            sku
+            inventoryQuantity
+            position
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const getProductWithVariants = async (productId: string): Promise<any> => {
+  const response = await executeGraphQL<{
+    product: {
+      id: string;
+      title: string;
+      variants: {
+        edges: Array<{
+          node: {
+            id: string;
+            title: string;
+            price: string;
+            sku: string | null;
+            inventoryQuantity: number;
+            position: number;
+          };
+        }>;
+      };
+    };
+  }>(PRODUCT_WITH_VARIANTS_QUERY, { id: productId });
+
+  if (response.errors) {
+    throw new Error(`GraphQL error: ${response.errors[0].message}`);
+  }
+
+  if (!response.data) {
+    throw new Error('No data returned from GraphQL query');
+  }
+
+  return {
+    id: response.data.product.id,
+    title: response.data.product.title,
+    variants: response.data.product.variants.edges.map(edge => edge.node),
+  };
+};
+
 export const getOrders = async (limit = 250, query?: string): Promise<Order[]> => {
   console.log('[GraphQL] === FETCHING ORDERS ===');
   console.log('[GraphQL] Limit:', limit, 'Query:', query || 'none');

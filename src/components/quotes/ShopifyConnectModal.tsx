@@ -4,12 +4,13 @@ import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { createShopifyProduct } from '@/lib/shopify/api';
-import { updateProduct } from '@/lib/shopify/graphql';
+import { updateProduct, getProductWithVariants } from '@/lib/shopify/graphql';
 import { useClickOutside } from '@/lib/useClickOutside';
-import { Quote } from '@/types/quotes';
+import { Quote, VariantMapping, ShopifyProductWithVariants, FinalVariant, NewQuoteVariant } from '@/types/quotes';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { ShopifyProductPicker } from './ShopifyProductPicker';
+import VariantMappingModal from './VariantMappingModal';
 
 type SyncMethod = 'new' | 'existing' | null;
 
@@ -35,6 +36,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMethod, setSyncMethod] = useState<SyncMethod>(initialMethod);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProductWithVariants, setSelectedProductWithVariants] = useState<ShopifyProductWithVariants | null>(null);
+  const [showVariantMapping, setShowVariantMapping] = useState(false);
+  const [pendingMappings, setPendingMappings] = useState<VariantMapping[] | null>(null);
   const [criticalError, setCriticalError] = useState<string | null>(null);
 
   const modalRef = useRef<HTMLDivElement>(null);
@@ -340,61 +344,113 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     }
   };
 
-  const handleUpdateProduct = async () => {
-    if (!selectedProduct || !existingStore) return;
+  const handleProductSelection = async (product: any) => {
+    if (!product || !existingStore) return;
 
+    setSelectedProduct(product);
     setIsSyncing(true);
+
     try {
-      // Prepare update data based on quote variants
-      const updateData: any = {};
+      const fullProduct = await getProductWithVariants(product.id);
 
-      // Update pricing based on first variant
-      if (quote.variants && quote.variants.length > 0) {
-        const firstVariant = quote.variants[0];
-        // Get the first variant ID from the selected product
-        const firstProductVariant = selectedProduct.variants.edges[0]?.node;
-
-        if (firstProductVariant && firstVariant.costPerItem) {
-          updateData.variants = [{
-            id: firstProductVariant.id,
-            price: firstVariant.costPerItem.toFixed(2)
-          }];
-        }
-      }
-
-      // Update the product in Shopify
-      try {
-        await updateProduct(selectedProduct.id, updateData);
-        toast.success('Product updated in Shopify successfully');
-      } catch (updateErr) {
-        const errorMsg = updateErr instanceof Error ? updateErr.message : 'Failed to update product';
-        toast.error(`Failed to update product: ${errorMsg}`);
+      if (!fullProduct || !fullProduct.variants || fullProduct.variants.length === 0) {
+        toast.error('Failed to load product variants. Please try another product.');
+        setIsSyncing(false);
         return;
       }
 
-      // Update quote in database
+      setSelectedProductWithVariants(fullProduct);
+      setShowVariantMapping(true);
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Failed to load product details';
+      toast.error(`Error loading product: ${errorMsg}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const getQuoteVariants = (): (NewQuoteVariant | FinalVariant)[] => {
+    if (!quote.variants || quote.variants.length === 0) return [];
+
+    const allVariants: FinalVariant[] = [];
+
+    for (const quoteVariant of quote.variants) {
+      if (quoteVariant.finalVariants && quoteVariant.finalVariants.length > 0) {
+        allVariants.push(...quoteVariant.finalVariants);
+      }
+    }
+
+    return allVariants;
+  };
+
+  const handleConfirmMapping = async (mappings: VariantMapping[]) => {
+    if (!selectedProduct || !existingStore || !selectedProductWithVariants) return;
+
+    setIsSyncing(true);
+    try {
+      const variantUpdates = mappings.map(mapping => ({
+        id: mapping.shopifyVariantId,
+        price: mapping.quoteUnitCost.toFixed(2),
+        sku: mapping.quoteVariantSku,
+      }));
+
+      await updateProduct(selectedProduct.id, { variants: variantUpdates });
+
+      for (const mapping of mappings) {
+        const { error: mappingError } = await supabase
+          .from('shopify_variant_mappings')
+          .upsert({
+            quote_id: quote.id,
+            user_id: user!.id,
+            quote_variant_sku: mapping.quoteVariantSku,
+            quote_variant_index: mapping.quoteVariantIndex,
+            quote_unit_cost: mapping.quoteUnitCost,
+            quote_pack_size: mapping.quotePackSize,
+            quote_shipping_rules: mapping.quoteShippingRules,
+            shopify_product_id: selectedProduct.id,
+            shopify_variant_id: mapping.shopifyVariantId,
+            shopify_variant_sku: mapping.shopifyVariantSku,
+            shopify_variant_title: mapping.shopifyVariantTitle,
+            sync_status: 'synced',
+            last_synced_at: new Date().toISOString(),
+            original_variant_data: {
+              sku: mapping.shopifyVariantSku,
+              price: mapping.shopifyVariantPrice,
+            },
+          }, {
+            onConflict: 'quote_id,quote_variant_sku',
+          });
+
+        if (mappingError) {
+          console.error('Failed to save mapping:', mappingError);
+        }
+      }
+
       const { error: updateError } = await supabase
         .from('product_quotes')
         .update({
           shopify_product_id: selectedProduct.id,
-          shopify_status: 'synced',
+          shopify_sync_status: 'synced',
           shop_domain: existingStore.store_url,
-          status: 'synced_with_shopify'
+          status: 'synced_with_shopify',
+          variant_mappings: mappings,
+          last_shopify_sync_at: new Date().toISOString(),
         })
         .eq('id', quote.id);
 
       if (updateError) {
         const errorMsg = updateError.message || 'Failed to update quote in database';
-        toast.error(`Product updated in Shopify but failed to update quote: ${errorMsg}`);
+        toast.error(`Product synced but failed to update quote: ${errorMsg}`);
         return;
       }
 
+      toast.success(`Successfully synced ${mappings.length} variant${mappings.length > 1 ? 's' : ''} to "${selectedProduct.title}"`);
       onConnect(quote.id);
-      toast.success(`Quote pricing synced to "${selectedProduct.title}"`);
+      setShowVariantMapping(false);
       onClose();
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Failed to update product in Shopify';
-      toast.error(`Unexpected error: ${errorMsg}`);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to sync variants';
+      toast.error(`Sync failed: ${errorMsg}`);
     } finally {
       setIsSyncing(false);
     }
@@ -487,10 +543,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </div>
                 <div className="flex-1 -mx-6 -mb-6">
                   <ShopifyProductPicker
-                    onSelect={(product) => {
-                      setSelectedProduct(product);
-                      handleUpdateProduct();
-                    }}
+                    onSelect={handleProductSelection}
                     onCancel={() => setStep('method_select')}
                   />
                 </div>
@@ -680,6 +733,21 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           </div>
         </div>
       </div>
+
+      {showVariantMapping && selectedProductWithVariants && (
+        <VariantMappingModal
+          isOpen={showVariantMapping}
+          onClose={() => {
+            setShowVariantMapping(false);
+            setSelectedProduct(null);
+            setSelectedProductWithVariants(null);
+          }}
+          onConfirm={handleConfirmMapping}
+          quoteId={quote.id}
+          quoteVariants={getQuoteVariants()}
+          shopifyProduct={selectedProductWithVariants}
+        />
+      )}
     </div>
   );
 };
