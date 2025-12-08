@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, TrendingUp, DollarSign } from 'lucide-react';
+import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, TrendingUp } from 'lucide-react';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 import Modal from '../Modal';
 import { QuoteVariantDropdown } from './QuoteVariantDropdown';
@@ -299,6 +299,7 @@ export default function VariantMappingModal({
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+          onClick={onClose}
           aria-hidden="true"
         />
 

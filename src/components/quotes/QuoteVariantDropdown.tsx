@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Search, Box, Minus } from 'lucide-react';
+import { ChevronDown, Search, Package, Minus } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import type { NewQuoteVariant, FinalVariant } from '@/types/quotes';
 
@@ -68,7 +68,7 @@ export function QuoteVariantDropdown({
         <span className="flex items-center gap-2 flex-1 min-w-0">
           {selectedName ? (
             <>
-              <Box className="w-4 h-4 flex-shrink-0 text-pink-500" />
+              <Package className="w-4 h-4 flex-shrink-0 text-gray-400" />
               <span className="truncate">{selectedName}</span>
             </>
           ) : (
