@@ -97,11 +97,11 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999]">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[9999] overflow-hidden">
             {canAccept && (
               <button
                 onClick={handleAccept}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 first:rounded-t-lg transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
               >
                 <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                 <span>{quote.status === 'pending_reacceptance' ? 'Review & Accept' : 'Accept Quote'}</span>
@@ -120,7 +120,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 
             <button
               onClick={handleDecline}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 last:rounded-b-lg transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
             >
               <X className="w-4 h-4" />
               <span>{getDeclineButtonText()}</span>
