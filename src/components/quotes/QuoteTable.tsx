@@ -126,74 +126,148 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   </td>
                 </tr>
                 {expandedQuotes.includes(quote.id) && (() => {
-                  const shippingAnalysis = analyzeShippingVariance(quote);
-                  const variantData = getVariantDisplayData(quote, shippingAnalysis);
+                  // Collect all unique countries and quantity tiers
+                  const allCountries = new Set<string>();
+                  const allQuantityTiers = new Set<number>();
+                  const variantDetails: Array<{
+                    name: string;
+                    sku: string;
+                    attributes: any[];
+                    unitPrice: number;
+                    defaultShipping: number;
+                    countryShipping: { [key: string]: number };
+                    quantityTiers?: Array<{ minQty: number; discountAmount: number }>;
+                  }> = [];
+
+                  quote.variants?.forEach(variant => {
+                    variant.finalVariants.forEach((fv, idx) => {
+                      // Collect country codes
+                      Object.keys(fv.shippingCosts).forEach(key => {
+                        if (key !== '_default') allCountries.add(key);
+                      });
+
+                      variantDetails.push({
+                        name: fv.variantName || fv.attributes.map(a => a.value).join(' - ') || `Variant ${idx + 1}`,
+                        sku: fv.sku,
+                        attributes: fv.attributes,
+                        unitPrice: fv.costPerItem,
+                        defaultShipping: fv.shippingCosts._default,
+                        countryShipping: Object.fromEntries(
+                          Object.entries(fv.shippingCosts).filter(([k]) => k !== '_default')
+                        ),
+                        quantityTiers: undefined // Will add quantity tier support later
+                      });
+                    });
+                  });
+
+                  const sortedCountries = Array.from(allCountries).sort();
+                  const hasProtection = !!(
+                    quote.warrantyDays ||
+                    quote.coversLostItems ||
+                    quote.coversDamagedItems ||
+                    quote.coversLateDelivery
+                  );
 
                   return (
                   <>
-                    {/* Variants Table Style */}
-                    {variantData.length > 0 && (
+                    {/* Variants Table */}
+                    {variantDetails.length > 0 && (
                       <tr className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
-                        <td colSpan={4} className="px-6 py-6">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Package className="w-4 h-4 text-rose-500 dark:text-rose-400" />
-                              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Product Variants</h4>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                              <table className="w-full text-sm">
-                                <thead>
-                                  <tr className="border-b border-gray-200 dark:border-gray-700">
-                                    <th className="text-left py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Variant Name</th>
-                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Unit Price</th>
-                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Shipping</th>
-                                    <th className="text-right py-2 px-3 text-xs font-medium text-gray-600 dark:text-gray-400">Total (1 unit)</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {variantData.map((variant, index) => (
-                                    <React.Fragment key={index}>
-                                      <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800">
-                                        <td className="py-2 px-3">
-                                          <div className="flex items-center gap-2">
-                                            <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
-                                            {variant.attributes.length > 0 && (
-                                              <ProductAttributesBadge attributes={variant.attributes} />
-                                            )}
-                                          </div>
-                                        </td>
-                                        <td className="py-2 px-3 text-right font-medium text-gray-900 dark:text-white">
-                                          {formatCurrency(variant.pricePerUnit)}
-                                        </td>
-                                        <td className="py-2 px-3 text-right font-medium text-gray-900 dark:text-white">
-                                          {formatCurrency(variant.standardShipping)}
-                                        </td>
-                                        <td className="py-2 px-3 text-right font-bold text-rose-600 dark:text-rose-400">
-                                          {formatCurrency(variant.totalCost)}
-                                        </td>
-                                      </tr>
-                                      {variant.hasUniqueShipping && Object.keys(variant.countryShipping).length > 0 && (
-                                        <tr>
-                                          <td colSpan={4} className="py-2 px-3 bg-gray-50 dark:bg-gray-800">
-                                            <div className="text-xs">
-                                              <span className="font-medium text-gray-600 dark:text-gray-400 mr-2">Shipping Cost by Country:</span>
-                                              <span className="text-gray-700 dark:text-gray-300">
-                                                {Object.entries(variant.countryShipping)
-                                                  .sort(([a], [b]) => a.localeCompare(b))
-                                                  .map(([country, cost]) => `${country.toUpperCase()}: ${formatCurrency(cost)}`)
-                                                  .join(' • ')}
-                                              </span>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      )}
-                                    </React.Fragment>
+                        <td colSpan={4} className="p-0">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs border-collapse">
+                              <thead>
+                                <tr className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 min-w-[200px]">
+                                    Variant
+                                  </th>
+                                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                                    SKU
+                                  </th>
+                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                                    Unit Price
+                                  </th>
+                                  <th className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[120px]">
+                                    Default Shipping
+                                  </th>
+                                  {sortedCountries.map(country => (
+                                    <th key={country} className="text-right py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 min-w-[100px]">
+                                      {country.toUpperCase()} Ship
+                                    </th>
                                   ))}
-                                </tbody>
-                              </table>
-                            </div>
+                                  <th className="text-right py-3 px-4 font-semibold text-rose-600 dark:text-rose-400 min-w-[100px]">
+                                    Total (1 unit)
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {variantDetails.map((variant, index) => (
+                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800/50">
+                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 z-10">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
+                                        {variant.attributes.length > 0 && (
+                                          <ProductAttributesBadge attributes={variant.attributes} />
+                                        )}
+                                      </div>
+                                    </td>
+                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-mono text-xs">
+                                      {variant.sku}
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">
+                                      {formatCurrency(variant.unitPrice)}
+                                    </td>
+                                    <td className="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">
+                                      {formatCurrency(variant.defaultShipping)}
+                                    </td>
+                                    {sortedCountries.map(country => (
+                                      <td key={country} className="py-3 px-4 text-right font-medium text-gray-900 dark:text-white">
+                                        {variant.countryShipping[country] !== undefined
+                                          ? formatCurrency(variant.countryShipping[country])
+                                          : '-'}
+                                      </td>
+                                    ))}
+                                    <td className="py-3 px-4 text-right font-bold text-rose-600 dark:text-rose-400">
+                                      {formatCurrency(variant.unitPrice + variant.defaultShipping)}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
+
+                          {/* Coverage/Protection Section */}
+                          {hasProtection && (
+                            <div className="px-6 py-4 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                              <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Coverage & Protection</h5>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                {quote.warrantyDays && (
+                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    <span>Warranty: {quote.warrantyDays} days</span>
+                                  </div>
+                                )}
+                                {quote.coversLostItems && (
+                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    <span>Lost items covered</span>
+                                  </div>
+                                )}
+                                {quote.coversDamagedItems && (
+                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    <span>Damaged items covered</span>
+                                  </div>
+                                )}
+                                {quote.coversLateDelivery && (
+                                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                    <span>Late delivery covered</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}
