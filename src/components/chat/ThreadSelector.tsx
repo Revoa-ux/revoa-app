@@ -9,6 +9,7 @@ export interface ChatThread {
   order_id: string | null;
   shopify_order_id: string | null;
   order_number?: string;
+  customer_name?: string | null;
   tag?: string | null;
   unread_count?: number;
   created_at: string;
@@ -141,9 +142,15 @@ export function ThreadSelector({
                               {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
                             </span>
                           )}
-                          {thread.order_number && (
+                          {thread.customer_name && (
                             <>
                               {thread.tag && <span>•</span>}
+                              <span className="truncate">{thread.customer_name}</span>
+                            </>
+                          )}
+                          {thread.order_number && (
+                            <>
+                              {(thread.tag || thread.customer_name) && <span>•</span>}
                               <span className="truncate">Order {thread.order_number}</span>
                             </>
                           )}
@@ -220,9 +227,15 @@ export function ThreadSelector({
                               {thread.tag.charAt(0).toUpperCase() + thread.tag.slice(1)}
                             </span>
                           )}
-                          {thread.order_number && (
+                          {thread.customer_name && (
                             <>
                               {thread.tag && <span>•</span>}
+                              <span className="truncate">{thread.customer_name}</span>
+                            </>
+                          )}
+                          {thread.order_number && (
+                            <>
+                              {(thread.tag || thread.customer_name) && <span>•</span>}
                               <span className="truncate">Order {thread.order_number}</span>
                             </>
                           )}
