@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react';
-import { useClickOutside } from '@/lib/useClickOutside';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 
 interface VariantMappingModalProps {
@@ -27,8 +26,6 @@ export default function VariantMappingModal({
   const [mappings, setMappings] = useState<Map<string, number | null>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useClickOutside(modalRef, onClose);
 
   const isNewQuoteVariant = (variant: any): variant is NewQuoteVariant => {
     return 'shippingRules' in variant && 'costPerItem' in variant;
@@ -163,6 +160,7 @@ export default function VariantMappingModal({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
         aria-hidden="true"
       />
 
@@ -172,6 +170,7 @@ export default function VariantMappingModal({
           <div
             ref={modalRef}
             className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
           >
