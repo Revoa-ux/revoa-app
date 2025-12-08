@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader2, Package, CheckCircle, ArrowRight } from 'lucide-react';
+import { Search, Loader2, Package, Check, ArrowRight } from 'lucide-react';
 import { getProducts } from '@/lib/shopify/graphql';
 
 interface ShopifyProduct {
@@ -102,7 +102,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
+            <Loader2 className="w-8 h-8 text-rose-500 animate-spin mb-3" />
             <p className="text-sm text-gray-600 dark:text-gray-400">Loading products...</p>
           </div>
         ) : error ? (
@@ -140,10 +140,10 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                 <button
                   key={product.id}
                   onClick={() => setSelectedId(product.id)}
-                  className={`w-full text-left p-4 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors ${
+                  className={`w-full text-left p-4 rounded-lg border transition-colors ${
                     isSelected
-                      ? 'bg-blue-50 dark:bg-blue-900/20'
-                      : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -165,13 +165,15 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <h3 className={`text-sm font-semibold truncate ${
                           isSelected
-                            ? 'text-pink-900 dark:text-pink-100'
+                            ? 'text-gray-900 dark:text-white'
                             : 'text-gray-900 dark:text-white'
                         }`}>
                           {product.title}
                         </h3>
                         {isSelected && (
-                          <CheckCircle className="w-5 h-5 text-pink-600 dark:text-pink-400 flex-shrink-0" />
+                          <div className="w-5 h-5 rounded bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
                         )}
                       </div>
 

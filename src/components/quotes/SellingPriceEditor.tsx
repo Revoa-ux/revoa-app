@@ -92,20 +92,20 @@ export function SellingPriceEditor({
         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
           Margin
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded text-sm font-semibold ${getMarginColorClass()} ${getBadgeColorClass()}`}>
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded ${getBadgeColorClass()}`}>
+          <span className={`text-sm font-semibold ${getMarginColorClass()}`}>
             ${margin.toFixed(2)}
           </span>
-          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-normal ${getBadgeColorClass()}`}>
+          <span className={`text-xs font-normal ${getMarginColorClass()}`}>
             {marginPercent.toFixed(0)}%
           </span>
-        </div>
+        </span>
       </div>
 
       {/* Suggested Price Button */}
       {Math.abs(suggestedPrice - displayPrice) > 0.01 ? (
         <div className="flex-1 flex flex-col items-end">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 self-start">
             Suggested Price
           </div>
           <button

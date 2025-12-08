@@ -447,10 +447,10 @@ export default function VariantMappingModal({
 
                 {/* Unmapped Warning */}
                 {unmappedCount > 0 && (
-                  <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                  <div className="mt-6 bg-gray-100/50 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-lg p-3">
                     <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-                      <p className="text-xs text-amber-800 dark:text-amber-200">
+                      <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />
+                      <p className="text-xs text-gray-700 dark:text-gray-300">
                         <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
                       </p>
                     </div>
