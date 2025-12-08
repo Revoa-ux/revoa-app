@@ -185,7 +185,49 @@ Deno.serve(async (req: Request) => {
     const billingAddress = orderData.billing_address || {};
     const shippingAddress = orderData.shipping_address || {};
     const discountCodes = (orderData.discount_codes || []).map((dc: any) => dc.code);
-    const customerEmail = orderData.email || orderData.customer?.email;
+
+    // Fetch full customer details if customer data is incomplete (common for draft orders)
+    let customerData = orderData.customer;
+    const hasIncompleteCustomer = orderData.customer?.id &&
+      (!orderData.customer?.first_name || !orderData.customer?.last_name || !orderData.customer?.email);
+
+    if (hasIncompleteCustomer) {
+      console.log('[Order Webhook] Customer data incomplete, fetching from API...');
+      try {
+        const { data: installationForToken } = await supabase
+          .from('shopify_installations')
+          .select('access_token')
+          .eq('user_id', userId)
+          .eq('status', 'installed')
+          .maybeSingle();
+
+        if (installationForToken?.access_token) {
+          const customerResponse = await fetch(
+            `https://${shop}/admin/api/2024-01/customers/${orderData.customer.id}.json`,
+            {
+              headers: {
+                'X-Shopify-Access-Token': installationForToken.access_token,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (customerResponse.ok) {
+            const { customer: fullCustomer } = await customerResponse.json();
+            customerData = fullCustomer;
+            console.log('[Order Webhook] Customer data fetched:', {
+              first_name: fullCustomer?.first_name,
+              last_name: fullCustomer?.last_name,
+              email: fullCustomer?.email
+            });
+          }
+        }
+      } catch (error) {
+        console.warn('[Order Webhook] Failed to fetch customer details:', error);
+      }
+    }
+
+    const customerEmail = orderData.email || customerData?.email;
     let isRepeatCustomer = false;
     let orderCount = 1;
 
@@ -198,10 +240,10 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log('[Order Webhook] Customer data:', {
-      has_customer_object: !!orderData.customer,
-      customer_first_name: orderData.customer?.first_name,
-      customer_last_name: orderData.customer?.last_name,
-      customer_email: orderData.customer?.email || orderData.email,
+      has_customer_object: !!customerData,
+      customer_first_name: customerData?.first_name,
+      customer_last_name: customerData?.last_name,
+      customer_email: customerData?.email || orderData.email,
       shipping_first_name: shippingAddress.first_name,
       shipping_last_name: shippingAddress.last_name
     });
@@ -213,9 +255,9 @@ Deno.serve(async (req: Request) => {
       total_price: parseFloat(orderData.total_price || orderData.current_total_price || '0'),
       currency: orderData.currency || 'USD',
       customer_email: customerEmail,
-      customer_first_name: orderData.customer?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
-      customer_last_name: orderData.customer?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
-      customer_phone: orderData.customer?.phone || shippingAddress.phone || billingAddress.phone || orderData.phone || null,
+      customer_first_name: customerData?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
+      customer_last_name: customerData?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
+      customer_phone: customerData?.phone || shippingAddress.phone || billingAddress.phone || orderData.phone || null,
       shipping_address_line1: shippingAddress.address1 || null,
       shipping_address_line2: shippingAddress.address2 || null,
       shipping_city: shippingAddress.city || null,
