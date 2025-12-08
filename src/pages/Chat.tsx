@@ -477,6 +477,18 @@ const Chat = () => {
       </div>
 
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0">
+        {/* Thread Sidebar */}
+        {chat && (
+          <ChannelSidebar
+            threads={threads}
+            selectedThreadId={selectedThreadId}
+            onThreadSelect={handleThreadSelect}
+            onCreateThread={() => setShowCreateThreadModal(true)}
+            isOpen={showThreadSidebar}
+            onClose={() => setShowThreadSidebar(false)}
+          />
+        )}
+
         <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
@@ -918,18 +930,6 @@ const Chat = () => {
             threadId={selectedThreadId}
             userId={user.id}
             isExpanded={showCustomerSidebar}
-          />
-        )}
-
-        {/* Thread Sidebar */}
-        {chat && (
-          <ChannelSidebar
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onThreadSelect={handleThreadSelect}
-            onCreateThread={() => setShowCreateThreadModal(true)}
-            isOpen={showThreadSidebar}
-            onClose={() => setShowThreadSidebar(false)}
           />
         )}
       </div>

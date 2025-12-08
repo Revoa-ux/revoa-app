@@ -43,7 +43,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   return (
     <div
       className={cn(
-        'border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col rounded-r-xl overflow-hidden',
+        'border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col overflow-hidden',
         'w-[280px] flex-shrink-0'
       )}
     >
