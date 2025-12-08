@@ -44,6 +44,7 @@ export const QuickModeBulkEditor: React.FC<QuickModeBulkEditorProps> = ({
       id: `var_${Date.now()}`,
       sku: `${source.sku}-copy`,
       name: `${source.name} (Copy)`,
+      attributes: source.attributes.map(attr => ({ ...attr })),
       shippingRules: {
         ...source.shippingRules,
         byCountry: { ...source.shippingRules.byCountry },

@@ -110,7 +110,8 @@ export const EditQuoteModal: React.FC<EditQuoteModalProps> = ({
         shippingCosts: {
           _default: variant.shippingRules.default,
           ...variant.shippingRules.byCountry
-        }
+        },
+        variantName: variant.name
       };
 
       return {

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ExternalLink, LayoutGrid, List, ShoppingBag } from 'lucide-react';
-import { Package, Calendar, Truck, Shield, Globe, CheckSquare, Square } from 'lucide-react';
+import { ChevronRight, ExternalLink, LayoutGrid, List, ShoppingBag, Package } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -177,12 +176,6 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                 {expandedQuotes.includes(quote.id) && viewMode === 'expanded' && (() => {
                   const shippingAnalysis = analyzeShippingVariance(quote);
                   const variantData = getVariantDisplayData(quote, shippingAnalysis);
-                  const hasProtection = !!(
-                    quote.warrantyDays ||
-                    quote.coversLostItems ||
-                    quote.coversDamagedItems ||
-                    quote.coversLateDelivery
-                  );
 
                   return (
                   <>
@@ -265,101 +258,6 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                 We're working on getting you the best pricing from our suppliers
                               </p>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-
-                    {/* Product Protection & Shipping Details */}
-                    {(hasProtection || (shippingAnalysis.hasCountryShipping && !shippingAnalysis.hasVariance)) && (
-                      <tr className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-600">
-                        <td colSpan={4} className="px-6 py-6">
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Product Protection */}
-                            {hasProtection && (
-                              <div>
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Shield className="w-4 h-4 text-rose-500 dark:text-rose-400" />
-                                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Protection Included</h4>
-                                </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                  Based on the factory and logistics company
-                                </p>
-
-                                <div className="space-y-2">
-                                  {quote.warrantyDays && (
-                                    <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                                      <div className="flex items-center gap-2 mb-1">
-                                        <Calendar className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                                        <p className="text-xs font-medium text-gray-900 dark:text-white">Warranty Coverage</p>
-                                      </div>
-                                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                                        Protected for {quote.warrantyDays} days if you receive defective items
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
-                                    <div className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <Truck className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                                        <p className="text-xs font-medium text-gray-900 dark:text-white">Shipping Protection</p>
-                                      </div>
-                                      <div className="space-y-1">
-                                        {quote.coversLostItems && (
-                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                            Lost packages replaced/refunded
-                                          </p>
-                                        )}
-                                        {quote.coversDamagedItems && (
-                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                            Damaged items covered
-                                          </p>
-                                        )}
-                                        {quote.coversLateDelivery && (
-                                          <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
-                                            <CheckSquare className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                            Delay compensation
-                                          </p>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Common Shipping Costs */}
-                            {shippingAnalysis.hasCountryShipping && !shippingAnalysis.hasVariance && shippingAnalysis.commonShipping && (
-                              <div>
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Globe className="w-4 h-4 text-rose-500 dark:text-rose-400" />
-                                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Shipping Cost by Country</h4>
-                                </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                  Same rates apply to all variants
-                                </p>
-                                <div className="space-y-1.5">
-                                  {Object.entries(shippingAnalysis.commonShipping)
-                                    .sort(([a], [b]) => a.localeCompare(b))
-                                    .map(([country, cost]) => (
-                                      <div
-                                        key={country}
-                                        className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 text-xs"
-                                      >
-                                        <span className="font-medium text-gray-700 dark:text-gray-300">
-                                          {country.toUpperCase()}
-                                        </span>
-                                        <span className="font-semibold text-gray-900 dark:text-white">
-                                          {formatCurrency(cost)}
-                                        </span>
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            )}
                           </div>
                         </td>
                       </tr>
