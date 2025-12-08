@@ -1,6 +1,94 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react';
+import { X, AlertTriangle, ArrowRight, ChevronDown, Check } from 'lucide-react';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
+
+interface CustomDropdownProps {
+  value: number | null;
+  onChange: (value: number | null) => void;
+  quoteVariants: (NewQuoteVariant | FinalVariant)[];
+  isNewQuoteVariant: (variant: any) => variant is NewQuoteVariant;
+}
+
+function CustomDropdown({ value, onChange, quoteVariants, isNewQuoteVariant }: CustomDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const selectedVariant = value !== null && value !== undefined ? quoteVariants[value] : null;
+  const selectedLabel = selectedVariant
+    ? `${isNewQuoteVariant(selectedVariant) ? selectedVariant.name : selectedVariant.variantName || 'Unnamed'} • $${(isNewQuoteVariant(selectedVariant) ? selectedVariant.costPerItem : selectedVariant.costPerItem).toFixed(2)}`
+    : 'No mapping';
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-gray-500 focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent transition-all"
+      >
+        <span className={value === null ? 'text-gray-500 dark:text-gray-400' : ''}>
+          {selectedLabel}
+        </span>
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null);
+              setIsOpen(false);
+            }}
+            className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+              value === null ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' : 'text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            <span>No mapping</span>
+            {value === null && <Check className="w-4 h-4" />}
+          </button>
+          {quoteVariants.map((qVariant, index) => {
+            const qName = isNewQuoteVariant(qVariant) ? qVariant.name : qVariant.variantName || 'Unnamed';
+            const qCost = isNewQuoteVariant(qVariant) ? qVariant.costPerItem : qVariant.costPerItem;
+            const isSelected = value === index;
+
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => {
+                  onChange(index);
+                  setIsOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                  isSelected ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' : 'text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                <span>{qName} • ${qCost.toFixed(2)}</span>
+                {isSelected && <Check className="w-4 h-4" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface VariantMappingModalProps {
   isOpen: boolean;
@@ -213,7 +301,7 @@ export default function VariantMappingModal({
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <h4 className="font-medium text-sm text-gray-900 dark:text-white truncate">
-                              {shopifyVariant.title}
+                              {shopifyVariant.title === 'Default Title' ? shopifyProduct.title : shopifyVariant.title}
                             </h4>
                             <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
                               ${shopifyVariant.price}
@@ -221,7 +309,7 @@ export default function VariantMappingModal({
                           </div>
                           {shopifyVariant.sku && (
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
-                              {shopifyVariant.sku}
+                              SKU: {shopifyVariant.sku}
                             </p>
                           )}
                         </div>
@@ -230,31 +318,13 @@ export default function VariantMappingModal({
                         <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
 
                         {/* Mapping Dropdown */}
-                        <div className="w-64 flex-shrink-0 relative">
-                          <select
-                            value={selectedQuoteIndex ?? ''}
-                            onChange={(e) => handleMappingChange(
-                              shopifyVariant.id,
-                              e.target.value === '' ? null : parseInt(e.target.value)
-                            )}
-                            className="w-full appearance-none pl-3 pr-8 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent transition-all"
-                          >
-                            <option value="">No mapping</option>
-                            {quoteVariants.map((qVariant, index) => {
-                              const qName = isNewQuoteVariant(qVariant)
-                                ? qVariant.name
-                                : qVariant.variantName || 'Unnamed';
-                              const qCost = isNewQuoteVariant(qVariant)
-                                ? qVariant.costPerItem
-                                : qVariant.costPerItem;
-                              return (
-                                <option key={index} value={index}>
-                                  {qName} • ${qCost.toFixed(2)}
-                                </option>
-                              );
-                            })}
-                          </select>
-                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                        <div className="w-64 flex-shrink-0">
+                          <CustomDropdown
+                            value={selectedQuoteIndex ?? null}
+                            onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                            quoteVariants={quoteVariants}
+                            isNewQuoteVariant={isNewQuoteVariant}
+                          />
                         </div>
                       </div>
 
@@ -274,8 +344,16 @@ export default function VariantMappingModal({
                             <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 px-2 py-1.5 rounded">
                               <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
                               <div className="space-y-0.5">
-                                {willUpdateSku && <div>SKU → {selectedQuote.sku}</div>}
-                                {willUpdatePrice && <div>Price → ${qCost.toFixed(2)}</div>}
+                                {willUpdateSku && (
+                                  <div>
+                                    <span className="font-medium">Will update SKU:</span> {shopifyVariant.sku || '(empty)'} → {selectedQuote.sku}
+                                  </div>
+                                )}
+                                {willUpdatePrice && (
+                                  <div>
+                                    <span className="font-medium">Will update price:</span> ${shopifyPrice.toFixed(2)} → ${qCost.toFixed(2)}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </div>
