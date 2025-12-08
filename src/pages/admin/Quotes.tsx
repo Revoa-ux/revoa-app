@@ -585,12 +585,15 @@ export default function AdminQuotes() {
                       >
                         Process
                       </button>
+                    ) : quote.status === 'quoted' ? (
+                      <button
+                        onClick={() => setSelectedQuote(quote)}
+                        className="text-xs text-gray-900 hover:text-gray-700 dark:text-gray-100 dark:hover:text-gray-300 underline hover:no-underline"
+                      >
+                        Edit
+                      </button>
                     ) : (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {quote.status === 'quoted' && quote.expiresIn !== undefined
-                          ? `Expires in ${quote.expiresIn}d`
-                          : '-'}
-                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">-</span>
                     )}
                   </td>
                 </tr>

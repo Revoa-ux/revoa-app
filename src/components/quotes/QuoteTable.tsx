@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle, Check, X } from 'lucide-react';
+import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle, CheckSquare, Square } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -128,54 +128,86 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                             </div>
 
                             <div className="grid gap-3">
-                              {quote.variants.map((variant, varIndex) => {
-                                // Get first finalVariant for this pack size
-                                const finalVariant = variant.finalVariants?.[0];
-                                const costPerItem = finalVariant?.costPerItem;
-                                const shippingCost = finalVariant?.shippingCosts?._default;
-                                const totalCost = costPerItem && shippingCost ? (costPerItem * variant.packSize + shippingCost) : null;
+                              {(() => {
+                                // Deduplicate variants by pricing (costPerItem + shippingCost + attributes)
+                                const uniquePricingMap = new Map();
 
-                                return (
-                                  <div
-                                    key={`${quote.id}-${variant.packSize}`}
-                                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
-                                  >
-                                    <div className="flex items-start justify-between gap-4">
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-3">
-                                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                            {variant.packSize} {variant.packSize === 1 ? 'Unit' : 'Units'}
-                                          </span>
-                                          {finalVariant?.attributes && finalVariant.attributes.length > 0 && (
-                                            <ProductAttributesBadge attributes={finalVariant.attributes} />
-                                          )}
-                                        </div>
+                                quote.variants.forEach((variant) => {
+                                  const finalVariant = variant.finalVariants?.[0];
+                                  const costPerItem = finalVariant?.costPerItem;
+                                  const shippingCost = finalVariant?.shippingCosts?._default;
+                                  const attributesKey = finalVariant?.attributes
+                                    ? JSON.stringify(finalVariant.attributes.sort())
+                                    : '';
 
-                                        <div className="grid grid-cols-3 gap-4">
-                                          <div>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
-                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                              {costPerItem != null ? `$${costPerItem.toFixed(2)}` : '-'}
-                                            </p>
+                                  // Create unique key based on pricing and attributes
+                                  const pricingKey = `${costPerItem}-${shippingCost}-${attributesKey}`;
+
+                                  if (!uniquePricingMap.has(pricingKey)) {
+                                    uniquePricingMap.set(pricingKey, {
+                                      variant,
+                                      finalVariant,
+                                      costPerItem,
+                                      shippingCost,
+                                      packSizes: [variant.packSize]
+                                    });
+                                  } else {
+                                    // Add this pack size to existing pricing group
+                                    uniquePricingMap.get(pricingKey).packSizes.push(variant.packSize);
+                                  }
+                                });
+
+                                return Array.from(uniquePricingMap.values()).map((group, index) => {
+                                  const { variant, finalVariant, costPerItem, shippingCost, packSizes } = group;
+                                  // Use smallest pack size for total cost calculation
+                                  const smallestPackSize = Math.min(...packSizes);
+                                  const totalCost = costPerItem && shippingCost ? (costPerItem * smallestPackSize + shippingCost) : null;
+
+                                  return (
+                                    <div
+                                      key={`${quote.id}-pricing-${index}`}
+                                      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                                    >
+                                      <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-3 mb-3">
+                                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                              {packSizes.length === 1
+                                                ? `${packSizes[0]} ${packSizes[0] === 1 ? 'Unit' : 'Units'}`
+                                                : `${Math.min(...packSizes)}-${Math.max(...packSizes)} Units`
+                                              }
+                                            </span>
+                                            {finalVariant?.attributes && finalVariant.attributes.length > 0 && (
+                                              <ProductAttributesBadge attributes={finalVariant.attributes} />
+                                            )}
                                           </div>
-                                          <div>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</p>
-                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                              {shippingCost != null ? `$${shippingCost.toFixed(2)}` : '-'}
-                                            </p>
-                                          </div>
-                                          <div>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
-                                            <p className="text-base font-bold text-rose-600 dark:text-rose-400">
-                                              {totalCost != null ? `$${totalCost.toFixed(2)}` : '-'}
-                                            </p>
+
+                                          <div className="grid grid-cols-3 gap-4">
+                                            <div>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
+                                              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                {costPerItem != null ? `$${costPerItem.toFixed(2)}` : '-'}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</p>
+                                              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                                {shippingCost != null ? `$${shippingCost.toFixed(2)}` : '-'}
+                                              </p>
+                                            </div>
+                                            <div>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
+                                              <p className="text-base font-bold text-rose-600 dark:text-rose-400">
+                                                {totalCost != null ? `$${totalCost.toFixed(2)}` : '-'}
+                                              </p>
+                                            </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                });
+                              })()}
                             </div>
                           </div>
                         </td>
@@ -213,7 +245,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                     <Shield className="w-5 h-5 text-rose-500 dark:text-rose-400" />
                                     <h4 className="text-base font-semibold text-gray-900 dark:text-white">Protection Included</h4>
                                   </div>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 ml-7">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
                                     Based on the factory and logistics company
                                   </p>
                                 </div>
@@ -238,25 +270,25 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                       <div className="space-y-1.5">
                                         <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                                           {quote.coversLostItems ? (
-                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
                                           ) : (
-                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                                           )}
                                           Lost packages will be replaced or refunded
                                         </p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                                           {quote.coversDamagedItems ? (
-                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
                                           ) : (
-                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                                           )}
                                           Damaged items during shipping are covered
                                         </p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                                           {quote.coversLateDelivery ? (
-                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                            <CheckSquare className="w-3.5 h-3.5 text-gray-700 dark:text-gray-300 flex-shrink-0" />
                                           ) : (
-                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                                            <Square className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                                           )}
                                           Compensation for significant delays
                                         </p>
@@ -273,14 +305,15 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               const countries = Object.keys(shippingCosts).filter(k => k !== '_default');
                               return countries.length > 0 && (
                                 <div className="space-y-4">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <Globe className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white">Shipping by Country</h4>
+                                  <div className="mb-4">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Globe className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                                      <h4 className="text-base font-semibold text-gray-900 dark:text-white">Shipping Cost By Country</h4>
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      Different shipping rates apply based on destination
+                                    </p>
                                   </div>
-
-                                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                                    Different shipping rates apply based on destination
-                                  </p>
 
                                   <div className="space-y-2">
                                     <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
