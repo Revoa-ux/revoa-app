@@ -478,16 +478,6 @@ export const createProduct = async (input: {
     name: string;
     values: Array<{ name: string }>;
   }>;
-  variants?: Array<{
-    price: string;
-    compareAtPrice?: string;
-    sku?: string;
-    inventoryQuantity?: number;
-    optionValues?: Array<{
-      optionName: string;
-      name: string;
-    }>;
-  }>;
 }): Promise<Product> => {
   const response = await executeGraphQL<{
     productCreate: {
@@ -587,6 +577,59 @@ export const updateProduct = async (
   }
 
   return response.data.productUpdate.product;
+};
+
+const UPDATE_VARIANT_MUTATION = `
+  mutation productVariantUpdate($input: ProductVariantInput!) {
+    productVariantUpdate(input: $input) {
+      productVariant {
+        id
+        price
+        sku
+        inventoryQuantity
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const updateProductVariant = async (
+  variantId: string,
+  input: {
+    price?: string;
+    compareAtPrice?: string;
+    sku?: string;
+    inventoryQuantity?: number;
+  }
+): Promise<void> => {
+  const variantInput = {
+    id: variantId,
+    ...input,
+  };
+
+  const response = await executeGraphQL<{
+    productVariantUpdate: {
+      productVariant: any;
+      userErrors: Array<{ field: string[]; message: string }>;
+    };
+  }>(UPDATE_VARIANT_MUTATION, { input: variantInput });
+
+  if (response.errors) {
+    throw new Error(`GraphQL error: ${response.errors[0].message}`);
+  }
+
+  if (!response.data) {
+    throw new Error('No data returned from GraphQL mutation');
+  }
+
+  if (response.data.productVariantUpdate.userErrors.length > 0) {
+    throw new Error(
+      `Variant update error: ${response.data.productVariantUpdate.userErrors[0].message}`
+    );
+  }
 };
 
 export const RETURNS_QUERY = `

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { X, Store, Loader2, Package, CheckCircle, Plus, RefreshCw, ArrowLeft, AlertTriangle, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -490,27 +490,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
             ) : step === 'sync' ? (
               <div className="space-y-6">
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-green-900">Store Connected</p>
-                      <p className="text-sm text-green-700 mt-1">{existingStore?.store_url}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <Package className="w-5 h-5 text-gray-400 mt-0.5" />
+                    <Package className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 mb-1">Product to Add</p>
-                      <p className="text-sm text-gray-700">{quote.productName}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">Product to Add</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{quote.productName}</p>
                       {quote.variants && quote.variants.length > 0 && (
                         <div className="mt-2 space-y-1">
-                          <p className="text-xs text-gray-500">Pricing Tiers:</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Pricing Tiers:</p>
                           {quote.variants.map((variant, idx) => (
-                            <p key={idx} className="text-xs text-gray-600">
+                            <p key={idx} className="text-xs text-gray-600 dark:text-gray-400">
                               Qty {variant.quantity}: ${variant.costPerItem ? variant.costPerItem.toFixed(2) : '0.00'}/item
                             </p>
                           ))}
@@ -520,8 +510,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-900">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <p className="text-sm text-blue-900 dark:text-blue-300">
                     <strong>Note:</strong> This will create a new product in your Shopify store with the pricing information from this quote.
                   </p>
                 </div>
@@ -531,7 +521,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={onClose}
                     disabled={isSyncing}
-                    className="flex-1 px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -539,7 +529,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={handleSyncProduct}
                     disabled={isSyncing}
-                    className="flex-1 px-4 py-2 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center"
+                    className="flex-1 px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center group"
                   >
                     {isSyncing ? (
                       <>
@@ -547,7 +537,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                         Adding Product...
                       </>
                     ) : (
-                      'Add to Shopify'
+                      <>
+                        Add to Shopify
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </>
                     )}
                   </button>
                 </div>

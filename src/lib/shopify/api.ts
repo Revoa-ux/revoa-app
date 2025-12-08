@@ -590,6 +590,31 @@ const getDefaultCalculatorMetrics = (): ShopifyCalculatorMetrics => {
 };
 
 // Create a product in Shopify using GraphQL
+// Helper function to convert GraphQL Product to REST format
+const convertToRestProduct = (product: GraphQL.Product): ShopifyProduct => {
+  return {
+    id: product.id.replace('gid://shopify/Product/', ''),
+    title: product.title,
+    vendor: product.vendor || '',
+    product_type: product.productType || '',
+    created_at: product.createdAt || new Date().toISOString(),
+    updated_at: product.updatedAt || new Date().toISOString(),
+    published_at: product.publishedAt || new Date().toISOString(),
+    variants: product.variants?.edges?.map(edge => ({
+      id: edge.node.id.replace('gid://shopify/ProductVariant/', ''),
+      title: edge.node.title || '',
+      price: edge.node.price || '0.00',
+      sku: edge.node.sku || '',
+      inventory_quantity: edge.node.inventoryQuantity || 0,
+      inventory_management: edge.node.inventoryManagement || '',
+    })) || [],
+    images: product.images?.edges?.map(edge => ({
+      id: edge.node.id.replace('gid://shopify/ProductImage/', ''),
+      src: edge.node.url,
+    })) || [],
+  };
+};
+
 export const createShopifyProduct = async (productData: {
   title: string;
   body_html?: string;
@@ -622,6 +647,8 @@ export const createShopifyProduct = async (productData: {
   };
 
   // Add product options if provided (for creating variants with options)
+  // Note: When productOptions are provided, Shopify auto-creates variants
+  // We'll update them with pricing after creation
   if (productData.options && productData.options.length > 0) {
     input.productOptions = productData.options.map(opt => ({
       name: opt.name,
@@ -629,59 +656,47 @@ export const createShopifyProduct = async (productData: {
     }));
   }
 
-  if (productData.variants && productData.variants.length > 0) {
-    input.variants = productData.variants.map(v => {
-      const variant: any = {
-        price: v.price,
-        compareAtPrice: v.compare_at_price,
-        sku: v.sku,
-        inventoryQuantity: v.inventory_quantity,
-      };
-
-      // Add option values if present (for variant differentiation)
-      const optionValues: any[] = [];
-      if (v.option1) optionValues.push({ optionName: productData.options?.[0]?.name || 'Option1', name: v.option1 });
-      if (v.option2) optionValues.push({ optionName: productData.options?.[1]?.name || 'Option2', name: v.option2 });
-      if (v.option3) optionValues.push({ optionName: productData.options?.[2]?.name || 'Option3', name: v.option3 });
-
-      if (optionValues.length > 0) {
-        variant.optionValues = optionValues;
-      }
-
-      return variant;
-    });
-  }
-
+  // Important: ProductInput doesn't support the variants field
+  // Variants will be auto-created by Shopify based on productOptions
   const product = await GraphQL.createProduct(input);
 
   if (!product) {
     throw new Error('Product creation returned no data');
   }
 
-  // Convert GraphQL response to REST format for backward compatibility
-  const restProduct: ShopifyProduct = {
-    id: product.id.replace('gid://shopify/Product/', ''),
-    title: product.title,
-    vendor: product.vendor || '',
-    product_type: product.productType || '',
-    created_at: product.createdAt || new Date().toISOString(),
-    updated_at: product.updatedAt || new Date().toISOString(),
-    published_at: product.publishedAt || new Date().toISOString(),
-    variants: product.variants?.edges?.map(edge => ({
-      id: edge.node.id.replace('gid://shopify/ProductVariant/', ''),
-      title: edge.node.title || '',
-      price: edge.node.price || '0.00',
-      sku: edge.node.sku || '',
-      inventory_quantity: edge.node.inventoryQuantity || 0,
-      inventory_management: edge.node.inventoryManagement || '',
-    })) || [],
-    images: product.images?.edges?.map(edge => ({
-      id: edge.node.id.replace('gid://shopify/ProductImage/', ''),
-      src: edge.node.url,
-    })) || [],
-  };
+  // If we have variants data and the product was created, update the variants with pricing
+  if (productData.variants && productData.variants.length > 0 && product.id) {
+    try {
+      // Get all auto-created variants
+      const allVariants = product.variants?.edges || [];
 
-  return restProduct;
+      // Update each variant with the corresponding pricing from our data
+      for (let i = 0; i < Math.min(productData.variants.length, allVariants.length); i++) {
+        const variantData = productData.variants[i];
+        const shopifyVariant = allVariants[i].node;
+
+        // Update this variant with pricing and SKU
+        await GraphQL.updateProductVariant(shopifyVariant.id, {
+          price: variantData.price,
+          sku: variantData.sku,
+          inventoryQuantity: variantData.inventory_quantity
+        });
+      }
+
+      // Refetch the product to get updated variant data
+      const updatedProducts = await GraphQL.getProducts(1);
+      const updatedProduct = updatedProducts.find(p => p.id === product.id);
+      if (updatedProduct) {
+        return convertToRestProduct(updatedProduct);
+      }
+    } catch (variantError) {
+      console.error('[Shopify] Error updating variants:', variantError);
+      // Continue anyway, product was created
+    }
+  }
+
+  // Convert GraphQL response to REST format for backward compatibility
+  return convertToRestProduct(product);
 };
 
 // Debug utility to check Shopify connection status
