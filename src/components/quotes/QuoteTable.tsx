@@ -236,8 +236,8 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               </thead>
                               <tbody>
                                 {variantDetails.map((variant, index) => (
-                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-gray-100 dark:hover:bg-gray-800/50">
-                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-800/50 z-10 transition-colors">
+                                  <tr key={index} className="border-b border-gray-200 dark:border-gray-700 group hover:bg-gray-100 dark:hover:bg-gray-800">
+                                    <td className="py-3 px-4 sticky left-0 bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 z-10 transition-colors">
                                       <div className="flex items-center gap-2">
                                         <span className="font-medium text-gray-900 dark:text-white">{variant.name}</span>
                                         {variant.attributes.length > 0 && (
