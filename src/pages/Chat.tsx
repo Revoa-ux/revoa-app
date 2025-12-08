@@ -33,6 +33,7 @@ import { SearchResults } from '@/components/chat/SearchResults';
 import { LoadingSpinner } from '@/components/PageSkeletons';
 import { ChannelTabs, ChannelThread } from '@/components/chat/ChannelTabs';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
+import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
 import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
@@ -109,6 +110,7 @@ const Chat = () => {
   const [messageToMove, setMessageToMove] = useState<Message | null>(null);
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
+  const [showThreadSidebar, setShowThreadSidebar] = useState(true);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1006,6 +1008,18 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
+
+      {/* Thread Sidebar */}
+      {chat && (
+        <ChannelSidebar
+          threads={threads}
+          selectedThreadId={selectedThreadId}
+          onThreadSelect={handleThreadSelect}
+          onCreateThread={() => setShowCreateThreadModal(true)}
+          isOpen={showThreadSidebar}
+          onClose={() => setShowThreadSidebar(false)}
+        />
+      )}
     </div>
   );
 };
