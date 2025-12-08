@@ -457,10 +457,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
-      <div className="relative min-h-screen flex items-center justify-center p-4">
+
+      <div className="fixed inset-0 flex items-center justify-center p-4">
         <div className={`relative bg-white dark:bg-gray-900 rounded-xl w-full ${
           step === 'product_picker' ? 'max-w-2xl' : 'max-w-md'
         }`} ref={modalRef}>
@@ -528,7 +528,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </button>
               </div>
             ) : step === 'product_picker' ? (
-              <div className="flex flex-col" style={{ height: '500px' }}>
+              <div className="flex flex-col" style={{ height: '650px' }}>
                 <div className="flex items-center gap-2 mb-4 flex-shrink-0">
                   <button
                     onClick={() => setStep('method_select')}

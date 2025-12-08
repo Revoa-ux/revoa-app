@@ -204,7 +204,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={onCancel}

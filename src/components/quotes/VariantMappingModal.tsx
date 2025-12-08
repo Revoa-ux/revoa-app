@@ -161,25 +161,17 @@ export default function VariantMappingModal({
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         aria-hidden="true"
-        onClick={(e) => {
-          // Only close if clicking the backdrop itself, not its children
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
-        }}
+        onClick={onClose}
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center p-4" onClick={(e) => {
-          // Close if clicking the padding area
-          if (e.target === e.currentTarget) {
-            onClose();
-          }
-        }}>
+      <div className="fixed inset-0 overflow-y-auto" style={{ pointerEvents: 'none' }}>
+        <div className="flex min-h-full items-center justify-center p-4">
           <div
             ref={modalRef}
             className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col"
+            style={{ pointerEvents: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
@@ -314,7 +306,7 @@ export default function VariantMappingModal({
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0">
+            <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 rounded-b-xl">
               <div className="flex items-center justify-end gap-3">
                 <button
                   onClick={onClose}
