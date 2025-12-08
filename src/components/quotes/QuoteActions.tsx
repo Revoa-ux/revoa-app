@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, X, AlertTriangle } from 'lucide-react';
+import { CheckCircle, X, AlertTriangle, MoreVertical, RefreshCw } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import Modal from '../Modal';
 
@@ -17,9 +17,12 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
   onDeleteQuote
 }) => {
   const [showDeclineModal, setShowDeclineModal] = React.useState(false);
+  const [showMenu, setShowMenu] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   const canAccept = (quote.status === 'quoted' || quote.status === 'pending_reacceptance') &&
                      quote.variants && quote.variants.length > 0;
+  const canSync = quote.status === 'accepted' || quote.status === 'synced_with_shopify';
 
   const getDeclineButtonText = () => {
     if (quote.status === 'quoted' || quote.status === 'pending_reacceptance') {
@@ -28,8 +31,25 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
     return 'Cancel Quote';
   };
 
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
   const handleAccept = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowMenu(false);
     if (onAcceptQuote) {
       console.log('🔍 [QuoteActions] Accepting quote:', {
         id: quote.id,
@@ -43,7 +63,16 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 
   const handleDecline = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setShowMenu(false);
     setShowDeclineModal(true);
+  };
+
+  const handleSync = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (onConnectShopify) {
+      onConnectShopify(quote);
+    }
   };
 
   const confirmDecline = () => {
@@ -55,23 +84,49 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
 
   return (
     <>
-      <div className="flex items-center justify-end gap-2">
-        {canAccept && (
-          <button
-            onClick={handleAccept}
-            className="p-2 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors group"
-            title={quote.status === 'pending_reacceptance' ? 'Review & Accept' : 'Accept Quote'}
-          >
-            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-          </button>
-        )}
-
+      <div className="relative" ref={menuRef}>
         <button
-          onClick={handleDecline}
-          className="px-3 py-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowMenu(!showMenu);
+          }}
+          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          title="Actions"
         >
-          {getDeclineButtonText()}
+          <MoreVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
         </button>
+
+        {showMenu && (
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+            {canAccept && (
+              <button
+                onClick={handleAccept}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 first:rounded-t-lg transition-colors"
+              >
+                <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span>{quote.status === 'pending_reacceptance' ? 'Review & Accept' : 'Accept Quote'}</span>
+              </button>
+            )}
+
+            {canSync && (
+              <button
+                onClick={handleSync}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>Sync to Shopify</span>
+              </button>
+            )}
+
+            <button
+              onClick={handleDecline}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 last:rounded-b-lg transition-colors"
+            >
+              <X className="w-4 h-4" />
+              <span>{getDeclineButtonText()}</span>
+            </button>
+          </div>
+        )}
       </div>
 
       <Modal
