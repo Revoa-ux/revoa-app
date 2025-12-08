@@ -498,7 +498,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </h3>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -608,9 +608,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 <div className="flex space-x-3">
                   <button
                     type="button"
-                    onClick={onClose}
+                    onClick={() => setStep('method_select')}
                     disabled={isSyncing}
-                    className="flex-1 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -618,7 +618,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     type="button"
                     onClick={handleSyncProduct}
                     disabled={isSyncing}
-                    className="flex-1 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none flex items-center justify-center group"
+                    className="group flex-1 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 flex items-center justify-center shadow-sm"
                   >
                     {isSyncing ? (
                       <>
@@ -628,7 +628,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     ) : (
                       <>
                         Add to Shopify
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
                   </button>
