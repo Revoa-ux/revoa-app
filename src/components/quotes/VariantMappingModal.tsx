@@ -371,7 +371,7 @@ export default function VariantMappingModal({
                         className="grid grid-cols-[1fr,40px,1fr,1fr] gap-4 items-start"
                       >
                         {/* Column 1: Shopify Variant with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
                           <ShopifyVariantCard
                             variant={shopifyVariant}
                             productOptions={shopifyProduct.options}
@@ -385,27 +385,31 @@ export default function VariantMappingModal({
                         </div>
 
                         {/* Column 3: Quote Variant Dropdown with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                          <QuoteVariantDropdown
-                            value={selectedQuoteIndex ?? null}
-                            onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
-                            quoteVariants={quoteVariants}
-                            isNewQuoteVariant={isNewQuoteVariant}
-                          />
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
+                          <div className="w-full">
+                            <QuoteVariantDropdown
+                              value={selectedQuoteIndex ?? null}
+                              onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                              quoteVariants={quoteVariants}
+                              isNewQuoteVariant={isNewQuoteVariant}
+                            />
+                          </div>
                         </div>
 
                         {/* Column 4: Selling Price Editor with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow min-h-[120px] flex items-center">
                           {selectedQuote ? (
-                            <SellingPriceEditor
-                              currentPrice={shopifyVariant.price}
-                              cost={cost}
-                              suggestedPrice={suggestedPrice}
-                              value={sellingPrices.get(shopifyVariant.id) ?? null}
-                              onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
-                            />
+                            <div className="w-full">
+                              <SellingPriceEditor
+                                currentPrice={shopifyVariant.price}
+                                cost={cost}
+                                suggestedPrice={suggestedPrice}
+                                value={sellingPrices.get(shopifyVariant.id) ?? null}
+                                onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                              />
+                            </div>
                           ) : (
-                            <div className="flex items-center justify-center h-full min-h-[120px] text-sm text-gray-400 dark:text-gray-500">
+                            <div className="flex items-center justify-center h-full w-full text-sm text-gray-400 dark:text-gray-500">
                               Select a quote variant first
                             </div>
                           )}
@@ -414,51 +418,54 @@ export default function VariantMappingModal({
                     );
                   })}
                 </div>
-
-                {/* Unmapped Warning */}
-                {unmappedCount > 0 && (
-                  <div className="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-800 dark:text-amber-200">
-                        <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
-                      </p>
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Footer */}
               <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={onClose}
-                      disabled={isSubmitting}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleConfirmClick}
-                      disabled={!isValid() || isSubmitting}
-                      className="group px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Syncing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Confirm & Sync</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                        </>
-                      )}
-                    </button>
+                <div className="space-y-3">
+                  {/* Unmapped Warning */}
+                  {unmappedCount > 0 && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                        <p className="text-xs text-amber-800 dark:text-amber-200">
+                          <span className="font-medium">{unmappedCount} variant{unmappedCount > 1 ? 's' : ''} unmapped.</span> These will not be fulfilled or invoiced automatically.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={onClose}
+                        disabled={isSubmitting}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleConfirmClick}
+                        disabled={!isValid() || isSubmitting}
+                        className="group px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Syncing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Confirm & Sync</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

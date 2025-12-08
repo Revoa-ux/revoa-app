@@ -26,32 +26,32 @@ export function ShopifyVariantCard({
     : null;
 
   return (
-    <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-        <ShoppingBag className="w-4 h-4 text-white" />
+    <div className="flex items-start gap-2.5">
+      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-green-600 to-teal-600 flex items-center justify-center flex-shrink-0">
+        <ShoppingBag className="w-3.5 h-3.5 text-white" />
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-1">
+        <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
           {displayTitle}
         </h4>
 
-        {groupedOptions && groupedOptions.length > 0 ? (
-          <div className="space-y-1.5 mb-2">
+        {groupedOptions && groupedOptions.length > 0 && (
+          <div className="space-y-0.5 mb-1">
             {groupedOptions.map((option, index) => (
-              <div key={index} className="flex items-center gap-2 text-xs">
-                <span className="text-gray-500 dark:text-gray-400 font-medium">
+              <div key={index} className="flex items-center gap-1.5 text-xs">
+                <span className="text-gray-500 dark:text-gray-400">
                   {option.name}:
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-gray-700 dark:text-gray-300 font-medium">
                   {option.value}
                 </span>
               </div>
             ))}
           </div>
-        ) : null}
+        )}
 
         {variant.sku && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
             SKU: {variant.sku}
           </p>
         )}
