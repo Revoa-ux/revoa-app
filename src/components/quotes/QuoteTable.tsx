@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle } from 'lucide-react';
+import { ChevronRight, ExternalLink, ArrowUp, ArrowDown, ArrowUpDown, ShoppingBag, Calendar, Truck, Shield, Globe, Package, AlertCircle, Check, X } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { QuoteStatus } from './QuoteStatus';
 import { QuoteActions } from './QuoteActions';
@@ -117,57 +117,65 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                 </tr>
                 {expandedQuotes.includes(quote.id) && (
                   <>
-                    {/* Variants Pricing */}
+                    {/* Variants */}
                     {quote.variants && quote.variants.length > 0 && (
                       <tr className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 border-t border-gray-200 dark:border-gray-600">
                         <td colSpan={4} className="px-6 py-6">
                           <div className="space-y-4">
                             <div className="flex items-center gap-2 mb-4">
                               <Package className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Pricing Options</h4>
+                              <h4 className="text-base font-semibold text-gray-900 dark:text-white">Product Variants</h4>
                             </div>
 
                             <div className="grid gap-3">
-                              {quote.variants.map((variant, index) => (
-                                <div
-                                  key={`${quote.id}-${variant.quantity}`}
-                                  className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
-                                >
-                                  <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-3 mb-3">
-                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                          {variant.quantity} {variant.quantity === 1 ? 'Unit' : 'Units'}
-                                        </span>
-                                        {variant.attributes && variant.attributes.length > 0 && (
-                                          <ProductAttributesBadge attributes={variant.attributes} />
-                                        )}
-                                      </div>
+                              {quote.variants.map((variant, varIndex) => {
+                                // Get first finalVariant for this pack size
+                                const finalVariant = variant.finalVariants?.[0];
+                                const costPerItem = finalVariant?.costPerItem;
+                                const shippingCost = finalVariant?.shippingCosts?._default;
+                                const totalCost = costPerItem && shippingCost ? (costPerItem * variant.packSize + shippingCost) : null;
 
-                                      <div className="grid grid-cols-3 gap-4">
-                                        <div>
-                                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
-                                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                            {variant.costPerItem != null ? `$${variant.costPerItem.toFixed(2)}` : '-'}
-                                          </p>
+                                return (
+                                  <div
+                                    key={`${quote.id}-${variant.packSize}`}
+                                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                                  >
+                                    <div className="flex items-start justify-between gap-4">
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-3">
+                                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                                            {variant.packSize} {variant.packSize === 1 ? 'Unit' : 'Units'}
+                                          </span>
+                                          {finalVariant?.attributes && finalVariant.attributes.length > 0 && (
+                                            <ProductAttributesBadge attributes={finalVariant.attributes} />
+                                          )}
                                         </div>
-                                        <div>
-                                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</p>
-                                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                            {variant.shippingCost != null ? `$${variant.shippingCost.toFixed(2)}` : '-'}
-                                          </p>
-                                        </div>
-                                        <div>
-                                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
-                                          <p className="text-base font-bold text-rose-600 dark:text-rose-400">
-                                            {variant.totalCost != null ? `$${variant.totalCost.toFixed(2)}` : '-'}
-                                          </p>
+
+                                        <div className="grid grid-cols-3 gap-4">
+                                          <div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                              {costPerItem != null ? `$${costPerItem.toFixed(2)}` : '-'}
+                                            </p>
+                                          </div>
+                                          <div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</p>
+                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                              {shippingCost != null ? `$${shippingCost.toFixed(2)}` : '-'}
+                                            </p>
+                                          </div>
+                                          <div>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
+                                            <p className="text-base font-bold text-rose-600 dark:text-rose-400">
+                                              {totalCost != null ? `$${totalCost.toFixed(2)}` : '-'}
+                                            </p>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                         </td>
@@ -200,16 +208,20 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                             {/* Product Protection */}
                             {(quote.warrantyDays || quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
                               <div className="space-y-4">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <Shield className="w-5 h-5 text-rose-500 dark:text-rose-400" />
-                                  <h4 className="text-base font-semibold text-gray-900 dark:text-white">Protection Included</h4>
+                                <div className="mb-4">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Shield className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                                    <h4 className="text-base font-semibold text-gray-900 dark:text-white">Protection Included</h4>
+                                  </div>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 ml-7">
+                                    Based on the factory and logistics company
+                                  </p>
                                 </div>
 
                                 <div className="space-y-3">
                                   {/* Warranty */}
                                   {quote.warrantyDays && (
-                                    <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                      <Calendar className="w-5 h-5 text-rose-500 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+                                    <div className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
                                       <div>
                                         <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">Warranty Coverage</p>
                                         <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -220,34 +232,37 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                   )}
 
                                   {/* Shipping Protection */}
-                                  {(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery) && (
-                                    <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                                      <Truck className="w-5 h-5 text-rose-500 dark:text-rose-400 mt-0.5 flex-shrink-0" />
-                                      <div className="flex-1">
-                                        <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">Shipping Protection</p>
-                                        <div className="space-y-1.5">
-                                          {quote.coversLostItems && (
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></span>
-                                              Lost packages will be replaced or refunded
-                                            </p>
+                                  <div className="p-4 bg-white dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                                    <div className="flex-1">
+                                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">Shipping Protection</p>
+                                      <div className="space-y-1.5">
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                          {quote.coversLostItems ? (
+                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                          ) : (
+                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
                                           )}
-                                          {quote.coversDamagedItems && (
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></span>
-                                              Damaged items during shipping are covered
-                                            </p>
+                                          Lost packages will be replaced or refunded
+                                        </p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                          {quote.coversDamagedItems ? (
+                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                          ) : (
+                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
                                           )}
-                                          {quote.coversLateDelivery && (
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                                              <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></span>
-                                              Compensation for significant delays
-                                            </p>
+                                          Damaged items during shipping are covered
+                                        </p>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                          {quote.coversLateDelivery ? (
+                                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                          ) : (
+                                            <X className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
                                           )}
-                                        </div>
+                                          Compensation for significant delays
+                                        </p>
                                       </div>
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
                               </div>
                             )}
