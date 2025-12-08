@@ -73,18 +73,18 @@ export function SellingPriceEditor({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="flex items-center justify-between gap-3">
       {/* Profit Margin */}
-      <div className="px-2.5 py-2 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
-        <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-gray-600 dark:text-gray-400">Profit Margin:</span>
-          <span className={`font-semibold ${
-            isLowMargin
-              ? 'text-amber-600 dark:text-amber-400'
-              : 'text-green-600 dark:text-green-400'
-          }`}>
-            ${margin.toFixed(2)} ({marginPercent.toFixed(1)}%)
-          </span>
+      <div className="flex-1">
+        <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+          Profit Margin:
+        </div>
+        <div className={`text-sm font-semibold ${
+          isLowMargin
+            ? 'text-amber-600 dark:text-amber-400'
+            : 'text-green-600 dark:text-green-400'
+        }`}>
+          ${margin.toFixed(2)} ({marginPercent.toFixed(1)}%)
         </div>
         {isLowMargin && (
           <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
@@ -98,7 +98,7 @@ export function SellingPriceEditor({
         <button
           type="button"
           onClick={handleUseSuggested}
-          className="w-full px-3 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all"
+          className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all flex-shrink-0 whitespace-nowrap"
         >
           Use ${suggestedPrice.toFixed(2)}
         </button>
