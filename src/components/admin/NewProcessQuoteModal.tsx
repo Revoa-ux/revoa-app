@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ExternalLink, ArrowRight, Truck, Calendar } from 'lucide-react';
 import Modal from '@/components/Modal';
 import { QuickModeBulkEditor } from '@/components/quotes/QuickModeBulkEditor';
-import { NewQuoteVariant, QuoteVariant, FinalVariant } from '@/types/quotes';
+import { NewQuoteVariant, QuoteVariant, FinalVariant, Quote } from '@/types/quotes';
 import { toast } from 'sonner';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import ToggleSwitch from '@/components/ToggleSwitch';
-
-interface Quote {
-  id: string;
-  productUrl: string;
-  productName: string;
-  shopifyProductId?: string;
-  shopDomain?: string;
-}
 
 export interface ProductPolicies {
   warrantyDays: number | null;
@@ -33,27 +25,85 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
   onClose,
   onSubmit
 }) => {
-  const [variants, setVariants] = useState<NewQuoteVariant[]>([{
-    id: `var_${Date.now()}`,
-    sku: '',
-    name: quote.productName,
-    attributes: [],
-    costPerItem: 0,
-    shippingRules: {
-      default: 0,
-      byCountry: {},
-      byQuantity: undefined
-    },
-    enabled: true
-  }]);
+  // Convert existing quote variants to NewQuoteVariant format
+  const convertExistingVariants = (existingVariants?: QuoteVariant[]): NewQuoteVariant[] => {
+    if (!existingVariants || existingVariants.length === 0) {
+      return [{
+        id: `var_${Date.now()}`,
+        sku: '',
+        name: quote.productName,
+        attributes: [],
+        costPerItem: 0,
+        shippingRules: {
+          default: 0,
+          byCountry: {},
+          byQuantity: undefined
+        },
+        enabled: true
+      }];
+    }
 
-  // Policy fields
-  const [hasWarranty, setHasWarranty] = useState(false);
-  const [warrantyDays, setWarrantyDays] = useState(30);
-  const [hasShippingCoverage, setHasShippingCoverage] = useState(false);
-  const [coversLostItems, setCoversLostItems] = useState(false);
-  const [coversDamagedItems, setCoversDamagedItems] = useState(false);
-  const [coversLateDelivery, setCoversLateDelivery] = useState(false);
+    const converted: NewQuoteVariant[] = [];
+    existingVariants.forEach((variant) => {
+      variant.finalVariants.forEach((fv, idx) => {
+        const { _default, ...byCountry } = fv.shippingCosts;
+        converted.push({
+          id: `var_${Date.now()}_${idx}`,
+          sku: fv.sku,
+          name: fv.attributes.length > 0
+            ? fv.attributes.map(a => a.value).join(' - ')
+            : quote.productName,
+          attributes: fv.attributes,
+          costPerItem: fv.costPerItem,
+          shippingRules: {
+            default: _default,
+            byCountry: byCountry,
+            byQuantity: undefined
+          },
+          enabled: true
+        });
+      });
+    });
+
+    return converted;
+  };
+
+  const [variants, setVariants] = useState<NewQuoteVariant[]>(() =>
+    convertExistingVariants(quote.variants)
+  );
+
+  // Policy fields - initialize from existing quote data
+  const [hasWarranty, setHasWarranty] = useState(!!quote.warrantyDays);
+  const [warrantyDays, setWarrantyDays] = useState(quote.warrantyDays || 30);
+  const [hasShippingCoverage, setHasShippingCoverage] = useState(
+    !!(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery)
+  );
+  const [coversLostItems, setCoversLostItems] = useState(!!quote.coversLostItems);
+  const [coversDamagedItems, setCoversDamagedItems] = useState(!!quote.coversDamagedItems);
+  const [coversLateDelivery, setCoversLateDelivery] = useState(!!quote.coversLateDelivery);
+
+  // Update warranty days when quote changes
+  useEffect(() => {
+    if (quote.warrantyDays) {
+      setHasWarranty(true);
+      setWarrantyDays(quote.warrantyDays);
+    }
+  }, [quote.warrantyDays]);
+
+  // Update shipping coverage when quote changes
+  useEffect(() => {
+    const hasAnyCoverage = !!(quote.coversLostItems || quote.coversDamagedItems || quote.coversLateDelivery);
+    setHasShippingCoverage(hasAnyCoverage);
+    setCoversLostItems(!!quote.coversLostItems);
+    setCoversDamagedItems(!!quote.coversDamagedItems);
+    setCoversLateDelivery(!!quote.coversLateDelivery);
+  }, [quote.coversLostItems, quote.coversDamagedItems, quote.coversLateDelivery]);
+
+  // Update variants when quote changes
+  useEffect(() => {
+    setVariants(convertExistingVariants(quote.variants));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quote.id, quote.variants]);
 
   const canSubmit = variants.every(v => v.sku.trim() && v.costPerItem > 0 && v.shippingRules.default >= 0);
 

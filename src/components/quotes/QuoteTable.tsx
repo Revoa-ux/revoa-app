@@ -127,62 +127,65 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                               <h4 className="text-base font-semibold text-gray-900 dark:text-white">Product Variants</h4>
                             </div>
 
-                            <div className="grid gap-3">
-                              {(() => {
-                                // Deduplicate variants by pricing (costPerItem + shippingCost + attributes)
-                                const uniquePricingMap = new Map();
+                            <div className="space-y-4">
+                              {quote.variants.map((variant, varIndex) => {
+                                // Group finalVariants by unique pricing
+                                const finalVariantGroups = new Map();
 
-                                quote.variants.forEach((variant) => {
-                                  const finalVariant = variant.finalVariants?.[0];
-                                  const costPerItem = finalVariant?.costPerItem;
-                                  const shippingCost = finalVariant?.shippingCosts?._default;
-                                  const attributesKey = finalVariant?.attributes
-                                    ? JSON.stringify(finalVariant.attributes.sort())
-                                    : '';
-
-                                  // Create unique key based on pricing and attributes
-                                  const pricingKey = `${costPerItem}-${shippingCost}-${attributesKey}`;
-
-                                  if (!uniquePricingMap.has(pricingKey)) {
-                                    uniquePricingMap.set(pricingKey, {
-                                      variant,
-                                      finalVariant,
-                                      costPerItem,
-                                      shippingCost,
-                                      packSizes: [variant.packSize]
-                                    });
-                                  } else {
-                                    // Add this pack size to existing pricing group
-                                    uniquePricingMap.get(pricingKey).packSizes.push(variant.packSize);
+                                (variant.finalVariants || []).forEach((fv) => {
+                                  const priceKey = `${fv.costPerItem}-${JSON.stringify(fv.shippingCosts)}-${JSON.stringify(fv.attributes || [])}`;
+                                  if (!finalVariantGroups.has(priceKey)) {
+                                    finalVariantGroups.set(priceKey, { ...fv, quantities: [] });
                                   }
+                                  finalVariantGroups.get(priceKey).quantities.push(fv.minQty);
                                 });
 
-                                return Array.from(uniquePricingMap.values()).map((group, index) => {
-                                  const { variant, finalVariant, costPerItem, shippingCost, packSizes } = group;
-                                  // Use smallest pack size for total cost calculation
-                                  const smallestPackSize = Math.min(...packSizes);
-                                  const totalCost = costPerItem && shippingCost ? (costPerItem * smallestPackSize + shippingCost) : null;
+                                return (
+                                  <div key={`${quote.id}-variant-${varIndex}`} className="space-y-3">
+                                    {/* Variant Header */}
+                                    {quote.variants.length > 1 && (
+                                      <div className="flex items-center gap-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                          Variant {varIndex + 1}
+                                        </span>
+                                        {variant.finalVariants?.[0]?.attributes && variant.finalVariants[0].attributes.length > 0 && (
+                                          <ProductAttributesBadge attributes={variant.finalVariants[0].attributes} />
+                                        )}
+                                      </div>
+                                    )}
 
-                                  return (
-                                    <div
-                                      key={`${quote.id}-pricing-${index}`}
-                                      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
-                                    >
-                                      <div className="flex items-start justify-between gap-4">
-                                        <div className="flex-1">
+                                    {/* Quantity Tiers */}
+                                    {Array.from(finalVariantGroups.values()).map((finalVariant, fvIndex) => {
+                                      const costPerItem = finalVariant.costPerItem;
+                                      const shippingCost = finalVariant.shippingCosts?._default;
+                                      const countryCosts = Object.entries(finalVariant.shippingCosts || {})
+                                        .filter(([key]) => key !== '_default')
+                                        .sort(([a], [b]) => a.localeCompare(b));
+                                      const hasCountryShipping = countryCosts.length > 0;
+                                      const quantities = finalVariant.quantities.sort((a, b) => a - b);
+                                      const minQty = Math.min(...quantities);
+                                      const maxQty = Math.max(...quantities);
+
+                                      return (
+                                        <div
+                                          key={`${quote.id}-variant-${varIndex}-fv-${fvIndex}`}
+                                          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                                        >
+                                          {/* Quantity Range */}
                                           <div className="flex items-center gap-3 mb-3">
                                             <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                                              {packSizes.length === 1
-                                                ? `${packSizes[0]} ${packSizes[0] === 1 ? 'Unit' : 'Units'}`
-                                                : `${Math.min(...packSizes)}-${Math.max(...packSizes)} Units`
+                                              {quantities.length === 1
+                                                ? `${minQty}+ ${minQty === 1 ? 'Unit' : 'Units'}`
+                                                : `${minQty}-${maxQty} Units`
                                               }
                                             </span>
-                                            {finalVariant?.attributes && finalVariant.attributes.length > 0 && (
+                                            {quote.variants.length === 1 && finalVariant.attributes && finalVariant.attributes.length > 0 && (
                                               <ProductAttributesBadge attributes={finalVariant.attributes} />
                                             )}
                                           </div>
 
-                                          <div className="grid grid-cols-3 gap-4">
+                                          {/* Pricing Grid */}
+                                          <div className="grid grid-cols-3 gap-4 mb-3">
                                             <div>
                                               <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Price per Unit</p>
                                               <p className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -190,24 +193,50 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                                               </p>
                                             </div>
                                             <div>
-                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Shipping Cost</p>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Standard Shipping</p>
                                               <p className="text-sm font-semibold text-gray-900 dark:text-white">
                                                 {shippingCost != null ? `$${shippingCost.toFixed(2)}` : '-'}
                                               </p>
                                             </div>
                                             <div>
-                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost</p>
+                                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Total Cost ({minQty} units)</p>
                                               <p className="text-base font-bold text-rose-600 dark:text-rose-400">
-                                                {totalCost != null ? `$${totalCost.toFixed(2)}` : '-'}
+                                                {costPerItem != null && shippingCost != null
+                                                  ? `$${(costPerItem * minQty + shippingCost).toFixed(2)}`
+                                                  : '-'}
                                               </p>
                                             </div>
                                           </div>
+
+                                          {/* Country-Specific Shipping */}
+                                          {hasCountryShipping && (
+                                            <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                                              <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                Shipping by Country:
+                                              </p>
+                                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                                {countryCosts.map(([country, cost]) => (
+                                                  <div
+                                                    key={country}
+                                                    className="flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded text-xs"
+                                                  >
+                                                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                                                      {country.toUpperCase()}
+                                                    </span>
+                                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                                      ${cost.toFixed(2)}
+                                                    </span>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
                                         </div>
-                                      </div>
-                                    </div>
-                                  );
-                                });
-                              })()}
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         </td>
