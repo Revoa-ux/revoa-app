@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle, ArrowRight, ChevronDown } from 'lucide-react';
+import { useClickOutside } from '@/lib/useClickOutside';
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 
 interface VariantMappingModalProps {
@@ -26,6 +27,8 @@ export default function VariantMappingModal({
   const [mappings, setMappings] = useState<Map<string, number | null>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(modalRef, onClose);
 
   const isNewQuoteVariant = (variant: any): variant is NewQuoteVariant => {
     return 'shippingRules' in variant && 'costPerItem' in variant;
@@ -161,20 +164,19 @@ export default function VariantMappingModal({
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
         aria-hidden="true"
-        onClick={onClose}
       />
 
       {/* Modal Container */}
-      <div className="fixed inset-0 overflow-y-auto" style={{ pointerEvents: 'none' }}>
+      <div className="fixed inset-0 z-50 overflow-y-auto">
         <div className="flex min-h-full items-center justify-center p-4">
           <div
             ref={modalRef}
             className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col"
-            style={{ pointerEvents: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
             {/* Header */}
-            <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <h2 className="text-lg font-medium text-gray-900 dark:text-white">
@@ -186,7 +188,7 @@ export default function VariantMappingModal({
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 flex-shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -194,7 +196,7 @@ export default function VariantMappingModal({
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-5 min-h-0 bg-gray-50 dark:bg-gray-900/30">
+            <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0 bg-gray-50 dark:bg-gray-900/30">
               <div className="space-y-2">
                 {shopifyProduct.variants.map((shopifyVariant) => {
                   const selectedQuoteIndex = mappings.get(shopifyVariant.id);
@@ -306,7 +308,7 @@ export default function VariantMappingModal({
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-shrink-0 rounded-b-xl">
+            <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
               <div className="flex items-center justify-end gap-3">
                 <button
                   onClick={onClose}
