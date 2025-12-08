@@ -34,16 +34,9 @@ export function ShopifyVariantCard({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            {groupedOptions && groupedOptions.length > 0 && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
-                {groupedOptions.map(opt => opt.name).join(' • ')}
-              </div>
-            )}
-            <h4 className="font-medium text-sm text-gray-900 dark:text-white">
-              {displayTitle}
-            </h4>
-          </div>
+          <h4 className="font-medium text-sm text-gray-900 dark:text-white flex-1 min-w-0">
+            {displayTitle}
+          </h4>
           {showPrice && (
             <span className="text-sm font-semibold text-gray-900 dark:text-white flex-shrink-0">
               ${parseFloat(variant.price).toFixed(2)}
@@ -59,4 +52,25 @@ export function ShopifyVariantCard({
       </div>
     </div>
   );
+}
+
+// Export grouped options for external use
+export function getVariantOptions(variant: ShopifyVariant, productOptions?: ShopifyProductOption[]): string | null {
+  const hasOptions = variant.selectedOptions && variant.selectedOptions.length > 0;
+
+  if (hasOptions && productOptions) {
+    const groupedOptions = productOptions.map(option => {
+      const selectedOption = variant.selectedOptions?.find(so => so.name === option.name);
+      return {
+        name: option.name,
+        value: selectedOption?.value || '',
+      };
+    }).filter(opt => opt.value);
+
+    if (groupedOptions.length > 0) {
+      return groupedOptions.map(opt => opt.name).join(' • ');
+    }
+  }
+
+  return null;
 }

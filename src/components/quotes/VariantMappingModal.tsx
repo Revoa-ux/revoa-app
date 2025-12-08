@@ -3,7 +3,7 @@ import { X, AlertTriangle, ArrowRight, ShoppingBag, Package, TrendingUp, DollarS
 import type { VariantMapping, ShopifyVariant, ShippingRules, NewQuoteVariant, FinalVariant } from '../../types/quotes';
 import Modal from '../Modal';
 import { QuoteVariantDropdown } from './QuoteVariantDropdown';
-import { ShopifyVariantCard } from './ShopifyVariantCard';
+import { ShopifyVariantCard, getVariantOptions } from './ShopifyVariantCard';
 import { SellingPriceEditor } from './SellingPriceEditor';
 
 // Helper functions for suggested selling prices
@@ -364,57 +364,64 @@ export default function VariantMappingModal({
                       ? (isNewQuoteVariant(selectedQuote) ? selectedQuote.costPerItem : selectedQuote.costPerItem)
                       : 0;
                     const suggestedPrice = cost > 0 ? getSuggestedSellingPrice(cost) : 0;
+                    const variantOptions = getVariantOptions(shopifyVariant, shopifyProduct.options);
 
                     return (
-                      <div
-                        key={shopifyVariant.id}
-                        className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-center"
-                      >
-                        {/* Column 1: Shopify Variant with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                          <ShopifyVariantCard
-                            variant={shopifyVariant}
-                            productOptions={shopifyProduct.options}
-                            productTitle={shopifyProduct.title}
-                            showPrice={true}
-                          />
-                        </div>
+                      <div key={shopifyVariant.id} className="space-y-2">
+                        {/* Option Names Subtitle */}
+                        {variantOptions && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 pl-2">
+                            {variantOptions}
+                          </div>
+                        )}
 
-                        {/* Column 2: Arrow */}
-                        <div className="flex items-center justify-center">
-                          <ArrowRight className="w-5 h-5 text-gray-400" />
-                        </div>
-
-                        {/* Column 3: Quote Variant Dropdown with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                          <QuoteVariantDropdown
-                            value={selectedQuoteIndex ?? null}
-                            onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
-                            quoteVariants={quoteVariants}
-                            isNewQuoteVariant={isNewQuoteVariant}
-                          />
-                        </div>
-
-                        {/* Column 4: Arrow */}
-                        <div className="flex items-center justify-center">
-                          <ArrowRight className="w-5 h-5 text-gray-400" />
-                        </div>
-
-                        {/* Column 5: Profit Info with Card */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
-                          {selectedQuote ? (
-                            <SellingPriceEditor
-                              currentPrice={shopifyVariant.price}
-                              cost={cost}
-                              suggestedPrice={suggestedPrice}
-                              value={sellingPrices.get(shopifyVariant.id) ?? null}
-                              onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                        <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-center">
+                          {/* Column 1: Shopify Variant with Card */}
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                            <ShopifyVariantCard
+                              variant={shopifyVariant}
+                              productOptions={shopifyProduct.options}
+                              productTitle={shopifyProduct.title}
+                              showPrice={true}
                             />
-                          ) : (
-                            <div className="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 py-4">
-                              Select a quote variant first
-                            </div>
-                          )}
+                          </div>
+
+                          {/* Column 2: Arrow */}
+                          <div className="flex items-center justify-center">
+                            <ArrowRight className="w-5 h-5 text-gray-400" />
+                          </div>
+
+                          {/* Column 3: Quote Variant Dropdown with Card */}
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                            <QuoteVariantDropdown
+                              value={selectedQuoteIndex ?? null}
+                              onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                              quoteVariants={quoteVariants}
+                              isNewQuoteVariant={isNewQuoteVariant}
+                            />
+                          </div>
+
+                          {/* Column 4: Arrow */}
+                          <div className="flex items-center justify-center">
+                            <ArrowRight className="w-5 h-5 text-gray-400" />
+                          </div>
+
+                          {/* Column 5: Profit Info with Card */}
+                          <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow">
+                            {selectedQuote ? (
+                              <SellingPriceEditor
+                                currentPrice={shopifyVariant.price}
+                                cost={cost}
+                                suggestedPrice={suggestedPrice}
+                                value={sellingPrices.get(shopifyVariant.id) ?? null}
+                                onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center text-sm text-gray-400 dark:text-gray-500 py-4">
+                                Select a quote variant first
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

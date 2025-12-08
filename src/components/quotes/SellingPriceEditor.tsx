@@ -75,9 +75,9 @@ export function SellingPriceEditor({
   return (
     <div className="flex items-center justify-between gap-3">
       {/* Profit Margin */}
-      <div className="flex-1">
+      <div className="flex-1 px-2.5 py-2 bg-gray-50 dark:bg-gray-900/30 rounded-lg">
         <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-          Profit Margin:
+          Margin:
         </div>
         <div className={`text-sm font-semibold ${
           isLowMargin
@@ -94,14 +94,18 @@ export function SellingPriceEditor({
       </div>
 
       {/* Suggested Price Button */}
-      {Math.abs(suggestedPrice - displayPrice) > 0.01 && (
+      {Math.abs(suggestedPrice - displayPrice) > 0.01 ? (
         <button
           type="button"
           onClick={handleUseSuggested}
           className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all flex-shrink-0 whitespace-nowrap"
         >
-          Use ${suggestedPrice.toFixed(2)}
+          Use Suggested ${suggestedPrice.toFixed(2)}
         </button>
+      ) : hasChanged && (
+        <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg flex-shrink-0 whitespace-nowrap">
+          Will sync on confirm
+        </div>
       )}
     </div>
   );
