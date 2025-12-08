@@ -238,28 +238,29 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           options: [
             {
               name: 'Quantity',
-              values: quote.variants.map(v => `${v.quantity} pack`)
+              values: quote.variants.map(v => `${v.packSize} units`)
             }
           ],
           variants: quote.variants.map(variant => ({
-            option1: `${variant.quantity} pack`,
-            price: (variant.costPerItem || 0).toFixed(2),
-            inventory_quantity: 100, // Default inventory
-            sku: `${quote.id}-${variant.quantity}`,
+            option1: `${variant.packSize} units`,
+            price: (variant.finalVariants?.[0]?.costPerItem || 0).toFixed(2),
+            inventory_quantity: 100,
+            sku: `${quote.id}-${variant.packSize}`,
           }))
         };
       } else if (quote.variants && quote.variants.length === 1) {
         // Single variant - use default
         const variant = quote.variants[0];
+        const price = variant.finalVariants?.[0]?.costPerItem || 0;
         productData = {
           title: quote.productName,
           body_html: `<p>Product sourced from ${quote.platform}</p><p>Original URL: <a href="${quote.productUrl}" target="_blank">${quote.productUrl}</a></p>`,
           vendor: 'Revoa',
           product_type: 'Imported Product',
           variants: [{
-            price: (variant.costPerItem || 0).toFixed(2),
+            price: price.toFixed(2),
             inventory_quantity: 100,
-            sku: `${quote.id}-${variant.quantity}`,
+            sku: `${quote.id}-${variant.packSize}`,
           }]
         };
       } else {
@@ -494,16 +495,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   <div className="flex items-start space-x-3">
                     <Package className="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">Product to Add</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{quote.productName}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white mb-2">{quote.productName}</p>
                       {quote.variants && quote.variants.length > 0 && (
-                        <div className="mt-2 space-y-1">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Pricing Tiers:</p>
-                          {quote.variants.map((variant, idx) => (
-                            <p key={idx} className="text-xs text-gray-600 dark:text-gray-400">
-                              Qty {variant.quantity}: ${variant.costPerItem ? variant.costPerItem.toFixed(2) : '0.00'}/item
-                            </p>
-                          ))}
+                        <div className="space-y-1">
+                          {quote.variants.map((variant, idx) => {
+                            const price = variant.finalVariants?.[0]?.costPerItem || 0;
+                            return (
+                              <p key={idx} className="text-xs text-gray-600 dark:text-gray-400">
+                                {variant.packSize} units: ${price.toFixed(2)}/item
+                              </p>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
