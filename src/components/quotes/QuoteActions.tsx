@@ -97,7 +97,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-[100]">
             {canAccept && (
               <button
                 onClick={handleAccept}

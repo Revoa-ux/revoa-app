@@ -76,11 +76,6 @@ export const QuoteStatus: React.FC<QuoteStatusProps> = ({ status, expiresIn }) =
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs whitespace-nowrap ${getStatusClass(status)}`}>
         {getStatusIcon(status)}
         <span className="ml-1.5">{getStatusText(status)}</span>
-        {status === 'quoted' && expiresIn && (
-          <span className="ml-1.5 text-green-600 dark:text-green-400">
-            ({expiresIn}d)
-          </span>
-        )}
       </span>
     </div>
   );
