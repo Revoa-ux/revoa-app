@@ -529,3 +529,40 @@ body.modal-open {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Formatted message styles for markdown rendering */
+.formatted-message p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.formatted-message p + p {
+  margin-top: 0.75rem;
+}
+
+.formatted-message strong {
+  font-weight: 700;
+  color: inherit;
+}
+
+.formatted-message em {
+  font-style: italic;
+  color: inherit;
+}
+
+.formatted-message ul,
+.formatted-message ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.formatted-message li {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+}
+
+.formatted-message br {
+  display: block;
+  content: "";
+  margin-top: 0.25rem;
+}
