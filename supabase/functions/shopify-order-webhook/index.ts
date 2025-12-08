@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
-import { verifyShopifyWebhook, getWebhookSecret } from '../_shared/shopify-hmac.ts';
+import { verifyShopifyWebhook, getWebhookSecret } from './_shared/shopify-hmac.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -95,7 +95,7 @@ async function processOrderCOGS(supabase: any, userId: string, orderData: any, s
       console.error('[Order Webhook] Error updating balance:', balanceUpdateError);
       throw new Error(`Failed to update balance: ${balanceUpdateError.message}`);
     }
-    const { error: transactionError } = await supabase.from('balance_transactions').insert({user_id: userId, type: 'order_charge', amount: -totalCOGS, balance_after: newBalance, description: `Order ${orderData.name || orderData.order_number} - ${orderLineItemsToInsert.length} items`, reference_type: 'order', reference_id: storedOrderId, metadata: {shopify_order_id: orderData.id.toString(), order_name: orderData.name, line_items_count: orderLineItemsToInsert.length}});
+    const { error: transactionError } = await supabase.from('balance_transactions').insert({user_id: userId, type: 'order_charge', amount: -totalCOGS, balance_after: newBalance, description: `Order ${orderData.name || orderData.order_number} - ${orderLineItemsToUpsert.length} items`, reference_type: 'order', reference_id: storedOrderId, metadata: {shopify_order_id: orderData.id.toString(), order_name: orderData.name, line_items_count: orderLineItemsToUpsert.length}});
     if (transactionError) {
       console.error('[Order Webhook] Error recording transaction:', transactionError);
     }
@@ -182,32 +182,21 @@ Deno.serve(async (req: Request) => {
     const clickIDs = parseClickIDsFromURL(landingSite);
     console.log('[Order Webhook] UTM data:', {has_utm_source: !!utmParams.utm_source, has_utm_term: !!utmParams.utm_term, has_fbclid: !!clickIDs.fbclid});
 
-    // Extract addresses
     const billingAddress = orderData.billing_address || {};
     const shippingAddress = orderData.shipping_address || {};
-
-    // Extract discount codes
     const discountCodes = (orderData.discount_codes || []).map((dc: any) => dc.code);
-
-    // Check if repeat customer
     const customerEmail = orderData.email || orderData.customer?.email;
     let isRepeatCustomer = false;
     let orderCount = 1;
 
     if (customerEmail) {
-      const { data: existingOrders } = await supabase
-        .from('shopify_orders')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('customer_email', customerEmail);
-
+      const { data: existingOrders } = await supabase.from('shopify_orders').select('id').eq('user_id', userId).eq('customer_email', customerEmail);
       if (existingOrders && existingOrders.length > 0) {
         isRepeatCustomer = true;
         orderCount = existingOrders.length + 1;
       }
     }
 
-    // Log customer data for debugging
     console.log('[Order Webhook] Customer data:', {
       has_customer_object: !!orderData.customer,
       customer_first_name: orderData.customer?.first_name,
@@ -227,36 +216,30 @@ Deno.serve(async (req: Request) => {
       customer_first_name: orderData.customer?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
       customer_last_name: orderData.customer?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
       customer_phone: orderData.customer?.phone || shippingAddress.phone || billingAddress.phone || orderData.phone || null,
-      // Shipping address
       shipping_address_line1: shippingAddress.address1 || null,
       shipping_address_line2: shippingAddress.address2 || null,
       shipping_city: shippingAddress.city || null,
       shipping_state: shippingAddress.province || shippingAddress.province_code || null,
       shipping_zip: shippingAddress.zip || null,
       shipping_country: shippingAddress.country || shippingAddress.country_code || null,
-      // Billing address
       billing_address_line1: billingAddress.address1 || null,
       billing_address_line2: billingAddress.address2 || null,
       billing_city: billingAddress.city || null,
       billing_state: billingAddress.province || billingAddress.province_code || null,
       billing_zip: billingAddress.zip || null,
       billing_country: billingAddress.country || billingAddress.country_code || null,
-      // Pricing details
       subtotal_price: parseFloat(orderData.subtotal_price || '0'),
       total_tax: parseFloat(orderData.total_tax || '0'),
       total_shipping: parseFloat(orderData.total_shipping_price_set?.shop_money?.amount || orderData.shipping_lines?.[0]?.price || '0'),
       total_discounts: parseFloat(orderData.total_discounts || '0'),
       discount_codes: discountCodes,
-      // Order metadata
       note: orderData.note || null,
       tags: orderData.tags || null,
       financial_status: orderData.financial_status || null,
       fulfillment_status: orderData.fulfillment_status || null,
       order_status_url: orderData.order_status_url || null,
-      // Customer tracking
       is_repeat_customer: isRepeatCustomer,
       order_count: orderCount,
-      // Timestamps
       cancelled_at: orderData.cancelled_at || null,
       cancel_reason: orderData.cancel_reason || null,
       processed_at: orderData.processed_at || null,
@@ -273,22 +256,13 @@ Deno.serve(async (req: Request) => {
     console.log('[Order Webhook] Order stored:', storedOrder.id);
 
     const responsePromise = new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Order received',
-        order_id: storedOrder.id,
-        timestamp: new Date().toISOString()
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      JSON.stringify({success: true, message: 'Order received', order_id: storedOrder.id, timestamp: new Date().toISOString()}),
+      {status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }}
     );
 
     const backgroundProcessing = (async () => {
       try {
         await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
-
         if (utmParams.utm_source && utmParams.utm_term) {
           console.log('[Order Webhook] Attempting to match order to ads...');
           const { data: matchingAds } = await supabase.from('ads').select(`id,platform_ad_id,name,ad_sets!inner(campaign_id,ad_campaigns!inner(ad_account_id,ad_accounts!inner(user_id)))`).eq('ad_sets.ad_campaigns.ad_accounts.user_id', userId);
@@ -299,41 +273,25 @@ Deno.serve(async (req: Request) => {
             let attributionMethod = 'utm_match';
             if (!matchedAd) {
               matchedAd = matchingAds.find(ad => ad.name.toLowerCase().trim() === utmTerm);
-              if (matchedAd) {
-                confidenceScore = 0.95;
-                attributionMethod = 'ad_name_match';
-              }
+              if (matchedAd) { confidenceScore = 0.95; attributionMethod = 'ad_name_match'; }
             }
             if (!matchedAd) {
               matchedAd = matchingAds.find(ad => ad.name.toLowerCase().includes(utmTerm));
-              if (matchedAd) {
-                confidenceScore = 0.8;
-                attributionMethod = 'ad_name_match';
-              }
+              if (matchedAd) { confidenceScore = 0.8; attributionMethod = 'ad_name_match'; }
             }
             if (matchedAd) {
               console.log('[Order Webhook] Matched to ad:', matchedAd.name);
               const { error: conversionError } = await supabase.from('ad_conversions').upsert({user_id: userId, ad_id: matchedAd.id, order_id: storedOrder.id, platform: utmParams.utm_source, conversion_value: parseFloat(orderData.total_price || orderData.current_total_price || '0'), attribution_method: attributionMethod, confidence_score: confidenceScore, converted_at: orderData.created_at || new Date().toISOString()}, {onConflict: 'order_id,ad_id', ignoreDuplicates: true});
-              if (conversionError) {
-                console.error('[Order Webhook] Error creating conversion:', conversionError);
-              } else {
-                console.log('[Order Webhook] Conversion recorded');
-              }
-            } else {
-              console.log('[Order Webhook] No matching ad found for utm_term:', utmTerm);
-            }
+              if (conversionError) { console.error('[Order Webhook] Error creating conversion:', conversionError); }
+              else { console.log('[Order Webhook] Conversion recorded'); }
+            } else { console.log('[Order Webhook] No matching ad found for utm_term:', utmTerm); }
           }
         }
         console.log('[Order Webhook] Background processing completed');
-      } catch (bgError) {
-        console.error('[Order Webhook] Background processing error:', bgError);
-      }
+      } catch (bgError) { console.error('[Order Webhook] Background processing error:', bgError); }
     })();
 
-    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
-      EdgeRuntime.waitUntil(backgroundProcessing);
-    }
-
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) { EdgeRuntime.waitUntil(backgroundProcessing); }
     return responsePromise;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
