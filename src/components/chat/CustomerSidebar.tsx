@@ -270,22 +270,20 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
 
                 {/* Customer Name */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 mb-1">
-                    <User className="w-4 h-4" />
-                    <span className="text-xs font-medium">Name</span>
+                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <User className="w-3.5 h-3.5" />
+                    <span>Name</span>
                   </div>
-                  <div className="pl-6">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {getCustomerName()}
-                    </p>
-                    {customerInfo.is_repeat_customer && (
-                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 mt-1">
-                        <TrendingUp className="w-3 h-3" />
-                        Repeat Customer ({customerInfo.order_count})
-                      </span>
-                    )}
-                  </div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {getCustomerName()}
+                  </p>
+                  {customerInfo.is_repeat_customer && (
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 mt-1">
+                      <TrendingUp className="w-3 h-3" />
+                      Repeat Customer ({customerInfo.order_count})
+                    </span>
+                  )}
                 </div>
 
                 {/* Email */}
@@ -318,7 +316,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               </div>
 
               {/* Email Templates Showcase - Below Contact */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="mt-4">
                 <button
                   onClick={() => setShowTemplateSelector(true)}
                   className="w-full p-4 border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all text-left group"

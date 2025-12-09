@@ -501,7 +501,7 @@ const Chat = () => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 flex-1">
+            <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
               <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
                 <img
                   src={adminAvatar}
@@ -509,7 +509,7 @@ const Chat = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0">
                 <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
                 <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
               </div>
