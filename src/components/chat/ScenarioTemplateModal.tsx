@@ -49,7 +49,7 @@ If you have any questions, feel free to reply to this email.
 Best regards,
 {{merchant_store_name}}`,
     icon: RotateCcw,
-    color: 'red'
+    color: 'orange'
   },
   {
     id: 'tracking_update',
@@ -99,7 +99,7 @@ If you have any questions about the return process, please let us know.
 Best regards,
 {{merchant_store_name}}`,
     icon: Package,
-    color: 'orange'
+    color: 'red'
   },
   {
     id: 'defective_product',
@@ -128,88 +128,15 @@ Again, we apologize for the inconvenience.
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertCircle,
-    color: 'red'
-  },
-  {
-    id: 'order_confirmation',
-    name: 'Order Confirmation',
-    category: 'confirmation',
-    description: 'Confirm order details and set expectations',
-    subject: 'Order Confirmed - #{{order_number}}',
-    body: `Hi {{customer_first_name}},
-
-Thank you for your order! We've received your order #{{order_number}} and it's being prepared for shipment.
-
-Order Summary:
-• Total: {{order_total}}
-• Status: {{financial_status}}
-
-Shipping Address:
-{{shipping_address_full}}
-
-Your order will be processed within 1-2 business days and shipped via {{logistics_provider}}. Expected delivery: {{typical_delivery_days}}.
-
-You'll receive a tracking number once your order ships.
-
-Thank you for shopping with us!
-
-Best regards,
-{{merchant_store_name}}`,
-    icon: FileCheck,
-    color: 'teal'
-  },
-  {
-    id: 'general_inquiry',
-    name: 'General Inquiry Response',
-    category: 'inquiry',
-    description: 'Response to general customer questions',
-    subject: 'Re: Your Question About Order {{order_number}}',
-    body: `Hi {{customer_first_name}},
-
-Thank you for reaching out about your order #{{order_number}}.
-
-[Add your personalized response here]
-
-If you have any other questions, please don't hesitate to ask. We're here to help!
-
-Best regards,
-{{merchant_store_name}}`,
-    icon: MessageSquare,
-    color: 'gray'
-  },
-  {
-    id: 'thank_you',
-    name: 'Thank You Message',
-    category: 'thankyou',
-    description: 'Express gratitude for their business',
-    subject: 'Thank You for Your Order!',
-    body: `Hi {{customer_first_name}},
-
-We wanted to take a moment to thank you for your recent order #{{order_number}}!
-
-Your support means the world to us. We hope you love your purchase!
-
-If you have any feedback or questions, we'd love to hear from you.
-
-Thank you for being an amazing customer!
-
-Best regards,
-{{merchant_store_name}}`,
-    icon: ThumbsUp,
-    color: 'pink'
+    color: 'purple'
   }
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
   replacement: 'Replacement',
-  damaged: 'Damaged',
   return: 'Returns',
   defective: 'Defective',
-  shipping: 'Shipping',
-  confirmation: 'Confirmation',
-  quote_followup: 'Quote Follow-up',
-  inquiry: 'Inquiry',
-  thankyou: 'Thank You'
+  shipping: 'Shipping'
 };
 
 export function ScenarioTemplateModal({
@@ -399,31 +326,78 @@ export function ScenarioTemplateModal({
               {recommendedTemplates.length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="h-px flex-1 bg-gradient-to-r from-red-500 to-pink-500"></div>
+                    <div className={`h-px flex-1 ${
+                      recommendedTemplates[0]?.color === 'red' ? 'bg-gradient-to-r from-red-500 to-red-400' :
+                      recommendedTemplates[0]?.color === 'orange' ? 'bg-gradient-to-r from-orange-500 to-orange-400' :
+                      recommendedTemplates[0]?.color === 'purple' ? 'bg-gradient-to-r from-purple-500 to-purple-400' :
+                      recommendedTemplates[0]?.color === 'green' ? 'bg-gradient-to-r from-green-500 to-green-400' :
+                      'bg-gradient-to-r from-gray-500 to-gray-400'
+                    }`}></div>
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
                       Recommended for this thread
                     </h3>
-                    <div className="h-px flex-1 bg-gradient-to-l from-red-500 to-pink-500"></div>
+                    <div className={`h-px flex-1 ${
+                      recommendedTemplates[0]?.color === 'red' ? 'bg-gradient-to-l from-red-500 to-red-400' :
+                      recommendedTemplates[0]?.color === 'orange' ? 'bg-gradient-to-l from-orange-500 to-orange-400' :
+                      recommendedTemplates[0]?.color === 'purple' ? 'bg-gradient-to-l from-purple-500 to-purple-400' :
+                      recommendedTemplates[0]?.color === 'green' ? 'bg-gradient-to-l from-green-500 to-green-400' :
+                      'bg-gradient-to-l from-gray-500 to-gray-400'
+                    }`}></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {recommendedTemplates.map((template) => {
                       const Icon = template.icon;
+                      const colorClasses = {
+                        red: {
+                          border: 'border-red-500 dark:border-red-400',
+                          bg: 'bg-red-50 dark:bg-red-900/20',
+                          hover: 'hover:bg-red-100 dark:hover:bg-red-900/30',
+                          iconBg: 'bg-red-100 dark:bg-red-900/30',
+                          iconText: 'text-red-600 dark:text-red-400',
+                          badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                        },
+                        orange: {
+                          border: 'border-orange-500 dark:border-orange-400',
+                          bg: 'bg-orange-50 dark:bg-orange-900/20',
+                          hover: 'hover:bg-orange-100 dark:hover:bg-orange-900/30',
+                          iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+                          iconText: 'text-orange-600 dark:text-orange-400',
+                          badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                        },
+                        purple: {
+                          border: 'border-purple-500 dark:border-purple-400',
+                          bg: 'bg-purple-50 dark:bg-purple-900/20',
+                          hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/30',
+                          iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+                          iconText: 'text-purple-600 dark:text-purple-400',
+                          badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                        },
+                        green: {
+                          border: 'border-green-500 dark:border-green-400',
+                          bg: 'bg-green-50 dark:bg-green-900/20',
+                          hover: 'hover:bg-green-100 dark:hover:bg-green-900/30',
+                          iconBg: 'bg-green-100 dark:bg-green-900/30',
+                          iconText: 'text-green-600 dark:text-green-400',
+                          badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                        }
+                      };
+                      const colors = colorClasses[template.color as keyof typeof colorClasses];
                       return (
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className="p-4 border-2 border-red-500 dark:border-red-400 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-lg hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 hover:shadow-lg transition-all text-left group"
+                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className="mt-1 p-2.5 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 shadow-md">
-                              <Icon className="w-5 h-5 text-white" />
+                            <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
+                              <Icon className={`w-5 h-5 ${colors.iconText}`} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
                                 <h3 className="font-semibold text-gray-900 dark:text-white">
                                   {template.name}
                                 </h3>
-                                <span className="px-2 py-0.5 text-xs rounded-full bg-red-500 text-white font-medium">
+                                <span className={`px-2 py-0.5 text-xs rounded-full ${colors.badge} font-medium`}>
                                   Match
                                 </span>
                               </div>
@@ -456,15 +430,42 @@ export function ScenarioTemplateModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {otherTemplates.map((template) => {
                   const Icon = template.icon;
+                  const colorClasses = {
+                    red: {
+                      hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/10',
+                      iconBg: 'bg-red-100 dark:bg-red-900/30',
+                      iconText: 'text-red-600 dark:text-red-400',
+                      badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                    },
+                    orange: {
+                      hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/10',
+                      iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+                      iconText: 'text-orange-600 dark:text-orange-400',
+                      badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                    },
+                    purple: {
+                      hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10',
+                      iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+                      iconText: 'text-purple-600 dark:text-purple-400',
+                      badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                    },
+                    green: {
+                      hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10',
+                      iconBg: 'bg-green-100 dark:bg-green-900/30',
+                      iconText: 'text-green-600 dark:text-green-400',
+                      badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                    }
+                  };
+                  const colors = colorClasses[template.color as keyof typeof colorClasses];
                   return (
                     <button
                       key={template.id}
                       onClick={() => handleSelectTemplate(template)}
-                      className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all text-left group"
+                      className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`mt-1 p-2.5 rounded-lg bg-${template.color}-100 dark:bg-${template.color}-900/30`}>
-                          <Icon className={`w-5 h-5 text-${template.color}-600 dark:text-${template.color}-400`} />
+                        <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
+                          <Icon className={`w-5 h-5 ${colors.iconText}`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
@@ -474,7 +475,7 @@ export function ScenarioTemplateModal({
                             {template.description}
                           </p>
                           <div className="mt-2">
-                            <span className={`inline-block px-2 py-0.5 text-xs rounded-full bg-${template.color}-100 dark:bg-${template.color}-900/30 text-${template.color}-700 dark:text-${template.color}-300`}>
+                            <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${colors.badge}`}>
                               {CATEGORY_LABELS[template.category] || template.category}
                             </span>
                           </div>
