@@ -252,16 +252,31 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
     <>
       <div
         className={cn(
-          'border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300 ease-in-out',
-          // Normal flow on all screen sizes
-          'relative flex-shrink-0',
-          // Responsive widths with smooth transitions
-          isExpanded ? 'flex w-[320px] sm:w-[280px] lg:w-64 xl:w-80' : 'flex w-0 border-0',
-          // Hide content when collapsed
-          !isExpanded && 'opacity-0'
+          'bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300 ease-in-out',
+          // Mobile/tablet: full width below header
+          'lg:border-l lg:border-gray-200 lg:dark:border-gray-700',
+          'lg:relative lg:flex-shrink-0',
+          // Responsive behavior
+          isExpanded ? [
+            'flex',
+            // Mobile/tablet: full width, absolute positioned below header
+            'absolute top-0 left-0 right-0 bottom-0 z-10',
+            'lg:relative lg:w-64 xl:w-80'
+          ] : 'flex w-0 border-0 opacity-0',
         )}
       >
         <div className="flex-1 overflow-y-auto">
+          {/* Mobile/Tablet Close Button */}
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Customer Info</h3>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />

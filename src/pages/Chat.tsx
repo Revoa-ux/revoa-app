@@ -121,7 +121,7 @@ const Chat = () => {
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [messageToMove, setMessageToMove] = useState<Message | null>(null);
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
-  const [showCustomerSidebar, setShowCustomerSidebar] = useState(true);
+  const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
   const [showThreadSidebar, setShowThreadSidebar] = useState(true);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showThreadDropdown, setShowThreadDropdown] = useState(false);
@@ -249,6 +249,20 @@ const Chat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (selectedThreadId && window.innerWidth >= 1024) {
+        setShowCustomerSidebar(true);
+      } else if (!selectedThreadId) {
+        setShowCustomerSidebar(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [selectedThreadId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
