@@ -308,19 +308,19 @@ export default function VariantMappingModal({
           <div className="flex min-h-full items-center justify-center p-4">
             <div
               ref={modalRef}
-              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-7xl max-h-[90vh] flex flex-col"
+              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-[95vw] sm:max-w-xl md:max-w-2xl lg:max-w-5xl xl:max-w-7xl max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
             >
               {/* Header */}
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white">
                       Map Quote to Existing Shopify Product
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5 truncate">
                       {shopifyProduct.title}
                     </p>
                   </div>
@@ -334,9 +334,9 @@ export default function VariantMappingModal({
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto p-6 min-h-[400px] bg-gray-50 dark:bg-gray-900/30">
-                {/* Column Headers */}
-                <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-6 min-h-[400px] bg-gray-50 dark:bg-gray-900/30">
+                {/* Column Headers - Hidden on mobile */}
+                <div className="hidden lg:grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 mb-5 px-2">
                   <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     <ShoppingBag className="w-4 h-4" />
                     <span>Shopify Variant</span>
@@ -354,7 +354,7 @@ export default function VariantMappingModal({
                 </div>
 
                 {/* Variant Mapping List */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {shopifyProduct.variants.map((shopifyVariant, index) => {
                     const selectedQuoteIndex = mappings.get(shopifyVariant.id);
                     const selectedQuote = selectedQuoteIndex !== null && selectedQuoteIndex !== undefined
@@ -381,12 +381,72 @@ export default function VariantMappingModal({
                       <div key={shopifyVariant.id}>
                         {/* Option Names Group Header */}
                         {showGroupHeader && (
-                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5 mt-4 first:mt-0">
+                          <div className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5 mt-3 sm:mt-4 first:mt-0">
                             {variantOptions}
                           </div>
                         )}
 
-                        <div className="grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-stretch">
+                        {/* Mobile Layout - Stacked */}
+                        <div className="flex flex-col gap-3 lg:hidden">
+                          {/* Shopify Variant */}
+                          <div>
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Shopify Variant</span>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                              <ShopifyVariantCard
+                                variant={shopifyVariant}
+                                productOptions={shopifyProduct.options}
+                                productTitle={shopifyProduct.title}
+                                showPrice={true}
+                                marginPercent={selectedQuote ? currentMarginPercent : undefined}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Quote Variant */}
+                          <div>
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                              <Package className="w-3.5 h-3.5" />
+                              <span>Quote Variant</span>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                              <QuoteVariantDropdown
+                                value={selectedQuoteIndex ?? null}
+                                onChange={(value) => handleMappingChange(shopifyVariant.id, value)}
+                                quoteVariants={quoteVariants}
+                                isNewQuoteVariant={isNewQuoteVariant}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Profit */}
+                          <div>
+                            <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                              <TrendingUp className="w-3.5 h-3.5" />
+                              <span>Profit</span>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 rounded-lg p-2.5 border border-gray-200 dark:border-gray-700 shadow-sm">
+                              {selectedQuote ? (
+                                <SellingPriceEditor
+                                  currentPrice={shopifyVariant.price}
+                                  cost={cost}
+                                  suggestedPrice={suggestedPrice}
+                                  value={sellingPrices.get(shopifyVariant.id) ?? null}
+                                  onChange={(price) => handlePriceChange(shopifyVariant.id, price)}
+                                />
+                              ) : (
+                                <div className="flex items-center justify-center text-xs text-gray-400 dark:text-gray-500 py-2">
+                                  Select quote variant first
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Desktop Layout - Grid */}
+                        <div className="hidden lg:grid grid-cols-[1fr,40px,1fr,40px,1fr] gap-4 items-stretch">
                           {/* Column 1: Shopify Variant with Card */}
                           <div className="bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow transition-shadow h-[70px] flex items-center">
                             <div className="w-full">
@@ -449,32 +509,34 @@ export default function VariantMappingModal({
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variants mapped
+              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
+                    {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variant{shopifyProduct.variants.length !== 1 ? 's' : ''} mapped
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3">
                     <button
                       onClick={onClose}
                       disabled={isSubmitting}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                      className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleConfirmClick}
                       disabled={!isValid() || isSubmitting}
-                      className="group px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                      className="flex-1 sm:flex-none group px-4 sm:px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
                     >
                       {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Syncing...</span>
+                          <span className="hidden sm:inline">Syncing...</span>
+                          <span className="sm:hidden">Sync...</span>
                         </>
                       ) : (
                         <>
-                          <span>Confirm & Sync</span>
+                          <span className="hidden sm:inline">Confirm & Sync</span>
+                          <span className="sm:hidden">Confirm</span>
                           <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                         </>
                       )}
