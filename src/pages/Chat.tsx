@@ -126,9 +126,9 @@ const Chat = () => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showThreadDropdown, setShowThreadDropdown] = useState(false);
 
-  // Auto-open customer sidebar when on order threads
+  // Auto-open customer sidebar when on order threads (desktop only)
   useEffect(() => {
-    if (selectedThreadId) {
+    if (selectedThreadId && window.innerWidth >= 1280) {
       setShowCustomerSidebar(true);
     }
   }, [selectedThreadId]);
@@ -531,89 +531,93 @@ const Chat = () => {
               <div ref={threadDropdownRef} className="lg:hidden relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
-                  className="flex items-center space-x-2 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Select Thread"
                 >
-                  <Hash className="w-5 h-5" />
                   {selectedThreadId ? (
                     <span className="text-sm font-medium">
                       {threads.find(t => t.id === selectedThreadId)?.order_number || threads.find(t => t.id === selectedThreadId)?.title}
                     </span>
                   ) : (
-                    <span className="text-sm font-medium">main-chat</span>
+                    <>
+                      <Hash className="w-5 h-5" />
+                      <span className="text-sm font-medium">main-chat</span>
+                    </>
                   )}
                   <ChevronDown className="w-4 h-4" />
                 </button>
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-                    {/* Main Chat */}
-                    <button
-                      onClick={() => {
-                        setSelectedThreadId(null);
-                        setShowThreadDropdown(false);
-                      }}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        !selectedThreadId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                      }`}
-                    >
-                      <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">main-chat</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">General conversation</div>
-                      </div>
-                    </button>
-
-                    {/* Threads */}
-                    {threads.filter(t => t.status === 'open').map((thread) => (
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 flex flex-col max-h-96">
+                    {/* Scrollable thread list */}
+                    <div className="flex-1 overflow-y-auto">
+                      {/* Main Chat */}
                       <button
-                        key={thread.id}
                         onClick={() => {
-                          setSelectedThreadId(thread.id);
+                          setSelectedThreadId(null);
                           setShowThreadDropdown(false);
                         }}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
-                          selectedThreadId === thread.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                        className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                          !selectedThreadId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                         }`}
                       >
                         <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
                         <div className="flex-1 min-w-0 text-left">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                              {thread.order_number || thread.title}
-                            </span>
-                            {thread.tag && (
-                              <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                                thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                                thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                                'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                              }`}>
-                                {thread.tag}
+                          <div className="text-sm font-medium text-gray-900 dark:text-white truncate">main-chat</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">General conversation</div>
+                        </div>
+                      </button>
+
+                      {/* Threads */}
+                      {threads.filter(t => t.status === 'open').map((thread) => (
+                        <button
+                          key={thread.id}
+                          onClick={() => {
+                            setSelectedThreadId(thread.id);
+                            setShowThreadDropdown(false);
+                          }}
+                          className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
+                            selectedThreadId === thread.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {thread.order_number || thread.title}
                               </span>
+                              {thread.tag && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                                  thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                  thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                  thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                  thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                  'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                                }`}>
+                                  {thread.tag}
+                                </span>
+                              )}
+                            </div>
+                            {thread.customer_name && (
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{thread.customer_name}</div>
                             )}
                           </div>
-                          {thread.customer_name && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{thread.customer_name}</div>
+                          {thread.unread_count && thread.unread_count > 0 && (
+                            <span className="flex-shrink-0 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                              {thread.unread_count}
+                            </span>
                           )}
-                        </div>
-                        {thread.unread_count && thread.unread_count > 0 && (
-                          <span className="flex-shrink-0 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                            {thread.unread_count}
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                        </button>
+                      ))}
+                    </div>
 
-                    {/* Create New Thread */}
+                    {/* Create New Thread - Sticky at bottom */}
                     <button
                       onClick={() => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-blue-600 dark:text-blue-400"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-blue-600 dark:text-blue-400"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">Create New Thread</span>
@@ -622,8 +626,8 @@ const Chat = () => {
                 )}
               </div>
 
-              {/* Agent Info - Hidden on mobile/tablet */}
-              <div className="hidden lg:flex items-center space-x-3 min-w-0">
+              {/* Agent Info - Hidden on smaller screens */}
+              <div className="hidden md:flex items-center space-x-3 min-w-0">
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
                   <img
                     src={adminAvatar}
@@ -640,13 +644,15 @@ const Chat = () => {
             <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               <button
                 onClick={() => setShowCreateThreadModal(true)}
-                className="hidden sm:block p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="hidden lg:block p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Create New Thread"
               >
                 <Hash className="w-5 h-5" />
               </button>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (selectedThreadId) {
                     setShowTemplateModal(true);
                   } else {
