@@ -814,8 +814,14 @@ export function ScenarioTemplateModal({
         .limit(50);
 
       if (error) throw error;
-      setAllOrders(data || []);
-      setOrders(data || []);
+
+      // Filter out orders without customer information for better UX
+      const ordersWithCustomers = (data || []).filter(order =>
+        order.customer_first_name || order.customer_last_name || order.customer_email
+      );
+
+      setAllOrders(ordersWithCustomers);
+      setOrders(ordersWithCustomers);
     } catch (error) {
       console.error('Error loading orders:', error);
       toast.error('Failed to load orders');
@@ -987,7 +993,7 @@ export function ScenarioTemplateModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
           >
             <X className="w-5 h-5" />
           </button>
@@ -1081,7 +1087,7 @@ export function ScenarioTemplateModal({
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group`}
+                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
                         >
                           <div className="flex items-start gap-3">
                             <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
@@ -1168,7 +1174,7 @@ export function ScenarioTemplateModal({
                     <button
                       key={template.id}
                       onClick={() => handleSelectTemplate(template)}
-                      className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group`}
+                      className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
                     >
                       <div className="flex items-start gap-3">
                         <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
@@ -1244,7 +1250,7 @@ export function ScenarioTemplateModal({
                         }
                       }}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
+                      className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
                     >
                       {isLoading ? 'Loading...' : orderId ? 'Populate Template' : 'Assign to Order'}
                     </button>
@@ -1258,7 +1264,7 @@ export function ScenarioTemplateModal({
                       </label>
                       <button
                         onClick={() => setShowOrderSearch(false)}
-                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded px-2 py-1"
                       >
                         Cancel
                       </button>
@@ -1293,7 +1299,7 @@ export function ScenarioTemplateModal({
                                 setOrders(allOrders);
                               }
                             }}
-                            className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+                            className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
                           />
                         </div>
 
@@ -1308,7 +1314,7 @@ export function ScenarioTemplateModal({
                               <button
                                 key={order.id}
                                 onClick={() => handleOrderSelection(order.id)}
-                                className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group"
+                                className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group focus:outline-none focus:bg-pink-50 dark:focus:bg-pink-900/20"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-pink-100 dark:group-hover:bg-pink-900/20 transition-colors">
@@ -1359,14 +1365,14 @@ export function ScenarioTemplateModal({
                   setIsAssignedToOrder(false);
                   setCopied(false);
                 }}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
               >
                 ← Back to Templates
               </button>
               {isAssignedToOrder && (
                 <button
                   onClick={handleCopyToClipboard}
-                  className="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  className="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-lg transition-colors flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
                 >
                   {copied ? (
                     <>
