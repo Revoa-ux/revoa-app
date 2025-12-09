@@ -515,17 +515,17 @@ const Chat = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-              {chat && (
-                <ChannelDropdown
-                  threads={threads}
-                  selectedThreadId={selectedThreadId}
-                  onThreadSelect={handleThreadSelect}
-                  onCreateThread={() => setShowCreateThreadModal(true)}
-                />
-              )}
+              <button
+                onClick={() => setShowCreateThreadModal(true)}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Create New Thread"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => setShowSearchModal(true)}
                 className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Search Messages"
               >
                 <Search className="w-5 h-5" />
               </button>

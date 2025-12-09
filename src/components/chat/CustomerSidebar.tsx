@@ -260,30 +260,68 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
             </div>
           ) : (
             <div className="p-6 space-y-6">
-              {/* Header Section */}
+              {/* Contact Section at Top */}
               <div>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                    Contact
+                  </h4>
+                </div>
+
+                {/* Customer Name */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 mb-1">
+                    <User className="w-4 h-4" />
+                    <span className="text-xs font-medium">Name</span>
+                  </div>
+                  <div className="pl-6">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {getCustomerName()}
-                    </h3>
+                    </p>
                     {customerInfo.is_repeat_customer && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" />
-                          Repeat Customer ({customerInfo.order_count})
-                        </span>
-                      </div>
+                      <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 mt-1">
+                        <TrendingUp className="w-3 h-3" />
+                        Repeat Customer ({customerInfo.order_count})
+                      </span>
                     )}
                   </div>
                 </div>
+
+                {/* Email */}
+                <button
+                  onClick={() => setShowUpdateEmailModal(true)}
+                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Email</span>
+                    </div>
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                  </div>
+                  <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
+                    {customerInfo.customer_email || 'Not provided'}
+                  </p>
+                </button>
+
+                {/* Phone */}
+                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Phone</span>
+                  </div>
+                  <p className={`text-sm ${customerInfo.customer_phone ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'}`}>
+                    {customerInfo.customer_phone || 'Not provided'}
+                  </p>
+                </div>
               </div>
 
-              {/* Email Templates Showcase */}
+              {/* Email Templates Showcase - Below Contact */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <button
                   onClick={() => setShowTemplateSelector(true)}
-                  className="w-full mb-4 p-4 border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all text-left group"
+                  className="w-full p-4 border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all text-left group"
                 >
                   <div className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
@@ -304,42 +342,6 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                     </div>
                   </div>
                 </button>
-              </div>
-
-              {/* Contact Information */}
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                    Contact
-                  </h4>
-                </div>
-
-                <button
-                  onClick={() => setShowUpdateEmailModal(true)}
-                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-pink-300 dark:hover:border-pink-600 hover:bg-pink-50/50 dark:hover:bg-pink-900/10 transition-colors text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>Email</span>
-                    </div>
-                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors" />
-                  </div>
-                  <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
-                    {customerInfo.customer_email || 'Not provided'}
-                  </p>
-                </button>
-
-                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Phone</span>
-                  </div>
-                  <p className={`text-sm ${customerInfo.customer_phone ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'}`}>
-                    {customerInfo.customer_phone || 'Not provided'}
-                  </p>
-                </div>
               </div>
 
               {/* Order Information */}
