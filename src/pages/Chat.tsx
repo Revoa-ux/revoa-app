@@ -520,24 +520,24 @@ const Chat = () => {
             <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
               <button
                 onClick={() => setShowCreateThreadModal(true)}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Create New Thread"
               >
-                <Plus className="w-5 h-5" />
+                <Hash className="w-5 h-5 stroke-[2.5]" />
               </button>
               <button
                 onClick={() => setShowTemplateModal(true)}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Quick Email Templates"
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 stroke-[2.5]" />
               </button>
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Search Messages"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-5 h-5 stroke-[2.5]" />
               </button>
             </div>
           </div>
@@ -900,13 +900,6 @@ const Chat = () => {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => setShowCreateThreadModal(true)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                    title="Assign to Order"
-                  >
-                    <Hash className="w-5 h-5" />
-                  </button>
                 </div>
 
                 <button
@@ -941,6 +934,7 @@ const Chat = () => {
             threadId={selectedThreadId}
             userId={user.id}
             isExpanded={true}
+            onOpenTemplates={() => setShowTemplateModal(true)}
           />
         )}
       </div>
@@ -1041,11 +1035,11 @@ const Chat = () => {
       />
 
       {/* Quick Email Templates Modal */}
-      {showTemplateModal && chat && (
+      {showTemplateModal && selectedThreadId && chat && user && (
         <ScenarioTemplateModal
           isOpen={showTemplateModal}
           onClose={() => setShowTemplateModal(false)}
-          threadId={selectedThreadId || chat.id}
+          threadId={selectedThreadId}
           userId={user.id}
         />
       )}

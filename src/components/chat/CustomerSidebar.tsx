@@ -31,6 +31,7 @@ interface CustomerSidebarProps {
   threadId: string;
   userId: string;
   isExpanded: boolean;
+  onOpenTemplates?: () => void;
 }
 
 interface CustomerInfo {
@@ -71,6 +72,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   threadId,
   userId,
   isExpanded,
+  onOpenTemplates,
 }) => {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -270,12 +272,12 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
 
                 {/* Customer Name */}
-                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                <div className="mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <User className="w-3.5 h-3.5" />
                     <span>Name</span>
                   </div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm text-gray-900 dark:text-white">
                     {getCustomerName()}
                   </p>
                   {customerInfo.is_repeat_customer && (
@@ -289,14 +291,14 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 {/* Email */}
                 <button
                   onClick={() => setShowUpdateEmailModal(true)}
-                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors text-left group"
+                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                       <Mail className="w-3.5 h-3.5" />
                       <span>Email</span>
                     </div>
-                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors" />
                   </div>
                   <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
                     {customerInfo.customer_email || 'Not provided'}
@@ -304,7 +306,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </button>
 
                 {/* Phone */}
-                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
                   <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                     <Phone className="w-3.5 h-3.5" />
                     <span>Phone</span>
@@ -318,11 +320,14 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Email Templates Showcase - Below Contact */}
               <div className="mt-4">
                 <button
-                  onClick={() => setShowTemplateSelector(true)}
-                  className="w-full p-4 border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all text-left group"
+                  onClick={() => {
+                    setShowTemplateSelector(true);
+                    onOpenTemplates?.();
+                  }}
+                  className="w-full p-4 border-2 border-dashed border-red-200 dark:border-red-800 rounded-lg hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-all text-left group"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                    <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
                       <FileText className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -330,7 +335,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                         <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Quick Email Templates
                         </h4>
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-medium">
                           New
                         </span>
                       </div>
@@ -613,7 +618,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 <button
                   onClick={() => setShowEditShippingModal(true)}
                   disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped'}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-700 disabled:hover:bg-transparent"
                   title={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped' ? 'Cannot edit address after shipment' : 'Edit shipping address'}
                 >
                   <div className="flex items-start justify-between">
@@ -645,7 +650,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       </div>
                     </div>
                     {!(customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'shipped') && (
-                      <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex-shrink-0 ml-2 mt-1" />
+                      <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors flex-shrink-0 ml-2 mt-1" />
                     )}
                   </div>
                 </button>
@@ -662,7 +667,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
                 <button
                   onClick={() => setShowEditBillingModal(true)}
-                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors text-left group"
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 flex-1">
@@ -692,7 +697,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                         )}
                       </div>
                     </div>
-                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors flex-shrink-0 ml-2 mt-1" />
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors flex-shrink-0 ml-2 mt-1" />
                   </div>
                 </button>
               </div>
