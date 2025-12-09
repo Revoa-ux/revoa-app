@@ -215,10 +215,6 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
     }
   };
 
-  if (!isExpanded) {
-    return null;
-  }
-
   const getCustomerName = () => {
     if (!customerInfo) return 'Guest Customer';
     if (customerInfo.customer_first_name || customerInfo.customer_last_name) {
