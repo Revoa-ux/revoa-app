@@ -238,12 +238,6 @@ export function ScenarioTemplateModal({
     : TEMPLATES;
 
   const handleSelectTemplate = (template: Template) => {
-    if (onSelectTemplate) {
-      onSelectTemplate({ id: template.id, name: template.name });
-      onClose();
-      return;
-    }
-
     setSelectedTemplate(template);
     setIsAssignedToOrder(false);
     setPopulatedSubject(template.subject);
@@ -332,7 +326,6 @@ export function ScenarioTemplateModal({
       setPopulatedSubject(subject);
       setPopulatedBody(body);
       setIsAssignedToOrder(true);
-      toast.success('Template populated with order data!');
     } catch (error) {
       console.error('Error assigning to order:', error);
       toast.error('Failed to load order data');
@@ -494,35 +487,32 @@ export function ScenarioTemplateModal({
             </div>
           ) : (
             <div className="flex flex-col h-full">
-              {/* Assign to Order Button */}
-              {!isAssignedToOrder && orderId && (
-                <div className="px-6 py-4 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
+              {/* Assign to Order Button - Only show if not already assigned */}
+              {!isAssignedToOrder && (
+                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <LinkIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <p className="text-sm text-blue-900 dark:text-blue-100">
-                        This template contains variables. Click to populate with order data.
+                      <LinkIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {orderId
+                          ? 'Click to populate this template with order data'
+                          : 'This template contains variables. Assign to an order to populate with real data.'}
                       </p>
                     </div>
                     <button
-                      onClick={handleAssignToOrder}
+                      onClick={() => {
+                        if (orderId) {
+                          handleAssignToOrder();
+                        } else if (onSelectTemplate) {
+                          onSelectTemplate({ id: selectedTemplate.id, name: selectedTemplate.name });
+                          onClose();
+                        }
+                      }}
                       disabled={isLoading}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                      className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Sparkles className="w-4 h-4" />
-                      {isLoading ? 'Loading...' : 'Assign to Order'}
+                      {isLoading ? 'Loading...' : orderId ? 'Populate Template' : 'Assign to Order'}
                     </button>
-                  </div>
-                </div>
-              )}
-
-              {isAssignedToOrder && (
-                <div className="px-6 py-3 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <p className="text-sm text-green-900 dark:text-green-100">
-                      Template populated with order data
-                    </p>
                   </div>
                 </div>
               )}
