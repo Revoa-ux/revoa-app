@@ -10,6 +10,7 @@ interface ChannelSidebarProps {
   onCreateThread: () => void;
   isOpen: boolean;
   onClose?: () => void;
+  isCustomerSidebarOpen?: boolean;
 }
 
 const TAG_COLORS = {
@@ -33,6 +34,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   onCreateThread,
   isOpen,
   onClose,
+  isCustomerSidebarOpen = false,
 }) => {
   const openThreads = threads.filter(t => t.status === 'open');
 
@@ -43,8 +45,9 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   return (
     <div
       className={cn(
-        'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden',
-        'w-[220px] flex-shrink-0'
+        'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden transition-all duration-300',
+        isCustomerSidebarOpen ? 'w-[180px]' : 'w-[220px]',
+        'flex-shrink-0'
       )}
     >
         {/* Scrollable thread list */}

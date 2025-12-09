@@ -500,7 +500,7 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 max-w-full">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full">
         {/* Thread Sidebar - Full Height */}
         {chat && (
           <ChannelSidebar
@@ -510,6 +510,7 @@ const Chat = () => {
             onCreateThread={() => setShowCreateThreadModal(true)}
             isOpen={true}
             onClose={() => {}}
+            isCustomerSidebarOpen={!!selectedThreadId}
           />
         )}
 
