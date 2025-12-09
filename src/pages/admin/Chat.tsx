@@ -112,7 +112,7 @@ const AdminChat = () => {
     sortBy: 'recent',
   });
   const [conversationSearch, setConversationSearch] = useState('');
-  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(true);
   const [showTagModal, setShowTagModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -122,7 +122,7 @@ const AdminChat = () => {
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
-  const [showThreadSidebar, setShowThreadSidebar] = useState(false);
+  const [showThreadSidebar, setShowThreadSidebar] = useState(true);
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -464,20 +464,40 @@ const AdminChat = () => {
 
         <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           {/* Conversations List */}
-          <div className={`border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-t-xl md:rounded-l-xl md:rounded-tr-none overflow-hidden transition-all duration-300 ${
-            showUserProfile ? 'hidden md:flex md:w-20' : 'w-full md:w-96'
-          }`}>
-            {!showUserProfile && (
-              <ConversationFilters
-                filters={conversationFilters}
-                onFiltersChange={setConversationFilters}
-                searchTerm={conversationSearch}
-                onSearchChange={setConversationSearch}
-              />
-            )}
+          <div className="border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-t-xl md:rounded-l-xl md:rounded-tr-none overflow-hidden transition-all duration-300 w-full md:w-96">
+            <ConversationFilters
+              filters={conversationFilters}
+              onFiltersChange={setConversationFilters}
+              searchTerm={conversationSearch}
+              onSearchChange={setConversationSearch}
+            />
 
+            {/* Full conversation list */}
+            <div className="flex-1 overflow-y-auto">
+              {isLoading ? (
+                <ConversationListSkeleton />
+              ) : chats.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+                  <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
+                </div>
+              ) : (
+                chats.map((chat) => (
+                  <ConversationListItem
+                    key={chat.id}
+                    chat={chat}
+                    isSelected={selectedChat?.id === chat.id}
+                    onClick={() => setSelectedChat(chat)}
+                  />
+                ))
+              )}
+            </div>
+          </div>
+
+      {/* Hidden code - keeping for reference but not rendering */}
+      {false && (
+          <div>
             {/* Collapsed view - Just avatars when profile is open */}
-            {showUserProfile && (
               <div className="flex flex-col overflow-y-auto">
                 {chats.map((chat, index) => {
                   const profile = chat.user_profile;
@@ -542,31 +562,8 @@ const AdminChat = () => {
                   );
                 })}
               </div>
-            )}
-
-            {/* Full conversation list */}
-            {!showUserProfile && (
-              <div className="flex-1 overflow-y-auto">
-                {isLoading ? (
-                  <ConversationListSkeleton />
-                ) : chats.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-32 text-center px-4">
-                    <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
-                  </div>
-                ) : (
-                  chats.map((chat) => (
-                    <ConversationListItem
-                      key={chat.id}
-                      chat={chat}
-                      isSelected={selectedChat?.id === chat.id}
-                      onClick={() => setSelectedChat(chat)}
-                    />
-                  ))
-                )}
-              </div>
-            )}
           </div>
+      )}
 
       {/* Chat Area */}
       <div className={`flex-1 flex flex-col overflow-hidden ${
@@ -588,28 +585,6 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-                <button
-                  onClick={() => setShowThreadSidebar(!showThreadSidebar)}
-                  className={`p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
-                    showThreadSidebar
-                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  title="View threads"
-                >
-                  <Hash className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
-                <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                  className={`hidden md:flex p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
-                    showUserProfile
-                      ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                  }`}
-                  title="View client profile"
-                >
-                  <Info className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
                 <button
                   onClick={() => setShowSearchModal(true)}
                   className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -926,8 +901,8 @@ const AdminChat = () => {
           selectedThreadId={selectedThreadId}
           onThreadSelect={handleThreadSelect}
           onCreateThread={() => setShowCreateThreadModal(true)}
-          isOpen={showThreadSidebar}
-          onClose={() => setShowThreadSidebar(false)}
+          isOpen={true}
+          onClose={() => {}}
         />
       )}
 
@@ -935,15 +910,15 @@ const AdminChat = () => {
       {selectedChat && !selectedThreadId && (
         <CollapsibleClientProfile
           userId={selectedChat.user_id}
-          isExpanded={showUserProfile}
+          isExpanded={true}
         />
       )}
 
       {selectedChat && selectedThreadId && (
         <CustomerProfileSidebar
           threadId={selectedThreadId}
-          isExpanded={showUserProfile}
-          onClose={() => setShowUserProfile(false)}
+          isExpanded={true}
+          onClose={() => {}}
         />
       )}
         </div>

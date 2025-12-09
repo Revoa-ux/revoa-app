@@ -279,23 +279,40 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
               </div>
 
+              {/* Email Templates Showcase */}
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <button
+                  onClick={() => setShowTemplateSelector(true)}
+                  className="w-full mb-4 p-4 border-2 border-dashed border-blue-200 dark:border-blue-800 rounded-lg hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all text-left group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          Quick Email Templates
+                        </h4>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-medium">
+                          New
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                        Send professional pre-written emails in seconds for common scenarios like replacements, returns, and more
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
               {/* Contact Information */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                      Contact
-                    </h4>
-                  </div>
-                  <button
-                    onClick={() => setShowTemplateSelector(true)}
-                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20"
-                    title="Email templates"
-                  >
-                    <FileText className="w-3 h-3" />
-                    Templates
-                  </button>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                  <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                    Contact
+                  </h4>
                 </div>
 
                 <button
