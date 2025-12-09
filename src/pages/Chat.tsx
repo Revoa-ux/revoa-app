@@ -126,13 +126,6 @@ const Chat = () => {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showThreadDropdown, setShowThreadDropdown] = useState(false);
 
-  // Auto-open customer sidebar when on order threads (desktop only)
-  useEffect(() => {
-    if (selectedThreadId && window.innerWidth >= 1280) {
-      setShowCustomerSidebar(true);
-    }
-  }, [selectedThreadId]);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachMenuRef = useRef<HTMLDivElement>(null);
@@ -527,6 +520,22 @@ const Chat = () => {
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              {/* Agent Info - Hidden on smaller screens to avoid overlap */}
+              <div className="hidden xl:flex items-center space-x-3 min-w-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
+                  <img
+                    src={adminAvatar}
+                    alt={adminName}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               {/* Thread Dropdown - Mobile/Tablet Only */}
               <div ref={threadDropdownRef} className="lg:hidden relative flex-shrink-0">
                 <button
@@ -549,7 +558,7 @@ const Chat = () => {
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 flex flex-col max-h-96">
+                  <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 flex flex-col max-h-96">
                     {/* Scrollable thread list */}
                     <div className="flex-1 overflow-y-auto">
                       {/* Main Chat */}
@@ -559,7 +568,7 @@ const Chat = () => {
                           setShowThreadDropdown(false);
                         }}
                         className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          !selectedThreadId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                          !selectedThreadId ? 'bg-red-50 dark:bg-red-900/20' : ''
                         }`}
                       >
                         <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
@@ -578,7 +587,7 @@ const Chat = () => {
                             setShowThreadDropdown(false);
                           }}
                           className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
-                            selectedThreadId === thread.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                            selectedThreadId === thread.id ? 'bg-red-50 dark:bg-red-900/20' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0 text-left">
@@ -603,7 +612,7 @@ const Chat = () => {
                             )}
                           </div>
                           {thread.unread_count && thread.unread_count > 0 && (
-                            <span className="flex-shrink-0 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                            <span className="flex-shrink-0 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
                               {thread.unread_count}
                             </span>
                           )}
@@ -617,7 +626,7 @@ const Chat = () => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-blue-600 dark:text-blue-400"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">Create New Thread</span>
@@ -626,22 +635,6 @@ const Chat = () => {
                 )}
               </div>
 
-              {/* Agent Info - Hidden on smaller screens */}
-              <div className="hidden md:flex items-center space-x-3 min-w-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
-                  <img
-                    src={adminAvatar}
-                    alt={adminName}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               <button
                 onClick={() => setShowCreateThreadModal(true)}
                 className="hidden lg:block p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -650,9 +643,9 @@ const Chat = () => {
                 <Hash className="w-5 h-5" />
               </button>
               <button
-                onClick={(e) => {
+                type="button"
+                onMouseDown={(e) => {
                   e.preventDefault();
-                  e.stopPropagation();
                   if (selectedThreadId) {
                     setShowTemplateModal(true);
                   } else {
@@ -675,7 +668,11 @@ const Chat = () => {
               {selectedThreadId && (
                 <button
                   onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className={`p-2 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${
+                    showCustomerSidebar
+                      ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}
                   title="Customer Info"
                 >
                   <User className="w-4 h-4 sm:w-5 sm:h-5" />
