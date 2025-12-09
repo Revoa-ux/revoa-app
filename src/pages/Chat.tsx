@@ -20,7 +20,8 @@ import {
   MoveRight,
   Info,
   PanelLeft,
-  Plus
+  Plus,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -500,7 +501,7 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {chat && (
           <ChannelSidebar
@@ -508,9 +509,9 @@ const Chat = () => {
             selectedThreadId={selectedThreadId}
             onThreadSelect={handleThreadSelect}
             onCreateThread={() => setShowCreateThreadModal(true)}
-            isOpen={true}
-            onClose={() => {}}
-            isCustomerSidebarOpen={!!selectedThreadId}
+            isOpen={showThreadSidebar}
+            onClose={() => setShowThreadSidebar(false)}
+            isCustomerSidebarOpen={showCustomerSidebar && !!selectedThreadId}
           />
         )}
 
@@ -518,23 +519,35 @@ const Chat = () => {
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
-                <img
-                  src={adminAvatar}
-                  alt={adminName}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <div className="min-w-0">
-                <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              {/* Thread Sidebar Toggle - Mobile Only */}
+              <button
+                onClick={() => setShowThreadSidebar(!showThreadSidebar)}
+                className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                title="Toggle Threads"
+              >
+                <Hash className="w-5 h-5" />
+              </button>
+
+              {/* Agent Info - Hidden on small screens */}
+              <div className="hidden sm:flex items-center space-x-3 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
+                  <img
+                    src={adminAvatar}
+                    alt={adminName}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
               <button
                 onClick={() => setShowCreateThreadModal(true)}
-                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="hidden sm:block p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Create New Thread"
               >
                 <Hash className="w-5 h-5" />
@@ -550,15 +563,25 @@ const Chat = () => {
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Quick Email Templates"
               >
-                <FileText className="w-5 h-5" />
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={() => setShowSearchModal(true)}
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Search Messages"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
+              {/* Customer Sidebar Toggle */}
+              {selectedThreadId && (
+                <button
+                  onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
+                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Customer Info"
+                >
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              )}
             </div>
           </div>
 
@@ -960,9 +983,10 @@ const Chat = () => {
           <CustomerSidebar
             threadId={selectedThreadId}
             userId={user.id}
-            isExpanded={true}
+            isExpanded={showCustomerSidebar}
             externalTemplateOpen={showTemplateModal}
             onExternalTemplateClose={() => setShowTemplateModal(false)}
+            onClose={() => setShowCustomerSidebar(false)}
           />
         )}
       </div>

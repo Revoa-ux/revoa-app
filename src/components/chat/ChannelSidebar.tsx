@@ -38,25 +38,41 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
 }) => {
   const openThreads = threads.filter(t => t.status === 'open');
 
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className={cn(
-        'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden transition-all duration-300',
-        'w-[140px] sm:w-[160px]',
-        isCustomerSidebarOpen ? 'md:w-[160px] lg:w-[180px]' : 'md:w-[200px] lg:w-[220px]',
-        'flex-shrink-0'
+    <>
+      {/* Mobile Overlay Backdrop */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
       )}
-    >
+
+      <div
+        className={cn(
+          'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden transition-all duration-300',
+          // Mobile: Overlay absolutely positioned
+          'lg:relative lg:flex-shrink-0',
+          'fixed inset-y-0 left-0 z-50 lg:z-auto',
+          // Responsive widths
+          'w-[240px] sm:w-[260px]',
+          isCustomerSidebarOpen ? 'lg:w-[180px]' : 'lg:w-[220px]',
+          // Slide in/out on mobile
+          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+          // Hide completely when closed on mobile
+          !isOpen && 'lg:flex hidden'
+        )}
+      >
         {/* Scrollable thread list */}
         <div className="flex-1 overflow-y-auto">
           {/* Main Chat */}
           <button
             onClick={() => {
               onThreadSelect(null);
+              // Close on mobile after selection
+              if (window.innerWidth < 1024 && onClose) {
+                onClose();
+              }
             }}
             className={cn(
               'w-full px-3 py-2.5 text-left flex items-center gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
@@ -78,6 +94,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
               key={thread.id}
               onClick={() => {
                 onThreadSelect(thread.id);
+                // Close on mobile after selection
+                if (window.innerWidth < 1024 && onClose) {
+                  onClose();
+                }
               }}
               className={cn(
                 'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
@@ -117,5 +137,6 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
           )}
         </div>
       </div>
+    </>
   );
 };

@@ -33,6 +33,7 @@ interface CustomerSidebarProps {
   isExpanded: boolean;
   externalTemplateOpen?: boolean;
   onExternalTemplateClose?: () => void;
+  onClose?: () => void;
 }
 
 interface CustomerInfo {
@@ -75,6 +76,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   isExpanded,
   externalTemplateOpen = false,
   onExternalTemplateClose,
+  onClose,
 }) => {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -247,7 +249,22 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
   return (
     <>
-      <div className="hidden sm:flex w-64 md:w-72 lg:w-80 flex-shrink-0 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300">
+      {/* Mobile Overlay Backdrop */}
+      {isExpanded && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <div className={`
+        border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300
+        ${isExpanded ? 'flex' : 'hidden'}
+        fixed md:relative inset-y-0 right-0 z-50 md:z-auto
+        w-[320px] md:w-64 lg:w-72 xl:w-80
+        md:flex-shrink-0
+        ${isExpanded ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
+      `}>
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
