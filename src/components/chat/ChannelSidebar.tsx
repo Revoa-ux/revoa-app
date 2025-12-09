@@ -43,7 +43,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
       {/* Mobile Overlay Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="absolute inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
@@ -53,8 +53,8 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
           'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300',
           // Desktop: Normal flow
           'relative flex-shrink-0',
-          // Mobile: Fixed overlay
-          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50',
+          // Mobile: Absolute overlay within container
+          'max-lg:absolute max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:h-full',
           // Responsive widths
           'w-[240px] sm:w-[260px]',
           isCustomerSidebarOpen ? 'lg:w-[180px]' : 'lg:w-[220px]',

@@ -21,7 +21,8 @@ import {
   Info,
   PanelLeft,
   Plus,
-  User
+  User,
+  List
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -520,18 +521,24 @@ const Chat = () => {
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {/* Thread Sidebar Toggle - Mobile Only */}
+              {/* Thread Sidebar Toggle - Mobile/Tablet Only */}
               <button
-                onClick={() => setShowThreadSidebar(!showThreadSidebar)}
+                onClick={() => {
+                  setShowThreadSidebar(!showThreadSidebar);
+                  // Close customer sidebar on mobile when opening threads
+                  if (window.innerWidth < 1024 && !showThreadSidebar) {
+                    setShowCustomerSidebar(false);
+                  }
+                }}
                 className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 title="Toggle Threads"
               >
-                <Hash className="w-5 h-5" />
+                <List className="w-5 h-5" />
               </button>
 
-              {/* Agent Info - Hidden on small screens */}
-              <div className="hidden sm:flex items-center space-x-3 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
+              {/* Agent Info - Hidden on mobile/tablet */}
+              <div className="hidden lg:flex items-center space-x-3 min-w-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
                   <img
                     src={adminAvatar}
                     alt={adminName}
@@ -539,8 +546,8 @@ const Chat = () => {
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
+                  <h2 className="text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
                 </div>
               </div>
             </div>
@@ -572,11 +579,17 @@ const Chat = () => {
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              {/* Customer Sidebar Toggle */}
+              {/* Customer Sidebar Toggle - Mobile/Tablet */}
               {selectedThreadId && (
                 <button
-                  onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
-                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  onClick={() => {
+                    setShowCustomerSidebar(!showCustomerSidebar);
+                    // Close thread sidebar on mobile when opening customer info
+                    if (window.innerWidth < 1024 && !showCustomerSidebar) {
+                      setShowThreadSidebar(false);
+                    }
+                  }}
+                  className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Customer Info"
                 >
                   <User className="w-4 h-4 sm:w-5 sm:h-5" />
