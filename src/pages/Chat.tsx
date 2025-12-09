@@ -520,8 +520,8 @@ const Chat = () => {
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {/* Agent Info - Hidden on smaller screens to avoid overlap */}
-              <div className="hidden xl:flex items-center space-x-3 min-w-0">
+              {/* Agent Info - Shows on larger screens when there's space */}
+              <div className="hidden lg:flex items-center space-x-3 min-w-0">
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
                   <img
                     src={adminAvatar}
@@ -540,7 +540,7 @@ const Chat = () => {
               <div ref={threadDropdownRef} className="lg:hidden relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-0"
                   title="Select Thread"
                 >
                   {selectedThreadId ? (
@@ -558,7 +558,7 @@ const Chat = () => {
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 flex flex-col max-h-96">
+                  <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
                     {/* Scrollable thread list */}
                     <div className="flex-1 overflow-y-auto">
                       {/* Main Chat */}
@@ -568,7 +568,7 @@ const Chat = () => {
                           setShowThreadDropdown(false);
                         }}
                         className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                          !selectedThreadId ? 'bg-red-50 dark:bg-red-900/20' : ''
+                          !selectedThreadId ? 'bg-gray-100 dark:bg-gray-700/30' : ''
                         }`}
                       >
                         <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
@@ -587,7 +587,7 @@ const Chat = () => {
                             setShowThreadDropdown(false);
                           }}
                           className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
-                            selectedThreadId === thread.id ? 'bg-red-50 dark:bg-red-900/20' : ''
+                            selectedThreadId === thread.id ? 'bg-gray-100 dark:bg-gray-700/30' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0 text-left">
@@ -643,14 +643,15 @@ const Chat = () => {
                 <Hash className="w-5 h-5" />
               </button>
               <button
-                type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  if (selectedThreadId) {
-                    setShowTemplateModal(true);
-                  } else {
-                    setShowBroadTemplateModal(true);
-                  }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setTimeout(() => {
+                    if (selectedThreadId) {
+                      setShowTemplateModal(true);
+                    } else {
+                      setShowBroadTemplateModal(true);
+                    }
+                  }, 0);
                 }}
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Quick Email Templates"
