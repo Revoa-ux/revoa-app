@@ -250,10 +250,10 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Overlay Backdrop */}
+      {/* Mobile/Tablet Overlay Backdrop */}
       {isExpanded && (
         <div
-          className="absolute inset-0 bg-black/50 z-40 lg:hidden"
+          className="absolute inset-0 bg-black/50 z-40 xl:hidden"
           onClick={onClose}
         />
       )}
@@ -263,14 +263,14 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
           'border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300',
           // Desktop: Normal flow
           'relative flex-shrink-0',
-          // Mobile: Absolute overlay within container
-          'max-lg:absolute max-lg:inset-y-0 max-lg:right-0 max-lg:z-50 max-lg:h-full',
+          // Mobile/Tablet: Absolute overlay within container
+          'max-xl:absolute max-xl:inset-y-0 max-xl:right-0 max-xl:z-50 max-xl:h-full',
           // Responsive widths
-          'w-[320px] lg:w-64 xl:w-80',
-          // Slide in/out on mobile only
-          isExpanded ? 'flex max-lg:translate-x-0' : 'hidden max-lg:translate-x-full',
+          'w-[320px] xl:w-80',
+          // Slide in/out on mobile/tablet only
+          isExpanded ? 'flex max-xl:translate-x-0' : 'hidden max-xl:translate-x-full',
           // Hide when not expanded
-          !isExpanded && 'lg:hidden'
+          !isExpanded && 'xl:hidden'
         )}
       >
         <div className="flex-1 overflow-y-auto">

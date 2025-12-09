@@ -22,7 +22,10 @@ import {
   PanelLeft,
   Plus,
   User,
-  List
+  List,
+  ChevronDown,
+  CheckCircle,
+  Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -121,6 +124,7 @@ const Chat = () => {
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(true);
   const [showThreadSidebar, setShowThreadSidebar] = useState(true);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showThreadDropdown, setShowThreadDropdown] = useState(false);
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -136,8 +140,10 @@ const Chat = () => {
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messageActionsRef = useRef<HTMLDivElement>(null);
+  const threadDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(moreMenuRef, () => setShowMoreMenu(false));
+  useClickOutside(threadDropdownRef, () => setShowThreadDropdown(false));
   useClickOutside(messageActionsRef, () => setMessageActionsOpen(null));
 
   useEffect(() => {
@@ -521,20 +527,100 @@ const Chat = () => {
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {/* Thread Sidebar Toggle - Mobile/Tablet Only */}
-              <button
-                onClick={() => {
-                  setShowThreadSidebar(!showThreadSidebar);
-                  // Close customer sidebar on mobile when opening threads
-                  if (window.innerWidth < 1024 && !showThreadSidebar) {
-                    setShowCustomerSidebar(false);
-                  }
-                }}
-                className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
-                title="Toggle Threads"
-              >
-                <List className="w-5 h-5" />
-              </button>
+              {/* Thread Dropdown - Mobile/Tablet Only */}
+              <div ref={threadDropdownRef} className="lg:hidden relative flex-shrink-0">
+                <button
+                  onClick={() => setShowThreadDropdown(!showThreadDropdown)}
+                  className="flex items-center space-x-2 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Select Thread"
+                >
+                  <Hash className="w-5 h-5" />
+                  {selectedThreadId ? (
+                    <span className="text-sm font-medium">
+                      {threads.find(t => t.id === selectedThreadId)?.order_number || threads.find(t => t.id === selectedThreadId)?.title}
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium">main-chat</span>
+                  )}
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+
+                {/* Thread Dropdown Menu */}
+                {showThreadDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                    {/* Main Chat */}
+                    <button
+                      onClick={() => {
+                        setSelectedThreadId(null);
+                        setShowThreadDropdown(false);
+                      }}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        !selectedThreadId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      }`}
+                    >
+                      <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">main-chat</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">General conversation</div>
+                      </div>
+                    </button>
+
+                    {/* Threads */}
+                    {threads.filter(t => t.status === 'open').map((thread) => (
+                      <button
+                        key={thread.id}
+                        onClick={() => {
+                          setSelectedThreadId(thread.id);
+                          setShowThreadDropdown(false);
+                        }}
+                        className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
+                          selectedThreadId === thread.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                        }`}
+                      >
+                        <Hash className="w-5 h-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {thread.order_number || thread.title}
+                            </span>
+                            {thread.tag && (
+                              <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                                thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                              }`}>
+                                {thread.tag}
+                              </span>
+                            )}
+                          </div>
+                          {thread.customer_name && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{thread.customer_name}</div>
+                          )}
+                        </div>
+                        {thread.unread_count && thread.unread_count > 0 && (
+                          <span className="flex-shrink-0 bg-blue-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                            {thread.unread_count}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+
+                    {/* Create New Thread */}
+                    <button
+                      onClick={() => {
+                        setShowCreateThreadModal(true);
+                        setShowThreadDropdown(false);
+                      }}
+                      className="w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-blue-600 dark:text-blue-400"
+                    >
+                      <Plus className="w-5 h-5 flex-shrink-0" />
+                      <span className="text-sm font-medium">Create New Thread</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Agent Info - Hidden on mobile/tablet */}
               <div className="hidden lg:flex items-center space-x-3 min-w-0">
@@ -579,17 +665,11 @@ const Chat = () => {
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-              {/* Customer Sidebar Toggle - Mobile/Tablet */}
+              {/* Customer Sidebar Toggle */}
               {selectedThreadId && (
                 <button
-                  onClick={() => {
-                    setShowCustomerSidebar(!showCustomerSidebar);
-                    // Close thread sidebar on mobile when opening customer info
-                    if (window.innerWidth < 1024 && !showCustomerSidebar) {
-                      setShowThreadSidebar(false);
-                    }
-                  }}
-                  className="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  onClick={() => setShowCustomerSidebar(!showCustomerSidebar)}
+                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Customer Info"
                 >
                   <User className="w-4 h-4 sm:w-5 sm:h-5" />
