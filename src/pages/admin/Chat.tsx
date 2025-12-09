@@ -177,7 +177,7 @@ const AdminChat = () => {
 
     loadMessages();
     loadThreads();
-  }, [selectedChat]);
+  }, [selectedChat?.id]);
 
   // Load messages when thread is selected
   useEffect(() => {
