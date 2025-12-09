@@ -35,6 +35,7 @@ import { ConversationTagModal } from '@/components/chat/ConversationTagModal';
 import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
+import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
 import { ChannelThread } from '@/components/chat/ChannelTabs';
 import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
@@ -118,6 +119,7 @@ const AdminChat = () => {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [showScenarioTemplate, setShowScenarioTemplate] = useState(false);
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
@@ -587,6 +589,15 @@ const AdminChat = () => {
                   onThreadSelect={handleThreadSelect}
                   onCreateThread={() => setShowCreateThreadModal(true)}
                 />
+                {selectedThreadId && (
+                  <button
+                    onClick={() => setShowScenarioTemplate(true)}
+                    className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    title="Email templates"
+                  >
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                )}
                 <button
                   onClick={() => setShowSearchModal(true)}
                   className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -1014,6 +1025,19 @@ const AdminChat = () => {
             customerEmail={selectedChat.user_profile?.email || ''}
             customerName={selectedChat.user_profile?.name || selectedChat.user_profile?.company || 'Customer'}
             threadTags={threadTags}
+          />
+        )}
+
+        {/* Scenario Template Modal */}
+        {showScenarioTemplate && selectedChat && selectedThreadId && (
+          <ScenarioTemplateModal
+            isOpen={showScenarioTemplate}
+            onClose={() => setShowScenarioTemplate(false)}
+            onSelectTemplate={(template) => {
+              setNewMessage(template);
+              setShowScenarioTemplate(false);
+            }}
+            threadId={selectedThreadId}
           />
         )}
     </>

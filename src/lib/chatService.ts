@@ -580,28 +580,31 @@ export const chatService = {
       .from('chat_threads')
       .select(`
         *,
-        shopify_orders (
+        shopify_orders!chat_threads_order_id_fkey (
           order_number,
           customer_first_name,
           customer_last_name
         )
       `)
       .eq('chat_id', chatId)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false});
 
     if (error) {
       console.error('Error fetching threads:', error);
       return [];
     }
 
-    const threads = (data || []).map(thread => ({
-      ...thread,
-      order_number: thread.shopify_orders?.order_number || null,
-      customer_name: [
-        thread.shopify_orders?.customer_first_name,
-        thread.shopify_orders?.customer_last_name
-      ].filter(Boolean).join(' ') || null
-    }));
+    const threads = (data || []).map(thread => {
+      const order = Array.isArray(thread.shopify_orders) ? thread.shopify_orders[0] : thread.shopify_orders;
+      return {
+        ...thread,
+        order_number: order?.order_number || null,
+        customer_name: [
+          order?.customer_first_name,
+          order?.customer_last_name
+        ].filter(Boolean).join(' ') || null
+      };
+    });
 
     // Sort by order number (numerically)
     threads.sort((a, b) => {
