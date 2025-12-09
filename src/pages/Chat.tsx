@@ -500,7 +500,7 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 max-w-full">
         {/* Thread Sidebar - Full Height */}
         {chat && (
           <ChannelSidebar
@@ -514,7 +514,7 @@ const Chat = () => {
         )}
 
         {/* Main Chat Content - Middle Section */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
@@ -562,7 +562,7 @@ const Chat = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
             {/* Channel Tabs - Hidden */}
             {/* {chat && threads.length > 0 && (
               <ChannelTabs
@@ -830,7 +830,7 @@ const Chat = () => {
         </div>
           </div>
 
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="relative bg-gray-50 dark:bg-gray-700 rounded-xl !border-0 !outline-none !ring-0 focus-within:!border-0 focus-within:!outline-none focus-within:!ring-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }}>
             <div className="min-h-[44px] p-3">
               {replyToMessage && (

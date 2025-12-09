@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Hash, Plus } from 'lucide-react';
+import { Hash, Plus, ChevronDown } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -28,7 +28,14 @@ const TAG_LABELS = {
 export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
   threads,
   selectedThreadId,
+  onThreadSelect,
+  onCreateThread,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(dropdownRef, () => setIsOpen(false));
+
   const selectedThread = threads.find(t => t.id === selectedThreadId);
 
   const getCurrentLabel = () => {
@@ -36,7 +43,6 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       return 'main-chat';
     }
     const orderNumber = selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
-    // Remove leading # if present since we show Hash icon
     return orderNumber.replace(/^#/, '');
   };
 
@@ -47,13 +53,100 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     return selectedThread?.customer_name || 'Guest Customer';
   };
 
+  const handleThreadSelect = (threadId: string | null) => {
+    onThreadSelect(threadId);
+    setIsOpen(false);
+  };
+
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">
-      <Hash className="w-4 h-4 flex-shrink-0" />
-      <div className="flex flex-col min-w-0">
-        <span className="truncate">{getCurrentLabel()}</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{getCurrentSubtitle()}</span>
-      </div>
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+      >
+        <Hash className="w-4 h-4 flex-shrink-0" />
+        <div className="flex flex-col min-w-0 text-left">
+          <span className="truncate">{getCurrentLabel()}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{getCurrentSubtitle()}</span>
+        </div>
+        <ChevronDown className={cn(
+          "w-4 h-4 flex-shrink-0 transition-transform ml-1",
+          isOpen && "rotate-180"
+        )} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+          <div className="p-2">
+            <button
+              onClick={() => handleThreadSelect(null)}
+              className={cn(
+                "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left",
+                !selectedThreadId
+                  ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              )}
+            >
+              <Hash className="w-4 h-4 flex-shrink-0" />
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="truncate">main-chat</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">General conversation</span>
+              </div>
+            </button>
+
+            {threads.length > 0 && (
+              <>
+                <div className="my-2 border-t border-gray-200 dark:border-gray-700"></div>
+                {threads.map((thread) => {
+                  const orderNumber = thread.order_number || thread.order_id.slice(0, 8);
+                  const tag = thread.tag as keyof typeof TAG_COLORS;
+                  const tagColor = TAG_COLORS[tag] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400';
+                  const tagLabel = TAG_LABELS[tag] || tag;
+
+                  return (
+                    <button
+                      key={thread.id}
+                      onClick={() => handleThreadSelect(thread.id)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left mb-1",
+                        selectedThreadId === thread.id
+                          ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      )}
+                    >
+                      <Hash className="w-4 h-4 flex-shrink-0" />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="truncate">{orderNumber}</span>
+                          <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
+                            {tagLabel}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {thread.customer_name || 'Guest Customer'}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </>
+            )}
+
+            <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => {
+                  onCreateThread();
+                  setIsOpen(false);
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              >
+                <Plus className="w-4 h-4 flex-shrink-0" />
+                <span>Create New Thread</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
