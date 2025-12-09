@@ -50,17 +50,18 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
 
       <div
         className={cn(
-          'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden transition-all duration-300',
-          // Mobile: Overlay absolutely positioned
-          'lg:relative lg:flex-shrink-0',
-          'fixed inset-y-0 left-0 z-50 lg:z-auto',
+          'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300',
+          // Desktop: Normal flow
+          'relative flex-shrink-0',
+          // Mobile: Fixed overlay
+          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50',
           // Responsive widths
           'w-[240px] sm:w-[260px]',
           isCustomerSidebarOpen ? 'lg:w-[180px]' : 'lg:w-[220px]',
-          // Slide in/out on mobile
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          // Hide completely when closed on mobile
-          !isOpen && 'lg:flex hidden'
+          // Slide in/out on mobile only
+          isOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+          // Hide completely when closed on desktop
+          !isOpen && 'lg:hidden'
         )}
       >
         {/* Scrollable thread list */}

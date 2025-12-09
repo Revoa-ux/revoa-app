@@ -26,6 +26,7 @@ import { EditShippingAddressModal } from './EditShippingAddressModal';
 import { EditBillingAddressModal } from './EditBillingAddressModal';
 import { UpdateEmailModal } from './UpdateEmailModal';
 import { getShopifyOrderUrl } from '@/lib/shopifyOrders';
+import { cn } from '@/lib/utils';
 
 interface CustomerSidebarProps {
   threadId: string;
@@ -257,14 +258,21 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
         />
       )}
 
-      <div className={`
-        border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300
-        ${isExpanded ? 'flex' : 'hidden'}
-        fixed md:relative inset-y-0 right-0 z-50 md:z-auto
-        w-[320px] md:w-64 lg:w-72 xl:w-80
-        md:flex-shrink-0
-        ${isExpanded ? 'translate-x-0' : 'translate-x-full md:translate-x-0'}
-      `}>
+      <div
+        className={cn(
+          'border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300',
+          // Desktop: Normal flow
+          'relative flex-shrink-0',
+          // Mobile: Fixed overlay
+          'max-md:fixed max-md:inset-y-0 max-md:right-0 max-md:z-50',
+          // Responsive widths
+          'w-[320px] md:w-64 lg:w-72 xl:w-80',
+          // Slide in/out on mobile only
+          isExpanded ? 'flex max-md:translate-x-0' : 'hidden max-md:translate-x-full',
+          // Hide when not expanded
+          !isExpanded && 'md:hidden'
+        )}
+      >
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
