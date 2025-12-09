@@ -6,11 +6,12 @@ import { toast } from 'sonner';
 interface ScenarioTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  threadId: string;
+  threadId?: string;
   threadCategory?: string;
   orderId?: string;
-  userId: string;
+  userId?: string;
   recipientEmail?: string;
+  onSelectTemplate?: (template: { id: string; name: string }) => void;
 }
 
 interface Template {
@@ -218,7 +219,8 @@ export function ScenarioTemplateModal({
   threadCategory,
   orderId,
   userId,
-  recipientEmail
+  recipientEmail,
+  onSelectTemplate
 }: ScenarioTemplateModalProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isAssignedToOrder, setIsAssignedToOrder] = useState(false);
@@ -227,11 +229,21 @@ export function ScenarioTemplateModal({
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const filteredTemplates = threadCategory
+  const recommendedTemplates = threadCategory
     ? TEMPLATES.filter(t => t.category === threadCategory)
+    : [];
+
+  const otherTemplates = threadCategory
+    ? TEMPLATES.filter(t => t.category !== threadCategory)
     : TEMPLATES;
 
   const handleSelectTemplate = (template: Template) => {
+    if (onSelectTemplate) {
+      onSelectTemplate({ id: template.id, name: template.name });
+      onClose();
+      return;
+    }
+
     setSelectedTemplate(template);
     setIsAssignedToOrder(false);
     setPopulatedSubject(template.subject);
@@ -390,8 +402,66 @@ export function ScenarioTemplateModal({
         <div className="flex-1 overflow-y-auto">
           {!selectedTemplate ? (
             <div className="p-6">
+              {/* Recommended Templates */}
+              {recommendedTemplates.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-px flex-1 bg-gradient-to-r from-red-500 to-pink-500"></div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider">
+                      Recommended for this thread
+                    </h3>
+                    <div className="h-px flex-1 bg-gradient-to-l from-red-500 to-pink-500"></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {recommendedTemplates.map((template) => {
+                      const Icon = template.icon;
+                      return (
+                        <button
+                          key={template.id}
+                          onClick={() => handleSelectTemplate(template)}
+                          className="p-4 border-2 border-red-500 dark:border-red-400 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-lg hover:from-red-100 hover:to-pink-100 dark:hover:from-red-900/30 dark:hover:to-pink-900/30 hover:shadow-lg transition-all text-left group"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="mt-1 p-2.5 rounded-lg bg-gradient-to-br from-red-500 to-pink-600 shadow-md">
+                              <Icon className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                  {template.name}
+                                </h3>
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-red-500 text-white font-medium">
+                                  Match
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
+                                {template.description}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Separator */}
+              {recommendedTemplates.length > 0 && otherTemplates.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      All Other Templates
+                    </span>
+                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                  </div>
+                </div>
+              )}
+
+              {/* Other Templates */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {filteredTemplates.map((template) => {
+                {otherTemplates.map((template) => {
                   const Icon = template.icon;
                   return (
                     <button

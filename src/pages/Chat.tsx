@@ -40,7 +40,6 @@ import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
 import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
-import { BroadTemplateModal } from '@/components/chat/BroadTemplateModal';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -1068,7 +1067,7 @@ const Chat = () => {
       )}
 
       {/* Broad Template Modal (from header when no thread selected) */}
-      <BroadTemplateModal
+      <ScenarioTemplateModal
         isOpen={showBroadTemplateModal}
         onClose={() => setShowBroadTemplateModal(false)}
         onSelectTemplate={(template) => {
