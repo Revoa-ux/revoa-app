@@ -1070,6 +1070,7 @@ const Chat = () => {
       <ScenarioTemplateModal
         isOpen={showBroadTemplateModal}
         onClose={() => setShowBroadTemplateModal(false)}
+        userId={user?.id}
         onSelectTemplate={(template) => {
           setSelectedTemplateForAssignment({ id: template.id, name: template.name });
           setShowAssignToOrderModal(true);
