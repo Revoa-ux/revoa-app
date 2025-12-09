@@ -22,6 +22,7 @@ interface AssignToOrderModalProps {
   chatId: string;
   userId: string;
   onThreadCreated: (threadId: string) => void;
+  mode?: 'assign' | 'create';
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
@@ -37,6 +38,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   chatId,
   userId,
   onThreadCreated,
+  mode = 'assign',
 }) => {
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [matchingOrders, setMatchingOrders] = useState<Order[]>([]);
@@ -248,10 +250,12 @@ Items sent back to us without first requesting a return will not be accepted.`,
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Assign to Order">
+    <Modal isOpen={isOpen} onClose={handleClose} title={mode === 'create' ? 'Create New Thread' : 'Assign to Order'}>
       <div className="p-6 space-y-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Create a dedicated channel for this order to keep the conversation organized.
+          {mode === 'create'
+            ? 'Create a dedicated thread for an order to keep conversations organized.'
+            : 'Create a dedicated channel for this order to keep the conversation organized.'}
         </p>
 
         {/* Tag Selection */}

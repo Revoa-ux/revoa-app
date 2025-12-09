@@ -110,6 +110,7 @@ const Chat = () => {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
+  const [showAssignToOrderModal, setShowAssignToOrderModal] = useState(false);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [messageToMove, setMessageToMove] = useState<Message | null>(null);
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
@@ -523,21 +524,23 @@ const Chat = () => {
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Create New Thread"
               >
-                <Hash className="w-5 h-5 stroke-[2.5]" />
+                <Hash className="w-5 h-5" />
               </button>
-              <button
-                onClick={() => setShowTemplateModal(true)}
-                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title="Quick Email Templates"
-              >
-                <FileText className="w-5 h-5 stroke-[2.5]" />
-              </button>
+              {selectedThreadId && (
+                <button
+                  onClick={() => setShowTemplateModal(true)}
+                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Quick Email Templates"
+                >
+                  <FileText className="w-5 h-5" />
+                </button>
+              )}
               <button
                 onClick={() => setShowSearchModal(true)}
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Search Messages"
               >
-                <Search className="w-5 h-5 stroke-[2.5]" />
+                <Search className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -900,6 +903,13 @@ const Chat = () => {
                       </div>
                     )}
                   </div>
+                  <button
+                    onClick={() => setShowAssignToOrderModal(true)}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    title="Assign to Order"
+                  >
+                    <Hash className="w-5 h-5" />
+                  </button>
                 </div>
 
                 <button
@@ -1011,7 +1021,7 @@ const Chat = () => {
         </Modal>
       )}
 
-      {/* Assign to Order Modal */}
+      {/* Create Thread Modal (from header) */}
       {chat && user && (
         <AssignToOrderModal
           isOpen={showCreateThreadModal}
@@ -1019,6 +1029,19 @@ const Chat = () => {
           chatId={chat.id}
           userId={user.id}
           onThreadCreated={handleThreadCreated}
+          mode="create"
+        />
+      )}
+
+      {/* Assign to Order Modal (from message input) */}
+      {chat && user && (
+        <AssignToOrderModal
+          isOpen={showAssignToOrderModal}
+          onClose={() => setShowAssignToOrderModal(false)}
+          chatId={chat.id}
+          userId={user.id}
+          onThreadCreated={handleThreadCreated}
+          mode="assign"
         />
       )}
 
