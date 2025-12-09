@@ -308,15 +308,23 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </button>
 
                 {/* Phone */}
-                <div className="p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
-                  <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Phone</span>
+                <button
+                  onClick={() => {
+                    toast.info('Phone number editing coming soon!');
+                  }}
+                  className="w-full p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>Phone</span>
+                    </div>
+                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors" />
                   </div>
                   <p className={`text-sm ${customerInfo.customer_phone ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'}`}>
                     {customerInfo.customer_phone || 'Not provided'}
                   </p>
-                </div>
+                </button>
               </div>
 
               {/* Email Templates Showcase - Below Contact */}
@@ -421,7 +429,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                 </div>
 
                 {/* Order Actions */}
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setShowCancelModal(true)}
                     disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
