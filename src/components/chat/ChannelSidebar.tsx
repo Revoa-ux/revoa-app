@@ -47,17 +47,6 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         'w-[220px] flex-shrink-0'
       )}
     >
-        {/* Create New Thread - At top */}
-        <button
-          onClick={() => {
-            onCreateThread();
-          }}
-          className="w-full px-3 py-3 text-left flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-all border-b border-gray-200 dark:border-gray-700 flex-shrink-0 text-white font-medium"
-        >
-          <Plus className="w-4 h-4 flex-shrink-0" />
-          <span className="text-sm">New Order Thread</span>
-        </button>
-
         {/* Scrollable thread list */}
         <div className="flex-1 overflow-y-auto">
           {/* Main Chat */}
@@ -123,6 +112,17 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
             </div>
           )}
         </div>
+
+        {/* Create New Thread - At bottom */}
+        <button
+          onClick={() => {
+            onCreateThread();
+          }}
+          className="w-full px-3 py-3 text-left flex items-center justify-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-all border-t border-gray-200 dark:border-gray-700 flex-shrink-0 text-white font-medium"
+        >
+          <Plus className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm">New Order Thread</span>
+        </button>
       </div>
   );
 };

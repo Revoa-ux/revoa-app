@@ -288,17 +288,15 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                       Contact
                     </h4>
                   </div>
+                  <button
+                    onClick={() => setShowTemplateSelector(true)}
+                    className="text-xs px-2 py-1 rounded transition-colors flex items-center gap-1 text-pink-600 dark:text-pink-400 hover:bg-pink-50 dark:hover:bg-pink-900/20"
+                    title="Email templates"
+                  >
+                    <FileText className="w-3 h-3" />
+                    Templates
+                  </button>
                 </div>
-
-                {/* Prominent Templates Button */}
-                <button
-                  onClick={() => setShowTemplateSelector(true)}
-                  className="w-full mb-3 px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2 font-medium"
-                  title="Browse email templates"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Email Templates</span>
-                </button>
 
                 <button
                   onClick={() => setShowUpdateEmailModal(true)}
