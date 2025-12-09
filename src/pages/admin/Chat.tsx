@@ -36,7 +36,6 @@ import { ThreadSelector, ChatThread } from '@/components/chat/ThreadSelector';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { EmailComposerModal } from '@/components/chat/EmailComposerModal';
 import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
-import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
 import { ChannelThread } from '@/components/chat/ChannelTabs';
 import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
@@ -122,7 +121,6 @@ const AdminChat = () => {
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
-  const [showThreadSidebar, setShowThreadSidebar] = useState(true);
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -566,9 +564,7 @@ const AdminChat = () => {
       )}
 
       {/* Chat Area */}
-      <div className={`flex-1 flex flex-col overflow-hidden ${
-        showUserProfile || showThreadSidebar ? '' : 'rounded-r-xl'
-      }`}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {selectedChat ? (
           <>
             {/* Header */}
@@ -585,6 +581,12 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                <ChannelDropdown
+                  threads={threads}
+                  selectedThreadId={selectedThreadId}
+                  onThreadSelect={handleThreadSelect}
+                  onCreateThread={() => setShowCreateThreadModal(true)}
+                />
                 <button
                   onClick={() => setShowSearchModal(true)}
                   className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -893,18 +895,6 @@ const AdminChat = () => {
           </div>
         )}
       </div>
-
-      {/* Threads Sidebar */}
-      {selectedChat && (
-        <ChannelSidebar
-          threads={threads}
-          selectedThreadId={selectedThreadId}
-          onThreadSelect={handleThreadSelect}
-          onCreateThread={() => setShowCreateThreadModal(true)}
-          isOpen={true}
-          onClose={() => {}}
-        />
-      )}
 
       {/* Context-Aware Sidebar: Merchant profile in main chat, Customer profile in threads */}
       {selectedChat && !selectedThreadId && (
