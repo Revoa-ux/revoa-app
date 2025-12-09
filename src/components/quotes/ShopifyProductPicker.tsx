@@ -82,7 +82,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Search Header */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -90,40 +90,37 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search products by name or SKU..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
           />
         </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
           {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
         </p>
       </div>
 
       {/* Products List */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+      <div className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
         {isLoading ? (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="w-full p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2.5">
                   {/* Image Skeleton */}
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
 
                   {/* Content Skeleton */}
-                  <div className="flex-1 min-w-0 space-y-2">
+                  <div className="flex-1 min-w-0 space-y-1.5">
                     {/* Title */}
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+                    <div className="h-3.5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
 
                     {/* Price and variants */}
                     <div className="flex items-center gap-2">
+                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-14" />
                       <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
-                      <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20" />
                     </div>
-
-                    {/* SKU */}
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32" />
                   </div>
                 </div>
               </div>
@@ -154,7 +151,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {filteredProducts.map((product) => {
               const isSelected = selectedId === product.id;
               const variantCount = product.variants.edges.length;
@@ -164,29 +161,29 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                 <button
                   key={product.id}
                   onClick={() => setSelectedId(product.id)}
-                  className={`w-full text-left p-4 rounded-lg border transition-colors ${
+                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
                     isSelected
                       ? 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800'
                       : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2.5">
                     {/* Product Image */}
                     {product.featuredImage ? (
                       <img
                         src={product.featuredImage.url}
                         alt={product.featuredImage.altText || product.title}
-                        className="w-16 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0"
+                        className="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
-                        <Package className="w-6 h-6 text-gray-400" />
+                      <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
+                        <Package className="w-5 h-5 text-gray-400" />
                       </div>
                     )}
 
                     {/* Product Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
+                      <div className="flex items-start justify-between gap-2 mb-0.5">
                         <h3 className={`text-sm font-semibold truncate ${
                           isSelected
                             ? 'text-gray-900 dark:text-white'
@@ -195,13 +192,13 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                           {product.title}
                         </h3>
                         {isSelected && (
-                          <div className="w-5 h-5 rounded bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                            <Check className="w-3 h-3 text-white" />
+                          <div className="w-4 h-4 rounded bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                            <Check className="w-2.5 h-2.5 text-white" />
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
                         {firstVariant && (
                           <span className="font-medium">${firstVariant.price}</span>
                         )}
@@ -216,7 +213,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
                       </div>
 
                       {firstVariant?.sku && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-0.5">
                           SKU: {firstVariant.sku}
                         </p>
                       )}
@@ -230,18 +227,18 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       </div>
 
       {/* Action Buttons */}
-      <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
+      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
         <div className="flex items-center justify-between gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="px-4 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSelectProduct}
             disabled={!selectedId || isLoading}
-            className="group px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
           >
             Map Product
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

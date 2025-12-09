@@ -491,9 +491,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           ref={modalRef}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className={`border-b border-gray-200 dark:border-gray-700 ${
+            step === 'product_picker' ? 'px-4 py-3' : 'px-6 py-4'
+          }`}>
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className={`font-semibold text-gray-900 dark:text-white ${
+                step === 'product_picker' ? 'text-base' : 'text-lg'
+              }`}>
                 {step === 'product_picker' ? 'Select Shopify Product' : 'Connect Shopify Store'}
               </h3>
               <button
@@ -505,7 +509,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             </div>
           </div>
 
-          <div className="p-6">
+          <div className={step === 'product_picker' ? 'p-4' : 'p-6'}>
             {step === 'checking' ? (
               <div className="space-y-4 py-4">
                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
@@ -556,8 +560,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </button>
               </div>
             ) : step === 'product_picker' ? (
-              <div className="flex flex-col" style={{ height: '650px' }}>
-                <div className="flex items-center gap-2 mb-4 flex-shrink-0">
+              <div className="flex flex-col" style={{ height: 'min(550px, 70vh)' }}>
+                <div className="flex items-center gap-2 mb-2.5 flex-shrink-0">
                   <button
                     onClick={() => setStep('method_select')}
                     className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -569,7 +573,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     <p className="text-xs text-gray-600 dark:text-gray-400">Choose which product to update with this quote</p>
                   </div>
                 </div>
-                <div className="flex-1 -mx-6 -mb-6 min-h-0 overflow-hidden">
+                <div className="flex-1 -mx-4 -mb-4 min-h-0 overflow-hidden">
                   <ShopifyProductPicker
                     onSelect={handleProductSelection}
                     onCancel={() => setStep('method_select')}
