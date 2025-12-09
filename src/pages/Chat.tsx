@@ -591,7 +591,7 @@ const Chat = () => {
                           }`}
                         >
                           <div className="flex-1 min-w-0 text-left">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 mb-1">
                               <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {thread.order_number || thread.title}
                               </span>
@@ -608,7 +608,7 @@ const Chat = () => {
                               )}
                             </div>
                             {thread.customer_name && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{thread.customer_name}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{thread.customer_name}</div>
                             )}
                           </div>
                           {thread.unread_count && thread.unread_count > 0 && (
