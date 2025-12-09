@@ -19,7 +19,8 @@ import {
   Hash,
   MoveRight,
   Info,
-  PanelLeft
+  PanelLeft,
+  Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -38,6 +39,7 @@ import { ChannelSidebar } from '@/components/chat/ChannelSidebar';
 import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
+import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -113,6 +115,7 @@ const Chat = () => {
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(true);
   const [showThreadSidebar, setShowThreadSidebar] = useState(true);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -521,6 +524,13 @@ const Chat = () => {
                 title="Create New Thread"
               >
                 <Plus className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setShowTemplateModal(true)}
+                className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Quick Email Templates"
+              >
+                <FileText className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setShowSearchModal(true)}
@@ -1029,6 +1039,16 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
+
+      {/* Quick Email Templates Modal */}
+      {showTemplateModal && chat && (
+        <ScenarioTemplateModal
+          isOpen={showTemplateModal}
+          onClose={() => setShowTemplateModal(false)}
+          threadId={selectedThreadId || chat.id}
+          userId={user.id}
+        />
+      )}
     </div>
   );
 };

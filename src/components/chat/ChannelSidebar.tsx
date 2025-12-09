@@ -112,17 +112,6 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
             </div>
           )}
         </div>
-
-        {/* Create New Thread - At bottom */}
-        <button
-          onClick={() => {
-            onCreateThread();
-          }}
-          className="w-full px-3 py-3 text-left flex items-center justify-center gap-2 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 transition-all border-t border-gray-200 dark:border-gray-700 flex-shrink-0 text-white font-medium"
-        >
-          <Plus className="w-4 h-4 flex-shrink-0" />
-          <span className="text-sm">Create New Thread</span>
-        </button>
       </div>
   );
 };
