@@ -1195,10 +1195,11 @@ export function ScenarioTemplateModal({
             </div>
           ) : (
             <div className="flex flex-col h-full">
-              {/* Assign to Order Button - Only show if not already assigned */}
+              {/* Assign to Order Section - Only show if not already assigned */}
               {!isAssignedToOrder && (
-                <>
-                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                  {!showOrderSearch ? (
+                    /* Collapsed Button State */
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <LinkIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -1217,82 +1218,81 @@ export function ScenarioTemplateModal({
                           }
                         }}
                         disabled={isLoading}
-                        className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md"
                       >
                         {isLoading ? 'Loading...' : orderId ? 'Populate Template' : 'Assign to Order'}
                       </button>
                     </div>
-                  </div>
-
-                  {/* Order Search Dropdown */}
-                  {showOrderSearch && (
-                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                      <div className="flex items-center justify-between mb-3">
+                  ) : (
+                    /* Expanded Search State */
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex items-center justify-between">
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Select an Order
                         </label>
                         <button
                           onClick={() => setShowOrderSearch(false)}
-                          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
                         >
                           Cancel
                         </button>
                       </div>
 
                       {isLoadingOrders ? (
-                        <div className="flex items-center justify-center py-8">
+                        <div className="flex items-center justify-center py-12">
                           <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
                         </div>
                       ) : allOrders.length === 0 ? (
-                        <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
-                          <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                          <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                           <p className="text-sm text-gray-500 dark:text-gray-400">No orders found</p>
                         </div>
                       ) : (
                         <>
                           {/* Search Input */}
-                          <div className="mb-3">
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                              <input
-                                type="text"
-                                placeholder="Search order number..."
-                                onChange={(e) => {
-                                  const search = e.target.value.toLowerCase();
-                                  if (search) {
-                                    const filtered = allOrders.filter(order =>
-                                      order.order_number.toLowerCase().includes(search)
-                                    );
-                                    setOrders(filtered);
-                                  } else {
-                                    setOrders(allOrders);
-                                  }
-                                }}
-                                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-white text-sm"
-                              />
-                            </div>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Search order number..."
+                              autoFocus
+                              onChange={(e) => {
+                                const search = e.target.value.toLowerCase();
+                                if (search) {
+                                  const filtered = allOrders.filter(order =>
+                                    order.order_number.toLowerCase().includes(search)
+                                  );
+                                  setOrders(filtered);
+                                } else {
+                                  setOrders(allOrders);
+                                }
+                              }}
+                              className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+                            />
                           </div>
 
                           {orders.length === 0 ? (
-                            <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
-                              <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                            <div className="text-center py-12 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+                              <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                               <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
                             </div>
                           ) : (
-                            <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                            <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-72 overflow-y-auto bg-white dark:bg-gray-800 shadow-sm">
                               {orders.map((order) => (
                                 <button
                                   key={order.id}
                                   onClick={() => handleOrderSelection(order.id)}
-                                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left"
+                                  className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group"
                                 >
                                   <div className="flex items-center gap-3">
-                                    <Package className="w-5 h-5 text-gray-400" />
+                                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-pink-100 dark:group-hover:bg-pink-900/20 transition-colors">
+                                      <Package className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors" />
+                                    </div>
                                     <div>
-                                      <p className="font-medium text-gray-900 dark:text-white">
+                                      <p className="font-semibold text-gray-900 dark:text-white text-base">
                                         {order.order_number}
                                       </p>
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                         {order.customer_first_name || order.customer_last_name ? (
                                           [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
                                         ) : order.customer_email ? (
@@ -1304,10 +1304,10 @@ export function ScenarioTemplateModal({
                                     </div>
                                   </div>
                                   <div className="text-right">
-                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                    <p className="text-sm font-bold text-pink-600 dark:text-pink-400">
                                       ${order.total_price?.toFixed(2)}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                       {new Date(order.created_at).toLocaleDateString('en-US', {
                                         month: 'short',
                                         day: 'numeric'
@@ -1322,7 +1322,7 @@ export function ScenarioTemplateModal({
                       )}
                     </div>
                   )}
-                </>
+                </div>
               )}
 
               {/* Subject Line */}
