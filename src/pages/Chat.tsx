@@ -40,6 +40,7 @@ import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
 import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
+import { BroadTemplateModal } from '@/components/chat/BroadTemplateModal';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -111,6 +112,8 @@ const Chat = () => {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [showAssignToOrderModal, setShowAssignToOrderModal] = useState(false);
+  const [showBroadTemplateModal, setShowBroadTemplateModal] = useState(false);
+  const [selectedTemplateForAssignment, setSelectedTemplateForAssignment] = useState<{id: string; name: string} | null>(null);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [messageToMove, setMessageToMove] = useState<Message | null>(null);
   const [showMoveToThreadModal, setShowMoveToThreadModal] = useState(false);
@@ -424,12 +427,22 @@ const Chat = () => {
   };
 
   const handleThreadCreated = async (threadId: string) => {
+    setShowCreateThreadModal(false);
+    setShowAssignToOrderModal(false);
+
     // Reload threads
     if (chat) {
       const updatedThreads = await chatService.getChatThreads(chat.id);
       setThreads(updatedThreads);
       // Switch to the newly created thread
       setSelectedThreadId(threadId);
+
+      if (selectedTemplateForAssignment) {
+        setTimeout(() => {
+          setShowTemplateModal(true);
+          setSelectedTemplateForAssignment(null);
+        }, 300);
+      }
     }
   };
 
@@ -526,15 +539,19 @@ const Chat = () => {
               >
                 <Hash className="w-5 h-5" />
               </button>
-              {selectedThreadId && (
-                <button
-                  onClick={() => setShowTemplateModal(true)}
-                  className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Quick Email Templates"
-                >
-                  <FileText className="w-5 h-5" />
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  if (selectedThreadId) {
+                    setShowTemplateModal(true);
+                  } else {
+                    setShowBroadTemplateModal(true);
+                  }
+                }}
+                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Quick Email Templates"
+              >
+                <FileText className="w-5 h-5" />
+              </button>
               <button
                 onClick={() => setShowSearchModal(true)}
                 className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -1038,13 +1055,27 @@ const Chat = () => {
       {chat && user && (
         <AssignToOrderModal
           isOpen={showAssignToOrderModal}
-          onClose={() => setShowAssignToOrderModal(false)}
+          onClose={() => {
+            setShowAssignToOrderModal(false);
+            setSelectedTemplateForAssignment(null);
+          }}
           chatId={chat.id}
           userId={user.id}
           onThreadCreated={handleThreadCreated}
           mode="assign"
+          preSelectedTemplate={selectedTemplateForAssignment}
         />
       )}
+
+      {/* Broad Template Modal (from header when no thread selected) */}
+      <BroadTemplateModal
+        isOpen={showBroadTemplateModal}
+        onClose={() => setShowBroadTemplateModal(false)}
+        onSelectTemplate={(template) => {
+          setSelectedTemplateForAssignment({ id: template.id, name: template.name });
+          setShowAssignToOrderModal(true);
+        }}
+      />
 
       {/* Move to Thread Modal */}
       <MoveToThreadModal

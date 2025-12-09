@@ -23,6 +23,7 @@ interface AssignToOrderModalProps {
   userId: string;
   onThreadCreated: (threadId: string) => void;
   mode?: 'assign' | 'create';
+  preSelectedTemplate?: { id: string; name: string } | null;
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
@@ -39,6 +40,7 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   userId,
   onThreadCreated,
   mode = 'assign',
+  preSelectedTemplate = null,
 }) => {
   const [orderNumber, setOrderNumber] = useState<string>('');
   const [matchingOrders, setMatchingOrders] = useState<Order[]>([]);
@@ -227,7 +229,11 @@ Items sent back to us without first requesting a return will not be accepted.`,
       }
 
       if (!existingThread) {
-        toast.success('Thread created successfully');
+        if (preSelectedTemplate) {
+          toast.success('Thread created! Opening template...');
+        } else {
+          toast.success('Thread created successfully');
+        }
       }
       onThreadCreated(threadId);
       handleClose();
@@ -252,10 +258,22 @@ Items sent back to us without first requesting a return will not be accepted.`,
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={mode === 'create' ? 'Create New Thread' : 'Assign to Order'}>
       <div className="p-6 space-y-4">
+        {preSelectedTemplate && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-900 dark:text-red-100">
+              <span className="font-medium">Template selected:</span> {preSelectedTemplate.name}
+            </p>
+            <p className="text-xs text-red-700 dark:text-red-300 mt-1">
+              This template will be generated for the selected order
+            </p>
+          </div>
+        )}
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {mode === 'create'
             ? 'Create a dedicated thread for an order to keep conversations organized.'
-            : 'Create a dedicated channel for this order to keep the conversation organized.'}
+            : preSelectedTemplate
+              ? 'Select an order to generate the email template with proper customer details.'
+              : 'Create a dedicated channel for this order to keep the conversation organized.'}
         </p>
 
         {/* Tag Selection */}
