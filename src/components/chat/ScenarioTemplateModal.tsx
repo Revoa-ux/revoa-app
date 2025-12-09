@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon } from 'lucide-react';
+import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -23,6 +23,18 @@ interface Template {
   body: string;
   icon: any;
   color: string;
+}
+
+interface Order {
+  id: string;
+  order_number: string;
+  shopify_order_id: string;
+  customer_first_name: string | null;
+  customer_last_name: string | null;
+  customer_email: string | null;
+  total_price: number;
+  currency: string;
+  created_at: string;
 }
 
 const TEMPLATES: Template[] = [
@@ -155,6 +167,11 @@ export function ScenarioTemplateModal({
   const [populatedBody, setPopulatedBody] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showOrderSearch, setShowOrderSearch] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [selectedOrderForTemplate, setSelectedOrderForTemplate] = useState<string>('');
 
   const recommendedTemplates = threadCategory
     ? TEMPLATES.filter(t => t.category === threadCategory)
@@ -164,6 +181,36 @@ export function ScenarioTemplateModal({
     ? TEMPLATES.filter(t => t.category !== threadCategory)
     : TEMPLATES;
 
+  // Load orders when showing order search
+  useEffect(() => {
+    if (showOrderSearch && userId) {
+      loadOrders();
+    }
+  }, [showOrderSearch, userId]);
+
+  const loadOrders = async () => {
+    if (!userId) return;
+
+    setIsLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('shopify_orders')
+        .select('id, order_number, shopify_order_id, customer_first_name, customer_last_name, customer_email, total_price, currency, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setAllOrders(data || []);
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast.error('Failed to load orders');
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
+
   const handleSelectTemplate = (template: Template) => {
     setSelectedTemplate(template);
     setIsAssignedToOrder(false);
@@ -171,8 +218,20 @@ export function ScenarioTemplateModal({
     setPopulatedBody(template.body);
   };
 
-  const handleAssignToOrder = async () => {
-    if (!selectedTemplate || !orderId) {
+  const handleShowOrderSearch = () => {
+    setShowOrderSearch(true);
+  };
+
+  const handleOrderSelection = async (selectedOrderId: string) => {
+    setSelectedOrderForTemplate(selectedOrderId);
+    setShowOrderSearch(false);
+    await handleAssignToOrder(selectedOrderId);
+  };
+
+  const handleAssignToOrder = async (orderIdToUse?: string) => {
+    const targetOrderId = orderIdToUse || orderId;
+
+    if (!selectedTemplate || !targetOrderId) {
       toast.error('No order selected');
       return;
     }
@@ -183,7 +242,7 @@ export function ScenarioTemplateModal({
       const { data: order, error: orderError } = await supabase
         .from('shopify_orders')
         .select('*')
-        .eq('id', orderId)
+        .eq('id', targetOrderId)
         .single();
 
       if (orderError) throw orderError;
@@ -199,7 +258,7 @@ export function ScenarioTemplateModal({
       const { data: tracking } = await supabase
         .from('shopify_order_fulfillments')
         .select('*')
-        .eq('order_id', orderId)
+        .eq('order_id', targetOrderId)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -490,32 +549,132 @@ export function ScenarioTemplateModal({
             <div className="flex flex-col h-full">
               {/* Assign to Order Button - Only show if not already assigned */}
               {!isAssignedToOrder && (
-                <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <LinkIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {orderId
-                          ? 'Click to populate this template with order data'
-                          : 'This template contains variables. Assign to an order to populate with real data.'}
-                      </p>
+                <>
+                  <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {orderId
+                            ? 'Click to populate this template with order data'
+                            : 'This template contains variables. Assign to an order to populate with real data.'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (orderId) {
+                            handleAssignToOrder();
+                          } else {
+                            handleShowOrderSearch();
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? 'Loading...' : orderId ? 'Populate Template' : 'Assign to Order'}
+                      </button>
                     </div>
-                    <button
-                      onClick={() => {
-                        if (orderId) {
-                          handleAssignToOrder();
-                        } else if (onSelectTemplate) {
-                          onSelectTemplate({ id: selectedTemplate.id, name: selectedTemplate.name });
-                          onClose();
-                        }
-                      }}
-                      disabled={isLoading}
-                      className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? 'Loading...' : orderId ? 'Populate Template' : 'Assign to Order'}
-                    </button>
                   </div>
-                </div>
+
+                  {/* Order Search Dropdown */}
+                  {showOrderSearch && (
+                    <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Select an Order
+                        </label>
+                        <button
+                          onClick={() => setShowOrderSearch(false)}
+                          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      {isLoadingOrders ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                        </div>
+                      ) : allOrders.length === 0 ? (
+                        <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                          <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                          <p className="text-sm text-gray-500 dark:text-gray-400">No orders found</p>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Search Input */}
+                          <div className="mb-3">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Search order number..."
+                                onChange={(e) => {
+                                  const search = e.target.value.toLowerCase();
+                                  if (search) {
+                                    const filtered = allOrders.filter(order =>
+                                      order.order_number.toLowerCase().includes(search)
+                                    );
+                                    setOrders(filtered);
+                                  } else {
+                                    setOrders(allOrders);
+                                  }
+                                }}
+                                className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-700 dark:text-white text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {orders.length === 0 ? (
+                            <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                              <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
+                            </div>
+                          ) : (
+                            <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                              {orders.map((order) => (
+                                <button
+                                  key={order.id}
+                                  onClick={() => handleOrderSelection(order.id)}
+                                  className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Package className="w-5 h-5 text-gray-400" />
+                                    <div>
+                                      <p className="font-medium text-gray-900 dark:text-white">
+                                        {order.order_number}
+                                      </p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        {order.customer_first_name || order.customer_last_name ? (
+                                          [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
+                                        ) : order.customer_email ? (
+                                          order.customer_email
+                                        ) : (
+                                          'Guest Customer'
+                                        )}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                      ${order.total_price?.toFixed(2)}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      {new Date(order.created_at).toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </p>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Subject Line */}
