@@ -944,7 +944,8 @@ const Chat = () => {
             threadId={selectedThreadId}
             userId={user.id}
             isExpanded={true}
-            onOpenTemplates={() => setShowTemplateModal(true)}
+            externalTemplateOpen={showTemplateModal}
+            onExternalTemplateClose={() => setShowTemplateModal(false)}
           />
         )}
       </div>
@@ -1057,15 +1058,6 @@ const Chat = () => {
         currentThreadId={selectedThreadId}
       />
 
-      {/* Quick Email Templates Modal */}
-      {showTemplateModal && selectedThreadId && chat && user && (
-        <ScenarioTemplateModal
-          isOpen={showTemplateModal}
-          onClose={() => setShowTemplateModal(false)}
-          threadId={selectedThreadId}
-          userId={user.id}
-        />
-      )}
     </div>
   );
 };

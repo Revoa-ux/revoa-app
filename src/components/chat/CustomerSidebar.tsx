@@ -31,7 +31,8 @@ interface CustomerSidebarProps {
   threadId: string;
   userId: string;
   isExpanded: boolean;
-  onOpenTemplates?: () => void;
+  externalTemplateOpen?: boolean;
+  onExternalTemplateClose?: () => void;
 }
 
 interface CustomerInfo {
@@ -72,7 +73,8 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   threadId,
   userId,
   isExpanded,
-  onOpenTemplates,
+  externalTemplateOpen = false,
+  onExternalTemplateClose,
 }) => {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -320,10 +322,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               {/* Email Templates Showcase - Below Contact */}
               <div className="mt-4">
                 <button
-                  onClick={() => {
-                    setShowTemplateSelector(true);
-                    onOpenTemplates?.();
-                  }}
+                  onClick={() => setShowTemplateSelector(true)}
                   className="w-full p-4 border-2 border-dashed border-red-200 dark:border-red-800 rounded-lg hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-all text-left group"
                 >
                   <div className="flex items-start gap-3">
@@ -722,10 +721,13 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
       </div>
 
       {/* Template Selector Modal */}
-      {showTemplateSelector && customerInfo && (
+      {(showTemplateSelector || externalTemplateOpen) && customerInfo && (
         <ScenarioTemplateModal
-          isOpen={showTemplateSelector}
-          onClose={() => setShowTemplateSelector(false)}
+          isOpen={showTemplateSelector || externalTemplateOpen}
+          onClose={() => {
+            setShowTemplateSelector(false);
+            onExternalTemplateClose?.();
+          }}
           threadId={threadId}
           threadCategory={threadTag}
           orderId={orderId}
