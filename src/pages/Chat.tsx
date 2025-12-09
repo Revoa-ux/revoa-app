@@ -489,18 +489,18 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-w-[1050px] mx-auto">
-      <div className="mb-6 flex-shrink-0">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+    <div className="flex flex-col h-full w-full mx-auto overflow-x-hidden">
+      <div className="mb-4 sm:mb-6 flex-shrink-0 px-1">
+        <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Supplier Chat
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Chat with your suppliers in real-time</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Chat with your suppliers in real-time</p>
         </div>
       </div>
 
-      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full">
+      <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full">
         {/* Thread Sidebar - Full Height */}
         {chat && (
           <ChannelSidebar

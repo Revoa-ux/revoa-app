@@ -46,7 +46,8 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
     <div
       className={cn(
         'border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex flex-col overflow-hidden transition-all duration-300',
-        isCustomerSidebarOpen ? 'w-[180px]' : 'w-[220px]',
+        'w-[140px] sm:w-[160px]',
+        isCustomerSidebarOpen ? 'md:w-[160px] lg:w-[180px]' : 'md:w-[200px] lg:w-[220px]',
         'flex-shrink-0'
       )}
     >
