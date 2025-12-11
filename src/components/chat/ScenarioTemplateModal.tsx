@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -14,13 +14,22 @@ interface ScenarioTemplateModalProps {
   onSelectTemplate?: (template: { id: string; name: string }) => void;
 }
 
-interface Template {
+interface EmailTemplate {
   id: string;
   name: string;
   category: string;
+  subject_line: string;
+  body_html: string;
+  body_plain: string;
+  badges: string[];
+  order_status_hints: string[];
+  action_required: string | null;
+  sort_order: number;
+  usage_count: number;
+}
+
+interface Template extends EmailTemplate {
   description: string;
-  subject: string;
-  body: string;
   icon: any;
   color: string;
   orderStatus: 'not_shipped' | 'fulfillment' | 'shipped' | 'out_for_delivery' | 'delivered' | 'delivery_exception' | 'product_issue' | 'return' | 'chargeback';
@@ -52,6 +61,81 @@ const LIFECYCLE_STAGES = [
   { id: 'return', label: 'Returns', icon: RotateCcw, color: 'purple' as const },
   { id: 'chargeback', label: 'Chargebacks', icon: ShieldAlert, color: 'crimson' as const }
 ] as const;
+
+// Multi-Badge Component with Smart Coloring
+const TemplateBadges = ({ badges }: { badges: string[] }) => {
+  const getBadgeStyle = (badge: string) => {
+    // Order State Badges
+    if (badge === 'Not Shipped') {
+      return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600';
+    }
+    if (badge === 'Shipped') {
+      return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600';
+    }
+    if (badge === 'Out for Delivery') {
+      return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600';
+    }
+    if (badge === 'Delivered') {
+      return 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-600';
+    }
+    if (badge === 'Returned to Sender') {
+      return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600';
+    }
+
+    // Action Required Badges
+    if (badge === 'Need Confirm' || badge === 'Need Reason' || badge === 'Need WEN') {
+      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600';
+    }
+    if (badge === 'Notify Supplier') {
+      return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-600';
+    }
+
+    // Context/Flag Badges
+    if (badge === 'Took Upsell') {
+      return 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600';
+    }
+    if (badge === 'Invalid Address' || badge === 'Address Issue') {
+      return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600';
+    }
+    if (badge === 'Chargeback') {
+      return 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-600';
+    }
+    if (badge === 'Delivery Exception') {
+      return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600';
+    }
+    if (badge === 'Partial Refund' || badge === 'Full Refund') {
+      return 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-600';
+    }
+    if (badge === 'Warranty Issue') {
+      return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-600';
+    }
+    if (badge === 'Expedited') {
+      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-600';
+    }
+    if (badge === 'Follow Up') {
+      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
+    }
+
+    // Default
+    return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
+  };
+
+  if (!badges || badges.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {badges.map((badge, index) => (
+        <span
+          key={index}
+          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full border ${getBadgeStyle(badge)}`}
+        >
+          <Tag className="w-2.5 h-2.5" />
+          {badge}
+        </span>
+      ))}
+    </div>
+  );
+};
 
 const StatusBadge = ({ label, color }: { label: string; color: string }) => {
   const badgeColors = {
