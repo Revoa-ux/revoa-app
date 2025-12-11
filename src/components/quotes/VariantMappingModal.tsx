@@ -107,13 +107,13 @@ function WarningModal({ isOpen, onClose, onConfirm, unmappedCount, priceChangesC
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             Go Back
           </button>
           <button
             onClick={onConfirm}
-            className="group px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md rounded-lg transition-all shadow-sm flex items-center gap-2"
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-700 hover:shadow-lg rounded-lg transition-all shadow-sm flex items-center gap-2"
           >
             <span>{unmappedCount > 0 ? 'Continue Anyway' : 'Confirm & Sync'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -518,14 +518,14 @@ export default function VariantMappingModal({
                     <button
                       onClick={onClose}
                       disabled={isSubmitting}
-                      className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                      className="flex-1 sm:flex-none px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleConfirmClick}
                       disabled={!isValid() || isSubmitting}
-                      className="flex-1 sm:flex-none group px-4 sm:px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
+                      className="flex-1 sm:flex-none group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
                     >
                       {isSubmitting ? (
                         <>
