@@ -887,6 +887,30 @@ export function ScenarioTemplateModal({
     ? TEMPLATES.filter(t => t.category !== threadCategory)
     : TEMPLATES;
 
+  // Group templates by category for better organization
+  const groupedTemplates = otherTemplates.reduce((acc, template) => {
+    const categoryLabel = CATEGORY_LABELS[template.category] || template.category;
+    if (!acc[categoryLabel]) {
+      acc[categoryLabel] = [];
+    }
+    acc[categoryLabel].push(template);
+    return acc;
+  }, {} as Record<string, Template[]>);
+
+  // Define category order for consistent display
+  const categoryOrder = [
+    'Product Issues',
+    'Returns & Exchanges',
+    'Order Inquiries',
+    'Shipping & Delivery',
+    'Delivery Issues',
+    'Address Problems',
+    'Cancellations',
+    'Upsell Management',
+    'Refunds',
+    'Chargebacks'
+  ];
+
   // Load orders when showing order search
   useEffect(() => {
     if (showOrderSearch && userId) {
@@ -1209,85 +1233,100 @@ export function ScenarioTemplateModal({
 
               {/* Separator */}
               {recommendedTemplates.length > 0 && otherTemplates.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center gap-2">
-                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      All Other Templates
+                <div className="mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Browse All Templates
                     </span>
-                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700"></div>
+                    <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
                   </div>
                 </div>
               )}
 
-              {/* Other Templates */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {otherTemplates.map((template) => {
-                  const Icon = template.icon;
-                  const colorClasses = {
-                    red: {
-                      hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/30 dark:hover:bg-red-900/10',
-                      iconBg: 'bg-red-50/40 dark:bg-red-900/20',
-                      iconText: 'text-red-600 dark:text-red-400',
-                      badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
-                    },
-                    orange: {
-                      hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
-                      iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
-                      iconText: 'text-orange-600 dark:text-orange-400',
-                      badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
-                    },
-                    purple: {
-                      hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/10',
-                      iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
-                      iconText: 'text-purple-600 dark:text-purple-400',
-                      badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
-                    },
-                    green: {
-                      hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50/30 dark:hover:bg-green-900/10',
-                      iconBg: 'bg-green-50/40 dark:bg-green-900/20',
-                      iconText: 'text-green-600 dark:text-green-400',
-                      badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
-                    },
-                    blue: {
-                      hover: 'hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10',
-                      iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
-                      iconText: 'text-blue-600 dark:text-blue-400',
-                      badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                    },
-                    yellow: {
-                      hover: 'hover:border-yellow-500 dark:hover:border-yellow-400 hover:bg-yellow-50/30 dark:hover:bg-yellow-900/10',
-                      iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
-                      iconText: 'text-yellow-600 dark:text-yellow-400',
-                      badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
-                    }
-                  };
-                  const colors = colorClasses[template.color as keyof typeof colorClasses];
+              {/* Other Templates - Grouped by Category */}
+              <div className="space-y-6">
+                {categoryOrder.map((categoryLabel) => {
+                  const templates = groupedTemplates[categoryLabel];
+                  if (!templates || templates.length === 0) return null;
+
                   return (
-                    <button
-                      key={template.id}
-                      onClick={() => handleSelectTemplate(template)}
-                      className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
-                          <Icon className={`w-5 h-5 ${colors.iconText}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-                            {template.name}
-                          </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
-                            {template.description}
-                          </p>
-                          <div className="mt-2">
-                            <span className={`inline-block px-2 py-0.5 text-xs rounded-full ${colors.badge}`}>
-                              {CATEGORY_LABELS[template.category] || template.category}
-                            </span>
-                          </div>
-                        </div>
+                    <div key={categoryLabel}>
+                      {/* Category Header */}
+                      <div className="mb-3">
+                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                          {categoryLabel}
+                        </h4>
+                        <div className="h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent dark:from-gray-600 dark:via-gray-700 dark:to-transparent mt-2"></div>
                       </div>
-                    </button>
+
+                      {/* Templates in this category */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {templates.map((template) => {
+                          const Icon = template.icon;
+                          const colorClasses = {
+                            red: {
+                              hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/30 dark:hover:bg-red-900/10',
+                              iconBg: 'bg-red-50/40 dark:bg-red-900/20',
+                              iconText: 'text-red-600 dark:text-red-400',
+                              badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                            },
+                            orange: {
+                              hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
+                              iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
+                              iconText: 'text-orange-600 dark:text-orange-400',
+                              badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
+                            },
+                            purple: {
+                              hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/10',
+                              iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
+                              iconText: 'text-purple-600 dark:text-purple-400',
+                              badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
+                            },
+                            green: {
+                              hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50/30 dark:hover:bg-green-900/10',
+                              iconBg: 'bg-green-50/40 dark:bg-green-900/20',
+                              iconText: 'text-green-600 dark:text-green-400',
+                              badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                            },
+                            blue: {
+                              hover: 'hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10',
+                              iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
+                              iconText: 'text-blue-600 dark:text-blue-400',
+                              badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                            },
+                            yellow: {
+                              hover: 'hover:border-yellow-500 dark:hover:border-yellow-400 hover:bg-yellow-50/30 dark:hover:bg-yellow-900/10',
+                              iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
+                              iconText: 'text-yellow-600 dark:text-yellow-400',
+                              badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                            }
+                          };
+                          const colors = colorClasses[template.color as keyof typeof colorClasses];
+                          return (
+                            <button
+                              key={template.id}
+                              onClick={() => handleSelectTemplate(template)}
+                              className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
+                                  <Icon className={`w-5 h-5 ${colors.iconText}`} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                    {template.name}
+                                  </h3>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                    {template.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
