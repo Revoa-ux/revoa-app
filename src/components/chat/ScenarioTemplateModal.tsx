@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight } from 'lucide-react';
+import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -23,6 +23,10 @@ interface Template {
   body: string;
   icon: any;
   color: string;
+  orderStatus: 'not_shipped' | 'fulfillment' | 'shipped' | 'out_for_delivery' | 'delivered' | 'delivery_exception' | 'product_issue' | 'return' | 'chargeback';
+  statusLabel: string;
+  statusBadgeColor: 'slate' | 'blue' | 'amber' | 'green' | 'teal' | 'red' | 'orange' | 'purple' | 'crimson';
+  urgency: 'low' | 'medium' | 'high' | 'critical';
 }
 
 interface Order {
@@ -37,11 +41,45 @@ interface Order {
   created_at: string;
 }
 
+const LIFECYCLE_STAGES = [
+  { id: 'not_shipped', label: 'Pre-Fulfillment', icon: Warehouse, color: 'slate' as const },
+  { id: 'fulfillment', label: 'Fulfillment', icon: PackageCheck, color: 'blue' as const },
+  { id: 'shipped', label: 'In Transit', icon: Truck, color: 'amber' as const },
+  { id: 'out_for_delivery', label: 'Out for Delivery', icon: MapPin, color: 'green' as const },
+  { id: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'teal' as const },
+  { id: 'delivery_exception', label: 'Exceptions', icon: AlertTriangle, color: 'red' as const },
+  { id: 'product_issue', label: 'Product Issues', icon: AlertCircle, color: 'orange' as const },
+  { id: 'return', label: 'Returns', icon: RotateCcw, color: 'purple' as const },
+  { id: 'chargeback', label: 'Chargebacks', icon: ShieldAlert, color: 'crimson' as const }
+] as const;
+
+const StatusBadge = ({ label, color }: { label: string; color: string }) => {
+  const badgeColors = {
+    slate: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600',
+    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600',
+    amber: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600',
+    green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600',
+    teal: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-600',
+    red: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600',
+    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600',
+    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-600',
+    crimson: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-600'
+  };
+
+  const colorClass = badgeColors[color as keyof typeof badgeColors] || badgeColors.slate;
+
+  return (
+    <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${colorClass}`}>
+      {label}
+    </span>
+  );
+};
+
 const TEMPLATES: Template[] = [
   // PRODUCT ISSUES - Defective/Damaged/Quality
   {
     id: 'damaged_item_troubleshoot',
-    name: 'Damaged Item - Request Evidence',
+    name: 'Damaged Item Evidence Request',
     category: 'damaged',
     description: 'Request photos/video of damage before offering resolution',
     subject: 'Regarding Your Order {{order_number}}',
@@ -58,11 +96,15 @@ Thank you for your patience and understanding.
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertCircle,
-    color: 'orange'
+    color: 'orange',
+    orderStatus: 'product_issue',
+    statusLabel: 'Product Issue',
+    statusBadgeColor: 'orange',
+    urgency: 'high'
   },
   {
     id: 'defective_product_replacement_first',
-    name: 'Defective Product - Offer Replacement',
+    name: 'Defective Product Resolution',
     category: 'defective',
     description: 'Prioritize replacement over refund for defective items',
     subject: 'Resolution for Your Order {{order_number}}',
@@ -83,11 +125,15 @@ We're here to help make this right. Which option works best for you?
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertCircle,
-    color: 'orange'
+    color: 'orange',
+    orderStatus: 'product_issue',
+    statusLabel: 'Product Issue',
+    statusBadgeColor: 'orange',
+    urgency: 'high'
   },
   {
     id: 'quality_concern_troubleshoot',
-    name: 'Quality Concern - Troubleshooting',
+    name: 'Quality Concern Troubleshooting',
     category: 'quality',
     description: 'Guide customer through troubleshooting before offering replacement',
     subject: 'About Your Product Quality Concern',
@@ -110,13 +156,17 @@ Let me know what you find!
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertCircle,
-    color: 'orange'
+    color: 'orange',
+    orderStatus: 'product_issue',
+    statusLabel: 'Product Issue',
+    statusBadgeColor: 'orange',
+    urgency: 'medium'
   },
 
   // RETURNS & EXCHANGES
   {
     id: 'return_inquiry_offer_alternatives',
-    name: 'Return Inquiry - Offer Alternatives First',
+    name: 'Return Inquiry',
     category: 'return',
     description: 'Understand reason and offer replacement before accepting return',
     subject: 'About Your Return Request',
@@ -132,12 +182,16 @@ Let me know what's going on and we'll find the best solution for you!
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: Package,
-    color: 'yellow'
+    icon: RotateCcw,
+    color: 'purple',
+    orderStatus: 'return',
+    statusLabel: 'Return',
+    statusBadgeColor: 'purple',
+    urgency: 'medium'
   },
   {
     id: 'return_instructions_with_fee',
-    name: 'Return Instructions - With Restocking Fee',
+    name: 'Return Instructions',
     category: 'return',
     description: 'Provide complete return process with restocking fee',
     subject: 'Return Instructions for Order {{order_number}}',
@@ -176,12 +230,16 @@ Step 6: Inspection & Refund
 After inspection (5-7 business days), we'll process your refund minus restocking fee if items are resellable.
 
 Let me know when you're ready to proceed!`,
-    icon: Package,
-    color: 'red'
+    icon: RotateCcw,
+    color: 'purple',
+    orderStatus: 'return',
+    statusLabel: 'Return',
+    statusBadgeColor: 'purple',
+    urgency: 'medium'
   },
   {
     id: 'return_provide_wen',
-    name: 'Return - Provide Warehouse Entry Number',
+    name: 'Return Approval',
     category: 'return',
     description: 'Give customer their WEN for approved return',
     subject: 'Your Warehouse Entry Number - {{order_number}}',
@@ -206,12 +264,16 @@ IMPORTANT INSTRUCTIONS:
 After our warehouse team inspects your return (5-7 business days after receipt), we'll process your refund minus the {{restocking_fee}} restocking fee.
 
 Let me know if you have any questions!`,
-    icon: Package,
-    color: 'red'
+    icon: RotateCcw,
+    color: 'purple',
+    orderStatus: 'return',
+    statusLabel: 'Return',
+    statusBadgeColor: 'purple',
+    urgency: 'low'
   },
   {
     id: 'accidental_upsell_shipped',
-    name: 'Accidental Upsell (Shipped)',
+    name: 'Accidental Upsell',
     category: 'upsell',
     description: 'Handle accidental upsell acceptance after shipping',
     subject: 'About Your Additional Item',
@@ -227,8 +289,12 @@ I'll make a note on your account so we can expedite this when you're ready.
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: Package,
-    color: 'orange'
+    icon: AlertCircle,
+    color: 'orange',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
 
   // DELIVERY EXCEPTIONS
@@ -259,13 +325,17 @@ Please let us know how you'd like to proceed!
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertTriangle,
-    color: 'orange'
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'critical'
   },
 
   // ORDER STATUS
   {
     id: 'order_status_not_shipped',
-    name: 'Order Status (Not Shipped)',
+    name: 'Order Status',
     category: 'order_status',
     description: 'Provide status for orders not yet shipped',
     subject: 'Order {{order_number}} Status Update',
@@ -278,12 +348,16 @@ Our processing time before an order ships is typical 1-3 days, excluding weekend
 We will email you a confirmation once it ships and that will include tracking information as well.
 
 If you have any questions in the meantime, please don't hesitate to reach out.`,
-    icon: Package,
-    color: 'blue'
+    icon: Warehouse,
+    color: 'blue',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'order_status_shipped',
-    name: 'Order Status (Shipped)',
+    name: 'Order Status',
     category: 'order_status',
     description: 'Provide tracking for shipped orders',
     subject: 'Your Order #{{order_number}} Has Shipped!',
@@ -301,11 +375,15 @@ Please advise, you may need to check your spam folder.
 You can also use the tracking page on our website to check on your live delivery status at anytime:
 {{tracking_url}}`,
     icon: Truck,
-    color: 'green'
+    color: 'amber',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'low'
   },
   {
     id: 'order_status_shipped_followup',
-    name: 'Order Status (Shipped) - Follow Up',
+    name: 'Order Status Follow-Up',
     category: 'order_status',
     description: 'Reassure customer about shipping delays',
     subject: 'About Your Delivery',
@@ -319,11 +397,15 @@ Please allow the delivery company to process your package and update their syste
 
 Thanks again for your patience and understanding, if I could make it move faster I would.`,
     icon: Truck,
-    color: 'green'
+    color: 'amber',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
   {
     id: 'order_status_out_for_delivery',
-    name: 'Order Status (Out for Delivery)',
+    name: 'Order Status',
     category: 'shipping',
     description: 'Notify customer package is out for delivery',
     subject: 'Your Package is Out for Delivery!',
@@ -337,12 +419,16 @@ Please advise, you may need to check your spam folder.
 
 You can track your order here on this page:
 {{tracking_url}}`,
-    icon: Truck,
-    color: 'green'
+    icon: MapPin,
+    color: 'green',
+    orderStatus: 'out_for_delivery',
+    statusLabel: 'Out for Delivery',
+    statusBadgeColor: 'green',
+    urgency: 'low'
   },
   {
     id: 'order_status_delivered_not_received',
-    name: 'Order Status (Delivered, Not Received)',
+    name: 'Delivery Status',
     category: 'delivery_exception',
     description: 'Handle delivered but not received inquiries',
     subject: 'About Your Delivery',
@@ -358,12 +444,16 @@ There are times that tracking shows delivered but it doesn't get dropped off unt
 If you still haven't received after 2 business days since the status changed to delivered, please coordinate with the USPS/AU POST/CA POST with the above tracking number.
 
 In the meantime, please don't hesitate to reach out if there is anything else we can help with.`,
-    icon: AlertTriangle,
-    color: 'yellow'
+    icon: CheckCircle,
+    color: 'teal',
+    orderStatus: 'delivered',
+    statusLabel: 'Delivered',
+    statusBadgeColor: 'teal',
+    urgency: 'medium'
   },
   {
     id: 'delivered_2_days_not_located',
-    name: 'Delivered > 2 Days (Not Received/Located)',
+    name: 'Delivery Status',
     category: 'delivery_exception',
     description: 'Handle packages marked delivered over 2 days ago',
     subject: 'About Your Package',
@@ -376,14 +466,18 @@ We do not have access to customer information with USPS. So please call them if 
 Tracking #: {{tracking_number}}
 
 Please call USPS directly as soon as possible for more assistance.`,
-    icon: AlertTriangle,
-    color: 'red'
+    icon: CheckCircle,
+    color: 'teal',
+    orderStatus: 'delivered',
+    statusLabel: 'Delivered',
+    statusBadgeColor: 'teal',
+    urgency: 'high'
   },
 
   // DELIVERY EXCEPTIONS
   {
     id: 'delivery_failed_returned',
-    name: 'Delivery Failed (Returned to Sender)',
+    name: 'Delivery Exception',
     category: 'delivery_exception',
     description: 'Handle packages being returned to sender',
     subject: 'Your Package is Being Returned',
@@ -399,11 +493,15 @@ In the meantime, please don't hesitate to reach out if there is anything else we
 
 Let me know if they cannot reverse it and I will send your order again immediately.`,
     icon: AlertTriangle,
-    color: 'red'
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'critical'
   },
   {
     id: 'invalid_address_returned',
-    name: 'Invalid Address - Package Returned',
+    name: 'Invalid Address Exception',
     category: 'delivery_exception',
     description: 'Package returned due to address error, offer reship',
     subject: 'Address Issue - Order {{order_number}}',
@@ -420,12 +518,16 @@ Thank you for your patience!
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: MapPin,
-    color: 'orange'
+    icon: AlertTriangle,
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'critical'
   },
   {
     id: 'delivery_failed_no_such_number',
-    name: 'Delivery Failed - Invalid Address Number',
+    name: 'No Such Number Exception',
     category: 'delivery_exception',
     description: "Address number doesn't exist in postal system",
     subject: 'Delivery Issue - Order {{order_number}}',
@@ -445,11 +547,15 @@ Let me know how you'd like to proceed!
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertTriangle,
-    color: 'red'
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'critical'
   },
   {
     id: 'delivery_failed_no_access',
-    name: 'Delivery Failed - No Access',
+    name: 'No Access Exception',
     category: 'delivery_exception',
     description: "Carrier couldn't access delivery location",
     subject: 'Delivery Access Issue - Order {{order_number}}',
@@ -469,11 +575,15 @@ We're here to help get this resolved!
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertTriangle,
-    color: 'red'
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'critical'
   },
   {
     id: 'carrier_charge_on_package',
-    name: 'Carrier Holding Package for Payment',
+    name: 'Carrier Payment Hold',
     category: 'delivery_exception',
     description: 'Carrier charging customer for unpaid balance',
     subject: 'About the Carrier Charge',
@@ -496,14 +606,18 @@ We're unable to intervene in carrier billing matters, but please let us know if 
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: DollarSign,
-    color: 'yellow'
+    icon: AlertTriangle,
+    color: 'red',
+    orderStatus: 'delivery_exception',
+    statusLabel: 'Exception',
+    statusBadgeColor: 'red',
+    urgency: 'high'
   },
 
   // ADDRESS ISSUES
   {
     id: 'address_verification_before_shipping',
-    name: 'Address Verification Before Shipping',
+    name: 'Address Verification',
     category: 'address_issue',
     description: 'Confirm corrected address before fulfillment',
     subject: 'Please Confirm Your Shipping Address',
@@ -530,11 +644,15 @@ We'll wait for your confirmation before shipping to ensure everything is perfect
 Best regards,
 {{merchant_store_name}}`,
     icon: MapPin,
-    color: 'blue'
+    color: 'blue',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'medium'
   },
   {
     id: 'edit_address_not_shipped',
-    name: 'Edit Address (Not Shipped)',
+    name: 'Edit Address',
     category: 'address_issue',
     description: 'Update address before shipment',
     subject: 'Address Updated',
@@ -542,11 +660,15 @@ Best regards,
 
 Thank you for contacting us! I've updated your shipping address and you should be all set now. You will receive a confirmation email when your package ships. Let me know if there's anything else I can help with!`,
     icon: MapPin,
-    color: 'green'
+    color: 'green',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'edit_address_shipped',
-    name: 'Edit Address (Shipped)',
+    name: 'Edit Address',
     category: 'address_issue',
     description: 'Instructions for address changes after shipping',
     subject: 'About Changing Your Address',
@@ -563,13 +685,17 @@ We cannot do it for you as they will only speak with the receiver of the package
 
 We'll be here to assist you should you need any further help`,
     icon: MapPin,
-    color: 'yellow'
+    color: 'amber',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
 
   // CANCELLATIONS & UPSELL REMOVAL
   {
     id: 'cancel_refund_not_shipped',
-    name: 'Cancel & Refund Last Order (Not Shipped)',
+    name: 'Order Cancellation',
     category: 'cancel',
     description: 'Cancel and refund order before shipping',
     subject: 'Order Cancelled',
@@ -577,11 +703,15 @@ We'll be here to assist you should you need any further help`,
 
 I've canceled your last order, and issued a refund.`,
     icon: X,
-    color: 'red'
+    color: 'red',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'order_cancel_already_shipped',
-    name: 'Order Change/Cancel: Already Shipped',
+    name: 'Order Cancellation',
     category: 'cancel',
     description: 'Handle cancel request for shipped orders',
     subject: 'About Your Cancellation Request',
@@ -593,11 +723,15 @@ Unfortunately, it looks like your order has already processed or shipped from ou
 
 Please let me know if you have any questions in the meantime, {{customer_first_name}}`,
     icon: X,
-    color: 'red'
+    color: 'red',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
   {
     id: 'cancel_upsell_not_shipped',
-    name: 'Cancel Upsell Item (Not Shipped)',
+    name: 'Cancel Upsell Item',
     category: 'upsell',
     description: 'Remove upsell before shipping',
     subject: 'Upsell Item Removed',
@@ -609,11 +743,15 @@ We can absolutely remove the second purchase.
 
 Your order has not shipped yet, so we've gone ahead and removed the second item and refunded you the difference. You'll receive a confirmation email shortly.`,
     icon: Edit3,
-    color: 'green'
+    color: 'green',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'cancel_upsell_fulfilled',
-    name: 'Cancel Upsell Item (Fulfilled/Confirmed)',
+    name: 'Cancel Upsell Item',
     category: 'upsell',
     description: 'Attempt to reverse upsell after fulfillment',
     subject: 'About Your Upsell Item',
@@ -625,11 +763,15 @@ Your order has already shipped, but we can still help! It seems it hasn't been p
 
 However if it is not reversible...once you receive it, we can guide you through our quick return process for a refund.`,
     icon: Edit3,
-    color: 'yellow'
+    color: 'amber',
+    orderStatus: 'fulfillment',
+    statusLabel: 'Fulfillment',
+    statusBadgeColor: 'blue',
+    urgency: 'medium'
   },
   {
     id: 'cancel_upsell_shipped',
-    name: 'Cancel Upsell Item (Shipped)',
+    name: 'Cancel Upsell Item',
     category: 'upsell',
     description: 'Return process for shipped upsell items',
     subject: 'About Your Upsell Item',
@@ -642,14 +784,18 @@ We can absolutely remove the second purchase.
 Your order has already shipped, but we can still help! Once you receive it, we can guide you through our quick return process for a refund.
 
 Please reach out once you receive your package for next steps.`,
-    icon: Package,
-    color: 'orange'
+    icon: Edit3,
+    color: 'amber',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
 
   // REFUNDS
   {
     id: 'full_refund_not_shipped',
-    name: 'Full Refund (Not Shipped)',
+    name: 'Full Refund',
     category: 'refund',
     description: 'Issue full refund before shipping',
     subject: 'Refund Processed',
@@ -657,11 +803,15 @@ Please reach out once you receive your package for next steps.`,
 
 I've refunded your last order {{order_number}}, please allow 3-5 business days for the refund to be processed. Reimbursement of funds will be allocated back to the original form of payment used for purchase. Thank you.`,
     icon: DollarSign,
-    color: 'green'
+    color: 'green',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'partial_refund_not_shipped',
-    name: 'Partial Refund (Not Shipped)',
+    name: 'Partial Refund',
     category: 'refund',
     description: 'Issue partial refund before shipping',
     subject: 'Partial Refund Processed',
@@ -669,11 +819,15 @@ I've refunded your last order {{order_number}}, please allow 3-5 business days f
 
 I've issued you a partial refund for your last order {{order_number}}, please allow 3-5 business days for the refund to be processed. Reimbursement of funds will be allocated back to the original form of payment used for purchase. Thank you.`,
     icon: DollarSign,
-    color: 'green'
+    color: 'green',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'low'
   },
   {
     id: 'expedited_processing_refund',
-    name: 'Expedited Processing Complaint (Not Shipped)',
+    name: 'Expedited Processing Refund',
     category: 'refund',
     description: 'Refund expedited processing fee for delays',
     subject: 'Apology and Refund',
@@ -685,11 +839,15 @@ However since we were late to ship your order, I went ahead and refunded you for
 
 Please also be on the lookout for further emails regarding your order delivery status from us. We thank you dearly for being a customer.`,
     icon: DollarSign,
-    color: 'orange'
+    color: 'orange',
+    orderStatus: 'not_shipped',
+    statusLabel: 'Not Shipped',
+    statusBadgeColor: 'slate',
+    urgency: 'medium'
   },
   {
     id: 'refund_shipping_tariff_delay',
-    name: 'Refund Request/Shipping Complaint (Shipped) Tariff Delay',
+    name: 'Shipping Complaint',
     category: 'shipping',
     description: 'Address refund requests due to tariff delays',
     subject: 'About Your Delivery Delay',
@@ -706,13 +864,17 @@ You can track your order here:
 
 P.s. if you'd like a refund we will have to start a return process which entails starting a return. Once you receive your order if you do wish to start a return just reach out and we'll be here to help. Thanks`,
     icon: Truck,
-    color: 'yellow'
+    color: 'amber',
+    orderStatus: 'shipped',
+    statusLabel: 'In Transit',
+    statusBadgeColor: 'amber',
+    urgency: 'medium'
   },
 
   // CHARGEBACKS
   {
     id: 'chargeback_response_shipped',
-    name: 'Chargeback Response - Order Shipped',
+    name: 'Chargeback Response',
     category: 'chargeback',
     description: 'Respond to chargeback for shipped orders',
     subject: 'Regarding Your Chargeback - Order {{order_number}}',
@@ -739,12 +901,16 @@ We're here to resolve any concerns. Please reach out if there's an issue we can 
 
 Awaiting your response,
 {{merchant_store_name}}`,
-    icon: Shield,
-    color: 'red'
+    icon: ShieldAlert,
+    color: 'crimson',
+    orderStatus: 'chargeback',
+    statusLabel: 'Chargeback',
+    statusBadgeColor: 'crimson',
+    urgency: 'critical'
   },
   {
     id: 'chargeback_response_delivered',
-    name: 'Chargeback Response - Order Delivered',
+    name: 'Chargeback Response',
     category: 'chargeback',
     description: 'Respond to chargeback for delivered orders',
     subject: 'Regarding Your Chargeback - Order {{order_number}}',
@@ -777,12 +943,16 @@ We recommend reversing this chargeback immediately to protect your purchasing ab
 
 Awaiting your response,
 {{merchant_store_name}}`,
-    icon: Shield,
-    color: 'red'
+    icon: ShieldAlert,
+    color: 'crimson',
+    orderStatus: 'chargeback',
+    statusLabel: 'Chargeback',
+    statusBadgeColor: 'crimson',
+    urgency: 'critical'
   },
   {
     id: 'chargeback_followup_upsell',
-    name: 'Chargeback Follow-up - Upsell Item',
+    name: 'Chargeback Follow-Up',
     category: 'chargeback',
     description: 'Resolve chargeback involving accidental upsell',
     subject: 'Resolving Your Chargeback - Order {{order_number}}',
@@ -807,12 +977,16 @@ Let me know once you've contacted your bank and we'll get this resolved right aw
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: Shield,
-    color: 'red'
+    icon: ShieldAlert,
+    color: 'crimson',
+    orderStatus: 'chargeback',
+    statusLabel: 'Chargeback',
+    statusBadgeColor: 'crimson',
+    urgency: 'critical'
   },
   {
     id: 'chargeback_followup_general',
-    name: 'Chargeback Follow-up - General Resolution',
+    name: 'Chargeback Follow-Up',
     category: 'chargeback',
     description: 'Follow up on chargeback to resolve issue',
     subject: 'Resolving Your Chargeback - Order {{order_number}}',
@@ -837,8 +1011,12 @@ We're here to help make this right. Please contact your bank and let me know onc
 
 Best regards,
 {{merchant_store_name}}`,
-    icon: Shield,
-    color: 'red'
+    icon: ShieldAlert,
+    color: 'crimson',
+    orderStatus: 'chargeback',
+    statusLabel: 'Chargeback',
+    statusBadgeColor: 'crimson',
+    urgency: 'critical'
   }
 ];
 
@@ -878,6 +1056,7 @@ export function ScenarioTemplateModal({
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [selectedOrderForTemplate, setSelectedOrderForTemplate] = useState<string>('');
+  const [activeLifecycleTab, setActiveLifecycleTab] = useState<string>('not_shipped');
 
   const recommendedTemplates = threadCategory
     ? TEMPLATES.filter(t => t.category === threadCategory)
@@ -886,6 +1065,8 @@ export function ScenarioTemplateModal({
   const otherTemplates = threadCategory
     ? TEMPLATES.filter(t => t.category !== threadCategory)
     : TEMPLATES;
+
+  const templatesForActiveTab = TEMPLATES.filter(t => t.orderStatus === activeLifecycleTab);
 
   // Group templates by category for better organization
   const groupedTemplates = otherTemplates.reduce((acc, template) => {
@@ -1197,6 +1378,22 @@ export function ScenarioTemplateModal({
                           iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
                           iconText: 'text-yellow-600 dark:text-yellow-400',
                           badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                        },
+                        amber: {
+                          border: 'border-amber-500 dark:border-amber-400',
+                          bg: 'bg-amber-50/30 dark:bg-amber-900/10',
+                          hover: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/20',
+                          iconBg: 'bg-amber-50/40 dark:bg-amber-900/20',
+                          iconText: 'text-amber-600 dark:text-amber-400',
+                          badge: 'bg-amber-100/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                        },
+                        crimson: {
+                          border: 'border-rose-500 dark:border-rose-400',
+                          bg: 'bg-rose-50/30 dark:bg-rose-900/10',
+                          hover: 'hover:bg-rose-50/50 dark:hover:bg-rose-900/20',
+                          iconBg: 'bg-rose-50/40 dark:bg-rose-900/20',
+                          iconText: 'text-rose-600 dark:text-rose-400',
+                          badge: 'bg-rose-100/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
                         }
                       };
                       const colors = colorClasses[template.color as keyof typeof colorClasses];
@@ -1204,9 +1401,15 @@ export function ScenarioTemplateModal({
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
+                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
                         >
-                          <div className="flex items-start gap-3">
+                          <div className="absolute top-3 right-3">
+                            <StatusBadge
+                              label={template.statusLabel}
+                              color={template.statusBadgeColor}
+                            />
+                          </div>
+                          <div className="flex items-start gap-3 pr-20">
                             <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
                               <Icon className={`w-5 h-5 ${colors.iconText}`} />
                             </div>
@@ -1232,7 +1435,7 @@ export function ScenarioTemplateModal({
               )}
 
               {/* Separator */}
-              {recommendedTemplates.length > 0 && otherTemplates.length > 0 && (
+              {recommendedTemplates.length > 0 && (
                 <div className="mb-8">
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
@@ -1244,25 +1447,42 @@ export function ScenarioTemplateModal({
                 </div>
               )}
 
-              {/* Other Templates - Grouped by Category */}
-              <div className="space-y-6">
-                {categoryOrder.map((categoryLabel) => {
-                  const templates = groupedTemplates[categoryLabel];
-                  if (!templates || templates.length === 0) return null;
+              {/* Tab Navigation */}
+              <div className="mb-6">
+                <div className="flex gap-2 overflow-x-auto pb-2 border-b border-gray-200 dark:border-gray-700">
+                  {LIFECYCLE_STAGES.map((stage) => {
+                    const StageIcon = stage.icon;
+                    const templateCount = TEMPLATES.filter(t => t.orderStatus === stage.id).length;
+                    const isActive = activeLifecycleTab === stage.id;
 
-                  return (
-                    <div key={categoryLabel}>
-                      {/* Category Header */}
-                      <div className="mb-3">
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                          {categoryLabel}
-                        </h4>
-                        <div className="h-px bg-gradient-to-r from-gray-300 via-gray-200 to-transparent dark:from-gray-600 dark:via-gray-700 dark:to-transparent mt-2"></div>
-                      </div>
+                    return (
+                      <button
+                        key={stage.id}
+                        onClick={() => setActiveLifecycleTab(stage.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium text-sm whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                          isActive
+                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-b-2 border-pink-500'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                        }`}
+                      >
+                        <StageIcon className="w-4 h-4" />
+                        <span>{stage.label}</span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          isActive
+                            ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {templateCount}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                      {/* Templates in this category */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {templates.map((template) => {
+              {/* Templates for Active Tab */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {templatesForActiveTab.map((template) => {
                           const Icon = template.icon;
                           const colorClasses = {
                             red: {
@@ -1300,6 +1520,18 @@ export function ScenarioTemplateModal({
                               iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
                               iconText: 'text-yellow-600 dark:text-yellow-400',
                               badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                            },
+                            amber: {
+                              hover: 'hover:border-amber-500 dark:hover:border-amber-400 hover:bg-amber-50/30 dark:hover:bg-amber-900/10',
+                              iconBg: 'bg-amber-50/40 dark:bg-amber-900/20',
+                              iconText: 'text-amber-600 dark:text-amber-400',
+                              badge: 'bg-amber-100/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                            },
+                            crimson: {
+                              hover: 'hover:border-rose-500 dark:hover:border-rose-400 hover:bg-rose-50/30 dark:hover:bg-rose-900/10',
+                              iconBg: 'bg-rose-50/40 dark:bg-rose-900/20',
+                              iconText: 'text-rose-600 dark:text-rose-400',
+                              badge: 'bg-rose-100/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
                             }
                           };
                           const colors = colorClasses[template.color as keyof typeof colorClasses];
@@ -1307,9 +1539,15 @@ export function ScenarioTemplateModal({
                             <button
                               key={template.id}
                               onClick={() => handleSelectTemplate(template)}
-                              className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
+                              className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
                             >
-                              <div className="flex items-start gap-3">
+                              <div className="absolute top-3 right-3">
+                                <StatusBadge
+                                  label={template.statusLabel}
+                                  color={template.statusBadgeColor}
+                                />
+                              </div>
+                              <div className="flex items-start gap-3 pr-20">
                                 <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
                                   <Icon className={`w-5 h-5 ${colors.iconText}`} />
                                 </div>
@@ -1324,10 +1562,6 @@ export function ScenarioTemplateModal({
                               </div>
                             </button>
                           );
-                        })}
-                      </div>
-                    </div>
-                  );
                 })}
               </div>
             </div>
