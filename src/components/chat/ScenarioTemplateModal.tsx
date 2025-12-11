@@ -211,7 +211,7 @@ Let me know if you have any questions!`,
   },
   {
     id: 'accidental_upsell_shipped',
-    name: 'Accidental Upsell - Shipped',
+    name: 'Accidental Upsell (Shipped)',
     category: 'upsell',
     description: 'Handle accidental upsell acceptance after shipping',
     subject: 'About Your Additional Item',
