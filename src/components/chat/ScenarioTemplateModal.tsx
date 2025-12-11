@@ -1474,7 +1474,7 @@ export function ScenarioTemplateModal({
                   setCopied(false);
                   setShowOrderSearch(false);
                 }}
-                className="px-4 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center gap-2"
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Templates
@@ -1490,7 +1490,7 @@ export function ScenarioTemplateModal({
                 {isAssignedToOrder ? (
                   <button
                     onClick={handleCopyToClipboard}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group px-5 py-2.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     {copied ? (
                       <>
@@ -1514,7 +1514,7 @@ export function ScenarioTemplateModal({
                       }
                     }}
                     disabled={isLoading}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group px-5 py-2.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     {isLoading ? (
                       <>
