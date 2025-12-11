@@ -38,194 +38,228 @@ interface Order {
 }
 
 const TEMPLATES: Template[] = [
-  // REPLACEMENT & DAMAGED ITEMS
+  // PRODUCT ISSUES - Defective/Damaged/Quality
   {
-    id: 'replacements_damaged',
-    name: 'Replacements (Damaged Items)',
+    id: 'damaged_item_troubleshoot',
+    name: 'Damaged Item - Request Evidence',
     category: 'damaged',
-    description: 'Request testing and offer replacement for damaged items',
+    description: 'Request photos/video of damage before offering resolution',
     subject: 'Regarding Your Order {{order_number}}',
     body: `Hello {{customer_first_name}},
 
-We apologize for the inconvenience. As we try our best to provide exceptional service, some factors like shipping and handling are outside of our control, and issues like this can happen.
+We sincerely apologize for any inconvenience. While we do our best to ensure every order arrives in perfect condition, shipping and handling factors outside our control can sometimes cause issues.
 
-Can you please make sure that the lights have been given a full day of sunlight to charge and that the button (if any) is pressed and set to "on".
+To help us resolve this quickly, could you please send us clear photos or a short video showing the damaged item(s)? This will help our team assess the situation and determine the best solution for you.
 
-After 1 full day of charge and testing the button if you still notice one or two of the lights are not working...please send us a video of the broken/damaged item(s) you received and we'll do our best to resolve this as soon as possible.`,
-    icon: AlertCircle,
-    color: 'orange'
-  },
-  {
-    id: 'defective_product',
-    name: 'Defective Product Resolution',
-    category: 'defective',
-    description: 'Address a defective product complaint',
-    subject: 'Resolution for Your Defective Item - Order {{order_number}}',
-    body: `Hi {{customer_first_name}},
+Once we receive your photos/video, we'll get back to you right away with next steps.
 
-We sincerely apologize for the defective item you received with order #{{order_number}}.
-
-We'd like to make this right. Please choose your preferred resolution:
-
-Option 1: Full Refund
-We can issue a full refund to your original payment method.
-
-Option 2: Replacement
-We can send you a replacement item at no additional cost.
-
-Our defect coverage: {{defect_coverage_days}}
-
-Please let us know which option you prefer, and we'll process it immediately.
-
-Again, we apologize for the inconvenience.
+Thank you for your patience and understanding.
 
 Best regards,
 {{merchant_store_name}}`,
     icon: AlertCircle,
-    color: 'purple'
+    color: 'orange'
   },
-
-  // QUALITY COMPLAINTS
   {
-    id: 'quality_complaint',
-    name: 'Quality Complaint (Not Bright Enough)',
+    id: 'defective_product_replacement_first',
+    name: 'Defective Product - Offer Replacement',
+    category: 'defective',
+    description: 'Prioritize replacement over refund for defective items',
+    subject: 'Resolution for Your Order {{order_number}}',
+    body: `Hi {{customer_first_name}},
+
+We sincerely apologize for the issue with your item from order #{{order_number}}. This definitely isn't the experience we want for our customers.
+
+We'd like to make this right. Here are your options:
+
+Option 1: Free Replacement (Recommended)
+We'll send you a brand new replacement at no additional cost. This is typically the fastest way to get you the product you ordered.
+
+Option 2: Return for Refund
+If you prefer, we can process a return. Please note this would require shipping the item back to our warehouse, and a restocking fee may apply per our return policy.
+
+We're here to help make this right. Which option works best for you?
+
+Best regards,
+{{merchant_store_name}}`,
+    icon: AlertCircle,
+    color: 'orange'
+  },
+  {
+    id: 'quality_concern_troubleshoot',
+    name: 'Quality Concern - Troubleshooting',
     category: 'quality',
-    description: 'Address product brightness concerns with troubleshooting',
-    subject: 'About Your Lights',
+    description: 'Guide customer through troubleshooting before offering replacement',
+    subject: 'About Your Product Quality Concern',
     body: `Hey {{customer_first_name}},
 
-Thanks for sharing your concerns with us about your lights.
+Thanks for reaching out about your concerns with the product. I completely understand and I'm here to help.
 
-Your solar fence lights/solar step lights are 5/3 lumens each and contain batteries with 300mAh that are charged by daily sun exposure. Each day will have different amounts of cloud coverage and sun exposure to your yard which may affect the lights when they come on at night. The placement of your lights can also affect sun exposure (ie: tree shade, fence posts, house shade, landscaping coverage, etc.).
+Before we proceed, let's try a few quick troubleshooting steps to make sure everything is working as intended:
 
-With that being said, if you have concerns about the quality of your lights, please send us some videos of the lights after dusk and after they've had a full two days of sun exposure.
+1. Please verify the product has been set up according to the instructions
+2. Check that all connections/components are properly secured
+3. Try the product in different conditions or settings if applicable
 
-From there we can help investigate further with you.
+If after following these steps you're still experiencing issues, please send us photos or a short video showing the concern. This will help us better understand what's happening and determine the best solution.
 
-Let us know if you have any questions.`,
+We're committed to making sure you're completely satisfied with your purchase.
+
+Let me know what you find!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: AlertCircle,
     color: 'orange'
   },
 
-  // RETURNS
+  // RETURNS & EXCHANGES
   {
-    id: 'return_need_reason',
-    name: 'Return (Need Reason)',
+    id: 'return_inquiry_offer_alternatives',
+    name: 'Return Inquiry - Offer Alternatives First',
     category: 'return',
-    description: 'Ask for return reason before processing',
+    description: 'Understand reason and offer replacement before accepting return',
     subject: 'About Your Return Request',
-    body: `Hey {{customer_first_name}}, may I ask the reason for your return? Typically with any sale items we wouldn't process a return/refund, however we may consider your request if the items are unused, in the same condition as when you received them, and in original packaging. In which case we'd ask you to send them to our return warehouse. If there are any issues with the items you've received please send photos so our team can examine and if needed, send replacements.`,
+    body: `Hey {{customer_first_name}},
+
+Thank you for reaching out. Before we proceed with a return, may I ask what issue you're experiencing with the product?
+
+If there's a problem with the item itself, we'd be happy to send you a replacement at no cost - this is usually much faster than processing a return and refund.
+
+If you're simply not satisfied with the product and it's unused in original packaging, we can discuss return options. Please note that sale items may have different return policies, and a restocking fee applies to most returns as outlined in our policy.
+
+Let me know what's going on and we'll find the best solution for you!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: Package,
-    color: 'red'
+    color: 'yellow'
   },
   {
-    id: 'return_need_confirm',
-    name: 'Return (Need Confirm)',
+    id: 'return_instructions_with_fee',
+    name: 'Return Instructions - With Restocking Fee',
     category: 'return',
-    description: 'Request confirmation before providing return instructions',
-    subject: 'Return Request for Order {{order_number}}',
-    body: `Hey {{customer_first_name}}, typically with any sale items we wouldn't process a return/refund, however if the items are unused, in the same condition as when you received them, and in original packaging you can send them to our return warehouse.
+    description: 'Provide complete return process with restocking fee',
+    subject: 'Return Instructions for Order {{order_number}}',
+    body: `Hey {{customer_first_name}},
 
-After we have inspected them and deemed them as resell-able we will provide you a refund minus the restocking fee of $39 (as stated on our website return and refund policy page).
+I understand you'd like to return your items. Here's our return process:
 
-Here are the next steps.
+Important: Items must be unused, in original condition, and in original packaging. After inspection, if items are deemed resellable, you'll receive a refund minus the {{restocking_fee}} restocking fee as stated in our return policy.
 
-Step (1)
-Confirm the items you'd like to return by replying to this email.
+RETURN STEPS:
 
-Step (2)
-Wait for our reply, we will provide you with a "Warehouse Entry Number"
+Step 1: Confirm Items
+Reply to this email confirming exactly which items you're returning.
 
-Step (3)
-Return your package to this address:
-5130 E. Santa Ana Street, Ontario, CA 91761
+Step 2: Get Warehouse Entry Number
+Wait for our reply with your unique "Warehouse Entry Number" (WEN).
 
-Clearly write your unique "Warehouse Entry Number" on the outside of the package near the shipping label.
+Step 3: Ship to Warehouse
+Return address: {{return_warehouse_address}}
 
-In addition to this, you will need to include a note inside the package with:
+CRITICAL: Write your WEN clearly on the OUTSIDE of the package near the shipping label.
 
-Your full name
-Your order number
-Product name(s)
-Quantity (number of boxes, not individual units)
+Step 4: Include Documentation
+Place a note INSIDE the package with:
+• Your full name
+• Order number: {{order_number}}
+• Product names
+• Quantity
 
-Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
+Returns without this info may be rejected.
 
-Step (4)
-Once they are sent, let us know and provide a tracking number so our warehouse team can be notified.
+Step 5: Provide Tracking
+Once shipped, reply with your tracking number so our warehouse team can watch for it.
 
-Step (5)
-Our warehouse team will inspect and if items are resell-able your order will be refunded minus the restocking fee.`,
+Step 6: Inspection & Refund
+After inspection (5-7 business days), we'll process your refund minus restocking fee if items are resellable.
+
+Let me know when you're ready to proceed!`,
     icon: Package,
     color: 'red'
   },
   {
-    id: 'return_need_wen',
-    name: 'Return Email 2 (Need WEN)',
+    id: 'return_provide_wen',
+    name: 'Return - Provide Warehouse Entry Number',
     category: 'return',
-    description: 'Provide warehouse entry number for approved returns',
-    subject: 'Your Warehouse Entry Number',
-    body: `Hey {{customer_first_name}}, typically with any sale items we wouldn't process a return/refund, however if the items are unused, in the same condition as when you received them, and in original packaging then you can send them to our return warehouse.
+    description: 'Give customer their WEN for approved return',
+    subject: 'Your Warehouse Entry Number - {{order_number}}',
+    body: `Hi {{customer_first_name}},
 
-After we have inspected them and deemed them as resell-able we will provide you a refund minus the restocking fee of $39 (as stated on our website return and refund policy page).
+Your return has been approved. Your Warehouse Entry Number (WEN) is:
 
-Here are the next steps.
+**WEN: [INSERT WEN HERE]**
 
-Step (1)
-Confirm the items you'd like to return by replying to this email.
+IMPORTANT INSTRUCTIONS:
 
-Step (2)
-Wait for our reply, we will provide you with a "Warehouse Entry Number"
+1. Write this WEN clearly on the OUTSIDE of your package near the shipping label
+2. Ship to: {{return_warehouse_address}}
+3. Include a note inside with:
+   - Your name
+   - Order number: {{order_number}}
+   - Product names
+   - Quantities
 
-Step (3)
-Return your package to this address:
-5130 E. Santa Ana Street, Ontario, CA 91761
+4. Reply with tracking number once shipped
 
-Clearly write your unique "Warehouse Entry Number" on the outside of the package near the shipping label.
+After our warehouse team inspects your return (5-7 business days after receipt), we'll process your refund minus the {{restocking_fee}} restocking fee.
 
-In addition to this, you will need to include a note inside the package with:
-Your full name
-Your order number
-Product name(s)
-Quantity (number of boxes, not individual units)
-Returns sent without this information or to the wrong address may be rejected or discarded by the warehouse.
-
-Step (4)
-Once they are sent, let us know and provide a tracking number so our warehouse team can be notified.
-
-Step (5)
-Our warehouse team will inspect and if items are resell-able your order will be refunded minus the restocking fee.`,
+Let me know if you have any questions!`,
     icon: Package,
     color: 'red'
   },
   {
-    id: 'return_upsell_shipped',
-    name: 'Return/Refund Upsell (Shipped)',
+    id: 'accidental_upsell_shipped',
+    name: 'Accidental Upsell - Shipped',
     category: 'upsell',
-    description: 'Handle accidental upsell returns',
-    subject: 'About Your Order',
-    body: `Hi {{customer_first_name}}, it seems you accidentally accepted a special offer on our thank you page post-purchasing. You clicked the black button that says "pay now" and not "decline this offer".
+    description: 'Handle accidental upsell acceptance after shipping',
+    subject: 'About Your Additional Item',
+    body: `Hi {{customer_first_name}},
 
-That's alright and we are here to help. Once you receive the items please reach back out to us via this email thread so we can start the return process at no cost to you.`,
+Thanks for reaching out. I can see a second item was added to your order through a post-purchase offer. I understand this may have been accidental - this happens occasionally.
+
+Since your order has already shipped, here's what we can do:
+
+Once you receive your package, simply reach back out and we'll process a no-cost return for the unwanted item. We'll make this as easy as possible for you and cover any return fees.
+
+I'll make a note on your account so we can expedite this when you're ready.
+
+Best regards,
+{{merchant_store_name}}`,
     icon: Package,
     color: 'orange'
   },
+
+  // DELIVERY EXCEPTIONS
   {
-    id: 'returned_to_warehouse',
-    name: 'Returned To Warehouse (USA/USPS)',
+    id: 'package_returned_to_warehouse',
+    name: 'Package Returned to Warehouse',
     category: 'delivery_exception',
-    description: 'Handle packages returned to warehouse',
-    subject: 'Your Package Was Returned',
+    description: 'Offer reshipment as primary option for returned packages',
+    subject: 'Your Package Was Returned to Us',
     body: `Hi {{customer_first_name}},
 
-Our warehouse team has confirmed that your package has been returned to us. At this point, you have two options:
-We can reship your order to you – simply confirm the best shipping address and contact number so the carrier can reach you if needed.
-We can issue a refund – this will be processed back to your original payment method, minus the $39 restocking fee as outlined in our return policy.
-Please note, USPS made multiple delivery attempts and marked the package undeliverable as they were unable to reach you. We also sent automated delivery exception emails during this time. For future orders, including a phone number is recommended so the shipping carrier can contact you directly if there are any address issues.
+Our warehouse team has notified us that your package was returned by the carrier due to delivery issues.
 
-Kindly reply to let us know how you'd like to proceed. We won't process the refund until we hear back from you with your preference.`,
+We'd like to get this resolved for you right away. Here are your options:
+
+Option 1: Reship to You (Recommended)
+We can send your order out again at no additional cost. Please confirm:
+• Your best shipping address
+• A phone number (this helps the carrier contact you if needed)
+
+Option 2: Process Refund
+If you prefer, we can refund your order minus the {{restocking_fee}} restocking fee as outlined in our return policy, since the package has been returned to us.
+
+The carrier attempted delivery multiple times and couldn't complete it. For future orders, we highly recommend including a phone number so carriers can reach you directly.
+
+Please let us know how you'd like to proceed!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: AlertTriangle,
-    color: 'red'
+    color: 'orange'
   },
 
   // ORDER STATUS
@@ -368,100 +402,133 @@ Let me know if they cannot reverse it and I will send your order again immediate
     color: 'red'
   },
   {
-    id: 'delivery_exception_invalid_address',
-    name: 'Delivery Exception (Returned) - Invalid Address',
+    id: 'invalid_address_returned',
+    name: 'Invalid Address - Package Returned',
     category: 'delivery_exception',
-    description: 'Package returned due to invalid address',
-    subject: 'Package Returned to Warehouse (Invalid Address)',
-    body: `Hey {{customer_first_name}}, Julie here with NordikHome.
+    description: 'Package returned due to address error, offer reship',
+    subject: 'Address Issue - Order {{order_number}}',
+    body: `Hey {{customer_first_name}},
 
-My fulfillment team notified me that there was an error in your shipping address used during checkout. It must have confused the currier and it got sent back to our warehouse.
+Our fulfillment team has notified us that your package was returned due to an address error. The carrier wasn't able to complete delivery.
 
-Please update us with a more accurate address for the new delivery. Afterwards we can provide you with a new tracking code.
+The address used during checkout was:
+{{shipping_address_full}}
 
-For reference, this is the address you completed checkout with: {{shipping_address_full}}.
+To get your order to you, please reply with your corrected shipping address. We'll reship your order at no additional cost and provide you with new tracking information.
 
-Thank you`,
+Thank you for your patience!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: MapPin,
-    color: 'red'
+    color: 'orange'
   },
   {
-    id: 'package_undelivered_no_such_number',
-    name: 'Package Undelivered (No Such Number)',
+    id: 'delivery_failed_no_such_number',
+    name: 'Delivery Failed - Invalid Address Number',
     category: 'delivery_exception',
-    description: 'Package failed delivery - no such number',
-    subject: 'Delivery Issue with Your Package',
-    body: `Hi {{customer_first_name}}, we've been notified by the postal service that your package failed to be delivered due to: No Such Number
+    description: "Address number doesn't exist in postal system",
+    subject: 'Delivery Issue - Order {{order_number}}',
+    body: `Hi {{customer_first_name}},
 
-Can you please contact USPS to arrange a proper delivery: 1-800-275-8777
+The carrier has notified us that delivery failed due to: "No Such Number"
+
 Your tracking number: {{tracking_number}}
+Address on file: {{shipping_address_full}}
 
-For reference this is the address you used at checkout: {{shipping_address_full}}`,
+This usually means the street number doesn't exist in the postal system. Please contact the carrier directly to resolve this, or reply with a corrected address and we'll reship your order.
+
+Carrier contact: {{carrier_phone_number}}
+
+Let me know how you'd like to proceed!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: AlertTriangle,
     color: 'red'
   },
   {
-    id: 'package_undelivered_no_access',
-    name: 'Package Undelivered (No Access to Delivery Location)',
+    id: 'delivery_failed_no_access',
+    name: 'Delivery Failed - No Access',
     category: 'delivery_exception',
-    description: 'Package failed delivery - no access',
-    subject: 'Delivery Issue with Your Package',
-    body: `Hi {{customer_first_name}}, we've been notified by the postal service that your package failed to be delivered due to: No Access to Delivery Location.
+    description: "Carrier couldn't access delivery location",
+    subject: 'Delivery Access Issue - Order {{order_number}}',
+    body: `Hi {{customer_first_name}},
 
-Can you please contact USPS to arrange a proper delivery: 1-800-275-8777
-Your tracking number: {{tracking_number}}
+The carrier notified us that delivery failed due to: "No Access to Delivery Location"
 
-For reference, this is the address you completed checkout with: {{shipping_address_full}}`,
+Your tracking: {{tracking_number}}
+Address: {{shipping_address_full}}
+
+Please contact the carrier directly to arrange delivery, or if there's a better address, let us know and we can reship.
+
+Carrier contact: {{carrier_phone_number}}
+
+We're here to help get this resolved!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: AlertTriangle,
     color: 'red'
   },
   {
-    id: 'usps_charged_customer',
-    name: 'USPS Charged Customer (Unpaid Package)',
+    id: 'carrier_charge_on_package',
+    name: 'Carrier Holding Package for Payment',
     category: 'delivery_exception',
-    description: 'USPS holding package for unpaid balance',
-    subject: 'About the USPS Charge',
-    body: `Hi {{customer_first_name}}, after further investigation I think I can understand what happened here..
+    description: 'Carrier charging customer for unpaid balance',
+    subject: 'About the Carrier Charge',
+    body: `Hi {{customer_first_name}},
 
-It looks like you had an un-paid balance with USPS and they put this collection on your package in order to receive their un-paid balance from a previous package of yours.
+After investigating, I believe I understand what's happening with your package.
 
-This charge was from a previous package you received. This charge has nothing to do with us or our company.
+It appears you have an unpaid balance with the shipping carrier from a previous delivery. They've placed a collection notice on your current package to collect that outstanding balance.
 
-Upon checking on your tracking history, I can see that it was only in your state recently, it was shipped right away the next day. The USPS hub is a big facility where packages arrive and are sorted to be shipped to your local state.
-It looks like they placed this "final notice bill" on your package since it was an overdue payment and they wanted to ensure you paid the bill and thus held your package from you.
+Important: This charge is from the carrier, not from us or our company.
 
-If you have concerns about this matter please contact USPS directly. We have no affiliation with them and no access to customer records with the United States Postal Service.
+Looking at your tracking history, your package arrived at the local facility and was processed normally. The carrier then placed a "final notice" hold on it due to the unpaid balance from your previous package.
 
-Again, this final notice charge is from USPS, not us.
+We have no affiliation with the carrier and no access to customer account information. For resolution, please contact them directly:
 
-Have a wonderful rest of your day.`,
+Carrier: {{carrier_name}}
+Contact: {{carrier_phone_number}}
+
+We're unable to intervene in carrier billing matters, but please let us know if there's anything else we can help with.
+
+Best regards,
+{{merchant_store_name}}`,
     icon: DollarSign,
     color: 'yellow'
   },
 
   // ADDRESS ISSUES
   {
-    id: 'address_issue_need_confirm',
-    name: 'Address Issue (Need Confirm)',
+    id: 'address_verification_before_shipping',
+    name: 'Address Verification Before Shipping',
     category: 'address_issue',
-    description: 'Confirm address before shipping',
+    description: 'Confirm corrected address before fulfillment',
     subject: 'Please Confirm Your Shipping Address',
-    body: `Hello {{customer_first_name}}, thank you so much for your recent purchase on nordikhome.com.
+    body: `Hello {{customer_first_name}},
 
-We noticed that your address might have a potential issue and we wanted to confirm your order with you before shipping.
+Thank you for your recent order #{{order_number}}!
 
-The shipping address used to checkout on your order {{order_number}} is: {{shipping_address_full}}.
+Before we ship, we noticed a potential issue with your shipping address. We want to make sure your order gets to you without any problems.
 
-However the suggested address to use is:
-[SUGGESTED ADDRESS]
+Address you entered:
+{{shipping_address_full}}
 
-I have updated it to the above address.
+Suggested corrected address:
+[CORRECTED ADDRESS TO BE INSERTED]
 
-We will wait to fulfill until getting confirmation from you that both the updated address above is correct, as well the items in your order:
+We've updated your order to use the corrected address above.
 
-[Items list]
+Please reply to confirm:
+1. The corrected address is accurate
+2. Your order items are correct
 
-Please reply and confirm the items you ordered and the updated shipping address are both correct.`,
+We'll wait for your confirmation before shipping to ensure everything is perfect!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: MapPin,
     color: 'blue'
   },
@@ -644,124 +711,150 @@ P.s. if you'd like a refund we will have to start a return process which entails
 
   // CHARGEBACKS
   {
-    id: 'chargeback_shipped',
-    name: 'Chargeback (Shipped) - Never Contacted Us',
+    id: 'chargeback_response_shipped',
+    name: 'Chargeback Response - Order Shipped',
     category: 'chargeback',
     description: 'Respond to chargeback for shipped orders',
-    subject: 'About Your Chargeback',
-    body: `Hello {{customer_first_name}}, Tyler here with NordikHome. We saw that you submitted a chargeback regarding your order on our website nordikhome.com. Order {{order_number}}. We have sent you shipping confirmation emails to the email address that you placed your order with: {{customer_email}}.
+    subject: 'Regarding Your Chargeback - Order {{order_number}}',
+    body: `Hello {{customer_first_name}},
 
-If you did not receive our emails please check your spam folder.
+We've been notified of a chargeback filed for order #{{order_number}}.
 
-Regarding your order, it is on its way to you. It was shipped on {{shipped_date}} to the address you inputted during checkout: {{shipping_address_full}}.
+We've sent shipping confirmations to your email ({{customer_email}}) - please check your spam folder if you didn't receive them.
 
-You can review the status of your order here: {{order_status_url}}.
+Order status:
+• Shipped: {{shipped_date}}
+• Ship to: {{shipping_address_full}}
+• Tracking: {{tracking_url}}
+• Order status: {{order_status_url}}
 
-You can also track your order here: {{tracking_url}}
+Our records show you haven't contacted us about any issues with this order. We're confident this may be a misunderstanding.
 
-We have searched our emails and noticed you never reached out regarding any issues with your order. Surely the chargeback is only a mistake.
+We strongly encourage you to contact your card issuer to reverse the chargeback. We'll be submitting evidence that this was a legitimate purchase.
 
-We hope that you call your card issuer or bank to reverse the chargeback. We will be submitting our evidence that this purchase was non-fraudulent.
+Important information about chargebacks:
+Chargebacks negatively impact both merchants and consumers. They affect your consumer score on the global payment network, which merchants and payment processors can see. This may result in difficulty making future online purchases as retailers may view you as high-risk. Many major platforms (including Shopify) assign fraud risk ratings based on chargeback history.
 
-Please note:
-Chargebacks hurt merchants as well as online consumers. Each time you chargeback it effects your score as a consumer on the global processing network, in which us merchants (as well as the payment processors we use) can see upon your purchase to determine if we should accept your payment or fulfill your order. Particularly, Shopify gives a fraud risk rating to your online profile attached to your card and various other data points. Seeing a history of chargebacks puts you in a risk category to other merchants globally. So my recommendation is to reverse it to keep your order risk level low.
+We're here to resolve any concerns. Please reach out if there's an issue we can help with.
 
-I will await your response`,
+Awaiting your response,
+{{merchant_store_name}}`,
     icon: Shield,
     color: 'red'
   },
   {
-    id: 'chargeback_delivered',
-    name: 'Chargeback (Delivered) - Never Contacted Us',
+    id: 'chargeback_response_delivered',
+    name: 'Chargeback Response - Order Delivered',
     category: 'chargeback',
     description: 'Respond to chargeback for delivered orders',
-    subject: 'About Your Chargeback',
-    body: `Hello {{customer_first_name}}, Tyler here with NordikHome. We saw that you submitted a chargeback regarding your order on our website nordikhome.com. Order {{order_number}}. We have sent you shipping confirmation emails as well as a delivery confirmation email to the email address that you placed your order with: {{customer_email}}.
+    subject: 'Regarding Your Chargeback - Order {{order_number}}',
+    body: `Hello {{customer_first_name}},
 
-If you did not receive our emails please check your spam folder.
+We've been notified of a chargeback filed for order #{{order_number}}.
 
-Regarding your order, it has already been delivered to you. It was shipped to the address you inputted during checkout: {{shipping_address_full}}.
+We've sent both shipping and delivery confirmations to your email ({{customer_email}}) - please check your spam folder if you didn't receive them.
 
-For further proof, you can review the status of your order here: {{order_status_url}}.
+Order status:
+• Status: DELIVERED
+• Delivered to: {{shipping_address_full}}
+• Tracking: {{tracking_url}}
+• Order details: {{order_status_url}}
 
-You can also track your order here: {{tracking_url}}
+Our records show you haven't contacted us about any issues with this order. This appears to be a misunderstanding.
 
-We have searched our emails and noticed you never reached out regarding any issues with your order.
+We strongly urge you to contact your card issuer to reverse the chargeback. We'll be submitting comprehensive evidence that this was a legitimate, completed transaction.
 
-Surely the chargeback is only a mistake.
+Critical information about chargebacks:
+Chargebacks severely impact both merchants and consumers. Each chargeback negatively affects your consumer score on global payment networks. This score is visible to all merchants and payment processors, who use it to assess risk. Multiple chargebacks can result in:
+• Inability to checkout on major e-commerce platforms
+• Automatic order cancellations
+• Payment method declines
+• Being flagged as high-risk across the retail network
 
-We hope that you call your card issuer or bank to reverse the chargeback. We will be submitting our evidence that this purchase was non-fraudulent.
+Major platforms like Shopify assign permanent fraud risk ratings based on chargeback history, which follows your payment information across all participating merchants.
 
-Please note:
-Chargebacks hurt merchants as well as online consumers. Each time you chargeback it effects your score as a consumer on the global processing network, in which us merchants (as well as the payment processors we use) can see upon your purchase to determine if we should accept your payment or fulfill your order. Particularly, Shopify gives a fraud risk rating to your online profile attached to your card and various other data points. Seeing a history of chargebacks puts you in a risk category to other merchants globally, and thus you'll likely not be able to checkout on popular website you may shop on.
+We recommend reversing this chargeback immediately to protect your purchasing ability. If there's an actual issue with your order, please contact us and we'll resolve it properly.
 
-So my recommendation is to reverse it to keep your order risk level low.`,
+Awaiting your response,
+{{merchant_store_name}}`,
     icon: Shield,
     color: 'red'
   },
   {
-    id: 'chargeback_shipped_upsell',
-    name: 'Chargeback Email 2 (Shipped, Took Upsell)',
+    id: 'chargeback_followup_upsell',
+    name: 'Chargeback Follow-up - Upsell Item',
     category: 'chargeback',
-    description: 'Handle chargeback with upsell item',
-    subject: 'About Your Chargeback - Follow Up',
-    body: `Hi {{customer_first_name}}, I understand your concern. Thanks for getting back to me. As I've previously shared with you, you can track the whereabouts and the journey of your delivery here:
+    description: 'Resolve chargeback involving accidental upsell',
+    subject: 'Resolving Your Chargeback - Order {{order_number}}',
+    body: `Hi {{customer_first_name}},
 
-{{tracking_url}}
+Thank you for getting back to me. I understand your concern and want to help resolve this.
 
-You could have always reached out. A chargeback was not necessary. But I understand, and hope to resolve this with you.
+You can track your order here: {{tracking_url}}
 
-I've taken a look at your order and see that a second item was added through a special offer during checkout. No worries at all — this happens occasionally and I am happy to help you return the second purchase.
+I've reviewed your order and noticed a second item was added through a post-purchase offer. I understand this may have been accidental - this happens occasionally and we're happy to help.
 
-Your order has already shipped. Normally once you've received it, I'd guide you through our quick return process for a refund.
+Normally, once you receive the item, we'd process a quick return and refund for the unwanted item.
 
-However since you have chargedback this isn't possible. You will need to call your bank/card issuer and reverse the chargeback first before I can refund you.
+However, with the chargeback filed, we can't process a refund (the funds have already been taken by your bank). To resolve this properly:
 
-The problem now is that you have the money and the items. By reversing the chargeback we can properly go about this and return the unwanted items and process the refund.
+1. Contact your bank/card issuer to reverse the chargeback
+2. Once reversed, we'll immediately process the return and refund for the unwanted item
 
-Let me know when/if you've reversed the chargeback and we can go from there. Thanks!`,
+The current situation has both the payment reversed AND the items shipping to you. By reversing the chargeback, we can properly return the unwanted item and issue the appropriate refund.
+
+Let me know once you've contacted your bank and we'll get this resolved right away!
+
+Best regards,
+{{merchant_store_name}}`,
     icon: Shield,
     color: 'red'
   },
   {
-    id: 'chargeback_shipped_followup',
-    name: 'Chargeback Email 2 (Shipped)',
+    id: 'chargeback_followup_general',
+    name: 'Chargeback Follow-up - General Resolution',
     category: 'chargeback',
-    description: 'Follow up on chargeback for shipped order',
-    subject: 'About Your Chargeback - Follow Up',
-    body: `Hi {{customer_first_name}}, I understand your concern. Thanks for getting back to me. As I've previously shared with you, you can track the whereabouts and the journey of your delivery here:
+    description: 'Follow up on chargeback to resolve issue',
+    subject: 'Resolving Your Chargeback - Order {{order_number}}',
+    body: `Hi {{customer_first_name}},
 
-{{tracking_url}}
+Thank you for responding. I want to help resolve this situation.
 
-You could have always reached out. A chargeback was not necessary. But I understand, and hope to resolve this with you.
+Track your order: {{tracking_url}}
 
-Your order has already shipped. Normally once you've received it, I'd guide you through our quick return process for a refund.
+I understand you may have concerns, but a chargeback wasn't necessary - we're always here to help resolve issues.
 
-However since you have chargedback this isn't possible. You will need to call your bank/card issuer and reverse the chargeback first before I can refund you (as they have taken the funds).
+Your order has shipped. Normally, if you're unsatisfied once you receive it, we'd guide you through our return process for a proper refund.
 
-The problem now is that you have both the money and the items. By reversing the chargeback we can go about this properly to return the unwanted items and process your refund.
+However, with the chargeback filed, we cannot process returns or refunds (your bank has already taken the funds). To resolve this properly:
 
-Let me know when/if you've reversed the chargeback and we can go from there. Thanks!`,
+1. Contact your bank/card issuer to reverse the chargeback
+2. Once reversed, we can process your return/refund through proper channels
+
+The current situation has both the payment reversed AND items shipping to you. By reversing the chargeback, we can properly handle your return and issue an appropriate refund if needed.
+
+We're here to help make this right. Please contact your bank and let me know once it's reversed.
+
+Best regards,
+{{merchant_store_name}}`,
     icon: Shield,
     color: 'red'
   }
 ];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  replacement: 'Replacement',
-  return: 'Returns',
-  defective: 'Defective',
-  damaged: 'Damaged',
-  shipping: 'Shipping',
-  order_status: 'Order Status',
-  order_changes: 'Order Changes',
-  delivery_exception: 'Delivery Issue',
-  chargeback: 'Chargeback',
-  refund: 'Refund',
-  address_issue: 'Address Issue',
-  quality: 'Quality Issue',
-  upsell: 'Upsell Item',
-  cancel: 'Cancellation'
+  damaged: 'Product Issues',
+  defective: 'Product Issues',
+  quality: 'Product Issues',
+  order_status: 'Order Inquiries',
+  shipping: 'Shipping & Delivery',
+  delivery_exception: 'Delivery Issues',
+  return: 'Returns & Exchanges',
+  address_issue: 'Address Problems',
+  cancel: 'Cancellations',
+  upsell: 'Upsell Management',
+  refund: 'Refunds',
+  chargeback: 'Chargebacks'
 };
 
 export function ScenarioTemplateModal({
