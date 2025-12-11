@@ -90,7 +90,7 @@ export const QuoteActions: React.FC<QuoteActionsProps> = ({
             e.stopPropagation();
             setShowMenu(!showMenu);
           }}
-          className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ${showMenu ? 'bg-gray-100 dark:bg-gray-700' : ''}`}
+          className={`p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors ${showMenu ? 'bg-gray-200 dark:bg-gray-600' : ''}`}
           title="Actions"
         >
           <MoreVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
