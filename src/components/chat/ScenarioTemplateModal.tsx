@@ -1035,51 +1035,51 @@ export function ScenarioTemplateModal({
                       const colorClasses = {
                         red: {
                           border: 'border-red-500 dark:border-red-400',
-                          bg: 'bg-red-50 dark:bg-red-900/20',
-                          hover: 'hover:bg-red-100 dark:hover:bg-red-900/30',
-                          iconBg: 'bg-red-100 dark:bg-red-900/30',
+                          bg: 'bg-red-50/30 dark:bg-red-900/10',
+                          hover: 'hover:bg-red-50/50 dark:hover:bg-red-900/20',
+                          iconBg: 'bg-red-50/40 dark:bg-red-900/20',
                           iconText: 'text-red-600 dark:text-red-400',
-                          badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
                         },
                         orange: {
                           border: 'border-orange-500 dark:border-orange-400',
-                          bg: 'bg-orange-50 dark:bg-orange-900/20',
-                          hover: 'hover:bg-orange-100 dark:hover:bg-orange-900/30',
-                          iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+                          bg: 'bg-orange-50/30 dark:bg-orange-900/10',
+                          hover: 'hover:bg-orange-50/50 dark:hover:bg-orange-900/20',
+                          iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
                           iconText: 'text-orange-600 dark:text-orange-400',
-                          badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                          badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
                         },
                         purple: {
                           border: 'border-purple-500 dark:border-purple-400',
-                          bg: 'bg-purple-50 dark:bg-purple-900/20',
-                          hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/30',
-                          iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+                          bg: 'bg-purple-50/30 dark:bg-purple-900/10',
+                          hover: 'hover:bg-purple-50/50 dark:hover:bg-purple-900/20',
+                          iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
                           iconText: 'text-purple-600 dark:text-purple-400',
-                          badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                          badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
                         },
                         green: {
                           border: 'border-green-500 dark:border-green-400',
-                          bg: 'bg-green-50 dark:bg-green-900/20',
-                          hover: 'hover:bg-green-100 dark:hover:bg-green-900/30',
-                          iconBg: 'bg-green-100 dark:bg-green-900/30',
+                          bg: 'bg-green-50/30 dark:bg-green-900/10',
+                          hover: 'hover:bg-green-50/50 dark:hover:bg-green-900/20',
+                          iconBg: 'bg-green-50/40 dark:bg-green-900/20',
                           iconText: 'text-green-600 dark:text-green-400',
-                          badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                          badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
                         },
                         blue: {
                           border: 'border-blue-500 dark:border-blue-400',
-                          bg: 'bg-blue-50 dark:bg-blue-900/20',
-                          hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                          iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+                          bg: 'bg-blue-50/30 dark:bg-blue-900/10',
+                          hover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/20',
+                          iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
                           iconText: 'text-blue-600 dark:text-blue-400',
-                          badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                         },
                         yellow: {
                           border: 'border-yellow-500 dark:border-yellow-400',
-                          bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-                          hover: 'hover:bg-yellow-100 dark:hover:bg-yellow-900/30',
-                          iconBg: 'bg-yellow-100 dark:bg-yellow-900/30',
+                          bg: 'bg-yellow-50/30 dark:bg-yellow-900/10',
+                          hover: 'hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20',
+                          iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
                           iconText: 'text-yellow-600 dark:text-yellow-400',
-                          badge: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                          badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
                         }
                       };
                       const colors = colorClasses[template.color as keyof typeof colorClasses];
@@ -1133,40 +1133,40 @@ export function ScenarioTemplateModal({
                   const Icon = template.icon;
                   const colorClasses = {
                     red: {
-                      hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/10',
-                      iconBg: 'bg-red-100 dark:bg-red-900/30',
+                      hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/30 dark:hover:bg-red-900/10',
+                      iconBg: 'bg-red-50/40 dark:bg-red-900/20',
                       iconText: 'text-red-600 dark:text-red-400',
-                      badge: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                      badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
                     },
                     orange: {
-                      hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/10',
-                      iconBg: 'bg-orange-100 dark:bg-orange-900/30',
+                      hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
+                      iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
                       iconText: 'text-orange-600 dark:text-orange-400',
-                      badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                      badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
                     },
                     purple: {
-                      hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10',
-                      iconBg: 'bg-purple-100 dark:bg-purple-900/30',
+                      hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/10',
+                      iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
                       iconText: 'text-purple-600 dark:text-purple-400',
-                      badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                      badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
                     },
                     green: {
-                      hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/10',
-                      iconBg: 'bg-green-100 dark:bg-green-900/30',
+                      hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50/30 dark:hover:bg-green-900/10',
+                      iconBg: 'bg-green-50/40 dark:bg-green-900/20',
                       iconText: 'text-green-600 dark:text-green-400',
-                      badge: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                      badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
                     },
                     blue: {
-                      hover: 'hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/10',
-                      iconBg: 'bg-blue-100 dark:bg-blue-900/30',
+                      hover: 'hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10',
+                      iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
                       iconText: 'text-blue-600 dark:text-blue-400',
-                      badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                     },
                     yellow: {
-                      hover: 'hover:border-yellow-500 dark:hover:border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/10',
-                      iconBg: 'bg-yellow-100 dark:bg-yellow-900/30',
+                      hover: 'hover:border-yellow-500 dark:hover:border-yellow-400 hover:bg-yellow-50/30 dark:hover:bg-yellow-900/10',
+                      iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
                       iconText: 'text-yellow-600 dark:text-yellow-400',
-                      badge: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300'
+                      badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
                     }
                   };
                   const colors = colorClasses[template.color as keyof typeof colorClasses];
