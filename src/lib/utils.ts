@@ -4,15 +4,30 @@ import { twMerge } from 'tailwind-merge'; // eslint-disable-line @typescript-esl
 export function cn(...inputs: ClassValue[]) {
   // Use a Set to deduplicate class names
   const classNames = new Set<string>();
-  
+
   // Process all inputs
   const combined = clsx(inputs);
-  
+
   // Split the combined string and add each class to the Set
   combined.split(' ').forEach(className => {
     if (className) classNames.add(className);
   });
-  
+
   // Convert Set back to string
   return Array.from(classNames).join(' ');
+}
+
+// Format number with thousand separators
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat('en-US').format(value);
+}
+
+// Format currency with thousand separators
+export function formatCurrency(value: number, decimals: number = 2): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  }).format(value);
 }

@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { getCombinedDashboardMetrics } from './dashboardMetrics';
 import { getCalculatorMetrics } from './shopify/api';
+import { formatCurrency, formatNumber } from './utils';
 
 export type TemplateType = 'executive' | 'marketing' | 'inventory' | 'financial' | 'custom';
 export type CardCategory = 'overview' | 'revenue' | 'expenses' | 'inventory' | 'ads' | 'financial' | 'balance';
@@ -219,7 +220,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Profit',
-          mainValue: `$${combined.computed.profit.toFixed(2)}`,
+          mainValue: formatCurrency(combined.computed.profit),
           change: `${combined.computed.profitMargin.toFixed(1)}%`,
           changeType: combined.computed.profit >= 0 ? 'positive' : 'negative',
           dataPoint1: {
@@ -239,16 +240,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Total Revenue',
-          mainValue: `$${combined.shopify.totalRevenue.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.totalRevenue),
           change: '12.5%',
           changeType: 'positive',
           dataPoint1: {
             label: 'MRR',
-            value: `$${(combined.shopify.monthlyRecurringRevenue / 1000).toFixed(2)}k`
+            value: `$${formatNumber((combined.shopify.monthlyRecurringRevenue / 1000))}k`
           },
           dataPoint2: {
             label: 'ARR',
-            value: `$${(combined.shopify.annualRecurringRevenue / 1000).toFixed(2)}k`
+            value: `$${formatNumber((combined.shopify.annualRecurringRevenue / 1000))}k`
           },
           icon: 'BarChart3',
           category: 'overview'
@@ -259,12 +260,12 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Total Orders',
-          mainValue: combined.shopify.totalOrders,
+          mainValue: formatNumber(combined.shopify.totalOrders),
           change: '8.1%',
           changeType: 'positive',
           dataPoint1: {
             label: 'New Today',
-            value: combined.shopify.newCustomersToday
+            value: formatNumber(combined.shopify.newCustomersToday)
           },
           dataPoint2: {
             label: 'Active',
@@ -279,16 +280,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Average Order Value',
-          mainValue: `$${combined.shopify.averageOrderValue.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.averageOrderValue),
           change: '5.6%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Avg Cost',
-            value: `$${(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders).toFixed(2)}`
+            value: formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders)
           },
           dataPoint2: {
             label: 'Profit per Order',
-            value: `$${((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders).toFixed(2)}`
+            value: formatCurrency((combined.shopify.totalRevenue - combined.shopify.costOfGoodsSold) / combined.shopify.totalOrders)
           },
           icon: 'DollarSign',
           category: 'overview'
@@ -299,18 +300,18 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Cost of Goods Sold',
-          mainValue: `$${combined.shopify.costOfGoodsSold.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.costOfGoodsSold),
           change: '6.2%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Per Unit',
             value: combined.shopify.totalOrders > 0
-              ? `$${(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders).toFixed(2)}`
+              ? formatCurrency(combined.shopify.costOfGoodsSold / combined.shopify.totalOrders)
               : '$0.00'
           },
           dataPoint2: {
             label: 'Shipping Costs',
-            value: `$${combined.shopify.shippingCosts.toFixed(2)}`
+            value: formatCurrency(combined.shopify.shippingCosts)
           },
           icon: 'ShoppingCart',
           category: 'expenses'
@@ -321,7 +322,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Ad Spend',
-          mainValue: `$${combined.facebook.totalSpend.toFixed(2)}`,
+          mainValue: formatCurrency(combined.facebook.totalSpend),
           change: '0.0%',
           changeType: 'negative',
           dataPoint1: {
@@ -331,7 +332,7 @@ export async function computeMetricCardData(
           dataPoint2: {
             label: 'CPA',
             value: combined.shopify.totalOrders > 0 && combined.facebook.totalSpend > 0
-              ? `$${(combined.facebook.totalSpend / combined.shopify.totalOrders).toFixed(2)}`
+              ? formatCurrency(combined.facebook.totalSpend / combined.shopify.totalOrders)
               : '$0.00'
           },
           icon: 'CreditCard',
@@ -343,7 +344,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Returns',
-          mainValue: `$${combined.shopify.returnAmount.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.returnAmount),
           change: `${combined.shopify.returnRate.toFixed(1)}%`,
           changeType: 'negative',
           dataPoint1: {
@@ -352,7 +353,7 @@ export async function computeMetricCardData(
           },
           dataPoint2: {
             label: 'Net Revenue',
-            value: `$${(combined.shopify.totalRevenue - combined.shopify.returnAmount).toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue - combined.shopify.returnAmount)
           },
           icon: 'RotateCcw',
           category: 'revenue'
@@ -363,16 +364,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Transaction Fees',
-          mainValue: `$${combined.shopify.transactionFees.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.transactionFees),
           change: '2.1%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Shopify Fees',
-            value: `$${(combined.shopify.transactionFees * 0.8).toFixed(2)}`
+            value: formatCurrency(combined.shopify.transactionFees * 0.8)
           },
           dataPoint2: {
             label: 'App Fees',
-            value: `$${(combined.shopify.transactionFees * 0.2).toFixed(2)}`
+            value: formatCurrency(combined.shopify.transactionFees * 0.2)
           },
           icon: 'Receipt',
           category: 'expenses'
@@ -388,11 +389,11 @@ export async function computeMetricCardData(
           changeType: combined.computed.roas >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Ad Spend',
-            value: `$${combined.facebook.totalSpend.toFixed(2)}`
+            value: formatCurrency(combined.facebook.totalSpend)
           },
           dataPoint2: {
             label: 'Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           icon: 'TrendingUp',
           category: 'ads'
@@ -406,16 +407,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Cost Per Acquisition',
-          mainValue: `$${cpa.toFixed(2)}`,
+          mainValue: formatCurrency(cpa),
           change: '8.3%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
-            value: `$${combined.facebook.totalSpend.toFixed(2)}`
+            value: formatCurrency(combined.facebook.totalSpend)
           },
           dataPoint2: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           icon: 'Target',
           category: 'ads'
@@ -427,16 +428,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Net Revenue',
-          mainValue: `$${netRevenue.toFixed(2)}`,
+          mainValue: formatCurrency(netRevenue),
           change: '10.2%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Gross Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           dataPoint2: {
             label: 'Returns',
-            value: `$${combined.shopify.returnAmount.toFixed(2)}`
+            value: formatCurrency(combined.shopify.returnAmount)
           },
           icon: 'BarChart3',
           category: 'revenue'
@@ -447,16 +448,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Number of Orders',
-          mainValue: combined.shopify.totalOrders,
+          mainValue: formatNumber(combined.shopify.totalOrders),
           change: '7.8%',
           changeType: 'positive',
           dataPoint1: {
             label: 'AOV',
-            value: `$${combined.shopify.averageOrderValue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.averageOrderValue)
           },
           dataPoint2: {
             label: 'Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           icon: 'ShoppingCart',
           category: 'revenue'
@@ -467,7 +468,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Refunds',
-          mainValue: `$${combined.shopify.refunds.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.refunds),
           change: `${((combined.shopify.refunds / combined.shopify.totalRevenue) * 100).toFixed(1)}%`,
           changeType: 'negative',
           dataPoint1: {
@@ -476,7 +477,7 @@ export async function computeMetricCardData(
           },
           dataPoint2: {
             label: 'Total Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           icon: 'RotateCcw',
           category: 'expenses'
@@ -487,7 +488,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Chargebacks',
-          mainValue: `$${combined.shopify.chargebacks.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.chargebacks),
           change: combined.shopify.chargebacks > 100 ? '15.2%' : '0.5%',
           changeType: combined.shopify.chargebacks > 100 ? 'critical' : 'negative',
           dataPoint1: {
@@ -496,7 +497,7 @@ export async function computeMetricCardData(
           },
           dataPoint2: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           icon: 'AlertTriangle',
           category: 'expenses'
@@ -507,16 +508,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Inventory Status',
-          mainValue: combined.shopify.totalProducts,
+          mainValue: formatNumber(combined.shopify.totalProducts),
           change: '4.2%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Value',
-            value: `$${combined.shopify.inventoryValue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.inventoryValue)
           },
           dataPoint2: {
             label: 'In Stock',
-            value: combined.shopify.totalProducts
+            value: formatNumber(combined.shopify.totalProducts)
           },
           icon: 'Package',
           category: 'inventory'
@@ -527,16 +528,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Orders to Fulfill',
-          mainValue: Math.floor(combined.shopify.totalOrders * 0.15),
+          mainValue: formatNumber(Math.floor(combined.shopify.totalOrders * 0.15)),
           change: '6.5%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Total Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           dataPoint2: {
             label: 'Fulfilled',
-            value: Math.floor(combined.shopify.totalOrders * 0.85)
+            value: formatNumber(Math.floor(combined.shopify.totalOrders * 0.85))
           },
           icon: 'Clock',
           category: 'inventory'
@@ -547,16 +548,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Order Metrics',
-          mainValue: combined.shopify.totalOrders,
+          mainValue: formatNumber(combined.shopify.totalOrders),
           change: '9.1%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Units Sold',
-            value: Math.floor(combined.shopify.totalOrders * 1.8)
+            value: formatNumber(Math.floor(combined.shopify.totalOrders * 1.8))
           },
           dataPoint2: {
             label: 'AOV',
-            value: `$${combined.shopify.averageOrderValue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.averageOrderValue)
           },
           icon: 'ShoppingCart',
           category: 'inventory'
@@ -589,7 +590,7 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Financial Metrics',
-          mainValue: `$${grossProfit.toFixed(2)}`,
+          mainValue: formatCurrency(grossProfit),
           change: `${margin.toFixed(1)}%`,
           changeType: margin >= 30 ? 'positive' : 'negative',
           dataPoint1: {
@@ -598,7 +599,7 @@ export async function computeMetricCardData(
           },
           dataPoint2: {
             label: 'COGS',
-            value: `$${combined.shopify.costOfGoodsSold.toFixed(2)}`
+            value: formatCurrency(combined.shopify.costOfGoodsSold)
           },
           icon: 'DollarSign',
           category: 'inventory'
@@ -609,16 +610,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Avg Order Value',
-          mainValue: `$${combined.shopify.averageOrderValue.toFixed(2)}`,
+          mainValue: formatCurrency(combined.shopify.averageOrderValue),
           change: '6.3%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           dataPoint2: {
             label: 'Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           icon: 'DollarSign',
           category: 'financial'
@@ -630,16 +631,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'AOV (Net Refunds)',
-          mainValue: `$${aovNetRefunds.toFixed(2)}`,
+          mainValue: formatCurrency(aovNetRefunds),
           change: '5.8%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Refunds',
-            value: `$${combined.shopify.refunds.toFixed(2)}`
+            value: formatCurrency(combined.shopify.refunds)
           },
           dataPoint2: {
             label: 'Net AOV',
-            value: `$${aovNetRefunds.toFixed(2)}`
+            value: formatCurrency(aovNetRefunds)
           },
           icon: 'DollarSign',
           category: 'financial'
@@ -652,12 +653,12 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Customer Lifetime Value',
-          mainValue: `$${clv.toFixed(2)}`,
+          mainValue: formatCurrency(clv),
           change: '18.5%',
           changeType: 'positive',
           dataPoint1: {
             label: 'AOV',
-            value: `$${combined.shopify.averageOrderValue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.averageOrderValue)
           },
           dataPoint2: {
             label: 'Purchases',
@@ -678,11 +679,11 @@ export async function computeMetricCardData(
           changeType: 'positive',
           dataPoint1: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           dataPoint2: {
             label: 'Customers',
-            value: combined.shopify.totalCustomers
+            value: formatNumber(combined.shopify.totalCustomers)
           },
           icon: 'RefreshCw',
           category: 'financial'
@@ -696,16 +697,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Ad Cost Per Order',
-          mainValue: `$${adCostPerOrder.toFixed(2)}`,
+          mainValue: formatCurrency(adCostPerOrder),
           change: '4.2%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
-            value: `$${combined.facebook.totalSpend.toFixed(2)}`
+            value: formatCurrency(combined.facebook.totalSpend)
           },
           dataPoint2: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           icon: 'CreditCard',
           category: 'financial'
@@ -725,11 +726,11 @@ export async function computeMetricCardData(
           changeType: roasWithRefunds >= 2.5 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Net Revenue',
-            value: `$${refundAdjustedRevenue.toFixed(2)}`
+            value: formatCurrency(refundAdjustedRevenue)
           },
           dataPoint2: {
             label: 'Ad Spend',
-            value: `$${combined.facebook.totalSpend.toFixed(2)}`
+            value: formatCurrency(combined.facebook.totalSpend)
           },
           icon: 'TrendingUp',
           category: 'financial'
@@ -749,7 +750,7 @@ export async function computeMetricCardData(
           changeType: 'positive',
           dataPoint1: {
             label: 'Total Costs',
-            value: `$${totalCosts.toFixed(2)}`
+            value: formatCurrency(totalCosts)
           },
           dataPoint2: {
             label: 'Target ROAS',
@@ -768,16 +769,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Customer Acquisition Cost',
-          mainValue: `$${cac.toFixed(2)}`,
+          mainValue: formatCurrency(cac),
           change: '11.2%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Ad Spend',
-            value: `$${combined.facebook.totalSpend.toFixed(2)}`
+            value: formatCurrency(combined.facebook.totalSpend)
           },
           dataPoint2: {
             label: 'New Customers',
-            value: newCustomersEstimate
+            value: formatNumber(newCustomersEstimate)
           },
           icon: 'UserPlus',
           category: 'financial'
@@ -791,16 +792,16 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Average COGS',
-          mainValue: `$${avgCogs.toFixed(2)}`,
+          mainValue: formatCurrency(avgCogs),
           change: '3.8%',
           changeType: 'negative',
           dataPoint1: {
             label: 'Total COGS',
-            value: `$${combined.shopify.costOfGoodsSold.toFixed(2)}`
+            value: formatCurrency(combined.shopify.costOfGoodsSold)
           },
           dataPoint2: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           icon: 'ShoppingCart',
           category: 'financial'
@@ -819,11 +820,11 @@ export async function computeMetricCardData(
           changeType: grossMarginPercent >= 30 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           dataPoint2: {
             label: 'COGS',
-            value: `$${combined.shopify.costOfGoodsSold.toFixed(2)}`
+            value: formatCurrency(combined.shopify.costOfGoodsSold)
           },
           icon: 'Percent',
           category: 'financial'
@@ -839,11 +840,11 @@ export async function computeMetricCardData(
           changeType: combined.computed.profitMargin >= 20 ? 'positive' : 'negative',
           dataPoint1: {
             label: 'Profit',
-            value: `$${combined.computed.profit.toFixed(2)}`
+            value: formatCurrency(combined.computed.profit)
           },
           dataPoint2: {
             label: 'Revenue',
-            value: `$${combined.shopify.totalRevenue.toFixed(2)}`
+            value: formatCurrency(combined.shopify.totalRevenue)
           },
           icon: 'Percent',
           category: 'financial'
@@ -859,11 +860,11 @@ export async function computeMetricCardData(
           changeType: combined.shopify.returnRate <= 5 ? 'positive' : 'critical',
           dataPoint1: {
             label: 'Returns',
-            value: `$${combined.shopify.returnAmount.toFixed(2)}`
+            value: formatCurrency(combined.shopify.returnAmount)
           },
           dataPoint2: {
             label: 'Orders',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           icon: 'RotateCcw',
           category: 'financial'
@@ -895,12 +896,12 @@ export async function computeMetricCardData(
         cardData[cardId] = {
           id: cardId,
           title: 'Projected Orders',
-          mainValue: projectedOrders,
+          mainValue: formatNumber(projectedOrders),
           change: '15.0%',
           changeType: 'positive',
           dataPoint1: {
             label: 'Current',
-            value: combined.shopify.totalOrders
+            value: formatNumber(combined.shopify.totalOrders)
           },
           dataPoint2: {
             label: 'Growth',
