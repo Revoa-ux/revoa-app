@@ -238,7 +238,7 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
           <button
             onClick={handleSelectProduct}
             disabled={!selectedId || isLoading}
-            className="group px-5 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
           >
             Map Product
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
