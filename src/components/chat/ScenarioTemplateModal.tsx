@@ -1095,7 +1095,7 @@ export function ScenarioTemplateModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
           <div>
@@ -1480,48 +1480,56 @@ export function ScenarioTemplateModal({
                 Back to Templates
               </button>
 
-              {isAssignedToOrder ? (
-                <button
-                  onClick={handleCopyToClipboard}
-                  className="px-6 py-2.5 bg-gray-900 dark:bg-gray-950 hover:bg-black dark:hover:bg-gray-900 text-white rounded-lg transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 shadow-sm"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy to Clipboard
-                    </>
-                  )}
-                </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (orderId) {
-                      handleAssignToOrder();
-                    } else {
-                      handleShowOrderSearch();
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="px-6 py-2.5 bg-gray-900 dark:bg-gray-950 hover:bg-black dark:hover:bg-gray-900 text-white rounded-lg transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      <span>Populate Template</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              )}
+              <div className="flex items-center gap-4">
+                {!isAssignedToOrder && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    This template contains variables. Assign to an order to populate with real data.
+                  </p>
+                )}
+
+                {isAssignedToOrder ? (
+                  <button
+                    onClick={handleCopyToClipboard}
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copy to Clipboard
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (orderId) {
+                        handleAssignToOrder();
+                      } else {
+                        handleShowOrderSearch();
+                      }
+                    }}
+                    disabled={isLoading}
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        <span>Populate Template</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
