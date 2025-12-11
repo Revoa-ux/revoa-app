@@ -1336,90 +1336,11 @@ export function ScenarioTemplateModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {recommendedTemplates.map((template) => {
                       const Icon = template.icon;
-                      // Find the lifecycle stage for this template to get consistent coloring
-                      const lifecycleStage = LIFECYCLE_STAGES.find(s => s.id === template.orderStatus);
-                      const stageColor = lifecycleStage?.color || 'slate';
-
-                      const colorClasses = {
-                        slate: {
-                          border: 'border-gray-300 dark:border-gray-600',
-                          bg: 'bg-gray-50/50 dark:bg-gray-800/50',
-                          hover: 'hover:bg-gray-100 dark:hover:bg-gray-800',
-                          iconBg: 'bg-gray-100 dark:bg-gray-700',
-                          iconText: 'text-gray-600 dark:text-gray-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        blue: {
-                          border: 'border-blue-300 dark:border-blue-700',
-                          bg: 'bg-blue-50/50 dark:bg-blue-900/20',
-                          hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                          iconBg: 'bg-blue-100 dark:bg-blue-800',
-                          iconText: 'text-blue-600 dark:text-blue-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        amber: {
-                          border: 'border-amber-300 dark:border-amber-700',
-                          bg: 'bg-amber-50/50 dark:bg-amber-900/20',
-                          hover: 'hover:bg-amber-100 dark:hover:bg-amber-900/30',
-                          iconBg: 'bg-amber-100 dark:bg-amber-800',
-                          iconText: 'text-amber-600 dark:text-amber-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        green: {
-                          border: 'border-green-300 dark:border-green-700',
-                          bg: 'bg-green-50/50 dark:bg-green-900/20',
-                          hover: 'hover:bg-green-100 dark:hover:bg-green-900/30',
-                          iconBg: 'bg-green-100 dark:bg-green-800',
-                          iconText: 'text-green-600 dark:text-green-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        teal: {
-                          border: 'border-teal-300 dark:border-teal-700',
-                          bg: 'bg-teal-50/50 dark:bg-teal-900/20',
-                          hover: 'hover:bg-teal-100 dark:hover:bg-teal-900/30',
-                          iconBg: 'bg-teal-100 dark:bg-teal-800',
-                          iconText: 'text-teal-600 dark:text-teal-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        red: {
-                          border: 'border-red-300 dark:border-red-700',
-                          bg: 'bg-red-50/50 dark:bg-red-900/20',
-                          hover: 'hover:bg-red-100 dark:hover:bg-red-900/30',
-                          iconBg: 'bg-red-100 dark:bg-red-800',
-                          iconText: 'text-red-600 dark:text-red-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        orange: {
-                          border: 'border-orange-300 dark:border-orange-700',
-                          bg: 'bg-orange-50/50 dark:bg-orange-900/20',
-                          hover: 'hover:bg-orange-100 dark:hover:bg-orange-900/30',
-                          iconBg: 'bg-orange-100 dark:bg-orange-800',
-                          iconText: 'text-orange-600 dark:text-orange-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        purple: {
-                          border: 'border-blue-300 dark:border-blue-700',
-                          bg: 'bg-blue-50/50 dark:bg-blue-900/20',
-                          hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                          iconBg: 'bg-blue-100 dark:bg-blue-800',
-                          iconText: 'text-blue-600 dark:text-blue-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        },
-                        crimson: {
-                          border: 'border-rose-300 dark:border-rose-700',
-                          bg: 'bg-rose-50/50 dark:bg-rose-900/20',
-                          hover: 'hover:bg-rose-100 dark:hover:bg-rose-900/30',
-                          iconBg: 'bg-rose-100 dark:bg-rose-800',
-                          iconText: 'text-rose-600 dark:text-rose-400',
-                          badge: 'bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
-                        }
-                      };
-                      const colors = colorClasses[stageColor as keyof typeof colorClasses];
                       return (
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
+                          className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                         >
                           <div className="absolute top-3 right-3">
                             <StatusBadge
@@ -1428,19 +1349,17 @@ export function ScenarioTemplateModal({
                             />
                           </div>
                           <div className="flex items-start gap-3 pr-20">
-                            <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
-                              <Icon className={`w-5 h-5 ${colors.iconText}`} />
-                            </div>
+                            <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
                                   {template.name}
                                 </h3>
-                                <span className={`px-2 py-0.5 text-xs rounded-full ${colors.badge} font-medium`}>
+                                <span className="px-2 py-0.5 text-[10px] rounded-md bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 font-semibold uppercase">
                                   Match
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
                                 {template.description}
                               </p>
                             </div>
@@ -1472,144 +1391,64 @@ export function ScenarioTemplateModal({
                   const stageTemplates = TEMPLATES.filter(t => t.orderStatus === stage.id);
                   const isExpanded = expandedStages.includes(stage.id);
 
-                  // Color classes for each lifecycle stage
-                  const stageColorClasses = {
-                    slate: {
-                      header: 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600',
-                      headerHover: 'hover:bg-gray-200 dark:hover:bg-gray-700',
-                      icon: 'text-gray-600 dark:text-gray-400',
-                      iconBg: 'bg-gray-100 dark:bg-gray-700',
-                      text: 'text-gray-900 dark:text-white',
-                      badge: 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
-                      templateHover: 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                    },
-                    blue: {
-                      header: 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700',
-                      headerHover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                      icon: 'text-blue-600 dark:text-blue-400',
-                      iconBg: 'bg-blue-100 dark:bg-blue-800',
-                      text: 'text-blue-900 dark:text-blue-100',
-                      badge: 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300',
-                      templateHover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/10'
-                    },
-                    amber: {
-                      header: 'bg-amber-50 dark:bg-amber-900/20 border-amber-300 dark:border-amber-700',
-                      headerHover: 'hover:bg-amber-100 dark:hover:bg-amber-900/30',
-                      icon: 'text-amber-600 dark:text-amber-400',
-                      iconBg: 'bg-amber-100 dark:bg-amber-800',
-                      text: 'text-amber-900 dark:text-amber-100',
-                      badge: 'bg-amber-200 dark:bg-amber-800 text-amber-700 dark:text-amber-300',
-                      templateHover: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/10'
-                    },
-                    green: {
-                      header: 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700',
-                      headerHover: 'hover:bg-green-100 dark:hover:bg-green-900/30',
-                      icon: 'text-green-600 dark:text-green-400',
-                      iconBg: 'bg-green-100 dark:bg-green-800',
-                      text: 'text-green-900 dark:text-green-100',
-                      badge: 'bg-green-200 dark:bg-green-800 text-green-700 dark:text-green-300',
-                      templateHover: 'hover:bg-green-50/50 dark:hover:bg-green-900/10'
-                    },
-                    teal: {
-                      header: 'bg-teal-50 dark:bg-teal-900/20 border-teal-300 dark:border-teal-700',
-                      headerHover: 'hover:bg-teal-100 dark:hover:bg-teal-900/30',
-                      icon: 'text-teal-600 dark:text-teal-400',
-                      iconBg: 'bg-teal-100 dark:bg-teal-800',
-                      text: 'text-teal-900 dark:text-teal-100',
-                      badge: 'bg-teal-200 dark:bg-teal-800 text-teal-700 dark:text-teal-300',
-                      templateHover: 'hover:bg-teal-50/50 dark:hover:bg-teal-900/10'
-                    },
-                    red: {
-                      header: 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700',
-                      headerHover: 'hover:bg-red-100 dark:hover:bg-red-900/30',
-                      icon: 'text-red-600 dark:text-red-400',
-                      iconBg: 'bg-red-100 dark:bg-red-800',
-                      text: 'text-red-900 dark:text-red-100',
-                      badge: 'bg-red-200 dark:bg-red-800 text-red-700 dark:text-red-300',
-                      templateHover: 'hover:bg-red-50/50 dark:hover:bg-red-900/10'
-                    },
-                    orange: {
-                      header: 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700',
-                      headerHover: 'hover:bg-orange-100 dark:hover:bg-orange-900/30',
-                      icon: 'text-orange-600 dark:text-orange-400',
-                      iconBg: 'bg-orange-100 dark:bg-orange-800',
-                      text: 'text-orange-900 dark:text-orange-100',
-                      badge: 'bg-orange-200 dark:bg-orange-800 text-orange-700 dark:text-orange-300',
-                      templateHover: 'hover:bg-orange-50/50 dark:hover:bg-orange-900/10'
-                    },
-                    purple: {
-                      header: 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700',
-                      headerHover: 'hover:bg-blue-100 dark:hover:bg-blue-900/30',
-                      icon: 'text-blue-600 dark:text-blue-400',
-                      iconBg: 'bg-blue-100 dark:bg-blue-800',
-                      text: 'text-blue-900 dark:text-blue-100',
-                      badge: 'bg-blue-200 dark:bg-blue-800 text-blue-700 dark:text-blue-300',
-                      templateHover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/10'
-                    },
-                    crimson: {
-                      header: 'bg-rose-50 dark:bg-rose-900/20 border-rose-300 dark:border-rose-700',
-                      headerHover: 'hover:bg-rose-100 dark:hover:bg-rose-900/30',
-                      icon: 'text-rose-600 dark:text-rose-400',
-                      iconBg: 'bg-rose-100 dark:bg-rose-800',
-                      text: 'text-rose-900 dark:text-rose-100',
-                      badge: 'bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-300',
-                      templateHover: 'hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
-                    }
+                  // Clean, minimal design - no colored backgrounds
+                  const colors = {
+                    header: 'bg-white dark:bg-gray-800/50',
+                    headerHover: 'hover:bg-gray-50 dark:hover:bg-gray-800',
+                    icon: 'text-gray-500 dark:text-gray-400',
+                    iconBg: 'bg-gray-100 dark:bg-gray-800',
+                    text: 'text-gray-900 dark:text-white',
+                    badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
+                    templateHover: 'hover:bg-gray-50 dark:hover:bg-gray-800/30'
                   };
-
-                  const colors = stageColorClasses[stage.color];
 
                   return (
                     <div key={stage.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       {/* Accordion Header */}
                       <button
                         onClick={() => toggleStage(stage.id)}
-                        className={`w-full px-5 py-4 flex items-center justify-between ${colors.header} ${colors.headerHover} border-b border-gray-200 dark:border-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2`}
+                        className={`w-full px-4 py-3.5 flex items-center justify-between ${colors.header} ${colors.headerHover} transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 group`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${colors.iconBg}`}>
-                            <StageIcon className={`w-5 h-5 ${colors.icon}`} />
-                          </div>
-                          <span className={`font-semibold text-base ${colors.text}`}>
+                          <StageIcon className={`w-4.5 h-4.5 ${colors.icon} group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors`} />
+                          <span className={`font-medium text-sm ${colors.text}`}>
                             {stage.label}
                           </span>
-                          <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${colors.badge}`}>
+                          <span className={`px-2 py-0.5 text-[11px] font-medium rounded-md ${colors.badge}`}>
                             {stageTemplates.length}
                           </span>
                         </div>
                         {isExpanded ? (
-                          <ChevronUp className={`w-5 h-5 ${colors.icon}`} />
+                          <ChevronUp className={`w-4 h-4 ${colors.icon} transition-colors`} />
                         ) : (
-                          <ChevronDown className={`w-5 h-5 ${colors.icon}`} />
+                          <ChevronDown className={`w-4 h-4 ${colors.icon} transition-colors`} />
                         )}
                       </button>
 
                       {/* Accordion Content */}
                       {isExpanded && (
-                        <div className="p-4 bg-white dark:bg-gray-800 space-y-2">
+                        <div className="px-3 py-3 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 space-y-1.5">
                           {stageTemplates.map((template) => {
                             const Icon = template.icon;
                             return (
                               <button
                                 key={template.id}
                                 onClick={() => handleSelectTemplate(template)}
-                                className={`w-full p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.templateHover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
+                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                               >
-                                <div className="absolute top-3 right-3">
+                                <div className="absolute top-2.5 right-2.5">
                                   <StatusBadge
                                     label={template.statusLabel}
                                     color={template.statusBadgeColor}
                                   />
                                 </div>
-                                <div className="flex items-start gap-3 pr-24">
-                                  <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
-                                    <Icon className={`w-5 h-5 ${colors.icon}`} />
-                                  </div>
+                                <div className="flex items-start gap-3 pr-20">
+                                  <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                                   <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                    <h3 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
                                       {template.name}
                                     </h3>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
                                       {template.description}
                                     </p>
                                   </div>
