@@ -15,8 +15,7 @@ import {
   XCircle,
   Truck,
   ExternalLink,
-  Edit2,
-  ArrowRight
+  Edit2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -356,29 +355,24 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
               <div className="mt-4">
                 <button
                   onClick={() => setShowTemplateSelector(true)}
-                  className="relative w-full p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all text-left group overflow-hidden"
+                  className="w-full p-4 border-2 border-dashed border-red-200 dark:border-red-800 rounded-lg hover:border-red-400 dark:hover:border-red-600 hover:bg-red-50/50 dark:hover:bg-red-900/10 transition-all text-left group"
                 >
-                  {/* Subtle background pattern */}
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)]"></div>
-
-                  <div className="relative flex items-center justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform">
+                      <FileText className="w-5 h-5" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Quick Email Templates
                         </h4>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-semibold uppercase tracking-wide">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-medium">
                           New
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                        Send professional pre-written emails in seconds for common scenarios
+                        Send professional pre-written emails in seconds for common scenarios like replacements, returns, and more
                       </p>
-                    </div>
-                    <div className="ml-3 flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
-                        <ArrowRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-                      </div>
                     </div>
                   </div>
                 </button>
@@ -463,18 +457,18 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   <button
                     onClick={() => setShowCancelModal(true)}
                     disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent whitespace-nowrap"
+                    className="flex items-center justify-center gap-2 px-4 py-1 text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
                     title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
                   >
-                    <XCircle className="w-3.5 h-3.5 text-red-500 dark:text-red-400 flex-shrink-0" />
-                    <span>Cancel</span>
+                    <XCircle className="w-4 h-4" />
+                    Cancel Order
                   </button>
                   <button
                     onClick={() => setShowRefundModal(true)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap"
+                    className="flex items-center justify-center gap-2 px-4 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                   >
-                    <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>Refund</span>
+                    <DollarSign className="w-4 h-4" />
+                    Issue Refund
                   </button>
                 </div>
               </div>
