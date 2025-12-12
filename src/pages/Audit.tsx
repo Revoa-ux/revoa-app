@@ -5,6 +5,7 @@ import { useClickOutside } from '@/lib/useClickOutside';
 import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
 import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
+import { PlatformComparison } from '@/components/reports/PlatformComparison';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { getAdReportsMetrics, getCreativePerformance, getCampaignPerformance, getAdSetPerformance } from '@/lib/adReportsService';
 import { useConnectionStore } from '@/lib/connectionStore';
@@ -740,10 +741,16 @@ export default function Audit() {
       {facebook.isConnected && (
         <>
           {auditView === 'performance' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 min-h-0 overflow-hidden flex flex-col">
-              <div className="overflow-auto flex-1">
+            <div className="flex-1 min-h-0 overflow-auto space-y-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
                 <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
               </div>
+              <PlatformComparison
+                startDate={dateRange.startDate.toISOString().split('T')[0]}
+                endDate={dateRange.endDate.toISOString().split('T')[0]}
+                isLoading={isLoading}
+                onRefresh={() => refreshData(true)}
+              />
             </div>
           )}
 
