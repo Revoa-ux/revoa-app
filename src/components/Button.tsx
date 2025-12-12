@@ -26,8 +26,8 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-11 px-3 text-xs gap-1.5',
-  md: 'h-11 px-5 text-sm gap-2',
+  sm: 'h-9 px-3 text-xs gap-1.5',
+  md: 'h-10 px-5 text-sm gap-2',
   lg: 'h-11 px-6 text-base gap-2.5',
 };
 
@@ -55,7 +55,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        'group inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-sm',
+        'group inline-flex items-center justify-center font-medium rounded-lg transition-all shadow-sm',
         variantStyles[variant],
         sizeStyles[size],
         fullWidth && 'w-full',

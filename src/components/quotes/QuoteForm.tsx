@@ -128,13 +128,13 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 h-11 px-4 text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex-1 h-10 px-4 text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 h-11 px-4 text-sm font-medium bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md transition-all flex items-center justify-center gap-2 group"
+                className="flex-1 h-10 px-4 text-sm font-medium bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Submit Quote Request</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
