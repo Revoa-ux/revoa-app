@@ -348,7 +348,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">Quote Pending</p>
                               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                We're working on getting you the best pricing from our fulfillment network
+                                We're working on getting you the best pricing from our suppliers
                               </p>
                             </div>
                           </div>

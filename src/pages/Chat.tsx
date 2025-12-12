@@ -80,7 +80,7 @@ const Chat = () => {
   const { user } = useAuth();
   const [chat, setChat] = useState<ChatType | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [adminName, setAdminName] = useState('Resolution Team');
+  const [adminName, setAdminName] = useState('Revoa Fulfillment Team');
   const [adminAvatar, setAdminAvatar] = useState('https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png');
   const [isLoading, setIsLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
@@ -166,7 +166,7 @@ const Chat = () => {
               if (fullName) {
                 setAdminName(fullName);
               }
-              // Otherwise, keep default "Resolution Team"
+              // Otherwise, keep default "Revoa Fulfillment Team"
 
               // Set profile picture if available
               if (adminProfile.profile_picture_url) {
@@ -507,11 +507,11 @@ const Chat = () => {
     <div className="flex flex-col h-full w-full mx-auto overflow-x-hidden">
       <div className="mb-4 sm:mb-6 flex-shrink-0 px-1">
         <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Resolution Center
+          Supplier Chat
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Get help with your orders and issues</p>
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Chat with your suppliers in real-time</p>
         </div>
       </div>
 

@@ -33,7 +33,7 @@ import { startAutoSync } from '../lib/shopifyAutoSync';
 const navigation = [
   { name: 'Analytics', href: '/', icon: Home },
   { name: 'My Quotes', href: '/quotes', icon: ArrowRightLeft },
-  { name: 'Resolution Center', href: '/chat', icon: MessageSquare },
+  { name: 'Supplier Chat', href: '/chat', icon: MessageSquare },
   { name: 'Inventory', href: '/inventory', icon: Package },
   { name: 'Balance', href: '/balance', icon: Wallet },
   { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
