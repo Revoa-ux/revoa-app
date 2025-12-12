@@ -88,8 +88,10 @@ input[type="number"] {
     font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  /* Global focus ring override - 1px for all elements */
-  *:focus-visible {
+  /* Global focus ring override - 1px for inputs only, not buttons */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
     @apply ring-1 !important;
   }
 
