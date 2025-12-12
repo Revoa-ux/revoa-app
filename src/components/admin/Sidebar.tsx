@@ -26,7 +26,7 @@ const mainNavigation = [
   { name: 'User Management', href: '/admin/users', icon: Users },
   { name: 'Quote Requests', href: '/admin/quotes', icon: FileText },
   { name: 'Invoices', href: '/admin/invoices', icon: Receipt },
-  { name: 'Resolution Center', href: '/admin/chat', icon: MessageSquare },
+  { name: 'Conversations', href: '/admin/chat', icon: MessageSquare },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true }
 ];
 
