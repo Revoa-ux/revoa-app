@@ -68,9 +68,23 @@ input[type="number"] {
   input[type="url"],
   input[type="search"],
   textarea,
-  select,
-  button:focus {
+  select {
     @apply focus:outline-none;
+  }
+
+  /* Global consistent focus ring for all interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:focus-visible {
+    @apply outline-none ring-2 ring-gray-400/40 dark:ring-gray-500/50 ring-offset-0;
+  }
+
+  /* Input focus states - subtle gray ring */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-gray-400/40 dark:ring-gray-500/50 ring-offset-0;
   }
 
   /* Custom checkbox and radio styles */
@@ -88,12 +102,6 @@ input[type="number"] {
     font-family: 'Inter var', 'Inter', system-ui, -apple-system, sans-serif;
   }
 
-  /* Global focus ring override - 1px for inputs only, not buttons */
-  input:focus-visible,
-  textarea:focus-visible,
-  select:focus-visible {
-    @apply ring-1 !important;
-  }
 
   /* Remove focus ring from chat input textareas */
   textarea[placeholder*="Type a message"],
@@ -117,7 +125,7 @@ input[type="number"] {
 
   /* Search Input */
   .search-input {
-    @apply interactive-element pl-10 pr-4 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark hover:border-gray-300 dark:hover:border-dark-hover rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-dark-hover focus:border-gray-200 dark:focus:border-dark;
+    @apply interactive-element pl-10 pr-4 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark hover:border-gray-300 dark:hover:border-dark-hover rounded-lg;
   }
 
   /* Filter Button */
