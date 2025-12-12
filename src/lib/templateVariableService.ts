@@ -59,8 +59,15 @@ interface VariableData {
 
   // Merchant variables
   merchant_name?: string;
+  merchant_store_name?: string;
   merchant_email?: string;
   merchant_company?: string;
+
+  // Return/Policy variables
+  restocking_fee?: string;
+  return_warehouse_address?: string;
+  carrier_name?: string;
+  carrier_phone_number?: string;
 
   // Product policy variables (dynamic)
   product_damage_claim_deadline_days?: string;
@@ -293,8 +300,28 @@ export async function fetchVariableData(context: VariableContext): Promise<Varia
         data.merchant_name = userData.first_name && userData.last_name
           ? `${userData.first_name} ${userData.last_name}`
           : userData.company || undefined;
+        data.merchant_store_name = userData.company || undefined;
         data.merchant_email = userData.email || undefined;
         data.merchant_company = userData.company || undefined;
+      }
+
+      // Fetch product configuration for return/policy variables
+      const { data: productConfigs } = await supabase
+        .from('product_configurations')
+        .select('restocking_fee_percent, return_warehouse_address')
+        .eq('user_id', context.userId)
+        .limit(1)
+        .maybeSingle();
+
+      if (productConfigs) {
+        data.restocking_fee = productConfigs.restocking_fee_percent
+          ? `${productConfigs.restocking_fee_percent}%`
+          : '15%';
+        data.return_warehouse_address = productConfigs.return_warehouse_address ||
+          '5130 E. Santa Ana Street, Ontario, CA 91761';
+      } else {
+        data.restocking_fee = '15%';
+        data.return_warehouse_address = '5130 E. Santa Ana Street, Ontario, CA 91761';
       }
     }
 
@@ -402,7 +429,16 @@ export function replaceVariables(content: string, data: VariableData): string {
       'covers_lost': 'No',
       'order_items': 'your order items',
       'shipping_address_full': 'your shipping address',
-      'estimated_delivery': '7-10 business days'
+      'estimated_delivery': '7-10 business days',
+      'merchant_name': 'Our Team',
+      'merchant_store_name': 'Our Store',
+      'restocking_fee': '15%',
+      'return_warehouse_address': '5130 E. Santa Ana Street, Ontario, CA 91761',
+      'carrier_name': 'the carrier',
+      'carrier_phone_number': 'their customer service number',
+      'tracking_status': 'tracking status pending',
+      'order_status_url': 'your order status page',
+      'shipped_date': 'your ship date'
     };
 
     return fallbacks[variableName] || match; // Keep {{variable}} if no fallback
