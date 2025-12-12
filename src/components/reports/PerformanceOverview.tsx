@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, ChevronDown, ChevronUp, Plus } from 'lucide-react';
-import { GlassCard } from '@/components/GlassCard';
+import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, Plus, Sparkles } from 'lucide-react';
 import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetricsModal';
 import { MetricDefinition } from '@/components/attribution/MetricCard';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 
 interface Metric {
   name: string;
@@ -280,6 +278,82 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     </div>
   );
 
+  const rexInsights = useMemo(() => {
+    if (!metrics) return {};
+
+    const insights: Record<string, { hasInsight: boolean; message: string; type: 'warning' | 'opportunity' }> = {};
+
+    if (metrics.roas?.value !== undefined && metrics.roas.value < 1) {
+      insights['roas'] = {
+        hasInsight: true,
+        message: 'ROAS below 1x suggests budget reallocation may improve returns',
+        type: 'warning'
+      };
+    } else if (metrics.roas?.value !== undefined && metrics.roas.value > 3) {
+      insights['roas'] = {
+        hasInsight: true,
+        message: 'Strong ROAS - consider increasing budget allocation',
+        type: 'opportunity'
+      };
+    }
+
+    if (metrics.cpa?.value !== undefined && metrics.cpa.value > 50) {
+      insights['cpa'] = {
+        hasInsight: true,
+        message: 'High CPA detected - review audience targeting and creative performance',
+        type: 'warning'
+      };
+    }
+
+    if (metrics.ctr?.value !== undefined && metrics.ctr.value < 0.5) {
+      insights['ctr'] = {
+        hasInsight: true,
+        message: 'Low CTR indicates ad creative may need refreshing',
+        type: 'warning'
+      };
+    } else if (metrics.ctr?.value !== undefined && metrics.ctr.value > 3) {
+      insights['ctr'] = {
+        hasInsight: true,
+        message: 'Excellent CTR - scale winning creative variations',
+        type: 'opportunity'
+      };
+    }
+
+    if (metrics.cvr?.value !== undefined && metrics.cvr.value < 1) {
+      insights['cvr'] = {
+        hasInsight: true,
+        message: 'Low conversion rate - review landing page experience',
+        type: 'warning'
+      };
+    }
+
+    if (metrics.profit?.value !== undefined && metrics.profit.value < 0) {
+      insights['profit'] = {
+        hasInsight: true,
+        message: 'Negative profit - pause underperforming campaigns',
+        type: 'warning'
+      };
+    }
+
+    if (metrics.netROAS?.value !== undefined && metrics.netROAS.value < 0) {
+      insights['net_roas'] = {
+        hasInsight: true,
+        message: 'Negative Net ROAS requires immediate budget optimization',
+        type: 'warning'
+      };
+    }
+
+    if (metrics.spend?.change !== undefined && metrics.spend.change > 30) {
+      insights['spend'] = {
+        hasInsight: true,
+        message: 'Significant spend increase - monitor performance closely',
+        type: 'warning'
+      };
+    }
+
+    return insights;
+  }, [metrics]);
+
   return (
     <>
       <style>{`
@@ -320,6 +394,8 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
 
             const Icon = metricDef.icon;
             const isDragging = draggedMetricId === metricDef.id;
+            const insight = rexInsights[metricDef.id];
+            const hasRexInsight = insight?.hasInsight;
 
             return (
               <div
@@ -329,13 +405,34 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                 onDragOver={handleDragOver}
                 onDrop={handleDrop(metricDef.id)}
                 onDragEnd={handleDragEnd}
-                className={`bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border border-gray-200 dark:border-gray-700 cursor-move transition-all duration-200 ${
+                className={`relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border cursor-move transition-all duration-200 ${
                   isDragging ? 'opacity-50 scale-95' : ''
+                } ${
+                  hasRexInsight
+                    ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
+                    : 'border-gray-200 dark:border-gray-700'
                 }`}
               >
+                {hasRexInsight && (
+                  <div className="absolute top-3 right-3 group/rex">
+                    <div className="p-1.5 bg-gradient-to-r from-red-500 to-rose-500 rounded-lg shadow-sm cursor-help">
+                      <Sparkles className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/rex:opacity-100 group-hover/rex:visible transition-all duration-200 z-50">
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-rose-400 mb-1">Rex AI Insight</p>
+                          <p className="text-gray-300 leading-relaxed">{insight.message}</p>
+                        </div>
+                      </div>
+                      <div className="absolute -top-1.5 right-4 w-3 h-3 bg-gray-900 rotate-45" />
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
-                    <div className={`p-2 ${metricDef.iconBgColor} rounded-lg ${metricDef.iconColor}`}>
+                    <div className={`p-2 ${hasRexInsight ? 'bg-red-50 dark:bg-red-900/30' : metricDef.iconBgColor} rounded-lg ${hasRexInsight ? 'text-red-500 dark:text-red-400' : metricDef.iconColor}`}>
                       <Icon className="w-4 h-4" />
                     </div>
                     <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{metricDef.label}</h3>
