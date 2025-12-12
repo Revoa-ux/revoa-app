@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layers, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
+import { Layers, ChevronDown, ChevronUp, FlaskConical } from 'lucide-react';
 import { PlatformComparisonCard } from './PlatformComparisonCard';
 import { PlatformBreakdown } from './PlatformBreakdown';
 import {
   getMetricsByPlatform,
   getPlatformTimeSeriesData,
   type PlatformComparison,
-  type PlatformMetrics,
 } from '@/lib/platformComparisonService';
 import type { AdPlatform, PlatformBreakdownData } from '@/types/ads';
 import { PLATFORM_COLORS } from '@/types/ads';
@@ -15,6 +14,7 @@ interface PlatformPerformanceSectionProps {
   startDate: string;
   endDate: string;
   isLoading?: boolean;
+  showDemoData?: boolean;
 }
 
 interface PlatformChartData {
@@ -33,15 +33,133 @@ const METRICS_CONFIG: { key: MetricKey; title: string; format: 'currency' | 'mul
   { key: 'conversions', title: 'Conversions', format: 'number' },
 ];
 
+function generateMockChartData(days: number = 14): Map<MetricKey, PlatformChartData[]> {
+  const chartDataMap = new Map<MetricKey, PlatformChartData[]>();
+  const today = new Date();
+
+  const spendData: PlatformChartData[] = [];
+  const roasData: PlatformChartData[] = [];
+  const profitData: PlatformChartData[] = [];
+  const conversionsData: PlatformChartData[] = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split('T')[0];
+
+    const dayVariance = Math.sin(i * 0.5) * 0.2 + 1;
+    const weekendFactor = [0, 6].includes(date.getDay()) ? 0.7 : 1;
+
+    spendData.push({
+      date: dateStr,
+      facebook: Math.round((850 + Math.random() * 300) * dayVariance * weekendFactor),
+      google: Math.round((620 + Math.random() * 200) * dayVariance * weekendFactor),
+      tiktok: Math.round((380 + Math.random() * 150) * dayVariance * weekendFactor),
+    });
+
+    roasData.push({
+      date: dateStr,
+      facebook: 2.8 + Math.random() * 0.8 + (i % 3) * 0.1,
+      google: 3.2 + Math.random() * 0.6 + (i % 4) * 0.1,
+      tiktok: 2.4 + Math.random() * 0.5 + (i % 2) * 0.15,
+    });
+
+    profitData.push({
+      date: dateStr,
+      facebook: Math.round((420 + Math.random() * 200) * dayVariance * weekendFactor),
+      google: Math.round((580 + Math.random() * 250) * dayVariance * weekendFactor),
+      tiktok: Math.round((180 + Math.random() * 120) * dayVariance * weekendFactor),
+    });
+
+    conversionsData.push({
+      date: dateStr,
+      facebook: Math.round((45 + Math.random() * 20) * dayVariance * weekendFactor),
+      google: Math.round((38 + Math.random() * 15) * dayVariance * weekendFactor),
+      tiktok: Math.round((22 + Math.random() * 12) * dayVariance * weekendFactor),
+    });
+  }
+
+  chartDataMap.set('spend', spendData);
+  chartDataMap.set('roas', roasData);
+  chartDataMap.set('profit', profitData);
+  chartDataMap.set('conversions', conversionsData);
+
+  return chartDataMap;
+}
+
+function generateMockPlatformData(): PlatformComparison {
+  return {
+    platforms: [
+      {
+        platform: 'facebook',
+        spend: 12450.00,
+        impressions: 2850000,
+        clicks: 42750,
+        conversions: 612,
+        conversionValue: 38520.00,
+        ctr: 1.5,
+        cpa: 20.34,
+        roas: 3.09,
+        profit: 5870.00,
+        netROAS: 0.47,
+        profitMargin: 15.2,
+        change: 12.5,
+        data: [],
+      },
+      {
+        platform: 'google',
+        spend: 8920.00,
+        impressions: 1920000,
+        clicks: 34560,
+        conversions: 489,
+        conversionValue: 32150.00,
+        ctr: 1.8,
+        cpa: 18.24,
+        roas: 3.60,
+        profit: 7230.00,
+        netROAS: 0.81,
+        profitMargin: 22.5,
+        change: 8.3,
+        data: [],
+      },
+      {
+        platform: 'tiktok',
+        spend: 5340.00,
+        impressions: 3200000,
+        clicks: 28800,
+        conversions: 298,
+        conversionValue: 14900.00,
+        ctr: 0.9,
+        cpa: 17.92,
+        roas: 2.79,
+        profit: 2560.00,
+        netROAS: 0.48,
+        profitMargin: 17.2,
+        change: -3.2,
+        data: [],
+      },
+    ],
+    totalSpend: 26710.00,
+    totalProfit: 15660.00,
+    topPerformer: 'google',
+    dateRange: {
+      start: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      end: new Date().toISOString(),
+    },
+  };
+}
+
 export const PlatformPerformanceSection: React.FC<PlatformPerformanceSectionProps> = ({
   startDate,
   endDate,
   isLoading: externalLoading = false,
+  showDemoData = false,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [platformData, setPlatformData] = useState<PlatformComparison | null>(null);
   const [chartDataByMetric, setChartDataByMetric] = useState<Map<MetricKey, PlatformChartData[]>>(new Map());
+  const [usingMockData, setUsingMockData] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +168,17 @@ export const PlatformPerformanceSection: React.FC<PlatformPerformanceSectionProp
       setIsLoading(true);
       try {
         const comparison = await getMetricsByPlatform(startDate, endDate);
+
+        if (comparison.platforms.length === 0 && showDemoData) {
+          setPlatformData(generateMockPlatformData());
+          setChartDataByMetric(generateMockChartData(14));
+          setUsingMockData(true);
+          setIsLoading(false);
+          return;
+        }
+
         setPlatformData(comparison);
+        setUsingMockData(false);
 
         const chartDataMap = new Map<MetricKey, PlatformChartData[]>();
 
@@ -77,13 +205,18 @@ export const PlatformPerformanceSection: React.FC<PlatformPerformanceSectionProp
         setChartDataByMetric(chartDataMap);
       } catch (error) {
         console.error('[PlatformPerformanceSection] Error fetching data:', error);
+        if (showDemoData) {
+          setPlatformData(generateMockPlatformData());
+          setChartDataByMetric(generateMockChartData(14));
+          setUsingMockData(true);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, showDemoData]);
 
   const loading = isLoading || externalLoading;
 
@@ -127,7 +260,7 @@ export const PlatformPerformanceSection: React.FC<PlatformPerformanceSectionProp
 
   const availablePlatforms = platformData?.platforms.map(p => p.platform) || [];
 
-  if (!loading && availablePlatforms.length === 0) {
+  if (!loading && availablePlatforms.length === 0 && !showDemoData) {
     return null;
   }
 
@@ -146,6 +279,12 @@ export const PlatformPerformanceSection: React.FC<PlatformPerformanceSectionProp
               Platform Comparison
             </h2>
           </div>
+          {usingMockData && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+              <FlaskConical className="w-3 h-3" />
+              Demo Data
+            </span>
+          )}
           {availablePlatforms.length > 0 && (
             <div className="flex items-center gap-1.5">
               {availablePlatforms.map(platform => {
