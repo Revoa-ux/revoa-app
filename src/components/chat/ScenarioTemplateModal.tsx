@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag } from 'lucide-react';
+import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -14,22 +14,13 @@ interface ScenarioTemplateModalProps {
   onSelectTemplate?: (template: { id: string; name: string }) => void;
 }
 
-interface EmailTemplate {
+interface Template {
   id: string;
   name: string;
   category: string;
-  subject_line: string;
-  body_html: string;
-  body_plain: string;
-  badges: string[];
-  order_status_hints: string[];
-  action_required: string | null;
-  sort_order: number;
-  usage_count: number;
-}
-
-interface Template extends EmailTemplate {
   description: string;
+  subject: string;
+  body: string;
   icon: any;
   color: string;
   orderStatus: 'not_shipped' | 'fulfillment' | 'shipped' | 'out_for_delivery' | 'delivered' | 'delivery_exception' | 'product_issue' | 'return' | 'chargeback';
@@ -61,81 +52,6 @@ const LIFECYCLE_STAGES = [
   { id: 'return', label: 'Returns', icon: RotateCcw, color: 'purple' as const },
   { id: 'chargeback', label: 'Chargebacks', icon: ShieldAlert, color: 'crimson' as const }
 ] as const;
-
-// Multi-Badge Component with Smart Coloring
-const TemplateBadges = ({ badges }: { badges: string[] }) => {
-  const getBadgeStyle = (badge: string) => {
-    // Order State Badges
-    if (badge === 'Not Shipped') {
-      return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600';
-    }
-    if (badge === 'Shipped') {
-      return 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600';
-    }
-    if (badge === 'Out for Delivery') {
-      return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600';
-    }
-    if (badge === 'Delivered') {
-      return 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-300 dark:border-teal-600';
-    }
-    if (badge === 'Returned to Sender') {
-      return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600';
-    }
-
-    // Action Required Badges
-    if (badge === 'Need Confirm' || badge === 'Need Reason' || badge === 'Need WEN') {
-      return 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600';
-    }
-    if (badge === 'Notify Supplier') {
-      return 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border-cyan-300 dark:border-cyan-600';
-    }
-
-    // Context/Flag Badges
-    if (badge === 'Took Upsell') {
-      return 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-600';
-    }
-    if (badge === 'Invalid Address' || badge === 'Address Issue') {
-      return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600';
-    }
-    if (badge === 'Chargeback') {
-      return 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-600';
-    }
-    if (badge === 'Delivery Exception') {
-      return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600';
-    }
-    if (badge === 'Partial Refund' || badge === 'Full Refund') {
-      return 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 border-violet-300 dark:border-violet-600';
-    }
-    if (badge === 'Warranty Issue') {
-      return 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-600';
-    }
-    if (badge === 'Expedited') {
-      return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-300 dark:border-yellow-600';
-    }
-    if (badge === 'Follow Up') {
-      return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
-    }
-
-    // Default
-    return 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600';
-  };
-
-  if (!badges || badges.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {badges.map((badge, index) => (
-        <span
-          key={index}
-          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium rounded-full border ${getBadgeStyle(badge)}`}
-        >
-          <Tag className="w-2.5 h-2.5" />
-          {badge}
-        </span>
-      ))}
-    </div>
-  );
-};
 
 const StatusBadge = ({ label, color }: { label: string; color: string }) => {
   const badgeColors = {
@@ -1140,71 +1056,17 @@ export function ScenarioTemplateModal({
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [selectedOrderForTemplate, setSelectedOrderForTemplate] = useState<string>('');
-  const [expandedStages, setExpandedStages] = useState<string[]>(['not_shipped']);
-  const [dbTemplates, setDbTemplates] = useState<EmailTemplate[]>([]);
-  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
-
-  // Load templates from database
-  useEffect(() => {
-    async function loadTemplates() {
-      setIsLoadingTemplates(true);
-      try {
-        const { data, error } = await supabase
-          .from('email_templates')
-          .select('*')
-          .eq('is_active', true)
-          .order('category', { ascending: true })
-          .order('sort_order', { ascending: true });
-
-        if (error) throw error;
-        setDbTemplates(data || []);
-      } catch (error) {
-        console.error('Error loading templates:', error);
-        toast.error('Failed to load templates');
-      } finally {
-        setIsLoadingTemplates(false);
-      }
-    }
-
-    if (isOpen) {
-      loadTemplates();
-    }
-  }, [isOpen]);
-
-  // Convert database templates to UI format, falling back to hardcoded ones
-  const COMBINED_TEMPLATES = dbTemplates.length > 0
-    ? dbTemplates.map(t => ({
-        ...t,
-        id: t.id,
-        name: t.name,
-        category: t.category,
-        description: t.scenario || t.description || 'Email template',
-        subject: t.subject_line,
-        body: t.body_plain,
-        icon: AlertCircle, // Default icon
-        color: 'gray',
-        orderStatus: 'not_shipped' as const,
-        statusLabel: t.badges[0] || 'Template',
-        statusBadgeColor: 'slate' as const,
-        urgency: 'medium' as const
-      }))
-    : TEMPLATES;
+  const [activeLifecycleTab, setActiveLifecycleTab] = useState<string>('not_shipped');
 
   const recommendedTemplates = threadCategory
-    ? COMBINED_TEMPLATES.filter(t => t.category === threadCategory)
+    ? TEMPLATES.filter(t => t.category === threadCategory)
     : [];
 
   const otherTemplates = threadCategory
-    ? COMBINED_TEMPLATES.filter(t => t.category !== threadCategory)
-    : COMBINED_TEMPLATES;
+    ? TEMPLATES.filter(t => t.category !== threadCategory)
+    : TEMPLATES;
 
-  const toggleStage = (stageId: string) => {
-    setExpandedStages(prev =>
-      prev.includes(stageId)
-        ? prev.filter(id => id !== stageId)
-        : [...prev, stageId]
-    );
-  };
+  const templatesForActiveTab = TEMPLATES.filter(t => t.orderStatus === activeLifecycleTab);
 
   // Group templates by category for better organization
   const groupedTemplates = otherTemplates.reduce((acc, template) => {
@@ -1468,37 +1330,102 @@ export function ScenarioTemplateModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {recommendedTemplates.map((template) => {
                       const Icon = template.icon;
+                      const colorClasses = {
+                        red: {
+                          border: 'border-red-500 dark:border-red-400',
+                          bg: 'bg-red-50/30 dark:bg-red-900/10',
+                          hover: 'hover:bg-red-50/50 dark:hover:bg-red-900/20',
+                          iconBg: 'bg-red-50/40 dark:bg-red-900/20',
+                          iconText: 'text-red-600 dark:text-red-400',
+                          badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                        },
+                        orange: {
+                          border: 'border-orange-500 dark:border-orange-400',
+                          bg: 'bg-orange-50/30 dark:bg-orange-900/10',
+                          hover: 'hover:bg-orange-50/50 dark:hover:bg-orange-900/20',
+                          iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
+                          iconText: 'text-orange-600 dark:text-orange-400',
+                          badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
+                        },
+                        purple: {
+                          border: 'border-purple-500 dark:border-purple-400',
+                          bg: 'bg-purple-50/30 dark:bg-purple-900/10',
+                          hover: 'hover:bg-purple-50/50 dark:hover:bg-purple-900/20',
+                          iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
+                          iconText: 'text-purple-600 dark:text-purple-400',
+                          badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
+                        },
+                        green: {
+                          border: 'border-green-500 dark:border-green-400',
+                          bg: 'bg-green-50/30 dark:bg-green-900/10',
+                          hover: 'hover:bg-green-50/50 dark:hover:bg-green-900/20',
+                          iconBg: 'bg-green-50/40 dark:bg-green-900/20',
+                          iconText: 'text-green-600 dark:text-green-400',
+                          badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                        },
+                        blue: {
+                          border: 'border-blue-500 dark:border-blue-400',
+                          bg: 'bg-blue-50/30 dark:bg-blue-900/10',
+                          hover: 'hover:bg-blue-50/50 dark:hover:bg-blue-900/20',
+                          iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
+                          iconText: 'text-blue-600 dark:text-blue-400',
+                          badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                        },
+                        yellow: {
+                          border: 'border-yellow-500 dark:border-yellow-400',
+                          bg: 'bg-yellow-50/30 dark:bg-yellow-900/10',
+                          hover: 'hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20',
+                          iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
+                          iconText: 'text-yellow-600 dark:text-yellow-400',
+                          badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                        },
+                        amber: {
+                          border: 'border-amber-500 dark:border-amber-400',
+                          bg: 'bg-amber-50/30 dark:bg-amber-900/10',
+                          hover: 'hover:bg-amber-50/50 dark:hover:bg-amber-900/20',
+                          iconBg: 'bg-amber-50/40 dark:bg-amber-900/20',
+                          iconText: 'text-amber-600 dark:text-amber-400',
+                          badge: 'bg-amber-100/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                        },
+                        crimson: {
+                          border: 'border-rose-500 dark:border-rose-400',
+                          bg: 'bg-rose-50/30 dark:bg-rose-900/10',
+                          hover: 'hover:bg-rose-50/50 dark:hover:bg-rose-900/20',
+                          iconBg: 'bg-rose-50/40 dark:bg-rose-900/20',
+                          iconText: 'text-rose-600 dark:text-rose-400',
+                          badge: 'bg-rose-100/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
+                        }
+                      };
+                      const colors = colorClasses[template.color as keyof typeof colorClasses];
                       return (
                         <button
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
-                          className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                          className={`p-4 border ${colors.border} ${colors.bg} rounded-lg ${colors.hover} hover:shadow-lg transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
                         >
-                          {/* Badges positioned top right, stack vertically (hidden on mobile) */}
-                          <div className="hidden md:flex absolute top-3 right-3 flex-col items-end gap-1">
-                            <TemplateBadges badges={template.badges} />
+                          <div className="absolute top-3 right-3">
+                            <StatusBadge
+                              label={template.statusLabel}
+                              color={template.statusBadgeColor}
+                            />
                           </div>
-
-                          <div className="flex items-start gap-3 md:pr-32">
-                            <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+                          <div className="flex items-start gap-3 pr-20">
+                            <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
+                              <Icon className={`w-5 h-5 ${colors.iconText}`} />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
                                   {template.name}
                                 </h3>
-                                <span className="px-2 py-0.5 text-[10px] rounded-md bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400 font-semibold uppercase">
+                                <span className={`px-2 py-0.5 text-xs rounded-full ${colors.badge} font-medium`}>
                                   Match
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                              <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">
                                 {template.description}
                               </p>
                             </div>
-                          </div>
-
-                          {/* On small screens, badges move below */}
-                          <div className="md:hidden mt-3 border-t border-gray-100 dark:border-gray-700 pt-3">
-                            <TemplateBadges badges={template.badges} />
                           </div>
                         </button>
                       );
@@ -1520,86 +1447,121 @@ export function ScenarioTemplateModal({
                 </div>
               )}
 
-              {/* Accordion Navigation */}
-              <div className="space-y-3">
-                {LIFECYCLE_STAGES.map((stage) => {
-                  const StageIcon = stage.icon;
-                  const stageTemplates = COMBINED_TEMPLATES.filter(t => t.orderStatus === stage.id);
-                  const isExpanded = expandedStages.includes(stage.id);
+              {/* Tab Navigation */}
+              <div className="mb-6">
+                <div className="flex gap-2 overflow-x-auto pb-2 border-b border-gray-200 dark:border-gray-700">
+                  {LIFECYCLE_STAGES.map((stage) => {
+                    const StageIcon = stage.icon;
+                    const templateCount = TEMPLATES.filter(t => t.orderStatus === stage.id).length;
+                    const isActive = activeLifecycleTab === stage.id;
 
-                  // Clean, minimal design - no colored backgrounds
-                  const colors = {
-                    header: 'bg-white dark:bg-gray-800/50',
-                    headerHover: 'hover:bg-gray-50 dark:hover:bg-gray-800',
-                    icon: 'text-gray-500 dark:text-gray-400',
-                    iconBg: 'bg-gray-100 dark:bg-gray-800',
-                    text: 'text-gray-900 dark:text-white',
-                    badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
-                    templateHover: 'hover:bg-gray-50 dark:hover:bg-gray-800/30'
-                  };
-
-                  return (
-                    <div key={stage.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                      {/* Accordion Header */}
+                    return (
                       <button
-                        onClick={() => toggleStage(stage.id)}
-                        className={`w-full px-4 py-3.5 flex items-center justify-between ${colors.header} ${colors.headerHover} transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 group`}
+                        key={stage.id}
+                        onClick={() => setActiveLifecycleTab(stage.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-t-lg font-medium text-sm whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 ${
+                          isActive
+                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border-b-2 border-pink-500'
+                            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
+                        }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <StageIcon className={`w-4.5 h-4.5 ${colors.icon} group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors`} />
-                          <span className={`font-medium text-sm ${colors.text}`}>
-                            {stage.label}
-                          </span>
-                          <span className={`px-2 py-0.5 text-[11px] font-medium rounded-md ${colors.badge}`}>
-                            {stageTemplates.length}
-                          </span>
-                        </div>
-                        {isExpanded ? (
-                          <ChevronUp className={`w-4 h-4 ${colors.icon} transition-colors`} />
-                        ) : (
-                          <ChevronDown className={`w-4 h-4 ${colors.icon} transition-colors`} />
-                        )}
+                        <StageIcon className="w-4 h-4" />
+                        <span>{stage.label}</span>
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          isActive
+                            ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300'
+                            : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                        }`}>
+                          {templateCount}
+                        </span>
                       </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                      {/* Accordion Content */}
-                      {isExpanded && (
-                        <div className="px-3 py-3 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 space-y-1.5">
-                          {stageTemplates.map((template) => {
-                            const Icon = template.icon;
-                            return (
-                              <button
-                                key={template.id}
-                                onClick={() => handleSelectTemplate(template)}
-                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
-                              >
-                                {/* Badges positioned top right, stack vertically (hidden on mobile) */}
-                                <div className="hidden md:flex absolute top-2.5 right-2.5 flex-col items-end gap-1">
-                                  <TemplateBadges badges={template.badges} />
+              {/* Templates for Active Tab */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {templatesForActiveTab.map((template) => {
+                          const Icon = template.icon;
+                          const colorClasses = {
+                            red: {
+                              hover: 'hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50/30 dark:hover:bg-red-900/10',
+                              iconBg: 'bg-red-50/40 dark:bg-red-900/20',
+                              iconText: 'text-red-600 dark:text-red-400',
+                              badge: 'bg-red-100/50 dark:bg-red-900/20 text-red-700 dark:text-red-300'
+                            },
+                            orange: {
+                              hover: 'hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50/30 dark:hover:bg-orange-900/10',
+                              iconBg: 'bg-orange-50/40 dark:bg-orange-900/20',
+                              iconText: 'text-orange-600 dark:text-orange-400',
+                              badge: 'bg-orange-100/50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300'
+                            },
+                            purple: {
+                              hover: 'hover:border-purple-500 dark:hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/10',
+                              iconBg: 'bg-purple-50/40 dark:bg-purple-900/20',
+                              iconText: 'text-purple-600 dark:text-purple-400',
+                              badge: 'bg-purple-100/50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
+                            },
+                            green: {
+                              hover: 'hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50/30 dark:hover:bg-green-900/10',
+                              iconBg: 'bg-green-50/40 dark:bg-green-900/20',
+                              iconText: 'text-green-600 dark:text-green-400',
+                              badge: 'bg-green-100/50 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                            },
+                            blue: {
+                              hover: 'hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50/30 dark:hover:bg-blue-900/10',
+                              iconBg: 'bg-blue-50/40 dark:bg-blue-900/20',
+                              iconText: 'text-blue-600 dark:text-blue-400',
+                              badge: 'bg-blue-100/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                            },
+                            yellow: {
+                              hover: 'hover:border-yellow-500 dark:hover:border-yellow-400 hover:bg-yellow-50/30 dark:hover:bg-yellow-900/10',
+                              iconBg: 'bg-yellow-50/40 dark:bg-yellow-900/20',
+                              iconText: 'text-yellow-600 dark:text-yellow-400',
+                              badge: 'bg-yellow-100/50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300'
+                            },
+                            amber: {
+                              hover: 'hover:border-amber-500 dark:hover:border-amber-400 hover:bg-amber-50/30 dark:hover:bg-amber-900/10',
+                              iconBg: 'bg-amber-50/40 dark:bg-amber-900/20',
+                              iconText: 'text-amber-600 dark:text-amber-400',
+                              badge: 'bg-amber-100/50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
+                            },
+                            crimson: {
+                              hover: 'hover:border-rose-500 dark:hover:border-rose-400 hover:bg-rose-50/30 dark:hover:bg-rose-900/10',
+                              iconBg: 'bg-rose-50/40 dark:bg-rose-900/20',
+                              iconText: 'text-rose-600 dark:text-rose-400',
+                              badge: 'bg-rose-100/50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
+                            }
+                          };
+                          const colors = colorClasses[template.color as keyof typeof colorClasses];
+                          return (
+                            <button
+                              key={template.id}
+                              onClick={() => handleSelectTemplate(template)}
+                              className={`p-4 border border-gray-200 dark:border-gray-700 rounded-lg ${colors.hover} transition-all text-left group focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 relative`}
+                            >
+                              <div className="absolute top-3 right-3">
+                                <StatusBadge
+                                  label={template.statusLabel}
+                                  color={template.statusBadgeColor}
+                                />
+                              </div>
+                              <div className="flex items-start gap-3 pr-20">
+                                <div className={`mt-1 p-2.5 rounded-lg ${colors.iconBg}`}>
+                                  <Icon className={`w-5 h-5 ${colors.iconText}`} />
                                 </div>
-
-                                <div className="flex items-start gap-3 md:pr-32">
-                                  <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-                                  <div className="flex-1 min-w-0">
-                                    <h3 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
-                                      {template.name}
-                                    </h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                                      {template.description}
-                                    </p>
-                                  </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                    {template.name}
+                                  </h3>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                                    {template.description}
+                                  </p>
                                 </div>
-
-                                {/* On small screens, badges move below */}
-                                <div className="md:hidden mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
-                                  <TemplateBadges badges={template.badges} />
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
+                              </div>
+                            </button>
+                          );
                 })}
               </div>
             </div>

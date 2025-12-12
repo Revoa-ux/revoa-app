@@ -30,7 +30,7 @@ export default function Terms() {
               <li>Shopify store integration for profit tracking and analytics</li>
               <li>Order data analysis and return rate tracking</li>
               <li>Facebook Ads performance monitoring</li>
-              <li>Communication tools for order fulfillment and support</li>
+              <li>Communication tools for supplier collaboration</li>
             </ul>
           </section>
 
