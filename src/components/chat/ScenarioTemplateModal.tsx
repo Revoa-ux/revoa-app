@@ -1141,14 +1141,62 @@ export function ScenarioTemplateModal({
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [selectedOrderForTemplate, setSelectedOrderForTemplate] = useState<string>('');
   const [expandedStages, setExpandedStages] = useState<string[]>(['not_shipped']);
+  const [dbTemplates, setDbTemplates] = useState<EmailTemplate[]>([]);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
+
+  // Load templates from database
+  useEffect(() => {
+    async function loadTemplates() {
+      setIsLoadingTemplates(true);
+      try {
+        const { data, error } = await supabase
+          .from('email_templates')
+          .select('*')
+          .eq('is_active', true)
+          .order('category', { ascending: true })
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+        setDbTemplates(data || []);
+      } catch (error) {
+        console.error('Error loading templates:', error);
+        toast.error('Failed to load templates');
+      } finally {
+        setIsLoadingTemplates(false);
+      }
+    }
+
+    if (isOpen) {
+      loadTemplates();
+    }
+  }, [isOpen]);
+
+  // Convert database templates to UI format, falling back to hardcoded ones
+  const COMBINED_TEMPLATES = dbTemplates.length > 0
+    ? dbTemplates.map(t => ({
+        ...t,
+        id: t.id,
+        name: t.name,
+        category: t.category,
+        description: t.body_plain.split('\n\n')[0].substring(0, 150) + '...',
+        subject: t.subject_line,
+        body: t.body_plain,
+        icon: AlertCircle, // Default icon
+        color: 'gray',
+        orderStatus: 'not_shipped' as const,
+        statusLabel: t.badges[0] || 'Template',
+        statusBadgeColor: 'slate' as const,
+        urgency: 'medium' as const
+      }))
+    : TEMPLATES;
 
   const recommendedTemplates = threadCategory
-    ? TEMPLATES.filter(t => t.category === threadCategory)
+    ? COMBINED_TEMPLATES.filter(t => t.category === threadCategory)
     : [];
 
   const otherTemplates = threadCategory
-    ? TEMPLATES.filter(t => t.category !== threadCategory)
-    : TEMPLATES;
+    ? COMBINED_TEMPLATES.filter(t => t.category !== threadCategory)
+    : COMBINED_TEMPLATES;
 
   const toggleStage = (stageId: string) => {
     setExpandedStages(prev =>
@@ -1426,13 +1474,7 @@ export function ScenarioTemplateModal({
                           onClick={() => handleSelectTemplate(template)}
                           className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                         >
-                          <div className="absolute top-3 right-3">
-                            <StatusBadge
-                              label={template.statusLabel}
-                              color={template.statusBadgeColor}
-                            />
-                          </div>
-                          <div className="flex items-start gap-3 pr-20">
+                          <div className="flex items-start gap-3">
                             <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
@@ -1443,9 +1485,10 @@ export function ScenarioTemplateModal({
                                   Match
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-2">
                                 {template.description}
                               </p>
+                              <TemplateBadges badges={template.badges} />
                             </div>
                           </div>
                         </button>
@@ -1472,7 +1515,7 @@ export function ScenarioTemplateModal({
               <div className="space-y-3">
                 {LIFECYCLE_STAGES.map((stage) => {
                   const StageIcon = stage.icon;
-                  const stageTemplates = TEMPLATES.filter(t => t.orderStatus === stage.id);
+                  const stageTemplates = COMBINED_TEMPLATES.filter(t => t.orderStatus === stage.id);
                   const isExpanded = expandedStages.includes(stage.id);
 
                   // Clean, minimal design - no colored backgrounds
@@ -1518,23 +1561,18 @@ export function ScenarioTemplateModal({
                               <button
                                 key={template.id}
                                 onClick={() => handleSelectTemplate(template)}
-                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0"
                               >
-                                <div className="absolute top-2.5 right-2.5">
-                                  <StatusBadge
-                                    label={template.statusLabel}
-                                    color={template.statusBadgeColor}
-                                  />
-                                </div>
-                                <div className="flex items-start gap-3 pr-20">
+                                <div className="flex items-start gap-3">
                                   <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                                   <div className="flex-1 min-w-0">
                                     <h3 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
                                       {template.name}
                                     </h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-2">
                                       {template.description}
                                     </p>
+                                    <TemplateBadges badges={template.badges} />
                                   </div>
                                 </div>
                               </button>
