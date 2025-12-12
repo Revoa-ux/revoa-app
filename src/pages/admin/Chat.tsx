@@ -454,11 +454,11 @@ const AdminChat = () => {
     <>
         <div className="mb-6">
           <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Resolution Center
+            Conversations
           </h1>
           <div className="flex items-center space-x-2">
             <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{chats.length} active cases</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{chats.length} active chats</p>
           </div>
         </div>
 
@@ -479,7 +479,7 @@ const AdminChat = () => {
               ) : chats.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-32 text-center px-4">
                   <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No conversations yet</p>
                 </div>
               ) : (
                 chats.map((chat) => (
@@ -621,7 +621,7 @@ const AdminChat = () => {
                   <div className="text-center">
                     <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-sm text-gray-600 dark:text-gray-400">No messages yet</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Start working on this case</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Start a conversation with this user</p>
                   </div>
                 </div>
               ) : null}
@@ -900,8 +900,8 @@ const AdminChat = () => {
           <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900/50">
             <div className="text-center">
               <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No case selected</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Choose a case from the list to start working</p>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No conversation selected</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Choose a conversation from the list to start chatting</p>
             </div>
           </div>
         )}
