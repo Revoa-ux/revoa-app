@@ -1178,7 +1178,7 @@ export function ScenarioTemplateModal({
         id: t.id,
         name: t.name,
         category: t.category,
-        description: t.scenario || t.description || 'Email template',
+        description: t.body_plain.split('\n\n')[0].substring(0, 150) + '...',
         subject: t.subject_line,
         body: t.body_plain,
         icon: AlertCircle, // Default icon
@@ -1474,12 +1474,7 @@ export function ScenarioTemplateModal({
                           onClick={() => handleSelectTemplate(template)}
                           className="p-4 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
                         >
-                          {/* Badges positioned top right, stack vertically (hidden on mobile) */}
-                          <div className="hidden md:flex absolute top-3 right-3 flex-col items-end gap-1">
-                            <TemplateBadges badges={template.badges} />
-                          </div>
-
-                          <div className="flex items-start gap-3 md:pr-32">
+                          <div className="flex items-start gap-3">
                             <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
@@ -1490,15 +1485,11 @@ export function ScenarioTemplateModal({
                                   Match
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed mb-2">
                                 {template.description}
                               </p>
+                              <TemplateBadges badges={template.badges} />
                             </div>
-                          </div>
-
-                          {/* On small screens, badges move below */}
-                          <div className="md:hidden mt-3 border-t border-gray-100 dark:border-gray-700 pt-3">
-                            <TemplateBadges badges={template.badges} />
                           </div>
                         </button>
                       );
@@ -1570,28 +1561,19 @@ export function ScenarioTemplateModal({
                               <button
                                 key={template.id}
                                 onClick={() => handleSelectTemplate(template)}
-                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0 relative"
+                                className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-0"
                               >
-                                {/* Badges positioned top right, stack vertically (hidden on mobile) */}
-                                <div className="hidden md:flex absolute top-2.5 right-2.5 flex-col items-end gap-1">
-                                  <TemplateBadges badges={template.badges} />
-                                </div>
-
-                                <div className="flex items-start gap-3 md:pr-32">
+                                <div className="flex items-start gap-3">
                                   <Icon className="w-4 h-4 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
                                   <div className="flex-1 min-w-0">
                                     <h3 className="font-medium text-sm text-gray-900 dark:text-white mb-0.5">
                                       {template.name}
                                     </h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed mb-2">
                                       {template.description}
                                     </p>
+                                    <TemplateBadges badges={template.badges} />
                                   </div>
-                                </div>
-
-                                {/* On small screens, badges move below */}
-                                <div className="md:hidden mt-2 border-t border-gray-100 dark:border-gray-700 pt-2">
-                                  <TemplateBadges badges={template.badges} />
                                 </div>
                               </button>
                             );
