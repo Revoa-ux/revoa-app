@@ -1171,6 +1171,52 @@ export function ScenarioTemplateModal({
     }
   }, [isOpen]);
 
+  // Helper function to map order status hints and badges to lifecycle stages
+  const mapOrderStatusToStage = (hints: string[], badges: string[]): typeof LIFECYCLE_STAGES[number]['id'] => {
+    // Check badges first for scenario-specific categorization (higher priority)
+    const allBadges = (badges || []).join(' ').toLowerCase();
+
+    if (allBadges.includes('chargeback')) {
+      return 'chargeback';
+    }
+    if (allBadges.includes('warranty') || allBadges.includes('defective') || allBadges.includes('damaged')) {
+      return 'product_issue';
+    }
+    if (allBadges.includes('delivery exception') || allBadges.includes('returned to sender') || allBadges.includes('invalid address')) {
+      return 'delivery_exception';
+    }
+
+    // Then check order_status_hints for order state
+    if (!hints || hints.length === 0) return 'not_shipped';
+
+    const hint = hints[0].toLowerCase();
+
+    // Map various status hints to lifecycle stages
+    if (hint.includes('pending') || hint.includes('not_shipped') || hint === 'not shipped') {
+      return 'not_shipped';
+    }
+    if (hint.includes('fulfillment') || hint.includes('processing')) {
+      return 'fulfillment';
+    }
+    if (hint.includes('out_for_delivery') || hint.includes('out for delivery')) {
+      return 'out_for_delivery';
+    }
+    if (hint.includes('delivered')) {
+      return 'delivered';
+    }
+    if (hint.includes('shipped') || hint.includes('in_transit') || hint.includes('transit')) {
+      return 'shipped';
+    }
+    if (hint.includes('exception') || hint.includes('returned')) {
+      return 'delivery_exception';
+    }
+    if (hint.includes('return')) {
+      return 'return';
+    }
+
+    return 'not_shipped'; // Default fallback
+  };
+
   // Convert database templates to UI format, falling back to hardcoded ones
   const COMBINED_TEMPLATES = dbTemplates.length > 0
     ? dbTemplates.map(t => ({
@@ -1178,13 +1224,13 @@ export function ScenarioTemplateModal({
         id: t.id,
         name: t.name,
         category: t.category,
-        description: t.scenario || t.description || 'Email template',
+        description: t.name || 'Email template',
         subject: t.subject_line,
         body: t.body_plain,
         icon: AlertCircle, // Default icon
         color: 'gray',
-        orderStatus: 'not_shipped' as const,
-        statusLabel: t.badges[0] || 'Template',
+        orderStatus: mapOrderStatusToStage(t.order_status_hints, t.badges),
+        statusLabel: t.badges?.[0] || 'Template',
         statusBadgeColor: 'slate' as const,
         urgency: 'medium' as const
       }))
