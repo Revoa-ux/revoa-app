@@ -86,7 +86,7 @@ export default function Privacy() {
             <p className="text-slate-700 leading-relaxed mb-3">We may share your information with:</p>
             <ul className="list-disc list-inside text-slate-700 ml-4 space-y-2">
               <li><strong>Service Providers:</strong> Third-party companies that help us operate our platform (hosting, analytics, payment processing)</li>
-              <li><strong>Fulfillment Partners:</strong> Our fulfillment network to process and ship your orders</li>
+              <li><strong>Business Partners:</strong> Suppliers and manufacturers you choose to work with</li>
               <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
             </ul>
             <p className="text-slate-700 leading-relaxed mt-3">
