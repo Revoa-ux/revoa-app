@@ -361,13 +361,13 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   {/* Subtle background pattern */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)]"></div>
 
-                  <div className="relative flex items-center justify-between">
+                  <div className="relative flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
                           Quick Email Templates
                         </h4>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-semibold uppercase tracking-wide">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 font-bold uppercase tracking-wider leading-none">
                           New
                         </span>
                       </div>
@@ -375,7 +375,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                         Send professional pre-written emails in seconds for common scenarios
                       </p>
                     </div>
-                    <div className="ml-3 flex-shrink-0">
+                    <div className="ml-3 flex-shrink-0 mt-0.5">
                       <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
                         <ArrowRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform" />
                       </div>
@@ -463,18 +463,20 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   <button
                     onClick={() => setShowCancelModal(true)}
                     disabled={customerInfo.fulfillment_status === 'fulfilled' || customerInfo.fulfillment_status === 'cancelled'}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent whitespace-nowrap"
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 dark:disabled:hover:border-gray-600 disabled:hover:shadow-none group"
                     title={customerInfo.fulfillment_status === 'fulfilled' ? 'Cannot cancel fulfilled orders' : 'Cancel this order'}
                   >
-                    <XCircle className="w-3.5 h-3.5 text-red-500 dark:text-red-400 flex-shrink-0" />
-                    <span>Cancel</span>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
+                    <XCircle className="relative w-3.5 h-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+                    <span className="relative">Cancel</span>
                   </button>
                   <button
                     onClick={() => setShowRefundModal(true)}
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap"
+                    className="relative flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap group"
                   >
-                    <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>Refund</span>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(107,114,128,0.04)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_20%,rgba(156,163,175,0.06)_0%,transparent_50%)]"></div>
+                    <DollarSign className="relative w-3.5 h-3.5 text-gray-500 dark:text-gray-400 flex-shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+                    <span className="relative">Refund</span>
                   </button>
                 </div>
               </div>
