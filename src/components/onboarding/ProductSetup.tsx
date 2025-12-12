@@ -285,7 +285,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                           <button
                             onClick={handleImportSelected}
                             disabled={selectedCount === 0}
-                            className={`px-4 py-2 rounded-md text-sm font-medium ${
+                            className={`px-5 py-1.5 rounded-md text-sm font-medium ${
                               selectedCount > 0
                                 ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90'
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -297,7 +297,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                         {selectedCount > 0 && (
                           <button
                             onClick={onFinish}
-                            className="w-full px-4 py-2 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
+                            className="w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
                           >
                             <Check className="w-4 h-4" />
                             <span>Finish Setup</span>
@@ -362,7 +362,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                       href="https://revoa.app/form"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group w-full px-4 py-2 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center"
+                      className="group w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center"
                       onClick={() => onComplete(true)}
                     >
                       <span>Open Form</span>
@@ -370,7 +370,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                     </a>
                     <button
                       onClick={onFinish}
-                      className="w-full px-4 py-2 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
+                      className="w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
                     >
                       <Check className="w-4 h-4" />
                       <span>Finish Setup</span>

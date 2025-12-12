@@ -154,7 +154,7 @@ export const VariantCombinationMatrix: React.FC<VariantCombinationMatrixProps> =
                           type="button"
                           onClick={() => onToggleCombination(key, attributes)}
                           className={`
-                            w-full h-10 rounded-lg border-2 transition-all flex items-center justify-center
+                            w-full px-5 py-1.5 rounded-lg border-2 transition-all flex items-center justify-center
                             ${isSelected
                               ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
                               : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'

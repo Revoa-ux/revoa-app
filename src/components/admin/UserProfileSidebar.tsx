@@ -351,9 +351,9 @@ export const UserProfileSidebar: React.FC<UserProfileSidebarProps> = ({
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-end">
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       )}

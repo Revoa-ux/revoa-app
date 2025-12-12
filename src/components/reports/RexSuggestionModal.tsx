@@ -182,7 +182,7 @@ export const RexSuggestionModal: React.FC<RexSuggestionModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-all ml-3"
+              className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors ml-3"
             >
               <X className="w-5 h-5" />
             </button>

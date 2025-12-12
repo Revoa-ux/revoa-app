@@ -17,7 +17,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
         <div className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-6 text-white relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white/80 hover:text-white transition-colors"
+            className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors absolute top-4 right-4"
           >
             <X className="w-6 h-6" />
           </button>
