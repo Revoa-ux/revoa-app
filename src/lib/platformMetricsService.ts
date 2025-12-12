@@ -95,6 +95,97 @@ export const PLATFORM_COLORS = {
   }
 } as const;
 
+function generateMockPlatformData(
+  basePlatformData: PlatformMetric | null,
+  startDate: string,
+  endDate: string
+): { google: PlatformMetric; tiktok: PlatformMetric; timeSeries: Record<string, PlatformTimeSeriesData[]> } {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const dayCount = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+  const baseSpend = basePlatformData?.spend || 400;
+  const baseConversions = basePlatformData?.conversions || 5;
+
+  const googleSpend = baseSpend * (0.7 + Math.random() * 0.4);
+  const googleConversions = Math.round(baseConversions * (1.2 + Math.random() * 0.5));
+  const googleRevenue = googleSpend * (2.5 + Math.random() * 1.5);
+  const googleImpressions = Math.round(10000 + Math.random() * 15000);
+  const googleClicks = Math.round(googleImpressions * (0.025 + Math.random() * 0.015));
+
+  const tiktokSpend = baseSpend * (0.5 + Math.random() * 0.3);
+  const tiktokConversions = Math.round(baseConversions * (0.8 + Math.random() * 0.6));
+  const tiktokRevenue = tiktokSpend * (1.8 + Math.random() * 2.2);
+  const tiktokImpressions = Math.round(25000 + Math.random() * 35000);
+  const tiktokClicks = Math.round(tiktokImpressions * (0.018 + Math.random() * 0.012));
+
+  const google: PlatformMetric = {
+    platform: 'google',
+    spend: googleSpend,
+    revenue: googleRevenue,
+    conversions: googleConversions,
+    impressions: googleImpressions,
+    clicks: googleClicks,
+    roas: googleSpend > 0 ? googleRevenue / googleSpend : 0,
+    cpa: googleConversions > 0 ? googleSpend / googleConversions : 0,
+    ctr: googleImpressions > 0 ? (googleClicks / googleImpressions) * 100 : 0,
+    cvr: googleClicks > 0 ? (googleConversions / googleClicks) * 100 : 0,
+    profit: googleRevenue * 0.6 - googleSpend,
+    profitMargin: googleRevenue > 0 ? ((googleRevenue * 0.6 - googleSpend) / googleRevenue) * 100 : 0
+  };
+
+  const tiktok: PlatformMetric = {
+    platform: 'tiktok',
+    spend: tiktokSpend,
+    revenue: tiktokRevenue,
+    conversions: tiktokConversions,
+    impressions: tiktokImpressions,
+    clicks: tiktokClicks,
+    roas: tiktokSpend > 0 ? tiktokRevenue / tiktokSpend : 0,
+    cpa: tiktokConversions > 0 ? tiktokSpend / tiktokConversions : 0,
+    ctr: tiktokImpressions > 0 ? (tiktokClicks / tiktokImpressions) * 100 : 0,
+    cvr: tiktokClicks > 0 ? (tiktokConversions / tiktokClicks) * 100 : 0,
+    profit: tiktokRevenue * 0.6 - tiktokSpend,
+    profitMargin: tiktokRevenue > 0 ? ((tiktokRevenue * 0.6 - tiktokSpend) / tiktokRevenue) * 100 : 0
+  };
+
+  const timeSeries: Record<string, PlatformTimeSeriesData[]> = {
+    spend: [],
+    roas: [],
+    conversions: [],
+    ctr: [],
+    cpa: []
+  };
+
+  for (let i = 0; i < dayCount; i++) {
+    const date = new Date(start);
+    date.setDate(date.getDate() + i);
+    const dateStr = date.toISOString().split('T')[0];
+
+    const dayVariance = () => 0.7 + Math.random() * 0.6;
+
+    const gDaySpend = (googleSpend / dayCount) * dayVariance();
+    const gDayRoas = google.roas * dayVariance();
+    const gDayConv = Math.round((googleConversions / dayCount) * dayVariance());
+    const gDayCtr = google.ctr * dayVariance();
+    const gDayCpa = google.cpa * dayVariance();
+
+    const tDaySpend = (tiktokSpend / dayCount) * dayVariance();
+    const tDayRoas = tiktok.roas * dayVariance();
+    const tDayConv = Math.round((tiktokConversions / dayCount) * dayVariance());
+    const tDayCtr = tiktok.ctr * dayVariance();
+    const tDayCpa = tiktok.cpa * dayVariance();
+
+    timeSeries.spend.push({ date: dateStr, google: gDaySpend, tiktok: tDaySpend });
+    timeSeries.roas.push({ date: dateStr, google: gDayRoas, tiktok: tDayRoas });
+    timeSeries.conversions.push({ date: dateStr, google: gDayConv, tiktok: tDayConv });
+    timeSeries.ctr.push({ date: dateStr, google: gDayCtr, tiktok: tDayCtr });
+    timeSeries.cpa.push({ date: dateStr, google: gDayCpa, tiktok: tDayCpa });
+  }
+
+  return { google, tiktok, timeSeries };
+}
+
 export async function getPlatformComparisonMetrics(
   startDate: string,
   endDate: string
@@ -221,6 +312,48 @@ export async function getPlatformComparisonMetrics(
       const estimatedCOGS = pm.revenue * 0.4;
       pm.profit = pm.revenue - estimatedCOGS - pm.spend;
       pm.profitMargin = pm.revenue > 0 ? (pm.profit / pm.revenue) * 100 : 0;
+    });
+
+    const facebookData = platformMetrics.find(p => p.platform === 'facebook') || null;
+    const mockData = generateMockPlatformData(facebookData, startDate, endDate);
+
+    platformMetrics.push(mockData.google);
+    platformMetrics.push(mockData.tiktok);
+
+    mockData.timeSeries.spend.forEach(item => {
+      if (!timeSeriesData.spend[item.date]) {
+        timeSeriesData.spend[item.date] = {};
+      }
+      timeSeriesData.spend[item.date].google = item.google;
+      timeSeriesData.spend[item.date].tiktok = item.tiktok;
+    });
+    mockData.timeSeries.roas.forEach(item => {
+      if (!timeSeriesData.roas[item.date]) {
+        timeSeriesData.roas[item.date] = {};
+      }
+      timeSeriesData.roas[item.date].google = item.google;
+      timeSeriesData.roas[item.date].tiktok = item.tiktok;
+    });
+    mockData.timeSeries.conversions.forEach(item => {
+      if (!timeSeriesData.conversions[item.date]) {
+        timeSeriesData.conversions[item.date] = {};
+      }
+      timeSeriesData.conversions[item.date].google = item.google;
+      timeSeriesData.conversions[item.date].tiktok = item.tiktok;
+    });
+    mockData.timeSeries.ctr.forEach(item => {
+      if (!timeSeriesData.ctr[item.date]) {
+        timeSeriesData.ctr[item.date] = {};
+      }
+      timeSeriesData.ctr[item.date].google = item.google;
+      timeSeriesData.ctr[item.date].tiktok = item.tiktok;
+    });
+    mockData.timeSeries.cpa.forEach(item => {
+      if (!timeSeriesData.cpa[item.date]) {
+        timeSeriesData.cpa[item.date] = {};
+      }
+      timeSeriesData.cpa[item.date].google = item.google;
+      timeSeriesData.cpa[item.date].tiktok = item.tiktok;
     });
 
     const formatTimeSeries = (data: Record<string, Record<string, number>>): PlatformTimeSeriesData[] => {

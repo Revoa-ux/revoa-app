@@ -289,36 +289,22 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
         }
       `}</style>
       <div className="space-y-6">
-        <div
-          className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={toggleCollapse}
-        >
-        <div className="flex items-center gap-3">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Performance Overview</h2>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            {displayedMetrics.length} metrics
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Performance Overview</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {displayedMetrics.length} metrics
+            </span>
+          </div>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowCustomizeModal(true);
-            }}
+            onClick={() => setShowCustomizeModal(true)}
             className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             title="Customize metrics"
           >
             <Settings className="w-5 h-5" />
           </button>
-          {isCollapsed ? (
-            <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          ) : (
-            <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-          )}
         </div>
-      </div>
 
-      {!isCollapsed && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {isLoading ? (
             <>
@@ -463,7 +449,6 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
             </>
           )}
         </div>
-      )}
 
       <CustomizeMetricsModal
         isOpen={showCustomizeModal}
