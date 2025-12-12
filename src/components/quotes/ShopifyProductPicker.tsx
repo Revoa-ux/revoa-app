@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Loader2, Package, Check, ArrowRight } from 'lucide-react';
 import { getProducts } from '@/lib/shopify/graphql';
-import Button from '../Button';
 
 interface ShopifyProduct {
   id: string;
@@ -230,20 +229,20 @@ export const ShopifyProductPicker: React.FC<ShopifyProductPickerProps> = ({
       {/* Action Buttons */}
       <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
         <div className="flex items-center justify-between gap-3">
-          <Button
-            variant="secondary"
+          <button
             onClick={onCancel}
+            className="px-4 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleSelectProduct}
             disabled={!selectedId || isLoading}
-            loading={isLoading}
-            showArrow
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
           >
             Map Product
-          </Button>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </div>
     </div>
