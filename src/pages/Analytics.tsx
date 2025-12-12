@@ -5,6 +5,7 @@ import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdRepor
 import TemplateSelector from '../components/analytics/TemplateSelector';
 import MetricCard from '../components/analytics/MetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
+import { PlatformPerformanceSection } from '../components/reports/PlatformPerformanceSection';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
@@ -884,6 +885,17 @@ setCurrentTemplate(template);
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Platform Performance Comparison Section */}
+      {viewType === 'card' && (
+        <div className="mt-8">
+          <PlatformPerformanceSection
+            startDate={dateRange.startDate.toISOString()}
+            endDate={dateRange.endDate.toISOString()}
+            isLoading={isLoading}
+          />
         </div>
       )}
 

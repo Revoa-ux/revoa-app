@@ -201,3 +201,51 @@ interface AdRecommendation {
   actionItems: string[];
   metrics?: Record<string, any>;
 }
+
+export interface PlatformColorConfig {
+  primary: string;
+  secondary: string;
+  gradient: [string, string];
+  bgLight: string;
+  bgDark: string;
+  text: string;
+}
+
+export const PLATFORM_COLORS: Record<AdPlatform, PlatformColorConfig> = {
+  facebook: {
+    primary: '#1877F2',
+    secondary: '#4267B2',
+    gradient: ['#1877F2', '#4267B2'],
+    bgLight: 'bg-blue-50',
+    bgDark: 'bg-blue-900/20',
+    text: 'text-blue-600',
+  },
+  google: {
+    primary: '#34A853',
+    secondary: '#0F9D58',
+    gradient: ['#34A853', '#0F9D58'],
+    bgLight: 'bg-green-50',
+    bgDark: 'bg-green-900/20',
+    text: 'text-green-600',
+  },
+  tiktok: {
+    primary: '#FF0050',
+    secondary: '#EE1D52',
+    gradient: ['#FF0050', '#EE1D52'],
+    bgLight: 'bg-rose-50',
+    bgDark: 'bg-rose-900/20',
+    text: 'text-rose-600',
+  },
+};
+
+export interface PlatformBreakdownData {
+  platform: AdPlatform;
+  spend: number;
+  spendShare: number;
+  profit: number;
+  profitShare: number;
+  roas: number;
+  netROAS: number;
+  conversions: number;
+  isTopPerformer: boolean;
+}
