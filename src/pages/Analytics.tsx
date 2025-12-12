@@ -895,7 +895,6 @@ setCurrentTemplate(template);
             startDate={dateRange.startDate.toISOString()}
             endDate={dateRange.endDate.toISOString()}
             isLoading={isLoading}
-            showDemoData={true}
           />
         </div>
       )}
