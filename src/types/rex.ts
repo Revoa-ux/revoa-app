@@ -252,6 +252,7 @@ export interface RexSuggestion {
   entity_id: string;
   entity_name: string;
   platform: string;
+  platform_entity_id?: string;
   suggestion_type: RexSuggestionType;
   suggestion_category?: RexSuggestionCategory;
   status: RexSuggestionStatus;

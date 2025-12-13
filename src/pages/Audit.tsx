@@ -89,10 +89,16 @@ export default function Audit() {
       await Promise.all(
         suggestions.map(async (suggestion) => {
           const performance = await rexSuggestionService.getPerformance(suggestion.id);
-          suggestionsMap.set(suggestion.entity_id, {
+          const suggestionWithPerf = {
             ...suggestion,
             performance: performance || undefined
-          });
+          };
+
+          suggestionsMap.set(suggestion.entity_id, suggestionWithPerf);
+
+          if (suggestion.platform_entity_id && suggestion.platform_entity_id !== suggestion.entity_id) {
+            suggestionsMap.set(suggestion.platform_entity_id, suggestionWithPerf);
+          }
         })
       );
 
