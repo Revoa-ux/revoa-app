@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ChevronDown, LayoutGrid, TrendingUp, Package, DollarSign, Megaphone } from 'lucide-react';
+import { Check, ChevronDown, LayoutGrid, TrendingUp, Package, DollarSign, Megaphone, Globe } from 'lucide-react';
 import { TemplateType } from '../../lib/analyticsService';
 
 interface TemplateSelectorProps {
@@ -37,6 +37,12 @@ const templates: Array<{
     name: 'Financial Analysis',
     description: 'Detailed profit, costs, and financial ratios',
     icon: DollarSign
+  },
+  {
+    id: 'cross_platform',
+    name: 'Cross-Platform Performance',
+    description: 'Combined and per-platform ad metrics from all sources',
+    icon: Globe
   },
   {
     id: 'custom',

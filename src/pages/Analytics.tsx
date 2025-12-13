@@ -43,6 +43,7 @@ export default function Analytics() {
   const [adPlatformsSyncTime, setAdPlatformsSyncTime] = useState<Date | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -417,6 +418,41 @@ setCurrentTemplate(template);
     return hoursSinceSync > 24;
   };
 
+  const handleExpandCard = (cardId: string) => {
+    setExpandedCardId(expandedCardId === cardId ? null : cardId);
+  };
+
+  const groupCardsByPlatform = (cards: string[]) => {
+    const groups: Record<string, string[]> = {
+      combined: [],
+      meta: [],
+      tiktok: [],
+      google: []
+    };
+
+    cards.forEach(cardId => {
+      const lowerCardId = cardId.toLowerCase();
+      if (lowerCardId.includes('meta_') || lowerCardId.includes('facebook_')) {
+        groups.meta.push(cardId);
+      } else if (lowerCardId.includes('tiktok_')) {
+        groups.tiktok.push(cardId);
+      } else if (lowerCardId.includes('google_')) {
+        groups.google.push(cardId);
+      } else {
+        groups.combined.push(cardId);
+      }
+    });
+
+    return groups;
+  };
+
+  const platformSections = [
+    { key: 'combined', label: 'Combined Metrics', subtitle: 'Aggregated across all platforms' },
+    { key: 'meta', label: 'Meta / Facebook', subtitle: 'Facebook and Instagram ads' },
+    { key: 'tiktok', label: 'TikTok', subtitle: 'TikTok ads performance' },
+    { key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }
+  ];
+
   // Get contextual notification
   const getNotification = () => {
     // Priority 1: Shopify disconnected
@@ -644,60 +680,136 @@ setCurrentTemplate(template);
       )}
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleCards.map((cardId) => {
-          const data = cardData[cardId];
+      {currentTemplate === 'cross_platform' ? (
+        <div className="space-y-8">
+          {platformSections.map(section => {
+            const groups = groupCardsByPlatform(visibleCards);
+            const sectionCards = groups[section.key as keyof typeof groups];
+            if (sectionCards.length === 0) return null;
 
-          if (!data && isLoading) {
+            return (
+              <div key={section.key}>
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white">{section.label}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{section.subtitle}</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sectionCards.map((cardId) => {
+                    const data = cardData[cardId];
+                    const isExpanded = expandedCardId === cardId;
+
+                    if (!data && isLoading) {
+                      return (
+                        <FlippableMetricCard
+                          key={cardId}
+                          data={{
+                            id: cardId,
+                            title: 'Loading...',
+                            mainValue: '---',
+                            change: '---',
+                            changeType: 'positive',
+                            dataPoint1: { label: 'Loading', value: '---' },
+                            dataPoint2: { label: 'Loading', value: '---' },
+                            icon: 'RefreshCw',
+                            category: 'overview'
+                          }}
+                          isLoading={true}
+                          isDragging={false}
+                        />
+                      );
+                    }
+
+                    if (!data) return null;
+
+                    return (
+                      <FlippableMetricCard
+                        key={cardId}
+                        data={data}
+                        isLoading={isLoading}
+                        isExpanded={isExpanded}
+                        onExpand={() => handleExpandCard(cardId)}
+                        isDragging={draggedCard === cardId}
+                        onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                        onDragEnd={isEditMode ? handleDragEnd : undefined}
+                        onDragOver={isEditMode ? handleDragOver : undefined}
+                        onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => setShowCardSelector(true)}
+            className="h-[180px] w-full md:w-1/3 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+          >
+            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
+              <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+            </div>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+              Add Metric
+            </span>
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {visibleCards.map((cardId) => {
+            const data = cardData[cardId];
+            const isExpanded = expandedCardId === cardId;
+
+            if (!data && isLoading) {
+              return (
+                <FlippableMetricCard
+                  key={cardId}
+                  data={{
+                    id: cardId,
+                    title: 'Loading...',
+                    mainValue: '---',
+                    change: '---',
+                    changeType: 'positive',
+                    dataPoint1: { label: 'Loading', value: '---' },
+                    dataPoint2: { label: 'Loading', value: '---' },
+                    icon: 'RefreshCw',
+                    category: 'overview'
+                  }}
+                  isLoading={true}
+                  isDragging={false}
+                />
+              );
+            }
+
+            if (!data) return null;
+
             return (
               <FlippableMetricCard
                 key={cardId}
-                data={{
-                  id: cardId,
-                  title: 'Loading...',
-                  mainValue: '---',
-                  change: '---',
-                  changeType: 'positive',
-                  dataPoint1: { label: 'Loading', value: '---' },
-                  dataPoint2: { label: 'Loading', value: '---' },
-                  icon: 'RefreshCw',
-                  category: 'overview'
-                }}
-                isLoading={true}
-                isDragging={false}
+                data={data}
+                isLoading={isLoading}
+                isExpanded={isExpanded}
+                onExpand={() => handleExpandCard(cardId)}
+                isDragging={draggedCard === cardId}
+                onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                onDragEnd={isEditMode ? handleDragEnd : undefined}
+                onDragOver={isEditMode ? handleDragOver : undefined}
+                onDrop={isEditMode ? handleDrop(cardId) : undefined}
               />
             );
-          }
+          })}
 
-          if (!data) return null;
-
-          return (
-            <FlippableMetricCard
-              key={cardId}
-              data={data}
-              isLoading={isLoading}
-              isDragging={draggedCard === cardId}
-              onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-              onDragEnd={isEditMode ? handleDragEnd : undefined}
-              onDragOver={isEditMode ? handleDragOver : undefined}
-              onDrop={isEditMode ? handleDrop(cardId) : undefined}
-            />
-          );
-        })}
-
-        {/* Add Metric Card - Always Last */}
-        <button
-          onClick={() => setShowCardSelector(true)}
-          className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
-        >
-          <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
-            <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
-          </div>
-          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
-            {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
-          </span>
-        </button>
-      </div>
+          <button
+            onClick={() => setShowCardSelector(true)}
+            className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+          >
+            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
+              <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+            </div>
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+              {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Empty state when no cards (only show if not loading) */}
       {visibleCards.length === 0 && !isLoading && (

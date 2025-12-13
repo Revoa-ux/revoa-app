@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import {
   TrendingUp, BarChart3, DollarSign, Package, ShoppingCart, CreditCard,
   Receipt, RotateCcw, Clock, Wallet, Calendar, Target, RefreshCw,
-  Percent, UserPlus, AlertTriangle, ArrowUpRight, ArrowDownRight, HelpCircle
+  Percent, UserPlus, AlertTriangle, ArrowUpRight, ArrowDownRight, HelpCircle,
+  Maximize2, Minimize2
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MetricCardData } from '../../lib/analyticsService';
@@ -22,6 +23,8 @@ interface FlippableMetricCardProps {
   platforms?: AdPlatform[];
   isDragging?: boolean;
   isLoading?: boolean;
+  isExpanded?: boolean;
+  onExpand?: () => void;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDragOver?: (e: React.DragEvent) => void;
@@ -55,6 +58,8 @@ export default function FlippableMetricCard({
   platforms,
   isDragging = false,
   isLoading = false,
+  isExpanded = false,
+  onExpand,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -63,6 +68,13 @@ export default function FlippableMetricCard({
 }: FlippableMetricCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const Icon = iconMap[data.icon] || HelpCircle;
+
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onExpand) {
+      onExpand();
+    }
+  };
 
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-flip]')) return;
@@ -106,7 +118,9 @@ export default function FlippableMetricCard({
 
   return (
     <div
-      className={`relative h-[180px] ${className}`}
+      className={`relative transition-all duration-300 ease-in-out ${
+        isExpanded ? 'h-[350px] col-span-full' : 'h-[180px]'
+      } ${className}`}
       style={{ perspective: '1000px' }}
       onClick={handleClick}
     >
@@ -199,19 +213,35 @@ export default function FlippableMetricCard({
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400">{data.title}</h3>
-              {hasMultiplePlatforms && (
-                <div className="flex items-center gap-1.5">
-                  {platforms.map(platform => (
-                    <div key={platform} className="flex items-center gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: PLATFORM_COLORS[platform] }}
-                      />
-                      <span className="text-[10px] text-gray-400">{PLATFORM_LABELS[platform]}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                {hasMultiplePlatforms && (
+                  <div className="flex items-center gap-1.5">
+                    {platforms.map(platform => (
+                      <div key={platform} className="flex items-center gap-1">
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: PLATFORM_COLORS[platform] }}
+                        />
+                        <span className="text-[10px] text-gray-400">{PLATFORM_LABELS[platform]}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {onExpand && (
+                  <button
+                    onClick={handleExpandClick}
+                    data-no-flip
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    title={isExpanded ? 'Collapse chart' : 'Expand chart'}
+                  >
+                    {isExpanded ? (
+                      <Minimize2 className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    ) : (
+                      <Maximize2 className="w-4 h-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex-1 min-h-0">
@@ -230,12 +260,13 @@ export default function FlippableMetricCard({
                       dataKey="date"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 9, fill: '#6B7280' }}
+                      tick={{ fontSize: isExpanded ? 10 : 9, fill: '#6B7280' }}
                       tickFormatter={(date) => {
                         const d = new Date(date);
                         return `${d.getMonth() + 1}/${d.getDate()}`;
                       }}
-                      interval="preserveStartEnd"
+                      interval={isExpanded ? 'preserveStartEnd' : 'preserveStartEnd'}
+                      minTickGap={isExpanded ? 30 : 50}
                     />
                     <YAxis
                       axisLine={false}

@@ -3,7 +3,7 @@ import { getCombinedDashboardMetrics } from './dashboardMetrics';
 import { getCalculatorMetrics } from './shopify/api';
 import { formatCurrency, formatNumber } from './utils';
 
-export type TemplateType = 'executive' | 'marketing' | 'inventory' | 'financial' | 'custom';
+export type TemplateType = 'executive' | 'marketing' | 'inventory' | 'financial' | 'cross_platform' | 'custom';
 export type CardCategory = 'overview' | 'revenue' | 'expenses' | 'inventory' | 'ads' | 'financial' | 'balance';
 export type CardSize = 'small' | 'medium' | 'large';
 

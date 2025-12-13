@@ -151,6 +151,22 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
 
   useEffect(() => {
+    if (rexSuggestions.size > 0 || creatives.length > 0) {
+      console.log('[DEBUG CreativeAnalysis] Row highlight check:', {
+        suggestionsMapSize: rexSuggestions.size,
+        creativesCount: creatives.length,
+        suggestionEntityIds: Array.from(rexSuggestions.keys()).slice(0, 5),
+        creativeIds: creatives.slice(0, 5).map(c => c.id),
+        matchedRows: creatives.filter(c => rexSuggestions.has(c.id)).map(c => ({
+          id: c.id,
+          name: c.name || c.adName,
+          suggestionStatus: rexSuggestions.get(c.id)?.status
+        }))
+      });
+    }
+  }, [rexSuggestions, creatives]);
+
+  useEffect(() => {
     const tableElement = tableRef.current;
     const headerElement = headerRef.current;
 

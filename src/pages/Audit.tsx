@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Facebook, AlertTriangle, RefreshCw, Sparkles, BarChart3, Layers, Filter, Check } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
-import { PerformanceOverview } from '@/components/reports/PerformanceOverview';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
 import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
@@ -40,7 +39,6 @@ export default function Audit() {
   const [rexSuggestions, setRexSuggestions] = useState<Map<string, RexSuggestionWithPerformance>>(new Map());
   const [topDisplayedSuggestionIds, setTopDisplayedSuggestionIds] = useState<Set<string>>(new Set());
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
-  const [auditView, setAuditView] = useState<'performance' | 'admanager'>('admanager');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const platformFilterRef = useRef<HTMLDivElement>(null);
@@ -84,9 +82,10 @@ export default function Audit() {
 
     try {
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
+      console.log('[DEBUG Rex] Loaded suggestions from DB:', suggestions.length);
+
       const suggestionsMap = new Map<string, RexSuggestionWithPerformance>();
 
-      // Get performance data for each suggestion
       await Promise.all(
         suggestions.map(async (suggestion) => {
           const performance = await rexSuggestionService.getPerformance(suggestion.id);
@@ -97,14 +96,17 @@ export default function Audit() {
         })
       );
 
+      console.log('[DEBUG Rex] Suggestions map created:', {
+        size: suggestionsMap.size,
+        entityIds: Array.from(suggestionsMap.keys()).slice(0, 5),
+        statuses: Array.from(suggestionsMap.values()).map(s => ({ id: s.entity_id, status: s.status })).slice(0, 5)
+      });
+
       setRexSuggestions(suggestionsMap);
 
-      // Update top 3 displayed suggestions
       const topIds = getTopPendingSuggestions(suggestionsMap);
       setTopDisplayedSuggestionIds(topIds);
 
-      // Generate new suggestions for items without suggestions
-      // Pass false = only generate for missing suggestions (not force regenerate)
       await generateRexSuggestions(suggestionsMap, false);
     } catch (error) {
       console.error('[Audit] Error loading Rex suggestions:', error);
@@ -587,7 +589,10 @@ export default function Audit() {
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Ad Reports</h1>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-red-500" />
+          AI Ad Manager
+        </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
           {(() => {
@@ -631,34 +636,8 @@ export default function Audit() {
         </p>
       </div>
 
-      {/* View Toggle and Controls */}
-      <div className="flex items-center justify-between gap-4 flex-shrink-0">
-        <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 w-fit">
-          <button
-            onClick={() => setAuditView('admanager')}
-            className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-              auditView === 'admanager'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <Layers className="w-4 h-4 mr-1.5" />
-            Ad Manager
-          </button>
-          <button
-            onClick={() => setAuditView('performance')}
-            className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-              auditView === 'performance'
-                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4 mr-1.5" />
-            Ad Analytics
-          </button>
-        </div>
-
-        {/* Controls - shown for both views */}
+      {/* Controls */}
+      <div className="flex items-center justify-end gap-4 flex-shrink-0">
         <div className="flex items-center gap-3">
           {/* Platform Filter */}
           <div className="relative" ref={platformFilterRef}>
@@ -738,30 +717,20 @@ export default function Audit() {
       )}
 
       {facebook.isConnected && (
-        <>
-          {auditView === 'performance' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 flex-1 min-h-0 overflow-auto">
-              <PerformanceOverview metrics={performanceData} userId={user?.id} isLoading={isLoading} />
-            </div>
-          )}
-
-          {auditView === 'admanager' && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
-              <UnifiedAdManager
-                creatives={creatives}
-                campaigns={campaigns}
-                adSets={adSets}
-                isLoading={isLoading}
-                rexSuggestions={rexSuggestions}
-                topDisplayedSuggestionIds={topDisplayedSuggestionIds}
-                onViewSuggestion={handleViewSuggestion}
-                onAcceptSuggestion={handleAcceptSuggestion}
-                onDismissSuggestion={handleDismissSuggestion}
-                selectedPlatforms={selectedPlatforms}
-              />
-            </div>
-          )}
-        </>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex-1 flex flex-col min-h-0 min-w-0">
+          <UnifiedAdManager
+            creatives={creatives}
+            campaigns={campaigns}
+            adSets={adSets}
+            isLoading={isLoading}
+            rexSuggestions={rexSuggestions}
+            topDisplayedSuggestionIds={topDisplayedSuggestionIds}
+            onViewSuggestion={handleViewSuggestion}
+            onAcceptSuggestion={handleAcceptSuggestion}
+            onDismissSuggestion={handleDismissSuggestion}
+            selectedPlatforms={selectedPlatforms}
+          />
+        </div>
       )}
     </div>
   );
