@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, Plus, Sparkles } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, Plus, Sparkles, Layers, ChevronDown } from 'lucide-react';
 import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetricsModal';
 import { MetricDefinition } from '@/components/attribution/MetricCard';
 import { supabase } from '@/lib/supabase';
+import { generateCrossPlatformMockData, generateTimeSeriesForChart, aggregateByPlatform } from '@/lib/crossPlatformMockData';
+import { PLATFORM_COLORS, PLATFORM_LABELS, type AdPlatform } from '@/types/crossPlatform';
 
 interface Metric {
   name: string;
@@ -14,6 +16,8 @@ interface Metric {
     value: number;
   }>;
 }
+
+type CrossPlatformMetricType = 'netProfit' | 'adSpend' | 'netRoas' | 'profitMargin';
 
 interface PerformanceOverviewProps {
   metrics: {
@@ -28,6 +32,7 @@ interface PerformanceOverviewProps {
   } | null;
   userId?: string;
   isLoading?: boolean;
+  onOpenRexModal?: (filter?: 'cross_platform') => void;
 }
 
 const ALL_METRICS: MetricDefinition[] = [
@@ -103,7 +108,14 @@ const ALL_METRICS: MetricDefinition[] = [
   },
 ];
 
-export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics, userId, isLoading = false }) => {
+const CROSS_PLATFORM_METRIC_OPTIONS: Array<{ id: CrossPlatformMetricType; label: string; format: 'currency' | 'number' | 'percentage' }> = [
+  { id: 'netProfit', label: 'Net Profit', format: 'currency' },
+  { id: 'adSpend', label: 'Ad Spend', format: 'currency' },
+  { id: 'netRoas', label: 'Net ROAS', format: 'number' },
+  { id: 'profitMargin', label: 'Profit Margin', format: 'percentage' },
+];
+
+export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metrics, userId, isLoading = false, onOpenRexModal }) => {
   const [showCustomizeModal, setShowCustomizeModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [visibleMetrics, setVisibleMetrics] = useState<string[]>(
@@ -113,6 +125,9 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     ALL_METRICS.map(m => m.id)
   );
   const [draggedMetricId, setDraggedMetricId] = useState<string | null>(null);
+  const [crossPlatformMetric, setCrossPlatformMetric] = useState<CrossPlatformMetricType>('netProfit');
+  const [showMetricDropdown, setShowMetricDropdown] = useState(false);
+  const [enabledPlatforms, setEnabledPlatforms] = useState<Set<AdPlatform>>(new Set(['facebook', 'google', 'tiktok']));
 
   useEffect(() => {
     if (userId) {
@@ -354,6 +369,44 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     return insights;
   }, [metrics]);
 
+  const crossPlatformData = useMemo(() => {
+    if (!userId) return { chartData: [], aggregated: null, hasData: false };
+
+    const rawData = generateCrossPlatformMockData(userId, 30, ['facebook', 'google', 'tiktok']);
+    const chartData = generateTimeSeriesForChart(rawData, crossPlatformMetric);
+    const aggregated = aggregateByPlatform(rawData);
+
+    return {
+      chartData,
+      aggregated,
+      hasData: chartData.length > 0
+    };
+  }, [userId, crossPlatformMetric]);
+
+  const togglePlatform = (platform: AdPlatform) => {
+    const newEnabled = new Set(enabledPlatforms);
+    if (newEnabled.has(platform)) {
+      if (newEnabled.size > 1) {
+        newEnabled.delete(platform);
+      }
+    } else {
+      newEnabled.add(platform);
+    }
+    setEnabledPlatforms(newEnabled);
+  };
+
+  const formatCrossPlatformValue = (value: number, format: 'currency' | 'number' | 'percentage') => {
+    if (format === 'currency') {
+      return `$${value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    if (format === 'percentage') {
+      return `${value.toFixed(1)}%`;
+    }
+    return value.toFixed(2);
+  };
+
+  const selectedMetricOption = CROSS_PLATFORM_METRIC_OPTIONS.find(m => m.id === crossPlatformMetric) || CROSS_PLATFORM_METRIC_OPTIONS[0];
+
   return (
     <>
       <style>{`
@@ -546,6 +599,209 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
             </>
           )}
         </div>
+
+        {/* Cross-Platform Performance Chart */}
+        {crossPlatformData.hasData && (
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500/10 to-emerald-500/10 rounded-lg">
+                  <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Cross-Platform Performance</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Compare performance across all ad platforms</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {/* Metric Selector Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMetricDropdown(!showMetricDropdown)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                  >
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{selectedMetricOption.label}</span>
+                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showMetricDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  {showMetricDropdown && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                      {CROSS_PLATFORM_METRIC_OPTIONS.map((option) => (
+                        <button
+                          key={option.id}
+                          onClick={() => {
+                            setCrossPlatformMetric(option.id);
+                            setShowMetricDropdown(false);
+                          }}
+                          className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
+                            crossPlatformMetric === option.id
+                              ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                              : 'text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Rex AI Button */}
+                {onOpenRexModal && (
+                  <button
+                    onClick={() => onOpenRexModal('cross_platform')}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white rounded-lg transition-all shadow-sm hover:shadow-md"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-sm font-medium">Rex Insights</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Platform Toggle Pills */}
+            <div className="flex items-center gap-2 mb-6">
+              {(['facebook', 'google', 'tiktok'] as AdPlatform[]).map((platform) => (
+                <button
+                  key={platform}
+                  onClick={() => togglePlatform(platform)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    enabledPlatforms.has(platform)
+                      ? 'text-white shadow-sm'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  style={enabledPlatforms.has(platform) ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
+                >
+                  <span className={`w-2 h-2 rounded-full ${enabledPlatforms.has(platform) ? 'bg-white' : 'bg-gray-400 dark:bg-gray-500'}`} />
+                  {PLATFORM_LABELS[platform]}
+                </button>
+              ))}
+            </div>
+
+            {/* Platform Summary Cards */}
+            {crossPlatformData.aggregated && (
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {(['facebook', 'google', 'tiktok'] as AdPlatform[]).map((platform) => {
+                  const data = crossPlatformData.aggregated![platform];
+                  if (!data || !enabledPlatforms.has(platform)) return null;
+
+                  const metricValue = crossPlatformMetric === 'netProfit' ? data.totalNetProfit :
+                                      crossPlatformMetric === 'adSpend' ? data.totalSpend :
+                                      crossPlatformMetric === 'netRoas' ? data.avgNetRoas :
+                                      data.avgProfitMargin;
+
+                  return (
+                    <div
+                      key={platform}
+                      className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30"
+                      style={{ borderLeftWidth: '4px', borderLeftColor: PLATFORM_COLORS[platform] }}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <span
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: PLATFORM_COLORS[platform] }}
+                        />
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{PLATFORM_LABELS[platform]}</span>
+                      </div>
+                      <div className="text-xl font-semibold text-gray-900 dark:text-white">
+                        {formatCrossPlatformValue(metricValue, selectedMetricOption.format)}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {data.daysOfData} days of data
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Multi-Platform Line Chart */}
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={crossPlatformData.chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    {(['facebook', 'google', 'tiktok'] as AdPlatform[]).map((platform) => (
+                      <linearGradient key={platform} id={`gradient-${platform}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={PLATFORM_COLORS[platform]} stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor={PLATFORM_COLORS[platform]} stopOpacity={0}/>
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    tickFormatter={(date) => {
+                      const d = new Date(date);
+                      return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12, fill: '#6B7280' }}
+                    width={60}
+                    tickFormatter={(value) => formatCrossPlatformValue(value, selectedMetricOption.format)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: '0.75rem',
+                      border: 'none',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+                      backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                      backdropFilter: 'blur(8px)',
+                      padding: '12px 16px',
+                    }}
+                    labelStyle={{ color: '#F9FAFB', fontWeight: 600, marginBottom: '8px' }}
+                    formatter={(value: number, name: string) => {
+                      const platformKey = name as AdPlatform;
+                      return [
+                        formatCrossPlatformValue(value, selectedMetricOption.format),
+                        PLATFORM_LABELS[platformKey] || name
+                      ];
+                    }}
+                    labelFormatter={(date) => {
+                      const d = new Date(date);
+                      return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    }}
+                  />
+                  {enabledPlatforms.has('facebook') && (
+                    <Line
+                      type="monotone"
+                      dataKey="facebook"
+                      stroke={PLATFORM_COLORS.facebook}
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 5, strokeWidth: 2, stroke: PLATFORM_COLORS.facebook, fill: '#fff' }}
+                    />
+                  )}
+                  {enabledPlatforms.has('google') && (
+                    <Line
+                      type="monotone"
+                      dataKey="google"
+                      stroke={PLATFORM_COLORS.google}
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 5, strokeWidth: 2, stroke: PLATFORM_COLORS.google, fill: '#fff' }}
+                    />
+                  )}
+                  {enabledPlatforms.has('tiktok') && (
+                    <Line
+                      type="monotone"
+                      dataKey="tiktok"
+                      stroke={PLATFORM_COLORS.tiktok}
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 5, strokeWidth: 2, stroke: PLATFORM_COLORS.tiktok, fill: '#fff' }}
+                    />
+                  )}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
       <CustomizeMetricsModal
         isOpen={showCustomizeModal}

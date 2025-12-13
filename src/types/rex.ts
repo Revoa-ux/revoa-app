@@ -30,7 +30,13 @@ export type RexSuggestionType =
   | 'scale_hidden_winner'
   | 'test_similar_demographic'
   | 'expand_winning_region'
-  | 'pause_entity';
+  | 'pause_entity'
+  | 'cross_platform_budget_reallocation'
+  | 'cross_platform_time_optimization'
+  | 'cross_platform_trend_alert'
+  | 'cross_platform_efficiency_opportunity';
+
+export type RexSuggestionCategory = 'campaign_level' | 'cross_platform';
 
 export type RexEntityType = 'campaign' | 'ad_set' | 'ad';
 
@@ -210,6 +216,7 @@ export interface RexSuggestion {
   entity_name: string;
   platform: string;
   suggestion_type: RexSuggestionType;
+  suggestion_category?: RexSuggestionCategory;
   status: RexSuggestionStatus;
   priority_score: number;
   confidence_score: number;
@@ -219,6 +226,12 @@ export interface RexSuggestion {
   recommended_rule?: RexRecommendedRule;
   estimated_impact?: RexEstimatedImpact;
   automation_rule_id?: string;
+  data_confidence?: {
+    level: string;
+    daysAnalyzed: number;
+    dataPointsUsed: number;
+  };
+  data_range_days?: number;
   created_at: string;
   viewed_at?: string;
   accepted_at?: string;
@@ -286,6 +299,7 @@ export interface CreateRexSuggestionParams {
   entity_name: string;
   platform: string;
   suggestion_type: RexSuggestionType;
+  suggestion_category?: RexSuggestionCategory;
   priority_score: number;
   confidence_score: number;
   title: string;
@@ -293,6 +307,12 @@ export interface CreateRexSuggestionParams {
   reasoning: RexSuggestionReasoning;
   recommended_rule?: RexRecommendedRule;
   estimated_impact?: RexEstimatedImpact;
+  data_confidence?: {
+    level: string;
+    daysAnalyzed: number;
+    dataPointsUsed: number;
+  };
+  data_range_days?: number;
   expires_at?: string;
 }
 
