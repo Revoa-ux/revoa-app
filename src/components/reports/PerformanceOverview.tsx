@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, Plus, Sparkles, Layers, ChevronDown } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { DollarSign, TrendingUp, MousePointerClick, ShoppingCart, Target, Percent, Banknote, TrendingDown, Settings, Plus, Sparkles, Layers, ChevronDown, Info, ArrowRight, X } from 'lucide-react';
 import { CustomizeMetricsModal } from '@/components/attribution/CustomizeMetricsModal';
 import { MetricDefinition } from '@/components/attribution/MetricCard';
+import FlippablePerformanceCard from './FlippablePerformanceCard';
 import { supabase } from '@/lib/supabase';
 import { generateCrossPlatformMockData, generateTimeSeriesForChart, aggregateByPlatform } from '@/lib/crossPlatformMockData';
 import { PLATFORM_COLORS, PLATFORM_LABELS, type AdPlatform } from '@/types/crossPlatform';
+import { toast } from 'sonner';
 
 interface Metric {
   name: string;
@@ -128,6 +130,9 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
   const [crossPlatformMetric, setCrossPlatformMetric] = useState<CrossPlatformMetricType>('netProfit');
   const [showMetricDropdown, setShowMetricDropdown] = useState(false);
   const [enabledPlatforms, setEnabledPlatforms] = useState<Set<AdPlatform>>(new Set(['facebook', 'google', 'tiktok']));
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalMetricOrder, setOriginalMetricOrder] = useState<string[]>([]);
 
   useEffect(() => {
     if (userId) {
@@ -228,7 +233,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     newOrder.splice(targetIndex, 0, draggedMetricId);
 
     setMetricOrder(newOrder);
-    savePreferences(visibleMetrics, newOrder);
+    setHasUnsavedChanges(true);
     setDraggedMetricId(null);
   };
 
@@ -236,10 +241,57 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
     setDraggedMetricId(null);
   };
 
+  const handleToggleEditMode = async () => {
+    if (isEditMode) {
+      if (hasUnsavedChanges) {
+        await savePreferences(visibleMetrics, metricOrder);
+        toast.success('Layout saved successfully');
+        setHasUnsavedChanges(false);
+      }
+    } else {
+      setOriginalMetricOrder([...metricOrder]);
+      setHasUnsavedChanges(false);
+    }
+    setIsEditMode(!isEditMode);
+  };
+
   const toggleCollapse = () => {
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
     savePreferences(visibleMetrics, metricOrder, newCollapsed);
+  };
+
+  const generateMetricMultiPlatformData = (metricId: string): Array<{ date: string; facebook?: number; google?: number; tiktok?: number }> => {
+    if (!userId) return [];
+
+    const rawData = generateCrossPlatformMockData(userId, 30, ['facebook', 'google', 'tiktok']);
+
+    const metricMapping: Record<string, keyof typeof rawData[0]> = {
+      'roas': 'roas',
+      'cpa': 'cpa',
+      'ctr': 'ctr',
+      'spend': 'adSpend',
+      'conversions': 'conversions',
+      'cvr': 'ctr',
+      'profit': 'netProfit',
+      'net_roas': 'netRoas'
+    };
+
+    const dataKey = metricMapping[metricId] || 'netProfit';
+
+    const dateMap = new Map<string, { facebook?: number; google?: number; tiktok?: number }>();
+
+    for (const item of rawData) {
+      if (!dateMap.has(item.date)) {
+        dateMap.set(item.date, {});
+      }
+      const entry = dateMap.get(item.date)!;
+      entry[item.platform] = item[dataKey] as number;
+    }
+
+    return Array.from(dateMap.entries())
+      .map(([date, values]) => ({ date, ...values }))
+      .sort((a, b) => a.date.localeCompare(b.date));
   };
 
   const formatMetricValue = (metricId: string, value: number) => {
@@ -423,14 +475,51 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
               {displayedMetrics.length} metrics
             </span>
           </div>
-          <button
-            onClick={() => setShowCustomizeModal(true)}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            title="Customize metrics"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isEditMode ? (
+              <button
+                onClick={() => setIsEditMode(false)}
+                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setOriginalMetricOrder([...metricOrder]);
+                  setIsEditMode(true);
+                }}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Customize layout"
+              >
+                <Settings className="w-5 h-5" />
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Edit Mode Notification Bar */}
+        {isEditMode && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Info className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  Drag and drop cards to rearrange. Click any card to flip and see multi-platform breakdown. Click "Add Metric" to show/hide metrics.
+                </p>
+              </div>
+              {hasUnsavedChanges && (
+                <button
+                  onClick={handleToggleEditMode}
+                  className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm ml-4 flex-shrink-0"
+                >
+                  <span>Save Layout</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {isLoading ? (
@@ -442,147 +531,36 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
           ) : (
             <>
               {displayedMetrics.map((metricDef) => {
-            const metricData = getMetricData(metricDef.id);
-            if (!metricData) return null;
+                const metricData = getMetricData(metricDef.id);
+                if (!metricData) return null;
 
-            const Icon = metricDef.icon;
-            const isDragging = draggedMetricId === metricDef.id;
-            const insight = rexInsights[metricDef.id];
-            const hasRexInsight = insight?.hasInsight;
+                const insight = rexInsights[metricDef.id];
+                const multiPlatformData = generateMetricMultiPlatformData(metricDef.id);
 
-            return (
-              <div
-                key={metricDef.id}
-                draggable
-                onDragStart={handleDragStart(metricDef.id)}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop(metricDef.id)}
-                onDragEnd={handleDragEnd}
-                className={`relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border cursor-move transition-all duration-200 ${
-                  isDragging ? 'opacity-50 scale-95' : ''
-                } ${
-                  hasRexInsight
-                    ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
-                    : 'border-gray-200 dark:border-gray-700'
-                }`}
-              >
-                {hasRexInsight && (
-                  <div className="absolute top-3 right-3 group/rex">
-                    <div className="p-1.5 bg-gradient-to-r from-red-500 to-rose-500 rounded-lg shadow-sm cursor-help">
-                      <Sparkles className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <div className="absolute right-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/rex:opacity-100 group-hover/rex:visible transition-all duration-200 z-50">
-                      <div className="flex items-start gap-2">
-                        <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="font-medium text-rose-400 mb-1">Rex AI Insight</p>
-                          <p className="text-gray-300 leading-relaxed">{insight.message}</p>
-                        </div>
-                      </div>
-                      <div className="absolute -top-1.5 right-4 w-3 h-3 bg-gray-900 rotate-45" />
-                    </div>
-                  </div>
-                )}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className={`p-2 ${hasRexInsight ? 'bg-red-50 dark:bg-red-900/30' : metricDef.iconBgColor} rounded-lg ${hasRexInsight ? 'text-red-500 dark:text-red-400' : metricDef.iconColor}`}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{metricDef.label}</h3>
-                  </div>
-                  {metricData.change !== 0 && (
-                    <div className={`flex items-center text-sm ${
-                      metricData.change > 0 ? 'text-green-500' : 'text-red-500'
-                    }`}>
-                      {metricData.change > 0 ? (
-                        <ArrowUpRight className="w-4 h-4 mr-1" />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4 mr-1" />
-                      )}
-                      {Math.abs(metricData.change)}%
-                    </div>
-                  )}
-                </div>
-                <div className="text-2xl font-normal text-gray-900 dark:text-white mb-4">
-                  {formatMetricValue(metricDef.id, metricData.value)}
-                </div>
-                {metricData.data.length > 0 ? (
-                  <div className="h-32 metric-chart-wrapper">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={metricData.data} margin={{ left: 0, right: 5 }}>
-                        <defs>
-                          <linearGradient id="line-gradient" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#E11D48" />
-                            <stop offset="50%" stopColor="#EC4899" />
-                            <stop offset="100%" stopColor="#E8795A" />
-                          </linearGradient>
-                          <linearGradient id={`gradient-${metricDef.id}`} x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#E11D48" />
-                            <stop offset="50%" stopColor="#EC4899" />
-                            <stop offset="100%" stopColor="#E8795A" />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
-                        <XAxis
-                          dataKey="date"
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 12, fill: '#6B7280' }}
-                          padding={{ left: 0, right: 0 }}
-                          tickFormatter={(date) => {
-                            const d = new Date(date);
-                            return `${d.getMonth() + 1}/${d.getDate()}`;
-                          }}
-                        />
-                        <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 12, fill: '#6B7280' }}
-                          width={40}
-                          domain={['dataMin - 10%', 'dataMax + 10%']}
-                        />
-                        <Tooltip
-                          contentStyle={{
-                            borderRadius: '0.5rem',
-                            border: 'none',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            backgroundColor: 'rgba(31, 41, 55, 0.95)',
-                            backdropFilter: 'blur(8px)',
-                          }}
-                          wrapperStyle={{
-                            outline: 'none',
-                          }}
-                          cursor={false}
-                          position={{ y: -40 }}
-                          formatter={(value: number) => [formatMetricValue(metricDef.id, value), metricDef.label]}
-                          itemStyle={{ color: '#F9FAFB' }}
-                          labelStyle={{ color: '#F9FAFB' }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="#6B7280"
-                          strokeWidth={2}
-                          dot={false}
-                          activeDot={{
-                            r: 4,
-                            strokeWidth: 2,
-                            stroke: `url(#gradient-${metricDef.id})`,
-                            fill: '#fff'
-                          }}
-                          className="hover-gradient-line"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-32 flex items-center justify-center text-sm text-gray-400 dark:text-gray-600">
-                    No data
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                return (
+                  <FlippablePerformanceCard
+                    key={metricDef.id}
+                    id={metricDef.id}
+                    label={metricDef.label}
+                    value={metricData.value}
+                    change={metricData.change}
+                    icon={metricDef.icon}
+                    iconColor={metricDef.iconColor}
+                    iconBgColor={metricDef.iconBgColor}
+                    format={metricDef.format}
+                    chartData={metricData.data}
+                    multiPlatformChartData={multiPlatformData}
+                    enabledPlatforms={Array.from(enabledPlatforms)}
+                    hasRexInsight={insight?.hasInsight}
+                    rexMessage={insight?.message}
+                    isDragging={draggedMetricId === metricDef.id}
+                    onDragStart={isEditMode ? handleDragStart(metricDef.id) : undefined}
+                    onDragEnd={isEditMode ? handleDragEnd : undefined}
+                    onDragOver={isEditMode ? handleDragOver : undefined}
+                    onDrop={isEditMode ? handleDrop(metricDef.id) : undefined}
+                  />
+                );
+              })}
 
               {/* Add Metric Card */}
               <button

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw, Edit3, Save, X, Plus, Info, Clock, AlertCircle, WifiOff, LayoutGrid, LineChart, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { RefreshCw, Edit3, X, Plus, Info, AlertCircle, WifiOff, ArrowRight } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TemplateSelector from '../components/analytics/TemplateSelector';
-import MetricCard from '../components/analytics/MetricCard';
+import FlippableMetricCard from '../components/analytics/FlippableMetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
@@ -42,8 +41,6 @@ export default function Analytics() {
   const [userName, setUserName] = useState<string>('');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [adPlatformsSyncTime, setAdPlatformsSyncTime] = useState<Date | null>(null);
-  const [viewType, setViewType] = useState<'card' | 'chart'>('card');
-  const [selectedChartCard, setSelectedChartCard] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
 
@@ -164,13 +161,6 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
     loadPreferences();
   }, [user?.id]);
-
-  // Initialize selected chart card when visible cards change
-  useEffect(() => {
-    if (visibleCards.length > 0 && !selectedChartCard) {
-      setSelectedChartCard(visibleCards[0]);
-    }
-  }, [visibleCards]);
 
   // Fetch card data whenever visible cards or date range changes
   useEffect(() => {
@@ -317,24 +307,8 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
   };
 
 
-  // Get chart labels for selected card
-  const getChartLabels = (cardId: string) => {
-    const card = cardData[cardId];
-    if (!card) return { label1: 'Value 1', label2: 'Value 2', label3: 'Value 3' };
-
-    // Return the actual data point labels from the card
-    return {
-      label1: card.dataPoint1.label,
-      label2: card.dataPoint2.label,
-      label3: card.title // Use the main metric title as the third label
-    };
-  };
-
   const handleTemplateChange = async (template: TemplateType) => {
     if (!user?.id) return;
-
-    // Reset selected chart card when template changes
-    setSelectedChartCard(null);
 
     try {
       const prefs = await switchTemplate(user.id, template);
@@ -596,54 +570,8 @@ setCurrentTemplate(template);
             disabled={isEditMode}
           />
 
-          {/* View Type Toggle */}
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700/50 rounded-lg p-1 flex-shrink-0">
-            <button
-              onClick={() => setViewType('card')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-                viewType === 'card'
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4 mr-1.5" />
-              Card View
-            </button>
-            <button
-              onClick={() => setViewType('chart')}
-              className={`relative flex items-center px-3 py-1.5 rounded-lg text-sm transition-colors whitespace-nowrap ${
-                viewType === 'chart'
-                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm -my-[1px] py-[7px] -mx-[1px] px-[13px]'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              <LineChart className="w-4 h-4 mr-1.5" />
-              Chart View
-            </button>
-          </div>
-
           {isEditMode ? (
             <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowCardSelector(true)}
-                disabled={viewType === 'chart'}
-                className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Metrics</span>
-              </button>
-              <button
-                onClick={handleToggleEditMode}
-                disabled={!hasUnsavedChanges}
-                className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg transition-colors ${
-                  hasUnsavedChanges
-                    ? 'bg-gradient-to-r from-[#E11D48] via-[#EC4899] to-[#E8795A] text-white hover:opacity-90'
-                    : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-                }`}
-              >
-                <Save className="w-4 h-4" />
-                <span>Save Layout</span>
-              </button>
               <button
                 onClick={() => setIsEditMode(false)}
                 className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -652,14 +580,15 @@ setCurrentTemplate(template);
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleToggleEditMode}
-              disabled={viewType === 'chart'}
-              className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Edit3 className="w-4 h-4" />
-              <span>Customize</span>
-            </button>
+            currentTemplate !== 'custom' && (
+              <button
+                onClick={handleToggleEditMode}
+                className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Edit3 className="w-4 h-4" />
+                <span>Customize</span>
+              </button>
+            )
           )}
         </div>
 
@@ -691,201 +620,84 @@ setCurrentTemplate(template);
         </div>
       </div>
 
-      {/* Metric Cards Grid */}
-      {isEditMode && viewType === 'card' && (
+      {/* Edit Mode Notification Bar */}
+      {isEditMode && (
         <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div className="flex items-start space-x-2">
-            <Info className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-red-700 dark:text-red-300">
-              Drag and drop cards to rearrange them. Click "Add Metrics" to show/hide cards.
-            </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Info className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+              <p className="text-sm text-red-700 dark:text-red-300">
+                Drag and drop cards to rearrange. Click any card to flip and see chart. Click the "Add Metric" card to show/hide metrics.
+              </p>
+            </div>
+            {hasUnsavedChanges && (
+              <button
+                onClick={handleToggleEditMode}
+                className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm ml-4 flex-shrink-0"
+              >
+                <span>Save Layout</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {viewType === 'card' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {visibleCards.map((cardId) => {
-            const data = cardData[cardId];
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {visibleCards.map((cardId) => {
+          const data = cardData[cardId];
 
-            // Show skeleton card during initial load
-            if (!data && isLoading) {
-              return (
-                <MetricCard
-                  key={cardId}
-                  data={{
-                    id: cardId,
-                    title: 'Loading...',
-                    mainValue: '---',
-                    change: '---',
-                    changeType: 'positive',
-                    dataPoint1: { label: 'Loading', value: '---' },
-                    dataPoint2: { label: 'Loading', value: '---' },
-                    icon: 'RefreshCw',
-                    visible: true
-                  }}
-                  isLoading={true}
-                  isDragging={false}
-                />
-              );
-            }
-
-            if (!data) return null;
-
+          if (!data && isLoading) {
             return (
-              <MetricCard
+              <FlippableMetricCard
                 key={cardId}
-                data={data}
-                isLoading={isLoading}
-                isDragging={draggedCard === cardId}
-                onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                onDragEnd={isEditMode ? handleDragEnd : undefined}
-                onDragOver={isEditMode ? handleDragOver : undefined}
-                onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                data={{
+                  id: cardId,
+                  title: 'Loading...',
+                  mainValue: '---',
+                  change: '---',
+                  changeType: 'positive',
+                  dataPoint1: { label: 'Loading', value: '---' },
+                  dataPoint2: { label: 'Loading', value: '---' },
+                  icon: 'RefreshCw',
+                  category: 'overview'
+                }}
+                isLoading={true}
+                isDragging={false}
               />
             );
-          })}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {/* Metric Selector Buttons */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 p-4">
-              {visibleCards.map((cardId) => {
-                const data = cardData[cardId];
-                if (!data) return null;
+          }
 
-                const isSelected = selectedChartCard === cardId;
-                const Icon = data.icon as any;
+          if (!data) return null;
 
-                return (
-                  <button
-                    key={cardId}
-                    onClick={() => setSelectedChartCard(cardId)}
-                    className={`px-3 py-2 text-sm rounded-lg transition-colors ${
-                      isSelected
-                        ? 'bg-gray-900 dark:bg-gray-700 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-1.5">
-                      <span className="truncate">{data.title}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+          return (
+            <FlippableMetricCard
+              key={cardId}
+              data={data}
+              isLoading={isLoading}
+              isDragging={draggedCard === cardId}
+              onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+              onDragEnd={isEditMode ? handleDragEnd : undefined}
+              onDragOver={isEditMode ? handleDragOver : undefined}
+              onDrop={isEditMode ? handleDrop(cardId) : undefined}
+            />
+          );
+        })}
+
+        {/* Add Metric Card - Always Last */}
+        <button
+          onClick={() => setShowCardSelector(true)}
+          className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+        >
+          <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
+            <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
           </div>
-
-          {/* Chart Display */}
-          {selectedChartCard && cardData[selectedChartCard] && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-4">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      {cardData[selectedChartCard].title}
-                    </h3>
-                    <div className={`flex items-center space-x-1 text-sm ${
-                      cardData[selectedChartCard].changeType === 'positive'
-                        ? 'text-green-500'
-                        : cardData[selectedChartCard].changeType === 'critical'
-                        ? 'text-red-500'
-                        : 'text-red-500'
-                    }`}>
-                      {cardData[selectedChartCard].changeType === 'positive' ? (
-                        <ArrowUpRight className="w-4 h-4" />
-                      ) : (
-                        <ArrowDownRight className="w-4 h-4" />
-                      )}
-                      <span>{cardData[selectedChartCard].change}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-6">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#F43F5E] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label1}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#E8795A] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label2}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-[#EC4899] mr-2"></div>
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{getChartLabels(selectedChartCard).label3}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="h-[400px]">
-                  <div className="flex items-center justify-center h-full text-gray-400 dark:text-gray-600">
-                    <div className="text-center">
-                      <LineChart className="w-16 h-16 mx-auto mb-4" />
-                      <p className="text-lg font-medium">Your data will appear here</p>
-                      <p className="text-sm mt-2">Connect your store and sync data to see historical trends</p>
-                    </div>
-                  </div>
-                  {/* <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={[]}
-                      margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
-                      <XAxis
-                        dataKey="date"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 12, fill: '#6B7280' }}
-                      />
-                      <YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 12, fill: '#6B7280' }}
-                        tickFormatter={(value) => {
-                          if (value >= 1000) {
-                            return `$${(value / 1000).toFixed(1)}k`;
-                          }
-                          return `$${value}`;
-                        }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#1F2937',
-                          border: 'none',
-                          borderRadius: '8px',
-                          color: '#fff'
-                        }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value1"
-                        stroke="#F43F5E"
-                        fill="#F43F5E"
-                        fillOpacity={0.6}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value2"
-                        stroke="#E8795A"
-                        fill="#E8795A"
-                        fillOpacity={0.4}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value3"
-                        stroke="#EC4899"
-                        fill="#EC4899"
-                        fillOpacity={0.2}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer> */}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+            {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
+          </span>
+        </button>
+      </div>
 
       {/* Empty state when no cards (only show if not loading) */}
       {visibleCards.length === 0 && !isLoading && (
@@ -897,7 +709,7 @@ setCurrentTemplate(template);
             No Metrics Selected
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Click "Customize" to add metrics to your dashboard
+            Click "Add Metric" to add metrics to your dashboard
           </p>
         </div>
       )}
