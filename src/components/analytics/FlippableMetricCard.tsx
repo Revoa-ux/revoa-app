@@ -66,9 +66,7 @@ export default function FlippableMetricCard({
 
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-flip]')) return;
-    if (chartData.length > 0) {
-      setIsFlipped(!isFlipped);
-    }
+    setIsFlipped(!isFlipped);
   };
 
   const renderChangeIndicator = (change: string, changeType: 'positive' | 'negative' | 'critical') => {
@@ -133,7 +131,7 @@ export default function FlippableMetricCard({
             absolute inset-0 p-4 rounded-xl
             bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
             hover:bg-gray-50 dark:hover:bg-gray-700/50
-            ${onDragStart ? 'cursor-grab active:cursor-grabbing' : chartData.length > 0 ? 'cursor-pointer' : ''}
+            ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${isLoading ? 'animate-pulse' : ''}
           `}
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
@@ -295,8 +293,13 @@ export default function FlippableMetricCard({
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-xs text-gray-400">
-                  No chart data
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                    {data.mainValue}
+                  </div>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    Historical trend data coming soon
+                  </p>
                 </div>
               )}
             </div>

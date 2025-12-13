@@ -56,9 +56,7 @@ export default function FlippablePerformanceCard({
 
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-flip]')) return;
-    if (multiPlatformChartData && multiPlatformChartData.length > 0) {
-      setIsFlipped(!isFlipped);
-    }
+    setIsFlipped(!isFlipped);
   };
 
   const formatValue = (val: number) => {
@@ -101,7 +99,7 @@ export default function FlippablePerformanceCard({
         <div
           className={`
             absolute inset-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border
-            ${onDragStart ? 'cursor-grab active:cursor-grabbing' : multiPlatformChartData?.length ? 'cursor-pointer' : ''}
+            ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${hasRexInsight
               ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
               : 'border-gray-200 dark:border-gray-700'
@@ -311,8 +309,13 @@ export default function FlippablePerformanceCard({
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-full text-xs text-gray-400">
-                No multi-platform data
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <div className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+                  {formatValue(value)}
+                </div>
+                <p className="text-xs text-gray-400 dark:text-gray-500 max-w-[200px]">
+                  Multi-platform breakdown will appear when data is available
+                </p>
               </div>
             )}
           </div>
