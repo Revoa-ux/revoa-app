@@ -34,11 +34,31 @@ export type RexSuggestionType =
   | 'cross_platform_budget_reallocation'
   | 'cross_platform_time_optimization'
   | 'cross_platform_trend_alert'
-  | 'cross_platform_efficiency_opportunity';
+  | 'cross_platform_efficiency_opportunity'
+  | 'settings_deviation_warning'
+  | 'bid_strategy_test'
+  | 'performance_goal_test'
+  | 'pixel_strength_warning'
+  | 'payment_issue_warning'
+  | 'learning_phase_optimization'
+  | 'switch_to_cbo'
+  | 'switch_to_abo'
+  | 'optimize_product_mix'
+  | 'product_margin_optimization'
+  | 'creative_refresh'
+  | 'landing_page_optimization'
+  | 'product_page_optimization'
+  | 'checkout_optimization'
+  | 'optimize_funnel'
+  | 'demographic_optimization'
+  | 'placement_optimization'
+  | 'geographic_optimization'
+  | 'temporal_optimization'
+  | 'optimize_campaign';
 
 export type RexSuggestionCategory = 'campaign_level' | 'cross_platform';
 
-export type RexEntityType = 'campaign' | 'ad_set' | 'ad';
+export type RexEntityType = 'campaign' | 'ad_set' | 'ad' | 'account';
 
 // Breakdown Data Interfaces
 export interface DemographicBreakdown {
@@ -143,12 +163,12 @@ export interface MetricProjections {
 
 export interface RexSuggestionReasoning {
   triggeredBy: string[];
-  primaryInsight: string;
+  primaryInsight?: string;
   metrics: {
-    [key: string]: number | string;
+    [key: string]: number | string | boolean | undefined;
   };
   analysis: string;
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
 
   // Enhanced breakdown data
   supportingData?: {
@@ -175,6 +195,19 @@ export interface RexSuggestionReasoning {
   sampleDataPoints?: any[];
   methodology?: string;
   confidenceIntervals?: Record<string, { lower: number; upper: number }>;
+
+  // Action guidance
+  actionSteps?: string[];
+
+  // Cross-engine context
+  platformContext?: {
+    learningPhaseStatus?: string;
+    budgetConstraints?: string;
+    performanceContext?: string;
+  };
+  pixelHealthWarning?: string;
+  crossReferenced?: boolean;
+  multipleIssuesOnEntity?: number;
 }
 
 export interface RexRecommendedRule {
@@ -203,9 +236,13 @@ export interface RexEstimatedImpact {
   expectedSavings?: number;
   expectedRevenue?: number;
   expectedProfit?: number;
-  timeframeDays: number;
-  confidence: 'low' | 'medium' | 'high';
-  breakdown: string;
+  expectedROAS?: number;
+  expectedCPA?: number;
+  timeframeDays?: number;
+  timeframe?: string;
+  confidence?: 'low' | 'medium' | 'high';
+  breakdown?: string;
+  reasoning?: string;
 }
 
 export interface RexSuggestion {
@@ -298,15 +335,21 @@ export interface CreateRexSuggestionParams {
   entity_id: string;
   entity_name: string;
   platform: string;
-  suggestion_type: RexSuggestionType;
+  platform_entity_id?: string;
+  suggestion_type: RexSuggestionType | string;
   suggestion_category?: RexSuggestionCategory;
   priority_score: number;
   confidence_score: number;
-  title: string;
-  message: string;
-  reasoning: RexSuggestionReasoning;
+  title?: string;
+  message?: string;
+  reasoning: Partial<RexSuggestionReasoning> & {
+    triggeredBy: string[];
+    analysis: string;
+    riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    metrics: Record<string, number | string | boolean | undefined>;
+  };
   recommended_rule?: RexRecommendedRule;
-  estimated_impact?: RexEstimatedImpact;
+  estimated_impact?: Partial<RexEstimatedImpact>;
   data_confidence?: {
     level: string;
     daysAnalyzed: number;

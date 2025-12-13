@@ -693,8 +693,551 @@ export const META_TARGETING_COMPREHENSIVE: TargetingKnowledge = {
 };
 
 // ============================================================================
+// COMPREHENSIVE CAMPAIGN-LEVEL SETTINGS KNOWLEDGE
+// ============================================================================
+
+export interface CampaignObjectiveKnowledge {
+  objective: string;
+  metaApiName: string;
+  description: string;
+  optimizedFor: string;
+  bestFor: string[];
+  notRecommendedFor: string[];
+  isDefaultForEcommerce: boolean;
+}
+
+export interface BidStrategyKnowledge {
+  strategy: string;
+  metaApiName: string;
+  description: string;
+  whenToUse: string[];
+  whenToAvoid: string[];
+  requirements: string[];
+  duplicateFromProfitable: boolean;
+  settingGuidance: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
+
+export interface CampaignLevelKnowledge {
+  platform: AdPlatform;
+  objectives: CampaignObjectiveKnowledge[];
+  bidStrategies: BidStrategyKnowledge[];
+  budgetOptimization: {
+    cbo: {
+      description: string;
+      advantages: string[];
+      whenToUse: string[];
+      isUniversalDefault: boolean;
+    };
+    abo: {
+      description: string;
+      advantages: string[];
+      whenToUse: string[];
+    };
+  };
+  budgetTypes: {
+    daily: {
+      description: string;
+      isDefault: boolean;
+      reasoning: string;
+    };
+    lifetime: {
+      description: string;
+      whenToUse: string[];
+    };
+  };
+}
+
+export const META_CAMPAIGN_LEVEL_KNOWLEDGE: CampaignLevelKnowledge = {
+  platform: 'facebook',
+
+  objectives: [
+    {
+      objective: 'Sales',
+      metaApiName: 'OUTCOME_SALES',
+      description: 'Optimizes for purchase conversions on your website or app',
+      optimizedFor: 'Purchase events, catalog sales, conversions',
+      bestFor: [
+        'Ecommerce stores (Shopify, WooCommerce, etc.)',
+        'Any business with online purchases',
+        'Maximizing revenue and ROAS',
+      ],
+      notRecommendedFor: [
+        'Brand awareness campaigns',
+        'Content distribution',
+        'App installs',
+      ],
+      isDefaultForEcommerce: true,
+    },
+    {
+      objective: 'Leads',
+      metaApiName: 'OUTCOME_LEADS',
+      description: 'Optimizes for lead generation forms and sign-ups',
+      optimizedFor: 'Lead forms, registrations, contact submissions',
+      bestFor: [
+        'B2B lead generation',
+        'Service businesses',
+        'Email list building',
+      ],
+      notRecommendedFor: [
+        'Direct ecommerce sales',
+        'When you want immediate purchases',
+      ],
+      isDefaultForEcommerce: false,
+    },
+    {
+      objective: 'Traffic',
+      metaApiName: 'OUTCOME_TRAFFIC',
+      description: 'Optimizes for link clicks and landing page views',
+      optimizedFor: 'Website visits, link clicks',
+      bestFor: [
+        'Blog content promotion',
+        'Driving awareness to new pages',
+        'Testing landing pages',
+      ],
+      notRecommendedFor: [
+        'Ecommerce conversion optimization',
+        'When purchase is the goal',
+        'Performance marketing',
+      ],
+      isDefaultForEcommerce: false,
+    },
+    {
+      objective: 'Awareness',
+      metaApiName: 'OUTCOME_AWARENESS',
+      description: 'Optimizes for reach and ad recall lift',
+      optimizedFor: 'Maximum reach, brand recall',
+      bestFor: [
+        'Brand launches',
+        'Mass market awareness',
+        'Large budget brand campaigns',
+      ],
+      notRecommendedFor: [
+        'Direct response',
+        'Ecommerce with limited budget',
+        'Performance-focused campaigns',
+      ],
+      isDefaultForEcommerce: false,
+    },
+  ],
+
+  bidStrategies: [
+    {
+      strategy: 'Highest Volume',
+      metaApiName: 'LOWEST_COST_WITHOUT_CAP',
+      description: 'Meta bids to get the most conversions at the lowest cost, spending your full budget',
+      whenToUse: [
+        'New campaigns and testing',
+        'Learning phase campaigns',
+        'When you need conversion volume',
+        'When ROAS is consistently profitable',
+        'Default for most campaigns',
+      ],
+      whenToAvoid: [
+        'When CPA is at absolute maximum acceptable',
+        'When you need strict cost control',
+      ],
+      requirements: [
+        'Trust in product profitability',
+        'Willingness to accept day-to-day CPA fluctuations',
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'No bid cap or target needed. Meta automatically optimizes to spend your full budget at the lowest possible cost per result.',
+      riskLevel: 'low',
+    },
+    {
+      strategy: 'ROAS Goal',
+      metaApiName: 'LOWEST_COST_WITH_MIN_ROAS',
+      description: 'Meta maintains a minimum ROAS floor while maximizing conversions',
+      whenToUse: [
+        'When a Highest Volume campaign is CONSISTENTLY profitable (7+ days)',
+        'When you want to maintain a minimum return on ad spend',
+        'Scaling proven campaigns without sacrificing efficiency',
+        'Protecting margins during aggressive scaling',
+      ],
+      whenToAvoid: [
+        'New campaigns without conversion history',
+        'Low volume campaigns (<50 conversions/week)',
+        'Testing new audiences or creative',
+        'If you set floor too high (will underspend)',
+      ],
+      requirements: [
+        'Campaign must have exited learning phase',
+        'At least 7 days of consistent profitable performance',
+        'Sufficient pixel data (50+ conversions)',
+        'Budget high enough to hit ROAS target',
+      ],
+      duplicateFromProfitable: true,
+      settingGuidance: 'DUPLICATE a consistently profitable Highest Volume campaign. Set ROAS goal EQUAL to that campaign\'s current ROAS. Set budget HIGH ($100+/day) to ensure spend while maintaining the floor.',
+      riskLevel: 'medium',
+    },
+    {
+      strategy: 'Cost Per Result Goal',
+      metaApiName: 'COST_CAP',
+      description: 'Meta tries to maintain your target CPA while maximizing conversions',
+      whenToUse: [
+        'When a Highest Volume campaign is CONSISTENTLY net profitable (7+ days)',
+        'When you know your maximum acceptable CPA',
+        'Protecting profit margins during scaling',
+        'When you have clear unit economics',
+      ],
+      whenToAvoid: [
+        'New campaigns without CPA history',
+        'If cap is set too low (severe underspending)',
+        'Testing phase - restricts algorithm learning',
+      ],
+      requirements: [
+        'Campaign must have exited learning phase',
+        'At least 7 days of consistent profitable performance',
+        'Historical CPA data to set realistic target',
+        '50+ conversions for reliable CPA baseline',
+      ],
+      duplicateFromProfitable: true,
+      settingGuidance: 'DUPLICATE a consistently profitable Highest Volume campaign. Set cost cap to that campaign\'s current CPA. Can set 10-20% higher to give algorithm room while protecting downside.',
+      riskLevel: 'medium',
+    },
+    {
+      strategy: 'Bid Cap',
+      metaApiName: 'LOWEST_COST_WITH_BID_CAP',
+      description: 'Sets the maximum bid Meta will place in any single auction',
+      whenToUse: [
+        'Very experienced advertisers only',
+        'Precise auction-level control needed',
+        'Extremely competitive niches',
+        'When you understand auction dynamics deeply',
+      ],
+      whenToAvoid: [
+        'Most advertisers should NOT use this',
+        'New campaigns',
+        'If you don\'t understand auction mechanics',
+        'When you want consistent delivery',
+      ],
+      requirements: [
+        'Deep understanding of auction mechanics',
+        'Extensive historical bid data',
+        'Willingness to manually adjust frequently',
+        'Accept significant underspending risk',
+      ],
+      duplicateFromProfitable: false,
+      settingGuidance: 'NOT RECOMMENDED for most advertisers. Cost Per Result Goal provides 90% of the control with 50% of the complexity. Only use if you have specific auction-level requirements.',
+      riskLevel: 'high',
+    },
+  ],
+
+  budgetOptimization: {
+    cbo: {
+      description: 'Campaign Budget Optimization allows Meta to automatically distribute budget across ad sets based on real-time performance',
+      advantages: [
+        'Automatic budget allocation to best performers',
+        'Responds to real-time performance signals',
+        'Typically 10-20% better efficiency than manual',
+        'Less manual management required',
+        'Better for scaling',
+      ],
+      whenToUse: [
+        'ALWAYS - This is the universal default',
+        'All scaling campaigns',
+        'When you have multiple ad sets',
+        'When you trust the algorithm',
+      ],
+      isUniversalDefault: true,
+    },
+    abo: {
+      description: 'Ad Set Budget Optimization gives you manual control over budget allocation per ad set',
+      advantages: [
+        'Precise control over spend per audience',
+        'Useful for specific testing scenarios',
+        'Can prevent algorithm from over-concentrating spend',
+      ],
+      whenToUse: [
+        'Testing specific audiences with equal budget',
+        'When you need guaranteed spend on each ad set',
+        'Very early testing phase with 2-3 audiences',
+      ],
+    },
+  },
+
+  budgetTypes: {
+    daily: {
+      description: 'Budget that refreshes every day at midnight account time',
+      isDefault: true,
+      reasoning: 'Daily budgets provide predictable spend, easier ROI calculation, and better control. You can pause anytime without wasting allocated budget.',
+    },
+    lifetime: {
+      description: 'Total budget for campaign duration that Meta distributes across days',
+      whenToUse: [
+        'Event-based campaigns with fixed end dates',
+        'Product launches with specific timelines',
+        'When you want Meta to optimize timing',
+      ],
+    },
+  },
+};
+
+// ============================================================================
+// COMPREHENSIVE AD SET-LEVEL SETTINGS KNOWLEDGE
+// ============================================================================
+
+export interface ConversionLocationKnowledge {
+  location: string;
+  metaApiName: string;
+  description: string;
+  isDefaultForShopify: boolean;
+  whenToUse: string[];
+}
+
+export interface ConversionEventKnowledge {
+  event: string;
+  metaApiName: string;
+  description: string;
+  funnelPosition: 'top' | 'middle' | 'bottom';
+  isDefaultForEcommerce: boolean;
+  whenToUse: string[];
+  whenToAvoid: string[];
+}
+
+export interface PerformanceGoalKnowledge {
+  goal: string;
+  metaApiName: string;
+  description: string;
+  isDefault: boolean;
+  whenToUse: string[];
+  duplicateToTest: boolean;
+}
+
+export interface AdSetLevelKnowledge {
+  platform: AdPlatform;
+  conversionLocations: ConversionLocationKnowledge[];
+  conversionEvents: ConversionEventKnowledge[];
+  performanceGoals: PerformanceGoalKnowledge[];
+  attributionSettings: Array<{
+    setting: string;
+    description: string;
+    isDefault: boolean;
+    reasoning: string;
+  }>;
+}
+
+export const META_AD_SET_LEVEL_KNOWLEDGE: AdSetLevelKnowledge = {
+  platform: 'facebook',
+
+  conversionLocations: [
+    {
+      location: 'Website',
+      metaApiName: 'WEBSITE',
+      description: 'Conversions happen on your website (Shopify store)',
+      isDefaultForShopify: true,
+      whenToUse: [
+        'ALWAYS for Shopify ecommerce',
+        'Any web-based conversion flow',
+        'Standard ecommerce purchases',
+      ],
+    },
+    {
+      location: 'App',
+      metaApiName: 'APP',
+      description: 'Conversions happen in your mobile app',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'Mobile app purchases only',
+        'When you have a dedicated app',
+      ],
+    },
+    {
+      location: 'Messenger',
+      metaApiName: 'MESSENGER',
+      description: 'Conversions happen through Messenger conversations',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'Chat-based sales',
+        'High-touch service businesses',
+      ],
+    },
+    {
+      location: 'WhatsApp',
+      metaApiName: 'WHATSAPP',
+      description: 'Conversions happen through WhatsApp conversations',
+      isDefaultForShopify: false,
+      whenToUse: [
+        'WhatsApp-based sales (popular in some regions)',
+        'When WhatsApp is primary sales channel',
+      ],
+    },
+  ],
+
+  conversionEvents: [
+    {
+      event: 'Purchase',
+      metaApiName: 'PURCHASE',
+      description: 'Completed purchase on your website',
+      funnelPosition: 'bottom',
+      isDefaultForEcommerce: true,
+      whenToUse: [
+        'ALWAYS for ecommerce - this is the universal default',
+        'When you want to optimize for actual revenue',
+        'Any campaign focused on sales',
+      ],
+      whenToAvoid: [
+        'Never avoid for ecommerce',
+      ],
+    },
+    {
+      event: 'Add to Cart',
+      metaApiName: 'ADD_TO_CART',
+      description: 'Added product to shopping cart',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'ONLY when purchase volume is very low (<10/week)',
+        'Testing phase when you need more signals',
+        'Higher-funnel retargeting campaigns',
+      ],
+      whenToAvoid: [
+        'When you have sufficient purchase volume (10+/week)',
+        'Main prospecting campaigns',
+        'When focused on revenue',
+      ],
+    },
+    {
+      event: 'Initiate Checkout',
+      metaApiName: 'INITIATE_CHECKOUT',
+      description: 'Started checkout process',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'When purchase volume is low but checkout volume is decent',
+        'Specific checkout optimization campaigns',
+      ],
+      whenToAvoid: [
+        'Main prospecting campaigns',
+        'When you have purchase volume',
+      ],
+    },
+    {
+      event: 'Lead',
+      metaApiName: 'LEAD',
+      description: 'Submitted lead form or contact information',
+      funnelPosition: 'middle',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'B2B lead generation',
+        'Service businesses',
+        'Email signup campaigns',
+      ],
+      whenToAvoid: [
+        'Ecommerce purchase campaigns',
+        'When direct sale is the goal',
+      ],
+    },
+    {
+      event: 'View Content',
+      metaApiName: 'VIEW_CONTENT',
+      description: 'Viewed product page or key content',
+      funnelPosition: 'top',
+      isDefaultForEcommerce: false,
+      whenToUse: [
+        'Awareness campaigns',
+        'When all other events have zero volume',
+        'Content marketing',
+      ],
+      whenToAvoid: [
+        'Performance campaigns',
+        'When you want conversions',
+        'Ecommerce sales campaigns',
+      ],
+    },
+  ],
+
+  performanceGoals: [
+    {
+      goal: 'Maximize Number of Conversions',
+      metaApiName: 'OFFSITE_CONVERSIONS',
+      description: 'Meta optimizes for the highest number of conversion events',
+      isDefault: true,
+      whenToUse: [
+        'Default for most campaigns',
+        'When all products have similar value',
+        'When you want maximum purchase volume',
+        'New campaigns and testing',
+      ],
+      duplicateToTest: false,
+    },
+    {
+      goal: 'Maximize Conversion Value',
+      metaApiName: 'VALUE',
+      description: 'Meta optimizes for highest total conversion value (revenue)',
+      isDefault: false,
+      whenToUse: [
+        'When you have significant AOV variance ($20-$200+ product range)',
+        'When Max Conversions campaign is already profitable',
+        'When you want Meta to prioritize higher-value purchases',
+        'Stores with premium products mixed with entry-level',
+      ],
+      duplicateToTest: true,
+    },
+  ],
+
+  attributionSettings: [
+    {
+      setting: '7-day click, 1-day view',
+      description: 'Conversions attributed if user clicked within 7 days or viewed within 1 day',
+      isDefault: true,
+      reasoning: 'Meta\'s recommended default. Provides best balance of attribution accuracy and algorithm learning. Shorter windows may undercount conversions.',
+    },
+    {
+      setting: '1-day click',
+      description: 'Only conversions within 1 day of click are attributed',
+      isDefault: false,
+      reasoning: 'Most conservative. Use for products with short consideration cycles or when you suspect view-through is inflating numbers.',
+    },
+    {
+      setting: '7-day click',
+      description: 'Conversions within 7 days of click, no view-through',
+      isDefault: false,
+      reasoning: 'Good middle ground if you distrust view-through but have longer consideration cycles.',
+    },
+  ],
+};
+
+// ============================================================================
 // EXPORT KNOWLEDGE RETRIEVAL FUNCTIONS
 // ============================================================================
+
+export function getCampaignLevelKnowledge(platform: AdPlatform): CampaignLevelKnowledge {
+  if (platform === 'facebook') {
+    return META_CAMPAIGN_LEVEL_KNOWLEDGE;
+  }
+  throw new Error(`Campaign level knowledge not yet available for ${platform}`);
+}
+
+export function getAdSetLevelKnowledge(platform: AdPlatform): AdSetLevelKnowledge {
+  if (platform === 'facebook') {
+    return META_AD_SET_LEVEL_KNOWLEDGE;
+  }
+  throw new Error(`Ad set level knowledge not yet available for ${platform}`);
+}
+
+export function getBidStrategyGuidance(
+  platform: AdPlatform,
+  strategy: string
+): BidStrategyKnowledge | undefined {
+  const knowledge = getCampaignLevelKnowledge(platform);
+  return knowledge.bidStrategies.find(
+    s => s.strategy.toLowerCase() === strategy.toLowerCase() ||
+         s.metaApiName === strategy
+  );
+}
+
+export function getConversionEventGuidance(
+  platform: AdPlatform,
+  event: string
+): ConversionEventKnowledge | undefined {
+  const knowledge = getAdSetLevelKnowledge(platform);
+  return knowledge.conversionEvents.find(
+    e => e.event.toLowerCase() === event.toLowerCase() ||
+         e.metaApiName === event
+  );
+}
 
 export function getLearningPhaseKnowledge(
   platform: AdPlatform,
