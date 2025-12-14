@@ -394,13 +394,80 @@ export async function fetchVariableData(context: VariableContext): Promise<Varia
   return data;
 }
 
+export const VARIABLE_FALLBACKS: Record<string, string> = {
+  'product_damage_claim_deadline_days': '30 days',
+  'product_replacement_ship_time_days': '7-14 business days',
+  'product_defect_coverage_days': '90 days',
+  'product_return_window_days': '30 days',
+  'last_mile_carrier': 'your local postal service',
+  'product_factory_name': 'our partner factory',
+  'tracking_number': 'not yet available',
+  'tracking_company': 'carrier',
+  'warehouse_entry_number': 'to be provided',
+  'customer_first_name': 'Customer',
+  'customer_full_name': 'Customer',
+  'product_name': 'your product',
+  'warranty_days': '90',
+  'covers_damaged': 'Yes',
+  'covers_lost': 'No',
+  'order_items': 'your order items',
+  'shipping_address_full': 'your shipping address',
+  'estimated_delivery': '7-10 business days',
+  'merchant_name': 'Our Team',
+  'merchant_store_name': 'Our Store',
+  'restocking_fee': '15%',
+  'return_warehouse_address': '5130 E. Santa Ana Street, Ontario, CA 91761',
+  'carrier_name': 'the carrier',
+  'carrier_phone_number': 'their customer service number',
+  'tracking_status': 'tracking status pending',
+  'order_status_url': 'your order status page',
+  'shipped_date': 'your ship date'
+};
+
+export const VARIABLE_DISPLAY_NAMES: Record<string, string> = {
+  'tracking_number': 'Tracking Number',
+  'tracking_url': 'Tracking URL',
+  'tracking_company': 'Tracking Company',
+  'order_status_url': 'Order Status Page',
+  'shipped_date': 'Ship Date',
+  'tracking_status': 'Tracking Status',
+  'warehouse_entry_number': 'Warehouse Entry Number',
+  'customer_first_name': 'Customer First Name',
+  'customer_full_name': 'Customer Name',
+  'shipping_address_full': 'Shipping Address',
+  'merchant_name': 'Merchant Name',
+  'merchant_store_name': 'Store Name',
+  'product_name': 'Product Name',
+  'order_items': 'Order Items',
+  'carrier_name': 'Carrier Name',
+  'carrier_phone_number': 'Carrier Phone',
+  'last_mile_carrier': 'Last Mile Carrier',
+  'product_factory_name': 'Factory Name',
+  'estimated_delivery': 'Estimated Delivery'
+};
+
+export interface ReplaceVariablesResult {
+  content: string;
+  fallbackVariables: string[];
+  unresolvedVariables: string[];
+}
+
 /**
  * Replace all {{variable}} placeholders in content with actual data
  */
 export function replaceVariables(content: string, data: VariableData): string {
-  let result = content;
+  const result = replaceVariablesWithTracking(content, data);
+  return result.content;
+}
 
-  // Replace all {{variable}} patterns
+/**
+ * Replace variables and track which ones used fallbacks or remain unresolved
+ */
+export function replaceVariablesWithTracking(content: string, data: VariableData): ReplaceVariablesResult {
+  let result = content;
+  const fallbackVariables: string[] = [];
+  const unresolvedVariables: string[] = [];
+
   const variablePattern = /\{\{([a-zA-Z0-9_]+)\}\}/g;
 
   result = result.replace(variablePattern, (match, variableName) => {
@@ -410,41 +477,21 @@ export function replaceVariables(content: string, data: VariableData): string {
       return value;
     }
 
-    // Provide sensible fallbacks for common missing variables
-    const fallbacks: Record<string, string> = {
-      'product_damage_claim_deadline_days': '30 days',
-      'product_replacement_ship_time_days': '7-14 business days',
-      'product_defect_coverage_days': '90 days',
-      'product_return_window_days': '30 days',
-      'last_mile_carrier': 'your local postal service',
-      'product_factory_name': 'our partner factory',
-      'tracking_number': 'not yet available',
-      'tracking_company': 'carrier',
-      'warehouse_entry_number': 'to be provided',
-      'customer_first_name': 'Customer',
-      'customer_full_name': 'Customer',
-      'product_name': 'your product',
-      'warranty_days': '90',
-      'covers_damaged': 'Yes',
-      'covers_lost': 'No',
-      'order_items': 'your order items',
-      'shipping_address_full': 'your shipping address',
-      'estimated_delivery': '7-10 business days',
-      'merchant_name': 'Our Team',
-      'merchant_store_name': 'Our Store',
-      'restocking_fee': '15%',
-      'return_warehouse_address': '5130 E. Santa Ana Street, Ontario, CA 91761',
-      'carrier_name': 'the carrier',
-      'carrier_phone_number': 'their customer service number',
-      'tracking_status': 'tracking status pending',
-      'order_status_url': 'your order status page',
-      'shipped_date': 'your ship date'
-    };
+    const fallback = VARIABLE_FALLBACKS[variableName];
+    if (fallback) {
+      fallbackVariables.push(variableName);
+      return fallback;
+    }
 
-    return fallbacks[variableName] || match; // Keep {{variable}} if no fallback
+    unresolvedVariables.push(variableName);
+    return match;
   });
 
-  return result;
+  return {
+    content: result,
+    fallbackVariables,
+    unresolvedVariables
+  };
 }
 
 /**

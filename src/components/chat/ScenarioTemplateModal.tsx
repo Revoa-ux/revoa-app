@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag } from 'lucide-react';
+import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag, Pencil } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
-import { fetchVariableData, replaceVariables } from '../../lib/templateVariableService';
+import { fetchVariableData, replaceVariablesWithTracking, VARIABLE_FALLBACKS, VARIABLE_DISPLAY_NAMES } from '../../lib/templateVariableService';
 
 interface ScenarioTemplateModalProps {
   isOpen: boolean;
@@ -205,6 +205,12 @@ export function ScenarioTemplateModal({
   const [expandedStages, setExpandedStages] = useState<string[]>(['order_status']);
   const [dbTemplates, setDbTemplates] = useState<EmailTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
+  const [showOrderSelector, setShowOrderSelector] = useState(false);
+  const [fallbackVariables, setFallbackVariables] = useState<string[]>([]);
+  const [unresolvedVariables, setUnresolvedVariables] = useState<string[]>([]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editableSubject, setEditableSubject] = useState('');
+  const [editableBody, setEditableBody] = useState('');
 
   // Load templates from database
   useEffect(() => {
@@ -347,6 +353,16 @@ export function ScenarioTemplateModal({
     setPopulatedSubject(template.subject);
     setPopulatedBody(template.body);
     setSelectedOrderForTemplate('');
+    setShowOrderSelector(false);
+    setFallbackVariables([]);
+    setUnresolvedVariables([]);
+    setIsEditMode(false);
+    setEditableSubject('');
+    setEditableBody('');
+  };
+
+  const handleSyncToOrder = () => {
+    setShowOrderSelector(true);
     if (userId && !orderId) {
       loadOrders();
     }
@@ -366,20 +382,27 @@ export function ScenarioTemplateModal({
 
     setIsLoading(true);
     try {
-      // Use the templateVariableService to fetch all variable data
       const variableData = await fetchVariableData({
         orderId: targetOrderId,
         userId: userId,
         threadId: threadId
       });
 
-      // Replace variables in template using the service
-      const subject = replaceVariables(selectedTemplate.subject, variableData);
-      const body = replaceVariables(selectedTemplate.body, variableData);
+      const subjectResult = replaceVariablesWithTracking(selectedTemplate.subject, variableData);
+      const bodyResult = replaceVariablesWithTracking(selectedTemplate.body, variableData);
 
-      setPopulatedSubject(subject);
-      setPopulatedBody(body);
+      setPopulatedSubject(subjectResult.content);
+      setPopulatedBody(bodyResult.content);
+      setEditableSubject(subjectResult.content);
+      setEditableBody(bodyResult.content);
+
+      const allFallbacks = [...new Set([...subjectResult.fallbackVariables, ...bodyResult.fallbackVariables])];
+      const allUnresolved = [...new Set([...subjectResult.unresolvedVariables, ...bodyResult.unresolvedVariables])];
+      setFallbackVariables(allFallbacks);
+      setUnresolvedVariables(allUnresolved);
+
       setIsAssignedToOrder(true);
+      setShowOrderSelector(false);
     } catch (error) {
       console.error('Error assigning to order:', error);
       toast.error('Failed to load order data');
@@ -390,7 +413,9 @@ export function ScenarioTemplateModal({
 
   const handleCopyToClipboard = async () => {
     try {
-      const emailContent = `Subject: ${populatedSubject}\n\n${populatedBody}`;
+      const subjectToUse = isEditMode ? editableSubject : populatedSubject;
+      const bodyToUse = isEditMode ? editableBody : populatedBody;
+      const emailContent = `Subject: ${subjectToUse}\n\n${bodyToUse}`;
       await navigator.clipboard.writeText(emailContent);
       setCopied(true);
       toast.success('Email copied to clipboard!');
@@ -418,6 +443,59 @@ export function ScenarioTemplateModal({
       }
       return <span key={index}>{part}</span>;
     });
+  };
+
+  const renderPopulatedText = (text: string) => {
+    if (fallbackVariables.length === 0 && unresolvedVariables.length === 0) {
+      return text;
+    }
+
+    const fallbackValues = Object.values(VARIABLE_FALLBACKS);
+    const escapedFallbacks = fallbackValues.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const fallbackPattern = new RegExp(`(${escapedFallbacks.join('|')}|\\{\\{[^}]+\\}\\})`, 'g');
+
+    const parts = text.split(fallbackPattern);
+
+    return parts.map((part, index) => {
+      if (fallbackValues.includes(part)) {
+        return (
+          <span
+            key={index}
+            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {part}
+          </span>
+        );
+      }
+      if (part.startsWith('{{') && part.endsWith('}}')) {
+        return (
+          <span
+            key={index}
+            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
+          >
+            <AlertCircle className="w-3 h-3" />
+            {part}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
+  const getWarningCount = () => {
+    return fallbackVariables.length + unresolvedVariables.length;
+  };
+
+  const getWarningFields = () => {
+    const fields: string[] = [];
+    fallbackVariables.forEach(v => {
+      fields.push(VARIABLE_DISPLAY_NAMES[v] || v.replace(/_/g, ' '));
+    });
+    unresolvedVariables.forEach(v => {
+      fields.push(VARIABLE_DISPLAY_NAMES[v] || v.replace(/_/g, ' '));
+    });
+    return fields;
   };
 
   if (!isOpen) return null;
@@ -617,12 +695,36 @@ export function ScenarioTemplateModal({
             <div className="flex flex-col h-full">
               {/* Subject Line */}
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 block">
-                  Subject Line
-                </label>
-                <div className="text-gray-900 dark:text-white font-medium">
-                  {isAssignedToOrder ? populatedSubject : renderTextWithVariables(populatedSubject)}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Subject Line
+                  </label>
+                  {isAssignedToOrder && (
+                    <button
+                      onClick={() => setIsEditMode(!isEditMode)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                        isEditMode
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      }`}
+                    >
+                      <Pencil className="w-3 h-3" />
+                      {isEditMode ? 'Editing' : 'Edit'}
+                    </button>
+                  )}
                 </div>
+                {isEditMode ? (
+                  <input
+                    type="text"
+                    value={editableSubject}
+                    onChange={(e) => setEditableSubject(e.target.value)}
+                    className="w-full px-3 py-2 text-gray-900 dark:text-white font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <div className="text-gray-900 dark:text-white font-medium">
+                    {isAssignedToOrder ? renderPopulatedText(populatedSubject) : renderTextWithVariables(populatedSubject)}
+                  </div>
+                )}
               </div>
 
               {/* Email Body */}
@@ -630,9 +732,17 @@ export function ScenarioTemplateModal({
                 <label className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3 block">
                   Email Body
                 </label>
-                <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                  {isAssignedToOrder ? populatedBody : renderTextWithVariables(populatedBody)}
-                </div>
+                {isEditMode ? (
+                  <textarea
+                    value={editableBody}
+                    onChange={(e) => setEditableBody(e.target.value)}
+                    className="w-full h-full min-h-[300px] px-3 py-2 text-gray-700 dark:text-gray-300 text-sm leading-relaxed bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                ) : (
+                  <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                    {isAssignedToOrder ? renderPopulatedText(populatedBody) : renderTextWithVariables(populatedBody)}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -641,13 +751,24 @@ export function ScenarioTemplateModal({
         {/* Footer */}
         {selectedTemplate && (
           <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            {/* Order Search Section - Always visible when not coming from order thread */}
-            {!isAssignedToOrder && !orderId && (
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 max-h-[320px] overflow-hidden">
-                <div className="space-y-3 h-full flex flex-col">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Select an Order
-                  </label>
+            {/* Order Search Section - Only visible when showOrderSelector is true */}
+            {!isAssignedToOrder && !orderId && showOrderSelector && (
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Select an Order
+                    </label>
+                    <button
+                      onClick={() => {
+                        setShowOrderSelector(false);
+                        setSelectedOrderForTemplate('');
+                      }}
+                      className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
 
                   {isLoadingOrders ? (
                     <div className="flex items-center justify-center py-8">
@@ -690,7 +811,7 @@ export function ScenarioTemplateModal({
                           </div>
                         </div>
                       ) : (
-                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg flex-1 overflow-y-auto bg-white dark:bg-gray-800 shadow-sm min-h-0">
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-[200px] overflow-y-auto bg-white dark:bg-gray-800 shadow-sm">
                           {orders.map((order) => {
                             const isSelected = selectedOrderForTemplate === order.id;
                             return (
@@ -768,6 +889,10 @@ export function ScenarioTemplateModal({
                   setIsAssignedToOrder(false);
                   setCopied(false);
                   setSelectedOrderForTemplate('');
+                  setShowOrderSelector(false);
+                  setFallbackVariables([]);
+                  setUnresolvedVariables([]);
+                  setIsEditMode(false);
                 }}
                 className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
               >
@@ -775,11 +900,15 @@ export function ScenarioTemplateModal({
                 Back to Templates
               </button>
 
-              <div className="flex items-center gap-4">
-                {!isAssignedToOrder && !orderId && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    This template contains variables. Assign to an order to populate with real data.
-                  </p>
+              <div className="flex items-center gap-3">
+                {/* Warning for fallback/unresolved variables */}
+                {isAssignedToOrder && getWarningCount() > 0 && !isEditMode && (
+                  <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-xs font-medium">
+                      {getWarningCount()} field{getWarningCount() > 1 ? 's' : ''} need{getWarningCount() === 1 ? 's' : ''} attention
+                    </span>
+                  </div>
                 )}
 
                 {isAssignedToOrder ? (
@@ -798,6 +927,14 @@ export function ScenarioTemplateModal({
                         Copy to Clipboard
                       </>
                     )}
+                  </button>
+                ) : !showOrderSelector && !orderId ? (
+                  <button
+                    onClick={handleSyncToOrder}
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                  >
+                    <LinkIcon className="w-4 h-4" />
+                    <span>Sync to Order</span>
                   </button>
                 ) : (
                   <button
