@@ -206,6 +206,7 @@ export function ScenarioTemplateModal({
   const [dbTemplates, setDbTemplates] = useState<EmailTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showOrderSelector, setShowOrderSelector] = useState(false);
+  const [orderSearchQuery, setOrderSearchQuery] = useState('');
   const [fallbackVariables, setFallbackVariables] = useState<string[]>([]);
   const [unresolvedVariables, setUnresolvedVariables] = useState<string[]>([]);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -763,6 +764,7 @@ export function ScenarioTemplateModal({
                       onClick={() => {
                         setShowOrderSelector(false);
                         setSelectedOrderForTemplate('');
+                        setOrderSearchQuery('');
                       }}
                       className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                     >
@@ -787,12 +789,14 @@ export function ScenarioTemplateModal({
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                           type="text"
-                          placeholder="Search order number..."
+                          placeholder="Type to search orders..."
+                          value={orderSearchQuery}
                           onChange={(e) => {
-                            const search = e.target.value.toLowerCase();
-                            if (search) {
+                            const search = e.target.value;
+                            setOrderSearchQuery(search);
+                            if (search.toLowerCase()) {
                               const filtered = allOrders.filter(order =>
-                                order.order_number.toLowerCase().includes(search)
+                                order.order_number.toLowerCase().includes(search.toLowerCase())
                               );
                               setOrders(filtered);
                             } else {
@@ -803,7 +807,14 @@ export function ScenarioTemplateModal({
                         />
                       </div>
 
-                      {orders.length === 0 ? (
+                      {orderSearchQuery.length === 0 ? (
+                        <div className="flex items-center justify-center py-6">
+                          <div className="text-center">
+                            <Search className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                            <p className="text-sm text-gray-500 dark:text-gray-400">Start typing to search orders</p>
+                          </div>
+                        </div>
+                      ) : orders.length === 0 ? (
                         <div className="flex items-center justify-center py-6">
                           <div className="text-center">
                             <Package className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
@@ -890,6 +901,7 @@ export function ScenarioTemplateModal({
                   setCopied(false);
                   setSelectedOrderForTemplate('');
                   setShowOrderSelector(false);
+                  setOrderSearchQuery('');
                   setFallbackVariables([]);
                   setUnresolvedVariables([]);
                   setIsEditMode(false);
@@ -911,12 +923,28 @@ export function ScenarioTemplateModal({
                   </div>
                 )}
 
-                {isAssignedToOrder ? (
+                {isAssignedToOrder || showOrderSelector ? (
                   <button
-                    onClick={handleCopyToClipboard}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    onClick={() => {
+                      if (isAssignedToOrder) {
+                        handleCopyToClipboard();
+                      } else if (selectedOrderForTemplate) {
+                        handleAssignToOrder(selectedOrderForTemplate);
+                      }
+                    }}
+                    disabled={!isAssignedToOrder && !selectedOrderForTemplate}
+                    className={`group px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+                      isAssignedToOrder || selectedOrderForTemplate
+                        ? 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md'
+                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                    }`}
                   >
-                    {copied ? (
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : copied ? (
                       <>
                         <Check className="w-4 h-4" />
                         Copied!
@@ -928,29 +956,19 @@ export function ScenarioTemplateModal({
                       </>
                     )}
                   </button>
-                ) : !showOrderSelector && !orderId ? (
+                ) : !orderId ? (
                   <button
                     onClick={handleSyncToOrder}
                     className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
-                    <LinkIcon className="w-4 h-4" />
-                    <span>Sync to Order</span>
+                    <span>Populate Template</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 ) : (
                   <button
-                    onClick={() => {
-                      if (orderId) {
-                        handleAssignToOrder();
-                      } else if (selectedOrderForTemplate) {
-                        handleAssignToOrder(selectedOrderForTemplate);
-                      }
-                    }}
-                    disabled={isLoading || (!orderId && !selectedOrderForTemplate)}
-                    className={`group px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 shadow-sm ${
-                      orderId || selectedOrderForTemplate
-                        ? 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md'
-                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
-                    }`}
+                    onClick={() => handleAssignToOrder()}
+                    disabled={isLoading}
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     {isLoading ? (
                       <>
@@ -960,7 +978,7 @@ export function ScenarioTemplateModal({
                     ) : (
                       <>
                         <span>Populate Template</span>
-                        <ArrowRight className={`w-4 h-4 ${orderId || selectedOrderForTemplate ? 'group-hover:translate-x-0.5' : ''} transition-transform`} />
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
                   </button>
