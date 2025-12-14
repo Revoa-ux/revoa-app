@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';
-import { useTheme } from '../contexts/ThemeContext';
 
 const SignUpNew = () => {
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ const SignUpNew = () => {
 
     try {
       const { error, data } = await signUp(formData.email, formData.password);
-      
+
       if (error) {
         if (error.message.includes('already registered')) {
           setErrors({ email: 'This email is already registered' });
@@ -54,10 +53,25 @@ const SignUpNew = () => {
         throw error;
       }
 
-      if (data) {
-        toast.success('Account created successfully');
-        // Redirect to first step of onboarding
-        navigate('/onboarding/store', { replace: true });
+      if (data?.user) {
+        try {
+          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+          await fetch(`${supabaseUrl}/functions/v1/send-signup-confirmation`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email: formData.email,
+            }),
+          });
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+        }
+
+        navigate('/check-email', {
+          replace: true,
+          state: { email: formData.email }
+        });
       }
     } catch (error) {
       console.error('Signup error:', error);

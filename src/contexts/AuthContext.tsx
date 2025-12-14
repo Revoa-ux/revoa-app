@@ -17,6 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;
+  emailConfirmed: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -34,6 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [emailConfirmed, setEmailConfirmed] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,11 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (session?.user) {
           console.log('[AuthContext] Checking onboarding status for user:', session.user.id);
 
-          // Check onboarding status with shorter timeout
           try {
             const profilePromise = supabase
               .from('user_profiles')
-              .select('onboarding_completed')
+              .select('onboarding_completed, email_confirmed')
               .eq('user_id', session.user.id)
               .maybeSingle();
 
@@ -88,17 +89,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (profileError) {
                 console.error('[AuthContext] Error fetching user profile:', profileError);
                 setHasCompletedOnboarding(false);
+                setEmailConfirmed(false);
               } else {
                 console.log('[AuthContext] User profile:', profile);
-                const completed = profile?.onboarding_completed || false;
-                console.log('[AuthContext] Onboarding completed:', completed);
-                setHasCompletedOnboarding(completed);
+                setHasCompletedOnboarding(profile?.onboarding_completed || false);
+                setEmailConfirmed(profile?.email_confirmed || false);
               }
             }
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile fetch timeout or error:', err);
               setHasCompletedOnboarding(false);
+              setEmailConfirmed(false);
             }
           }
         }
@@ -128,12 +130,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
 
         if (session?.user && isMounted) {
-          console.log('[AuthContext] SIGNED_IN - Checking onboarding status for user:', session.user.id);
+          console.log('[AuthContext] SIGNED_IN - Checking profile for user:', session.user.id);
 
           try {
             const profilePromise = supabase
               .from('user_profiles')
-              .select('onboarding_completed')
+              .select('onboarding_completed, email_confirmed')
               .eq('user_id', session.user.id)
               .maybeSingle();
 
@@ -150,17 +152,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN:', error);
                 setHasCompletedOnboarding(false);
+                setEmailConfirmed(false);
               } else {
                 console.log('[AuthContext] SIGNED_IN profile:', profile);
-                const completed = profile?.onboarding_completed || false;
-                console.log('[AuthContext] SIGNED_IN onboarding completed:', completed);
-                setHasCompletedOnboarding(completed);
+                setHasCompletedOnboarding(profile?.onboarding_completed || false);
+                setEmailConfirmed(profile?.email_confirmed || false);
               }
             }
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile check timeout on SIGNED_IN');
               setHasCompletedOnboarding(false);
+              setEmailConfirmed(false);
             }
           }
         }
@@ -169,6 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSession(null);
           setUser(null);
           setHasCompletedOnboarding(false);
+          setEmailConfirmed(false);
           navigate('/auth', { replace: true });
         }
       }
@@ -238,7 +242,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetPassword: handleResetPassword,
     isAuthenticated: !!user,
     hasCompletedOnboarding,
-    setHasCompletedOnboarding: handleSetHasCompletedOnboarding
+    setHasCompletedOnboarding: handleSetHasCompletedOnboarding,
+    emailConfirmed
   };
 
   return (

@@ -39,6 +39,8 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import DataDeletion from './pages/DataDeletion';
 import VerifyEmail from './pages/VerifyEmail';
+import CheckEmail from './pages/CheckEmail';
+import ConfirmEmail from './pages/ConfirmEmail';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminProvider, useAdmin } from './contexts/AdminContext';
 import { LoadingProvider } from './contexts/LoadingContext';
@@ -95,7 +97,7 @@ const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =
 
 // Protected route component for user routes
 const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, emailConfirmed } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
 
   if (isLoading || adminLoading) {
@@ -106,7 +108,10 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // If admin is trying to access regular user routes, redirect to admin dashboard
+  if (!emailConfirmed) {
+    return <Navigate to="/check-email" replace state={{ email: user.email }} />;
+  }
+
   if (isAdmin) {
     return <Navigate to="/admin/dashboard" replace />;
   }
@@ -185,6 +190,9 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/sign-in" element={<Auth />} />
             <Route path="/sign-up" element={<SignUpNew />} />
+            <Route path="/signup" element={<SignUpNew />} />
+            <Route path="/check-email" element={<CheckEmail />} />
+            <Route path="/confirm-email" element={<ConfirmEmail />} />
 
             {/* Legal pages - publicly accessible */}
             <Route path="/privacy" element={<Privacy />} />
