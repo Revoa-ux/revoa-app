@@ -1876,7 +1876,7 @@ const SettingsPage = () => {
                   onClick={() => setActiveTab(id as any)}
                   className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors ${
                     activeTab === id
-                      ? 'border-red-500 text-red-500'
+                      ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
                       : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                   }`}
                 >
