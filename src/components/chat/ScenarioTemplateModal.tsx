@@ -198,7 +198,6 @@ export function ScenarioTemplateModal({
   const [populatedBody, setPopulatedBody] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [showOrderSearch, setShowOrderSearch] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
@@ -313,13 +312,6 @@ export function ScenarioTemplateModal({
     'Chargebacks'
   ];
 
-  // Load orders when showing order search
-  useEffect(() => {
-    if (showOrderSearch && userId) {
-      loadOrders();
-    }
-  }, [showOrderSearch, userId]);
-
   const loadOrders = async () => {
     if (!userId) return;
 
@@ -354,16 +346,14 @@ export function ScenarioTemplateModal({
     setIsAssignedToOrder(false);
     setPopulatedSubject(template.subject);
     setPopulatedBody(template.body);
+    setSelectedOrderForTemplate('');
+    if (userId && !orderId) {
+      loadOrders();
+    }
   };
 
-  const handleShowOrderSearch = () => {
-    setShowOrderSearch(true);
-  };
-
-  const handleOrderSelection = async (selectedOrderId: string) => {
+  const handleOrderSelection = (selectedOrderId: string) => {
     setSelectedOrderForTemplate(selectedOrderId);
-    setShowOrderSearch(false);
-    await handleAssignToOrder(selectedOrderId);
   };
 
   const handleAssignToOrder = async (orderIdToUse?: string) => {
@@ -651,28 +641,20 @@ export function ScenarioTemplateModal({
         {/* Footer */}
         {selectedTemplate && (
           <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            {/* Order Search Section - Fixed height, only shows when searching */}
-            {!isAssignedToOrder && showOrderSearch && (
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 h-[420px] overflow-hidden">
-                <div className="space-y-4 h-full flex flex-col">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Select an Order
-                    </label>
-                    <button
-                      onClick={() => setShowOrderSearch(false)}
-                      className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 rounded px-2 py-1"
-                    >
-                      Cancel
-                    </button>
-                  </div>
+            {/* Order Search Section - Always visible when not coming from order thread */}
+            {!isAssignedToOrder && !orderId && (
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 max-h-[320px] overflow-hidden">
+                <div className="space-y-3 h-full flex flex-col">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Select an Order
+                  </label>
 
                   {isLoadingOrders ? (
-                    <div className="flex items-center justify-center flex-1">
+                    <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
                     </div>
                   ) : allOrders.length === 0 ? (
-                    <div className="flex items-center justify-center flex-1">
+                    <div className="flex items-center justify-center py-8">
                       <div className="text-center">
                         <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
                         <p className="text-sm text-gray-500 dark:text-gray-400">No orders found</p>
@@ -680,13 +662,11 @@ export function ScenarioTemplateModal({
                     </div>
                   ) : (
                     <>
-                      {/* Search Input */}
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                           type="text"
                           placeholder="Search order number..."
-                          autoFocus
                           onChange={(e) => {
                             const search = e.target.value.toLowerCase();
                             if (search) {
@@ -698,57 +678,80 @@ export function ScenarioTemplateModal({
                               setOrders(allOrders);
                             }
                           }}
-                          className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
+                          className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white text-sm transition-all"
                         />
                       </div>
 
                       {orders.length === 0 ? (
-                        <div className="flex items-center justify-center flex-1">
+                        <div className="flex items-center justify-center py-6">
                           <div className="text-center">
-                            <Package className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                            <Package className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                             <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
                           </div>
                         </div>
                       ) : (
-                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg flex-1 overflow-y-auto bg-white dark:bg-gray-800 shadow-sm">
-                          {orders.map((order) => (
-                            <button
-                              key={order.id}
-                              onClick={() => handleOrderSelection(order.id)}
-                              className="w-full px-4 py-3.5 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group focus:outline-none focus:bg-pink-50 dark:focus:bg-pink-900/20"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 group-hover:bg-pink-100 dark:group-hover:bg-pink-900/20 transition-colors">
-                                  <Package className="w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors" />
+                        <div className="border border-gray-300 dark:border-gray-600 rounded-lg flex-1 overflow-y-auto bg-white dark:bg-gray-800 shadow-sm min-h-0">
+                          {orders.map((order) => {
+                            const isSelected = selectedOrderForTemplate === order.id;
+                            return (
+                              <button
+                                key={order.id}
+                                onClick={() => handleOrderSelection(order.id)}
+                                className={`w-full px-4 py-3 flex items-center justify-between transition-all border-b border-gray-200 dark:border-gray-700 last:border-b-0 text-left group focus:outline-none ${
+                                  isSelected
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-l-blue-500'
+                                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg transition-colors ${
+                                    isSelected
+                                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                                      : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600'
+                                  }`}>
+                                    <Package className={`w-4 h-4 transition-colors ${
+                                      isSelected
+                                        ? 'text-blue-600 dark:text-blue-400'
+                                        : 'text-gray-500 dark:text-gray-400'
+                                    }`} />
+                                  </div>
+                                  <div>
+                                    <p className={`font-semibold text-sm ${
+                                      isSelected
+                                        ? 'text-blue-900 dark:text-blue-100'
+                                        : 'text-gray-900 dark:text-white'
+                                    }`}>
+                                      {order.order_number}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                      {order.customer_first_name || order.customer_last_name ? (
+                                        [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
+                                      ) : order.customer_email ? (
+                                        order.customer_email
+                                      ) : (
+                                        'Guest Customer'
+                                      )}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="font-semibold text-gray-900 dark:text-white text-base">
-                                    {order.order_number}
+                                <div className="text-right">
+                                  <p className={`text-sm font-bold ${
+                                    isSelected
+                                      ? 'text-blue-600 dark:text-blue-400'
+                                      : 'text-pink-600 dark:text-pink-400'
+                                  }`}>
+                                    ${order.total_price?.toFixed(2)}
                                   </p>
                                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {order.customer_first_name || order.customer_last_name ? (
-                                      [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
-                                    ) : order.customer_email ? (
-                                      order.customer_email
-                                    ) : (
-                                      'Guest Customer'
-                                    )}
+                                    {new Date(order.created_at).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
                                   </p>
                                 </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm font-bold text-pink-600 dark:text-pink-400">
-                                  ${order.total_price?.toFixed(2)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                  {new Date(order.created_at).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric'
-                                  })}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
+                              </button>
+                            );
+                          })}
                         </div>
                       )}
                     </>
@@ -757,14 +760,14 @@ export function ScenarioTemplateModal({
               </div>
             )}
 
-            {/* Action Footer - Always visible with consistent height */}
+            {/* Action Footer */}
             <div className="px-6 py-4 flex items-center justify-between">
               <button
                 onClick={() => {
                   setSelectedTemplate(null);
                   setIsAssignedToOrder(false);
                   setCopied(false);
-                  setShowOrderSearch(false);
+                  setSelectedOrderForTemplate('');
                 }}
                 className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
               >
@@ -773,7 +776,7 @@ export function ScenarioTemplateModal({
               </button>
 
               <div className="flex items-center gap-4">
-                {!isAssignedToOrder && (
+                {!isAssignedToOrder && !orderId && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     This template contains variables. Assign to an order to populate with real data.
                   </p>
@@ -782,7 +785,7 @@ export function ScenarioTemplateModal({
                 {isAssignedToOrder ? (
                   <button
                     onClick={handleCopyToClipboard}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     {copied ? (
                       <>
@@ -801,12 +804,16 @@ export function ScenarioTemplateModal({
                     onClick={() => {
                       if (orderId) {
                         handleAssignToOrder();
-                      } else {
-                        handleShowOrderSearch();
+                      } else if (selectedOrderForTemplate) {
+                        handleAssignToOrder(selectedOrderForTemplate);
                       }
                     }}
-                    disabled={isLoading}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    disabled={isLoading || (!orderId && !selectedOrderForTemplate)}
+                    className={`group px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+                      orderId || selectedOrderForTemplate
+                        ? 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md'
+                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                    }`}
                   >
                     {isLoading ? (
                       <>
@@ -816,7 +823,7 @@ export function ScenarioTemplateModal({
                     ) : (
                       <>
                         <span>Populate Template</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        <ArrowRight className={`w-4 h-4 ${orderId || selectedOrderForTemplate ? 'group-hover:translate-x-0.5' : ''} transition-transform`} />
                       </>
                     )}
                   </button>
