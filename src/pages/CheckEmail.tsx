@@ -106,7 +106,7 @@ const CheckEmail = () => {
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Check your email</h2>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                   {emailSent
-                    ? `We sent a confirmation link to ${email || 'your email'}`
+                    ? <>We sent a confirmation link to <span className="text-[#E11D48] font-medium">{email || 'your email'}</span></>
                     : 'Your account was created successfully'}
                 </p>
               </div>
