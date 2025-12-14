@@ -135,8 +135,13 @@ export const AssignToOrderModal: React.FC<AssignToOrderModalProps> = ({
   };
 
   const handleCreate = async () => {
+    if (!selectedTag) {
+      toast.error('Please select a category');
+      return;
+    }
+
     if (!selectedOrder) {
-      toast.error('Please select an order first');
+      toast.error('Please select an order');
       return;
     }
 
@@ -280,9 +285,9 @@ Items sent back to us without first requesting a return will not be accepted.`,
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             <TagIcon className="w-4 h-4 inline mr-1" />
-            Category (Optional)
+            Category
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {TAG_OPTIONS.map(tag => (
               <button
                 key={tag.value}
@@ -429,8 +434,12 @@ Items sent back to us without first requesting a return will not be accepted.`,
           </button>
           <button
             onClick={handleCreate}
-            disabled={!selectedOrder || isCreating}
-            className="group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 hover:shadow-lg rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2"
+            disabled={!selectedOrder || !selectedTag || isCreating}
+            className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+              selectedOrder && selectedTag
+                ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
+                : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             <span>
               {isCreating ? (
