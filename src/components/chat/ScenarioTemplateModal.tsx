@@ -760,7 +760,7 @@ export function ScenarioTemplateModal({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Attach an Order to This Template
+                      Attach an order to this template
                     </label>
                     <button
                       onClick={() => {
