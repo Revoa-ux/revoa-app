@@ -27,19 +27,16 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Generate confirmation token
     const token = crypto.randomUUID();
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
 
-    // Delete any existing unconfirmed tokens for this user
     await supabaseClient
       .from('signup_confirmation_tokens')
       .delete()
       .eq('user_id', userId)
       .is('confirmed_at', null);
 
-    // Create new confirmation token
     const { error: tokenError } = await supabaseClient
       .from('signup_confirmation_tokens')
       .insert({
@@ -57,11 +54,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Generate confirmation link
     const siteUrl = Deno.env.get('SITE_URL') || 'https://app.revoa.ai';
     const confirmationLink = `${siteUrl}/confirm-email?token=${token}`;
 
-    // Send email using Resend
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const fromEmail = Deno.env.get('EMAIL_FROM') || 'Revoa <noreply@notifications.revoa.app>';
     let emailSent = false;
@@ -131,85 +126,82 @@ function generateConfirmationEmail(confirmationLink: string): string {
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Confirm Your Revoa Account</title>
-        <style>
-          @media (prefers-color-scheme: dark) {
-            .email-container { background-color: #111827 !important; }
-            .card-bg { background-color: rgba(31, 41, 55, 0.7) !important; }
-            .text-body { color: #e5e7eb !important; }
-            .info-box { background-color: rgba(232, 91, 129, 0.08) !important; border-left-color: #E85B81 !important; }
-            .info-text { color: #d1d5db !important; }
-            .footer-text { color: #9ca3af !important; }
-            .footer-border { border-top-color: #374151 !important; }
-          }
-          @media (prefers-color-scheme: light) {
-            .email-container { background-color: #f9fafb !important; }
-            .card-bg { background-color: rgba(255, 255, 255, 0.7) !important; }
-            .text-body { color: #4b5563 !important; }
-            .info-box { background-color: rgba(232, 91, 129, 0.08) !important; border-left-color: #E85B81 !important; }
-            .info-text { color: #6b7280 !important; }
-            .footer-text { color: #9ca3af !important; }
-            .footer-border { border-top-color: #e5e7eb !important; }
-          }
-        </style>
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" class="email-container" style="background-color: #f9fafb; padding: 60px 20px; position: relative;">
-          <tr>
-            <td style="position: relative;">
-              <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(to right, rgba(128, 128, 128, 0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(128, 128, 128, 0.04) 1px, transparent 1px); background-size: 64px 64px; mask-image: radial-gradient(circle at center, transparent, black 30%, transparent); -webkit-mask-image: radial-gradient(circle at center, transparent, black 30%, transparent); pointer-events: none;"></div>
-            </td>
-          </tr>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; padding: 48px 20px;">
           <tr>
             <td align="center">
-              <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; position: relative; z-index: 1;">
+              <table width="500" cellpadding="0" cellspacing="0" border="0" style="max-width: 500px; width: 100%;">
+                <!-- Logo -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #E85B81 0%, #E87D55 100%); border-radius: 16px 16px 0 0; padding: 50px 40px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 500; letter-spacing: -0.5px;">
-                      Welcome to Revoa!
+                  <td align="center" style="padding-bottom: 32px;">
+                    <img src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png" alt="Revoa" width="48" height="48" style="display: block;" />
+                  </td>
+                </tr>
+
+                <!-- Title -->
+                <tr>
+                  <td align="center" style="padding-bottom: 16px;">
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #111111; letter-spacing: -0.5px;">
+                      Confirm your account
                     </h1>
-                    <p style="color: rgba(255, 255, 255, 0.95); margin: 12px 0 0 0; font-size: 18px; font-weight: 400;">
-                      Just one more step to get started
+                  </td>
+                </tr>
+
+                <!-- Subtitle -->
+                <tr>
+                  <td align="center" style="padding-bottom: 32px;">
+                    <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #666666;">
+                      Thank you for signing up for Revoa. To confirm your account, please click the button below.
                     </p>
                   </td>
                 </tr>
 
+                <!-- Button -->
                 <tr>
-                  <td class="card-bg" style="background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); padding: 50px 40px; border-radius: 0 0 16px 16px;">
-                    <p class="text-body" style="color: #4b5563; font-size: 17px; line-height: 1.7; margin: 0 0 24px 0; text-align: center;">
-                      Thanks for signing up! Please confirm your email address to activate your account and start using Revoa.
-                    </p>
+                  <td align="center" style="padding-bottom: 32px;">
+                    <a href="${confirmationLink}" style="display: inline-block; background-color: #111111; color: #ffffff; text-decoration: none; padding: 10px 24px; border-radius: 6px; font-weight: 500; font-size: 14px;">
+                      Confirm Account
+                    </a>
+                  </td>
+                </tr>
 
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 40px 0;">
-                      <tr>
-                        <td align="center">
-                          <a href="${confirmationLink}" style="display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%); color: #ffffff; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-weight: 500; font-size: 16px; box-shadow: 0 2px 8px rgba(232, 91, 129, 0.3); transition: all 0.2s ease;">
-                            <span style="margin-right: 8px;">Confirm Email</span>
-                            <span style="display: inline-block; width: 16px; height: 16px;">&#8594;</span>
-                          </a>
-                        </td>
-                      </tr>
-                    </table>
-
-                    <div class="info-box" style="background-color: rgba(232, 91, 129, 0.08); border-left: 3px solid #E85B81; border-radius: 8px; padding: 20px; margin: 40px 0;">
-                      <p class="info-text" style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0;">
-                        <strong style="color: #E85B81;">Note:</strong> This confirmation link expires in 24 hours. If you didn't create an account, you can safely ignore this email.
-                      </p>
-                    </div>
-
-                    <p class="footer-text footer-border" style="color: #9ca3af; font-size: 13px; line-height: 1.6; margin: 30px 0 0 0; text-align: center; padding-top: 30px; border-top: 1px solid #e5e7eb;">
-                      Button not working? Copy and paste this link:<br>
-                      <a href="${confirmationLink}" style="color: #E87D55; word-break: break-all; text-decoration: underline;">${confirmationLink}</a>
+                <!-- Expiry Note -->
+                <tr>
+                  <td align="center" style="padding-bottom: 32px;">
+                    <p style="margin: 0; font-size: 13px; color: #888888;">
+                      This link expires in 24 hours. If you didn't create an account, you can safely ignore this email.
                     </p>
                   </td>
                 </tr>
 
+                <!-- Divider -->
                 <tr>
-                  <td style="padding: 30px 20px; text-align: center;">
-                    <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 500;">
-                      Revoa
+                  <td style="padding-bottom: 24px;">
+                    <hr style="border: none; border-top: 1px solid #eeeeee; margin: 0;" />
+                  </td>
+                </tr>
+
+                <!-- Fallback Link -->
+                <tr>
+                  <td align="center" style="padding-bottom: 32px;">
+                    <p style="margin: 0 0 8px 0; font-size: 12px; color: #999999;">
+                      Link not working? Copy and paste this URL:
                     </p>
-                    <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                      Intelligent Analytics & Attribution Platform
+                    <p style="margin: 0; font-size: 12px; color: #666666; word-break: break-all;">
+                      <a href="${confirmationLink}" style="color: #666666; text-decoration: underline;">${confirmationLink}</a>
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td align="center">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #999999;">
+                      <a href="https://revoa.app" style="color: #999999; text-decoration: none;">revoa.app</a>
+                    </p>
+                    <p style="margin: 0; font-size: 11px; color: #bbbbbb;">
+                      Official Shopify App
                     </p>
                   </td>
                 </tr>
