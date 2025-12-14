@@ -113,6 +113,10 @@ const SettingsPage = () => {
     profile.phone !== originalProfile.phone ||
     profile.company !== originalProfile.company;
 
+  const hasPasswordChanges =
+    passwordData.new_password.length > 0 &&
+    passwordData.confirm_password.length > 0;
+
   // Use centralized connection store
   const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus} = useConnectionStore();
   const shopifyStore = shopify.installation?.store_url || null;
@@ -2076,7 +2080,10 @@ const SettingsPage = () => {
                         Saving...
                       </>
                     ) : (
-                      'Save Changes'
+                      <>
+                        Save Changes
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </>
                     )}
                   </button>
                 </div>
@@ -2178,8 +2185,12 @@ const SettingsPage = () => {
                 <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button
                     type="submit"
-                    disabled={savingProfile}
-                    className="group px-6 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                    disabled={savingProfile || !hasPasswordChanges}
+                    className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+                      hasPasswordChanges
+                        ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
+                        : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {savingProfile ? (
                       <>
