@@ -84,6 +84,14 @@ const SettingsPage = () => {
     company: '',
     profile_picture_url: null
   });
+  const [originalProfile, setOriginalProfile] = useState<UserProfile>({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    company: '',
+    profile_picture_url: null
+  });
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -98,6 +106,12 @@ const SettingsPage = () => {
   const [savingProfile, setSavingProfile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPicture, setUploadingPicture] = useState(false);
+
+  const hasProfileChanges =
+    profile.first_name !== originalProfile.first_name ||
+    profile.last_name !== originalProfile.last_name ||
+    profile.phone !== originalProfile.phone ||
+    profile.company !== originalProfile.company;
 
   // Use centralized connection store
   const { shopify, facebook, refreshFacebookAccounts, refreshShopifyStatus} = useConnectionStore();
@@ -153,14 +167,16 @@ const SettingsPage = () => {
             }
           }
 
-          setProfile({
+          const profileData = {
             first_name: firstName,
             last_name: lastName,
             email: user?.email || '',
             phone: data.phone || '',
             company: data.company || '',
             profile_picture_url: data.profile_picture_url || null
-          });
+          };
+          setProfile(profileData);
+          setOriginalProfile(profileData);
 
           if (data.is_admin) {
             setIsAdmin(true);
@@ -1371,6 +1387,8 @@ const SettingsPage = () => {
 
       if (error) throw error;
 
+      setOriginalProfile(profile);
+
       if (profile.email === user.email) {
         toast.success('Profile updated successfully');
       }
@@ -2045,8 +2063,12 @@ const SettingsPage = () => {
                 <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
                   <button
                     type="submit"
-                    disabled={savingProfile}
-                    className="group px-6 py-2 text-sm text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                    disabled={savingProfile || !hasProfileChanges}
+                    className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+                      hasProfileChanges
+                        ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
+                        : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {savingProfile ? (
                       <>
@@ -2054,9 +2076,7 @@ const SettingsPage = () => {
                         Saving...
                       </>
                     ) : (
-                      <>
-                        {savingProfile ? 'Saving...' : 'Save Changes'}
-                      </>
+                      'Save Changes'
                     )}
                   </button>
                 </div>
