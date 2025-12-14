@@ -1,110 +1,85 @@
-# Netlify configuration file
-
 [build]
-  # Build command and output directory
-  command = "npm run build"
-  publish = "dist"
-  functions = "netlify/functions"
+command = "npx vite build"
+publish = "dist"
+functions = "netlify/functions"
 
-  # Environment variables for build
-  # Note: All sensitive environment variables should be set in Netlify's dashboard
-  # under Site settings > Environment variables
-  [build.environment]
-    NODE_VERSION = "20.12.0"
-
-# Force HTTPS for all requests
-[[redirects]]
-  from = "http://*"
-  to = "https://:splat"
-  status = 301
-  force = true
-
-# Handle Shopify callback route
-[[redirects]]
-  from = "/auth/callback"
-  to = "/index.html"
-  status = 200
-  force = true
-
-# Authentication routes
-[[redirects]]
-  from = "/sign-in"
-  to = "/index.html"
-  status = 200
-  force = true
+[build.environment]
+NODE_VERSION = "20.12.0"
 
 [[redirects]]
-  from = "/sign-up"
-  to = "/index.html"
-  status = 200
-  force = true
+from = "http://*"
+to = "https://:splat"
+status = 301
+force = true
 
 [[redirects]]
-  from = "/auth/*"
-  to = "/index.html"
-  status = 200
-  force = true
+from = "/auth/callback"
+to = "/index.html"
+status = 200
+force = true
 
 [[redirects]]
-  from = "/onboarding/*"
-  to = "/index.html"
-  status = 200
-  force = true
+from = "/sign-in"
+to = "/index.html"
+status = 200
+force = true
 
-# Handle all other routes for SPA routing
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = true
+from = "/sign-up"
+to = "/index.html"
+status = 200
+force = true
 
-# Headers to set
-[[headers]]
-  for = "/*"
-  [headers.values]
-    # Security headers
-    X-Frame-Options = "ALLOW-FROM https://*.myshopify.com https://*.shopify.com"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com; font-src 'self' https://rsms.me; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app https://api.canva.com; frame-src 'self' https://*.myshopify.com https://*.shopify.com https://*.canva.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
+[[redirects]]
+from = "/auth/*"
+to = "/index.html"
+status = 200
+force = true
 
+[[redirects]]
+from = "/onboarding/*"
+to = "/index.html"
+status = 200
+force = true
 
-    # Cache Control for static assets
-    Cache-Control = """
-      public,
-      max-age=31536000,
-      must-revalidate"""
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+force = true
 
 [[headers]]
-  for = "/*.js"
-  [headers.values]
-    Cache-Control = """
-      public,
-      max-age=31536000,
-      immutable"""
+for = "/*"
+
+[headers.values]
+X-Frame-Options = "ALLOW-FROM https://*.myshopify.com https://*.shopify.com"
+X-XSS-Protection = "1; mode=block"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.myshopify.com https://*.shopify.com; style-src 'self' 'unsafe-inline' https://rsms.me; img-src 'self' data: blob: https://*.unsplash.com https://*.supabase.co https://*.myshopify.com; font-src 'self' https://rsms.me; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.myshopify.com https://*.shopify.com https://api.revoa.app https://api.canva.com; frame-src 'self' https://*.myshopify.com https://*.shopify.com https://*.canva.com; frame-ancestors 'self' https://*.myshopify.com https://*.shopify.com; media-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';"
+Cache-Control = "      public,\n      max-age=31536000,\n      must-revalidate"
 
 [[headers]]
-  for = "/*.css"
-  [headers.values]
-    Cache-Control = """
-      public,
-      max-age=31536000,
-      immutable"""
+for = "/*.js"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
 
 [[headers]]
-  for = "/*.woff2"
-  [headers.values]
-    Cache-Control = """
-      public,
-      max-age=31536000,
-      immutable"""
+for = "/*.css"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
 
 [[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = """
-      public,
-      max-age=31536000,
-      immutable"""
+for = "/*.woff2"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
+
+[[headers]]
+for = "/assets/*"
+
+[headers.values]
+Cache-Control = "      public,\n      max-age=31536000,\n      immutable"
