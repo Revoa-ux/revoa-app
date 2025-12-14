@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft, RefreshCw } from 'lucide-react';
-import { useState } from 'react';
+import { Mail, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,9 +8,20 @@ import { useAuth } from '../contexts/AuthContext';
 const CheckEmail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const email = location.state?.email || '';
+  const initialEmailSent = location.state?.emailSent !== false;
+  const initialEmailError = location.state?.emailError || null;
+
   const [isResending, setIsResending] = useState(false);
+  const [emailSent, setEmailSent] = useState(initialEmailSent);
+  const [lastError, setLastError] = useState<string | null>(initialEmailError);
+
+  useEffect(() => {
+    if (initialEmailError) {
+      console.warn('Email sending issue:', initialEmailError);
+    }
+  }, [initialEmailError]);
 
   const handleResendEmail = async () => {
     if (!email) {
@@ -18,11 +29,40 @@ const CheckEmail = () => {
       return;
     }
 
+    if (!user?.id) {
+      toast.error('Session expired. Please sign up again.');
+      return;
+    }
+
     setIsResending(true);
+    setLastError(null);
+
     try {
-      toast.info('If your account exists, a new confirmation email will be sent.');
-    } catch {
-      toast.error('Failed to resend email. Please try again.');
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-signup-confirmation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          email: email,
+        }),
+      });
+
+      const result = await response.json();
+      console.log('Resend email response:', result);
+
+      if (result.emailSent) {
+        setEmailSent(true);
+        toast.success('Confirmation email sent! Please check your inbox.');
+      } else {
+        setEmailSent(false);
+        setLastError(result.message || 'Email could not be sent');
+        toast.error('Failed to send email. Please try again later.');
+      }
+    } catch (err) {
+      console.error('Failed to resend confirmation email:', err);
+      setLastError('Failed to connect to email service');
+      toast.error('Failed to send email. Please try again.');
     } finally {
       setIsResending(false);
     }
@@ -62,15 +102,25 @@ const CheckEmail = () => {
             </div>
             <h2 className="text-3xl font-medium text-gray-900 dark:text-white">Check your email</h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              We sent a confirmation link to verify your account
+              {emailSent
+                ? 'We sent a confirmation link to verify your account'
+                : 'Your account was created successfully'}
             </p>
           </div>
 
           <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <div className="space-y-6">
               <div className="flex justify-center">
-                <div className="w-16 h-16 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center">
-                  <Mail className="w-8 h-8 text-white" />
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                  emailSent
+                    ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)]'
+                    : 'bg-amber-500'
+                }`}>
+                  {emailSent ? (
+                    <Mail className="w-8 h-8 text-white" />
+                  ) : (
+                    <AlertTriangle className="w-8 h-8 text-white" />
+                  )}
                 </div>
               </div>
 
@@ -80,9 +130,24 @@ const CheckEmail = () => {
                 </p>
               )}
 
-              <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                Click the link in the email to confirm your account. If you do not see the email, check your spam folder.
-              </p>
+              {!emailSent && (
+                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                  <p className="text-sm text-amber-800 dark:text-amber-200 text-center">
+                    We couldn't send the confirmation email. Please click the button below to try again.
+                  </p>
+                  {lastError && (
+                    <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-2">
+                      {lastError}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {emailSent && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                  Click the link in the email to confirm your account. If you do not see the email, check your spam folder.
+                </p>
+              )}
 
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
@@ -91,7 +156,7 @@ const CheckEmail = () => {
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isResending ? 'animate-spin' : ''}`} />
-                  Resend confirmation email
+                  {emailSent ? 'Resend confirmation email' : 'Send confirmation email'}
                 </button>
               </div>
             </div>

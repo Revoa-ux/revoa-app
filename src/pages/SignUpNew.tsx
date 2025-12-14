@@ -54,9 +54,12 @@ const SignUpNew = () => {
       }
 
       if (data?.user) {
+        let emailSent = false;
+        let emailError = null;
+
         try {
           const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-          await fetch(`${supabaseUrl}/functions/v1/send-signup-confirmation`, {
+          const response = await fetch(`${supabaseUrl}/functions/v1/send-signup-confirmation`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -64,13 +67,26 @@ const SignUpNew = () => {
               email: formData.email,
             }),
           });
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
+
+          const result = await response.json();
+          console.log('Email confirmation response:', result);
+
+          emailSent = result.emailSent === true;
+          if (!emailSent && result.message) {
+            emailError = result.message;
+          }
+        } catch (err) {
+          console.error('Failed to send confirmation email:', err);
+          emailError = 'Failed to connect to email service';
         }
 
         navigate('/check-email', {
           replace: true,
-          state: { email: formData.email }
+          state: {
+            email: formData.email,
+            emailSent,
+            emailError
+          }
         });
       }
     } catch (error) {
