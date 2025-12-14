@@ -371,7 +371,6 @@ export function ScenarioTemplateModal({
 
   const handleOrderSelection = async (selectedOrderId: string) => {
     setSelectedOrderForTemplate(selectedOrderId);
-    setShowOrderSelector(false);
     setOrderSearchQuery('');
     await handleAssignToOrder(selectedOrderId);
   };
@@ -761,7 +760,7 @@ export function ScenarioTemplateModal({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Select an Order
+                      Attach an Order to This Template
                     </label>
                     <button
                       onClick={() => {
