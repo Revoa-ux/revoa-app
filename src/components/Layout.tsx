@@ -47,21 +47,24 @@ export default function Layout() {
   const { effectiveTheme, setTheme } = useTheme();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ display_name?: string; store_type?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    display_name?: string;
+    first_name?: string;
+    last_name?: string;
+    store_type?: string;
+  } | null>(null);
 
-  // Use centralized connection store
   const { shopify } = useConnectionStore();
 
   const isDarkMode = effectiveTheme === 'dark';
 
-  // Fetch user profile
   useEffect(() => {
     if (!user?.id) return;
 
     const fetchUserProfile = async () => {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('display_name, store_type')
+        .select('display_name, first_name, last_name, store_type')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -72,7 +75,6 @@ export default function Layout() {
 
     fetchUserProfile();
 
-    // Subscribe to profile changes
     const subscription = supabase
       .channel('user_profile_changes')
       .on(
@@ -85,9 +87,12 @@ export default function Layout() {
         },
         (payload) => {
           if (payload.new && typeof payload.new === 'object') {
+            const newData = payload.new as any;
             setUserProfile({
-              display_name: (payload.new as any).display_name,
-              store_type: (payload.new as any).store_type
+              display_name: newData.display_name,
+              first_name: newData.first_name,
+              last_name: newData.last_name,
+              store_type: newData.store_type
             });
           }
         }
@@ -129,13 +134,23 @@ export default function Layout() {
     };
   }, [user?.id]);
 
-  // Compute store name from connection state
   const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
 
-  // Get initials from display name
-  const getInitials = () => {
+  const getDisplayName = () => {
     if (userProfile?.display_name) {
-      const names = userProfile.display_name.trim().split(' ');
+      return userProfile.display_name;
+    }
+    if (userProfile?.first_name || userProfile?.last_name) {
+      return [userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ');
+    }
+    return null;
+  };
+
+  const displayName = getDisplayName();
+
+  const getInitials = () => {
+    if (displayName) {
+      const names = displayName.trim().split(' ');
       if (names.length >= 2) {
         return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
       }
@@ -144,7 +159,7 @@ export default function Layout() {
     if (shopifyStore) {
       return shopifyStore.charAt(0).toUpperCase();
     }
-    return user?.email?.charAt(0).toUpperCase() || 'Y';
+    return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
   const handleLogout = async () => {
@@ -213,11 +228,11 @@ export default function Layout() {
                   <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
                     {getInitials()}
                   </div>
-                  <div className="text-left">
-                    <div className="text-base font-medium text-gray-900 dark:text-white">
-                      {userProfile?.display_name || shopifyStore || user?.email || 'Your Account'}
+                  <div className="text-left min-w-0">
+                    <div className="text-base font-medium text-gray-900 dark:text-white truncate">
+                      {displayName || user?.email || 'Your Account'}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                       {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
                     </div>
                   </div>
