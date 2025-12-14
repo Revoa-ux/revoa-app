@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { PageTitle } from '../components/PageTitle';
@@ -89,46 +89,27 @@ const CheckEmail = () => {
           }}
         />
 
-        <div className="w-full max-w-[420px] space-y-8 relative">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 relative">
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-                />
-              </div>
-            </div>
-            <h2 className="text-3xl font-medium text-gray-900 dark:text-white">Check your email</h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {emailSent
-                ? 'We sent a confirmation link to verify your account'
-                : 'Your account was created successfully'}
-            </p>
-          </div>
-
+        <div className="w-full max-w-[420px] space-y-6 relative">
           <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
             <div className="space-y-6">
               <div className="flex justify-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                  emailSent
-                    ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)]'
-                    : 'bg-amber-500'
-                }`}>
-                  {emailSent ? (
-                    <Mail className="w-8 h-8 text-white" />
-                  ) : (
-                    <AlertTriangle className="w-8 h-8 text-white" />
-                  )}
+                <div className="w-16 h-16 relative">
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                    alt="Logo"
+                    className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
+                  />
                 </div>
               </div>
 
-              {email && (
-                <p className="text-center text-lg font-medium text-gray-900 dark:text-white">
-                  {email}
+              <div className="text-center">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Check your email</h2>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  {emailSent
+                    ? `We sent a confirmation link to ${email || 'your email'}`
+                    : 'Your account was created successfully'}
                 </p>
-              )}
+              </div>
 
               {!emailSent && (
                 <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
