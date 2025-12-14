@@ -856,10 +856,10 @@ export function ScenarioTemplateModal({
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className={`text-sm font-bold ${
+                                  <p className={`text-sm ${
                                     isSelected
-                                      ? 'text-blue-600 dark:text-blue-400'
-                                      : 'text-pink-600 dark:text-pink-400'
+                                      ? 'text-blue-600 dark:text-blue-400 font-medium'
+                                      : 'text-gray-900 dark:text-gray-100'
                                   }`}>
                                     ${order.total_price?.toFixed(2)}
                                   </p>
