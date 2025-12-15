@@ -416,16 +416,22 @@ const Auth = () => {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  disabled={isLoading || !email || (mode !== 'forgot-password' && !password) || (mode === 'signup' && !confirmPassword)}
+                  className={cn(
+                    "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
+                    mode === 'signin' || mode === 'forgot-password'
+                      ? "text-white bg-gray-400 enabled:bg-gray-900 enabled:hover:bg-black enabled:hover:shadow-md dark:bg-gray-600 dark:enabled:bg-gray-100 dark:enabled:text-gray-900 dark:enabled:hover:bg-white focus:ring-gray-500"
+                      : "text-white bg-gray-300 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md enabled:hover:scale-[1.02] focus:ring-primary-500 disabled:hover:scale-100"
+                  )}
                 >
                   {isLoading ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
                     <>
                       {mode === 'signin' && 'Sign in'}
-                      {mode === 'signup' && 'Sign up'}
+                      {mode === 'signup' && 'Create account'}
                       {mode === 'forgot-password' && 'Reset password'}
+                      <ArrowRight className="w-4 h-4 group-enabled:group-hover:translate-x-0.5 transition-transform" />
                     </>
                   )}
                 </button>
