@@ -20,10 +20,13 @@ const SignUpNew = () => {
   const { signUp } = useAuth();
 
   useEffect(() => {
+    // Support both old format (quote_url, quote_name) and new format (product_url)
     const quoteUrl = searchParams.get('quote_url');
-    if (quoteUrl) {
+    const productUrl = searchParams.get('product_url');
+
+    if (quoteUrl || productUrl) {
       const pendingQuote: PendingQuoteData = {
-        product_url: quoteUrl,
+        product_url: productUrl || quoteUrl || '',
         product_name: searchParams.get('quote_name') || '',
       };
       localStorage.setItem(PENDING_QUOTE_KEY, JSON.stringify(pendingQuote));

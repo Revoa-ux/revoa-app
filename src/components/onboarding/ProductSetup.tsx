@@ -7,6 +7,13 @@ import { createQuoteRequest, createBulkQuoteRequests } from '@/lib/quotes';
 import { supabase } from '@/lib/supabase';
 import { useClickOutside } from '@/lib/useClickOutside';
 
+const PENDING_QUOTE_KEY = 'pending_quote';
+
+interface PendingQuoteData {
+  product_url: string;
+  product_name: string;
+}
+
 interface ProductSetupProps {
   onComplete: (completed: boolean) => void;
   onFinish: () => void;
@@ -86,6 +93,24 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
     };
 
     checkStoreConnection();
+  }, []);
+
+  // Check for pending quote from landing page
+  useEffect(() => {
+    const pendingQuoteStr = localStorage.getItem(PENDING_QUOTE_KEY);
+    if (pendingQuoteStr) {
+      try {
+        const pendingQuote: PendingQuoteData = JSON.parse(pendingQuoteStr);
+        if (pendingQuote.product_url) {
+          setProductUrl(pendingQuote.product_url);
+          setOption('new');
+          // Clear the pending quote after loading
+          localStorage.removeItem(PENDING_QUOTE_KEY);
+        }
+      } catch (error) {
+        console.error('[ProductSetup] Error parsing pending quote:', error);
+      }
+    }
   }, []);
 
   const isStoreConnected = isCheckingConnection ? storeConnected : actuallyConnected;

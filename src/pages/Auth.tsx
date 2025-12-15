@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
@@ -9,6 +9,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useAdmin } from '../contexts/AdminContext';
 
 type AuthMode = 'signin' | 'signup' | 'forgot-password' | 'reset-success';
+
+const PENDING_QUOTE_KEY = 'pending_quote';
+
+interface PendingQuoteData {
+  product_url: string;
+  product_name: string;
+}
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -23,11 +30,26 @@ const Auth = () => {
     password?: string;
     confirmPassword?: string;
   }>({});
-  
+
   const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding, emailConfirmed, user, isLoading: authLoading } = useAuth();
   const { checkAdminStatus, isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  // Check for product_url parameter from landing page
+  useEffect(() => {
+    const productUrl = searchParams.get('product_url');
+    const quoteUrl = searchParams.get('quote_url');
+
+    if (productUrl || quoteUrl) {
+      const pendingQuote: PendingQuoteData = {
+        product_url: productUrl || quoteUrl || '',
+        product_name: searchParams.get('quote_name') || '',
+      };
+      localStorage.setItem(PENDING_QUOTE_KEY, JSON.stringify(pendingQuote));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     // If this is an admin route, do not handle redirects
