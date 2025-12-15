@@ -18,6 +18,7 @@ interface AuthContextType {
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;
   emailConfirmed: boolean;
+  refreshEmailConfirmed: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -231,6 +232,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshEmailConfirmed = async () => {
+    if (!user) return;
+
+    try {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('email_confirmed')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (profile) {
+        setEmailConfirmed(profile.email_confirmed || false);
+      }
+    } catch (err) {
+      console.error('[AuthContext] Error refreshing email confirmed status:', err);
+    }
+  };
+
   const value = {
     session,
     user,
@@ -243,7 +262,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: !!user,
     hasCompletedOnboarding,
     setHasCompletedOnboarding: handleSetHasCompletedOnboarding,
-    emailConfirmed
+    emailConfirmed,
+    refreshEmailConfirmed
   };
 
   return (

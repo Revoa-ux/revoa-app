@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
 import { PageTitle } from '../components/PageTitle';
+import { useAuth } from '../contexts/AuthContext';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired';
 
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshEmailConfirmed } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -49,8 +51,9 @@ const ConfirmEmail = () => {
     verifyToken();
   }, [searchParams]);
 
-  const handleContinue = () => {
-    navigate('/auth', { replace: true });
+  const handleContinue = async () => {
+    await refreshEmailConfirmed();
+    navigate('/onboarding', { replace: true });
   };
 
   return (
@@ -94,7 +97,7 @@ const ConfirmEmail = () => {
                   Email confirmed!
                 </h2>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Your account is now active. You can sign in to get started.
+                  Your account is now active. Let's get you set up.
                 </p>
               </div>
 
@@ -103,7 +106,7 @@ const ConfirmEmail = () => {
                   onClick={handleContinue}
                   className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200"
                 >
-                  Continue to sign in
+                  Get started
                   <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
               </div>
