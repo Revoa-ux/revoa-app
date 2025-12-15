@@ -57,6 +57,7 @@ export default function Analytics() {
     google: false
   });
   const [chartDataByCard, setChartDataByCard] = useState<Record<string, ChartDataPoint[]>>({});
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -289,7 +290,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     };
 
     fetchCardData();
-  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
+  }, [visibleCards, dateRange.startDate.getTime(), dateRange.endDate.getTime(), refreshCounter]);
 
   const handleTimeChange = useCallback((time: TimeOption) => {
     setSelectedTime(time);
@@ -384,8 +385,8 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
   };
 
   const handleApplyDateRange = () => {
-    // Trigger refetch by updating the date range
-    setDateRange({ ...dateRange });
+    // Trigger refetch by incrementing the refresh counter
+    setRefreshCounter(prev => prev + 1);
   };
 
 

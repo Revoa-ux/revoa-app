@@ -270,9 +270,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               {/* Yes option */}
               <div
                 onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: true })}
-                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                className={`p-4 rounded-lg cursor-pointer transition-all border ${
                   formData.wants_growth_assistance === true
-                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-900/50'
+                    ? 'border-gray-900 dark:border-gray-100 ring-2 ring-gray-900 dark:ring-gray-100 bg-gray-50 dark:bg-gray-900/50'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
@@ -318,9 +318,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               {/* No option */}
               <div
                 onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: false, phone_number: '' })}
-                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                className={`p-4 rounded-lg cursor-pointer transition-all border ${
                   formData.wants_growth_assistance === false
-                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-900/50'
+                    ? 'border-gray-900 dark:border-gray-100 ring-2 ring-gray-900 dark:ring-gray-100 bg-gray-50 dark:bg-gray-900/50'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
