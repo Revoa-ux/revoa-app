@@ -348,8 +348,29 @@ export const getDashboardMetrics = async (startDate?: string, endDate?: string):
     const returnAmount = returnsSummary.totalReturnAmount;
     const returnRate = totalRevenue > 0 ? (returnAmount / totalRevenue) * 100 : 0;
 
-    const costOfGoodsSold = 0;
-    const profitMargin = 0;
+    const { data: { user } } = await supabase.auth.getUser();
+    let costOfGoodsSold = 0;
+    if (user) {
+      const { data: lineItems } = await supabase
+        .from('order_line_items')
+        .select(`
+          unit_cost,
+          quantity,
+          shopify_orders!inner(user_id, ordered_at)
+        `)
+        .eq('shopify_orders.user_id', user.id)
+        .gte('shopify_orders.ordered_at', startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+        .lte('shopify_orders.ordered_at', endDate || new Date().toISOString());
+
+      if (lineItems) {
+        costOfGoodsSold = lineItems.reduce((sum: number, item: any) => {
+          const cost = (parseFloat(item.unit_cost) || 0) * (parseInt(item.quantity) || 1);
+          return sum + cost;
+        }, 0);
+      }
+    }
+
+    const profitMargin = totalRevenue > 0 ? ((totalRevenue - costOfGoodsSold) / totalRevenue) * 100 : 0;
     const refunds = 0;
     const chargebacks = 0;
 

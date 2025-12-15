@@ -841,6 +841,7 @@ setCurrentTemplate(template);
                           if (el) cardRefs.current.set(cardId, el);
                           else cardRefs.current.delete(cardId);
                         }}
+                        className={isExpanded ? 'col-span-full' : ''}
                       >
                         <FlippableMetricCard
                           data={data}
@@ -937,6 +938,7 @@ setCurrentTemplate(template);
                   if (el) cardRefs.current.set(cardId, el);
                   else cardRefs.current.delete(cardId);
                 }}
+                className={isExpanded ? 'col-span-full' : ''}
               >
                 <FlippableMetricCard
                   data={data}

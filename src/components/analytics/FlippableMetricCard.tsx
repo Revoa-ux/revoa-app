@@ -133,6 +133,11 @@ export default function FlippableMetricCard({
 
   const hasMultiplePlatforms = platforms && platforms.length > 0;
 
+  const hasNegativeValues = chartData.length > 0 && chartData.some(d => (d.value ?? 0) < 0);
+  const allNegative = chartData.length > 0 && chartData.every(d => (d.value ?? 0) <= 0);
+  const minValue = chartData.length > 0 ? Math.min(...chartData.map(d => d.value ?? 0)) : 0;
+  const maxValue = chartData.length > 0 ? Math.max(...chartData.map(d => d.value ?? 0)) : 0;
+
   return (
     <div
       className={`relative transition-all duration-300 ease-in-out ${
@@ -271,11 +276,19 @@ export default function FlippableMetricCard({
                         <stop offset="50%" stopColor="#EC4899" />
                         <stop offset="100%" stopColor="#E8795A" />
                       </linearGradient>
-                      <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
-                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
-                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
-                      </linearGradient>
+                      {allNegative ? (
+                        <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="1" x2="0" y2="0">
+                          <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
+                          <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
+                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
+                        </linearGradient>
+                      ) : (
+                        <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
+                          <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
+                          <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
+                        </linearGradient>
+                      )}
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.15} />
                     <XAxis
@@ -349,6 +362,7 @@ export default function FlippableMetricCard({
                         fill={`url(#fill-gradient-${data.id})`}
                         dot={false}
                         activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: '#fff' }}
+                        baseValue={allNegative ? 'dataMax' : 'dataMin'}
                       />
                     )}
                   </AreaChart>
