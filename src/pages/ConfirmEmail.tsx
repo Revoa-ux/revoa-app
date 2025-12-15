@@ -212,15 +212,8 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
-                    </div>
-                    {isAuthenticated && (
-                      <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gray-900 dark:bg-gray-100 flex items-center justify-center">
-                        <Loader2 className="w-4 h-4 text-white dark:text-gray-900 animate-spin" />
-                      </div>
-                    )}
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
                 <div className="space-y-3">

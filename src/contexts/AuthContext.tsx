@@ -126,12 +126,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.debug('Auth state changed:', event, session?.user?.id);
 
-      if (event === 'SIGNED_IN') {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user && isMounted) {
-          console.log('[AuthContext] SIGNED_IN - Checking profile for user:', session.user.id);
+          console.log('[AuthContext] SIGNED_IN/TOKEN_REFRESHED - Checking profile for user:', session.user.id);
 
           try {
             const profilePromise = supabase
@@ -151,31 +151,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (isMounted) {
               if (error) {
-                console.error('[AuthContext] Error on SIGNED_IN:', error);
+                console.error('[AuthContext] Error on SIGNED_IN/TOKEN_REFRESHED:', error);
                 setHasCompletedOnboarding(false);
                 setEmailConfirmed(false);
               } else {
-                console.log('[AuthContext] SIGNED_IN profile:', profile);
+                console.log('[AuthContext] Profile:', profile);
                 setHasCompletedOnboarding(profile?.onboarding_completed || false);
                 setEmailConfirmed(profile?.email_confirmed || false);
               }
             }
           } catch (err) {
             if (isMounted) {
-              console.warn('[AuthContext] Profile check timeout on SIGNED_IN');
+              console.warn('[AuthContext] Profile check timeout');
               setHasCompletedOnboarding(false);
               setEmailConfirmed(false);
             }
           }
         }
       } else if (event === 'SIGNED_OUT') {
+        // Only redirect if this was an intentional sign out
+        // Don't redirect during normal page navigation or tab switching
+        const wasAuthenticated = !!user;
+
         if (isMounted) {
           setSession(null);
           setUser(null);
           setHasCompletedOnboarding(false);
           setEmailConfirmed(false);
-          navigate('/auth', { replace: true });
+
+          // Only navigate to auth if user was previously authenticated
+          // and we're not already on a public route
+          if (wasAuthenticated && !window.location.pathname.startsWith('/auth')) {
+            navigate('/auth', { replace: true });
+          }
         }
+      } else if (event === 'USER_UPDATED') {
+        // Update session and user without triggering navigation
+        setSession(session);
+        setUser(session?.user ?? null);
       }
     });
 
