@@ -89,8 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (profileError) {
                 console.error('[AuthContext] Error fetching user profile:', profileError);
-                setHasCompletedOnboarding(false);
-                setEmailConfirmed(false);
+                // Don't reset states on error - preserve existing state
               } else {
                 console.log('[AuthContext] User profile:', profile);
                 setHasCompletedOnboarding(profile?.onboarding_completed || false);
@@ -100,8 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile fetch timeout or error:', err);
-              setHasCompletedOnboarding(false);
-              setEmailConfirmed(false);
+              // Don't reset states on timeout - preserve existing state
             }
           }
         }
@@ -152,8 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN/TOKEN_REFRESHED:', error);
-                setHasCompletedOnboarding(false);
-                setEmailConfirmed(false);
+                // Don't reset states on error - preserve existing state
               } else {
                 console.log('[AuthContext] Profile:', profile);
                 setHasCompletedOnboarding(profile?.onboarding_completed || false);
@@ -163,8 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile check timeout');
-              setHasCompletedOnboarding(false);
-              setEmailConfirmed(false);
+              // Don't reset states on timeout - preserve existing state
             }
           }
         }
