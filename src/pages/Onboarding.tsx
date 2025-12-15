@@ -104,6 +104,15 @@ const Onboarding = () => {
     const path = location.pathname.split('/').pop();
     updateStep(path);
   }, [location.pathname, updateStep]);
+
+  // Auto-skip store step if Shopify is already connected (e.g., from Shopify App Store)
+  useEffect(() => {
+    const currentPath = location.pathname.split('/').pop();
+    if (currentPath === 'store' && shopify.isConnected) {
+      console.log('[Onboarding] Shopify already connected, auto-skipping to ads step');
+      navigate('/onboarding/ads', { replace: true });
+    }
+  }, [shopify.isConnected, location.pathname, navigate]);
   
   const handleCompleteOnboarding = async () => {
     try {

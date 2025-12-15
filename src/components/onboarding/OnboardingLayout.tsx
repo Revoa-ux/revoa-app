@@ -74,10 +74,10 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
                     className="flex flex-col items-center z-10 relative"
                   >
                     <div
-                      className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 ${
+                      className={`flex items-center justify-center w-10 h-10 rounded-full mb-2 transition-all duration-300 border ${
                         isActive || isCompleted
-                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white shadow-lg'
-                          : 'bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
+                          ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white border-rose-600/30'
+                          : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500'
                       }`}
                     >
                       {isCompleted && !isActive ? (

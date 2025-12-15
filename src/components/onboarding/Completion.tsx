@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { ArrowRight, ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Phone } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 
 interface CompletionProps {
   onComplete: () => void;
@@ -14,7 +14,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
   const [formData, setFormData] = useState({
     name: '',
     store_type: '',
-    wants_growth_assistance: null as boolean | null
+    wants_growth_assistance: null as boolean | null,
+    phone_number: ''
   });
   const [hasExistingData, setHasExistingData] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -58,7 +59,13 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
   }, []);
 
   // Check if form is valid (and mark as valid if already completed)
-  const isFormValid = (formData.name.trim() !== '' && formData.store_type !== '' && formData.wants_growth_assistance !== null) || hasExistingData;
+  // If they want help, phone number is required
+  const isFormValid = (
+    formData.name.trim() !== '' &&
+    formData.store_type !== '' &&
+    formData.wants_growth_assistance !== null &&
+    (formData.wants_growth_assistance === false || formData.phone_number.trim() !== '')
+  ) || hasExistingData;
 
   // Notify parent of form validity changes
   React.useEffect(() => {
@@ -94,6 +101,10 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
       return;
     }
 
+    if (formData.wants_growth_assistance && !formData.phone_number.trim()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -115,6 +126,49 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
+
+      // Save to onboarding_leads table
+      const shopifyInstallation = await getActiveShopifyInstallation(user.id);
+
+      // Check for connected ad platforms
+      const { data: fbTokens } = await supabase
+        .from('facebook_tokens')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const { data: googleTokens } = await supabase
+        .from('platform_connections')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('platform', 'google_ads')
+        .maybeSingle();
+
+      const { data: tiktokTokens } = await supabase
+        .from('platform_connections')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('platform', 'tiktok_ads')
+        .maybeSingle();
+
+      await supabase
+        .from('onboarding_leads')
+        .upsert({
+          user_id: user.id,
+          name: formData.name.trim(),
+          email: user.email || '',
+          phone_number: formData.wants_growth_assistance ? formData.phone_number.trim() : null,
+          store_type: formData.store_type,
+          wants_help: formData.wants_growth_assistance,
+          shopify_store_domain: shopifyInstallation?.shop_domain || null,
+          shopify_connected: !!shopifyInstallation,
+          facebook_ads_connected: !!fbTokens,
+          google_ads_connected: !!googleTokens,
+          tiktok_ads_connected: !!tiktokTokens,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        });
 
       onComplete();
     } catch (error) {
@@ -213,41 +267,79 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               Want help scaling your store?
             </label>
             <div className="space-y-3">
-              {[
-                {
-                  value: true,
-                  label: 'Yes, connect me with your growth team',
-                  description: 'Have our expert Shopify growth team personally reach out'
-                },
-                {
-                  value: false,
-                  label: "No, I don't want help from the 7-8 figure experts",
-                  description: "I'll explore the platform on my own"
-                }
-              ].map((option) => (
-                <label
-                  key={option.value.toString()}
-                  className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    formData.wants_growth_assistance === option.value
-                      ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="wants_growth_assistance"
-                    checked={formData.wants_growth_assistance === option.value}
-                    onChange={() => setFormData({ ...formData, wants_growth_assistance: option.value })}
-                    className="mt-1 text-rose-500 focus:ring-rose-500"
-                    disabled={isLoading}
-                    required
-                  />
-                  <div className="ml-3">
-                    <div className="font-medium text-gray-900 dark:text-white">{option.label}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
+              {/* Yes option */}
+              <div
+                onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: true })}
+                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                  formData.wants_growth_assistance === true
+                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-900/50'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="flex items-start">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                    formData.wants_growth_assistance === true
+                      ? 'border-gray-900 dark:border-white'
+                      : 'border-gray-400 dark:border-gray-500'
+                  }`}>
+                    {formData.wants_growth_assistance === true && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-white" />
+                    )}
                   </div>
-                </label>
-              ))}
+                  <div className="ml-3 flex-1">
+                    <div className="font-medium text-gray-900 dark:text-white">Yes, connect me with your growth team</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Have our expert Shopify growth team personally reach out</div>
+
+                    {/* Phone number field - appears when "Yes" is selected */}
+                    {formData.wants_growth_assistance === true && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Phone number
+                        </label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            type="tel"
+                            value={formData.phone_number}
+                            onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                            onClick={(e) => e.stopPropagation()}
+                            placeholder="+1 (555) 123-4567"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100 text-gray-900 dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            disabled={isLoading}
+                          />
+                        </div>
+                        <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">We'll reach out within 24 hours</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* No option */}
+              <div
+                onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: false, phone_number: '' })}
+                className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                  formData.wants_growth_assistance === false
+                    ? 'border-gray-900 dark:border-gray-100 bg-gray-50 dark:bg-gray-900/50'
+                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
+              >
+                <div className="flex items-start">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
+                    formData.wants_growth_assistance === false
+                      ? 'border-gray-900 dark:border-white'
+                      : 'border-gray-400 dark:border-gray-500'
+                  }`}>
+                    {formData.wants_growth_assistance === false && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-900 dark:bg-white" />
+                    )}
+                  </div>
+                  <div className="ml-3">
+                    <div className="font-medium text-gray-900 dark:text-white">No, I don't want help from the 7-8 figure experts</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">I'll explore the platform on my own</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
