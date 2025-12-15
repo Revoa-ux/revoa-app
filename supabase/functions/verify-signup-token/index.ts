@@ -71,7 +71,7 @@ Deno.serve(async (req: Request) => {
 
     const { error: profileError } = await supabaseClient
       .from('user_profiles')
-      .update({ 
+      .update({
         email_confirmed: true,
         updated_at: new Date().toISOString()
       })
@@ -85,12 +85,33 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Generate a session token for auto sign-in
+    const { data: sessionData, error: sessionError } = await supabaseClient.auth.admin.generateLink({
+      type: 'magiclink',
+      email: tokenData.email,
+    });
+
+    if (sessionError || !sessionData) {
+      console.error('Error generating session:', sessionError);
+      // Still return success, but without auto-signin
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Email confirmed successfully',
+          userId: tokenData.user_id,
+          email: tokenData.email,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Email confirmed successfully',
         userId: tokenData.user_id,
         email: tokenData.email,
+        sessionToken: sessionData.properties.hashed_token,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

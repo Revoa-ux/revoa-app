@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { createQuoteRequest } from '../lib/quotes';
+import { supabase } from '../lib/supabase';
 
 import type { QuotePlatform } from '../lib/quotes';
 
@@ -54,6 +55,30 @@ const ConfirmEmail = () => {
         const result = await response.json();
 
         if (response.ok && result.success) {
+          // If we got a session token, auto sign-in
+          if (result.sessionToken) {
+            try {
+              const { error } = await supabase.auth.verifyOtp({
+                token_hash: result.sessionToken,
+                type: 'magiclink',
+              });
+
+              if (!error) {
+                // Successfully signed in!
+                setStatus('success');
+                await refreshEmailConfirmed();
+
+                // Auto-navigate after a brief delay
+                setTimeout(async () => {
+                  await handleContinue();
+                }, 1500);
+                return;
+              }
+            } catch (err) {
+              console.error('Auto sign-in failed:', err);
+            }
+          }
+
           setStatus('success');
         } else if (result.error?.includes('expired')) {
           setStatus('expired');
@@ -164,46 +189,62 @@ const ConfirmEmail = () => {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {status === 'loading' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
-              <div className="text-center">
-                <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                    <Loader2 className="w-10 h-10 text-gray-600 dark:text-gray-400 animate-spin" />
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <Loader2 className="w-12 h-12 text-gray-600 dark:text-gray-400 animate-spin" />
                   </div>
                 </div>
-                <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
-                  Verifying your email...
-                </h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Please wait while we confirm your email address.
-                </p>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
+                    Verifying your email...
+                  </h2>
+                  <p className="text-base text-gray-600 dark:text-gray-400">
+                    Please wait while we confirm your email address.
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {status === 'success' && (
-            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
-              <div className="text-center">
-                <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                    <CheckCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-12 space-y-8">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <CheckCircle className="w-12 h-12 text-gray-900 dark:text-white" strokeWidth={2.5} />
+                    </div>
+                    {isAuthenticated && (
+                      <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-gray-900 dark:bg-gray-100 flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 text-white dark:text-gray-900 animate-spin" />
+                      </div>
+                    )}
                   </div>
                 </div>
-                <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
-                  Email confirmed!
-                </h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Your account is now active. Let's get you set up.
-                </p>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
+                    Email confirmed!
+                  </h2>
+                  <p className="text-base text-gray-600 dark:text-gray-400">
+                    {isAuthenticated
+                      ? "Redirecting you to onboarding..."
+                      : "Your account is now active. Let's get you set up."
+                    }
+                  </p>
+                </div>
               </div>
 
-              <button
-                onClick={handleContinue}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-              >
-                Sign in to continue
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              {!isAuthenticated && (
+                <button
+                  onClick={handleContinue}
+                  className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg text-base font-medium text-white bg-gray-900 hover:bg-black hover:shadow-lg dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Continue
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
             </div>
           )}
 
