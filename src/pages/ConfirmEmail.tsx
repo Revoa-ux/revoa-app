@@ -148,10 +148,8 @@ const ConfirmEmail = () => {
       localStorage.removeItem(PENDING_QUOTE_KEY);
     }
 
-    // Small delay to ensure state updates have propagated
-    setTimeout(() => {
-      navigate('/onboarding/store', { replace: true });
-    }, 100);
+    // Navigate immediately to avoid UI glitch
+    navigate('/onboarding/store', { replace: true });
   };
 
   return (

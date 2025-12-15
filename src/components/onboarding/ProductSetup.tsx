@@ -141,13 +141,25 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
     });
   };
 
-  const handleSelectAll = () => {
-    const filteredIds = filteredProducts.map(p => p.id);
-    setSelectedProducts(new Set(filteredIds));
-  };
+  const handleToggleSelectAll = () => {
+    // Check if all filtered products are selected
+    const allSelected = filteredProducts.every(p => selectedProducts.has(p.id));
 
-  const handleDeselectAll = () => {
-    setSelectedProducts(new Set());
+    if (allSelected) {
+      // Deselect all filtered products
+      setSelectedProducts(prev => {
+        const newSet = new Set(prev);
+        filteredProducts.forEach(p => newSet.delete(p.id));
+        return newSet;
+      });
+    } else {
+      // Select all filtered products
+      setSelectedProducts(prev => {
+        const newSet = new Set(prev);
+        filteredProducts.forEach(p => newSet.add(p.id));
+        return newSet;
+      });
+    }
   };
 
   const handleSubmitExistingProducts = async () => {
@@ -400,20 +412,12 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                       </button>
                     )}
                   </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSelectAll}
-                      className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      onClick={handleDeselectAll}
-                      className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      Deselect All
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleToggleSelectAll}
+                    className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+                  >
+                    {filteredProducts.every(p => selectedProducts.has(p.id)) ? 'Deselect All' : 'Select All'}
+                  </button>
                 </div>
               </div>
 
@@ -469,7 +473,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                           }`}
                         >
                           <div className="flex items-start gap-3">
-                            {firstImage ? (
+                            {firstImage?.url ? (
                               <img
                                 src={firstImage.url}
                                 alt={firstImage.altText || product.title}
@@ -477,14 +481,20 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
-                                  const fallback = target.nextElementSibling as HTMLElement;
-                                  if (fallback) fallback.style.display = 'flex';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const fallback = document.createElement('div');
+                                    fallback.className = 'w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0';
+                                    fallback.innerHTML = '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>';
+                                    parent.insertBefore(fallback, target);
+                                  }
                                 }}
                               />
-                            ) : null}
-                            <div className={`w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0 ${firstImage ? 'hidden' : ''}`}>
-                              <Package className="w-6 h-6 text-gray-400" />
-                            </div>
+                            ) : (
+                              <div className="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
+                                <Package className="w-6 h-6 text-gray-400" />
+                              </div>
+                            )}
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
