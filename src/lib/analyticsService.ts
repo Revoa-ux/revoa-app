@@ -1289,3 +1289,70 @@ export function organizeCardsByCategory(cards: MetricCardMetadata[]): Record<Car
 
   return organized as Record<CardCategory, MetricCardMetadata[]>;
 }
+
+export interface ChartDataPoint {
+  date: string;
+  value: number;
+}
+
+export async function fetchChartDataForCard(
+  cardId: string,
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const metricField = getMetricFieldForCard(cardId);
+  if (!metricField) return [];
+
+  const { data: metrics, error } = await supabase
+    .from('ad_metrics')
+    .select('date, spend, impressions, clicks, conversions, conversion_value, cpc, cpm, ctr, cpa, roas')
+    .gte('date', startDate.split('T')[0])
+    .lte('date', endDate.split('T')[0])
+    .order('date', { ascending: true });
+
+  if (error || !metrics) return [];
+
+  const dailyAggregates = new Map<string, number>();
+
+  metrics.forEach(m => {
+    const dateStr = m.date;
+    const currentValue = dailyAggregates.get(dateStr) || 0;
+    const fieldValue = getFieldValue(m, metricField);
+    dailyAggregates.set(dateStr, currentValue + fieldValue);
+  });
+
+  return Array.from(dailyAggregates.entries()).map(([date, value]) => ({
+    date,
+    value
+  }));
+}
+
+function getMetricFieldForCard(cardId: string): string | null {
+  const fieldMap: Record<string, string> = {
+    'ad_spend': 'spend',
+    'meta_ad_spend': 'spend',
+    'facebook_ad_spend': 'spend',
+    'total_ad_spend': 'spend',
+    'impressions': 'impressions',
+    'clicks': 'clicks',
+    'conversions': 'conversions',
+    'roas': 'roas',
+    'meta_roas': 'roas',
+    'total_roas': 'roas',
+    'cpc': 'cpc',
+    'cpm': 'cpm',
+    'ctr': 'ctr',
+    'cpa': 'cpa',
+    'meta_cpa': 'cpa',
+    'total_cpa': 'cpa'
+  };
+  return fieldMap[cardId] || null;
+}
+
+function getFieldValue(metric: any, field: string): number {
+  const value = metric[field];
+  return typeof value === 'number' ? value : parseFloat(value) || 0;
+}

@@ -19,7 +19,9 @@ import {
   toggleCardVisibility,
   computeMetricCardData,
   getTemplateMetricCards,
-  MetricCardData
+  MetricCardData,
+  fetchChartDataForCard,
+  ChartDataPoint
 } from '../lib/analyticsService';
 
 interface DateRange {
@@ -54,6 +56,7 @@ export default function Analytics() {
     tiktok: false,
     google: false
   });
+  const [chartDataByCard, setChartDataByCard] = useState<Record<string, ChartDataPoint[]>>({});
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -260,6 +263,24 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
         // Final update with all data (in case progressive updates were skipped)
         setCardData(data);
+
+        // Fetch chart data for each visible card
+        const chartPromises = visibleCards.map(async cardId => {
+          try {
+            const chartData = await fetchChartDataForCard(cardId, startDateStr, endDateStr);
+            return { cardId, chartData };
+          } catch (err) {
+            console.error(`[Analytics] Error fetching chart data for ${cardId}:`, err);
+            return { cardId, chartData: [] };
+          }
+        });
+
+        const chartResults = await Promise.all(chartPromises);
+        const chartDataMap: Record<string, ChartDataPoint[]> = {};
+        chartResults.forEach(({ cardId, chartData }) => {
+          chartDataMap[cardId] = chartData;
+        });
+        setChartDataByCard(chartDataMap);
       } catch (error) {
         console.error('Error fetching card data:', error);
       } finally {
@@ -791,6 +812,7 @@ setCurrentTemplate(template);
                       <FlippableMetricCard
                         key={cardId}
                         data={data}
+                        chartData={chartDataByCard[cardId] || []}
                         isLoading={isLoading}
                         isExpanded={isExpanded}
                         onExpand={() => handleExpandCard(cardId)}
@@ -806,12 +828,12 @@ setCurrentTemplate(template);
                   {/* Add Metric button within each active platform section */}
                   <button
                     onClick={() => setShowCardSelector(true)}
-                    className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+                    className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
-                      <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
+                      <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
                     </div>
-                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                       Add Metric
                     </span>
                   </button>
@@ -878,6 +900,7 @@ setCurrentTemplate(template);
               <FlippableMetricCard
                 key={cardId}
                 data={data}
+                chartData={chartDataByCard[cardId] || []}
                 isLoading={isLoading}
                 isExpanded={isExpanded}
                 onExpand={() => handleExpandCard(cardId)}
@@ -892,12 +915,12 @@ setCurrentTemplate(template);
 
           <button
             onClick={() => setShowCardSelector(true)}
-            className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+            className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
           >
-            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-red-50 dark:group-hover:bg-red-900/30 flex items-center justify-center mb-3 transition-colors">
-              <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+            <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
+              <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
             </div>
-            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
               {currentTemplate === 'custom' ? 'Add/Delete Metric' : 'Add Metric'}
             </span>
           </button>
