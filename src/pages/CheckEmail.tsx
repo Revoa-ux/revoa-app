@@ -125,9 +125,11 @@ const CheckEmail = () => {
               )}
 
               {emailSent && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-                  Click the link in the email to confirm your account. If you do not see the email, check your spam folder.
-                </p>
+                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                    Click the link in the email to confirm your account. If you do not see the email, check your spam folder.
+                  </p>
+                </div>
               )}
 
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">

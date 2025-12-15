@@ -27,30 +27,35 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Find the confirmation token
     const { data: tokenData, error: tokenError } = await supabaseClient
       .from('signup_confirmation_tokens')
       .select('*')
       .eq('token', token)
       .is('confirmed_at', null)
-      .single();
+      .maybeSingle();
 
-    if (tokenError || !tokenData) {
+    if (tokenError) {
+      console.error('Token lookup error:', tokenError);
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token' }),
+        JSON.stringify({ error: 'Failed to verify token' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!tokenData) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token. Please request a new confirmation email.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if token has expired
     if (new Date(tokenData.expires_at) < new Date()) {
       return new Response(
-        JSON.stringify({ error: 'Token has expired' }),
+        JSON.stringify({ error: 'Token has expired. Please request a new confirmation email.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Mark token as confirmed
     const { error: updateTokenError } = await supabaseClient
       .from('signup_confirmation_tokens')
       .update({ confirmed_at: new Date().toISOString() })
@@ -64,7 +69,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Update user profile to mark email as confirmed
     const { error: profileError } = await supabaseClient
       .from('user_profiles')
       .update({ 

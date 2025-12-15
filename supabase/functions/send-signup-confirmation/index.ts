@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const siteUrl = Deno.env.get('SITE_URL') || 'https://app.revoa.ai';
+    const siteUrl = Deno.env.get('SITE_URL') || 'https://members.revoa.app';
     const confirmationLink = `${siteUrl}/confirm-email?token=${token}`;
 
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
