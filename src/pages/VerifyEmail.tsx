@@ -115,10 +115,10 @@ export default function VerifyEmail() {
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                 <Loader2 className="w-8 h-8 text-gray-600 dark:text-gray-400 animate-spin" />
               </div>
-              <h1 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">
+              <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                 Verifying Email
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-gray-600 dark:text-gray-400">
                 {message}
               </p>
             </div>
@@ -129,10 +129,10 @@ export default function VerifyEmail() {
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                 <CheckCircle2 className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
               </div>
-              <h1 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">
-                Email Verified!
+              <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
+                Email Verified
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="mt-1 text-gray-600 dark:text-gray-400 mb-4">
                 {message}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-500">
@@ -147,10 +147,10 @@ export default function VerifyEmail() {
                 <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                   <XCircle className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
                 </div>
-                <h1 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">
+                <h1 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
                   Verification Failed
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-gray-600 dark:text-gray-400">
                   {message}
                 </p>
               </div>

@@ -197,10 +197,10 @@ const ConfirmEmail = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
-                    Verifying your email...
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    Verifying Your Email
                   </h2>
-                  <p className="text-base text-gray-600 dark:text-gray-400">
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
                     Please wait while we confirm your email address.
                   </p>
                 </div>
@@ -217,10 +217,10 @@ const ConfirmEmail = () => {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">
-                    Email confirmed!
+                  <h2 className="text-3xl font-medium text-gray-900 dark:text-white">
+                    Email Confirmed
                   </h2>
-                  <p className="text-base text-gray-600 dark:text-gray-400">
+                  <p className="mt-1 text-gray-600 dark:text-gray-400">
                     {isAuthenticated
                       ? "Redirecting you to onboarding..."
                       : "Your account is now active. Let's get you set up."
@@ -249,10 +249,10 @@ const ConfirmEmail = () => {
                     <XCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
-                <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
-                  {status === 'expired' ? 'Link expired' : 'Verification failed'}
+                <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">
+                  {status === 'expired' ? 'Link Expired' : 'Verification Failed'}
                 </h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-gray-600 dark:text-gray-400">
                   {errorMessage}
                 </p>
               </div>
