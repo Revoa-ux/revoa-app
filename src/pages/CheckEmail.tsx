@@ -80,14 +80,35 @@ const CheckEmail = () => {
   return (
     <>
       <PageTitle title="Check Your Email" />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
-          style={{
-            maskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)',
-            WebkitMaskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)'
-          }}
-        />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #171717;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
+            );
+          }
+        `}</style>
 
         <div className="w-full max-w-[420px] space-y-6 relative">
           <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
@@ -147,9 +168,9 @@ const CheckEmail = () => {
 
           <button
             onClick={handleBackToSignIn}
-            className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="group w-full flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-1" />
             Back to sign in
           </button>
         </div>

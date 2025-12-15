@@ -79,7 +79,35 @@ export default function VerifyEmail() {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundColor: 'var(--auth-bg-color, #fafafa)',
+        backgroundImage: 'var(--auth-bg-pattern)',
+      }}
+    >
+      <style>{`
+        :root {
+          --auth-bg-color: #fafafa;
+          --auth-bg-pattern: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 4px,
+            rgba(0, 0, 0, 0.03) 4px,
+            rgba(0, 0, 0, 0.03) 5px
+          );
+        }
+        .dark {
+          --auth-bg-color: #171717;
+          --auth-bg-pattern: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 4px,
+            rgba(255, 255, 255, 0.06) 4px,
+            rgba(255, 255, 255, 0.06) 5px
+          );
+        }
+      `}</style>
       <div className="max-w-md w-full">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
           {status === 'verifying' && (

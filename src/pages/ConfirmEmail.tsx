@@ -122,14 +122,35 @@ const ConfirmEmail = () => {
   return (
     <>
       <PageTitle title="Email Confirmation" />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div
-          className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
-          style={{
-            maskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)',
-            WebkitMaskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)'
-          }}
-        />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #171717;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
+            );
+          }
+        `}</style>
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {status === 'loading' && (
