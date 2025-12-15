@@ -463,7 +463,7 @@ const Auth = () => {
                     "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
                     mode === 'signin' || mode === 'forgot-password'
                       ? "text-white bg-gray-400 enabled:bg-gray-900 enabled:hover:bg-black enabled:hover:shadow-md dark:bg-gray-600 dark:enabled:bg-gray-100 dark:enabled:text-gray-900 dark:enabled:hover:bg-white focus:ring-gray-500"
-                      : "text-white bg-gray-300 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md enabled:hover:scale-[1.02] focus:ring-primary-500 disabled:hover:scale-100"
+                      : "text-white bg-gray-300 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-primary-500"
                   )}
                 >
                   {isLoading ? (
@@ -488,7 +488,7 @@ const Auth = () => {
                 </p>
                 <button
                   onClick={() => handleModeChange('signin')}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   Back to sign in
                 </button>

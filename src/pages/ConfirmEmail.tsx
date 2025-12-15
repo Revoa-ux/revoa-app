@@ -29,7 +29,7 @@ type VerificationStatus = 'loading' | 'success' | 'error' | 'expired';
 const ConfirmEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { refreshEmailConfirmed } = useAuth();
+  const { refreshEmailConfirmed, user, isAuthenticated } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>('loading');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -72,6 +72,13 @@ const ConfirmEmail = () => {
   }, [searchParams]);
 
   const handleContinue = async () => {
+    // If user is not authenticated, redirect to sign in
+    if (!isAuthenticated || !user) {
+      toast.success('Email confirmed! Please sign in to continue.');
+      navigate('/auth', { replace: true });
+      return;
+    }
+
     await refreshEmailConfirmed();
 
     try {
@@ -192,9 +199,9 @@ const ConfirmEmail = () => {
 
               <button
                 onClick={handleContinue}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
-                Get started
+                Sign in to continue
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
@@ -219,7 +226,7 @@ const ConfirmEmail = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/signup')}
-                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-black hover:shadow-md dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                 >
                   Sign up again
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

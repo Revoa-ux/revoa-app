@@ -298,7 +298,7 @@ const SignUpNew = () => {
                 disabled={isLoading || !formData.email || !formData.password || !formData.confirmPassword}
                 className={cn(
                   "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
-                  "text-white bg-gray-400 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md enabled:hover:scale-[1.02] focus:ring-primary-500 disabled:hover:scale-100"
+                  "text-white bg-gray-400 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md focus:ring-primary-500"
                 )}
               >
                 {isLoading ? (
