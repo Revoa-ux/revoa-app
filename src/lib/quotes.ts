@@ -17,27 +17,46 @@ const getSuperAdminIds = async (): Promise<string[]> => {
   return data?.map(admin => admin.id) || [];
 };
 
-// Create a new quote request
-export const createQuoteRequest = async (data: {
+export type QuoteSource = 'onboarding' | 'dashboard' | 'landing_page';
+
+export interface CreateQuoteOptions {
   productUrl: string;
   productName: string;
   platform: 'aliexpress' | 'amazon' | 'other';
-}): Promise<Quote> => {
+  source?: QuoteSource;
+  sourceShopifyProductId?: string;
+  batchId?: string;
+}
+
+// Create a new quote request
+export const createQuoteRequest = async (data: CreateQuoteOptions): Promise<Quote> => {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     throw new Error('User not authenticated');
   }
 
+  const insertData: Record<string, unknown> = {
+    user_id: user.id,
+    product_url: data.productUrl,
+    product_name: data.productName,
+    platform: data.platform,
+    status: 'quote_pending',
+  };
+
+  if (data.source) {
+    insertData.source = data.source;
+  }
+  if (data.sourceShopifyProductId) {
+    insertData.source_shopify_product_id = data.sourceShopifyProductId;
+  }
+  if (data.batchId) {
+    insertData.batch_id = data.batchId;
+  }
+
   const { data: quote, error } = await supabase
     .from('product_quotes')
-    .insert({
-      user_id: user.id,
-      product_url: data.productUrl,
-      product_name: data.productName,
-      platform: data.platform,
-      status: 'quote_pending',
-    })
+    .insert(insertData)
     .select()
     .single();
 
@@ -47,6 +66,90 @@ export const createQuoteRequest = async (data: {
   }
 
   return mapDbQuoteToQuote(quote);
+};
+
+export interface ShopifyProductForQuote {
+  id: string;
+  title: string;
+  handle?: string;
+  featuredImage?: { url: string };
+  variants?: {
+    edges: Array<{
+      node: {
+        price: string;
+      };
+    }>;
+  };
+}
+
+// Create bulk quote requests for multiple Shopify products
+export const createBulkQuoteRequests = async (
+  products: ShopifyProductForQuote[],
+  shopDomain: string,
+  source: QuoteSource = 'onboarding'
+): Promise<{ created: number; failed: number; batchId: string }> => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const batchId = crypto.randomUUID();
+  let created = 0;
+  let failed = 0;
+
+  const quoteInserts = products.map((product) => {
+    const productUrl = product.handle
+      ? `https://${shopDomain}/products/${product.handle}`
+      : `https://${shopDomain}/admin/products/${product.id.split('/').pop()}`;
+
+    return {
+      user_id: user.id,
+      product_url: productUrl,
+      product_name: product.title,
+      platform: 'other' as const,
+      status: 'quote_pending',
+      source,
+      source_shopify_product_id: product.id,
+      batch_id: batchId,
+    };
+  });
+
+  const { data: quotes, error } = await supabase
+    .from('product_quotes')
+    .insert(quoteInserts)
+    .select();
+
+  if (error) {
+    console.error('Error creating bulk quotes:', error);
+    throw error;
+  }
+
+  created = quotes?.length || 0;
+  failed = products.length - created;
+
+  if (created > 0) {
+    try {
+      const adminIds = await getSuperAdminIds();
+      const notificationPromises = adminIds.map(adminId =>
+        createNotification({
+          userId: adminId,
+          type: 'new_quote_batch',
+          actionType: 'general',
+          title: 'New Quote Batch Received',
+          message: `${created} product${created > 1 ? 's' : ''} submitted for quoting from ${source}`,
+          actionRequired: true,
+          linkTo: '/admin/quotes',
+          referenceId: batchId,
+        })
+      );
+      await Promise.all(notificationPromises);
+    } catch (notifError) {
+      console.error('Error creating batch notification:', notifError);
+    }
+  }
+
+  return { created, failed, batchId };
 };
 
 // Get all quotes for the current user

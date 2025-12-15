@@ -1,14 +1,42 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';
 
+const PENDING_QUOTE_KEY = 'pending_quote_data';
+
+interface PendingQuoteData {
+  url: string;
+  platform: 'aliexpress' | 'amazon' | 'other';
+  timestamp: number;
+}
+
+const detectPlatformFromUrl = (url: string): 'aliexpress' | 'amazon' | 'other' => {
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.includes('aliexpress.com')) return 'aliexpress';
+  if (lowerUrl.includes('amazon.com') || lowerUrl.includes('amazon.')) return 'amazon';
+  return 'other';
+};
+
 const SignUpNew = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signUp } = useAuth();
+
+  useEffect(() => {
+    const quoteUrl = searchParams.get('quote_url');
+    if (quoteUrl) {
+      const pendingQuote: PendingQuoteData = {
+        url: quoteUrl,
+        platform: detectPlatformFromUrl(quoteUrl),
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(PENDING_QUOTE_KEY, JSON.stringify(pendingQuote));
+    }
+  }, [searchParams]);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

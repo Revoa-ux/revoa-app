@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Import, FormInput, Check, Search, X, ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Package, Link2, Check, Search, X, Loader2, Info, ChevronDown, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
+import { getProducts } from '@/lib/shopify/graphql';
+import { createQuoteRequest, createBulkQuoteRequests } from '@/lib/quotes';
 import { supabase } from '@/lib/supabase';
-import { LoadingSpinner } from '@/components/PageSkeletons';
+import { useClickOutside } from '@/lib/useClickOutside';
 
 interface ProductSetupProps {
   onComplete: (completed: boolean) => void;
@@ -11,28 +13,58 @@ interface ProductSetupProps {
   storeConnected: boolean;
 }
 
-interface Product {
+interface ShopifyProduct {
   id: string;
   title: string;
-  price: string;
-  image: string;
-  variants: number;
-  selected: boolean;
+  handle?: string;
+  status: string;
+  totalInventory?: number;
+  variants: {
+    edges: Array<{
+      node: {
+        id: string;
+        title: string;
+        price: string;
+        sku: string | null;
+      };
+    }>;
+  };
+  images?: {
+    edges: Array<{
+      node: {
+        url: string;
+        altText: string | null;
+      };
+    }>;
+  };
 }
 
+const platformOptions = [
+  { value: 'aliexpress' as const, label: 'AliExpress' },
+  { value: 'amazon' as const, label: 'Amazon' },
+  { value: 'other' as const, label: 'Other' }
+];
+
 const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, storeConnected }) => {
-  const [option, setOption] = useState<'import' | 'new' | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [option, setOption] = useState<'existing' | 'new' | null>(null);
+  const [products, setProducts] = useState<ShopifyProduct[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCount, setSelectedCount] = useState(0);
   const [isCheckingConnection, setIsCheckingConnection] = useState(true);
   const [actuallyConnected, setActuallyConnected] = useState(false);
+  const [shopDomain, setShopDomain] = useState('');
+  const [showProductModal, setShowProductModal] = useState(false);
 
-  // Double-check store connection on mount
+  const [productUrl, setProductUrl] = useState('');
+  const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | 'other'>('aliexpress');
+  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
+  const platformDropdownRef = useRef<HTMLDivElement>(null);
+  useClickOutside(platformDropdownRef, () => setShowPlatformDropdown(false));
+
   useEffect(() => {
     const checkStoreConnection = async () => {
-      console.log('[ProductSetup] Checking store connection on mount, prop says:', storeConnected);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
@@ -41,8 +73,10 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
         }
 
         const installation = await getActiveShopifyInstallation(session.user.id);
-        console.log('[ProductSetup] Found installation:', installation);
         setActuallyConnected(!!installation);
+        if (installation?.shop_domain) {
+          setShopDomain(installation.shop_domain);
+        }
       } catch (error) {
         console.error('[ProductSetup] Error checking connection:', error);
         setActuallyConnected(false);
@@ -54,83 +88,133 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
     checkStoreConnection();
   }, []);
 
-  // Use actuallyConnected if we've finished checking, otherwise fall back to prop
   const isStoreConnected = isCheckingConnection ? storeConnected : actuallyConnected;
 
-  useEffect(() => {
-    console.log('[ProductSetup] Store connection status:', {
-      isCheckingConnection,
-      storeConnected,
-      actuallyConnected,
-      isStoreConnected
-    });
-  }, [isCheckingConnection, storeConnected, actuallyConnected, isStoreConnected]);
-
-  useEffect(() => {
-    if (option === 'import' && isStoreConnected) {
-      loadProducts();
-    }
-  }, [option, isStoreConnected]);
-
-  useEffect(() => {
-    setSelectedCount(products.filter(p => p.selected).length);
-  }, [products]);
-  
-  const loadProducts = () => {
+  const loadProducts = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      const mockProducts: Product[] = Array.from({ length: 12 }, (_, i) => ({
-        id: `product-${i}`,
-        title: `Product ${i + 1}`,
-        price: `$${(Math.random() * 100).toFixed(2)}`,
-        image: `https://source.unsplash.com/random/200x200?product=${i}`,
-        variants: Math.floor(Math.random() * 3) + 1,
-        selected: false
-      }));
-      setProducts(mockProducts);
+    try {
+      const fetchedProducts = await getProducts(250);
+      setProducts(fetchedProducts as unknown as ShopifyProduct[]);
+      const allIds = new Set(fetchedProducts.map(p => p.id));
+      setSelectedProducts(allIds);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      toast.error('Failed to load products from Shopify');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
-  
-  const handleOptionSelect = (selectedOption: 'import' | 'new') => {
+
+  const handleOptionSelect = async (selectedOption: 'existing' | 'new') => {
     setOption(selectedOption);
+    if (selectedOption === 'existing' && isStoreConnected) {
+      setShowProductModal(true);
+      if (products.length === 0) {
+        await loadProducts();
+      }
+    }
   };
-  
+
   const handleToggleProduct = (productId: string) => {
-    setProducts(prev => 
-      prev.map(p => 
-        p.id === productId 
-          ? { ...p, selected: !p.selected } 
-          : p
-      )
-    );
+    setSelectedProducts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
   };
-  
+
   const handleSelectAll = () => {
-    setProducts(prev => prev.map(p => ({ ...p, selected: true })));
+    const filteredIds = filteredProducts.map(p => p.id);
+    setSelectedProducts(new Set(filteredIds));
   };
-  
+
   const handleDeselectAll = () => {
-    setProducts(prev => prev.map(p => ({ ...p, selected: false })));
+    setSelectedProducts(new Set());
   };
-  
-  const handleImportSelected = () => {
-    if (selectedCount === 0) {
+
+  const handleSubmitExistingProducts = async () => {
+    if (selectedProducts.size === 0) return;
+
+    setIsSubmitting(true);
+    try {
+      const selectedProductList = products.filter(p => selectedProducts.has(p.id));
+      const productsForQuote = selectedProductList.map(p => ({
+        id: p.id,
+        title: p.title,
+        handle: p.handle,
+        featuredImage: p.images?.edges[0]?.node ? { url: p.images.edges[0].node.url } : undefined,
+        variants: p.variants,
+      }));
+
+      const result = await createBulkQuoteRequests(productsForQuote, shopDomain, 'onboarding');
+
+      toast.success(`${result.created} product${result.created > 1 ? 's' : ''} submitted for quoting!`);
+      setShowProductModal(false);
+      onComplete(true);
+    } catch (error) {
+      console.error('Error submitting products:', error);
+      toast.error('Failed to submit products for quoting');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitNewProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productUrl.trim()) {
+      toast.error('Please enter a product URL');
       return;
     }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsSubmitting(true);
+    try {
+      let finalUrl = productUrl.trim();
+      if (!finalUrl.match(/^https?:\/\//i)) {
+        finalUrl = `https://${finalUrl}`;
+      }
+
+      let detectedPlatform = platform;
+      if (finalUrl.includes('aliexpress.com')) {
+        detectedPlatform = 'aliexpress';
+      } else if (finalUrl.includes('amazon.com') || finalUrl.includes('amazon.')) {
+        detectedPlatform = 'amazon';
+      }
+
+      const urlObj = new URL(finalUrl);
+      const productName = urlObj.pathname.split('/').filter(Boolean).pop() || 'New Product';
+
+      await createQuoteRequest({
+        productUrl: finalUrl,
+        productName: productName.replace(/-/g, ' ').replace(/\.\w+$/, ''),
+        platform: detectedPlatform,
+        source: 'onboarding',
+      });
+
+      toast.success('Quote request submitted successfully!');
+      setProductUrl('');
       onComplete(true);
-    }, 1500);
+    } catch (error) {
+      console.error('Error submitting quote:', error);
+      toast.error('Failed to submit quote request');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  
+
   const filteredProducts = searchTerm
-    ? products.filter(p => 
-        p.title.toLowerCase().includes(searchTerm.toLowerCase())
+    ? products.filter(p =>
+        p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.variants.edges.some(v => v.node.sku?.toLowerCase().includes(searchTerm.toLowerCase()))
       )
     : products;
+
+  const getPlatformLabel = () => {
+    return platformOptions.find(opt => opt.value === platform)?.label || 'Select platform';
+  };
 
   return (
     <div className="max-w-[540px] mx-auto">
@@ -143,174 +227,55 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
               className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
-          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Set Up Your Products</h2>
+          <h2 className="text-3xl font-medium text-gray-900 dark:text-white mb-3">Request Product Quotes</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400">
-            Choose how you want to set up your products in Revoa.
+            Get fulfillment quotes for your products from Revoa.
           </p>
         </div>
-        
+
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex gap-2">
+            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              Fulfilling with Revoa gives you complete COGS tracking, profit analytics, and automated inventory management. Without fulfillment, many metrics will be unavailable.
+            </p>
+          </div>
+        </div>
+
         <div className="space-y-3 mt-6">
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
-            option === 'import'
+            option === 'existing'
               ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
               : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
-              onClick={() => handleOptionSelect('import')}
+              onClick={() => handleOptionSelect('existing')}
               className={`w-full p-4 text-left transition-colors ${
-                isStoreConnected
-                  ? ''
-                  : 'opacity-50 cursor-not-allowed'
+                isStoreConnected ? '' : 'opacity-50 cursor-not-allowed'
               }`}
               disabled={!isStoreConnected}
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <Import className="w-5 h-5 text-gray-900 dark:text-white" />
+                    <Package className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-base font-medium text-gray-900 dark:text-white">Import Existing Products</h3>
+                  <h3 className="text-base font-medium text-gray-900 dark:text-white">Quote My Existing Products</h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Import products from your connected Shopify store.
+                    Select products from your Shopify store for Revoa fulfillment.
                   </p>
                   {!isStoreConnected && (
                     <p className="mt-1 text-xs text-red-600">
-                      You need to connect your Shopify store first.
+                      Connect your Shopify store first.
                     </p>
                   )}
                 </div>
               </div>
             </button>
-
-            {option === 'import' && (
-              <div className="px-4 pb-4">
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  {isLoading ? (
-                    <div className="text-center py-10">
-                      <LoadingSpinner />
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1 mt-4">Loading Products</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Please wait while we fetch your products from Shopify.
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="relative flex-1 max-w-xs">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                          <input
-                            type="text"
-                            placeholder="Search products..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 pr-4 py-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-pink-500 focus:border-pink-500"
-                          />
-                          {searchTerm && (
-                            <button
-                              onClick={() => setSearchTerm('')}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              <X className="w-4 h-4 text-gray-400" />
-                            </button>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={handleSelectAll}
-                            className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            Select All
-                          </button>
-                          <button
-                            onClick={handleDeselectAll}
-                            className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                          >
-                            Deselect All
-                          </button>
-                        </div>
-                      </div>
-                      
-                      {filteredProducts.length === 0 ? (
-                        <div className="text-center py-10 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                          <p className="text-gray-500 dark:text-gray-400">No products found.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 gap-3">
-                          {filteredProducts.map((product) => (
-                            <div
-                              key={product.id}
-                              className={`border rounded-lg overflow-hidden transition-colors cursor-pointer ${
-                                product.selected
-                                  ? 'border-gray-900 dark:border-gray-500 bg-gray-50 dark:bg-gray-800'
-                                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                              }`}
-                              onClick={() => handleToggleProduct(product.id)}
-                            >
-                              <div className="relative h-36 bg-gray-100 dark:bg-gray-900">
-                                <img
-                                  src={product.image}
-                                  alt={product.title}
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute top-2 right-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={product.selected}
-                                    onChange={() => handleToggleProduct(product.id)}
-                                    className="h-5 w-5 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3">
-                                <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">{product.title}</h3>
-                                <div className="flex items-center justify-between mt-1">
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">{product.price}</p>
-                                  <p className="text-xs text-gray-400 dark:text-gray-500">{product.variants} variants</p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="mt-5 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {selectedCount} of {products.length} products selected
-                          </div>
-                          <button
-                            onClick={handleImportSelected}
-                            disabled={selectedCount === 0}
-                            className={`px-5 py-1.5 rounded-md text-sm font-medium ${
-                              selectedCount > 0
-                                ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90'
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            }`}
-                          >
-                            Import Selected Products
-                          </button>
-                        </div>
-                        {selectedCount > 0 && (
-                          <button
-                            onClick={onFinish}
-                            className="w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
-                          >
-                            <Check className="w-4 h-4" />
-                            <span>Finish Setup</span>
-                          </button>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
@@ -319,26 +284,26 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
               <span className="px-2 bg-white dark:bg-gray-800 text-sm text-gray-500 dark:text-gray-400 rounded-md">or</span>
             </div>
           </div>
-          
+
           <div className={`border rounded-lg overflow-hidden transition-all duration-200 ${
             option === 'new'
               ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
               : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
           }`}>
             <button
-              onClick={() => handleOptionSelect('new')}
+              onClick={() => setOption('new')}
               className="w-full p-4 text-left"
             >
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
-                    <FormInput className="w-5 h-5 text-gray-900 dark:text-white" />
+                    <Link2 className="w-5 h-5 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-base font-medium text-gray-900 dark:text-white">No products yet? No problem!</h3>
+                  <h3 className="text-base font-medium text-gray-900 dark:text-white">Start Fresh with a New Product</h3>
                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Chat with us to see if we can help you add a product that will sell and scale it for you!
+                    Enter a product URL from AliExpress, Amazon, or another supplier.
                   </p>
                 </div>
               </div>
@@ -347,41 +312,277 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             {option === 'new' && (
               <div className="px-4 pb-4">
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-center">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                      <Check className="w-6 h-6 text-green-600" />
+                  <form onSubmit={handleSubmitNewProduct} className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Product URL
+                      </label>
+                      <input
+                        type="text"
+                        value={productUrl}
+                        onChange={(e) => setProductUrl(e.target.value)}
+                        placeholder="aliexpress.com/item/... or amazon.com/dp/..."
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
+                        required
+                      />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Great choice!</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Please fill out the form below and we'll help you find the perfect product.
-                    </p>
-                  </div>
 
-                  <div className="mt-4 space-y-3">
-                    <a
-                      href="https://revoa.app/form"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center"
-                      onClick={() => onComplete(true)}
-                    >
-                      <span>Open Form</span>
-                      <ArrowUpRight className="w-4 h-4 ml-1.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                    </a>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Platform
+                      </label>
+                      <div className="relative" ref={platformDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between"
+                        >
+                          <span>{getPlatformLabel()}</span>
+                          <ChevronDown className="w-4 h-4 text-gray-400" />
+                        </button>
+
+                        {showPlatformDropdown && (
+                          <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
+                            {platformOptions.map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => {
+                                  setPlatform(opt.value);
+                                  setShowPlatformDropdown(false);
+                                }}
+                                className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                              >
+                                <span className="text-gray-900 dark:text-white">{opt.label}</span>
+                                {platform === opt.value && (
+                                  <Check className="w-4 h-4 text-rose-500 flex-shrink-0 ml-2" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     <button
-                      onClick={onFinish}
-                      className="w-full px-5 py-1.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center justify-center gap-2"
+                      type="submit"
+                      disabled={isSubmitting || !productUrl.trim()}
+                      className="w-full px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group"
                     >
-                      <Check className="w-4 h-4" />
-                      <span>Finish Setup</span>
+                      {isSubmitting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Submit Quote Request</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                      )}
                     </button>
-                  </div>
+                  </form>
                 </div>
               </div>
             )}
           </div>
         </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onFinish}
+            className="w-full px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          >
+            Skip for now
+          </button>
+        </div>
       </div>
+
+      {showProductModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowProductModal(false)} />
+
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Select Products for Quoting</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                      All products are pre-selected. Deselect any you don't want quoted.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowProductModal(false)}
+                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search products..."
+                      className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                    />
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <X className="w-4 h-4 text-gray-400" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleSelectAll}
+                      className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={handleDeselectAll}
+                      className="px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      Deselect All
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+                {isLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className="w-full p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <div className="flex items-start gap-3">
+                          <div className="w-14 h-14 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse flex-shrink-0" />
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+                            <div className="flex items-center gap-2">
+                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-20" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <Package className="w-12 h-12 text-gray-400 mb-3" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {searchTerm ? 'No products found matching your search' : 'No products found in your store'}
+                    </p>
+                    {searchTerm && (
+                      <button
+                        onClick={() => setSearchTerm('')}
+                        className="mt-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredProducts.map((product) => {
+                      const isSelected = selectedProducts.has(product.id);
+                      const firstImage = product.images?.edges[0]?.node;
+                      const firstVariant = product.variants.edges[0]?.node;
+                      const variantCount = product.variants.edges.length;
+
+                      return (
+                        <button
+                          key={product.id}
+                          onClick={() => handleToggleProduct(product.id)}
+                          className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                            isSelected
+                              ? 'bg-rose-50/50 dark:bg-rose-900/10 border-rose-200 dark:border-rose-800'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {firstImage ? (
+                              <img
+                                src={firstImage.url}
+                                alt={firstImage.altText || product.title}
+                                className="w-14 h-14 object-cover rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
+                                <Package className="w-6 h-6 text-gray-400" />
+                              </div>
+                            )}
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                  {product.title}
+                                </h4>
+                                <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-colors ${
+                                  isSelected
+                                    ? 'bg-gradient-to-br from-red-500 to-pink-500'
+                                    : 'border-2 border-gray-300 dark:border-gray-600'
+                                }`}>
+                                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                {firstVariant && <span className="font-medium">${firstVariant.price}</span>}
+                                <span>-</span>
+                                <span>{variantCount} variant{variantCount !== 1 ? 's' : ''}</span>
+                                {product.status && (
+                                  <>
+                                    <span>-</span>
+                                    <span className="capitalize">{product.status.toLowerCase()}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {selectedProducts.size} of {products.length} products selected
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setShowProductModal(false)}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSubmitExistingProducts}
+                      disabled={selectedProducts.size === 0 || isSubmitting}
+                      className="group px-5 py-2 text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] rounded-lg hover:opacity-90 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <span>Submit for Quote</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

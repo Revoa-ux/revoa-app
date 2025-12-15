@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
+import { createQuoteRequest } from '../lib/quotes';
+
+const PENDING_QUOTE_KEY = 'pending_quote_data';
+const QUOTE_EXPIRY_MS = 24 * 60 * 60 * 1000;
+
+interface PendingQuoteData {
+  url: string;
+  platform: 'aliexpress' | 'amazon' | 'other';
+  timestamp: number;
+}
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired';
 
@@ -53,6 +64,38 @@ const ConfirmEmail = () => {
 
   const handleContinue = async () => {
     await refreshEmailConfirmed();
+
+    try {
+      const pendingQuoteStr = localStorage.getItem(PENDING_QUOTE_KEY);
+      if (pendingQuoteStr) {
+        const pendingQuote: PendingQuoteData = JSON.parse(pendingQuoteStr);
+        const isExpired = Date.now() - pendingQuote.timestamp > QUOTE_EXPIRY_MS;
+
+        if (!isExpired && pendingQuote.url) {
+          try {
+            const urlObj = new URL(pendingQuote.url.startsWith('http') ? pendingQuote.url : `https://${pendingQuote.url}`);
+            const productName = urlObj.pathname.split('/').filter(Boolean).pop() || 'New Product';
+
+            await createQuoteRequest({
+              productUrl: pendingQuote.url.startsWith('http') ? pendingQuote.url : `https://${pendingQuote.url}`,
+              productName: productName.replace(/-/g, ' ').replace(/\.\w+$/, ''),
+              platform: pendingQuote.platform,
+              source: 'landing_page',
+            });
+
+            toast.success('Your quote request has been submitted!');
+          } catch (quoteError) {
+            console.error('[ConfirmEmail] Failed to create quote from pending URL:', quoteError);
+          }
+        }
+
+        localStorage.removeItem(PENDING_QUOTE_KEY);
+      }
+    } catch (err) {
+      console.error('[ConfirmEmail] Error processing pending quote:', err);
+      localStorage.removeItem(PENDING_QUOTE_KEY);
+    }
+
     navigate('/onboarding', { replace: true });
   };
 
