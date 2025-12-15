@@ -119,8 +119,7 @@ Deno.serve(async (req: Request) => {
 });
 
 function generateConfirmationEmail(confirmationLink: string): string {
-  const logoSvg = `<svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M25 75L45 25L55 50L65 25L75 75" stroke="#111111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 50H35" stroke="#111111" stroke-width="8" stroke-linecap="round"/><path d="M65 50H85" stroke="#111111" stroke-width="8" stroke-linecap="round"/></svg>`;
-  const logoDataUri = `data:image/svg+xml;base64,${btoa(logoSvg)}`;
+  const logoUrl = 'https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png';
 
   return `
     <!DOCTYPE html>
@@ -138,7 +137,7 @@ function generateConfirmationEmail(confirmationLink: string): string {
                 <!-- Logo -->
                 <tr>
                   <td align="center" style="padding-bottom: 32px;">
-                    <img src="${logoDataUri}" alt="Revoa" width="48" height="48" style="display: block;" />
+                    <img src="${logoUrl}" alt="Revoa" width="48" height="48" style="display: block;" />
                   </td>
                 </tr>
 
