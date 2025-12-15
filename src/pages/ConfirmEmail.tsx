@@ -154,27 +154,29 @@ const ConfirmEmail = () => {
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           {status === 'loading' && (
-            <div className="text-center">
-              <div className="flex justify-center mb-6">
-                <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <Loader2 className="w-10 h-10 text-gray-500 animate-spin" />
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8">
+              <div className="text-center">
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <Loader2 className="w-10 h-10 text-gray-600 dark:text-gray-400 animate-spin" />
+                  </div>
                 </div>
+                <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
+                  Verifying your email...
+                </h2>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  Please wait while we confirm your email address.
+                </p>
               </div>
-              <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
-                Verifying your email...
-              </h2>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
-                Please wait while we confirm your email address.
-              </p>
             </div>
           )}
 
           {status === 'success' && (
-            <>
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+                  <div className="w-20 h-20 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                    <CheckCircle className="w-10 h-10 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
@@ -185,24 +187,22 @@ const ConfirmEmail = () => {
                 </p>
               </div>
 
-              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-6">
-                <button
-                  onClick={handleContinue}
-                  className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200"
-                >
-                  Get started
-                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-                </button>
-              </div>
-            </>
+              <button
+                onClick={handleContinue}
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                Get started
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           )}
 
           {(status === 'error' || status === 'expired') && (
-            <>
+            <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                    <XCircle className="w-10 h-10 text-red-600 dark:text-red-400" />
+                  <div className="w-20 h-20 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                    <XCircle className="w-10 h-10 text-gray-900 dark:text-white" />
                   </div>
                 </div>
                 <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
@@ -213,13 +213,13 @@ const ConfirmEmail = () => {
                 </p>
               </div>
 
-              <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 space-y-3">
+              <div className="space-y-3">
                 <button
                   onClick={() => navigate('/signup')}
-                  className="group w-full flex items-center justify-center gap-2 py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200"
+                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   Sign up again
-                  <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
                 <button
                   onClick={() => navigate('/auth')}
@@ -228,7 +228,7 @@ const ConfirmEmail = () => {
                   Back to sign in
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
