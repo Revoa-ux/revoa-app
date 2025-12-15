@@ -5,7 +5,7 @@ import {
   Percent, UserPlus, AlertTriangle, ArrowUpRight, ArrowDownRight, HelpCircle,
   Maximize2, Minimize2
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MetricCardData } from '../../lib/analyticsService';
 import { AdPlatform, PLATFORM_COLORS, PLATFORM_LABELS } from '../../types/crossPlatform';
 
@@ -247,15 +247,20 @@ export default function FlippableMetricCard({
             <div className="flex-1 min-h-0">
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <defs>
-                      <linearGradient id={`gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
+                      <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#E11D48" />
                         <stop offset="50%" stopColor="#EC4899" />
                         <stop offset="100%" stopColor="#E8795A" />
                       </linearGradient>
+                      <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#E11D48" stopOpacity={0.3} />
+                        <stop offset="50%" stopColor="#EC4899" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#E8795A" stopOpacity={0} />
+                      </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.3} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
                     <XAxis
                       dataKey="date"
                       axisLine={false}
@@ -265,63 +270,71 @@ export default function FlippableMetricCard({
                         const d = new Date(date);
                         return `${d.getMonth() + 1}/${d.getDate()}`;
                       }}
-                      interval={isExpanded ? 'preserveStartEnd' : 'preserveStartEnd'}
-                      minTickGap={isExpanded ? 30 : 50}
+                      interval="preserveStartEnd"
+                      minTickGap={isExpanded ? 30 : 40}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 9, fill: '#6B7280' }}
-                      width={35}
+                      width={45}
                       tickFormatter={(v) => {
-                        if (v >= 1000000) return `${(v/1000000).toFixed(1)}M`;
-                        if (v >= 1000) return `${(v/1000).toFixed(0)}K`;
+                        if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
+                        if (Math.abs(v) >= 1000) return `${(v/1000).toFixed(0)}K`;
+                        if (Number.isInteger(v)) return v.toString();
                         return v.toFixed(0);
                       }}
+                      domain={['auto', 'auto']}
+                      allowDataOverflow={false}
                     />
                     <Tooltip
                       contentStyle={{
-                        borderRadius: '0.5rem',
-                        border: 'none',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                        backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                        backdropFilter: 'blur(8px)',
-                        padding: '8px 12px',
-                        fontSize: '11px'
+                        borderRadius: '0.75rem',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+                        backgroundColor: 'rgba(17, 24, 39, 0.98)',
+                        backdropFilter: 'blur(12px)',
+                        padding: '10px 14px',
+                        fontSize: '12px'
                       }}
-                      labelStyle={{ color: '#F9FAFB', fontWeight: 600, marginBottom: '4px' }}
+                      labelStyle={{ color: '#F9FAFB', fontWeight: 600, marginBottom: '6px', fontSize: '13px' }}
+                      itemStyle={{ color: '#D1D5DB', padding: '2px 0' }}
                       formatter={(value: number, name: string) => {
-                        const label = hasMultiplePlatforms ? PLATFORM_LABELS[name as AdPlatform] || name : data.title;
+                        const label = hasMultiplePlatforms ? PLATFORM_LABELS[name as AdPlatform] || name : '';
                         return [formatTooltipValue(value), label];
                       }}
                       labelFormatter={(date) => {
                         const d = new Date(date);
-                        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                       }}
+                      cursor={{ stroke: '#6B7280', strokeWidth: 1, strokeDasharray: '4 4' }}
                     />
                     {hasMultiplePlatforms ? (
                       platforms.map(platform => (
-                        <Line
+                        <Area
                           key={platform}
                           type="monotone"
                           dataKey={platform}
                           stroke={PLATFORM_COLORS[platform]}
                           strokeWidth={2}
+                          fill={PLATFORM_COLORS[platform]}
+                          fillOpacity={0.15}
                           dot={false}
-                          activeDot={{ r: 3, strokeWidth: 1.5, stroke: PLATFORM_COLORS[platform], fill: '#fff' }}
+                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: '#fff' }}
                         />
                       ))
                     ) : (
-                      <Line
+                      <Area
                         type="monotone"
                         dataKey="value"
-                        stroke={`url(#gradient-${data.id})`}
+                        stroke={`url(#stroke-gradient-${data.id})`}
                         strokeWidth={2}
+                        fill={`url(#fill-gradient-${data.id})`}
                         dot={false}
-                        activeDot={{ r: 3, strokeWidth: 1.5, stroke: '#E11D48', fill: '#fff' }}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: '#fff' }}
                       />
                     )}
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">

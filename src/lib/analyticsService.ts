@@ -1368,13 +1368,34 @@ function getCardDataSourceConfig(cardId: string): CardDataSourceConfig | null {
 }
 
 async function fetchAdMetricsChartData(
+  userId: string,
   field: string,
   startDate: string,
   endDate: string
 ): Promise<ChartDataPoint[]> {
+  const { data: accounts, error: accountsError } = await supabase
+    .from('ad_accounts')
+    .select('id')
+    .eq('user_id', userId);
+
+  if (accountsError || !accounts || accounts.length === 0) return [];
+
+  const accountIds = accounts.map(a => a.id);
+
+  const { data: campaigns, error: campaignsError } = await supabase
+    .from('ad_campaigns')
+    .select('id')
+    .in('ad_account_id', accountIds);
+
+  if (campaignsError || !campaigns || campaigns.length === 0) return [];
+
+  const campaignIds = campaigns.map(c => c.id);
+
   const { data: metrics, error } = await supabase
     .from('ad_metrics')
     .select('date, spend, impressions, clicks, conversions, conversion_value, cpc, cpm, ctr, cpa, roas')
+    .eq('entity_type', 'campaign')
+    .in('entity_id', campaignIds)
     .gte('date', startDate.split('T')[0])
     .lte('date', endDate.split('T')[0])
     .order('date', { ascending: true });
@@ -1518,7 +1539,7 @@ async function fetchComputedChartData(
 ): Promise<ChartDataPoint[]> {
   const [revenueData, adSpendData, cogsData] = await Promise.all([
     fetchShopifyOrdersChartData(userId, 'revenue', startDate, endDate),
-    fetchAdMetricsChartData('spend', startDate, endDate),
+    fetchAdMetricsChartData(userId, 'spend', startDate, endDate),
     fetchCOGSChartData(userId, startDate, endDate)
   ]);
 
@@ -1573,7 +1594,7 @@ export async function fetchChartDataForCard(
   try {
     switch (config.source) {
       case 'ad_metrics':
-        return await fetchAdMetricsChartData(config.field || 'spend', startDate, endDate);
+        return await fetchAdMetricsChartData(user.id, config.field || 'spend', startDate, endDate);
 
       case 'shopify_orders':
         return await fetchShopifyOrdersChartData(
