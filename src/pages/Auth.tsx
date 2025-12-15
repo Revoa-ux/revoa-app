@@ -221,13 +221,13 @@ const Auth = () => {
             );
           }
           .dark {
-            --auth-bg-color: #0a0a0a;
+            --auth-bg-color: #171717;
             --auth-bg-pattern: repeating-linear-gradient(
               -45deg,
               transparent,
               transparent 4px,
-              rgba(255, 255, 255, 0.03) 4px,
-              rgba(255, 255, 255, 0.03) 5px
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
             );
           }
         `}</style>
