@@ -116,7 +116,10 @@ const ConfirmEmail = () => {
       localStorage.removeItem(PENDING_QUOTE_KEY);
     }
 
-    navigate('/onboarding', { replace: true });
+    // Small delay to ensure state updates have propagated
+    setTimeout(() => {
+      navigate('/onboarding/store', { replace: true });
+    }, 100);
   };
 
   return (
@@ -175,8 +178,8 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                    <CheckCircle className="w-10 h-10 text-gray-900 dark:text-white" />
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <CheckCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
                 <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
@@ -189,7 +192,7 @@ const ConfirmEmail = () => {
 
               <button
                 onClick={handleContinue}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
                 Get started
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -201,8 +204,8 @@ const ConfirmEmail = () => {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 space-y-6">
               <div className="text-center">
                 <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                    <XCircle className="w-10 h-10 text-gray-900 dark:text-white" />
+                  <div className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                    <XCircle className="w-10 h-10 text-gray-900 dark:text-white" strokeWidth={2.5} />
                   </div>
                 </div>
                 <h2 className="text-2xl font-medium text-gray-900 dark:text-white">
@@ -216,7 +219,7 @@ const ConfirmEmail = () => {
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/signup')}
-                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   Sign up again
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

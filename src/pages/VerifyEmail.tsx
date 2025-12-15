@@ -126,8 +126,8 @@ export default function VerifyEmail() {
 
           {status === 'success' && (
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-gray-900 dark:text-white" />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
               </div>
               <h1 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">
                 Email Verified!
@@ -144,8 +144,8 @@ export default function VerifyEmail() {
           {status === 'error' && (
             <div className="text-center space-y-6">
               <div>
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                  <XCircle className="w-8 h-8 text-gray-900 dark:text-white" />
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <XCircle className="w-8 h-8 text-gray-900 dark:text-white" strokeWidth={2.5} />
                 </div>
                 <h1 className="text-2xl font-medium text-gray-900 dark:text-white mb-2">
                   Verification Failed
@@ -156,7 +156,7 @@ export default function VerifyEmail() {
               </div>
               <button
                 onClick={() => navigate('/settings')}
-                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
                 Go to Settings
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
