@@ -12,13 +12,15 @@ interface QuoteFormProps {
 const platformOptions = [
   { value: 'aliexpress' as const, label: 'AliExpress' },
   { value: 'amazon' as const, label: 'Amazon' },
+  { value: '1688' as const, label: '1688' },
+  { value: 'alibaba' as const, label: 'Alibaba' },
   { value: 'other' as const, label: 'Other' }
 ];
 
 export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initialData }) => {
   const [productUrl, setProductUrl] = useState(initialData?.productUrl || '');
   const [productName, setProductName] = useState(initialData?.productName || '');
-  const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | 'other'>(
+  const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other'>(
     initialData?.platform || 'aliexpress'
   );
   const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
