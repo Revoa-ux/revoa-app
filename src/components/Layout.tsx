@@ -262,8 +262,8 @@ export default function Layout() {
             </nav>
           </div>
 
-          {/* Preferences */}
-          <div className="px-3 py-4">
+          {/* Bottom Navigation Group */}
+          <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
             <nav className="space-y-0.5">
               <Link
                 to="/settings"
@@ -304,10 +304,36 @@ export default function Layout() {
                 <Headphones className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
                 {!isCollapsed && 'Help & Support'}
               </button>
+              <button
+                onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
+                title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
+                className={cn(
+                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+                )}
+              >
+                {isDarkMode ? (
+                  <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                ) : (
+                  <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                )}
+                {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
+              </button>
+              <button
+                onClick={handleLogout}
+                title={isCollapsed ? 'Log Out' : undefined}
+                className={cn(
+                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+                )}
+              >
+                <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+                {!isCollapsed && 'Log Out'}
+              </button>
             </nav>
           </div>
 
-          {/* Account Profile */}
+          {/* Account Profile - Bottom */}
           {!isCollapsed && (
             <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
               <Link
@@ -339,36 +365,6 @@ export default function Layout() {
               </Link>
             </div>
           )}
-
-          {/* Dark Mode and Log Out */}
-          <div className="p-3">
-            <button
-              onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
-              title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
-              className={cn(
-                'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-                isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-              )}
-            >
-              {isDarkMode ? (
-                <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-              ) : (
-                <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-              )}
-              {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
-            </button>
-            <button
-              onClick={handleLogout}
-              title={isCollapsed ? 'Log Out' : undefined}
-              className={cn(
-                'w-full flex items-center mt-0.5 text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-                isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-              )}
-            >
-              <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-              {!isCollapsed && 'Log Out'}
-            </button>
-          </div>
         </div>
       </div>
 
