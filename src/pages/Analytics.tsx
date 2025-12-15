@@ -174,16 +174,38 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
       setCardData({});
 
       try {
+        // Get last sync timestamp from localStorage for incremental sync
+        const lastSyncKey = 'analytics_last_sync';
+        const lastSyncStr = localStorage.getItem(lastSyncKey);
+        const lastSyncTime = lastSyncStr ? new Date(lastSyncStr) : null;
+
+        // Determine if we should do incremental sync (less than 1 hour since last sync)
+        const now = new Date();
+        const shouldIncrementalSync = lastSyncTime && (now.getTime() - lastSyncTime.getTime()) < 3600000;
+
         // Trigger incremental sync and WAIT for it to complete
         const { facebook } = useConnectionStore.getState();
         if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
           const { facebookAdsService } = await import('@/lib/facebookAds');
+
+          // Use incremental sync if recent, otherwise full sync
+          const syncFrom = shouldIncrementalSync && lastSyncTime
+            ? lastSyncTime.toISOString().split('T')[0]
+            : undefined;
+
           await Promise.all(
             facebook.accounts.map(account =>
-              facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true)
-                .catch(err => console.error('[Analytics] Auto-sync failed:', err))
+              facebookAdsService.syncAdAccount(
+                account.platform_account_id,
+                syncFrom,
+                undefined,
+                true
+              ).catch(err => console.error('[Analytics] Auto-sync failed:', err))
             )
           );
+
+          // Update last sync timestamp
+          localStorage.setItem(lastSyncKey, now.toISOString());
 
           // Refresh account data to update last_synced_at in UI
           await facebookAdsService.getAdAccounts('facebook');
@@ -200,7 +222,7 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
 
         // Final update with all data (in case progressive updates were skipped)
         setCardData(data);
-} catch (error) {
+      } catch (error) {
         console.error('Error fetching card data:', error);
       } finally {
         setIsLoading(false);
@@ -446,8 +468,16 @@ setCurrentTemplate(template);
     return groups;
   };
 
+  // Count connected platforms to determine if we should show combined section
+  const connectedPlatformsCount = [
+    facebook.isConnected && facebook.accounts && facebook.accounts.length > 0,
+    // google.isConnected, // TODO: Add when Google Ads is implemented
+    // tiktok.isConnected  // TODO: Add when TikTok Ads is implemented
+  ].filter(Boolean).length;
+
+  // Only show combined metrics if more than one platform is connected
   const platformSections = [
-    { key: 'combined', label: 'Combined Metrics', subtitle: 'Aggregated across all platforms' },
+    ...(connectedPlatformsCount > 1 ? [{ key: 'combined', label: 'Combined Metrics', subtitle: 'Aggregated across all platforms' }] : []),
     { key: 'meta', label: 'Meta / Facebook', subtitle: 'Facebook and Instagram ads' },
     { key: 'tiktok', label: 'TikTok', subtitle: 'TikTok ads performance' },
     { key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }

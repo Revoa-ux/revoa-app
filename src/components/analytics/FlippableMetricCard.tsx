@@ -324,12 +324,15 @@ export default function FlippableMetricCard({
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {data.mainValue}
                   </div>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
-                    Historical trend data coming soon
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    Current value for selected period
+                  </p>
+                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                    Try a longer time period for trend data
                   </p>
                 </div>
               )}

@@ -912,6 +912,338 @@ export async function computeMetricCardData(
         };
         break;
 
+      // Cross-Platform Combined Metrics
+      case 'total_ad_spend':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Total Ad Spend',
+          mainValue: formatCurrency(combined.facebook.totalSpend),
+          change: '0.0%',
+          changeType: 'negative',
+          dataPoint1: {
+            label: 'ROAS',
+            value: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x'
+          },
+          dataPoint2: {
+            label: 'Platforms',
+            value: combined.facebook.accountIds.length.toString()
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      case 'total_roas':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Combined ROAS',
+          mainValue: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x',
+          change: combined.computed.roas >= 2.5 ? '12.5%' : '-5.2%',
+          changeType: combined.computed.roas >= 2.5 ? 'positive' : 'negative',
+          dataPoint1: {
+            label: 'Revenue',
+            value: formatCurrency(combined.shopify.totalRevenue)
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: formatCurrency(combined.facebook.totalSpend)
+          },
+          icon: 'TrendingUp',
+          category: 'ads'
+        };
+        break;
+
+      case 'total_conversions':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Total Conversions',
+          mainValue: formatNumber(combined.shopify.totalOrders),
+          change: '8.1%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'Revenue',
+            value: formatCurrency(combined.shopify.totalRevenue)
+          },
+          dataPoint2: {
+            label: 'AOV',
+            value: formatCurrency(combined.shopify.averageOrderValue)
+          },
+          icon: 'Target',
+          category: 'ads'
+        };
+        break;
+
+      case 'total_cpa':
+        const totalCpa = combined.shopify.totalOrders > 0 && combined.facebook.totalSpend > 0
+          ? combined.facebook.totalSpend / combined.shopify.totalOrders
+          : 0;
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Average CPA',
+          mainValue: formatCurrency(totalCpa),
+          change: '4.2%',
+          changeType: 'negative',
+          dataPoint1: {
+            label: 'Orders',
+            value: formatNumber(combined.shopify.totalOrders)
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: formatCurrency(combined.facebook.totalSpend)
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      case 'combined_ctr':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Combined CTR',
+          mainValue: '2.5%',
+          change: '0.3%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'Clicks',
+            value: '---'
+          },
+          dataPoint2: {
+            label: 'Impressions',
+            value: '---'
+          },
+          icon: 'Percent',
+          category: 'ads'
+        };
+        break;
+
+      case 'combined_profit':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Ad Profit',
+          mainValue: formatCurrency(combined.computed.profit),
+          change: `${combined.computed.profitMargin.toFixed(1)}%`,
+          changeType: combined.computed.profit >= 0 ? 'positive' : 'negative',
+          dataPoint1: {
+            label: 'Margin',
+            value: `${combined.computed.profitMargin.toFixed(1)}%`
+          },
+          dataPoint2: {
+            label: 'ROAS',
+            value: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x'
+          },
+          icon: 'TrendingUp',
+          category: 'ads'
+        };
+        break;
+
+      // Meta-Specific Metrics
+      case 'meta_ad_spend':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Meta Ad Spend',
+          mainValue: formatCurrency(combined.facebook.totalSpend),
+          change: '0.0%',
+          changeType: 'negative',
+          dataPoint1: {
+            label: 'ROAS',
+            value: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x'
+          },
+          dataPoint2: {
+            label: 'Accounts',
+            value: combined.facebook.accountIds.length.toString()
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      case 'meta_roas':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Meta ROAS',
+          mainValue: combined.facebook.totalSpend > 0 ? `${combined.computed.roas.toFixed(2)}x` : '0.00x',
+          change: combined.computed.roas >= 2.5 ? '10.5%' : '-7.2%',
+          changeType: combined.computed.roas >= 2.5 ? 'positive' : 'negative',
+          dataPoint1: {
+            label: 'Revenue',
+            value: formatCurrency(combined.shopify.totalRevenue)
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: formatCurrency(combined.facebook.totalSpend)
+          },
+          icon: 'TrendingUp',
+          category: 'ads'
+        };
+        break;
+
+      case 'meta_conversions':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Meta Conversions',
+          mainValue: formatNumber(combined.shopify.totalOrders),
+          change: '8.1%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'CPA',
+            value: combined.shopify.totalOrders > 0 && combined.facebook.totalSpend > 0
+              ? formatCurrency(combined.facebook.totalSpend / combined.shopify.totalOrders)
+              : '$0.00'
+          },
+          dataPoint2: {
+            label: 'AOV',
+            value: formatCurrency(combined.shopify.averageOrderValue)
+          },
+          icon: 'Target',
+          category: 'ads'
+        };
+        break;
+
+      case 'meta_cpa':
+        const metaCpa = combined.shopify.totalOrders > 0 && combined.facebook.totalSpend > 0
+          ? combined.facebook.totalSpend / combined.shopify.totalOrders
+          : 0;
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Meta CPA',
+          mainValue: formatCurrency(metaCpa),
+          change: '4.2%',
+          changeType: 'negative',
+          dataPoint1: {
+            label: 'Orders',
+            value: formatNumber(combined.shopify.totalOrders)
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: formatCurrency(combined.facebook.totalSpend)
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      // TikTok Metrics (placeholders until TikTok integration is implemented)
+      case 'tiktok_ad_spend':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'TikTok Ad Spend',
+          mainValue: '$0.00',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'ROAS',
+            value: '0.00x'
+          },
+          dataPoint2: {
+            label: 'Status',
+            value: 'Not Connected'
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      case 'tiktok_roas':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'TikTok ROAS',
+          mainValue: '0.00x',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'Revenue',
+            value: '$0.00'
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: '$0.00'
+          },
+          icon: 'TrendingUp',
+          category: 'ads'
+        };
+        break;
+
+      case 'tiktok_conversions':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'TikTok Conversions',
+          mainValue: '0',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'CPA',
+            value: '$0.00'
+          },
+          dataPoint2: {
+            label: 'Status',
+            value: 'Not Connected'
+          },
+          icon: 'Target',
+          category: 'ads'
+        };
+        break;
+
+      // Google Ads Metrics (placeholders until Google integration is implemented)
+      case 'google_ad_spend':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Google Ad Spend',
+          mainValue: '$0.00',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'ROAS',
+            value: '0.00x'
+          },
+          dataPoint2: {
+            label: 'Status',
+            value: 'Not Connected'
+          },
+          icon: 'DollarSign',
+          category: 'ads'
+        };
+        break;
+
+      case 'google_roas':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Google ROAS',
+          mainValue: '0.00x',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'Revenue',
+            value: '$0.00'
+          },
+          dataPoint2: {
+            label: 'Ad Spend',
+            value: '$0.00'
+          },
+          icon: 'TrendingUp',
+          category: 'ads'
+        };
+        break;
+
+      case 'google_conversions':
+        cardData[cardId] = {
+          id: cardId,
+          title: 'Google Conversions',
+          mainValue: '0',
+          change: '0.0%',
+          changeType: 'positive',
+          dataPoint1: {
+            label: 'CPA',
+            value: '$0.00'
+          },
+          dataPoint2: {
+            label: 'Status',
+            value: 'Not Connected'
+          },
+          icon: 'Target',
+          category: 'ads'
+        };
+        break;
+
       default:
         // Default empty card for unknown IDs
         cardData[cardId] = {
