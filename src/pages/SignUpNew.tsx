@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';
+import { cn } from '../lib/utils';
 
 const PENDING_QUOTE_KEY = 'pending_quote';
 
@@ -119,15 +120,35 @@ const SignUpNew = () => {
   return (
     <>
       <PageTitle title="Sign Up" />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        {/* Grid Background */}
-        <div 
-          className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:64px_64px]"
-          style={{ 
-            maskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)',
-            WebkitMaskImage: 'radial-gradient(circle at center, transparent, black 30%, transparent)'
-          }}
-        />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #0a0a0a;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.03) 4px,
+              rgba(255, 255, 255, 0.03) 5px
+            );
+          }
+        `}</style>
 
         <div className="w-full max-w-[420px] space-y-8 relative">
           <div className="text-center">
@@ -172,9 +193,10 @@ const SignUpNew = () => {
                       setFormData(prev => ({ ...prev, email: e.target.value }));
                       setErrors(prev => ({ ...prev, email: undefined }));
                     }}
-                    className={`block w-full pl-10 pr-3 py-2 border ${
-                      errors.email ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                    className={cn(
+                      "block w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.email ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                    )}
                     placeholder="you@example.com"
                     disabled={isLoading}
                   />
@@ -202,9 +224,10 @@ const SignUpNew = () => {
                       setFormData(prev => ({ ...prev, password: e.target.value }));
                       setErrors(prev => ({ ...prev, password: undefined }));
                     }}
-                    className={`block w-full pl-10 pr-10 py-2 border ${
-                      errors.password ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                    className={cn(
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.password ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                    )}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -243,9 +266,10 @@ const SignUpNew = () => {
                       setFormData(prev => ({ ...prev, confirmPassword: e.target.value }));
                       setErrors(prev => ({ ...prev, confirmPassword: undefined }));
                     }}
-                    className={`block w-full pl-10 pr-10 py-2 border ${
-                      errors.confirmPassword ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
-                    } rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                    className={cn(
+                      "block w-full pl-10 pr-10 py-2 border rounded-lg focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500",
+                      errors.confirmPassword ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
+                    )}
                     placeholder="••••••••"
                     disabled={isLoading}
                   />
@@ -268,22 +292,25 @@ const SignUpNew = () => {
 
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                disabled={isLoading || !formData.email || !formData.password || !formData.confirmPassword}
+                className={cn(
+                  "group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed",
+                  "text-white bg-gray-300 enabled:bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] enabled:hover:shadow-md enabled:hover:scale-[1.02] focus:ring-primary-500 disabled:hover:scale-100"
+                )}
               >
                 {isLoading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <div className="flex items-center">
-                    <span>Create Account</span>
-                    <ArrowRight className="ml-2 -mr-1 w-4 h-4" />
-                  </div>
+                  <>
+                    Create account
+                    <ArrowRight className="w-4 h-4 group-enabled:group-hover:translate-x-0.5 transition-transform" />
+                  </>
                 )}
               </button>
             </form>
           </div>
 
-          <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-center text-gray-500">
             By signing up, you agree to our{' '}
             <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
               Terms of Service
