@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Package, Link2, Check, Search, X, Loader2, Info, ChevronDown, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Package, Link2, Check, Search, X, Loader2, Info, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { getActiveShopifyInstallation } from '@/lib/shopify/status';
 import { getProducts } from '@/lib/shopify/graphql';
 import { createQuoteRequest, createBulkQuoteRequests } from '@/lib/quotes';
 import { supabase } from '@/lib/supabase';
-import { useClickOutside } from '@/lib/useClickOutside';
 
 const PENDING_QUOTE_KEY = 'pending_quote';
 
@@ -46,12 +45,6 @@ interface ShopifyProduct {
   };
 }
 
-const platformOptions = [
-  { value: 'aliexpress' as const, label: 'AliExpress' },
-  { value: 'amazon' as const, label: 'Amazon' },
-  { value: 'other' as const, label: 'Other' }
-];
-
 const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, storeConnected }) => {
   const [option, setOption] = useState<'existing' | 'new' | null>(null);
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -65,10 +58,6 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
   const [showProductModal, setShowProductModal] = useState(false);
 
   const [productUrl, setProductUrl] = useState('');
-  const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | 'other'>('aliexpress');
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
-  const platformDropdownRef = useRef<HTMLDivElement>(null);
-  useClickOutside(platformDropdownRef, () => setShowPlatformDropdown(false));
 
   useEffect(() => {
     const checkStoreConnection = async () => {
@@ -202,7 +191,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
         finalUrl = `https://${finalUrl}`;
       }
 
-      let detectedPlatform = platform;
+      let detectedPlatform: 'aliexpress' | 'amazon' | 'other' = 'other';
       if (finalUrl.includes('aliexpress.com')) {
         detectedPlatform = 'aliexpress';
       } else if (finalUrl.includes('amazon.com') || finalUrl.includes('amazon.')) {
@@ -237,10 +226,6 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
       )
     : products;
 
-  const getPlatformLabel = () => {
-    return platformOptions.find(opt => opt.value === platform)?.label || 'Select platform';
-  };
-
   return (
     <div className="max-w-[540px] mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -258,11 +243,11 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
           </p>
         </div>
 
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="mt-4 p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
           <div className="flex gap-2">
-            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700 dark:text-blue-300">
-              Fulfilling with Revoa gives you complete COGS tracking, profit analytics, and automated inventory management. Without fulfillment, many metrics will be unavailable.
+            <Info className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-rose-700 dark:text-rose-300">
+              Fulfilling with Revoa gives you complete COGS tracking, profit analytics, and automated inventory management. Without fulfillment, many features will be unavailable.
             </p>
           </div>
         </div>
@@ -346,47 +331,10 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                         type="text"
                         value={productUrl}
                         onChange={(e) => setProductUrl(e.target.value)}
-                        placeholder="aliexpress.com/item/... or amazon.com/dp/..."
+                        placeholder="https://www.aliexpress.com/item/..."
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500"
                         required
                       />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Platform
-                      </label>
-                      <div className="relative" ref={platformDropdownRef}>
-                        <button
-                          type="button"
-                          onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between"
-                        >
-                          <span>{getPlatformLabel()}</span>
-                          <ChevronDown className="w-4 h-4 text-gray-400" />
-                        </button>
-
-                        {showPlatformDropdown && (
-                          <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
-                            {platformOptions.map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                onClick={() => {
-                                  setPlatform(opt.value);
-                                  setShowPlatformDropdown(false);
-                                }}
-                                className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                              >
-                                <span className="text-gray-900 dark:text-white">{opt.label}</span>
-                                {platform === opt.value && (
-                                  <Check className="w-4 h-4 text-rose-500 flex-shrink-0 ml-2" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
                     </div>
 
                     <button
@@ -409,19 +357,10 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
             )}
           </div>
         </div>
-
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={onFinish}
-            className="w-full px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          >
-            Skip for now
-          </button>
-        </div>
       </div>
 
       {showProductModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] overflow-y-auto">
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowProductModal(false)} />
 
           <div className="relative min-h-screen flex items-center justify-center p-4">
@@ -535,12 +474,17 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                                 src={firstImage.url}
                                 alt={firstImage.altText || product.title}
                                 className="w-14 h-14 object-cover rounded-lg border border-gray-200 dark:border-gray-700 flex-shrink-0"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const fallback = target.nextElementSibling as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
                               />
-                            ) : (
-                              <div className="w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
-                                <Package className="w-6 h-6 text-gray-400" />
-                              </div>
-                            )}
+                            ) : null}
+                            <div className={`w-14 h-14 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0 ${firstImage ? 'hidden' : ''}`}>
+                              <Package className="w-6 h-6 text-gray-400" />
+                            </div>
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between gap-2">
@@ -590,7 +534,7 @@ const ProductSetup: React.FC<ProductSetupProps> = ({ onComplete, onFinish, store
                     <button
                       onClick={handleSubmitExistingProducts}
                       disabled={selectedProducts.size === 0 || isSubmitting}
-                      className="group px-5 py-2 text-sm font-medium text-white bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] rounded-lg hover:opacity-90 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
+                      className="group px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                     >
                       {isSubmitting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
