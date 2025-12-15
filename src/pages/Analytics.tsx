@@ -4,6 +4,7 @@ import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdRepor
 import TemplateSelector from '../components/analytics/TemplateSelector';
 import FlippableMetricCard from '../components/analytics/FlippableMetricCard';
 import CardSelectorModal from '../components/analytics/CardSelectorModal';
+import ConnectPlatformCard from '../components/analytics/ConnectPlatformCard';
 import { DashboardSkeleton } from '../components/PageSkeletons';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
@@ -44,6 +45,15 @@ export default function Analytics() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalCardOrder, setOriginalCardOrder] = useState<string[]>([]);
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [connectedPlatforms, setConnectedPlatforms] = useState<{
+    facebook: boolean;
+    tiktok: boolean;
+    google: boolean;
+  }>({
+    facebook: false,
+    tiktok: false,
+    google: false
+  });
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -114,6 +124,34 @@ export default function Analytics() {
     };
 
     fetchAdPlatformsSyncTime();
+  }, [user?.id, cardData]);
+
+  // Check which ad platforms are connected
+  useEffect(() => {
+    const checkConnectedPlatforms = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data: adAccounts } = await supabase
+          .from('ad_accounts')
+          .select('platform')
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+
+        if (adAccounts) {
+          const platforms = {
+            facebook: adAccounts.some(acc => acc.platform === 'facebook'),
+            tiktok: adAccounts.some(acc => acc.platform === 'tiktok'),
+            google: adAccounts.some(acc => acc.platform === 'google')
+          };
+          setConnectedPlatforms(platforms);
+        }
+      } catch (error) {
+        console.error('Error checking connected platforms:', error);
+      }
+    };
+
+    checkConnectedPlatforms();
   }, [user?.id, cardData]);
 
   // Load user preferences and initialize if needed
@@ -470,17 +508,17 @@ setCurrentTemplate(template);
 
   // Count connected platforms to determine if we should show combined section
   const connectedPlatformsCount = [
-    facebook.isConnected && facebook.accounts && facebook.accounts.length > 0,
-    // google.isConnected, // TODO: Add when Google Ads is implemented
-    // tiktok.isConnected  // TODO: Add when TikTok Ads is implemented
+    connectedPlatforms.facebook,
+    connectedPlatforms.tiktok,
+    connectedPlatforms.google
   ].filter(Boolean).length;
 
-  // Only show combined metrics if more than one platform is connected
+  // Only show sections for connected platforms
   const platformSections = [
     ...(connectedPlatformsCount > 1 ? [{ key: 'combined', label: 'Combined Metrics', subtitle: 'Aggregated across all platforms' }] : []),
-    { key: 'meta', label: 'Meta / Facebook', subtitle: 'Facebook and Instagram ads' },
-    { key: 'tiktok', label: 'TikTok', subtitle: 'TikTok ads performance' },
-    { key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }
+    ...(connectedPlatforms.facebook ? [{ key: 'meta', label: 'Meta / Facebook', subtitle: 'Facebook and Instagram ads' }] : []),
+    ...(connectedPlatforms.tiktok ? [{ key: 'tiktok', label: 'TikTok', subtitle: 'TikTok ads performance' }] : []),
+    ...(connectedPlatforms.google ? [{ key: 'google', label: 'Google Ads', subtitle: 'Search and display campaigns' }] : [])
   ];
 
   // Get contextual notification
@@ -530,12 +568,15 @@ setCurrentTemplate(template);
           <span>
             {(() => {
               const connected = [];
-              if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+              if (connectedPlatforms.facebook) {
                 connected.push('Meta Ads');
               }
-              // Placeholder for future integrations
-              // if (google.isConnected) connected.push('Google Ads');
-              // if (tiktok.isConnected) connected.push('TikTok Ads');
+              if (connectedPlatforms.tiktok) {
+                connected.push('TikTok Ads');
+              }
+              if (connectedPlatforms.google) {
+                connected.push('Google Ads');
+              }
 
               if (connected.length === 0) {
                 return 'No ad platforms connected';
@@ -543,16 +584,11 @@ setCurrentTemplate(template);
 
               const platformText = connected.join(' - ') + ' Connected';
 
-              // Get most recent sync time from accounts
-              const lastSyncedAccount = facebook.accounts
-                ?.filter(acc => acc.last_synced_at)
-                .sort((a, b) => new Date(b.last_synced_at!).getTime() - new Date(a.last_synced_at!).getTime())[0];
-
+              // Get most recent sync time from ad platforms
               let timeText = '';
-              if (lastSyncedAccount?.last_synced_at) {
-                const syncDate = new Date(lastSyncedAccount.last_synced_at);
+              if (adPlatformsSyncTime) {
                 const now = new Date();
-                const diffMs = now.getTime() - syncDate.getTime();
+                const diffMs = now.getTime() - adPlatformsSyncTime.getTime();
                 const diffMins = Math.floor(diffMs / 60000);
 
                 if (diffMins < 1) {
@@ -560,7 +596,7 @@ setCurrentTemplate(template);
                 } else if (diffMins < 60) {
                   timeText = ` - Updated ${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
                 } else {
-                  timeText = ` - Updated ${syncDate.toLocaleTimeString()}`;
+                  timeText = ` - Updated ${adPlatformsSyncTime.toLocaleTimeString()}`;
                 }
               }
 
@@ -770,6 +806,32 @@ setCurrentTemplate(template);
               </div>
             );
           })}
+
+          {/* Show placeholder cards for unconnected platforms */}
+          {!connectedPlatforms.tiktok && (
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">TikTok</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">TikTok ads performance</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ConnectPlatformCard platform="tiktok" platformLabel="TikTok Ads" />
+              </div>
+            </div>
+          )}
+
+          {!connectedPlatforms.google && (
+            <div>
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Google Ads</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Search and display campaigns</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ConnectPlatformCard platform="google" platformLabel="Google Ads" />
+              </div>
+            </div>
+          )}
+
           <button
             onClick={() => setShowCardSelector(true)}
             className="h-[180px] w-full md:w-1/3 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
