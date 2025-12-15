@@ -145,9 +145,11 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
               onClick={onNext}
               disabled={!canGoNext}
               className={`group flex items-center px-5 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] ${
-                canGoNext
-                  ? 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90 shadow-md'
-                  : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                !canGoNext
+                  ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                  : shouldShowSkip()
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600'
+                  : 'bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white hover:opacity-90 shadow-md'
               }`}
             >
               {currentStep === 'complete' ? 'Finish' : (shouldShowSkip() ? 'Skip' : 'Next')}
