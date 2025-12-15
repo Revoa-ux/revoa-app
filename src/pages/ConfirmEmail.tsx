@@ -6,13 +6,14 @@ import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { createQuoteRequest } from '../lib/quotes';
 
-const PENDING_QUOTE_KEY = 'pending_quote_data';
-const QUOTE_EXPIRY_MS = 24 * 60 * 60 * 1000;
+const PENDING_QUOTE_KEY = 'pending_quote';
+
+type QuotePlatform = 'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other';
 
 interface PendingQuoteData {
-  url: string;
-  platform: 'aliexpress' | 'amazon' | 'other';
-  timestamp: number;
+  product_url: string;
+  product_name: string;
+  platform: QuotePlatform;
 }
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired';
@@ -69,16 +70,27 @@ const ConfirmEmail = () => {
       const pendingQuoteStr = localStorage.getItem(PENDING_QUOTE_KEY);
       if (pendingQuoteStr) {
         const pendingQuote: PendingQuoteData = JSON.parse(pendingQuoteStr);
-        const isExpired = Date.now() - pendingQuote.timestamp > QUOTE_EXPIRY_MS;
 
-        if (!isExpired && pendingQuote.url) {
+        if (pendingQuote.product_url) {
           try {
-            const urlObj = new URL(pendingQuote.url.startsWith('http') ? pendingQuote.url : `https://${pendingQuote.url}`);
-            const productName = urlObj.pathname.split('/').filter(Boolean).pop() || 'New Product';
+            const productUrl = pendingQuote.product_url.startsWith('http')
+              ? pendingQuote.product_url
+              : `https://${pendingQuote.product_url}`;
+
+            let productName = pendingQuote.product_name;
+            if (!productName) {
+              try {
+                const urlObj = new URL(productUrl);
+                productName = urlObj.pathname.split('/').filter(Boolean).pop() || 'Untitled Product';
+                productName = productName.replace(/-/g, ' ').replace(/\.\w+$/, '');
+              } catch {
+                productName = 'Untitled Product';
+              }
+            }
 
             await createQuoteRequest({
-              productUrl: pendingQuote.url.startsWith('http') ? pendingQuote.url : `https://${pendingQuote.url}`,
-              productName: productName.replace(/-/g, ' ').replace(/\.\w+$/, ''),
+              productUrl,
+              productName,
               platform: pendingQuote.platform,
               source: 'landing_page',
             });

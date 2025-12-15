@@ -18,11 +18,12 @@ const getSuperAdminIds = async (): Promise<string[]> => {
 };
 
 export type QuoteSource = 'onboarding' | 'dashboard' | 'landing_page';
+export type QuotePlatform = 'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other';
 
 export interface CreateQuoteOptions {
   productUrl: string;
   productName: string;
-  platform: 'aliexpress' | 'amazon' | 'other';
+  platform: QuotePlatform;
   source?: QuoteSource;
   sourceShopifyProductId?: string;
   batchId?: string;

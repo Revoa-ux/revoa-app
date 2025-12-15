@@ -6,18 +6,23 @@ import { useAuth } from '../contexts/AuthContext';
 import { PageTitle } from '../components/PageTitle';
 import { validateForm, signupFormSchema } from '../lib/validation';
 
-const PENDING_QUOTE_KEY = 'pending_quote_data';
+const PENDING_QUOTE_KEY = 'pending_quote';
+
+type QuotePlatform = 'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other';
 
 interface PendingQuoteData {
-  url: string;
-  platform: 'aliexpress' | 'amazon' | 'other';
-  timestamp: number;
+  product_url: string;
+  product_name: string;
+  platform: QuotePlatform;
 }
 
-const detectPlatformFromUrl = (url: string): 'aliexpress' | 'amazon' | 'other' => {
-  const lowerUrl = url.toLowerCase();
-  if (lowerUrl.includes('aliexpress.com')) return 'aliexpress';
-  if (lowerUrl.includes('amazon.com') || lowerUrl.includes('amazon.')) return 'amazon';
+const normalizePlatform = (platform: string | null): QuotePlatform => {
+  if (!platform) return 'other';
+  const lower = platform.toLowerCase();
+  if (lower === 'aliexpress') return 'aliexpress';
+  if (lower === 'amazon') return 'amazon';
+  if (lower === '1688') return '1688';
+  if (lower === 'alibaba') return 'alibaba';
   return 'other';
 };
 
@@ -30,9 +35,9 @@ const SignUpNew = () => {
     const quoteUrl = searchParams.get('quote_url');
     if (quoteUrl) {
       const pendingQuote: PendingQuoteData = {
-        url: quoteUrl,
-        platform: detectPlatformFromUrl(quoteUrl),
-        timestamp: Date.now(),
+        product_url: quoteUrl,
+        product_name: searchParams.get('quote_name') || '',
+        platform: normalizePlatform(searchParams.get('quote_platform')),
       };
       localStorage.setItem(PENDING_QUOTE_KEY, JSON.stringify(pendingQuote));
     }
