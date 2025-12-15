@@ -48,6 +48,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   useEffect(() => {
     const messageHandler = (event: MessageEvent) => {
       if (event.data.type === 'shopify:success') {
+        console.log('[ShopifyConnectModal] Received success message from popup');
         setIsLoading(false);
         setHasError(false);
         if (checkInterval) {
@@ -55,7 +56,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           setCheckInterval(null);
         }
         onSuccess(event.data.shop);
+        onClose();
       } else if (event.data.type === 'shopify:error') {
+        console.log('[ShopifyConnectModal] Received error message from popup');
         setIsLoading(false);
         setHasError(true);
         if (checkInterval) {
@@ -72,7 +75,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         clearInterval(checkInterval);
       }
     };
-  }, [checkInterval, onSuccess]);
+  }, [checkInterval, onSuccess, onClose]);
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,8 +189,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
-              // Explicitly trigger success callback to close modal immediately
+              // Trigger success callback and close modal
               onSuccess(validDomain);
+              onClose();
               return;
             }
 
