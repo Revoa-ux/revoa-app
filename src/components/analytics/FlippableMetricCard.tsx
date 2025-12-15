@@ -328,11 +328,8 @@ export default function FlippableMetricCard({
                   <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {data.mainValue}
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Current value for selected period
-                  </p>
-                  <p className="text-[10px] text-gray-400 dark:text-gray-500">
-                    Try a longer time period for trend data
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    No trend data for this period
                   </p>
                 </div>
               )}

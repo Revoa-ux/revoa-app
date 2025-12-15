@@ -1295,17 +1295,83 @@ export interface ChartDataPoint {
   value: number;
 }
 
-export async function fetchChartDataForCard(
-  cardId: string,
+type ChartDataSource = 'ad_metrics' | 'shopify_orders' | 'balance' | 'cogs' | 'computed' | 'store_metrics';
+
+interface CardDataSourceConfig {
+  source: ChartDataSource;
+  field?: string;
+  computationType?: 'profit' | 'margin' | 'aov' | 'cpa';
+}
+
+function getCardDataSourceConfig(cardId: string): CardDataSourceConfig | null {
+  const configMap: Record<string, CardDataSourceConfig> = {
+    'ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'ad_costs': { source: 'ad_metrics', field: 'spend' },
+    'meta_ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'facebook_ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'total_ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'impressions': { source: 'ad_metrics', field: 'impressions' },
+    'clicks': { source: 'ad_metrics', field: 'clicks' },
+    'conversions': { source: 'ad_metrics', field: 'conversions' },
+    'roas': { source: 'ad_metrics', field: 'roas' },
+    'meta_roas': { source: 'ad_metrics', field: 'roas' },
+    'total_roas': { source: 'ad_metrics', field: 'roas' },
+    'roas_refunds_included': { source: 'ad_metrics', field: 'roas' },
+    'cpc': { source: 'ad_metrics', field: 'cpc' },
+    'cpm': { source: 'ad_metrics', field: 'cpm' },
+    'ctr': { source: 'ad_metrics', field: 'ctr' },
+    'cpa': { source: 'ad_metrics', field: 'cpa' },
+    'meta_cpa': { source: 'ad_metrics', field: 'cpa' },
+    'total_cpa': { source: 'ad_metrics', field: 'cpa' },
+    'meta_conversions': { source: 'ad_metrics', field: 'conversions' },
+    'total_conversions': { source: 'ad_metrics', field: 'conversions' },
+    'revenue': { source: 'shopify_orders', field: 'revenue' },
+    'total_revenue': { source: 'shopify_orders', field: 'revenue' },
+    'net_revenue': { source: 'shopify_orders', field: 'revenue' },
+    'orders': { source: 'shopify_orders', field: 'orders' },
+    'number_of_orders': { source: 'shopify_orders', field: 'orders' },
+    'order_metrics': { source: 'shopify_orders', field: 'orders' },
+    'aov': { source: 'shopify_orders', field: 'aov' },
+    'avg_order_value': { source: 'shopify_orders', field: 'aov' },
+    'aov_net_refunds': { source: 'shopify_orders', field: 'aov' },
+    'returns': { source: 'shopify_orders', field: 'returns' },
+    'refunds': { source: 'shopify_orders', field: 'returns' },
+    'return_rate': { source: 'shopify_orders', field: 'returns' },
+    'cogs': { source: 'cogs' },
+    'avg_cogs': { source: 'cogs' },
+    'balance': { source: 'balance' },
+    'profit': { source: 'computed', computationType: 'profit' },
+    'combined_profit': { source: 'computed', computationType: 'profit' },
+    'gross_margin_percent': { source: 'computed', computationType: 'margin' },
+    'profit_margin_percent': { source: 'computed', computationType: 'margin' },
+    'financial_metrics': { source: 'computed', computationType: 'profit' },
+    'ad_cost_per_order': { source: 'computed', computationType: 'cpa' },
+    'cac': { source: 'computed', computationType: 'cpa' },
+    'clv': { source: 'shopify_orders', field: 'revenue' },
+    'purchase_frequency': { source: 'shopify_orders', field: 'orders' },
+    'break_even_roas': { source: 'ad_metrics', field: 'roas' },
+    'transaction_fees': { source: 'shopify_orders', field: 'revenue' },
+    'chargebacks': { source: 'shopify_orders', field: 'returns' },
+    'inventory_status': { source: 'shopify_orders', field: 'orders' },
+    'fulfill': { source: 'shopify_orders', field: 'orders' },
+    'time_metrics': { source: 'shopify_orders', field: 'orders' },
+    'projected': { source: 'shopify_orders', field: 'orders' },
+    'tiktok_ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'tiktok_roas': { source: 'ad_metrics', field: 'roas' },
+    'tiktok_conversions': { source: 'ad_metrics', field: 'conversions' },
+    'google_ad_spend': { source: 'ad_metrics', field: 'spend' },
+    'google_roas': { source: 'ad_metrics', field: 'roas' },
+    'google_conversions': { source: 'ad_metrics', field: 'conversions' },
+    'combined_ctr': { source: 'ad_metrics', field: 'ctr' },
+  };
+  return configMap[cardId] || null;
+}
+
+async function fetchAdMetricsChartData(
+  field: string,
   startDate: string,
   endDate: string
 ): Promise<ChartDataPoint[]> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-
-  const metricField = getMetricFieldForCard(cardId);
-  if (!metricField) return [];
-
   const { data: metrics, error } = await supabase
     .from('ad_metrics')
     .select('date, spend, impressions, clicks, conversions, conversion_value, cpc, cpm, ctr, cpa, roas')
@@ -1315,41 +1381,229 @@ export async function fetchChartDataForCard(
 
   if (error || !metrics) return [];
 
-  const dailyAggregates = new Map<string, number>();
+  const dailyAggregates = new Map<string, { sum: number; count: number }>();
 
   metrics.forEach(m => {
     const dateStr = m.date;
-    const currentValue = dailyAggregates.get(dateStr) || 0;
-    const fieldValue = getFieldValue(m, metricField);
-    dailyAggregates.set(dateStr, currentValue + fieldValue);
+    const current = dailyAggregates.get(dateStr) || { sum: 0, count: 0 };
+    const fieldValue = getFieldValue(m, field);
+    dailyAggregates.set(dateStr, {
+      sum: current.sum + fieldValue,
+      count: current.count + 1
+    });
   });
 
-  return Array.from(dailyAggregates.entries()).map(([date, value]) => ({
+  const isAverageField = ['roas', 'cpc', 'cpm', 'ctr', 'cpa'].includes(field);
+
+  return Array.from(dailyAggregates.entries()).map(([date, { sum, count }]) => ({
+    date,
+    value: isAverageField && count > 0 ? sum / count : sum
+  }));
+}
+
+async function fetchShopifyOrdersChartData(
+  userId: string,
+  field: 'revenue' | 'orders' | 'aov' | 'returns',
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const { data: orders, error } = await supabase
+    .from('shopify_orders')
+    .select('ordered_at, total_price, total_refunded')
+    .eq('user_id', userId)
+    .gte('ordered_at', startDate)
+    .lte('ordered_at', endDate)
+    .order('ordered_at', { ascending: true });
+
+  if (error || !orders) return [];
+
+  const dailyAggregates = new Map<string, { revenue: number; orders: number; refunds: number }>();
+
+  orders.forEach(order => {
+    const dateStr = order.ordered_at.split('T')[0];
+    const current = dailyAggregates.get(dateStr) || { revenue: 0, orders: 0, refunds: 0 };
+    dailyAggregates.set(dateStr, {
+      revenue: current.revenue + (parseFloat(order.total_price) || 0),
+      orders: current.orders + 1,
+      refunds: current.refunds + (parseFloat(order.total_refunded) || 0)
+    });
+  });
+
+  return Array.from(dailyAggregates.entries()).map(([date, data]) => {
+    let value = 0;
+    switch (field) {
+      case 'revenue':
+        value = data.revenue;
+        break;
+      case 'orders':
+        value = data.orders;
+        break;
+      case 'aov':
+        value = data.orders > 0 ? data.revenue / data.orders : 0;
+        break;
+      case 'returns':
+        value = data.refunds;
+        break;
+    }
+    return { date, value };
+  });
+}
+
+async function fetchBalanceChartData(
+  userId: string,
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const { data: transactions, error } = await supabase
+    .from('balance_transactions')
+    .select('created_at, balance_after')
+    .eq('user_id', userId)
+    .gte('created_at', startDate)
+    .lte('created_at', endDate)
+    .order('created_at', { ascending: true });
+
+  if (error || !transactions || transactions.length === 0) return [];
+
+  const dailyBalances = new Map<string, number>();
+
+  transactions.forEach(tx => {
+    const dateStr = tx.created_at.split('T')[0];
+    dailyBalances.set(dateStr, parseFloat(tx.balance_after) || 0);
+  });
+
+  return Array.from(dailyBalances.entries()).map(([date, value]) => ({
     date,
     value
   }));
 }
 
-function getMetricFieldForCard(cardId: string): string | null {
-  const fieldMap: Record<string, string> = {
-    'ad_spend': 'spend',
-    'meta_ad_spend': 'spend',
-    'facebook_ad_spend': 'spend',
-    'total_ad_spend': 'spend',
-    'impressions': 'impressions',
-    'clicks': 'clicks',
-    'conversions': 'conversions',
-    'roas': 'roas',
-    'meta_roas': 'roas',
-    'total_roas': 'roas',
-    'cpc': 'cpc',
-    'cpm': 'cpm',
-    'ctr': 'ctr',
-    'cpa': 'cpa',
-    'meta_cpa': 'cpa',
-    'total_cpa': 'cpa'
-  };
-  return fieldMap[cardId] || null;
+async function fetchCOGSChartData(
+  userId: string,
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const { data: lineItems, error } = await supabase
+    .from('order_line_items')
+    .select(`
+      unit_cost,
+      quantity,
+      shopify_orders!inner(user_id, ordered_at)
+    `)
+    .eq('shopify_orders.user_id', userId)
+    .gte('shopify_orders.ordered_at', startDate)
+    .lte('shopify_orders.ordered_at', endDate);
+
+  if (error || !lineItems) return [];
+
+  const dailyCOGS = new Map<string, number>();
+
+  lineItems.forEach((item: any) => {
+    const dateStr = item.shopify_orders.ordered_at.split('T')[0];
+    const cost = (parseFloat(item.unit_cost) || 0) * (parseInt(item.quantity) || 1);
+    const current = dailyCOGS.get(dateStr) || 0;
+    dailyCOGS.set(dateStr, current + cost);
+  });
+
+  return Array.from(dailyCOGS.entries()).map(([date, value]) => ({
+    date,
+    value
+  }));
+}
+
+async function fetchComputedChartData(
+  userId: string,
+  computationType: 'profit' | 'margin' | 'aov' | 'cpa',
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const [revenueData, adSpendData, cogsData] = await Promise.all([
+    fetchShopifyOrdersChartData(userId, 'revenue', startDate, endDate),
+    fetchAdMetricsChartData('spend', startDate, endDate),
+    fetchCOGSChartData(userId, startDate, endDate)
+  ]);
+
+  const revenueMap = new Map(revenueData.map(d => [d.date, d.value]));
+  const adSpendMap = new Map(adSpendData.map(d => [d.date, d.value]));
+  const cogsMap = new Map(cogsData.map(d => [d.date, d.value]));
+
+  const allDates = new Set([
+    ...revenueMap.keys(),
+    ...adSpendMap.keys(),
+    ...cogsMap.keys()
+  ]);
+
+  const sortedDates = Array.from(allDates).sort();
+
+  return sortedDates.map(date => {
+    const revenue = revenueMap.get(date) || 0;
+    const adSpend = adSpendMap.get(date) || 0;
+    const cogs = cogsMap.get(date) || 0;
+
+    let value = 0;
+    switch (computationType) {
+      case 'profit':
+        value = revenue - cogs - adSpend;
+        break;
+      case 'margin':
+        value = revenue > 0 ? ((revenue - cogs - adSpend) / revenue) * 100 : 0;
+        break;
+      case 'cpa':
+        const ordersData = revenueData.find(d => d.date === date);
+        value = ordersData && ordersData.value > 0 ? adSpend / ordersData.value : 0;
+        break;
+      default:
+        value = revenue;
+    }
+
+    return { date, value };
+  });
+}
+
+export async function fetchChartDataForCard(
+  cardId: string,
+  startDate: string,
+  endDate: string
+): Promise<ChartDataPoint[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const config = getCardDataSourceConfig(cardId);
+  if (!config) return [];
+
+  try {
+    switch (config.source) {
+      case 'ad_metrics':
+        return await fetchAdMetricsChartData(config.field || 'spend', startDate, endDate);
+
+      case 'shopify_orders':
+        return await fetchShopifyOrdersChartData(
+          user.id,
+          config.field as 'revenue' | 'orders' | 'aov' | 'returns',
+          startDate,
+          endDate
+        );
+
+      case 'balance':
+        return await fetchBalanceChartData(user.id, startDate, endDate);
+
+      case 'cogs':
+        return await fetchCOGSChartData(user.id, startDate, endDate);
+
+      case 'computed':
+        return await fetchComputedChartData(
+          user.id,
+          config.computationType || 'profit',
+          startDate,
+          endDate
+        );
+
+      default:
+        return [];
+    }
+  } catch (error) {
+    console.error(`Error fetching chart data for ${cardId}:`, error);
+    return [];
+  }
 }
 
 function getFieldValue(metric: any, field: string): number {
