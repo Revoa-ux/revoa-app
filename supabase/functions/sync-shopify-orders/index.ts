@@ -91,10 +91,6 @@ interface SyncResult {
   error?: string;
 }
 
-/**
- * Parse Link header to extract next page cursor
- * Shopify uses Link headers with rel="next" for pagination
- */
 function parseNextPageInfo(linkHeader: string | null): string | null {
   if (!linkHeader) return null;
 
@@ -102,7 +98,6 @@ function parseNextPageInfo(linkHeader: string | null): string | null {
   for (const link of links) {
     const [url, rel] = link.split(';').map(s => s.trim());
     if (rel === 'rel="next"') {
-      // Extract page_info from URL
       const match = url.match(/page_info=([^&>]+)/);
       return match ? match[1] : null;
     }
@@ -110,23 +105,22 @@ function parseNextPageInfo(linkHeader: string | null): string | null {
   return null;
 }
 
-/**
- * Fetch orders from Shopify with pagination support
- */
 async function fetchShopifyOrders(
   storeUrl: string,
   accessToken: string,
   createdAtMin?: string,
   pageInfo?: string,
-  limit = 250
+  limit = 250,
+  isInitialSync = false
 ): Promise<{ orders: ShopifyOrder[]; nextPageInfo: string | null }> {
-  let url = `https://${storeUrl}/admin/api/2024-01/orders.json?status=any&financial_status=paid&limit=${limit}`;
+  let url = `https://${storeUrl}/admin/api/2024-01/orders.json?status=any&limit=${limit}`;
+  if (!isInitialSync) {
+    url += '&financial_status=paid';
+  }
 
   if (pageInfo) {
-    // Use page_info for pagination
     url += `&page_info=${pageInfo}`;
   } else if (createdAtMin) {
-    // Only use created_at_min on first request
     url += `&created_at_min=${createdAtMin}`;
   }
 
@@ -173,7 +167,6 @@ Deno.serve(async (req: Request) => {
 
     console.log('[Sync] Starting order sync for user:', userId);
 
-    // Fetch installation with access_token from database (secure)
     const { data: installation, error: installError } = await supabase
       .from('shopify_installations')
       .select('id, store_url, access_token, last_synced_at')
@@ -197,23 +190,20 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Determine sync date range (incremental vs full sync)
+    const isInitialSync = !installation.last_synced_at;
     let createdAtMin: string;
     if (installation.last_synced_at) {
-      // Incremental sync: only fetch orders since last sync
       createdAtMin = installation.last_synced_at;
       console.log('[Sync] Incremental sync from:', createdAtMin);
     } else {
-      // First sync: fetch last 3 years
       const threeYearsAgo = new Date();
       threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
       createdAtMin = threeYearsAgo.toISOString();
       console.log('[Sync] First sync from:', createdAtMin);
     }
 
-    // Pagination loop with safety limit
-    const MAX_PAGES = 40; // Max 10,000 orders (250 per page)
-    const MAX_DURATION_MS = 110000; // 110 seconds (leave buffer before 120s timeout)
+    const MAX_PAGES = 40;
+    const MAX_DURATION_MS = 110000;
 
     let allOrders: ShopifyOrder[] = [];
     let pageCount = 0;
@@ -221,7 +211,6 @@ Deno.serve(async (req: Request) => {
     let hasMore = true;
 
     while (hasMore && pageCount < MAX_PAGES) {
-      // Check timeout
       if (Date.now() - startTime > MAX_DURATION_MS) {
         console.warn('[Sync] Approaching timeout, stopping pagination');
         break;
@@ -234,7 +223,9 @@ Deno.serve(async (req: Request) => {
         installation.store_url,
         installation.access_token,
         pageCount === 1 ? createdAtMin : undefined,
-        nextPageInfo
+        nextPageInfo,
+        250,
+        isInitialSync
       );
 
       console.log(`[Sync] Page ${pageCount}: ${orders.length} orders`);
@@ -243,7 +234,6 @@ Deno.serve(async (req: Request) => {
       nextPageInfo = next;
       hasMore = nextPageInfo !== null;
 
-      // Break if no more orders
       if (orders.length === 0) {
         hasMore = false;
       }
@@ -251,14 +241,12 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[Sync] Fetched ${allOrders.length} total orders across ${pageCount} pages`);
 
-    // Get active quotes for matching
     const { data: activeQuotes } = await supabase
       .from('product_quotes')
       .select('id, variants')
       .eq('user_id', userId)
       .eq('status', 'accepted');
 
-    // Build SKU to quote mapping (once for performance)
     const skuToQuoteMap = new Map<string, { quoteId: string; variant: any }>();
     activeQuotes?.forEach(quote => {
       if (quote.variants && Array.isArray(quote.variants)) {
@@ -275,26 +263,22 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[Sync] Mapped ${skuToQuoteMap.size} SKUs from ${activeQuotes?.length || 0} quotes`);
 
-    // Process orders
     let processedCount = 0;
     let fulfillmentsCreated = 0;
     let skippedCount = 0;
     const errors: string[] = [];
 
-    // Batch processing for better performance
     const BATCH_SIZE = 100;
     for (let i = 0; i < allOrders.length; i += BATCH_SIZE) {
       const batch = allOrders.slice(i, i + BATCH_SIZE);
 
       for (const order of batch) {
         try {
-          // Extract data from order (matching webhook logic)
           const customerEmail = order.email || order.customer?.email || null;
           const billingAddress = order.billing_address || {};
           const shippingAddress = order.shipping_address || {};
           const discountCodes = (order.discount_codes || []).map((dc: any) => dc.code);
 
-          // Check if repeat customer
           let isRepeatCustomer = false;
           let orderCount = 1;
           if (customerEmail) {
@@ -310,7 +294,6 @@ Deno.serve(async (req: Request) => {
             }
           }
 
-          // Insert/update in shopify_orders table with ALL fields
           const { data: storedOrder, error: orderInsertError } = await supabase
             .from('shopify_orders')
             .upsert({
@@ -323,36 +306,30 @@ Deno.serve(async (req: Request) => {
               customer_first_name: order.customer?.first_name || shippingAddress.first_name || billingAddress.first_name || null,
               customer_last_name: order.customer?.last_name || shippingAddress.last_name || billingAddress.last_name || null,
               customer_phone: order.customer?.phone || shippingAddress.phone || billingAddress.phone || order.phone || null,
-              // Shipping address
               shipping_address_line1: shippingAddress.address1 || null,
               shipping_address_line2: shippingAddress.address2 || null,
               shipping_city: shippingAddress.city || null,
               shipping_state: shippingAddress.province || shippingAddress.province_code || null,
               shipping_zip: shippingAddress.zip || null,
               shipping_country: shippingAddress.country || shippingAddress.country_code || null,
-              // Billing address
               billing_address_line1: billingAddress.address1 || null,
               billing_address_line2: billingAddress.address2 || null,
               billing_city: billingAddress.city || null,
               billing_state: billingAddress.province || billingAddress.province_code || null,
               billing_zip: billingAddress.zip || null,
               billing_country: billingAddress.country || billingAddress.country_code || null,
-              // Pricing details
               subtotal_price: parseFloat(order.subtotal_price || '0'),
               total_tax: parseFloat(order.total_tax || '0'),
               total_shipping: parseFloat(order.total_shipping_price_set?.shop_money?.amount || order.shipping_lines?.[0]?.price || '0'),
               total_discounts: parseFloat(order.total_discounts || '0'),
               discount_codes: discountCodes,
-              // Order metadata
               note: order.note || null,
               tags: order.tags || null,
               financial_status: order.financial_status || null,
               fulfillment_status: order.fulfillment_status || null,
               order_status_url: order.order_status_url || null,
-              // Customer tracking
               is_repeat_customer: isRepeatCustomer,
               order_count: orderCount,
-              // Timestamps
               cancelled_at: order.cancelled_at || null,
               cancel_reason: order.cancel_reason || null,
               processed_at: order.processed_at || null,
@@ -370,11 +347,9 @@ Deno.serve(async (req: Request) => {
             continue;
           }
 
-          // Insert line items into order_line_items table
           if (order.line_items && order.line_items.length > 0) {
             const orderLineItems = [];
             for (const item of order.line_items) {
-              // Try to find product in database
               const { data: product } = await supabase
                 .from('products')
                 .select('id, cogs_cost')
@@ -414,7 +389,6 @@ Deno.serve(async (req: Request) => {
             }
           }
 
-          // Check if fulfillment already exists
           const { data: existingFulfillment } = await supabase
             .from('shopify_order_fulfillment')
             .select('id')
@@ -427,7 +401,6 @@ Deno.serve(async (req: Request) => {
             continue;
           }
 
-          // Match line items to quotes
           const matchedItems: any[] = [];
           for (const item of order.line_items) {
             if (!item.sku) continue;
@@ -460,11 +433,9 @@ Deno.serve(async (req: Request) => {
             continue;
           }
 
-          // Calculate totals
           const totalCost = matchedItems.reduce((sum, item) => sum + item.total_cost, 0);
           const totalQuantity = matchedItems.reduce((sum, item) => sum + item.quantity, 0);
 
-          // Insert fulfillment record
           const { error: insertError } = await supabase
             .from('shopify_order_fulfillment')
             .insert({
@@ -492,7 +463,6 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // Update last_synced_at and orders_synced_count
     const { error: updateError } = await supabase
       .from('shopify_installations')
       .update({
@@ -515,7 +485,7 @@ Deno.serve(async (req: Request) => {
       fulfillmentsCreated,
       skipped: skippedCount,
       pages: pageCount,
-      errors: errors.length > 0 ? errors.slice(0, 10) : undefined, // Return first 10 errors only
+      errors: errors.length > 0 ? errors.slice(0, 10) : undefined,
     };
 
     return new Response(

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, Edit3, X, Plus, Info, AlertCircle, WifiOff, ArrowRight } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TemplateSelector from '../components/analytics/TemplateSelector';
@@ -58,6 +58,9 @@ export default function Analytics() {
   });
   const [chartDataByCard, setChartDataByCard] = useState<Record<string, ChartDataPoint[]>>({});
   const [refreshCounter, setRefreshCounter] = useState(0);
+  const [autoFlipCardId, setAutoFlipCardId] = useState<string | null>(null);
+  const [autoFlipTrigger, setAutoFlipTrigger] = useState(0);
+  const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Initialize date range for 7 days
   const initialEndDate = new Date();
@@ -70,6 +73,28 @@ export default function Analytics() {
     startDate: initialStartDate,
     endDate: initialEndDate
   });
+
+  useEffect(() => {
+    if (isEditMode || isLoading || visibleCards.length === 0) return;
+
+    const autoFlipInterval = setInterval(() => {
+      const visibleCardsInViewport = visibleCards.filter(cardId => {
+        const element = cardRefs.current.get(cardId);
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.top >= 0 && rect.bottom <= window.innerHeight;
+      });
+
+      if (visibleCardsInViewport.length > 0) {
+        const randomIndex = Math.floor(Math.random() * visibleCardsInViewport.length);
+        const randomCardId = visibleCardsInViewport[randomIndex];
+        setAutoFlipCardId(randomCardId);
+        setAutoFlipTrigger(prev => prev + 1);
+      }
+    }, 5000);
+
+    return () => clearInterval(autoFlipInterval);
+  }, [isEditMode, isLoading, visibleCards]);
 
   // Load user name
   useEffect(() => {
@@ -810,19 +835,27 @@ setCurrentTemplate(template);
                     if (!data) return null;
 
                     return (
-                      <FlippableMetricCard
+                      <div
                         key={cardId}
-                        data={data}
-                        chartData={chartDataByCard[cardId] || []}
-                        isLoading={isLoading}
-                        isExpanded={isExpanded}
-                        onExpand={() => handleExpandCard(cardId)}
-                        isDragging={draggedCard === cardId}
-                        onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                        onDragEnd={isEditMode ? handleDragEnd : undefined}
-                        onDragOver={isEditMode ? handleDragOver : undefined}
-                        onDrop={isEditMode ? handleDrop(cardId) : undefined}
-                      />
+                        ref={(el) => {
+                          if (el) cardRefs.current.set(cardId, el);
+                          else cardRefs.current.delete(cardId);
+                        }}
+                      >
+                        <FlippableMetricCard
+                          data={data}
+                          chartData={chartDataByCard[cardId] || []}
+                          isLoading={isLoading}
+                          isExpanded={isExpanded}
+                          autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                          onExpand={() => handleExpandCard(cardId)}
+                          isDragging={draggedCard === cardId}
+                          onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                          onDragEnd={isEditMode ? handleDragEnd : undefined}
+                          onDragOver={isEditMode ? handleDragOver : undefined}
+                          onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                        />
+                      </div>
                     );
                   })}
 
@@ -898,19 +931,27 @@ setCurrentTemplate(template);
             if (!data) return null;
 
             return (
-              <FlippableMetricCard
+              <div
                 key={cardId}
-                data={data}
-                chartData={chartDataByCard[cardId] || []}
-                isLoading={isLoading}
-                isExpanded={isExpanded}
-                onExpand={() => handleExpandCard(cardId)}
-                isDragging={draggedCard === cardId}
-                onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
-                onDragEnd={isEditMode ? handleDragEnd : undefined}
-                onDragOver={isEditMode ? handleDragOver : undefined}
-                onDrop={isEditMode ? handleDrop(cardId) : undefined}
-              />
+                ref={(el) => {
+                  if (el) cardRefs.current.set(cardId, el);
+                  else cardRefs.current.delete(cardId);
+                }}
+              >
+                <FlippableMetricCard
+                  data={data}
+                  chartData={chartDataByCard[cardId] || []}
+                  isLoading={isLoading}
+                  isExpanded={isExpanded}
+                  autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
+                  onExpand={() => handleExpandCard(cardId)}
+                  isDragging={draggedCard === cardId}
+                  onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
+                  onDragEnd={isEditMode ? handleDragEnd : undefined}
+                  onDragOver={isEditMode ? handleDragOver : undefined}
+                  onDrop={isEditMode ? handleDrop(cardId) : undefined}
+                />
+              </div>
             );
           })}
 

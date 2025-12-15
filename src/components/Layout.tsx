@@ -220,34 +220,6 @@ export default function Layout() {
             </div>
           )}
 
-          {/* Account Selector */}
-          {!isCollapsed && (
-            <div className="px-4 py-4">
-              <button className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors">
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
-                    {getInitials()}
-                  </div>
-                  <div className="text-left min-w-0">
-                    <div className="text-base font-medium text-gray-900 dark:text-white truncate">
-                      {displayName || user?.email || 'Your Account'}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                      {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            </div>
-          )}
-          {isCollapsed && (
-            <div className="px-2 py-4 flex justify-center">
-              <div className="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-lg">
-                {getInitials()}
-              </div>
-            </div>
-          )}
-
           {/* Main Menu */}
           <div className="flex-1 overflow-y-auto px-3 py-4 border-y border-gray-100 dark:border-gray-700">
             <nav className="space-y-0.5">
@@ -334,6 +306,39 @@ export default function Layout() {
               </button>
             </nav>
           </div>
+
+          {/* Account Profile */}
+          {!isCollapsed && (
+            <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+              <Link
+                to="/settings"
+                className="w-full flex items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
+                    {getInitials()}
+                  </div>
+                  <div className="text-left min-w-0 flex-1">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {displayName || user?.email || 'Your Account'}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          )}
+          {isCollapsed && (
+            <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-center">
+              <Link to="/settings" title="Account Settings">
+                <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
+                  {getInitials()}
+                </div>
+              </Link>
+            </div>
+          )}
 
           {/* Dark Mode and Log Out */}
           <div className="p-3">

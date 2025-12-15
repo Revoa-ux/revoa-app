@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   TrendingUp, BarChart3, DollarSign, Package, ShoppingCart, CreditCard,
   Receipt, RotateCcw, Clock, Wallet, Calendar, Target, RefreshCw,
@@ -24,6 +24,7 @@ interface FlippableMetricCardProps {
   isDragging?: boolean;
   isLoading?: boolean;
   isExpanded?: boolean;
+  autoFlipTrigger?: number;
   onExpand?: () => void;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
@@ -59,6 +60,7 @@ export default function FlippableMetricCard({
   isDragging = false,
   isLoading = false,
   isExpanded = false,
+  autoFlipTrigger,
   onExpand,
   onDragStart,
   onDragEnd,
@@ -67,7 +69,22 @@ export default function FlippableMetricCard({
   className = ''
 }: FlippableMetricCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isAutoFlipping, setIsAutoFlipping] = useState(false);
+  const lastAutoFlipRef = useRef<number>(0);
   const Icon = iconMap[data.icon] || HelpCircle;
+
+  useEffect(() => {
+    if (autoFlipTrigger !== undefined && autoFlipTrigger !== lastAutoFlipRef.current) {
+      lastAutoFlipRef.current = autoFlipTrigger;
+      setIsAutoFlipping(true);
+      setIsFlipped(true);
+      const timer = setTimeout(() => {
+        setIsFlipped(false);
+        setTimeout(() => setIsAutoFlipping(false), 500);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFlipTrigger]);
 
   const handleExpandClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -244,10 +261,10 @@ export default function FlippableMetricCard({
               </div>
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 -ml-4 -mr-2">
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 5, right: 15, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#E11D48" />
@@ -255,12 +272,12 @@ export default function FlippableMetricCard({
                         <stop offset="100%" stopColor="#E8795A" />
                       </linearGradient>
                       <linearGradient id={`fill-gradient-${data.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#E11D48" stopOpacity={0.3} />
-                        <stop offset="50%" stopColor="#EC4899" stopOpacity={0.15} />
-                        <stop offset="100%" stopColor="#E8795A" stopOpacity={0} />
+                        <stop offset="0%" stopColor="#EC4899" stopOpacity={0.25} />
+                        <stop offset="70%" stopColor="#EC4899" stopOpacity={0.08} />
+                        <stop offset="100%" stopColor="#EC4899" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.2} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" opacity={0.15} />
                     <XAxis
                       dataKey="date"
                       axisLine={false}
@@ -277,7 +294,7 @@ export default function FlippableMetricCard({
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 9, fill: '#6B7280' }}
-                      width={45}
+                      width={40}
                       tickFormatter={(v) => {
                         if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
                         if (Math.abs(v) >= 1000) return `${(v/1000).toFixed(0)}K`;
@@ -337,7 +354,7 @@ export default function FlippableMetricCard({
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                <div className="flex flex-col items-center justify-center h-full text-center px-4 ml-4 mr-2">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     {data.mainValue}
                   </div>
