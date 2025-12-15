@@ -24,7 +24,7 @@ const Auth = () => {
     confirmPassword?: string;
   }>({});
   
-  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding } = useAuth();
+  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding, emailConfirmed, user, isLoading: authLoading } = useAuth();
   const { checkAdminStatus, isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,8 +35,8 @@ const Auth = () => {
       return;
     }
 
-    // Wait for admin status to load
-    if (adminLoading) {
+    // Wait for auth and admin status to load
+    if (authLoading || adminLoading) {
       return;
     }
 
@@ -45,6 +45,12 @@ const Auth = () => {
       // If user is admin, redirect to admin panel
       if (isAdmin) {
         navigate('/admin/dashboard', { replace: true });
+        return;
+      }
+
+      // If email not confirmed, redirect to check email page
+      if (!emailConfirmed) {
+        navigate('/check-email', { replace: true, state: { email: user?.email } });
         return;
       }
 
@@ -69,7 +75,7 @@ const Auth = () => {
     if (params.get('mode') === 'reset-password') {
       setMode('forgot-password');
     }
-  }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, navigate, location]);
+  }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, authLoading, navigate, location, emailConfirmed, user]);
   
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
