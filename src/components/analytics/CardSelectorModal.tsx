@@ -119,7 +119,7 @@ export default function CardSelectorModal({
                               </p>
                             )}
                           </div>
-                          <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                          <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                             isVisible
                               ? 'bg-gray-900 dark:bg-white border-gray-900 dark:border-white'
                               : 'border-gray-300 dark:border-gray-600'
