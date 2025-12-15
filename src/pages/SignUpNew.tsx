@@ -8,23 +8,10 @@ import { validateForm, signupFormSchema } from '../lib/validation';
 
 const PENDING_QUOTE_KEY = 'pending_quote';
 
-type QuotePlatform = 'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other';
-
 interface PendingQuoteData {
   product_url: string;
   product_name: string;
-  platform: QuotePlatform;
 }
-
-const normalizePlatform = (platform: string | null): QuotePlatform => {
-  if (!platform) return 'other';
-  const lower = platform.toLowerCase();
-  if (lower === 'aliexpress') return 'aliexpress';
-  if (lower === 'amazon') return 'amazon';
-  if (lower === '1688') return '1688';
-  if (lower === 'alibaba') return 'alibaba';
-  return 'other';
-};
 
 const SignUpNew = () => {
   const navigate = useNavigate();
@@ -37,7 +24,6 @@ const SignUpNew = () => {
       const pendingQuote: PendingQuoteData = {
         product_url: quoteUrl,
         product_name: searchParams.get('quote_name') || '',
-        platform: normalizePlatform(searchParams.get('quote_platform')),
       };
       localStorage.setItem(PENDING_QUOTE_KEY, JSON.stringify(pendingQuote));
     }

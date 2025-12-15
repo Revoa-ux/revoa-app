@@ -6,15 +6,23 @@ import { PageTitle } from '../components/PageTitle';
 import { useAuth } from '../contexts/AuthContext';
 import { createQuoteRequest } from '../lib/quotes';
 
-const PENDING_QUOTE_KEY = 'pending_quote';
+import type { QuotePlatform } from '../lib/quotes';
 
-type QuotePlatform = 'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other';
+const PENDING_QUOTE_KEY = 'pending_quote';
 
 interface PendingQuoteData {
   product_url: string;
   product_name: string;
-  platform: QuotePlatform;
 }
+
+const detectPlatformFromUrl = (url: string): QuotePlatform => {
+  const lowerUrl = url.toLowerCase();
+  if (lowerUrl.includes('aliexpress.com') || lowerUrl.includes('aliexpress.')) return 'aliexpress';
+  if (lowerUrl.includes('amazon.com') || lowerUrl.includes('amazon.')) return 'amazon';
+  if (lowerUrl.includes('1688.com')) return '1688';
+  if (lowerUrl.includes('alibaba.com')) return 'alibaba';
+  return 'other';
+};
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'expired';
 
@@ -91,7 +99,7 @@ const ConfirmEmail = () => {
             await createQuoteRequest({
               productUrl,
               productName,
-              platform: pendingQuote.platform,
+              platform: detectPlatformFromUrl(productUrl),
               source: 'landing_page',
             });
 
