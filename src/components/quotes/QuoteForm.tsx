@@ -78,7 +78,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               />
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-6 -mx-6 px-6 flex justify-between">
+            <div className="border-t border-gray-200 dark:border-gray-700 py-4 flex justify-between">
               <button
                 type="button"
                 onClick={onCancel}
