@@ -404,7 +404,7 @@ export default function Layout() {
         </div>
       )}
       {isCollapsed && (
-        <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-center">
+        <div className="px-2 py-3 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-center">
           <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
             <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
               {getInitials()}
