@@ -1,4 +1,6 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 import type { RuleActionConfig, ActionType, BudgetChangeType } from '@/types/automation';
 
 interface ActionBuilderProps {
@@ -47,19 +49,22 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
             Action Type
           </label>
-          <select
-            value={action.action_type}
-            onChange={(e) =>
-              onChange({ ...action, action_type: e.target.value as ActionType })
-            }
-            className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {actionOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={action.action_type}
+              onChange={(e) =>
+                onChange({ ...action, action_type: e.target.value as ActionType })
+              }
+              className="w-full px-3 py-2 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
+            >
+              {actionOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-gray-400 pointer-events-none" />
+          </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {selectedAction?.description}
           </p>
@@ -72,19 +77,22 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Adjustment Type
                 </label>
-                <select
-                  value={action.budget_change_type || 'percent'}
-                  onChange={(e) =>
-                    onChange({
-                      ...action,
-                      budget_change_type: e.target.value as BudgetChangeType,
-                    })
-                  }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="percent">Percentage</option>
-                  <option value="fixed_amount">Fixed Amount</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={action.budget_change_type || 'percent'}
+                    onChange={(e) =>
+                      onChange({
+                        ...action,
+                        budget_change_type: e.target.value as BudgetChangeType,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  >
+                    <option value="percent">Percentage</option>
+                    <option value="fixed_amount">Fixed Amount</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -101,7 +109,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder={action.budget_change_type === 'percent' ? '20' : '50'}
                 />
               </div>
@@ -122,7 +130,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="10"
                 />
               </div>
@@ -141,13 +149,13 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                     })
                   }
                   step="1"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="1000"
                 />
               </div>
             </div>
 
-            <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded p-2">
+            <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded p-2">
               {action.budget_change_type === 'percent'
                 ? `Will ${(action.budget_change_value || 0) > 0 ? 'increase' : 'decrease'} budget by ${Math.abs(action.budget_change_value || 0)}%`
                 : `Will ${(action.budget_change_value || 0) > 0 ? 'increase' : 'decrease'} budget by $${Math.abs(action.budget_change_value || 0)}`}
@@ -164,13 +172,12 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                 Notification Channels
               </label>
               <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <CustomCheckbox
                     checked={action.notification_channels?.includes('in_app') || false}
-                    onChange={(e) => {
+                    onChange={(checked) => {
                       const channels = action.notification_channels || [];
-                      if (e.target.checked) {
+                      if (checked) {
                         onChange({
                           ...action,
                           notification_channels: [...channels, 'in_app'],
@@ -182,18 +189,16 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                         });
                       }
                     }}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">In-app notification</span>
                 </label>
 
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <CustomCheckbox
                     checked={action.notification_channels?.includes('email') || false}
-                    onChange={(e) => {
+                    onChange={(checked) => {
                       const channels = action.notification_channels || [];
-                      if (e.target.checked) {
+                      if (checked) {
                         onChange({
                           ...action,
                           notification_channels: [...channels, 'email'],
@@ -205,7 +210,6 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                         });
                       }
                     }}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Email notification</span>
                 </label>
@@ -226,7 +230,7 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                       notification_message: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="e.g., Campaign spending exceeded threshold"
                 />
               </div>

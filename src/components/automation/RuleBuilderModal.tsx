@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, AlertCircle, ChevronDown } from 'lucide-react';
+import { X, Plus, Trash2, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
 import ConditionBuilder from './ConditionBuilder';
 import ActionBuilder from './ActionBuilder';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
@@ -211,7 +211,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, platform: e.target.value as 'facebook' | 'tiktok' | 'google' })
                   }
-                  className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent appearance-none cursor-pointer"
+                  className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
                 >
                   <option value="facebook">Facebook / Instagram</option>
                   <option value="google">Google Ads</option>
@@ -235,7 +235,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, entity_type: e.target.value as EntityType })
                     }
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
                   >
                     <option value="campaign">Campaigns</option>
                     <option value="ad_set">Ad Sets</option>
@@ -258,7 +258,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                         check_frequency_minutes: parseInt(e.target.value),
                       })
                     }
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent appearance-none cursor-pointer"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
                   >
                     <option value={15}>Every 15 minutes</option>
                     <option value={30}>Every 30 minutes</option>
@@ -294,7 +294,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                           condition_logic: e.target.value as ConditionLogic,
                         })
                       }
-                      className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent appearance-none cursor-pointer"
+                      className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
                     >
                       <option value="AND">Match ALL conditions</option>
                       <option value="OR">Match ANY condition</option>
@@ -315,9 +315,9 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   {formData.conditions.length > 1 && (
                     <button
                       onClick={() => handleRemoveCondition(index)}
-                      className="absolute -top-2 -right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-sm"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -326,7 +326,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
 
             <button
               onClick={handleAddCondition}
-              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 dark:hover:border-blue-400 dark:hover:text-blue-400 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Another Condition
@@ -351,9 +351,9 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   {formData.actions.length > 1 && (
                     <button
                       onClick={() => handleRemoveAction(index)}
-                      className="absolute -top-2 -right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                      className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-sm"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -362,7 +362,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
 
             <button
               onClick={handleAddAction}
-              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 dark:hover:border-blue-400 dark:hover:text-blue-400 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-red-500 hover:text-red-500 dark:hover:border-red-400 dark:hover:text-red-400 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Another Action
@@ -440,15 +440,18 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-6 py-2.5 bg-gray-900 dark:bg-gray-800 text-white hover:bg-gray-800 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all shadow-sm flex items-center justify-center gap-2"
           >
             {isSaving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Saving...
               </>
             ) : (
-              'Save Rule'
+              <>
+                Save Rule
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </>
             )}
           </button>
         </div>
