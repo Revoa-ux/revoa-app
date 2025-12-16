@@ -25,15 +25,15 @@ interface CreateThreadModalProps {
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
-  { value: 'cancel_modify', label: 'Cancel/Modify Order', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
-  { value: 'damaged', label: 'Damaged Item', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
-  { value: 'defective', label: 'Defective Product', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
-  { value: 'wrong_item', label: 'Wrong Item Received', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
-  { value: 'missing_items', label: 'Missing Items', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
-  { value: 'shipping', label: 'Shipping/Delivery', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
-  { value: 'return', label: 'Return Request', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
-  { value: 'refund', label: 'Refund Request', color: 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-600' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600' },
+  { value: 'cancel_modify', label: 'Cancel/Modify Order', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600' },
+  { value: 'damaged', label: 'Damaged Item', color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-300 dark:border-red-600' },
+  { value: 'defective', label: 'Defective Product', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600' },
+  { value: 'wrong_item', label: 'Wrong Item Received', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-300 dark:border-orange-600' },
+  { value: 'missing_items', label: 'Missing Items', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600' },
+  { value: 'shipping', label: 'Shipping/Delivery', color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-600' },
+  { value: 'return', label: 'Return Request', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-600' },
+  { value: 'refund', label: 'Refund Request', color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600' },
 ];
 
 export function CreateThreadModal({
@@ -256,16 +256,16 @@ export function CreateThreadModal({
             <TagIcon className="w-4 h-4 inline mr-1" />
             Issue Category *
           </label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {TAG_OPTIONS.map(tag => (
               <button
                 key={tag.value}
                 type="button"
                 onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
-                className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all border min-h-[42px] flex items-center justify-center text-center leading-tight ${
+                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all border flex items-center justify-center text-center ${
                   selectedTag === tag.value
-                    ? tag.color + ' border'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600'
+                    ? tag.color
+                    : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
                 }`}
               >
                 {tag.label}
