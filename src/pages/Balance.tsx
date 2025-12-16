@@ -232,39 +232,39 @@ export default function Balance() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Current Balance</h2>
-          <div className="flex items-end space-x-2 mb-4">
-            <span className="text-3xl font-semibold text-gray-900 dark:text-white">${currentBalance.toLocaleString()}</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Current Balance</h2>
+          <div className="flex items-end space-x-2 mb-3 sm:mb-4">
+            <span className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">${currentBalance.toLocaleString()}</span>
             <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">USD</span>
           </div>
-          <div className="mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500 dark:text-gray-400">Suggested Balance</span>
+          <div className="mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
+              <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap">Suggested Balance</span>
               <span className="font-medium text-gray-900 dark:text-white">${suggestedBalance.toLocaleString()}</span>
             </div>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-3 sm:gap-0">
             <button
               onClick={() => setShowStripeTopUpModal(true)}
-              className="flex-1 px-4 py-2 text-white rounded-lg transition-colors flex items-center justify-center bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none"
+              className="flex-1 px-4 py-2 text-sm sm:text-base text-white rounded-lg transition-colors flex items-center justify-center bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Manually Top Up
+              <Plus className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>Manually Top Up</span>
             </button>
             <button
               onClick={() => setShowAutoTopUpModal(true)}
-              className="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center justify-center focus:outline-none focus:ring-0"
+              className="flex-1 px-4 py-2 text-sm sm:text-base bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center justify-center focus:outline-none focus:ring-0 whitespace-nowrap"
             >
-              <Bell className="w-4 h-4 mr-2" />
-              Auto Top-up
+              <Bell className="w-4 h-4 mr-2 flex-shrink-0" />
+              <span>Auto Top-up</span>
             </button>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Projected Fulfillment Costs</h2>
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <h2 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-3 sm:mb-4 whitespace-nowrap">Projected Fulfillment Costs</h2>
           <COGSProjection 
             data={cogsProjectionData} 
             selectedPeriod={selectedPeriod}
@@ -310,10 +310,10 @@ export default function Balance() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Invoice History</h2>
-          <div className="flex items-center space-x-4">
-            <div className="relative w-[280px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Invoice History</h2>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-[280px] sm:flex-initial">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
@@ -331,16 +331,16 @@ export default function Balance() {
                 </button>
               )}
             </div>
-            <div className="relative" ref={statusDropdownRef}>
+            <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
               <button
                 onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                className="filter-button min-w-[180px] rounded-lg"
+                className="filter-button w-full sm:min-w-[180px] rounded-lg"
               >
-                <div className="flex items-center">
-                  <Filter className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>Status: {getStatusLabel()}</span>
+                <div className="flex items-center min-w-0">
+                  <Filter className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+                  <span className="truncate">Status: {getStatusLabel()}</span>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
               </button>
               
               {showStatusDropdown && (
@@ -401,10 +401,10 @@ export default function Balance() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Transaction History</h2>
-          <div className="flex items-center space-x-4">
-            <div className="relative w-[280px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Transaction History</h2>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-[280px] sm:flex-initial">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
@@ -422,16 +422,16 @@ export default function Balance() {
                 </button>
               )}
             </div>
-            <div className="relative" ref={typeDropdownRef}>
+            <div className="relative flex-1 sm:flex-initial" ref={typeDropdownRef}>
               <button
                 onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                className="filter-button min-w-[180px] rounded-lg"
+                className="filter-button w-full sm:min-w-[180px] rounded-lg"
               >
-                <div className="flex items-center">
-                  <Filter className="w-4 h-4 text-gray-400 mr-2" />
-                  <span>Type: {getTypeLabel()}</span>
+                <div className="flex items-center min-w-0">
+                  <Filter className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
+                  <span className="truncate">Type: {getTypeLabel()}</span>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
               </button>
               
               {showTypeDropdown && (

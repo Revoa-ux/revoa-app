@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, CreditCard, AlertTriangle, Loader2 } from 'lucide-react';
+import { X, CreditCard, AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 
@@ -89,9 +89,9 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
+            <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Up with Stripe</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Top Up with Stripe</h3>
                 <button
                   onClick={onClose}
                   className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -101,7 +101,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
               </div>
             </div>
 
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -148,26 +148,29 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    className="flex-1 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !amount}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="group flex-1 px-5 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Redirecting...
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Redirecting...</span>
                       </>
                     ) : (
-                      'Continue to Stripe'
+                      <>
+                        <span>Continue to Stripe</span>
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      </>
                     )}
                   </button>
                 </div>

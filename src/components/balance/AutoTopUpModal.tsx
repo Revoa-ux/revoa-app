@@ -82,15 +82,15 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Auto Top-up Settings</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Automatically charge via Stripe when balance is low</p>
+            <div className="p-4 sm:p-6">
+              <div className="flex items-start justify-between mb-4 sm:mb-6">
+                <div className="flex-1 pr-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Auto Top-up Settings</h3>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">Automatically charge via Stripe when balance is low</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -142,11 +142,11 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                 </div>
 
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Suggested Top-up Amounts</h4>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">${dailyOrderValue.toLocaleString()} daily average</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-3 sm:mb-4">
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">Suggested Top-up Amounts</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">${dailyOrderValue.toLocaleString()} daily average</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.week }))}
@@ -268,24 +268,24 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-6 px-6">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-4 sm:-mx-6 px-4 sm:px-6">
                   <div className="flex space-x-3">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex-1 px-5 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="flex-1 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={loading}
-                      className="group flex-1 px-5 py-2 text-sm text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="group flex-1 px-5 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                     >
                       {loading ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Saving...
+                          <span>Saving...</span>
                         </>
                       ) : (
                         <>
