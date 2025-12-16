@@ -490,15 +490,17 @@ export default function Inventory() {
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
+                <div className="absolute mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
                     <button
                       key={option}
                       onClick={() => {
                         setFilterOption(option);
                         setShowFilterDropdown(false);
                       }}
-                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                      className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${
+                        index === 0 ? 'rounded-t-lg' : ''
+                      } ${index === array.length - 1 ? 'rounded-b-lg' : ''}`}
                     >
                       <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
                       {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
