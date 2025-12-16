@@ -98,12 +98,12 @@ export function CreateThreadModal({
   const handleCreate = async () => {
     // Check for valid chatId first
     if (!chatId) {
-      toast.error('Chat not initialized. Please wait for an admin to be assigned.');
+      toast.error('Chat is loading. Please wait a moment and try again.');
       return;
     }
 
     if (!userId) {
-      toast.error('User not authenticated. Please log in again.');
+      toast.error('Please log in to create a thread.');
       return;
     }
 

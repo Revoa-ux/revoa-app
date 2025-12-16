@@ -146,55 +146,66 @@ const Chat = () => {
     const loadChat = async () => {
       setIsLoading(true);
       try {
-        const userChat = await chatService.getUserChat(user.id);
-        if (userChat) {
-          setChat(userChat);
-          // Get admin's profile info from user_profiles table
-          if (userChat.admin_id) {
-            const { data: adminProfile } = await supabase
-              .from('user_profiles')
-              .select('first_name, last_name, name, profile_picture_url')
-              .eq('id', userChat.admin_id)
-              .single();
+        // Initialize chat (assigns admin if needed, creates chat, sends welcome message)
+        const initResponse = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/initialize-chat`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-            if (adminProfile) {
-              // Build full name from first and last name, fallback to name field
-              const fullName = [adminProfile.first_name, adminProfile.last_name]
-                .filter(Boolean)
-                .join(' ') || adminProfile.name;
+        if (!initResponse.ok) {
+          throw new Error('Failed to initialize chat');
+        }
 
-              // Only update name if admin has set up their profile
-              if (fullName) {
-                setAdminName(fullName);
-              }
-              // Otherwise, keep default "Resolution Team"
+        const { chat: initializedChat } = await initResponse.json();
 
-              // Set profile picture if available
-              if (adminProfile.profile_picture_url) {
-                setAdminAvatar(adminProfile.profile_picture_url);
-              }
+        if (!initializedChat) {
+          throw new Error('No chat returned from initialization');
+        }
+
+        setChat(initializedChat);
+
+        // Get admin's profile info
+        if (initializedChat.admin_id) {
+          const { data: adminProfile } = await supabase
+            .from('user_profiles')
+            .select('first_name, last_name, name, profile_picture_url')
+            .eq('id', initializedChat.admin_id)
+            .single();
+
+          if (adminProfile) {
+            const fullName = [adminProfile.first_name, adminProfile.last_name]
+              .filter(Boolean)
+              .join(' ') || adminProfile.name;
+
+            if (fullName) {
+              setAdminName(fullName);
+            }
+
+            if (adminProfile.profile_picture_url) {
+              setAdminAvatar(adminProfile.profile_picture_url);
             }
           }
-          const msgs = await chatService.getChatMessages(userChat.id);
-          setMessages(msgs);
-          await chatService.markMessagesAsRead(userChat.id, false);
-
-          // Load threads
-          setIsLoadingThreads(true);
-          const chatThreads = await chatService.getChatThreads(userChat.id);
-          setThreads(chatThreads);
-          setIsLoadingThreads(false);
-        } else {
-          // Chat not yet initialized - this can happen if no admin is assigned yet
-          // Just log it, don't show error toast as this is not an error condition
-          console.log('Chat not yet initialized for user - admin may not be assigned yet');
         }
+
+        // Load messages
+        const msgs = await chatService.getChatMessages(initializedChat.id);
+        setMessages(msgs);
+        await chatService.markMessagesAsRead(initializedChat.id, false);
+
+        // Load threads
+        setIsLoadingThreads(true);
+        const chatThreads = await chatService.getChatThreads(initializedChat.id);
+        setThreads(chatThreads);
+        setIsLoadingThreads(false);
       } catch (error) {
         console.error('Error loading chat:', error);
-        // Only show error for actual failures, not for missing admin assignment
-        if (error instanceof Error && !error.message.includes('admin')) {
-          toast.error('Failed to load chat');
-        }
+        toast.error('Failed to load chat. Please refresh the page.');
       } finally {
         setIsLoading(false);
       }
@@ -295,7 +306,7 @@ const Chat = () => {
   const handleSend = async () => {
     if (!newMessage.trim() && !selectedFile) return;
     if (!chat || !user) {
-      toast.error('Chat not initialized');
+      toast.error('Chat is loading. Please wait a moment and try again.');
       return;
     }
 
