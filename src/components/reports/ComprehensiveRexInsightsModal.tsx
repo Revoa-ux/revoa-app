@@ -222,7 +222,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
         <div className="max-h-[85vh] overflow-y-auto" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
 
           {/* Header */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-6">
+          <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-5">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
@@ -714,7 +714,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               </div>
 
                               {isSelected && (
-                                <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -841,7 +841,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           </div>
 
                           {showAutomationRule && (
-                            <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
