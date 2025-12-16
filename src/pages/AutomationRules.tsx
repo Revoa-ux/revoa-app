@@ -171,7 +171,7 @@ const AutomationRules: React.FC = () => {
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
-            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm"
+            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-gray-800 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-sm"
           >
             <Plus className="w-4 h-4" />
             Create Rule
@@ -184,7 +184,7 @@ const AutomationRules: React.FC = () => {
         <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                 <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -215,7 +215,7 @@ const AutomationRules: React.FC = () => {
         <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -240,7 +240,7 @@ const AutomationRules: React.FC = () => {
         <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
@@ -265,7 +265,7 @@ const AutomationRules: React.FC = () => {
         <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
