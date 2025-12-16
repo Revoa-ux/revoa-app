@@ -157,8 +157,8 @@ const AutomationRules: React.FC = () => {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Automated Rule Manager
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
           Automate your ad management with profit-aware rules
         </p>
       </div>

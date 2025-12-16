@@ -1849,8 +1849,8 @@ const SettingsPage = () => {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Account Settings
         </h1>
-        <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+        <div className="flex items-start sm:items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Manage your account settings and preferences
           </p>

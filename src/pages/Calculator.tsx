@@ -262,8 +262,8 @@ export default function Calculator() {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Profit & Expenses Calculator
         </h1>
-        <div className="flex items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+        <div className="flex items-start sm:items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {isLoading ? 'Updating calculations...' : 'Real-time profit tracking'}
           </p>

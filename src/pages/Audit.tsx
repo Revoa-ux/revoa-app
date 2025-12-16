@@ -601,8 +601,8 @@ export default function Audit() {
             Infused with Revoa AI
           </span>
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
           {(() => {
             const connected = [];
             if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {

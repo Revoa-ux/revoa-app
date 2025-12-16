@@ -610,8 +610,8 @@ setCurrentTemplate(template);
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Analytics Dashboard
         </h1>
-        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+        <div className="flex items-start sm:items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
           <span>
             {(() => {
               const connected = [];
