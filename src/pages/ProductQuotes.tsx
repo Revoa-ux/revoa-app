@@ -272,8 +272,8 @@ export default function ProductQuotes() {
       </button>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Quote History</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Quote History</h2>
           <QuoteFilters
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}

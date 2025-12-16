@@ -23,8 +23,8 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
 
   return (
-    <div className="flex items-center space-x-4">
-      <div className="relative w-[280px]">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-4 w-full sm:w-auto">
+      <div className="relative flex-1 sm:w-[280px] sm:flex-initial">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
           type="text"
@@ -35,20 +35,20 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         />
       </div>
 
-      <div className="relative" ref={statusDropdownRef}>
+      <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
         <button
           onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-          className="filter-button min-w-[180px] rounded-lg"
+          className="filter-button w-full sm:min-w-[180px] rounded-lg"
         >
           <div className="flex items-center">
             <Filter className="w-4 h-4 text-gray-400 mr-2" />
-            <span>Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
+            <span className="truncate">Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
         </button>
 
         {showStatusDropdown && (
-          <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="absolute right-0 z-50 w-full sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <button
               onClick={() => {
                 onStatusFilterChange('all');
