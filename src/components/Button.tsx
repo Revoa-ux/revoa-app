@@ -17,10 +17,10 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  default: 'bg-gray-700 text-white hover:bg-gray-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:hover:bg-gray-700',
-  primary: 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed',
+  default: 'bg-gray-800 text-white border border-gray-700 hover:bg-gray-900 hover:border-gray-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-700 dark:hover:border-gray-600',
+  primary: 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border border-red-600',
   secondary: 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
-  danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-700 dark:hover:bg-red-800',
+  danger: 'bg-red-600 text-white border border-red-700 hover:bg-red-700 hover:border-red-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-700 dark:border-red-800 dark:hover:bg-red-800 dark:hover:border-red-900',
   ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-none',
   outline: 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
 };

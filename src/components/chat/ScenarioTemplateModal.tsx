@@ -202,7 +202,7 @@ export function ScenarioTemplateModal({
   const [allOrders, setAllOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [selectedOrderForTemplate, setSelectedOrderForTemplate] = useState<string>('');
-  const [expandedStages, setExpandedStages] = useState<string[]>(['order_status']);
+  const [expandedStages, setExpandedStages] = useState<string[]>([]);
   const [dbTemplates, setDbTemplates] = useState<EmailTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [showOrderSelector, setShowOrderSelector] = useState(false);
@@ -909,8 +909,8 @@ export function ScenarioTemplateModal({
                     disabled={!isAssignedToOrder && !selectedOrderForTemplate}
                     className={`group px-5 py-1.5 text-sm font-medium rounded-lg transition-all flex items-center gap-2 shadow-sm ${
                       isAssignedToOrder || selectedOrderForTemplate
-                        ? 'text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md'
-                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed'
+                        ? 'text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md'
+                        : 'text-gray-400 bg-gray-200 dark:bg-gray-700 dark:text-gray-500 cursor-not-allowed border border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     {isLoading ? (
@@ -933,7 +933,7 @@ export function ScenarioTemplateModal({
                 ) : !orderId ? (
                   <button
                     onClick={handleSyncToOrder}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     <span>Populate Template</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -942,7 +942,7 @@ export function ScenarioTemplateModal({
                   <button
                     onClick={() => handleAssignToOrder()}
                     disabled={isLoading}
-                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
+                    className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
                     {isLoading ? (
                       <>

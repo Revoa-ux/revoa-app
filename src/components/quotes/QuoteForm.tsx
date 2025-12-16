@@ -88,7 +88,7 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               </button>
               <button
                 type="submit"
-                className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-black dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 group"
+                className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Submit Quote Request</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
