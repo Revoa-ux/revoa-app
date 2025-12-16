@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, DollarSign, Globe, ExternalLink, AlertCircle, Edit } from 'lucide-react';
+import { X, Package, DollarSign, Globe, ExternalLink, AlertCircle, CreditCard as Edit } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
