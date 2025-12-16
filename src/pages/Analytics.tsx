@@ -91,7 +91,7 @@ export default function Analytics() {
         setAutoFlipCardId(randomCardId);
         setAutoFlipTrigger(prev => prev + 1);
       }
-    }, 5000);
+    }, 12000);
 
     return () => clearInterval(autoFlipInterval);
   }, [isEditMode, isLoading, visibleCards]);
@@ -608,7 +608,7 @@ setCurrentTemplate(template);
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Real-Time Analytics and Performance Insights
+          Performance Overview
         </h1>
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
           <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
