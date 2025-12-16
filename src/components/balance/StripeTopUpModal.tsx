@@ -148,32 +148,34 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading || !amount}
-                    className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm whitespace-nowrap"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Redirecting...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Continue to Stripe</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                      </>
-                    )}
-                  </button>
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 -mx-4 sm:-mx-6">
+                  <div className="px-6 py-4 flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading || !amount}
+                      className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm whitespace-nowrap"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Redirecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Continue to Stripe</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
