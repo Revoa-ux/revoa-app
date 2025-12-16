@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid, Cpu } from 'lucide-react';
+import { Plus, Play, Pause, Copy, Trash2, MoreVertical, Sparkles, TrendingUp, AlertTriangle, LayoutGrid, Cpu, Pencil } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { automationRulesService } from '@/lib/automationRulesService';
 import RuleBuilderModal from '@/components/automation/RuleBuilderModal';
@@ -534,7 +534,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={onToggleStatus}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-colors flex items-center justify-center ${
               rule.status === 'active'
                 ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50'
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -561,8 +561,9 @@ const RuleCard: React.FC<RuleCardProps> = ({
                       onEdit();
                       setShowMenu(false);
                     }}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg"
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 first:rounded-t-lg flex items-center gap-2"
                   >
+                    <Pencil className="w-4 h-4" />
                     Edit Rule
                   </button>
                   <button
