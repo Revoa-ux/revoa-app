@@ -27,12 +27,12 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
   };
 
   const COLLAPSED_PEEK = 24;
-  const EXPANDED_HEIGHT_PERCENT = 90;
+  const MAX_HEIGHT_PERCENT = 90;
   const VELOCITY_THRESHOLD = 0.3;
   const DRAG_THRESHOLD = 0.3;
 
   const getMaxHeight = () => {
-    return window.innerHeight * (EXPANDED_HEIGHT_PERCENT / 100);
+    return window.innerHeight * (MAX_HEIGHT_PERCENT / 100);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -147,7 +147,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
         ref={sheetRef}
         className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 lg:hidden rounded-t-2xl shadow-2xl"
         style={{
-          height: `${EXPANDED_HEIGHT_PERCENT}vh`,
+          maxHeight: `${MAX_HEIGHT_PERCENT}vh`,
           transform: getTransformStyle(),
           transition: isDragging ? 'none' : 'transform 400ms cubic-bezier(0.32, 0.72, 0, 1)',
           touchAction: 'none'
@@ -156,7 +156,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col">
           <div
             className="py-3 flex justify-center cursor-pointer active:scale-95 transition-transform"
             onClick={handleGripClick}
@@ -164,7 +164,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
             <div className="w-10 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
           </div>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="overflow-y-auto">
             {children}
           </div>
         </div>

@@ -218,7 +218,7 @@ export default function Layout() {
 
       {/* Main Menu */}
       <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 lg:pt-4 border-b lg:border-y border-gray-100 dark:border-gray-700">
-        <nav className="space-y-0.5">
+        <nav className="space-y-1 lg:space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -231,7 +231,7 @@ export default function Layout() {
                 title={isCollapsed ? item.name : undefined}
                 className={cn(
                   'flex items-center rounded-lg transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-3 lg:py-2',
                   'text-[13px]',
                   isActive
                     ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
@@ -339,7 +339,7 @@ export default function Layout() {
 
       {/* Account Profile - Bottom */}
       {!isCollapsed && (
-        <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="px-3 py-4 lg:py-3 border-t border-gray-100 dark:border-gray-700">
           {/* Desktop Profile Card */}
           <Link
             to="/settings"
@@ -362,7 +362,7 @@ export default function Layout() {
           </Link>
 
           {/* Mobile Profile Card with Action Buttons */}
-          <div className="lg:hidden w-full flex items-center justify-between p-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div className="lg:hidden w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
             <Link
               to="/settings"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -380,24 +380,24 @@ export default function Layout() {
                 </div>
               </div>
             </Link>
-            <div className="flex items-center gap-1 ml-2">
+            <div className="flex items-center gap-2 ml-2">
               <Link
                 to="/settings"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
                 title="Settings"
               >
-                <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+                <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
               </Link>
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   handleLogout();
                 }}
-                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
                 title="Log Out"
               >
-                <LogOut className="h-4 w-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+                <LogOut className="h-5 w-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
               </button>
             </div>
           </div>
