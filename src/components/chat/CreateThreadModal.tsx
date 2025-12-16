@@ -444,14 +444,6 @@ export function CreateThreadModal({
             </>
           )}
 
-          {/* Empty State - No Search */}
-          {!selectedOrder && !searchQuery && (
-            <div className="text-center py-8 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
-              <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">Start typing to search orders</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Search by order number (e.g., #1001)</p>
-            </div>
-          )}
         </div>
 
       </div>
