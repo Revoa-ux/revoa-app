@@ -595,10 +595,10 @@ export default function Audit() {
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
           <span>Cross-Platform Ad Manager</span>
-          <span className="px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-md">
-            with Revoa AI
+          <span className="px-3 py-1 text-xs font-medium bg-gray-900/10 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-full backdrop-blur-sm">
+            Infused with Revoa AI
           </span>
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">

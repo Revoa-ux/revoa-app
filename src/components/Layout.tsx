@@ -253,8 +253,8 @@ export default function Layout() {
                           {item.name}
                         </div>
                         {hasBadge && (
-                          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white rounded whitespace-nowrap">
-                            with Revoa AI
+                          <span className="px-2 py-0.5 text-[9px] font-medium bg-gray-900/10 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-full whitespace-nowrap backdrop-blur-sm">
+                            Revoa AI
                           </span>
                         )}
                       </>

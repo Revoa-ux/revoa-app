@@ -17,8 +17,6 @@ import {
   Phone,
   Building,
   Lock,
-  Camera,
-  Upload,
   Save,
   ArrowRight
 } from 'lucide-react';
@@ -1891,32 +1889,21 @@ const SettingsPage = () => {
             {activeTab === 'profile' && (
               <form onSubmit={handleSaveProfile} className="space-y-6">
                 {/* Profile Picture */}
-                <div className="flex justify-center">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="relative">
-                      <div className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-red-500/20 to-pink-500/20 dark:from-red-500/30 dark:to-pink-500/30 flex items-center justify-center">
-                        {profile.profile_picture_url ? (
-                          <img
-                            src={profile.profile_picture_url}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-4xl font-semibold text-gray-700 dark:text-gray-200">
-                            {getInitials()}
-                          </span>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploadingPicture}
-                        className="absolute bottom-0 right-0 p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                      >
-                        <Camera className="w-4 h-4" />
-                      </button>
-                    </div>
-
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {profile.profile_picture_url ? (
+                      <img
+                        src={profile.profile_picture_url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-lg font-semibold text-white">
+                        {getInitials()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -1924,35 +1911,24 @@ const SettingsPage = () => {
                       onChange={handleFileSelect}
                       className="hidden"
                     />
-
-                    <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingPicture}
+                      className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                    >
+                      {uploadingPicture ? 'Uploading...' : 'Upload photo'}
+                    </button>
+                    {profile.profile_picture_url && (
                       <button
                         type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={uploadingPicture}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
+                        onClick={handleRemovePicture}
+                        disabled={savingProfile}
+                        className="px-3 py-1.5 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors disabled:opacity-50"
                       >
-                        <Upload className="w-4 h-4 inline mr-2" />
-                        {uploadingPicture ? 'Uploading...' : 'Upload New'}
+                        Remove
                       </button>
-
-                      {profile.profile_picture_url && (
-                        <button
-                          type="button"
-                          onClick={handleRemovePicture}
-                          disabled={savingProfile}
-                          className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
-                        >
-                          <Trash2 className="w-4 h-4 inline mr-2" />
-                          Remove
-                        </button>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                      Max file size: 5MB<br />
-                      Supported: JPEG, PNG, WebP
-                    </p>
+                    )}
                   </div>
                 </div>
 
