@@ -20,13 +20,6 @@ const platformOptions = [
 export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initialData }) => {
   const [productUrl, setProductUrl] = useState(initialData?.productUrl || '');
   const [productName, setProductName] = useState(initialData?.productName || '');
-  const [platform, setPlatform] = useState<'aliexpress' | 'amazon' | '1688' | 'alibaba' | 'other'>(
-    initialData?.platform || 'aliexpress'
-  );
-  const [showPlatformDropdown, setShowPlatformDropdown] = useState(false);
-
-  const platformDropdownRef = useRef<HTMLDivElement>(null);
-  useClickOutside(platformDropdownRef, () => setShowPlatformDropdown(false));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,12 +33,8 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
     onSubmit({
       productUrl: finalUrl,
       productName,
-      platform
+      platform: 'aliexpress' // Default platform
     });
-  };
-
-  const getPlatformLabel = () => {
-    return platformOptions.find(opt => opt.value === platform)?.label || 'Select platform';
   };
 
   return (
@@ -89,54 +78,17 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Platform
-              </label>
-              <div className="relative" ref={platformDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowPlatformDropdown(!showPlatformDropdown)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between"
-                >
-                  <span>{getPlatformLabel()}</span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                </button>
-
-                {showPlatformDropdown && (
-                  <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-60 overflow-auto">
-                    {platformOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          setPlatform(option.value);
-                          setShowPlatformDropdown(false);
-                        }}
-                        className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="text-gray-900 dark:text-white">{option.label}</span>
-                        {platform === option.value && (
-                          <Check className="w-4 h-4 text-rose-500 flex-shrink-0 ml-2" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6 flex gap-3">
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 px-5 py-1.5 text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-5 py-1.5 text-sm font-medium bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 hover:shadow-md transition-all flex items-center justify-center gap-2 group shadow-sm"
+                className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-black dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Submit Quote Request</span>
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />

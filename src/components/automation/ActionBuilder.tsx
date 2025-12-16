@@ -1,6 +1,6 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import { CustomSelect } from '@/components/CustomSelect';
 import type { RuleActionConfig, ActionType, BudgetChangeType } from '@/types/automation';
 
 interface ActionBuilderProps {
@@ -49,22 +49,13 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
             Action Type
           </label>
-          <div className="relative">
-            <select
-              value={action.action_type}
-              onChange={(e) =>
-                onChange({ ...action, action_type: e.target.value as ActionType })
-              }
-              className="w-full px-3 py-2 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-            >
-              {actionOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-gray-400 pointer-events-none" />
-          </div>
+          <CustomSelect
+            value={action.action_type}
+            onChange={(value) =>
+              onChange({ ...action, action_type: value as ActionType })
+            }
+            options={actionOptions.map(opt => ({ value: opt.value, label: opt.label }))}
+          />
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {selectedAction?.description}
           </p>
@@ -77,22 +68,19 @@ const ActionBuilder: React.FC<ActionBuilderProps> = ({ action, onChange }) => {
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                   Adjustment Type
                 </label>
-                <div className="relative">
-                  <select
-                    value={action.budget_change_type || 'percent'}
-                    onChange={(e) =>
-                      onChange({
-                        ...action,
-                        budget_change_type: e.target.value as BudgetChangeType,
-                      })
-                    }
-                    className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="percent">Percentage</option>
-                    <option value="fixed_amount">Fixed Amount</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-gray-400 pointer-events-none" />
-                </div>
+                <CustomSelect
+                  value={action.budget_change_type || 'percent'}
+                  onChange={(value) =>
+                    onChange({
+                      ...action,
+                      budget_change_type: value as BudgetChangeType,
+                    })
+                  }
+                  options={[
+                    { value: 'percent', label: 'Percentage' },
+                    { value: 'fixed_amount', label: 'Fixed Amount' },
+                  ]}
+                />
               </div>
 
               <div>
