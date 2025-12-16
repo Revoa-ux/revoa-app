@@ -18,15 +18,14 @@ import {
   Table2,
   Database,
   Cpu,
-  ArrowRight,
-  Menu,
-  X as CloseIcon
+  ArrowRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import Modal from './Modal';
+import BottomSheet from './BottomSheet';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 import { supabase } from '../lib/supabase';
 import { startAutoSync } from '../lib/shopifyAutoSync';
@@ -173,246 +172,224 @@ export default function Layout() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      {/* Mobile overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
+  const renderSidebarContent = () => (
+    <>
+      {/* Logo and Collapse Button */}
+      {isCollapsed ? (
+        <div className="py-8 px-2 flex flex-col items-center gap-3">
+          <div className="w-10 h-10 relative">
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+              alt="Logo"
+              className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
+            />
+          </div>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
+      ) : (
+        <div className="py-8 px-4 flex items-center justify-between">
+          <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
+              alt="Logo"
+              className="w-full h-full object-contain dark:hidden"
+            />
+            <img
+              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+              alt="Logo"
+              className="w-full h-full object-contain hidden dark:block"
+            />
+          </div>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            title="Collapse sidebar"
+          >
+            <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
       )}
 
-      {/* Fixed width sidebar */}
-      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-50 ${
+      {/* Main Menu */}
+      <div className="flex-1 overflow-y-auto px-3 py-4 border-y border-gray-100 dark:border-gray-700">
+        <nav className="space-y-0.5">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.href;
+            const hasBadge = 'badge' in item && item.badge;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                title={isCollapsed ? item.name : undefined}
+                className={cn(
+                  'flex items-center rounded-lg transition-colors',
+                  isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
+                  'text-[13px]',
+                  isActive
+                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                )}
+              >
+                {isCollapsed ? (
+                  <div className="relative">
+                    <Icon className="h-4 w-4" strokeWidth={1.5} />
+                    {hasBadge && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center">
+                      <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                      {item.name}
+                    </div>
+                    {hasBadge && (
+                      <span className="px-2 py-0.5 text-[9px] font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full whitespace-nowrap backdrop-blur-sm">
+                        Revoa AI
+                      </span>
+                    )}
+                  </>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Bottom Navigation Group */}
+      <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+        <nav className="space-y-0.5">
+          <Link
+            to="/settings"
+            onClick={() => setIsMobileMenuOpen(false)}
+            title={isCollapsed ? 'Settings' : undefined}
+            className={cn(
+              'flex items-center text-[13px] rounded-lg transition-colors',
+              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+              location.pathname === '/settings'
+                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+            )}
+          >
+            <Settings className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!isCollapsed && 'Settings'}
+          </Link>
+          <Link
+            to="/pricing"
+            onClick={() => setIsMobileMenuOpen(false)}
+            title={isCollapsed ? 'Plans and Pricing' : undefined}
+            className={cn(
+              'flex items-center text-[13px] rounded-lg transition-colors',
+              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+              location.pathname === '/pricing'
+                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+            )}
+          >
+            <Sparkles className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!isCollapsed && 'Plans and Pricing'}
+          </Link>
+          <button
+            onClick={() => setShowHelpModal(true)}
+            title={isCollapsed ? 'Help & Support' : undefined}
+            className={cn(
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+            )}
+          >
+            <Headphones className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!isCollapsed && 'Help & Support'}
+          </button>
+          <button
+            onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
+            title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
+            className={cn(
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+            )}
+          >
+            {isDarkMode ? (
+              <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            ) : (
+              <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            )}
+            {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
+          </button>
+          <button
+            onClick={handleLogout}
+            title={isCollapsed ? 'Log Out' : undefined}
+            className={cn(
+              'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
+              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+            )}
+          >
+            <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!isCollapsed && 'Log Out'}
+          </button>
+        </nav>
+      </div>
+
+      {/* Account Profile - Bottom */}
+      {!isCollapsed && (
+        <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+          <Link
+            to="/settings"
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="w-full flex items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
+                {getInitials()}
+              </div>
+              <div className="text-left min-w-0 flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {displayName || user?.email || 'Your Account'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
+      {isCollapsed && (
+        <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-center">
+          <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
+            <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
+              {getInitials()}
+            </div>
+          </Link>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      {/* Desktop sidebar - hidden on mobile */}
+      <div className={`hidden lg:block fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-50 ${
         isCollapsed ? 'w-[70px]' : 'w-[280px]'
-      } ${
-        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         <div className="flex flex-col h-full">
-          {/* Logo and Collapse Button */}
-          {isCollapsed ? (
-            <div className="py-8 px-2 flex flex-col items-center gap-3">
-              <div className="w-10 h-10 relative">
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-                />
-              </div>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all hidden lg:block"
-                title="Expand sidebar"
-              >
-                <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </button>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all lg:hidden"
-                title="Close menu"
-              >
-                <CloseIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-          ) : (
-            <div className="py-8 px-4 flex items-center justify-between">
-              <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain dark:hidden"
-                />
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
-                  alt="Logo"
-                  className="w-full h-full object-contain hidden dark:block"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsCollapsed(!isCollapsed)}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all hidden lg:block"
-                  title="Collapse sidebar"
-                >
-                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                </button>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all lg:hidden"
-                  title="Close menu"
-                >
-                  <CloseIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Main Menu */}
-          <div className="flex-1 overflow-y-auto px-3 py-4 border-y border-gray-100 dark:border-gray-700">
-            <nav className="space-y-0.5">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                const hasBadge = 'badge' in item && item.badge;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    title={isCollapsed ? item.name : undefined}
-                    className={cn(
-                      'flex items-center rounded-lg transition-colors',
-                      isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
-                      'text-[13px]',
-                      isActive
-                        ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                    )}
-                  >
-                    {isCollapsed ? (
-                      <div className="relative">
-                        <Icon className="h-4 w-4" strokeWidth={1.5} />
-                        {hasBadge && (
-                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex items-center">
-                          <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
-                          {item.name}
-                        </div>
-                        {hasBadge && (
-                          <span className="px-2 py-0.5 text-[9px] font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full whitespace-nowrap backdrop-blur-sm">
-                            Revoa AI
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Bottom Navigation Group */}
-          <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
-            <nav className="space-y-0.5">
-              <Link
-                to="/settings"
-                onClick={() => setIsMobileMenuOpen(false)}
-                title={isCollapsed ? 'Settings' : undefined}
-                className={cn(
-                  'flex items-center text-[13px] rounded-lg transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-                  location.pathname === '/settings'
-                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                )}
-              >
-                <Settings className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Settings'}
-              </Link>
-              <Link
-                to="/pricing"
-                onClick={() => setIsMobileMenuOpen(false)}
-                title={isCollapsed ? 'Plans and Pricing' : undefined}
-                className={cn(
-                  'flex items-center text-[13px] rounded-lg transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
-                  location.pathname === '/pricing'
-                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
-                )}
-              >
-                <Sparkles className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Plans and Pricing'}
-              </Link>
-              <button
-                onClick={() => setShowHelpModal(true)}
-                title={isCollapsed ? 'Help & Support' : undefined}
-                className={cn(
-                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-                )}
-              >
-                <Headphones className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Help & Support'}
-              </button>
-              <button
-                onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
-                title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
-                className={cn(
-                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-                )}
-              >
-                {isDarkMode ? (
-                  <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                ) : (
-                  <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                )}
-                {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
-              </button>
-              <button
-                onClick={handleLogout}
-                title={isCollapsed ? 'Log Out' : undefined}
-                className={cn(
-                  'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
-                )}
-              >
-                <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-                {!isCollapsed && 'Log Out'}
-              </button>
-            </nav>
-          </div>
-
-          {/* Account Profile - Bottom */}
-          {!isCollapsed && (
-            <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
-              <Link
-                to="/settings"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
-                    {getInitials()}
-                  </div>
-                  <div className="text-left min-w-0 flex-1">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {displayName || user?.email || 'Your Account'}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )}
-          {isCollapsed && (
-            <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-center">
-              <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
-                <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
-                  {getInitials()}
-                </div>
-              </Link>
-            </div>
-          )}
+          {renderSidebarContent()}
         </div>
       </div>
 
-      {/* Hamburger menu button - Mobile only */}
-      <button
-        onClick={() => setIsMobileMenuOpen(true)}
-        className="fixed top-4 left-4 z-30 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 lg:hidden"
-        aria-label="Open menu"
-      >
-        <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-      </button>
+      {/* Mobile bottom sheet */}
+      <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <div className="flex flex-col h-full overflow-y-auto">
+          {renderSidebarContent()}
+        </div>
+      </BottomSheet>
 
       {/* Main content area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
