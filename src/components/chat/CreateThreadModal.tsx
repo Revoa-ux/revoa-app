@@ -25,10 +25,12 @@ interface CreateThreadModalProps {
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
-  { value: 'return', label: 'Return', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
-  { value: 'damaged', label: 'Damaged', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
-  { value: 'defective', label: 'Defective', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600' },
+  { value: 'damaged', label: 'Damaged Item', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
+  { value: 'defective', label: 'Defective Product', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
+  { value: 'return', label: 'Return Request', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600' },
+  { value: 'shipping', label: 'Shipping Issue', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
+  { value: 'refund', label: 'Refund Request', color: 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-600' },
 ];
 
 export function CreateThreadModal({
@@ -185,6 +187,9 @@ export function CreateThreadModal({
       case 'shipping':
         return `I see you have a question about shipping for ${orderNum}.\n\nI'm here to help with:\n• Tracking updates\n• Delivery estimates\n• Address changes (if still possible)\n• Any shipping concerns\n\nWhat specific information can I help you with?`;
 
+      case 'refund':
+        return `Thank you for reaching out about a refund for ${orderNum}.\n\nTo process your refund request, I'll need to understand:\n• The reason for the refund request\n• Whether you received the item(s)\n• Your preferred resolution (full refund vs. partial refund)\n\nPlease note that our refund policy requires:\n• Items must be returned to our warehouse before refund processing\n• Original condition with tags/packaging intact\n• Warehouse Entry Number (WEN) for tracking the return\n\nI'll review your specific situation and provide you with the next steps.`;
+
       default:
         return `Thank you for creating this thread about ${orderNum}.\n\nI'm here to help resolve any issues or answer questions you have. Please share any relevant details, and I'll get back to you with a solution as quickly as possible.`;
     }
@@ -217,14 +222,14 @@ export function CreateThreadModal({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Create Issue Thread">
-      <div className="space-y-6">
+      <div className="pb-20">
         {/* Info Banner */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-900 dark:text-blue-100">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-red-900 dark:text-red-100">
               <p className="font-medium mb-1">Order-Specific Issue Tracking</p>
-              <p className="text-blue-700 dark:text-blue-300">
+              <p className="text-red-700 dark:text-red-300">
                 Create a dedicated thread to track defective items, shipping issues, or other order-specific problems. Keep conversations organized and easy to reference.
               </p>
             </div>
@@ -232,7 +237,7 @@ export function CreateThreadModal({
         </div>
 
         {/* Category Selection */}
-        <div>
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             <TagIcon className="w-4 h-4 inline mr-1" />
             Issue Category *
@@ -256,7 +261,7 @@ export function CreateThreadModal({
         </div>
 
         {/* Thread Title */}
-        <div>
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Issue Title *
           </label>
@@ -274,7 +279,7 @@ export function CreateThreadModal({
         </div>
 
         {/* Description */}
-        <div>
+        <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Description (Optional)
           </label>
@@ -387,30 +392,31 @@ export function CreateThreadModal({
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3 py-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={handleClose}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            disabled={isCreating}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleCreate}
-            disabled={!title.trim() || !selectedOrderId || isCreating}
-            className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {isCreating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              'Create Thread'
-            )}
-          </button>
-        </div>
+      </div>
+
+      {/* Footer - Full Width Sticky */}
+      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-end gap-3">
+        <button
+          onClick={handleClose}
+          className="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          disabled={isCreating}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleCreate}
+          disabled={!title.trim() || !selectedOrderId || !selectedTag || isCreating}
+          className="px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
+        >
+          {isCreating ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Creating...
+            </>
+          ) : (
+            'Create Thread'
+          )}
+        </button>
       </div>
     </Modal>
   );

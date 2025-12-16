@@ -647,10 +647,10 @@ const Chat = () => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 rounded-b-lg"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
                     >
-                      <Plus className="w-5 h-5 flex-shrink-0" />
-                      <span className="text-sm font-medium">Create New Thread</span>
+                      <Plus className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create New Thread</span>
                     </button>
                   </div>
                 )}
