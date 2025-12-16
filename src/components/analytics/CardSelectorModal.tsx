@@ -139,7 +139,7 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
           </div>
