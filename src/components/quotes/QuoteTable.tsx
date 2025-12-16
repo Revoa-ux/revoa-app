@@ -59,13 +59,16 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
       <table className="w-full table-fixed">
         <thead>
           <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[40%]">Product</th>
-              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Request Date</th>
-              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[40%]">Product</th>
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">
+                <span className="hidden sm:inline">Request Date</span>
+                <span className="sm:hidden">Date</span>
+              </th>
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">
                 <div className="flex items-center gap-1.5 relative">
                   <span>Status</span>
                   <div
-                    className="relative"
+                    className="relative hidden sm:block"
                     onMouseEnter={() => setShowStatusTooltip(true)}
                     onMouseLeave={() => setShowStatusTooltip(false)}
                   >
@@ -79,7 +82,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   </div>
                 </div>
               </th>
-              <th className="px-2 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Actions</th>
+              <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -94,7 +97,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   }`}
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
-                  <td className="px-2 sm:px-6 py-3 sm:py-4">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <div className="overflow-hidden">
                       <div className="text-xs sm:text-sm text-gray-900 dark:text-white flex items-center">
                         <span className="break-words line-clamp-1">{quote.productName}</span>
@@ -123,15 +126,15 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                       </div>
                     </div>
                   </td>
-                  <td className="px-2 sm:px-6 py-3 sm:py-4">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       {new Date(quote.requestDate).toLocaleDateString()}
                     </span>
                   </td>
-                  <td className="px-2 sm:px-6 py-3 sm:py-4">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4">
                     <QuoteStatus status={quote.status} expiresIn={quote.expiresIn} />
                   </td>
-                  <td className="px-2 sm:px-6 py-3 sm:py-4 text-right text-sm">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm">
                     <div className="flex justify-end relative">
                       <QuoteActions
                         quote={quote}

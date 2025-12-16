@@ -451,9 +451,9 @@ export default function Inventory() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-4 w-full sm:w-auto">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
             <div className="flex-1 sm:w-[280px] sm:flex-initial">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -474,8 +474,10 @@ export default function Inventory() {
                 )}
               </div>
             </div>
+          </div>
 
-            <div className="flex-1 sm:w-[280px] sm:flex-initial relative">
+          <div className="flex items-stretch gap-3">
+            <div className="flex-1 relative">
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
                 className="w-full flex items-center justify-between h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -510,7 +512,7 @@ export default function Inventory() {
               )}
             </div>
 
-            <div className="flex-1 sm:flex-none">
+            <div className="flex-1">
               <AdReportsTimeSelector
                 selectedTime={selectedTime}
                 onTimeChange={handleTimeChange}
