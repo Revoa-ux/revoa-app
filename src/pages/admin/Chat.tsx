@@ -453,7 +453,7 @@ const AdminChat = () => {
   return (
     <>
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
             Resolution Center
           </h1>
           <div className="flex items-start sm:items-center space-x-2">
