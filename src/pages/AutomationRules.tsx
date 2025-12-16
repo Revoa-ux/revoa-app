@@ -160,7 +160,7 @@ const AutomationRules: React.FC = () => {
           </button>
           <button
             onClick={() => setShowRuleBuilder(true)}
-            className="flex items-center gap-2 h-[39px] px-4 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
+            className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm"
           >
             <Plus className="w-4 h-4" />
             Create Rule
@@ -168,48 +168,97 @@ const AutomationRules: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <GlassCard className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400 text-sm">Active Rules</span>
-            <Play className="w-5 h-5 text-green-500" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Active Rules Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Active Rules</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {activeRules}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Total Rules</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {rules.length}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="text-3xl font-normal text-gray-900 dark:text-white">{activeRules}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">of {rules.length} total</div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400 text-sm">Total Executions</span>
-            <TrendingUp className="w-5 h-5 text-red-500" />
+        {/* Total Executions Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Executions</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalExecutions.toLocaleString()}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">All Time</span>
+              </div>
+            </div>
           </div>
-          <div className="text-3xl font-normal text-gray-900 dark:text-white">
-            {totalExecutions.toLocaleString()}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">All time</div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400 text-sm">Actions Taken</span>
-            <Sparkles className="w-5 h-5 text-red-500" />
+        {/* Actions Taken Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <Sparkles className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Actions Taken</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {totalActionsTaken.toLocaleString()}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Automated Changes</span>
+              </div>
+            </div>
           </div>
-          <div className="text-3xl font-normal text-gray-900 dark:text-white">
-            {totalActionsTaken.toLocaleString()}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Automated changes</div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400 text-sm">Est. Cost Saved</span>
-            <TrendingUp className="w-5 h-5 text-green-500" />
+        {/* Est. Cost Saved Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Est. Cost Saved</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                ${totalCostSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Total Savings</span>
+              </div>
+            </div>
           </div>
-          <div className="text-3xl font-normal text-gray-900 dark:text-white">
-            ${totalCostSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total savings</div>
-        </GlassCard>
+        </div>
       </div>
 
       {loading ? (
@@ -219,8 +268,8 @@ const AutomationRules: React.FC = () => {
       ) : rules.length === 0 ? (
         <GlassCard className="p-12">
           <div className="text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Cpu className="w-8 h-8 text-red-600 dark:text-red-400" />
+            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Cpu className="w-8 h-8 text-gray-600 dark:text-gray-400" />
             </div>
             <h3 className="text-lg font-normal text-gray-900 dark:text-white mb-2">
               No Automation Rules Yet
@@ -239,7 +288,7 @@ const AutomationRules: React.FC = () => {
               </button>
               <button
                 onClick={() => setShowRuleBuilder(true)}
-                className="flex items-center gap-2 h-[39px] px-4 bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-lg text-white rounded-lg transition-all text-sm font-medium"
+                className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors text-sm"
               >
                 <Plus className="w-4 h-4" />
                 Create Custom Rule
