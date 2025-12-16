@@ -598,7 +598,8 @@ export default function Audit() {
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
           <span>Cross-Platform Ad Manager</span>
           <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
-            Infused with Revoa AI
+            <span className="sm:hidden">AI</span>
+            <span className="hidden sm:inline">Infused with Revoa AI</span>
           </span>
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
