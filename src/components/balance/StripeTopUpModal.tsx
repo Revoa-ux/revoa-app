@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, CreditCard, AlertTriangle, Loader2, ArrowRight } from 'lucide-react';
+import { X, CreditCard, AlertTriangle, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 
@@ -152,14 +152,15 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                   >
+                    <ArrowLeft className="w-4 h-4" />
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !amount}
-                    className="group flex-1 px-5 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                    className="group flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm whitespace-nowrap"
                   >
                     {loading ? (
                       <>
@@ -169,7 +170,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                     ) : (
                       <>
                         <span>Continue to Stripe</span>
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
                   </button>
