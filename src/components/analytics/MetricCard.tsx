@@ -81,8 +81,9 @@ export default function MetricCard({
       className={`
         h-[180px] p-4 rounded-xl cursor-grab active:cursor-grabbing
         transition-all duration-200 relative overflow-hidden
-        bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-        hover:bg-gray-50 dark:hover:bg-gray-700
+        bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
+        border border-gray-200/60 dark:border-gray-700/60
+        hover:shadow-md
         ${isDragging ? 'opacity-50 scale-95' : 'opacity-100 scale-100'}
         ${isLoading ? 'animate-pulse' : ''}
         ${className}

@@ -98,11 +98,11 @@ export default function FlippablePerformanceCard({
         {/* Front Face */}
         <div
           className={`
-            absolute inset-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-8 border
+            absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 shadow-sm rounded-2xl p-8 border
             ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${hasRexInsight
               ? 'border-red-300 dark:border-red-500/50 shadow-[0_0_15px_-3px_rgba(225,29,72,0.15)] dark:shadow-[0_0_15px_-3px_rgba(225,29,72,0.25)]'
-              : 'border-gray-200 dark:border-gray-700'
+              : 'border-gray-200/60 dark:border-gray-700/60'
             }
           `}
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
@@ -204,7 +204,7 @@ export default function FlippablePerformanceCard({
 
         {/* Back Face (Multi-Platform Chart) */}
         <div
-          className="absolute inset-0 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-sm rounded-2xl p-6 border border-gray-200 dark:border-gray-700 cursor-pointer"
+          className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 shadow-sm rounded-2xl p-6 border border-gray-200/60 dark:border-gray-700/60 cursor-pointer"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',

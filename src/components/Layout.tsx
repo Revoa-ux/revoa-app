@@ -230,11 +230,11 @@ export default function Layout() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 title={isCollapsed ? item.name : undefined}
                 className={cn(
-                  'flex items-center rounded-lg transition-colors',
+                  'flex items-center rounded-lg transition-all',
                   isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-3 lg:py-2',
                   'text-[13px]',
                   isActive
-                    ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                    ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 )}
               >
@@ -272,10 +272,10 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={isCollapsed ? 'Settings' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-colors',
+              'flex items-center text-[13px] rounded-lg transition-all',
               isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/settings'
-                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             )}
           >
@@ -287,10 +287,10 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={isCollapsed ? 'Plans and Pricing' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-colors',
+              'flex items-center text-[13px] rounded-lg transition-all',
               isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/pricing'
-                ? 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white font-medium'
+                ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             )}
           >
@@ -344,7 +344,7 @@ export default function Layout() {
           <Link
             to="/settings"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="hidden lg:flex w-full items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
+            className="hidden lg:flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
           >
             <div className="flex items-center space-x-3">
               <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
@@ -362,7 +362,7 @@ export default function Layout() {
           </Link>
 
           {/* Mobile Profile Card with Action Buttons */}
-          <div className="lg:hidden w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div className="lg:hidden w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
             <Link
               to="/settings"
               onClick={() => setIsMobileMenuOpen(false)}

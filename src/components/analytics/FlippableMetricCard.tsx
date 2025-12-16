@@ -165,8 +165,9 @@ export default function FlippableMetricCard({
           onDrop={onDrop}
           className={`
             absolute inset-0 p-4 rounded-xl
-            bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-            hover:bg-gray-50 dark:hover:bg-gray-700/50
+            bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
+            border border-gray-200/60 dark:border-gray-700/60
+            hover:shadow-md
             ${onDragStart ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
             ${isLoading ? 'animate-pulse' : ''}
           `}
@@ -223,8 +224,9 @@ export default function FlippableMetricCard({
         <div
           className={`
             absolute inset-0 p-4 rounded-xl cursor-pointer
-            bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-            hover:bg-gray-50 dark:hover:bg-gray-700/50
+            bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
+            border border-gray-200/60 dark:border-gray-700/60
+            hover:shadow-md
           `}
           style={{
             backfaceVisibility: 'hidden',
