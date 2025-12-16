@@ -425,7 +425,7 @@ export default function AdminDashboard() {
         </h1>
         <div className="flex items-start sm:items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
             {isLoading ? 'Updating metrics...' : 'Welcome back, ' + adminUser?.email}
           </p>
         </div>

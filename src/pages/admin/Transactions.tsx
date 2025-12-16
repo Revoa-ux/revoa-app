@@ -109,7 +109,7 @@ export default function Transactions() {
           <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 dark:text-white mb-2">
             Transactions
           </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 flex items-start sm:items-center gap-2">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
             View and manage marketplace transactions
           </p>
