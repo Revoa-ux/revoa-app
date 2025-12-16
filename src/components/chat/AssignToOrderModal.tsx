@@ -425,7 +425,7 @@ Items sent back to us without first requesting a return will not be accepted.`,
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={handleClose}
             className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"

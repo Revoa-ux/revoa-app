@@ -197,7 +197,7 @@ export const ConversationTagModal: React.FC<ConversationTagModalProps> = ({
           </>
         )}
 
-        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
           <button
             onClick={onClose}
             className="px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
