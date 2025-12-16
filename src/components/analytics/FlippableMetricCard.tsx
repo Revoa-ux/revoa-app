@@ -26,6 +26,7 @@ interface FlippableMetricCardProps {
   isExpanded?: boolean;
   autoFlipTrigger?: number;
   onExpand?: () => void;
+  onManualFlip?: () => void;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDragOver?: (e: React.DragEvent) => void;
@@ -62,6 +63,7 @@ export default function FlippableMetricCard({
   isExpanded = false,
   autoFlipTrigger,
   onExpand,
+  onManualFlip,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -96,6 +98,9 @@ export default function FlippableMetricCard({
   const handleClick = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('[data-no-flip]')) return;
     setIsFlipped(!isFlipped);
+    if (onManualFlip) {
+      onManualFlip();
+    }
   };
 
   const renderChangeIndicator = (change: string, changeType: 'positive' | 'negative' | 'critical') => {

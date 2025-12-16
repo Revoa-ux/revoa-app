@@ -60,6 +60,7 @@ export default function Analytics() {
   const [refreshCounter, setRefreshCounter] = useState(0);
   const [autoFlipCardId, setAutoFlipCardId] = useState<string | null>(null);
   const [autoFlipTrigger, setAutoFlipTrigger] = useState(0);
+  const [hasManuallyFlipped, setHasManuallyFlipped] = useState(false);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Initialize date range for 7 days
@@ -75,26 +76,33 @@ export default function Analytics() {
   });
 
   useEffect(() => {
-    if (isEditMode || isLoading || visibleCards.length === 0) return;
+    if (isEditMode || isLoading || visibleCards.length === 0 || hasManuallyFlipped) return;
 
     const autoFlipInterval = setInterval(() => {
-      const visibleCardsInViewport = visibleCards.filter(cardId => {
+      // Only flip cards that have chart data
+      const flippableCards = visibleCards.filter(cardId => {
         const element = cardRefs.current.get(cardId);
         if (!element) return false;
+
+        // Check if card has chart data
+        const hasChartData = chartDataByCard[cardId]?.length > 0;
+        if (!hasChartData) return false;
+
+        // Check if card is in viewport
         const rect = element.getBoundingClientRect();
         return rect.top >= 0 && rect.bottom <= window.innerHeight;
       });
 
-      if (visibleCardsInViewport.length > 0) {
-        const randomIndex = Math.floor(Math.random() * visibleCardsInViewport.length);
-        const randomCardId = visibleCardsInViewport[randomIndex];
+      if (flippableCards.length > 0) {
+        const randomIndex = Math.floor(Math.random() * flippableCards.length);
+        const randomCardId = flippableCards[randomIndex];
         setAutoFlipCardId(randomCardId);
         setAutoFlipTrigger(prev => prev + 1);
       }
     }, 12000);
 
     return () => clearInterval(autoFlipInterval);
-  }, [isEditMode, isLoading, visibleCards]);
+  }, [isEditMode, isLoading, visibleCards, hasManuallyFlipped, chartDataByCard]);
 
   // Load user name
   useEffect(() => {
@@ -529,6 +537,10 @@ setCurrentTemplate(template);
     setExpandedCardId(expandedCardId === cardId ? null : cardId);
   };
 
+  const handleManualFlip = () => {
+    setHasManuallyFlipped(true);
+  };
+
   const groupCardsByPlatform = (cards: string[]) => {
     const groups: Record<string, string[]> = {
       combined: [],
@@ -849,6 +861,7 @@ setCurrentTemplate(template);
                           isExpanded={isExpanded}
                           autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                           onExpand={() => handleExpandCard(cardId)}
+                          onManualFlip={handleManualFlip}
                           isDragging={draggedCard === cardId}
                           onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
                           onDragEnd={isEditMode ? handleDragEnd : undefined}
@@ -946,6 +959,7 @@ setCurrentTemplate(template);
                   isExpanded={isExpanded}
                   autoFlipTrigger={autoFlipCardId === cardId ? autoFlipTrigger : undefined}
                   onExpand={() => handleExpandCard(cardId)}
+                  onManualFlip={handleManualFlip}
                   isDragging={draggedCard === cardId}
                   onDragStart={isEditMode ? handleDragStart(cardId) : undefined}
                   onDragEnd={isEditMode ? handleDragEnd : undefined}
