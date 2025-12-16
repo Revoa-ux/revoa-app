@@ -155,7 +155,7 @@ export const RexIntroductionModal: React.FC<RexIntroductionModalProps> = ({
           </div>
 
           {/* CTA */}
-          <div className="py-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-6 pb-6 -mx-6 px-6 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={onGetStarted}
               className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-lg transition-all shadow-md hover:shadow-lg"
