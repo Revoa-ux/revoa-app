@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
-  Home,
   ArrowRightLeft,
   Wallet,
   Settings,
@@ -10,16 +9,15 @@ import {
   Moon,
   LogOut,
   MessageSquare,
-  LayoutGrid,
-  BarChart3,
+  BarChart2,
   Sparkles,
   Mail,
   Package,
   ChevronLeft,
   ChevronRight,
-  Plug,
-  Zap,
-  Target
+  Table2,
+  Database,
+  Cpu
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,14 +29,14 @@ import { supabase } from '../lib/supabase';
 import { startAutoSync } from '../lib/shopifyAutoSync';
 
 const navigation = [
-  { name: 'Analytics', href: '/', icon: Home },
+  { name: 'Analytics', href: '/', icon: BarChart2 },
   { name: 'My Quotes', href: '/quotes', icon: ArrowRightLeft },
   { name: 'Resolution Center', href: '/chat', icon: MessageSquare },
   { name: 'Inventory', href: '/inventory', icon: Package },
-  { name: 'Balance', href: '/balance', icon: Wallet },
-  { name: 'Ad Reports', href: '/audit', icon: BarChart3 },
-  { name: 'Attribution', href: '/attribution', icon: Target },
-  { name: 'Automation', href: '/automation', icon: Zap }
+  { name: 'Wallet', href: '/balance', icon: Wallet },
+  { name: 'Ad Manager', href: '/audit', icon: Table2, badge: 'AI' },
+  { name: 'Pixel', href: '/pixel', icon: Database },
+  { name: 'Automation', href: '/automation', icon: Cpu }
 ];
 
 export default function Layout() {
@@ -226,7 +224,7 @@ export default function Layout() {
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.href;
-                const isComingSoon = item.name === 'Find Products';
+                const hasBadge = 'badge' in item && item.badge;
                 return (
                   <Link
                     key={item.name}
@@ -242,16 +240,21 @@ export default function Layout() {
                     )}
                   >
                     {isCollapsed ? (
-                      <Icon className="h-4 w-4" strokeWidth={1.5} />
+                      <div className="relative">
+                        <Icon className="h-4 w-4" strokeWidth={1.5} />
+                        {hasBadge && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-teal-500 rounded-full" />
+                        )}
+                      </div>
                     ) : (
                       <>
                         <div className="flex items-center">
                           <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
                           {item.name}
                         </div>
-                        {isComingSoon && (
-                          <span className="px-2 py-0.5 text-[10px] bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full whitespace-nowrap">
-                            Coming Soon
+                        {hasBadge && (
+                          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded whitespace-nowrap">
+                            with Revoa AI
                           </span>
                         )}
                       </>

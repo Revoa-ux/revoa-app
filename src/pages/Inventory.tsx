@@ -310,7 +310,7 @@ export default function Inventory() {
     <div className="w-full max-w-[1050px] mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Inventory Management
+          Inventory Tracker
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>

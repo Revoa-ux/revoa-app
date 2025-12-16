@@ -595,9 +595,12 @@ export default function Audit() {
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-red-500" />
-          AI Ad Manager
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center justify-between">
+          <span>Cross-Platform Ad Manager</span>
+          <span className="px-2.5 py-1 text-xs font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-md flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            with Revoa AI
+          </span>
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>

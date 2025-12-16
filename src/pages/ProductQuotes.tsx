@@ -224,7 +224,7 @@ export default function ProductQuotes() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Quotes
+          Quote & COGS Syncing
         </h1>
         <div className="flex items-center space-x-2">
           <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>

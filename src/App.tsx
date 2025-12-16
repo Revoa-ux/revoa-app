@@ -233,7 +233,7 @@ function App() {
               <Route path="inventory" element={<Inventory />} />
               <Route path="balance" element={<Balance />} />
               <Route path="audit" element={<Audit />} />
-              <Route path="attribution" element={<Attribution />} />
+              <Route path="pixel" element={<Attribution />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="quotes/review/:id" element={<QuoteReview />} />
               <Route path="automation" element={<AutomationRules />} />

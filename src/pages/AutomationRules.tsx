@@ -141,7 +141,7 @@ const AutomationRules: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Automation Rules
+          Automated Rule Manager
         </h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
