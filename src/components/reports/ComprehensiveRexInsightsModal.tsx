@@ -1368,7 +1368,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
         {/* Bottom Action Queue - Sticky Bar */}
         {queuedActions.length > 0 && (
-          <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 px-6 py-6 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
+          <div className="sticky bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-gray-200 dark:border-gray-700 px-6 py-4 shadow-[0_-4px_12px_rgba(0,0,0,0.1)]">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">

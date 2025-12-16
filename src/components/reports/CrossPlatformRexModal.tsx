@@ -348,7 +348,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
         </div>
 
         {filteredSuggestions.length > 0 && (
-          <div className="px-6 py-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+          <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-2">
