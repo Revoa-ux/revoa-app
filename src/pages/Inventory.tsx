@@ -320,6 +320,16 @@ export default function Inventory() {
         </div>
       </div>
 
+      <div className="flex justify-end">
+        <AdReportsTimeSelector
+          selectedTime={selectedTime}
+          onTimeChange={handleTimeChange}
+          dateRange={dateRange}
+          onDateRangeChange={handleDateRangeChange}
+          onApply={handleApplyDateRange}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Inventory Status Card */}
         <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
@@ -510,14 +520,6 @@ export default function Inventory() {
                 </div>
               )}
             </div>
-
-            <AdReportsTimeSelector
-              selectedTime={selectedTime}
-              onTimeChange={handleTimeChange}
-              dateRange={dateRange}
-              onDateRangeChange={handleDateRangeChange}
-              onApply={handleApplyDateRange}
-            />
           </div>
         </div>
 

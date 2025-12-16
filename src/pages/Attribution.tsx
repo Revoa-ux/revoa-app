@@ -11,7 +11,9 @@ import {
   ShoppingBag,
   TrendingUp,
   Activity,
-  DollarSign
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -325,33 +327,43 @@ export default function Attribution() {
     setExpandedSection(expandedSection === section ? null : section);
   };
 
+  const renderChangeIndicator = (change: number) => {
+    const isPositive = change > 0;
+    const Icon = isPositive ? ArrowUpRight : ArrowDownRight;
+    return (
+      <div className={`flex items-center text-sm ${isPositive ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+        <Icon className="w-4 h-4 mr-1" />
+        {Math.abs(change)}%
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-            Configure UTM tracking, pixel installation, and server-side conversion APIs
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleSync}
-            disabled={isSyncing}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
-          </button>
-          <AdReportsTimeSelector
-            selectedTime={selectedTime}
-            onTimeChange={handleTimeChange}
-            dateRange={dateRange}
-            onDateRangeChange={setDateRange}
-            onApply={loadAttributionMetrics}
-          />
-        </div>
+      <div>
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+          Configure UTM tracking, pixel installation, and server-side conversion APIs
+        </p>
+      </div>
+
+      <div className="flex items-center justify-end gap-3">
+        <button
+          onClick={handleSync}
+          disabled={isSyncing}
+          className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+        </button>
+        <AdReportsTimeSelector
+          selectedTime={selectedTime}
+          onTimeChange={handleTimeChange}
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          onApply={loadAttributionMetrics}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -362,6 +374,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
+              {renderChangeIndicator(5.2)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
@@ -393,6 +406,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
+              {renderChangeIndicator(8.1)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Attribution Rate</h3>
@@ -424,6 +438,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
+              {renderChangeIndicator(12.3)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Pixel Events</h3>
@@ -449,6 +464,7 @@ export default function Attribution() {
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
+              {renderChangeIndicator(6.7)}
             </div>
             <div>
               <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</h3>

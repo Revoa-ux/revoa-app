@@ -391,14 +391,52 @@ export default function Balance() {
           </div>
         </div>
         {loading ? (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
-            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading invoices...</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="relative overflow-x-auto">
+              <table className="w-full whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Invoice</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Product Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Shipping Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Cost</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...Array(5)].map((_, i) => (
+                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-16 animate-pulse"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <InvoiceTable data={filteredInvoices} />
         )}
       </div>
+
+      <div className="border-t border-gray-200 dark:border-gray-700 my-8"></div>
 
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -512,9 +550,45 @@ export default function Balance() {
           </div>
         </div>
         {loading ? (
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto"></div>
-            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading transactions...</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="relative overflow-x-auto">
+              <table className="w-full whitespace-nowrap">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Type</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Payment Method</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...Array(5)].map((_, i) => (
+                    <tr key={i} className="border-b border-gray-200 dark:border-gray-700">
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-full w-16 animate-pulse"></div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse"></div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <TransactionTable data={filteredTransactions} />
