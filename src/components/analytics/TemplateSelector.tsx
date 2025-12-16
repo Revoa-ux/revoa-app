@@ -90,7 +90,7 @@ export default function TemplateSelector({
           />
 
           {/* Dropdown */}
-          <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+          <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
             {templates.map((template, index) => {
               const TemplateIcon = template.icon;
               const isActive = currentTemplate === template.id;

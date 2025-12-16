@@ -235,7 +235,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       </button>
 
       {showDropdown && !showCustomPicker && (
-        <div className="absolute right-0 mt-2 w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+        <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
           {timeOptions.map((time, index) => (
             <button
               key={time}
@@ -254,7 +254,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       {showCustomPicker && (
         <div
           ref={customPickerRef}
-          className="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
+          className="absolute left-0 sm:left-auto sm:right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">Select Date Range</h3>
