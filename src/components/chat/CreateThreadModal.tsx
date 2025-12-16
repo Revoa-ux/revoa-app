@@ -25,12 +25,16 @@ interface CreateThreadModalProps {
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
+  { value: 'cancel', label: 'Cancel Order', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
+  { value: 'modify', label: 'Modify Order', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
   { value: 'damaged', label: 'Damaged Item', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
   { value: 'defective', label: 'Defective Product', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
+  { value: 'wrong_item', label: 'Wrong Item Received', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
+  { value: 'missing_items', label: 'Missing Items', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
+  { value: 'shipping', label: 'Shipping/Delivery Issue', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
   { value: 'return', label: 'Return Request', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
-  { value: 'replacement', label: 'Replacement', color: 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-300 dark:border-purple-600' },
-  { value: 'shipping', label: 'Shipping Issue', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
   { value: 'refund', label: 'Refund Request', color: 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-600' },
+  { value: 'replacement', label: 'Replacement', color: 'bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600' },
 ];
 
 export function CreateThreadModal({
@@ -172,23 +176,35 @@ export function CreateThreadModal({
     const orderNum = order?.order_number || 'your order';
 
     switch (tag) {
-      case 'defective':
-        return `Thank you for reaching out about ${orderNum}. I'm here to help resolve this defective item issue.\n\nTo assist you quickly, could you please provide:\n• Photos of the defective item\n• A brief description of the issue\n• Your preferred resolution (replacement or refund)\n\nI'll review your case and get back to you with next steps as soon as possible.`;
+      case 'cancel':
+        return `I've received your cancellation request for ${orderNum}.\n\nI'll check the current status of your order right away:\n• If the order hasn't been processed yet, I can cancel it immediately\n• If it's already being prepared or shipped, I'll provide you with alternative options\n• You'll receive a full refund if the cancellation is successful\n\nPlease give me a moment to check the order status and I'll update you shortly.`;
 
-      case 'return':
-        return `I've received your return request for ${orderNum}.\n\nI'll provide you with return instructions shortly, including:\n• Return shipping address\n• Warehouse Entry Number (WEN) for tracking\n• Any specific packaging requirements\n\nPlease don't ship anything yet - wait for the complete instructions to ensure smooth processing.`;
+      case 'modify':
+        return `Thank you for reaching out about modifying ${orderNum}.\n\nI can help with:\n• Changing the shipping address (if order hasn't shipped yet)\n• Updating item quantities or variants\n• Adding or removing items from your order\n• Special delivery instructions\n\nPlease let me know what changes you'd like to make, and I'll check if they're still possible based on your order's current status.`;
 
-      case 'replacement':
-        return `Thank you for contacting us about a replacement for ${orderNum}.\n\nI'll review your order details and get back to you with:\n• Replacement options available\n• Processing timeline\n• Any additional information needed\n\nI'm here to make this as smooth as possible for you.`;
+      case 'wrong_item':
+        return `I'm sorry to hear you received the wrong item for ${orderNum}.\n\nTo resolve this quickly, please provide:\n• Photos of the item you received\n• Photos of the shipping label/packaging\n• The item name/SKU shown on your order confirmation\n\nThis appears to be a fulfillment error on our end. I'll work with our warehouse team to:\n• Ship the correct item to you immediately\n• Arrange return pickup for the wrong item (prepaid label)\n• Ensure you're not inconvenienced by this mistake\n\nI apologize for this error and will make it right.`;
+
+      case 'missing_items':
+        return `I'm sorry to hear that items are missing from ${orderNum}.\n\nTo help resolve this, please provide:\n• List of items that were supposed to be in your order\n• List of items you actually received\n• Photos of all items and packaging you received\n\nOnce I verify the missing items, I'll:\n• Ship the missing items to you immediately at no charge\n• Investigate with our fulfillment team to prevent this in the future\n• Ensure you receive everything you paid for\n\nThank you for bringing this to our attention.`;
 
       case 'damaged':
         return `I'm sorry to hear about the damaged item from ${orderNum}.\n\nTo help resolve this quickly, please provide:\n• Photos showing the damage\n• Photos of the packaging (if available)\n• Brief description of the damage\n\nI'll work with our logistics partner to determine the best solution for you.`;
 
+      case 'defective':
+        return `Thank you for reaching out about ${orderNum}. I'm here to help resolve this defective item issue.\n\nTo assist you quickly, could you please provide:\n• Photos of the defective item\n• A brief description of the issue\n• Your preferred resolution (replacement or refund)\n\nI'll review your case and get back to you with next steps as soon as possible.`;
+
       case 'shipping':
-        return `I see you have a question about shipping for ${orderNum}.\n\nI'm here to help with:\n• Tracking updates\n• Delivery estimates\n• Address changes (if still possible)\n• Any shipping concerns\n\nWhat specific information can I help you with?`;
+        return `I see you have a question about shipping/delivery for ${orderNum}.\n\nI'm here to help with:\n• Tracking updates and current location\n• Delivery estimates and expected arrival\n• Address changes (if still possible)\n• Delivery issues or concerns\n• Lost or stuck packages\n\nWhat specific information can I help you with?`;
+
+      case 'return':
+        return `I've received your return request for ${orderNum}.\n\nI'll provide you with return instructions shortly, including:\n• Return shipping address\n• Warehouse Entry Number (WEN) for tracking\n• Any specific packaging requirements\n\nPlease don't ship anything yet - wait for the complete instructions to ensure smooth processing.`;
 
       case 'refund':
         return `Thank you for reaching out about a refund for ${orderNum}.\n\nTo process your refund request, I'll need to understand:\n• The reason for the refund request\n• Whether you received the item(s)\n• Your preferred resolution (full refund vs. partial refund)\n\nPlease note that our refund policy requires:\n• Items must be returned to our warehouse before refund processing\n• Original condition with tags/packaging intact\n• Warehouse Entry Number (WEN) for tracking the return\n\nI'll review your specific situation and provide you with the next steps.`;
+
+      case 'replacement':
+        return `Thank you for contacting us about a replacement for ${orderNum}.\n\nI'll review your order details and get back to you with:\n• Replacement options available\n• Processing timeline\n• Any additional information needed\n\nI'm here to make this as smooth as possible for you.`;
 
       default:
         return `Thank you for creating this thread about ${orderNum}.\n\nI'm here to help resolve any issues or answer questions you have. Please share any relevant details, and I'll get back to you with a solution as quickly as possible.`;
