@@ -224,7 +224,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="w-full flex items-center justify-between h-[39px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sm:min-w-[180px]"
+        className="w-full flex items-center justify-between h-[38px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
         <div className="flex items-center min-w-0">
           <CalendarIcon className="w-4 h-4 mr-2 text-gray-400 flex-shrink-0" />

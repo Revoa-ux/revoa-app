@@ -23,7 +23,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
 
   return (
-    <div className="flex items-stretch gap-3 sm:space-x-4 w-full sm:w-auto">
+    <div className="flex items-stretch gap-3 w-full sm:w-auto">
       <div className="relative flex-[2] sm:w-[280px] sm:flex-initial">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
@@ -35,20 +35,20 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         />
       </div>
 
-      <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
+      <div className="relative w-[52px] sm:flex-initial sm:min-w-[180px]" ref={statusDropdownRef}>
         <button
           onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-          className="filter-button w-full sm:min-w-[180px] rounded-lg"
+          className="filter-button w-full h-[38px] flex items-center justify-center sm:justify-between px-3 sm:px-4 rounded-lg"
         >
-          <div className="flex items-center">
-            <Filter className="w-4 h-4 text-gray-400 mr-2" />
-            <span className="truncate">Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
+          <div className="flex items-center space-x-2 min-w-0">
+            <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span className="hidden sm:inline truncate">Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <ChevronDown className="hidden sm:block w-4 h-4 text-gray-400 flex-shrink-0" />
         </button>
 
         {showStatusDropdown && (
-          <div className="absolute right-0 z-50 w-full sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <button
               onClick={() => {
                 onStatusFilterChange('all');

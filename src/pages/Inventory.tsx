@@ -477,22 +477,22 @@ export default function Inventory() {
           </div>
 
           <div className="flex items-stretch gap-3">
-            <div className="flex-1 relative">
+            <div className="w-[52px] sm:flex-1 relative">
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full flex items-center justify-between h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center justify-center sm:justify-between h-[38px] px-3 sm:px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <div className="flex items-center space-x-2 min-w-0">
                   <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-gray-300 truncate">
+                  <span className="hidden sm:inline text-gray-700 dark:text-gray-300 truncate">
                     Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </span>
                 </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <ChevronDown className="hidden sm:block w-4 h-4 text-gray-400 flex-shrink-0" />
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-full sm:w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-[200px] sm:w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
                     <button
                       key={option}
