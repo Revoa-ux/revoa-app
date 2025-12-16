@@ -264,8 +264,8 @@ export default function Layout() {
         </nav>
       </div>
 
-      {/* Bottom Navigation Group */}
-      <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+      {/* Bottom Navigation Group - Desktop Only */}
+      <div className="hidden lg:block px-3 py-3 border-t border-gray-100 dark:border-gray-700">
         <nav className="space-y-0.5">
           <Link
             to="/settings"
@@ -340,10 +340,11 @@ export default function Layout() {
       {/* Account Profile - Bottom */}
       {!isCollapsed && (
         <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+          {/* Desktop Profile Card */}
           <Link
             to="/settings"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="w-full flex items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
+            className="hidden lg:flex w-full items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
           >
             <div className="flex items-center space-x-3">
               <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
@@ -359,6 +360,47 @@ export default function Layout() {
               </div>
             </div>
           </Link>
+
+          {/* Mobile Profile Card with Action Buttons */}
+          <div className="lg:hidden w-full flex items-center justify-between p-2.5 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <Link
+              to="/settings"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center space-x-3 min-w-0 flex-1"
+            >
+              <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                {getInitials()}
+              </div>
+              <div className="text-left min-w-0 flex-1">
+                <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                  {displayName || user?.email || 'Your Account'}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  {shopifyStore ? `${shopifyStore}.myshopify.com` : 'No store connected'}
+                </div>
+              </div>
+            </Link>
+            <div className="flex items-center gap-1 ml-2">
+              <Link
+                to="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+              </Link>
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                title="Log Out"
+              >
+                <LogOut className="h-4 w-4 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
+              </button>
+            </div>
+          </div>
         </div>
       )}
       {isCollapsed && (
