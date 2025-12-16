@@ -139,19 +139,17 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="-mx-6 -mb-6 mt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <div className="px-6 py-3 flex items-center justify-between">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
-            </div>
-            <button
-              onClick={onClose}
-              className="group px-4 py-1.5 text-sm bg-gray-800 dark:bg-gray-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
-            >
-              Done
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
           </div>
+          <button
+            onClick={onClose}
+            className="group px-4 py-1.5 text-sm bg-gray-800 dark:bg-gray-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
+          >
+            Done
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </div>
     </Modal>
