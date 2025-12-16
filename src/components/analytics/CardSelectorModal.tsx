@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Search, Plus, Check } from 'lucide-react';
+import { X, Search, Plus, Check, ArrowRight } from 'lucide-react';
 import Modal from '../Modal';
 import { MetricCardMetadata, getAllMetricCards, organizeCardsByCategory, CardCategory } from '../../lib/analyticsService';
 
@@ -121,7 +121,7 @@ export default function CardSelectorModal({
                           </div>
                           <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                             isVisible
-                              ? 'bg-gray-900 dark:bg-white border-gray-900 dark:border-white'
+                              ? 'bg-gray-900 dark:bg-gray-300 border-gray-900 dark:border-gray-300'
                               : 'border-gray-300 dark:border-gray-600'
                           }`}>
                             {isVisible && (
@@ -139,16 +139,19 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors flex items-center gap-2"
+            >
+              Done
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
-          >
-            Done
-          </button>
         </div>
       </div>
     </Modal>
