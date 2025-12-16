@@ -384,11 +384,17 @@ export default function ProductImport() {
     <div className="p-8">
       <div className="max-w-[1050px] mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">Import Products</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-            Add products manually or let AI agents enrich them
-          </p>
+          <div className="flex items-start gap-3">
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-[11px] flex-shrink-0"></span>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
+                Import Products
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Add products manually or let AI agents enrich them
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
