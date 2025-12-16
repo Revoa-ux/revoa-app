@@ -17,18 +17,18 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  default: 'bg-gray-800 text-white border border-gray-700 hover:bg-gray-900 hover:border-gray-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-600 dark:border-gray-500 dark:hover:bg-gray-700 dark:hover:border-gray-600',
-  primary: 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed border border-red-600',
-  secondary: 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
-  danger: 'bg-red-600 text-white border border-red-700 hover:bg-red-700 hover:border-red-800 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-700 dark:border-red-800 dark:hover:bg-red-800 dark:hover:border-red-900',
-  ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed shadow-none',
+  default: 'bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed',
+  primary: 'bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed',
+  secondary: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed',
+  danger: 'bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed',
+  ghost: 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed',
   outline: 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-[32px] px-3 text-xs gap-1.5',
-  md: 'h-[38px] px-5 text-sm gap-2',
-  lg: 'h-[44px] px-6 text-base gap-2.5',
+  sm: 'px-3 py-1.5 text-xs gap-1.5',
+  md: 'px-4 py-2 text-sm gap-2',
+  lg: 'px-6 py-2.5 text-base gap-2.5',
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -55,7 +55,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        'group inline-flex items-center justify-center font-medium rounded-lg transition-all shadow-sm',
+        'inline-flex items-center justify-center rounded-lg transition-colors',
         variantStyles[variant],
         sizeStyles[size],
         fullWidth && 'w-full',
@@ -67,10 +67,7 @@ export const Button: React.FC<ButtonProps> = ({
       {loading && <Loader2 className={cn(iconSizeStyles[size], 'animate-spin')} />}
       {!loading && icon && iconPosition === 'left' && icon}
       {children}
-      {!loading && showArrow && (
-        <ArrowRight className={cn(iconSizeStyles[size], 'group-hover:translate-x-0.5 transition-transform')} />
-      )}
-      {!loading && icon && iconPosition === 'right' && !showArrow && icon}
+      {!loading && icon && iconPosition === 'right' && icon}
     </button>
   );
 };
