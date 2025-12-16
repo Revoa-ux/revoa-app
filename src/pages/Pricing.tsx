@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PricingTiers } from '@/components/pricing/PricingTiers';
+import { ChevronDown } from 'lucide-react';
 
 const FAQ_ITEMS = [
   {
@@ -28,26 +29,29 @@ const FAQ_ITEMS = [
   },
 ];
 
-function FAQCard({ question, answer }: { question: string; answer: string }) {
-  const [isFlipped, setIsFlipped] = useState(false);
-
+function FAQAccordion({ question, answer, isOpen, onToggle }: { question: string; answer: string; isOpen: boolean; onToggle: () => void }) {
   return (
-    <div
-      className="relative h-48 perspective-1000"
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
-    >
-      <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-        {/* Front - Question */}
-        <div className="absolute inset-0 backface-hidden rounded-xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 p-6 flex items-center justify-center shadow-lg">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white text-center">
-            {question}
-          </h3>
-        </div>
-
-        {/* Back - Answer */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 p-6 flex items-center shadow-lg">
-          <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
+    <div className="overflow-hidden rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-5 flex items-start justify-between text-left transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/50"
+      >
+        <span className="text-base font-medium text-gray-900 dark:text-white pr-8">
+          {question}
+        </span>
+        <ChevronDown
+          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 flex-shrink-0 mt-0.5 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-6 pb-5 pt-1">
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
             {answer}
           </p>
         </div>
@@ -57,6 +61,12 @@ function FAQCard({ question, answer }: { question: string; answer: string }) {
 }
 
 export default function Pricing() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const handleToggle = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <div className="max-w-[1050px] mx-auto space-y-12">
       <div>
@@ -70,18 +80,27 @@ export default function Pricing() {
       <PricingTiers />
 
       {/* Subtle Divider */}
-      <div className="relative">
+      <div className="relative py-8">
         <div className="absolute inset-0 flex items-center" aria-hidden="true">
           <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
         </div>
       </div>
 
-      <div>
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-8 text-center">Frequently Asked Questions</h2>
+      <div className="space-y-8">
+        <div className="text-left">
+          <h2 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Frequently Asked Questions</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Everything you need to know about our pricing</p>
+        </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-3">
           {FAQ_ITEMS.map((faq, index) => (
-            <FAQCard key={index} question={faq.question} answer={faq.answer} />
+            <FAQAccordion
+              key={index}
+              question={faq.question}
+              answer={faq.answer}
+              isOpen={openIndex === index}
+              onToggle={() => handleToggle(index)}
+            />
           ))}
         </div>
       </div>
