@@ -18,7 +18,9 @@ import {
   Table2,
   Database,
   Cpu,
-  ArrowRight
+  ArrowRight,
+  Menu,
+  X as CloseIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -46,6 +48,7 @@ export default function Layout() {
   const { effectiveTheme, setTheme } = useTheme();
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<{
     display_name?: string;
     first_name?: string;
@@ -172,9 +175,19 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Fixed width sidebar */}
-      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
+      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-50 ${
         isCollapsed ? 'w-[70px]' : 'w-[280px]'
+      } ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         <div className="flex flex-col h-full">
           {/* Logo and Collapse Button */}
@@ -189,10 +202,17 @@ export default function Layout() {
               </div>
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all hidden lg:block"
                 title="Expand sidebar"
               >
                 <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </button>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all lg:hidden"
+                title="Close menu"
+              >
+                <CloseIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </button>
             </div>
           ) : (
@@ -209,13 +229,22 @@ export default function Layout() {
                   className="w-full h-full object-contain hidden dark:block"
                 />
               </div>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-                title="Collapse sidebar"
-              >
-                <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all hidden lg:block"
+                  title="Collapse sidebar"
+                >
+                  <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </button>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all lg:hidden"
+                  title="Close menu"
+                >
+                  <CloseIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
             </div>
           )}
 
@@ -230,6 +259,7 @@ export default function Layout() {
                   <Link
                     key={item.name}
                     to={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     title={isCollapsed ? item.name : undefined}
                     className={cn(
                       'flex items-center rounded-lg transition-colors',
@@ -271,6 +301,7 @@ export default function Layout() {
             <nav className="space-y-0.5">
               <Link
                 to="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
                 title={isCollapsed ? 'Settings' : undefined}
                 className={cn(
                   'flex items-center text-[13px] rounded-lg transition-colors',
@@ -285,6 +316,7 @@ export default function Layout() {
               </Link>
               <Link
                 to="/pricing"
+                onClick={() => setIsMobileMenuOpen(false)}
                 title={isCollapsed ? 'Plans and Pricing' : undefined}
                 className={cn(
                   'flex items-center text-[13px] rounded-lg transition-colors',
@@ -342,6 +374,7 @@ export default function Layout() {
             <div className="px-3 py-3 border-t border-gray-100 dark:border-gray-700">
               <Link
                 to="/settings"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full flex items-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors"
               >
                 <div className="flex items-center space-x-3">
@@ -362,7 +395,7 @@ export default function Layout() {
           )}
           {isCollapsed && (
             <div className="px-2 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-center">
-              <Link to="/settings" title="Account Settings">
+              <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
                 <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
                   {getInitials()}
                 </div>
@@ -372,9 +405,18 @@ export default function Layout() {
         </div>
       </div>
 
+      {/* Hamburger menu button - Mobile only */}
+      <button
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="fixed top-4 left-4 z-30 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 lg:hidden"
+        aria-label="Open menu"
+      >
+        <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+      </button>
+
       {/* Main content area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
-        isCollapsed ? 'pl-[70px]' : 'pl-[280px]'
+        isCollapsed ? 'lg:pl-[70px]' : 'lg:pl-[280px]'
       }`}>
         <div className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-[1800px] mx-auto flex flex-col min-h-0 overflow-x-hidden ${
           location.pathname === '/audit' ? 'overflow-y-hidden' : 'overflow-y-auto'

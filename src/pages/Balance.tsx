@@ -255,7 +255,7 @@ export default function Balance() {
             </button>
             <button
               onClick={() => setShowAutoTopUpModal(true)}
-              className="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center justify-center focus:outline-none"
+              className="flex-1 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors flex items-center justify-center focus:outline-none focus:ring-0"
             >
               <Bell className="w-4 h-4 mr-2" />
               Auto Top-up
