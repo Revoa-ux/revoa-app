@@ -82,7 +82,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
           <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="p-4 sm:p-6">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6">
               <div className="flex items-start justify-between mb-4 sm:mb-6">
                 <div className="flex-1 pr-4">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">Auto Top-up Settings</h3>
@@ -268,7 +268,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 -mx-4 sm:-mx-6 px-4 sm:px-6">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-6 -mx-4 sm:-mx-6 px-4 sm:px-6">
                   <div className="flex space-x-3">
                     <button
                       type="button"

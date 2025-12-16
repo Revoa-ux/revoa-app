@@ -101,7 +101,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
               </div>
             </div>
 
-            <div className="px-4 sm:px-6 py-6">
+            <div className="px-4 sm:px-6 pt-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -148,7 +148,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 pb-6 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
                   <button
                     type="button"
                     onClick={onClose}
