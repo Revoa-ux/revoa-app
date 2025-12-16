@@ -68,12 +68,16 @@ export function CustomSelect({
 
       {isOpen && !disabled && (
         <div className="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-          {options.map((option) => (
+          {options.map((option, index) => (
             <button
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
               className={`w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between ${
+                index === 0 ? 'rounded-t-lg' : ''
+              } ${
+                index === options.length - 1 ? 'rounded-b-lg' : ''
+              } ${
                 option.value === value
                   ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'

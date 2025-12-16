@@ -18,11 +18,21 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = 'max-w-md'
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  
-  useClickOutside(modalRef, onClose);
+  const openTimeRef = useRef<number>(0);
+
+  // Prevent immediate closing by ignoring clicks right after opening
+  const handleClose = (event: MouseEvent | TouchEvent) => {
+    const timeSinceOpen = Date.now() - openTimeRef.current;
+    if (timeSinceOpen > 100) {
+      onClose();
+    }
+  };
+
+  useClickOutside(modalRef, handleClose);
 
   useEffect(() => {
     if (isOpen) {
+      openTimeRef.current = Date.now();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
