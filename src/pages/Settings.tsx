@@ -1501,16 +1501,13 @@ const SettingsPage = () => {
   };
 
   const getInitials = () => {
-    if (profile.first_name && profile.last_name) {
-      return `${profile.first_name.charAt(0)}${profile.last_name.charAt(0)}`.toUpperCase();
-    }
     if (profile.first_name) {
-      return profile.first_name.substring(0, 2).toUpperCase();
+      return profile.first_name.charAt(0).toUpperCase();
     }
     if (profile.last_name) {
-      return profile.last_name.substring(0, 2).toUpperCase();
+      return profile.last_name.charAt(0).toUpperCase();
     }
-    return user?.email?.substring(0, 2).toUpperCase() || 'U';
+    return user?.email?.charAt(0).toUpperCase() || 'U';
   };
 
   const handleNotificationToggle = async (type: keyof UserSettings['notifications']) => {
