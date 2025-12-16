@@ -887,7 +887,7 @@ export function ScenarioTemplateModal({
                 className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Templates
+                <span>&larr; Back</span>
               </button>
 
               <div className="flex items-center gap-3">
@@ -939,7 +939,7 @@ export function ScenarioTemplateModal({
                     onClick={handleSyncToOrder}
                     className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
-                    <span>Populate Template</span>
+                    <span>Populate &rarr;</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 ) : (
@@ -955,7 +955,7 @@ export function ScenarioTemplateModal({
                       </>
                     ) : (
                       <>
-                        <span>Populate Template</span>
+                        <span>Populate &rarr;</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
