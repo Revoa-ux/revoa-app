@@ -46,24 +46,25 @@ export function CreateThreadModal({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [orders, setOrders] = useState<Order[]>([]);
-  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    if (isOpen && userId) {
-      loadOrders();
-    } else if (isOpen && !userId) {
-      // Clear orders if modal is opened without a valid userId
+    if (isOpen && !userId) {
       setOrders([]);
-      setAllOrders([]);
+      setSearchQuery('');
     }
   }, [isOpen, userId]);
 
-  const loadOrders = async () => {
-    if (!userId) return;
+  const searchOrders = async (query: string) => {
+    if (!userId || !query.trim()) {
+      setOrders([]);
+      return;
+    }
 
     setIsLoadingOrders(true);
     try {
@@ -71,20 +72,28 @@ export function CreateThreadModal({
         .from('shopify_orders')
         .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name, customer_email')
         .eq('user_id', userId)
+        .ilike('order_number', `%${query}%`)
         .order('ordered_at', { ascending: false })
-        .limit(50);
+        .limit(10);
 
       if (error) throw error;
 
       setOrders(data || []);
-      setAllOrders(data || []);
     } catch (error) {
-      console.error('Error loading orders:', error);
-      toast.error('Failed to load orders');
+      console.error('Error searching orders:', error);
+      toast.error('Failed to search orders');
     } finally {
       setIsLoadingOrders(false);
     }
   };
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchOrders(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, userId]);
 
   const handleCreate = async () => {
     // Check for valid chatId first
@@ -115,7 +124,6 @@ export function CreateThreadModal({
 
     setIsCreating(true);
     try {
-      const selectedOrder = orders.find(o => o.id === selectedOrderId);
       const currentUser = (await supabase.auth.getUser()).data.user;
 
       const { data: threadData, error } = await supabase
@@ -213,7 +221,10 @@ export function CreateThreadModal({
     setTitle('');
     setDescription('');
     setSelectedOrderId('');
+    setSelectedOrder(null);
     setSelectedTag('');
+    setSearchQuery('');
+    setOrders([]);
     onClose();
   };
 
@@ -315,94 +326,131 @@ export function CreateThreadModal({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Related Order *
           </label>
-          {isLoadingOrders ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-            </div>
-          ) : allOrders.length === 0 ? (
-            <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500 dark:text-gray-400">No orders found for this user</p>
-            </div>
-          ) : (
-            <>
-              {/* Search Input */}
-              <div className="mb-3">
-                <input
-                  type="text"
-                  placeholder="Search order number..."
-                  onChange={(e) => {
-                    const search = e.target.value.toLowerCase();
-                    if (search) {
-                      const filtered = allOrders.filter(order =>
-                        order.order_number.toLowerCase().includes(search)
-                      );
-                      setOrders(filtered);
-                    } else {
-                      setOrders(allOrders); // Show all orders
-                    }
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
-                />
-              </div>
 
-              {orders.length === 0 ? (
+          {/* Search Input */}
+          <div className="mb-3">
+            <input
+              type="text"
+              placeholder="Search order number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
+            />
+          </div>
+
+          {/* Selected Order Display */}
+          {selectedOrder && (
+            <div className="mb-3 border-2 border-pink-500 dark:border-pink-600 bg-pink-50 dark:bg-pink-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+                  <div>
+                    <p className="font-medium text-pink-900 dark:text-pink-100">
+                      {selectedOrder.order_number}
+                    </p>
+                    <p className="text-xs text-pink-700 dark:text-pink-300">
+                      <span className="font-medium">
+                        {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
+                          [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
+                        ) : selectedOrder.customer_email ? (
+                          selectedOrder.customer_email.split('@')[0].charAt(0).toUpperCase() + selectedOrder.customer_email.split('@')[0].slice(1)
+                        ) : (
+                          'Guest Customer'
+                        )} • {' '}
+                      </span>
+                      {formatDate(selectedOrder.ordered_at)}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium text-pink-900 dark:text-pink-100">
+                    {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSelectedOrderId('');
+                      setSelectedOrder(null);
+                      setSearchQuery('');
+                      setOrders([]);
+                    }}
+                    className="text-xs text-pink-600 dark:text-pink-400 hover:underline mt-0.5"
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Search Results */}
+          {!selectedOrder && searchQuery && (
+            <>
+              {isLoadingOrders ? (
+                <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
+                </div>
+              ) : orders.length === 0 ? (
                 <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
                   <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                   <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
                 </div>
               ) : (
                 <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
                   {orders.map((order) => (
-                  <button
-                    key={order.id}
-                    onClick={() => setSelectedOrderId(order.id)}
-                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
-                      selectedOrderId === order.id
-                        ? 'bg-pink-50 dark:bg-pink-900/20 border-l-4 border-l-pink-500'
-                        : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Package className={`w-5 h-5 ${
-                        selectedOrderId === order.id
-                          ? 'text-pink-600 dark:text-pink-400'
-                          : 'text-gray-400'
-                      }`} />
-                      <div className="text-left">
-                        <p className={`font-medium ${
-                          selectedOrderId === order.id
-                            ? 'text-pink-900 dark:text-pink-100'
-                            : 'text-gray-900 dark:text-white'
-                        }`}>
-                          {order.order_number}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          <span className="font-medium">
-                            {(order.customer_first_name || order.customer_last_name) ? (
-                              [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
-                            ) : order.customer_email ? (
-                              order.customer_email.split('@')[0].charAt(0).toUpperCase() + order.customer_email.split('@')[0].slice(1)
-                            ) : (
-                              'Guest Customer'
-                            )} • {' '}
-                          </span>
-                          {formatDate(order.ordered_at)}
-                        </p>
+                    <button
+                      key={order.id}
+                      onClick={() => {
+                        setSelectedOrderId(order.id);
+                        setSelectedOrder(order);
+                        setSearchQuery('');
+                        setOrders([]);
+                      }}
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Package className="w-5 h-5 text-gray-400" />
+                        <div className="text-left">
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {order.order_number}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <span className="font-medium">
+                              {(order.customer_first_name || order.customer_last_name) ? (
+                                [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
+                              ) : order.customer_email ? (
+                                order.customer_email.split('@')[0].charAt(0).toUpperCase() + order.customer_email.split('@')[0].slice(1)
+                              ) : (
+                                'Guest Customer'
+                              )} • {' '}
+                            </span>
+                            {formatDate(order.ordered_at)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <span className={`font-medium ${
-                      selectedOrderId === order.id
-                        ? 'text-pink-900 dark:text-pink-100'
-                        : 'text-gray-600 dark:text-gray-300'
-                    }`}>
-                      {formatCurrency(order.total_price, order.currency)}
-                    </span>
-                  </button>
+                      <span className="font-medium text-gray-600 dark:text-gray-300">
+                        {formatCurrency(order.total_price, order.currency)}
+                      </span>
+                    </button>
                   ))}
+                  {orders.length === 10 && (
+                    <div className="px-4 py-2 text-xs text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">
+                      Showing top 10 results. Refine your search for more specific results.
+                    </div>
+                  )}
                 </div>
               )}
             </>
+          )}
+
+          {/* Empty State - No Search */}
+          {!selectedOrder && !searchQuery && (
+            <div className="text-center py-8 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg">
+              <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">Start typing to search orders</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Search by order number (e.g., #1001)</p>
+            </div>
           )}
         </div>
 
