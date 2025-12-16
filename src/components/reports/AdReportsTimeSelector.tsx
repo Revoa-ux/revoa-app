@@ -70,6 +70,26 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     }
   };
 
+  const getMobileTimeLabel = (time: TimeOption): string => {
+    switch (time) {
+      case 'today': return 'Today';
+      case 'yesterday': return 'Yesterday';
+      case '7d': return '7D';
+      case '14d': return '14D';
+      case '28d': return '28D';
+      case 'thisMonth': return 'This M';
+      case 'lastMonth': return 'Last M';
+      case 'last3Months': return '3M';
+      case 'ytd': return 'YTD';
+      case 'custom': {
+        const start = tempStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const end = tempEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return `${start} - ${end}`;
+      }
+      default: return 'Today';
+    }
+  };
+
   const timeOptions: TimeOption[] = [
     'today',
     'yesterday',
@@ -204,11 +224,12 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center justify-between h-[39px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors min-w-[180px]"
+        className="flex items-center justify-between h-[39px] px-4 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors sm:min-w-[180px]"
       >
         <div className="flex items-center">
           <CalendarIcon className="w-4 h-4 mr-2 text-gray-400" />
-          <span>{getTimeLabel(selectedTime)}</span>
+          <span className="hidden sm:inline">{getTimeLabel(selectedTime)}</span>
+          <span className="sm:hidden">{getMobileTimeLabel(selectedTime)}</span>
         </div>
         <ChevronDown className="w-4 h-4 text-gray-400 ml-2" />
       </button>

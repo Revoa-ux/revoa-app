@@ -272,7 +272,7 @@ export default function Calculator() {
 
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
-          <button 
+          <button
             className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
             onClick={handleApplyDateRange}
             disabled={isLoading}
@@ -280,12 +280,12 @@ export default function Calculator() {
             {isLoading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Refreshing...</span>
+                <span className="hidden sm:inline">Refreshing...</span>
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4" />
-                <span>Refresh</span>
+                <span className="hidden sm:inline">Refresh</span>
               </>
             )}
           </button>

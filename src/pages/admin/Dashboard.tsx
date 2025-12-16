@@ -448,12 +448,12 @@ export default function AdminDashboard() {
             {isLoading ? (
               <>
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Refreshing...</span>
+                <span className="hidden sm:inline">Refreshing...</span>
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4" />
-                <span>Refresh</span>
+                <span className="hidden sm:inline">Refresh</span>
               </>
             )}
           </button>
