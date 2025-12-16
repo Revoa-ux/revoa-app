@@ -451,10 +451,10 @@ export default function Inventory() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Product Inventory</h2>
-          <div className="flex items-center space-x-4">
-            <div className="w-[280px]">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-4 w-full sm:w-auto">
+            <div className="flex-1 sm:w-[280px] sm:flex-initial">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -475,14 +475,14 @@ export default function Inventory() {
               </div>
             </div>
 
-            <div className="w-[280px]">
+            <div className="flex-1 sm:w-[280px] sm:flex-initial relative">
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
                 className="w-full flex items-center justify-between h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
-                <div className="flex items-center space-x-2">
-                  <Filter className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                  <span className="text-gray-700 dark:text-gray-300 truncate">
                     Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                   </span>
                 </div>
@@ -490,7 +490,7 @@ export default function Inventory() {
               </button>
 
               {showFilterDropdown && (
-                <div className="absolute mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                <div className="absolute right-0 mt-2 w-full sm:w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
                     <button
                       key={option}
@@ -510,7 +510,7 @@ export default function Inventory() {
               )}
             </div>
 
-            <div className="flex-none">
+            <div className="flex-1 sm:flex-none">
               <AdReportsTimeSelector
                 selectedTime={selectedTime}
                 onTimeChange={handleTimeChange}
