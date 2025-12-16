@@ -217,7 +217,7 @@ export default function Layout() {
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 lg:pt-4 border-b lg:border-y border-gray-100 dark:border-gray-700">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 lg:pt-4 border-b lg:border-y border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-1 lg:space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;
