@@ -27,7 +27,7 @@ export default function BottomSheet({ children, isOpen: controlledIsOpen, onOpen
   };
 
   const COLLAPSED_PEEK = 24;
-  const EXPANDED_HEIGHT_PERCENT = 85;
+  const EXPANDED_HEIGHT_PERCENT = 90;
   const VELOCITY_THRESHOLD = 0.3;
   const DRAG_THRESHOLD = 0.3;
 

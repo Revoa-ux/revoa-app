@@ -174,9 +174,9 @@ export default function Layout() {
 
   const renderSidebarContent = () => (
     <>
-      {/* Logo and Collapse Button */}
+      {/* Logo and Collapse Button - Desktop Only */}
       {isCollapsed ? (
-        <div className="py-8 px-2 flex flex-col items-center gap-3">
+        <div className="hidden lg:flex py-8 px-2 flex-col items-center gap-3">
           <div className="w-10 h-10 relative">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
@@ -193,7 +193,7 @@ export default function Layout() {
           </button>
         </div>
       ) : (
-        <div className="py-8 px-4 flex items-center justify-between">
+        <div className="hidden lg:flex py-8 px-4 items-center justify-between">
           <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
@@ -217,7 +217,7 @@ export default function Layout() {
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 border-y border-gray-100 dark:border-gray-700">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 lg:pt-4 border-b lg:border-y border-gray-100 dark:border-gray-700">
         <nav className="space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;
