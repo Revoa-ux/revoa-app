@@ -289,9 +289,48 @@ const AutomationRules: React.FC = () => {
       </div>
 
       {loading ? (
-        <GlassCard className="p-12 flex items-center justify-center">
-          <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
-        </GlassCard>
+        <div className="space-y-4 animate-pulse">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                  <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded mb-3"></div>
+                  <div className="flex items-center gap-4">
+                    <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-3 w-28 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  <div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                </div>
+              </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-4 gap-4">
+                <div>
+                  <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+                <div>
+                  <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+                <div>
+                  <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+                <div>
+                  <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : rules.length === 0 ? (
         <GlassCard className="p-12">
           <div className="text-center">
@@ -453,46 +492,46 @@ const RuleCard: React.FC<RuleCardProps> = ({
   };
 
   return (
-    <GlassCard className="p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-normal text-gray-900 dark:text-white">{rule.name}</h3>
-            <span className={`px-2 py-1 text-xs rounded ${statusColors[rule.status]}`}>
+    <GlassCard className="p-4 sm:p-6">
+      <div className="flex items-start justify-between mb-4 gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <h3 className="text-base sm:text-lg font-normal text-gray-900 dark:text-white break-words">{rule.name}</h3>
+            <span className={`px-2 py-1 text-xs rounded whitespace-nowrap ${statusColors[rule.status]}`}>
               {rule.status}
             </span>
             {rule.dry_run && (
-              <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded">
+              <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded whitespace-nowrap">
                 Test Mode
               </span>
             )}
             {rule.require_approval && (
-              <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
+              <span className="px-2 py-1 text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded whitespace-nowrap">
                 Needs Approval
               </span>
             )}
           </div>
           {rule.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">{rule.description}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{rule.description}</p>
           )}
-          <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
-            <span>Applies to: {rule.entity_type}s</span>
-            <span>•</span>
-            <span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="whitespace-nowrap">Applies to: {rule.entity_type}s</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">
               Checks every {rule.check_frequency_minutes >= 60 ? `${rule.check_frequency_minutes / 60}h` : `${rule.check_frequency_minutes}m`}
             </span>
-            <span>•</span>
-            <span>
+            <span className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">
               {rule.conditions.length} condition{rule.conditions.length !== 1 ? 's' : ''} ({rule.condition_logic})
             </span>
-            <span>•</span>
-            <span>
+            <span className="hidden sm:inline">•</span>
+            <span className="whitespace-nowrap">
               {rule.actions.length} action{rule.actions.length !== 1 ? 's' : ''}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={onToggleStatus}
             className={`p-2 rounded-lg transition-colors ${
@@ -508,7 +547,7 @@ const RuleCard: React.FC<RuleCardProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
@@ -554,28 +593,28 @@ const RuleCard: React.FC<RuleCardProps> = ({
       </div>
 
       {metrics && (
-        <div className="grid grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Executions</div>
-            <div className="text-lg font-normal text-gray-900 dark:text-white">
+            <div className="text-base sm:text-lg font-normal text-gray-900 dark:text-white">
               {metrics.total_executions.toLocaleString()}
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Actions Taken</div>
-            <div className="text-lg font-normal text-gray-900 dark:text-white">
+            <div className="text-base sm:text-lg font-normal text-gray-900 dark:text-white">
               {metrics.total_actions_taken.toLocaleString()}
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Success Rate</div>
-            <div className="text-lg font-normal text-gray-900 dark:text-white">
+            <div className="text-base sm:text-lg font-normal text-gray-900 dark:text-white">
               {metrics.success_rate.toFixed(1)}%
             </div>
           </div>
           <div>
             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Cost Saved</div>
-            <div className="text-lg font-normal text-green-600 dark:text-green-400">
+            <div className="text-base sm:text-lg font-normal text-green-600 dark:text-green-400">
               ${metrics.total_cost_saved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
