@@ -119,13 +119,13 @@ export default function CardSelectorModal({
                               </p>
                             )}
                           </div>
-                          <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                          <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-all ${
                             isVisible
-                              ? 'bg-gray-900 dark:bg-gray-300 border-gray-900 dark:border-gray-300'
-                              : 'border-gray-300 dark:border-gray-600'
+                              ? 'bg-gradient-to-br from-gray-700 to-gray-800 dark:from-gray-600 dark:to-gray-700 border-gray-700 dark:border-gray-600'
+                              : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                           }`}>
                             {isVisible && (
-                              <Check className="w-3 h-3 text-white dark:text-gray-900" />
+                              <Check className="w-3 h-3 text-white" strokeWidth={3} />
                             )}
                           </div>
                         </button>
@@ -139,14 +139,14 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="-mx-6 -mb-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <div className="px-6 py-4 flex items-center justify-between">
+        <div className="-mx-6 mt-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+          <div className="px-6 py-3 flex items-center justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
             </div>
             <button
               onClick={onClose}
-              className="group px-4 py-2 text-sm bg-gray-800 dark:bg-gray-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
+              className="group px-4 py-1.5 text-sm bg-gray-800 dark:bg-gray-600 text-white rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition-all flex items-center gap-2"
             >
               Done
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
