@@ -370,7 +370,7 @@ export default function Attribution() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Orders Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -402,7 +402,7 @@ export default function Attribution() {
         </div>
 
         {/* Attribution Rate Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -434,7 +434,7 @@ export default function Attribution() {
         </div>
 
         {/* Pixel Events Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -460,7 +460,7 @@ export default function Attribution() {
         </div>
 
         {/* Revenue Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">

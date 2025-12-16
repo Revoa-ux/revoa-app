@@ -5,6 +5,7 @@ import { automationRulesService } from '@/lib/automationRulesService';
 import RuleBuilderModal from '@/components/automation/RuleBuilderModal';
 import RuleTemplatesModal from '@/components/automation/RuleTemplatesModal';
 import GlassCard from '@/components/GlassCard';
+import Modal from '@/components/Modal';
 import { toast } from 'sonner';
 import type { RuleWithDetails, RuleBuilderFormData, RulePerformanceMetrics } from '@/types/automation';
 
@@ -16,6 +17,7 @@ const AutomationRules: React.FC = () => {
   const [showTemplates, setShowTemplates] = useState(false);
   const [editingRule, setEditingRule] = useState<RuleWithDetails | null>(null);
   const [metrics, setMetrics] = useState<Record<string, RulePerformanceMetrics>>({});
+  const [deleteConfirmRule, setDeleteConfirmRule] = useState<RuleWithDetails | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -102,15 +104,16 @@ const AutomationRules: React.FC = () => {
   };
 
   const handleDelete = async (rule: RuleWithDetails) => {
-    if (!user) return;
+    setDeleteConfirmRule(rule);
+  };
 
-    if (!confirm(`Are you sure you want to delete "${rule.name}"?`)) {
-      return;
-    }
+  const confirmDelete = async () => {
+    if (!user || !deleteConfirmRule) return;
 
     try {
-      await automationRulesService.deleteRule(rule.id, user.id);
+      await automationRulesService.deleteRule(deleteConfirmRule.id, user.id);
       toast.success('Rule deleted successfully');
+      setDeleteConfirmRule(null);
       loadRules();
     } catch (error) {
       console.error('Failed to delete rule:', error);
@@ -179,7 +182,7 @@ const AutomationRules: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Active Rules Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -210,7 +213,7 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Total Executions Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -235,7 +238,7 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Actions Taken Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -260,7 +263,7 @@ const AutomationRules: React.FC = () => {
         </div>
 
         {/* Est. Cost Saved Card */}
-        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div className="h-[180px] p-4 rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60">
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
@@ -388,6 +391,37 @@ const AutomationRules: React.FC = () => {
           onClose={() => setShowTemplates(false)}
           onSelectTemplate={handleSelectTemplate}
         />
+      )}
+
+      {deleteConfirmRule && (
+        <Modal
+          isOpen={true}
+          onClose={() => setDeleteConfirmRule(null)}
+          title="Delete Automation Rule"
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Are you sure you want to delete "<span className="font-medium text-gray-900 dark:text-white">{deleteConfirmRule.name}</span>"?
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              This action cannot be undone. All execution history for this rule will be preserved.
+            </p>
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                onClick={() => setDeleteConfirmRule(null)}
+                className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Delete Rule
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
