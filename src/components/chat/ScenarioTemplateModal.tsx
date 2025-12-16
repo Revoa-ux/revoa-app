@@ -213,6 +213,10 @@ export function ScenarioTemplateModal({
   const [editableSubject, setEditableSubject] = useState('');
   const [editableBody, setEditableBody] = useState('');
 
+  // Normalize thread category for template matching
+  // Maps combined tags to their primary category
+  const normalizedThreadCategory = threadCategory === 'cancel_modify' ? 'cancel' : threadCategory;
+
   // Load templates from database
   useEffect(() => {
     async function loadTemplates() {
@@ -279,12 +283,12 @@ export function ScenarioTemplateModal({
     urgency: 'medium' as const
   }));
 
-  const recommendedTemplates = threadCategory
-    ? COMBINED_TEMPLATES.filter(t => t.category === threadCategory)
+  const recommendedTemplates = normalizedThreadCategory
+    ? COMBINED_TEMPLATES.filter(t => t.category === normalizedThreadCategory)
     : [];
 
-  const otherTemplates = threadCategory
-    ? COMBINED_TEMPLATES.filter(t => t.category !== threadCategory)
+  const otherTemplates = normalizedThreadCategory
+    ? COMBINED_TEMPLATES.filter(t => t.category !== normalizedThreadCategory)
     : COMBINED_TEMPLATES;
 
   const toggleStage = (stageId: string) => {
