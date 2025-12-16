@@ -121,7 +121,7 @@ export default function CardSelectorModal({
                           </div>
                           <div className={`flex-shrink-0 ml-3 w-5 h-5 rounded border flex items-center justify-center transition-all ${
                             isVisible
-                              ? 'bg-gradient-to-br from-gray-700 to-gray-800 dark:from-gray-600 dark:to-gray-700 border-gray-700 dark:border-gray-600'
+                              ? 'bg-gray-700 dark:bg-gray-600 border-gray-700 dark:border-gray-600'
                               : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                           }`}>
                             {isVisible && (
@@ -139,7 +139,7 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="-mx-6 mt-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+        <div className="-mx-6 -mb-6 mt-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="px-6 py-3 flex items-center justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
