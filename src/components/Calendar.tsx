@@ -91,7 +91,7 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg w-full min-w-[420px]">
+    <div className="p-3 bg-white dark:bg-gray-800 rounded-lg w-full max-w-full">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
@@ -109,7 +109,7 @@ const Calendar: React.FC<CalendarProps> = ({
           <ChevronRight className="w-5 h-5 text-gray-500 dark:text-gray-400" />
         </button>
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {DAYS.map(day => (
           <div
             key={day}
@@ -130,7 +130,7 @@ const Calendar: React.FC<CalendarProps> = ({
               onClick={() => !isDisabled && onSelect(date)}
               disabled={isDisabled}
               className={`
-                text-sm p-2.5 rounded-lg transition-all relative focus:outline-none font-medium
+                text-xs sm:text-sm p-1.5 sm:p-2.5 rounded-lg transition-all relative focus:outline-none font-medium
                 ${isSelected ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-md' :
                   inRange ? 'bg-gray-700/50 dark:bg-gray-700/70 text-gray-900 dark:text-gray-100' :
                   isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}

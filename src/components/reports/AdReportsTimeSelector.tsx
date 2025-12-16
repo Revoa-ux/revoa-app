@@ -296,7 +296,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3 overflow-hidden">
             <Calendar
               selectedDate={selectingStart ? tempStartDate : tempEndDate}
               maxDate={new Date()}
