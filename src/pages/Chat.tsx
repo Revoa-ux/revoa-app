@@ -1065,9 +1065,9 @@ const Chat = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => setShowAssignToOrderModal(true)}
+                    onClick={() => setShowCreateThreadModal(true)}
                     className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                    title="Assign to Order"
+                    title="Create New Thread"
                   >
                     <Hash className="w-5 h-5" />
                   </button>
