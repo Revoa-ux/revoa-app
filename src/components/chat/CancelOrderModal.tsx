@@ -117,7 +117,7 @@ export function CancelOrderModal({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex gap-3 justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
             disabled={isProcessing}

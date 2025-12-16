@@ -148,7 +148,7 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 -mx-4 sm:-mx-6 px-4 sm:px-6 flex space-x-3">
                   <button
                     type="button"
                     onClick={onClose}

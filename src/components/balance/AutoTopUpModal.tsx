@@ -268,7 +268,7 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-4 sm:-mx-6 px-4 sm:px-6">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-6 -mx-4 sm:-mx-6 px-4 sm:px-6">
                   <div className="flex space-x-3">
                     <button
                       type="button"

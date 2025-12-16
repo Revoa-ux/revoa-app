@@ -198,7 +198,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                   </button>
 
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                       <div className="max-w-xs">
                         <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Shipping Cost
@@ -285,7 +285,7 @@ export const GuidedModeStep3: React.FC<GuidedModeStep3Props> = ({
                   </button>
 
                   {isExpanded && (
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                       <ShippingRulesManager
                         rules={variant.shippingRules}
                         onRulesChange={(rules) => {
