@@ -133,7 +133,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       <div className="relative flex-1 min-h-0 flex flex-col">
         {/* Tabs and Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 pt-4 pb-3 flex-shrink-0 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="flex items-center justify-center sm:justify-start gap-1 overflow-x-auto">
             {tabs.map((tab, index) => {
               const isActive = viewLevel === tab.id;
               return (
