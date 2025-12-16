@@ -65,11 +65,11 @@ export default function CardSelectorModal({
       isOpen={isOpen}
       onClose={onClose}
       title="Customize Metrics"
-      size="large"
+      maxWidth="max-w-2xl"
     >
-      <div className="space-y-4">
+      <>
         {/* Search */}
-        <div className="relative">
+        <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
@@ -139,7 +139,7 @@ export default function CardSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
+        <div className="flex items-center justify-between pt-6 mt-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             {visibleCards.length} metric{visibleCards.length !== 1 ? 's' : ''} selected
           </div>
@@ -151,7 +151,7 @@ export default function CardSelectorModal({
             <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
-      </div>
+      </>
     </Modal>
   );
 }
