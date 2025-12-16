@@ -169,7 +169,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: installation, error: installError } = await supabase
       .from('shopify_installations')
-      .select('id, store_url, access_token, last_synced_at')
+      .select('id, store_url, access_token, last_synced_at, orders_synced_count')
       .eq('user_id', userId)
       .eq('status', 'installed')
       .is('uninstalled_at', null)
@@ -190,16 +190,16 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const isInitialSync = !installation.last_synced_at;
+    const isInitialSync = !installation.last_synced_at || (installation.orders_synced_count === 0);
     let createdAtMin: string;
-    if (installation.last_synced_at) {
+    if (installation.last_synced_at && !isInitialSync) {
       createdAtMin = installation.last_synced_at;
       console.log('[Sync] Incremental sync from:', createdAtMin);
     } else {
       const threeYearsAgo = new Date();
       threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
       createdAtMin = threeYearsAgo.toISOString();
-      console.log('[Sync] First sync from:', createdAtMin);
+      console.log('[Sync] Initial sync from:', createdAtMin);
     }
 
     const MAX_PAGES = 40;
