@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUp,
-  DollarSign,
-  ShoppingCart,
   Target,
   RefreshCw,
-  Percent,
-  Package,
   Copy,
   Check,
   ChevronDown,
@@ -19,7 +14,6 @@ import { toast } from 'sonner';
 import { manualSync } from '@/lib/shopifyAutoSync';
 import { matchOrdersToAds } from '@/lib/attributionService';
 import { supabase } from '@/lib/supabase';
-import { GlassCard } from '@/components/GlassCard';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { PixelInstallation } from '@/components/settings/PixelInstallation';
@@ -329,13 +323,88 @@ export default function Attribution() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-          Configure UTM tracking, pixel installation, and server-side conversion APIs
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">Pixel Optimization</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+            Configure UTM tracking, pixel installation, and server-side conversion APIs
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+          </button>
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onApply={loadAttributionMetrics}
+          />
+        </div>
       </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Orders</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Attributed</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Attribution Rate</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Pixel Events</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Revenue</p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+            {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Order Value</p>
+        </div>
+      </div>
+
+      {metrics.attributionRate < 50 && metrics.totalOrders > 5 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <span className="text-yellow-600 dark:text-yellow-400">!</span>
+            <div>
+              <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                Low Attribution Rate Detected
+              </h4>
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                Only {metrics.attributionRate.toFixed(1)}% of your orders are being attributed to ads.
+                Configure CAPI, install the Revoa pixel, and use UTM templates below.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <button
@@ -343,8 +412,8 @@ export default function Attribution() {
           className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-teal-50 dark:bg-teal-900/30 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-teal-600 dark:text-teal-400" />
+            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+              <Link2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Conversions API (CAPI)</h2>
@@ -468,159 +537,6 @@ export default function Attribution() {
         )}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <button
-          onClick={() => toggleSection('metrics')}
-          className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            </div>
-            <div className="text-left">
-              <h2 className="text-lg font-medium text-gray-900 dark:text-white">Attribution Metrics</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                View your order attribution and tracking performance
-              </p>
-            </div>
-          </div>
-          {expandedSection === 'metrics' ? (
-            <ChevronUp className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          )}
-        </button>
-        {expandedSection === 'metrics' && (
-          <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
-            <div className="pt-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleSync}
-                    disabled={isSyncing}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                    <span>{isSyncing ? 'Syncing...' : 'Sync Orders'}</span>
-                  </button>
-                  {lastSync && (
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      Last synced: {formatDate(lastSync)}
-                    </span>
-                  )}
-                </div>
-
-                <AdReportsTimeSelector
-                  selectedTime={selectedTime}
-                  onTimeChange={handleTimeChange}
-                  dateRange={dateRange}
-                  onDateRangeChange={setDateRange}
-                  onApply={loadAttributionMetrics}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShoppingCart className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Total Orders</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Target className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Attributed</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLoading ? '...' : formatCurrency(metrics.attributedRevenue)}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Percent className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Attribution Rate</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLoading ? '...' : `${formatCurrency(metrics.averageOrderValue)} AOV`}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Pixel Events</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLoading ? '...' : `${metrics.uniqueSessions} sessions`}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <DollarSign className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Total Revenue</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {isLoading ? '...' : `${metrics.totalOrders} orders`}
-                  </p>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Avg Order Value</span>
-                  </div>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Per order</p>
-                </div>
-              </div>
-
-              {metrics.attributionRate < 50 && metrics.totalOrders > 5 && (
-                <div className="mt-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <span className="text-yellow-600 dark:text-yellow-400">!</span>
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                        Low Attribution Rate Detected
-                      </h4>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                        Only {metrics.attributionRate.toFixed(1)}% of your orders are being attributed to ads. To improve:
-                      </p>
-                      <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
-                        <li>Configure your CAPI settings above</li>
-                        <li>Install the Revoa pixel on your store</li>
-                        <li>Use the UTM templates for your ad URLs</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
