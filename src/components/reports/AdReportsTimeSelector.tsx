@@ -254,7 +254,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       {showCustomPicker && (
         <div
           ref={customPickerRef}
-          className="absolute right-0 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
+          className="fixed sm:absolute inset-x-4 top-1/2 -translate-y-1/2 sm:inset-x-auto sm:top-auto sm:translate-y-0 sm:right-0 sm:mt-2 max-w-md mx-auto sm:max-w-none bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">Select Date Range</h3>
@@ -315,7 +315,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
             <button
               onClick={handleApplyCustomDate}
-              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:shadow-lg hover:shadow-rose-500/25 rounded-lg transition-all"
+              className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 rounded-lg transition-colors"
             >
               Apply
             </button>
