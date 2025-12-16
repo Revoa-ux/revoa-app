@@ -172,8 +172,8 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      {/* Desktop Sidebar - hidden on mobile */}
-      <div className={`hidden md:block fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
+      {/* Fixed width sidebar */}
+      <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out ${
         isCollapsed ? 'w-[70px]' : 'w-[280px]'
       }`}>
         <div className="flex flex-col h-full">
@@ -373,68 +373,14 @@ export default function Layout() {
       </div>
 
       {/* Main content area */}
-      <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden md:${
+      <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
         isCollapsed ? 'pl-[70px]' : 'pl-[280px]'
-      } pb-16 md:pb-0`}>
+      }`}>
         <div className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-[1800px] mx-auto flex flex-col min-h-0 overflow-x-hidden ${
           location.pathname === '/audit' ? 'overflow-y-hidden' : 'overflow-y-auto'
         }`}>
           <Outlet />
         </div>
-      </div>
-
-      {/* Mobile Bottom Navigation - visible only on mobile */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
-        <nav className="flex items-center justify-around px-2 py-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.href;
-            const hasBadge = 'badge' in item && item.badge;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  'flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors flex-1 relative',
-                  isActive
-                    ? 'text-gray-900 dark:text-white'
-                    : 'text-gray-600 dark:text-gray-400'
-                )}
-              >
-                <div className="relative">
-                  <Icon className="h-5 w-5" strokeWidth={1.5} />
-                  {hasBadge && (
-                    <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
-                  )}
-                </div>
-                <span className="text-[10px] mt-0.5 font-medium">{item.name.split(' ')[0]}</span>
-              </Link>
-            );
-          })}
-          {/* Profile Icon */}
-          <Link
-            to="/settings"
-            className={cn(
-              'flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors flex-1',
-              location.pathname === '/settings'
-                ? 'text-gray-900 dark:text-white'
-                : 'text-gray-600 dark:text-gray-400'
-            )}
-          >
-            <div className="h-5 w-5 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-[8px]">
-              {getInitials()}
-            </div>
-            <span className="text-[10px] mt-0.5 font-medium">Profile</span>
-          </Link>
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors flex-1 text-gray-600 dark:text-gray-400"
-          >
-            <LogOut className="h-5 w-5" strokeWidth={1.5} />
-            <span className="text-[10px] mt-0.5 font-medium">Logout</span>
-          </button>
-        </nav>
       </div>
 
       {/* Help & Support Modal */}
