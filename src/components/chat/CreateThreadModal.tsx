@@ -262,7 +262,7 @@ export function CreateThreadModal({
                 key={tag.value}
                 type="button"
                 onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
-                className={`px-4 py-3 rounded-lg text-sm font-medium transition-all border flex items-center justify-center text-center ${
+                className={`px-5 py-3.5 rounded-lg text-xs font-normal transition-all border flex items-center justify-center text-center ${
                   selectedTag === tag.value
                     ? tag.color
                     : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'
