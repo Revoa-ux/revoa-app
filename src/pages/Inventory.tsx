@@ -320,7 +320,7 @@ export default function Inventory() {
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-start sm:justify-end">
         <AdReportsTimeSelector
           selectedTime={selectedTime}
           onTimeChange={handleTimeChange}

@@ -163,7 +163,7 @@ const AutomationRules: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-start sm:justify-end gap-3">
         <button
           onClick={() => setShowTemplates(true)}
           className="flex items-center gap-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm"
@@ -176,7 +176,7 @@ const AutomationRules: React.FC = () => {
           className="flex items-center gap-2 h-[39px] px-4 bg-gray-900 dark:bg-gray-800 text-white rounded-lg hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors text-sm"
         >
           <Plus className="w-4 h-4" />
-          Create Rule
+          <span className="hidden sm:inline">Create Rule</span>
         </button>
       </div>
 

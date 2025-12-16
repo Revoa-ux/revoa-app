@@ -1843,7 +1843,7 @@ const SettingsPage = () => {
         onSuccess={handleShopifySuccess}
       />
 
-      <div className="max-w-[1050px] mx-auto">
+      <div className="max-w-[1050px] mx-auto px-4 sm:px-0">
       {/* Title Section */}
       <div className="mb-8">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
