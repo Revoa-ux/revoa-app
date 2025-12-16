@@ -13,7 +13,9 @@ import {
   Activity,
   DollarSign,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Server,
+  Tag
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -508,7 +510,7 @@ export default function Attribution() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Server className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Conversions API (CAPI)</h2>
@@ -570,7 +572,7 @@ export default function Attribution() {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Tag className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div className="text-left">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">UTM Parameter Templates</h2>
