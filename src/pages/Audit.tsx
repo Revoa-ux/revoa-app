@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Facebook, AlertTriangle, RefreshCw, Filter, Check, Sparkles } from 'lucide-react';
+import { Facebook, AlertTriangle, RefreshCw, Filter, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
@@ -597,8 +597,7 @@ export default function Audit() {
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center justify-between">
           <span>Cross-Platform Ad Manager</span>
-          <span className="px-2.5 py-1 text-xs font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-md flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
+          <span className="px-2.5 py-1 text-xs font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-md">
             with Revoa AI
           </span>
         </h1>

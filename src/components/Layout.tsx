@@ -243,7 +243,7 @@ export default function Layout() {
                       <div className="relative">
                         <Icon className="h-4 w-4" strokeWidth={1.5} />
                         {hasBadge && (
-                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-teal-500 rounded-full" />
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
                         )}
                       </div>
                     ) : (
@@ -253,7 +253,7 @@ export default function Layout() {
                           {item.name}
                         </div>
                         {hasBadge && (
-                          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded whitespace-nowrap">
+                          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-gradient-to-r from-red-500 to-pink-500 text-white rounded whitespace-nowrap">
                             with Revoa AI
                           </span>
                         )}
