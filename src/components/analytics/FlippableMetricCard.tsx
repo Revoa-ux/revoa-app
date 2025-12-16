@@ -268,10 +268,10 @@ export default function FlippableMetricCard({
               </div>
             </div>
 
-            <div className="flex-1 min-h-0 -ml-4 -mr-2">
+            <div className="flex-1 min-h-0 -ml-2 -mr-2">
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 15, left: 0, bottom: 0 }}>
+                  <AreaChart data={chartData} margin={{ top: 5, right: 15, left: 5, bottom: 0 }}>
                     <defs>
                       <linearGradient id={`stroke-gradient-${data.id}`} x1="0" y1="0" x2="1" y2="0">
                         <stop offset="0%" stopColor="#E11D48" />
@@ -309,8 +309,9 @@ export default function FlippableMetricCard({
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 9, fill: '#6B7280' }}
-                      width={45}
+                      width={50}
                       tickCount={5}
+                      interval={0}
                       tickFormatter={(v) => {
                         if (Math.abs(v) >= 1000000) return `${(v/1000000).toFixed(1)}M`;
                         if (Math.abs(v) >= 1000) return `${(v/1000).toFixed(0)}K`;
