@@ -50,10 +50,16 @@ export function CreateThreadModal({
   useEffect(() => {
     if (isOpen && userId) {
       loadOrders();
+    } else if (isOpen && !userId) {
+      // Clear orders if modal is opened without a valid userId
+      setOrders([]);
+      setAllOrders([]);
     }
   }, [isOpen, userId]);
 
   const loadOrders = async () => {
+    if (!userId) return;
+
     setIsLoadingOrders(true);
     try {
       const { data, error } = await supabase
@@ -76,6 +82,17 @@ export function CreateThreadModal({
   };
 
   const handleCreate = async () => {
+    // Check for valid chatId first
+    if (!chatId) {
+      toast.error('Chat not initialized. Please wait for an admin to be assigned.');
+      return;
+    }
+
+    if (!userId) {
+      toast.error('User not authenticated. Please log in again.');
+      return;
+    }
+
     if (!selectedTag) {
       toast.error('Please select an issue category');
       return;

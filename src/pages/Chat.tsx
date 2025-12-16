@@ -556,8 +556,8 @@ const Chat = () => {
               </div>
             </div>
             <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-              {/* Thread Dropdown - Mobile/Tablet Only */}
-              <div ref={threadDropdownRef} className="lg:hidden relative flex-shrink-0">
+              {/* Thread Dropdown - Available on all screens */}
+              <div ref={threadDropdownRef} className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
                   className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-0"
@@ -644,16 +644,10 @@ const Chat = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!chat) {
-                          toast.error('Chat not initialized. Please wait for an admin to be assigned.');
-                          setShowThreadDropdown(false);
-                          return;
-                        }
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      disabled={!chat}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 rounded-b-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 rounded-b-lg"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">Create New Thread</span>
@@ -661,22 +655,6 @@ const Chat = () => {
                   </div>
                 )}
               </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (!chat) {
-                    toast.error('Chat not initialized. Please wait for an admin to be assigned.');
-                    return;
-                  }
-                  setShowCreateThreadModal(true);
-                }}
-                disabled={!chat}
-                className="hidden lg:block p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                title={chat ? "Create New Thread" : "Chat not initialized"}
-              >
-                <Hash className="w-5 h-5" />
-              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1076,16 +1054,9 @@ const Chat = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => {
-                      if (!chat) {
-                        toast.error('Chat not initialized. Please wait for an admin to be assigned.');
-                        return;
-                      }
-                      setShowCreateThreadModal(true);
-                    }}
-                    disabled={!chat}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    title={chat ? "Create New Thread" : "Chat not initialized"}
+                    onClick={() => setShowCreateThreadModal(true)}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                    title="Create New Thread"
                   >
                     <Hash className="w-5 h-5" />
                   </button>
@@ -1203,31 +1174,27 @@ const Chat = () => {
       )}
 
       {/* Create Thread Modal (from header) */}
-      {chat && user && (
-        <CreateThreadModal
-          isOpen={showCreateThreadModal}
-          onClose={() => setShowCreateThreadModal(false)}
-          chatId={chat.id}
-          userId={user.id}
-          onThreadCreated={handleThreadCreated}
-        />
-      )}
+      <CreateThreadModal
+        isOpen={showCreateThreadModal}
+        onClose={() => setShowCreateThreadModal(false)}
+        chatId={chat?.id || ''}
+        userId={user?.id || ''}
+        onThreadCreated={handleThreadCreated}
+      />
 
       {/* Assign to Order Modal (from message input) */}
-      {chat && user && (
-        <AssignToOrderModal
-          isOpen={showAssignToOrderModal}
-          onClose={() => {
-            setShowAssignToOrderModal(false);
-            setSelectedTemplateForAssignment(null);
-          }}
-          chatId={chat.id}
-          userId={user.id}
-          onThreadCreated={handleThreadCreated}
-          mode="assign"
-          preSelectedTemplate={selectedTemplateForAssignment}
-        />
-      )}
+      <AssignToOrderModal
+        isOpen={showAssignToOrderModal}
+        onClose={() => {
+          setShowAssignToOrderModal(false);
+          setSelectedTemplateForAssignment(null);
+        }}
+        chatId={chat?.id || ''}
+        userId={user?.id || ''}
+        onThreadCreated={handleThreadCreated}
+        mode="assign"
+        preSelectedTemplate={selectedTemplateForAssignment}
+      />
 
       {/* Broad Template Modal (from header when no thread selected) */}
       <ScenarioTemplateModal
