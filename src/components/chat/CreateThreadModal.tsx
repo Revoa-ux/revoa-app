@@ -25,13 +25,12 @@ interface CreateThreadModalProps {
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
-  { value: 'cancel', label: 'Cancel Order', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
-  { value: 'modify', label: 'Modify Order', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
+  { value: 'cancel_modify', label: 'Cancel/Modify Order', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
   { value: 'damaged', label: 'Damaged Item', color: 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-300 dark:border-red-600' },
   { value: 'defective', label: 'Defective Product', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
   { value: 'wrong_item', label: 'Wrong Item Received', color: 'bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600' },
   { value: 'missing_items', label: 'Missing Items', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
-  { value: 'shipping', label: 'Shipping/Delivery Issue', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
+  { value: 'shipping', label: 'Shipping/Delivery', color: 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-300 dark:border-yellow-600' },
   { value: 'return', label: 'Return Request', color: 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-300 dark:border-blue-600' },
   { value: 'refund', label: 'Refund Request', color: 'bg-green-500/20 text-green-600 dark:text-green-400 border-green-300 dark:border-green-600' },
   { value: 'replacement', label: 'Replacement', color: 'bg-slate-500/20 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600' },
@@ -176,11 +175,10 @@ export function CreateThreadModal({
     const orderNum = order?.order_number || 'your order';
 
     switch (tag) {
+      case 'cancel_modify':
       case 'cancel':
-        return `I've received your cancellation request for ${orderNum}.\n\nI'll check the current status of your order right away:\n• If the order hasn't been processed yet, I can cancel it immediately\n• If it's already being prepared or shipped, I'll provide you with alternative options\n• You'll receive a full refund if the cancellation is successful\n\nPlease give me a moment to check the order status and I'll update you shortly.`;
-
       case 'modify':
-        return `Thank you for reaching out about modifying ${orderNum}.\n\nI can help with:\n• Changing the shipping address (if order hasn't shipped yet)\n• Updating item quantities or variants\n• Adding or removing items from your order\n• Special delivery instructions\n\nPlease let me know what changes you'd like to make, and I'll check if they're still possible based on your order's current status.`;
+        return `Thank you for reaching out about ${orderNum}.\n\nI can help you with:\n• Canceling your order (if not yet shipped)\n• Changing the shipping address\n• Updating item quantities or variants\n• Adding or removing items from your order\n• Special delivery instructions\n\nPlease let me know what changes you'd like to make, and I'll check if they're still possible based on your order's current status. If cancellation is needed, you'll receive a full refund once processed.`;
 
       case 'wrong_item':
         return `I'm sorry to hear you received the wrong item for ${orderNum}.\n\nTo resolve this quickly, please provide:\n• Photos of the item you received\n• Photos of the shipping label/packaging\n• The item name/SKU shown on your order confirmation\n\nThis appears to be a fulfillment error on our end. I'll work with our warehouse team to:\n• Ship the correct item to you immediately\n• Arrange return pickup for the wrong item (prepaid label)\n• Ensure you're not inconvenienced by this mistake\n\nI apologize for this error and will make it right.`;
@@ -264,7 +262,7 @@ export function CreateThreadModal({
                 key={tag.value}
                 type="button"
                 onClick={() => setSelectedTag(selectedTag === tag.value ? '' : tag.value)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${
+                className={`px-3 py-2.5 rounded-lg text-sm font-medium transition-all border min-h-[42px] flex items-center justify-center text-center leading-tight ${
                   selectedTag === tag.value
                     ? tag.color + ' border'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-gray-200 dark:border-gray-600'
