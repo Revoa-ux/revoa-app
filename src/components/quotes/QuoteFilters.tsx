@@ -23,8 +23,8 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:space-x-4 w-full sm:w-auto">
-      <div className="relative flex-1 sm:w-[280px] sm:flex-initial">
+    <div className="flex items-stretch gap-3 sm:space-x-4 w-full sm:w-auto">
+      <div className="relative flex-[2] sm:w-[280px] sm:flex-initial">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
           type="text"

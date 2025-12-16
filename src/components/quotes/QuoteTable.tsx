@@ -59,9 +59,9 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
       <table className="w-full table-fixed">
         <thead>
           <tr className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[40%]">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Request Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">
+              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[40%]">Product</th>
+              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Request Date</th>
+              <th className="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">
                 <div className="flex items-center gap-1.5 relative">
                   <span>Status</span>
                   <div
@@ -79,7 +79,7 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   </div>
                 </div>
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 w-[20%]">Actions</th>
+              <th className="px-2 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap w-[20%]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -94,13 +94,13 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                   }`}
                   onClick={() => handleRowClick(quote, canExpand)}
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-2 sm:px-6 py-3 sm:py-4">
                     <div className="overflow-hidden">
-                      <div className="text-gray-900 dark:text-white flex items-center">
-                        <span className="break-words">{quote.productName}</span>
+                      <div className="text-xs sm:text-sm text-gray-900 dark:text-white flex items-center">
+                        <span className="break-words line-clamp-1">{quote.productName}</span>
                         {canExpand && (
                           <ChevronRight
-                            className={`w-4 h-4 ml-2 text-gray-400 transition-transform flex-shrink-0 ${
+                            className={`w-4 h-4 ml-1.5 text-gray-400 transition-transform flex-shrink-0 ${
                               expandedQuotes.includes(quote.id) ? 'rotate-90' : ''
                             }`}
                           />
@@ -123,15 +123,15 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <td className="px-2 sm:px-6 py-3 sm:py-4">
+                    <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
                       {new Date(quote.requestDate).toLocaleDateString()}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-2 sm:px-6 py-3 sm:py-4">
                     <QuoteStatus status={quote.status} expiresIn={quote.expiresIn} />
                   </td>
-                  <td className="px-6 py-4 text-right text-sm">
+                  <td className="px-2 sm:px-6 py-3 sm:py-4 text-right text-sm">
                     <div className="flex justify-end relative">
                       <QuoteActions
                         quote={quote}
