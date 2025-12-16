@@ -307,7 +307,7 @@ export default function Inventory() {
   }
 
   return (
-    <div className="w-full max-w-[1050px] mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Inventory Tracker
