@@ -26,9 +26,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1 text-xs gap-1.5',
-  md: 'px-5 py-1.5 text-sm gap-2',
-  lg: 'px-6 py-2 text-base gap-2.5',
+  sm: 'h-[32px] px-3 text-xs gap-1.5',
+  md: 'h-[38px] px-5 text-sm gap-2',
+  lg: 'h-[44px] px-6 text-base gap-2.5',
 };
 
 export const Button: React.FC<ButtonProps> = ({
