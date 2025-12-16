@@ -509,7 +509,7 @@ export default function VariantMappingModal({
               </div>
 
               {/* Footer */}
-              <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
+              <div className="px-4 sm:px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0 rounded-b-xl">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left">
                     {Array.from(mappings.values()).filter(v => v !== null).length} of {shopifyProduct.variants.length} variant{shopifyProduct.variants.length !== 1 ? 's' : ''} mapped
