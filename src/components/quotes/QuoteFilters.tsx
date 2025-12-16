@@ -48,25 +48,27 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         </button>
 
         {showStatusDropdown && (
-          <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+          <div className="absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
             <button
               onClick={() => {
                 onStatusFilterChange('all');
                 setShowStatusDropdown(false);
               }}
-              className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <span>All Products</span>
               {statusFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
             </button>
-            {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'pending_reacceptance', 'synced_with_shopify', 'cancelled'] as const).map((status) => (
+            {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'pending_reacceptance', 'synced_with_shopify', 'cancelled'] as const).map((status, index, array) => (
               <button
                 key={status}
                 onClick={() => {
                   onStatusFilterChange(status);
                   setShowStatusDropdown(false);
                 }}
-                className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+                  index === array.length - 1 ? 'rounded-b-lg' : ''
+                }`}
               >
                 <span>{getStatusText(status)}</span>
                 {statusFilter === status && <Check className="w-4 h-4 text-primary-500" />}

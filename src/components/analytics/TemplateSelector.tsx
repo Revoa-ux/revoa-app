@@ -90,8 +90,8 @@ export default function TemplateSelector({
           />
 
           {/* Dropdown */}
-          <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-            {templates.map((template) => {
+          <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+            {templates.map((template, index) => {
               const TemplateIcon = template.icon;
               const isActive = currentTemplate === template.id;
 
@@ -101,7 +101,7 @@ export default function TemplateSelector({
                   onClick={() => handleTemplateSelect(template.id)}
                   className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
                     isActive ? 'bg-gray-50 dark:bg-gray-700' : ''
-                  }`}
+                  } ${index === 0 ? 'rounded-t-lg' : ''} ${index === templates.length - 1 ? 'rounded-b-lg' : ''}`}
                 >
                   <div className="flex items-start space-x-3">
                     <div className={`p-2 rounded-lg mt-0.5 ${

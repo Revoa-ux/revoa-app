@@ -84,14 +84,14 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-xl w-full max-w-md" ref={modalRef}>
-            <div className="sticky top-0 z-10 bg-white px-6 py-4 border-b border-gray-200 rounded-t-xl">
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
+            <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-700 rounded-t-xl">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Top Up with Stripe</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Top Up with Stripe</h3>
                 <button
                   onClick={onClose}
                   className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -104,12 +104,12 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
             <div className="px-6 py-6">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Amount (USD)
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500">$</span>
+                      <span className="text-gray-500 dark:text-gray-400">$</span>
                     </div>
                     <input
                       type="number"
@@ -117,49 +117,49 @@ export const StripeTopUpModal: React.FC<StripeTopUpModalProps> = ({ onClose }) =
                       step="0.01"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-8 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter amount (min. $50)"
                       autoFocus
                     />
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-500">
+                  <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     Minimum top-up amount is $50
                   </p>
                 </div>
 
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white rounded-lg">
-                      <CreditCard className="w-5 h-5 text-gray-900" />
+                    <div className="p-2 bg-white dark:bg-gray-800 rounded-lg">
+                      <CreditCard className="w-5 h-5 text-gray-900 dark:text-white" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Payment via Stripe</p>
-                      <p className="text-xs text-gray-500">Supports cards, Apple Pay, Google Pay</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">Payment via Stripe</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Supports cards, Apple Pay, Google Pay</p>
                     </div>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-100 rounded-lg">
+                  <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg">
                     <div className="flex items-start space-x-2">
-                      <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5" />
-                      <p className="text-sm text-red-600">{error}</p>
+                      <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5" />
+                      <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="flex space-x-3">
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex space-x-3">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading || !amount}
-                    className="flex-1 px-5 py-1.5 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="flex-1 px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 rounded-lg hover:bg-black dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {loading ? (
                       <>

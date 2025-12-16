@@ -18,21 +18,9 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = 'max-w-md'
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  const openTimeRef = useRef<number>(0);
-
-  // Prevent immediate closing by ignoring clicks right after opening
-  const handleClose = (event: MouseEvent | TouchEvent) => {
-    const timeSinceOpen = Date.now() - openTimeRef.current;
-    if (timeSinceOpen > 100) {
-      onClose();
-    }
-  };
-
-  useClickOutside(modalRef, handleClose);
 
   useEffect(() => {
     if (isOpen) {
-      openTimeRef.current = Date.now();
       document.body.classList.add('modal-open');
     } else {
       document.body.classList.remove('modal-open');
@@ -47,8 +35,9 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm" 
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
         aria-hidden="true"
       />
 
@@ -57,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({
         <div className="flex min-h-full items-center justify-center p-4">
           <div
             ref={modalRef}
+            onClick={(e) => e.stopPropagation()}
             className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden`}
             role="dialog"
             aria-modal="true"
