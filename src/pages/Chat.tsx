@@ -184,11 +184,16 @@ const Chat = () => {
           setThreads(chatThreads);
           setIsLoadingThreads(false);
         } else {
-          toast.error('Unable to initialize chat. Please contact support.');
+          // Chat not yet initialized - this can happen if no admin is assigned yet
+          // Just log it, don't show error toast as this is not an error condition
+          console.log('Chat not yet initialized for user - admin may not be assigned yet');
         }
       } catch (error) {
         console.error('Error loading chat:', error);
-        toast.error('Failed to load chat');
+        // Only show error for actual failures, not for missing admin assignment
+        if (error instanceof Error && !error.message.includes('admin')) {
+          toast.error('Failed to load chat');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -641,7 +646,7 @@ const Chat = () => {
                         setShowCreateThreadModal(true);
                         setShowThreadDropdown(false);
                       }}
-                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400"
+                      className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 text-red-600 dark:text-red-400 rounded-b-lg"
                     >
                       <Plus className="w-5 h-5 flex-shrink-0" />
                       <span className="text-sm font-medium">Create New Thread</span>
