@@ -451,77 +451,72 @@ export default function Inventory() {
       </div>
 
       <div className="space-y-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
-            <div className="flex-1 sm:w-[280px] sm:flex-initial">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search products"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-                  >
-                    <X className="w-4 h-4 text-gray-400" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
 
-          <div className="flex items-stretch gap-3">
-            <div className="w-[52px] sm:flex-1 relative">
-              <button
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full flex items-center justify-center sm:justify-between h-[38px] px-3 sm:px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              >
-                <div className="flex items-center space-x-2 min-w-0">
-                  <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <span className="hidden sm:inline text-gray-700 dark:text-gray-300 truncate">
-                    Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </span>
-                </div>
-                <ChevronDown className="hidden sm:block w-4 h-4 text-gray-400 flex-shrink-0" />
-              </button>
-
-              {showFilterDropdown && (
-                <div className="absolute right-0 mt-2 w-[200px] sm:w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        setFilterOption(option);
-                        setShowFilterDropdown(false);
-                      }}
-                      className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${
-                        index === 0 ? 'rounded-t-lg' : ''
-                      } ${index === array.length - 1 ? 'rounded-b-lg' : ''}`}
-                    >
-                      <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
-                      {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
-                    </button>
-                  ))}
-                </div>
+          <div className="flex-1 sm:w-[280px] sm:flex-initial">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 focus:border-gray-200 dark:focus:border-gray-700"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                >
+                  <X className="w-4 h-4 text-gray-400" />
+                </button>
               )}
             </div>
-
-            <div className="flex-1">
-              <AdReportsTimeSelector
-                selectedTime={selectedTime}
-                onTimeChange={handleTimeChange}
-                dateRange={dateRange}
-                onDateRangeChange={handleDateRangeChange}
-                onApply={handleApplyDateRange}
-              />
-            </div>
           </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="w-full sm:w-auto flex items-center justify-between h-[38px] px-3 sm:px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div className="flex items-center space-x-2 min-w-0">
+                <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <span className="text-gray-700 dark:text-gray-300 truncate">
+                  Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                </span>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" />
+            </button>
+
+            {showFilterDropdown && (
+              <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
+                  <button
+                    key={option}
+                    onClick={() => {
+                      setFilterOption(option);
+                      setShowFilterDropdown(false);
+                    }}
+                    className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${
+                      index === 0 ? 'rounded-t-lg' : ''
+                    } ${index === array.length - 1 ? 'rounded-b-lg' : ''}`}
+                  >
+                    <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
+                    {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+            onApply={handleApplyDateRange}
+          />
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
