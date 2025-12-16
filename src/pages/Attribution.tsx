@@ -7,7 +7,11 @@ import {
   ChevronDown,
   ChevronUp,
   Facebook,
-  Link2
+  Link2,
+  ShoppingBag,
+  TrendingUp,
+  Activity,
+  DollarSign
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -350,42 +354,117 @@ export default function Attribution() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Orders</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Total Orders Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <ShoppingBag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Orders</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {isLoading ? '...' : metrics.totalOrders.toLocaleString()}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Attributed</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : metrics.unattributedOrders.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : metrics.attributedOrders.toLocaleString()}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Attributed</p>
+
+        {/* Attribution Rate Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Attribution Rate</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Attributed Revenue</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : formatCurrency(metrics.attributedRevenue)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Unattributed</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : formatCurrency(metrics.unattributedRevenue)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : `${metrics.attributionRate.toFixed(1)}%`}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Attribution Rate</p>
+
+        {/* Pixel Events Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Pixel Events</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Unique Sessions</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : metrics.uniqueSessions.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : metrics.totalPixelEvents.toLocaleString()}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Pixel Events</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Revenue</p>
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-            {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Order Value</p>
+
+        {/* Revenue Card */}
+        <div className="h-[180px] p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-2">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {isLoading ? '...' : formatCurrency(metrics.totalRevenue)}
+              </p>
+            </div>
+            <div className="mt-auto space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Order Value</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {isLoading ? '...' : formatCurrency(metrics.averageOrderValue)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

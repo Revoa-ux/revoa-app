@@ -597,7 +597,7 @@ export default function Audit() {
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
           <span>Cross-Platform Ad Manager</span>
-          <span className="px-3 py-1 text-xs font-medium bg-gray-900/10 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-full backdrop-blur-sm">
+          <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
             Infused with Revoa AI
           </span>
         </h1>
