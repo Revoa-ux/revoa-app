@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Plus, Trash2, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
+import { X, Plus, Trash2, AlertCircle, ArrowRight } from 'lucide-react';
 import ConditionBuilder from './ConditionBuilder';
 import ActionBuilder from './ActionBuilder';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import { CustomSelect } from '@/components/CustomSelect';
 import type {
   RuleBuilderFormData,
   RuleConditionConfig,
@@ -205,20 +206,17 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Ad Platform
               </label>
-              <div className="relative">
-                <select
-                  value={formData.platform}
-                  onChange={(e) =>
-                    setFormData({ ...formData, platform: e.target.value as 'facebook' | 'tiktok' | 'google' })
-                  }
-                  className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-                >
-                  <option value="facebook">Facebook / Instagram</option>
-                  <option value="google">Google Ads</option>
-                  <option value="tiktok">TikTok Ads</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
-              </div>
+              <CustomSelect
+                value={formData.platform}
+                onChange={(value) =>
+                  setFormData({ ...formData, platform: value as 'facebook' | 'tiktok' | 'google' })
+                }
+                options={[
+                  { value: 'facebook', label: 'Facebook / Instagram' },
+                  { value: 'google', label: 'Google Ads' },
+                  { value: 'tiktok', label: 'TikTok Ads' },
+                ]}
+              />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
                 Select which ad platform this rule will apply to
               </p>
@@ -229,47 +227,41 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Apply to
                 </label>
-                <div className="relative">
-                  <select
-                    value={formData.entity_type}
-                    onChange={(e) =>
-                      setFormData({ ...formData, entity_type: e.target.value as EntityType })
-                    }
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-                  >
-                    <option value="campaign">Campaigns</option>
-                    <option value="ad_set">Ad Sets</option>
-                    <option value="ad">Ads</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
-                </div>
+                <CustomSelect
+                  value={formData.entity_type}
+                  onChange={(value) =>
+                    setFormData({ ...formData, entity_type: value as EntityType })
+                  }
+                  options={[
+                    { value: 'campaign', label: 'Campaigns' },
+                    { value: 'ad_set', label: 'Ad Sets' },
+                    { value: 'ad', label: 'Ads' },
+                  ]}
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Check Frequency
                 </label>
-                <div className="relative">
-                  <select
-                    value={formData.check_frequency_minutes}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        check_frequency_minutes: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-                  >
-                    <option value={15}>Every 15 minutes</option>
-                    <option value={30}>Every 30 minutes</option>
-                    <option value={60}>Every hour</option>
-                    <option value={180}>Every 3 hours</option>
-                    <option value={360}>Every 6 hours</option>
-                    <option value={720}>Every 12 hours</option>
-                    <option value={1440}>Daily</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
-                </div>
+                <CustomSelect
+                  value={formData.check_frequency_minutes}
+                  onChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      check_frequency_minutes: Number(value),
+                    })
+                  }
+                  options={[
+                    { value: 15, label: 'Every 15 minutes' },
+                    { value: 30, label: 'Every 30 minutes' },
+                    { value: 60, label: 'Every hour' },
+                    { value: 180, label: 'Every 3 hours' },
+                    { value: 360, label: 'Every 6 hours' },
+                    { value: 720, label: 'Every 12 hours' },
+                    { value: 1440, label: 'Daily' },
+                  ]}
+                />
               </div>
             </div>
           </div>
@@ -285,22 +277,20 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
               {formData.conditions.length > 1 && (
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 dark:text-gray-400">Logic:</span>
-                  <div className="relative">
-                    <select
-                      value={formData.condition_logic}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          condition_logic: e.target.value as ConditionLogic,
-                        })
-                      }
-                      className="pl-3 pr-8 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none cursor-pointer"
-                    >
-                      <option value="AND">Match ALL conditions</option>
-                      <option value="OR">Match ANY condition</option>
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 dark:text-gray-400 pointer-events-none" />
-                  </div>
+                  <CustomSelect
+                    value={formData.condition_logic}
+                    onChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        condition_logic: value as ConditionLogic,
+                      })
+                    }
+                    options={[
+                      { value: 'AND', label: 'Match ALL conditions' },
+                      { value: 'OR', label: 'Match ANY condition' },
+                    ]}
+                    className="w-48"
+                  />
                 </div>
               )}
             </div>
@@ -433,14 +423,14 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
           <button
             onClick={onClose}
             disabled={isSaving}
-            className="px-6 py-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+            className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="group px-5 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-700 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all shadow-sm flex items-center justify-center gap-2"
+            className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-black dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSaving ? (
               <>
