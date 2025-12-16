@@ -78,21 +78,19 @@ export const QuoteForm: React.FC<QuoteFormProps> = ({ onSubmit, onCancel, initia
               />
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6 flex gap-3">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-6 flex justify-between">
               <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
+                className="px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
               >
-                <span className="hidden sm:inline">Submit Quote Request</span>
-                <span className="sm:hidden">Submit</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                Submit
               </button>
             </div>
           </form>
