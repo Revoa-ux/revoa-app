@@ -220,7 +220,7 @@ export default function UpdateCogsModal({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={handleClose}

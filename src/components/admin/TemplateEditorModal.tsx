@@ -393,7 +393,7 @@ export function TemplateEditorModal({
                           </p>
 
                           {expandedTemplate === template.id && (
-                            <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                               <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Subject: {template.subject_line}
                               </p>

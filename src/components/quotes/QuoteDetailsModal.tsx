@@ -29,7 +29,7 @@ export const QuoteDetailsModal: React.FC<QuoteDetailsModalProps> = ({ quote, onC
   return (
     <Modal isOpen={true} onClose={onClose} maxWidth="max-w-5xl" title="">
       <div className="space-y-6">
-        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-6">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               {quote.productName}

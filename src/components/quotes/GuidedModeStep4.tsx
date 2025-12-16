@@ -143,7 +143,7 @@ export const GuidedModeStep4: React.FC<GuidedModeStep4Props> = ({
               </button>
 
               {isExpanded && (
-                <div className="mt-4 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-4">
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                   {variant.attributes.length > 0 && (
                     <div>
                       <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
