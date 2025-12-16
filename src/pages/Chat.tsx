@@ -666,14 +666,14 @@ const Chat = () => {
                     }
                   }, 0);
                 }}
-                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Quick Email Templates"
               >
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => setShowSearchModal(true)}
-                className="p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 title="Search Messages"
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
