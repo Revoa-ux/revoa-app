@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Plus, Trash2, AlertCircle } from 'lucide-react';
 import ConditionBuilder from './ConditionBuilder';
 import ActionBuilder from './ActionBuilder';
+import { CustomCheckbox } from '@/components/CustomCheckbox';
 import type {
   RuleBuilderFormData,
   RuleConditionConfig,
@@ -30,6 +31,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
     description: initialData?.description || '',
     entity_type: initialData?.entity_type || 'campaign',
     ad_account_id: adAccountId || initialData?.ad_account_id || null,
+    platform: 'facebook',
     condition_logic: initialData?.condition_logic || 'AND',
     conditions: initialData?.conditions || [
       {
@@ -154,7 +156,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {initialData ? 'Edit Automation Rule' : 'Create Automation Rule'}
+            {initialData ? 'Edit Automated Rule' : 'Create Automated Rule'}
           </h2>
           <button
             onClick={onClose}
@@ -199,6 +201,26 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Ad Platform
+              </label>
+              <select
+                value={formData.platform}
+                onChange={(e) =>
+                  setFormData({ ...formData, platform: e.target.value as 'facebook' | 'tiktok' | 'google' })
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
+              >
+                <option value="facebook">Facebook / Instagram</option>
+                <option value="google">Google Ads</option>
+                <option value="tiktok">TikTok Ads</option>
+              </select>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Select which ad platform this rule will apply to
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -209,7 +231,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                   onChange={(e) =>
                     setFormData({ ...formData, entity_type: e.target.value as EntityType })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
                 >
                   <option value="campaign">Campaigns</option>
                   <option value="ad_set">Ad Sets</option>
@@ -229,7 +251,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                       check_frequency_minutes: parseInt(e.target.value),
                     })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
                 >
                   <option value={15}>Every 15 minutes</option>
                   <option value={30}>Every 30 minutes</option>
@@ -262,7 +284,7 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
                         condition_logic: e.target.value as ConditionLogic,
                       })
                     }
-                    className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent"
                   >
                     <option value="AND">Match ALL conditions</option>
                     <option value="OR">Match ANY condition</option>
@@ -340,14 +362,13 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
 
             <div className="space-y-3">
               <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
+                <CustomCheckbox
                   checked={formData.dry_run}
                   onChange={(e) => setFormData({ ...formData, dry_run: e.target.checked })}
-                  className="w-5 h-5 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="mt-0.5"
                 />
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                     Test Mode (Recommended)
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -357,16 +378,15 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
               </label>
 
               <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
+                <CustomCheckbox
                   checked={formData.require_approval}
                   onChange={(e) =>
                     setFormData({ ...formData, require_approval: e.target.checked })
                   }
-                  className="w-5 h-5 mt-0.5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="mt-0.5"
                 />
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white transition-colors">
                     Require Manual Approval
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -408,11 +428,11 @@ const RuleBuilderModal: React.FC<RuleBuilderModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isSaving}
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
           >
             {isSaving ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/30 dark:border-gray-900/30 border-t-white dark:border-t-gray-900 rounded-full animate-spin" />
                 Saving...
               </>
             ) : (

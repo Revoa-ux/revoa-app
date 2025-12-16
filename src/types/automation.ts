@@ -195,6 +195,7 @@ export interface RuleBuilderFormData {
   description: string;
   entity_type: EntityType;
   ad_account_id: string | null;
+  platform: 'facebook' | 'tiktok' | 'google';
   condition_logic: ConditionLogic;
   conditions: RuleConditionConfig[];
   actions: RuleActionConfig[];

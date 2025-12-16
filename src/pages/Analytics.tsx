@@ -818,11 +818,11 @@ setCurrentTemplate(template);
                           data={{
                             id: cardId,
                             title: 'Loading...',
-                            mainValue: '---',
-                            change: '---',
+                            mainValue: '...',
+                            change: '...',
                             changeType: 'positive',
-                            dataPoint1: { label: 'Loading', value: '---' },
-                            dataPoint2: { label: 'Loading', value: '---' },
+                            dataPoint1: { label: 'Loading', value: '...' },
+                            dataPoint2: { label: 'Loading', value: '...' },
                             icon: 'RefreshCw',
                             category: 'overview'
                           }}
@@ -915,11 +915,11 @@ setCurrentTemplate(template);
                   data={{
                     id: cardId,
                     title: 'Loading...',
-                    mainValue: '---',
-                    change: '---',
+                    mainValue: '...',
+                    change: '...',
                     changeType: 'positive',
-                    dataPoint1: { label: 'Loading', value: '---' },
-                    dataPoint2: { label: 'Loading', value: '---' },
+                    dataPoint1: { label: 'Loading', value: '...' },
+                    dataPoint2: { label: 'Loading', value: '...' },
                     icon: 'RefreshCw',
                     category: 'overview'
                   }}

@@ -137,6 +137,17 @@ const AutomationRules: React.FC = () => {
   const totalCostSaved = rules.reduce((sum, rule) => sum + rule.total_cost_saved, 0);
   const activeRules = rules.filter((r) => r.status === 'active').length;
 
+  // Calculate secondary metrics
+  const totalSuccessfulActions = Object.values(metrics).reduce((sum, m) =>
+    sum + (m.total_actions_taken * (m.success_rate / 100)), 0
+  );
+  const overallSuccessRate = totalActionsTaken > 0
+    ? ((totalSuccessfulActions / totalActionsTaken) * 100)
+    : 0;
+  const avgExecutionsPerRule = rules.length > 0 ? totalExecutions / rules.length : 0;
+  const avgSavingsPerAction = totalActionsTaken > 0 ? totalCostSaved / totalActionsTaken : 0;
+  const last7DaysActions = Object.values(metrics).reduce((sum, m) => sum + m.last_7_days_actions, 0);
+
   return (
     <div className="space-y-6">
       <div>
@@ -190,6 +201,12 @@ const AutomationRules: React.FC = () => {
                   {rules.length}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Success Rate</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {overallSuccessRate.toFixed(1)}%
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -210,7 +227,10 @@ const AutomationRules: React.FC = () => {
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">All Time</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Per Rule</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {avgExecutionsPerRule.toFixed(1)}
+                </span>
               </div>
             </div>
           </div>
@@ -232,7 +252,10 @@ const AutomationRules: React.FC = () => {
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Automated Changes</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Last 7 Days</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  {last7DaysActions.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
@@ -254,7 +277,10 @@ const AutomationRules: React.FC = () => {
             </div>
             <div className="mt-auto space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Total Savings</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Avg Per Action</span>
+                <span className="text-xs font-bold text-gray-900 dark:text-white">
+                  ${avgSavingsPerAction.toFixed(2)}
+                </span>
               </div>
             </div>
           </div>
