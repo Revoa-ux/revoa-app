@@ -732,7 +732,7 @@ setCurrentTemplate(template);
             currentTemplate !== 'custom' && (
               <button
                 onClick={handleToggleEditMode}
-                className="flex items-center space-x-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 <Edit3 className="w-4 h-4" />
                 <span className="hidden sm:inline">Customize</span>
@@ -743,7 +743,7 @@ setCurrentTemplate(template);
 
         <div className="flex items-center space-x-4">
           <button
-            className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+            className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             onClick={handleApplyDateRange}
             disabled={isLoading}
           >
