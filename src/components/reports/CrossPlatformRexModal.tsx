@@ -270,7 +270,7 @@ export const CrossPlatformRexModal: React.FC<CrossPlatformRexModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} maxWidth="max-w-4xl">
       <div className="max-h-[85vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-rose-500/10 to-pink-500/10 rounded-lg">
               <Sparkles className="w-5 h-5 text-rose-500" />

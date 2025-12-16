@@ -140,7 +140,7 @@ export const BankTransferModal: React.FC<BankTransferModalProps> = ({
                   <ExternalLink className="w-4 h-4 ml-2 inline-block" />
                 </a>
 
-                <div className="sticky bottom-0 bg-white dark:bg-gray-800 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="sticky bottom-0 bg-white dark:bg-gray-800 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <button
                     onClick={onClose}
                     className="w-full px-5 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

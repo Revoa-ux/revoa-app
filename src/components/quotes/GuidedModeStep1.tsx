@@ -280,7 +280,7 @@ export const GuidedModeStep1: React.FC<GuidedModeStep1Props> = ({
             </div>
 
             {variantTypes.length > 0 && variantTypes.every(t => t.values.length > 0) && (
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
                 <VariantCombinationMatrix
                   variantTypes={variantTypes}
                   selectedCombinations={selectedCombinations}
