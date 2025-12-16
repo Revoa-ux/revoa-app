@@ -164,16 +164,12 @@ export default function AIImport() {
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-start gap-3">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-[11px] flex-shrink-0"></span>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-              AI Agent Product Import
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Run the AI agent to find and import winning products automatically
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">AI Agent Product Import</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+            Run the AI agent to find and import winning products automatically
+          </p>
         </div>
         <button
           onClick={fetchJobs}

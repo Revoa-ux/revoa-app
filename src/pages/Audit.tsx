@@ -595,16 +595,14 @@ export default function Audit() {
   return (
     <div className="h-full flex flex-col gap-6 overflow-hidden">
       <div className="flex-shrink-0">
-        <div className="flex items-start gap-3">
-          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-[11px] flex-shrink-0"></span>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
-              <span>Cross-Platform Ad Manager</span>
-              <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
-                Infused with Revoa AI
-              </span>
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+          <span>Cross-Platform Ad Manager</span>
+          <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
+            Infused with Revoa AI
+          </span>
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
           {(() => {
             const connected = [];
             if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
@@ -643,9 +641,7 @@ export default function Audit() {
 
             return platformText + timeText;
           })()}
-            </p>
-          </div>
-        </div>
+        </p>
       </div>
 
       {/* Controls */}
