@@ -91,17 +91,17 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
           <div
             key={tier.id}
             onClick={() => isClickable && onTierSelect?.(tier.id)}
-            className={`relative p-6 rounded-xl border-2 transition-all duration-300 ${
+            className={`relative p-6 rounded-2xl bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border transition-all duration-300 ${
               isClickable ? 'cursor-pointer' : ''
             } ${
               isSelected || isActive
-                ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 shadow-lg shadow-primary-500/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-primary-400 dark:hover:border-primary-600 hover:shadow-lg hover:shadow-primary-500/10 hover:bg-gradient-to-br hover:from-primary-50/50 hover:to-transparent dark:hover:from-primary-900/10 dark:hover:to-transparent'
+                ? 'border-red-500/60 ring-2 ring-red-500/20 shadow-lg'
+                : 'border-gray-200/60 dark:border-gray-700/60 hover:border-red-400/60 dark:hover:border-red-500/40 hover:shadow-md'
             }`}
           >
             {isActive && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-to-r from-primary-600 to-primary-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                   Current Tier
                 </span>
               </div>
@@ -109,7 +109,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
 
             {tier.trialDays && (
               <div className="absolute -top-3 right-4">
-                <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+                <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
                   {tier.trialDays}-Day Trial
                 </span>
               </div>
@@ -132,7 +132,7 @@ export const PricingTiers: React.FC<PricingTiersProps> = ({ selectedTier, onTier
             <ul className="space-y-2">
               {tier.features.map((feature, index) => (
                 <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start">
-                  <span className="text-primary-500 mr-2">✓</span>
+                  <span className="text-red-500 mr-2">✓</span>
                   {feature}
                 </li>
               ))}
