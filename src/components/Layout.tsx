@@ -17,7 +17,8 @@ import {
   ChevronRight,
   Table2,
   Database,
-  Cpu
+  Cpu,
+  ArrowRight
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -400,10 +401,11 @@ export default function Layout() {
               </p>
               <a
                 href="mailto:help@revoa.app"
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                className="group inline-flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md transition-all"
               >
-                <Mail className="w-4 h-4 mr-2" />
-                help@revoa.app
+                <Mail className="w-4 h-4" />
+                <span>help@revoa.app</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </a>
             </div>
 

@@ -45,6 +45,7 @@ import { AssignToOrderModal } from '@/components/chat/AssignToOrderModal';
 import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
 import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
+import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -1185,13 +1186,12 @@ const Chat = () => {
 
       {/* Create Thread Modal (from header) */}
       {chat && user && (
-        <AssignToOrderModal
+        <CreateThreadModal
           isOpen={showCreateThreadModal}
           onClose={() => setShowCreateThreadModal(false)}
           chatId={chat.id}
           userId={user.id}
           onThreadCreated={handleThreadCreated}
-          mode="create"
         />
       )}
 

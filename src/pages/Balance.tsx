@@ -344,13 +344,13 @@ export default function Balance() {
               </button>
               
               {showStatusDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setStatusFilter('all');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg"
                   >
                     <span>All</span>
                     {statusFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
@@ -380,7 +380,7 @@ export default function Balance() {
                       setStatusFilter('pending');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 last:rounded-b-lg"
                   >
                     <span>Pending</span>
                     {statusFilter === 'pending' && <Check className="w-4 h-4 text-primary-500" />}
@@ -435,13 +435,13 @@ export default function Balance() {
               </button>
               
               {showTypeDropdown && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('all');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg"
                   >
                     <span>All</span>
                     {transactionTypeFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
@@ -501,7 +501,7 @@ export default function Balance() {
                       setTransactionTypeFilter('cancellation');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 last:rounded-b-lg"
                   >
                     <span>Cancellation</span>
                     {transactionTypeFilter === 'cancellation' && <Check className="w-4 h-4 text-primary-500" />}

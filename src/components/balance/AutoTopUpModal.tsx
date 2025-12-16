@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, AlertTriangle, Loader2, Bell, Clock, Calendar, DollarSign } from 'lucide-react';
+import { X, AlertTriangle, Loader2, Bell, Clock, Calendar, DollarSign, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 
@@ -81,12 +81,12 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 overflow-y-auto">
         <div className="min-h-full flex items-center justify-center p-4">
-          <div className="relative bg-white rounded-xl w-full max-w-md" ref={modalRef}>
+          <div className="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md" ref={modalRef}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Auto Top-up Settings</h3>
-                  <p className="text-sm text-gray-500 mt-1">Automatically charge via Stripe when balance is low</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Auto Top-up Settings</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Automatically charge via Stripe when balance is low</p>
                 </div>
                 <button
                   onClick={onClose}
@@ -97,14 +97,14 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-white rounded-lg shadow-sm">
-                      <Bell className="w-5 h-5 text-gray-900" />
+                    <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm">
+                      <Bell className="w-5 h-5 text-gray-900 dark:text-white" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Enable Auto Top-up</p>
-                      <p className="text-xs text-gray-500">Automatically add funds when balance is low</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">Enable Auto Top-up</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Automatically add funds when balance is low</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -119,12 +119,12 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Balance Threshold
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-gray-400" />
+                      <DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     </div>
                     <input
                       type="number"
@@ -132,117 +132,117 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                       step="1"
                       value={config.threshold}
                       onChange={(e) => setConfig({ ...config, threshold: parseInt(e.target.value) })}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter threshold amount"
                     />
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-500">
+                  <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     Auto top-up will trigger when balance falls below this amount
                   </p>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-medium text-gray-900">Suggested Top-up Amounts</h4>
-                    <span className="text-xs text-gray-500">${dailyOrderValue.toLocaleString()} daily average</span>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white">Suggested Top-up Amounts</h4>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">${dailyOrderValue.toLocaleString()} daily average</span>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.week }))}
-                      className={`group relative bg-white rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.week
-                          ? 'bg-gradient-to-br from-red-50 to-red-100/50'
-                          : 'hover:bg-red-50'
+                          ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
+                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.week
-                          ? 'border-red-300 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
-                          : 'border-red-200/80 group-hover:border-red-300 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
+                          ? 'border-red-300 dark:border-red-700 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
+                          : 'border-red-200/80 dark:border-red-800/50 group-hover:border-red-300 dark:group-hover:border-red-700 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
                       }`}>
                         <div className="flex flex-col items-start space-y-1">
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-sm font-medium text-gray-900">1 Week</span>
-                            <div className="p-1 rounded-full bg-red-100 group-hover:bg-red-200 transition-colors">
-                              <Clock className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">1 Week</span>
+                            <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/40 group-hover:bg-red-200 dark:group-hover:bg-red-900/60 transition-colors">
+                              <Clock className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                             </div>
                           </div>
-                          <span className="text-lg font-semibold text-gray-900">${suggestedAmounts.week.toLocaleString()}</span>
+                          <span className="text-lg font-semibold text-gray-900 dark:text-white">${suggestedAmounts.week.toLocaleString()}</span>
                         </div>
                       </div>
                       {config.amount === suggestedAmounts.week && (
-                        <div className="absolute inset-0 border-2 border-red-500/80 rounded-xl pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-red-500/80 dark:border-red-500/60 rounded-xl pointer-events-none" />
                       )}
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.twoWeeks }))}
-                      className={`group relative bg-white rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.twoWeeks
-                          ? 'bg-gradient-to-br from-red-50 to-red-100/50'
-                          : 'hover:bg-red-50'
+                          ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
+                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.twoWeeks
-                          ? 'border-red-300 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
-                          : 'border-red-200/80 group-hover:border-red-300 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
+                          ? 'border-red-300 dark:border-red-700 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
+                          : 'border-red-200/80 dark:border-red-800/50 group-hover:border-red-300 dark:group-hover:border-red-700 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
                       }`}>
                         <div className="flex flex-col items-start space-y-1">
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-sm font-medium text-gray-900">2 Weeks</span>
-                            <div className="p-1 rounded-full bg-red-100 group-hover:bg-red-200 transition-colors">
-                              <Clock className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">2 Weeks</span>
+                            <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/40 group-hover:bg-red-200 dark:group-hover:bg-red-900/60 transition-colors">
+                              <Clock className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                             </div>
                           </div>
-                          <span className="text-lg font-semibold text-gray-900">${suggestedAmounts.twoWeeks.toLocaleString()}</span>
+                          <span className="text-lg font-semibold text-gray-900 dark:text-white">${suggestedAmounts.twoWeeks.toLocaleString()}</span>
                         </div>
                       </div>
                       {config.amount === suggestedAmounts.twoWeeks && (
-                        <div className="absolute inset-0 border-2 border-red-500/80 rounded-xl pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-red-500/80 dark:border-red-500/60 rounded-xl pointer-events-none" />
                       )}
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setConfig(prev => ({ ...prev, amount: suggestedAmounts.month }))}
-                      className={`group relative bg-white rounded-xl transition-all duration-200 ${
+                      className={`group relative bg-white dark:bg-gray-700 rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.month
-                          ? 'bg-gradient-to-br from-red-50 to-red-100/50'
-                          : 'hover:bg-red-50'
+                          ? 'bg-gradient-to-br from-red-50 to-red-100/50 dark:from-red-900/20 dark:to-red-800/10'
+                          : 'hover:bg-red-50 dark:hover:bg-gray-600'
                       }`}
                     >
                       <div className={`p-4 border rounded-xl transition-all duration-200 ${
                         config.amount === suggestedAmounts.month
-                          ? 'border-red-300 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
-                          : 'border-red-200/80 group-hover:border-red-300 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
+                          ? 'border-red-300 dark:border-red-700 shadow-[0_2px_8px_-2px_rgba(239,68,68,0.2)]'
+                          : 'border-red-200/80 dark:border-red-800/50 group-hover:border-red-300 dark:group-hover:border-red-700 group-hover:shadow-[0_2px_8px_-2px_rgba(239,68,68,0.1)]'
                       }`}>
                         <div className="flex flex-col items-start space-y-1">
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-sm font-medium text-gray-900">1 Month</span>
-                            <div className="p-1 rounded-full bg-red-100 group-hover:bg-red-200 transition-colors">
-                              <Calendar className="w-3.5 h-3.5 text-red-500" />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white">1 Month</span>
+                            <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/40 group-hover:bg-red-200 dark:group-hover:bg-red-900/60 transition-colors">
+                              <Calendar className="w-3.5 h-3.5 text-red-500 dark:text-red-400" />
                             </div>
                           </div>
-                          <span className="text-lg font-semibold text-gray-900">${suggestedAmounts.month.toLocaleString()}</span>
+                          <span className="text-lg font-semibold text-gray-900 dark:text-white">${suggestedAmounts.month.toLocaleString()}</span>
                         </div>
                       </div>
                       {config.amount === suggestedAmounts.month && (
-                        <div className="absolute inset-0 border-2 border-red-500/80 rounded-xl pointer-events-none" />
+                        <div className="absolute inset-0 border-2 border-red-500/80 dark:border-red-500/60 rounded-xl pointer-events-none" />
                       )}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Custom Top-up Amount
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-5 w-5 text-gray-400" />
+                      <DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                     </div>
                     <input
                       type="number"
@@ -250,11 +250,11 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                       step="1"
                       value={config.amount}
                       onChange={(e) => setConfig({ ...config, amount: parseInt(e.target.value) })}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter custom amount"
                     />
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-500">
+                  <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     Amount to add when auto top-up is triggered
                   </p>
                 </div>
@@ -268,28 +268,33 @@ export const AutoTopUpModal: React.FC<AutoTopUpModalProps> = ({
                   </div>
                 )}
 
-                <div className="flex space-x-3">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 px-5 py-1.5 text-sm text-gray-700 bg-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex-1 px-5 py-1.5 text-sm text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      'Save Settings'
-                    )}
-                  </button>
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 -mx-6 px-6">
+                  <div className="flex space-x-3">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="flex-1 px-5 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="group flex-1 px-5 py-2 text-sm text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <span>Save Settings</span>
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
