@@ -265,7 +265,7 @@ export default function Layout() {
       </div>
 
       {/* Bottom Navigation Group - Desktop Only */}
-      <div className="hidden lg:block px-3 py-3 border-t border-gray-100 dark:border-gray-700">
+      <div className="hidden lg:block px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-0.5">
           <Link
             to="/settings"
@@ -339,7 +339,7 @@ export default function Layout() {
 
       {/* Account Profile - Bottom */}
       {!isCollapsed && (
-        <div className="px-3 py-4 lg:py-3 border-t border-gray-100 dark:border-gray-700">
+        <div className="px-3 py-4 lg:py-3 border-t border-gray-100/50 dark:border-gray-700/50">
           {/* Desktop Profile Card */}
           <Link
             to="/settings"
@@ -418,7 +418,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
       {/* Desktop sidebar - hidden on mobile */}
-      <div className={`hidden lg:block fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-50 ${
+      <div className={`hidden lg:block fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
         isCollapsed ? 'w-[70px]' : 'w-[280px]'
       }`}>
         <div className="flex flex-col h-full">
@@ -435,7 +435,7 @@ export default function Layout() {
 
       {/* Main content area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
-        isCollapsed ? 'lg:pl-[70px]' : 'lg:pl-[280px]'
+        isCollapsed ? 'lg:pl-[88px]' : 'lg:pl-[298px]'
       }`}>
         <div className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-[1800px] mx-auto flex flex-col min-h-0 overflow-x-hidden ${
           location.pathname === '/audit' ? 'overflow-y-hidden' : 'overflow-y-auto'
