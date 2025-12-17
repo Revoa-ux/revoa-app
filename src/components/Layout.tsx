@@ -274,12 +274,7 @@ export default function Layout() {
                 )}
               >
                 {effectiveCollapsed ? (
-                  <div className="relative">
-                    <Icon className="h-4 w-4" strokeWidth={1.5} />
-                    {hasBadge && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full" />
-                    )}
-                  </div>
+                  <Icon className="h-4 w-4" strokeWidth={1.5} />
                 ) : (
                   <>
                     <div className="flex items-center">
