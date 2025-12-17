@@ -56,9 +56,17 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             <button
               onClick={() => onResponse(null)}
               disabled={isLoading}
-              className="mt-3 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-medium text-sm rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-3 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2 group"
             >
-              Continue
+              <span>Continue</span>
+              <svg
+                className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           );
         }
@@ -93,19 +101,19 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
           : ''
       }`}>
         <img
-          src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-AI-Bot.png"
+          src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-Bot.gif"
           alt="Revoa Bot"
           className={`w-full h-full object-cover ${isActive ? '' : 'opacity-60'}`}
         />
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className={`rounded-lg p-4 ${
+        <div className={`rounded-lg p-4 relative overflow-hidden ${
           isActive
-            ? 'bg-white dark:bg-gray-800 border-2 border-rose-500 shadow-lg'
+            ? 'bg-gradient-to-br from-white via-rose-50/30 to-pink-50/20 dark:from-gray-800 dark:via-rose-950/20 dark:to-pink-950/10 border-2 border-rose-500 shadow-lg'
             : isCompleted
-            ? 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 opacity-75'
-            : 'bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800'
+            ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
+            : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
         }`}>
           {progress && isActive && (
             <FlowProgressIndicator
