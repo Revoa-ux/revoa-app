@@ -5,6 +5,7 @@ import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows'
 import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
 import { FlowProgressIndicator } from './FlowProgressIndicator';
+import { FlowAttachmentNode } from './FlowAttachmentNode';
 
 interface FlowMessageProps {
   data: FlowMessageData;
@@ -34,6 +35,25 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
 
   const renderResponseInput = () => {
     if (!isActive) return null;
+
+    // Handle attachment node type
+    if (node.type === 'attachment') {
+      return (
+        <FlowAttachmentNode
+          sessionId={data.sessionId}
+          minFiles={node.metadata?.attachmentConfig?.minFiles || 1}
+          maxFiles={node.metadata?.attachmentConfig?.maxFiles || 10}
+          onAttachmentsChange={(attachments) => {
+            // Automatically respond when minimum files are met
+            const minFiles = node.metadata?.attachmentConfig?.minFiles || 1;
+            if (attachments.length >= minFiles) {
+              onResponse({ attachments });
+            }
+          }}
+          disabled={isLoading}
+        />
+      );
+    }
 
     switch (node.responseType) {
       case 'single_choice':

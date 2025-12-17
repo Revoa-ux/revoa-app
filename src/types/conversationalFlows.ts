@@ -3,6 +3,7 @@ export type FlowNodeType =
   | 'info'
   | 'decision'
   | 'action'
+  | 'attachment'
   | 'completion';
 
 export type FlowResponseType =
@@ -51,6 +52,13 @@ export interface FlowNode {
     templateSuggestions?: string[];
     actionType?: 'open_template' | 'collect_data' | 'external_action';
     actionData?: any;
+    attachmentConfig?: {
+      minFiles?: number;
+      maxFiles?: number;
+      acceptedTypes?: string[];
+      description?: string;
+    };
+    pauseReason?: 'awaiting_photos' | 'awaiting_factory_response' | 'awaiting_customer';
   };
 }
 
@@ -95,6 +103,9 @@ export interface ThreadFlowSession {
   last_interaction_at: string;
   completed_at?: string;
   is_active: boolean;
+  paused_at?: string;
+  pause_reason?: string;
+  pause_note?: string;
 }
 
 export interface FlowResponse {
@@ -125,6 +136,22 @@ export interface FlowExecutionContext {
     shopifyOrderId?: string;
     orderStatus?: string;
     metadata?: any;
+  };
+  warrantyContext?: {
+    hasOrder: boolean;
+    orderWarrantyStatus?: 'active' | 'expired' | 'mixed' | 'none';
+    warrantyExpiryDate?: string;
+    productCoverages?: {
+      damaged: boolean;
+      lost: boolean;
+      late: boolean;
+    };
+    orderAgeInDays?: number;
+  };
+  attachmentContext?: {
+    hasPhotosAttached: boolean;
+    attachmentUrls: string[];
+    attachmentCount: number;
   };
 }
 

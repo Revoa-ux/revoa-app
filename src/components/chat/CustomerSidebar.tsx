@@ -16,7 +16,11 @@ import {
   Truck,
   ExternalLink,
   Edit2,
-  ArrowRight
+  ArrowRight,
+  Shield,
+  CheckCircle2,
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -28,6 +32,8 @@ import { EditBillingAddressModal } from './EditBillingAddressModal';
 import { UpdateEmailModal } from './UpdateEmailModal';
 import { getShopifyOrderUrl } from '@/lib/shopifyOrders';
 import { cn } from '@/lib/utils';
+import { getOrderWarrantyStatus, formatWarrantyStatus, getCoverageDescription } from '@/lib/warrantyService';
+import type { OrderWarrantyStatus } from '@/lib/warrantyService';
 
 interface CustomerSidebarProps {
   threadId: string;
@@ -92,6 +98,7 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
   const [showUpdateEmailModal, setShowUpdateEmailModal] = useState(false);
   const [orderId, setOrderId] = useState<string>('');
   const [threadTag, setThreadTag] = useState<string>('');
+  const [warrantyStatus, setWarrantyStatus] = useState<OrderWarrantyStatus | null>(null);
 
   useEffect(() => {
     if (threadId && isExpanded) {
@@ -207,6 +214,12 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
 
       if (items) {
         setLineItems(items);
+      }
+
+      // Load warranty status
+      if (thread.order_id) {
+        const warranty = await getOrderWarrantyStatus(thread.order_id);
+        setWarrantyStatus(warranty);
       }
     } catch (error) {
       console.error('Error loading customer info:', error);
@@ -383,6 +396,87 @@ export const CustomerSidebar: React.FC<CustomerSidebarProps> = ({
                   </div>
                 </button>
               </div>
+
+              {/* Warranty Status Section */}
+              {warrantyStatus && warrantyStatus.items.length > 0 && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-1 h-4 bg-gradient-to-b from-red-500 to-pink-600 rounded-full" />
+                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                      Warranty Status
+                    </h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    {warrantyStatus.items.map((item, idx) => {
+                      const { badge, message } = formatWarrantyStatus(item.warranty);
+                      const coverageDesc = getCoverageDescription(item.warranty);
+
+                      return (
+                        <div key={idx} className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {item.productName}
+                              </p>
+                              {item.variantTitle && (
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                  {item.variantTitle}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex-shrink-0 ml-2">
+                              {item.warranty.status === 'active' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  {badge.text}
+                                </span>
+                              )}
+                              {item.warranty.status === 'expiring_soon' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-medium">
+                                  <Clock className="w-3 h-3" />
+                                  {badge.text}
+                                </span>
+                              )}
+                              {item.warranty.status === 'expired' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium">
+                                  <AlertCircle className="w-3 h-3" />
+                                  {badge.text}
+                                </span>
+                              )}
+                              {item.warranty.status === 'none' && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium">
+                                  {badge.text}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {message}
+                            </p>
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                              <Shield className="w-3 h-3" />
+                              <span>Coverage: {coverageDesc}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Overall warranty summary */}
+                  <div className="mt-3 p-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    <div className="flex items-center gap-2 text-xs">
+                      <Package className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-gray-600 dark:text-gray-400">
+                        Order placed {formatDate(warrantyStatus.orderDate.toISOString())}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Order Information */}
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
