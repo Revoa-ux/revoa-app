@@ -1,5 +1,5 @@
-import React from 'react';
-import { Hash, X, ChevronLeft, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Hash, X, ChevronLeft, Plus, MoreVertical, Trash2, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
 
@@ -8,6 +8,8 @@ interface ChannelSidebarProps {
   selectedThreadId: string | null;
   onThreadSelect: (threadId: string | null) => void;
   onCreateThread: () => void;
+  onDeleteThread?: (threadId: string) => void;
+  onRestartThread?: (threadId: string) => void;
   isOpen: boolean;
   onClose?: () => void;
   isCustomerSidebarOpen?: boolean;
@@ -32,10 +34,13 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   selectedThreadId,
   onThreadSelect,
   onCreateThread,
+  onDeleteThread,
+  onRestartThread,
   isOpen,
   onClose,
   isCustomerSidebarOpen = false,
 }) => {
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const openThreads = threads.filter(t => t.status === 'open');
 
   return (
@@ -80,44 +85,92 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
 
           {/* Order Threads */}
           {openThreads.map(thread => (
-            <button
+            <div
               key={thread.id}
-              onClick={() => {
-                onThreadSelect(thread.id);
-                // Close on mobile after selection
-                if (window.innerWidth < 1024 && onClose) {
-                  onClose();
-                }
-              }}
-              className={cn(
-                'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
-                selectedThreadId === thread.id
-                  ? 'bg-gray-100 dark:bg-gray-700/50'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
-              )}
+              className="relative group"
             >
-              <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
-                  </span>
-                  {thread.tag && (
-                    <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
-                      {TAG_LABELS[thread.tag]}
+              <button
+                onClick={() => {
+                  onThreadSelect(thread.id);
+                  // Close on mobile after selection
+                  if (window.innerWidth < 1024 && onClose) {
+                    onClose();
+                  }
+                }}
+                className={cn(
+                  'w-full px-3 py-2.5 text-left flex items-start gap-2.5 transition-colors border-b border-gray-100 dark:border-gray-700',
+                  selectedThreadId === thread.id
+                    ? 'bg-gray-100 dark:bg-gray-700/50'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                )}
+              >
+                <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                      {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
                     </span>
+                    {thread.tag && (
+                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
+                        {TAG_LABELS[thread.tag]}
+                      </span>
+                    )}
+                    {thread.unread_count && thread.unread_count > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
+                        {thread.unread_count}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {thread.customer_name || 'Guest Customer'}
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpenFor(menuOpenFor === thread.id ? null : thread.id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all ml-auto"
+                  title="Thread actions"
+                >
+                  <MoreVertical className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </button>
+
+              {/* Action Menu */}
+              {menuOpenFor === thread.id && (
+                <div className="absolute right-2 top-10 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[140px]">
+                  {onRestartThread && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRestartThread(thread.id);
+                        setMenuOpenFor(null);
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Restart Flow
+                    </button>
                   )}
-                  {thread.unread_count && thread.unread_count > 0 && (
-                    <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
-                      {thread.unread_count}
-                    </span>
+                  {onDeleteThread && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this thread?')) {
+                          onDeleteThread(thread.id);
+                          setMenuOpenFor(null);
+                        }
+                      }}
+                      className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Thread
+                    </button>
                   )}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  {thread.customer_name || 'Guest Customer'}
-                </div>
-              </div>
-            </button>
+              )}
+            </div>
           ))}
 
           {openThreads.length === 0 && (
@@ -125,6 +178,17 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
               No order threads yet
             </div>
           )}
+        </div>
+
+        {/* Floating Add Thread Button */}
+        <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <button
+            onClick={onCreateThread}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="text-sm font-medium">New Thread</span>
+          </button>
         </div>
       </div>
     </>

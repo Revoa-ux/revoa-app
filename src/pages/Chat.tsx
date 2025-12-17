@@ -501,6 +501,16 @@ const Chat = () => {
     }
   };
 
+  const handleDeleteThread = async (threadId: string) => {
+    // Delete uses the same logic as close
+    await handleCloseThread(threadId);
+  };
+
+  const handleRestartThread = async (threadId: string) => {
+    toast.info('Thread restart feature coming soon');
+    // TODO: Implement flow restart for user threads
+  };
+
   const handleMoveToThread = async (threadId: string) => {
     if (!messageToMove || !chat) return;
 
@@ -540,6 +550,8 @@ const Chat = () => {
             selectedThreadId={selectedThreadId}
             onThreadSelect={handleThreadSelect}
             onCreateThread={() => setShowCreateThreadModal(true)}
+            onDeleteThread={handleDeleteThread}
+            onRestartThread={handleRestartThread}
             isOpen={showThreadSidebar}
             onClose={() => setShowThreadSidebar(false)}
             isCustomerSidebarOpen={showCustomerSidebar && !!selectedThreadId}

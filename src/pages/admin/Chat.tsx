@@ -486,6 +486,26 @@ const AdminChat = () => {
     }
   };
 
+  const handleDeleteThread = async (threadId: string) => {
+    // Delete uses the same logic as close
+    await handleCloseThread(threadId);
+  };
+
+  const handleRestartThread = async (threadId: string) => {
+    const thread = threads.find(t => t.id === threadId);
+    if (!thread) return;
+
+    // Restart the conversational flow for this thread
+    try {
+      toast.info('Restarting conversation flow...');
+      await startFlow(threadId);
+      toast.success('Flow restarted');
+    } catch (error) {
+      console.error('Error restarting flow:', error);
+      toast.error('Failed to restart flow');
+    }
+  };
+
   const userName = selectedChat?.user_profile?.name || 'User';
   const userEmail = selectedChat?.user_profile?.email || '';
   const companyName = selectedChat?.user_profile?.company || null;
@@ -645,6 +665,8 @@ const AdminChat = () => {
                   selectedThreadId={selectedThreadId}
                   onThreadSelect={handleThreadSelect}
                   onCreateThread={() => setShowCreateThreadModal(true)}
+                  onDeleteThread={handleDeleteThread}
+                  onRestartThread={handleRestartThread}
                 />
                 {selectedThreadId && (
                   <button
