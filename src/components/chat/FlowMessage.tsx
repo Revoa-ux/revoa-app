@@ -77,6 +77,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   };
 
   const renderPreviousResponse = () => {
+    // Never show response boxes for info nodes
+    if (node.type === 'info') return null;
+
+    // Only show response if completed and has actual response data
     if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
 
     const displayValue = typeof previousResponse === 'object'

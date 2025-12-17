@@ -84,7 +84,8 @@ export class FlowStateService {
     sessionId: string,
     nodeId: string,
     response: any,
-    nextNodeId?: string
+    nextNodeId?: string,
+    nodeType?: string
   ): Promise<ThreadFlowSession | null> {
     const session = await this.getSessionById(sessionId);
     if (!session) throw new Error('Session not found');
@@ -115,8 +116,13 @@ export class FlowStateService {
 
     if (error) throw error;
 
-    await this.saveFlowResponse(sessionId, nodeId, response);
-    await this.trackAnalytics(session.flow_id, nodeId, 'response');
+    // Only save response for question nodes, not info nodes
+    await this.saveFlowResponse(sessionId, nodeId, response, nodeType);
+
+    // Only track response analytics for nodes that actually collect input
+    if (nodeType !== 'info' && response !== null) {
+      await this.trackAnalytics(session.flow_id, nodeId, 'response');
+    }
 
     if (nextNodeId) {
       await this.trackAnalytics(session.flow_id, nextNodeId, 'view');
@@ -170,8 +176,14 @@ export class FlowStateService {
   async saveFlowResponse(
     sessionId: string,
     nodeId: string,
-    response: any
+    response: any,
+    nodeType?: string
   ): Promise<FlowResponse | null> {
+    // Skip saving responses for info nodes since they don't collect user input
+    if (nodeType === 'info' || response === null) {
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('flow_responses')
       .insert({
@@ -277,7 +289,8 @@ export class FlowStateService {
         sessionId,
         context.currentNode.id,
         response,
-        navigationResult.nextNode?.id
+        navigationResult.nextNode?.id,
+        context.currentNode.type
       );
       console.log('[flowStateService] Session response updated successfully');
 
