@@ -26,10 +26,10 @@ export async function getThreadProductWarranty(threadId: string): Promise<{
     if (threadError) throw threadError;
     if (!thread || !thread.order_id) return null;
 
-    // Get order date
+    // Get order date and shopify_order_id
     const { data: order, error: orderError } = await supabase
       .from('shopify_orders')
-      .select('order_date, delivered_at')
+      .select('order_date, delivered_at, shopify_order_id')
       .eq('id', thread.order_id)
       .maybeSingle();
 
@@ -39,7 +39,7 @@ export async function getThreadProductWarranty(threadId: string): Promise<{
     // Use delivered date if available, otherwise order date
     const effectiveDate = new Date(order.delivered_at || order.order_date);
 
-    // Get all line items for this order
+    // Get all line items for this order using the Shopify order ID
     const { data: lineItems, error: lineItemsError } = await supabase
       .from('order_line_items')
       .select(`
@@ -53,7 +53,7 @@ export async function getThreadProductWarranty(threadId: string): Promise<{
           covers_late_shipment
         )
       `)
-      .eq('shopify_order_id', thread.order_id);
+      .eq('shopify_order_id', order.shopify_order_id);
 
     if (lineItemsError) throw lineItemsError;
     if (!lineItems || lineItems.length === 0) return null;
