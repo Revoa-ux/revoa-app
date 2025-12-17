@@ -50,7 +50,7 @@ export function QuickReplyButtons({
                 key={option.id}
                 onClick={() => handleMultiSelect(option.value)}
                 disabled={disabled}
-                className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all text-left overflow-hidden ${
+                className={`relative flex items-center gap-2 px-3 py-2 rounded-lg border transition-all text-left overflow-hidden ${
                   isSelected
                     ? 'border-rose-400 dark:border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-900/10'
                     : 'border-gray-200 dark:border-gray-600 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm'
@@ -66,16 +66,16 @@ export function QuickReplyButtons({
                     }}
                   />
                 )}
-                <div className={`relative flex-shrink-0 w-4 h-4 rounded border flex items-center justify-center ${
+                <div className={`relative flex-shrink-0 w-3.5 h-3.5 rounded border flex items-center justify-center ${
                   isSelected
                     ? 'border-rose-500 bg-rose-500'
                     : 'border-gray-300 dark:border-gray-600'
                 }`}>
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                  {isSelected && <Check className="w-2.5 h-2.5 text-white" />}
                 </div>
 
                 <div className="relative flex-1 min-w-0">
-                  <div className={`text-sm font-medium ${
+                  <div className={`text-xs font-medium ${
                     isSelected
                       ? 'text-rose-900 dark:text-rose-100'
                       : 'text-gray-700 dark:text-gray-300'
@@ -83,7 +83,7 @@ export function QuickReplyButtons({
                     {option.label}
                   </div>
                   {option.description && (
-                    <div className={`text-xs mt-0.5 ${
+                    <div className={`text-[10px] mt-0.5 ${
                       isSelected
                         ? 'text-rose-700 dark:text-rose-300'
                         : 'text-gray-500 dark:text-gray-400'
@@ -118,7 +118,7 @@ export function QuickReplyButtons({
           key={option.id}
           onClick={() => handleSingleSelect(option.value)}
           disabled={disabled}
-          className={`relative group flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap ${
+          className={`relative group flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-lg bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden whitespace-nowrap ${
             disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
           }`}
         >
@@ -130,7 +130,7 @@ export function QuickReplyButtons({
                 : 'radial-gradient(circle at 70% 20%, rgba(107,114,128,0.04) 0%, transparent 50%)'
             }}
           />
-          {option.icon && <span className="relative text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">{option.icon}</span>}
+          {option.icon && <span className="relative text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors text-sm">{option.icon}</span>}
           <span className="relative">
             {option.label}
           </span>

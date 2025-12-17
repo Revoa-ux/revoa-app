@@ -39,32 +39,16 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
 
     // Handle attachment node type
     if (node.type === 'attachment') {
-      const minFiles = node.metadata?.attachmentConfig?.minFiles || 1;
-
       return (
-        <>
-          <FlowAttachmentNode
-            sessionId={data.sessionId}
-            minFiles={minFiles}
-            maxFiles={node.metadata?.attachmentConfig?.maxFiles || 10}
-            onAttachmentsChange={(newAttachments) => {
-              setAttachments(newAttachments);
-            }}
-            disabled={isLoading}
-          />
-          {attachments.length >= minFiles && (
-            <div className="flex justify-end mt-3">
-              <button
-                onClick={() => onResponse({ attachments })}
-                disabled={isLoading}
-                className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
-          )}
-        </>
+        <FlowAttachmentNode
+          sessionId={data.sessionId}
+          minFiles={node.metadata?.attachmentConfig?.minFiles || 1}
+          maxFiles={node.metadata?.attachmentConfig?.maxFiles || 10}
+          onAttachmentsChange={(newAttachments) => {
+            setAttachments(newAttachments);
+          }}
+          disabled={isLoading}
+        />
       );
     }
 
@@ -92,23 +76,45 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         );
 
       default:
-        // Info nodes or nodes without response types need a continue button
-        if (node.type === 'info' || !node.responseType) {
-          return (
-            <div className="flex justify-end mt-3">
-              <button
-                onClick={() => onResponse(null)}
-                disabled={isLoading}
-                className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
-            </div>
-          );
-        }
         return null;
     }
+  };
+
+  const renderContinueButton = () => {
+    if (!isActive) return null;
+
+    // Show continue button for attachment nodes when minimum files uploaded
+    if (node.type === 'attachment') {
+      const minFiles = node.metadata?.attachmentConfig?.minFiles || 1;
+      if (attachments.length >= minFiles) {
+        return (
+          <button
+            onClick={() => onResponse({ attachments })}
+            disabled={isLoading}
+            className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span>Continue</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          </button>
+        );
+      }
+    }
+
+    // Show continue button for info nodes or nodes without response types
+    if (node.type === 'info' || !node.responseType) {
+      return (
+        <button
+          onClick={() => onResponse(null)}
+          disabled={isLoading}
+          className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span>Continue</span>
+          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      );
+    }
+
+    return null;
   };
 
   const renderPreviousResponse = () => {
@@ -166,17 +172,15 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
 
   return (
     <div className={`flex gap-3 mb-4 ${isActive ? 'animate-in fade-in slide-in-from-left-2' : ''}`}>
-      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-        {animationData ? (
+      {animationData && (
+        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
           <Lottie
             animationData={animationData}
             loop
             className={`w-full h-full ${isActive ? '' : 'opacity-60'}`}
           />
-        ) : (
-          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="flex-1 min-w-0">
         <div className={`rounded-lg p-4 relative overflow-hidden ${
@@ -242,6 +246,12 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
               <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
             <span>Processing...</span>
+          </div>
+        )}
+
+        {renderContinueButton() && (
+          <div className="mt-2">
+            {renderContinueButton()}
           </div>
         )}
       </div>
