@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Hash, X, ChevronLeft, Plus, MoreVertical, Trash2, RotateCcw } from 'lucide-react';
+import { Hash, X, ChevronLeft, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
 import { DeleteThreadModal } from './DeleteThreadModal';
@@ -41,7 +41,6 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   onClose,
   isCustomerSidebarOpen = false,
 }) => {
-  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<ChannelThread | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -129,50 +128,20 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                     {thread.customer_name || 'Guest Customer'}
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpenFor(menuOpenFor === thread.id ? null : thread.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all ml-auto"
-                  title="Thread actions"
-                >
-                  <MoreVertical className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
-                </button>
+                {onDeleteThread && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setThreadToDelete(thread);
+                      setDeleteModalOpen(true);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#EF4444]/10 dark:hover:bg-[#EF4444]/20 rounded transition-all ml-auto"
+                    title="Close thread"
+                  >
+                    <X className="w-3.5 h-3.5 text-[#EF4444]" />
+                  </button>
+                )}
               </button>
-
-              {/* Action Menu */}
-              {menuOpenFor === thread.id && (
-                <div className="absolute right-2 top-10 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[140px]">
-                  {onRestartThread && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRestartThread(thread.id);
-                        setMenuOpenFor(null);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      Restart Flow
-                    </button>
-                  )}
-                  {onDeleteThread && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setThreadToDelete(thread);
-                        setDeleteModalOpen(true);
-                        setMenuOpenFor(null);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete Thread
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           ))}
 
@@ -187,10 +156,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         <div className="absolute bottom-4 right-4 z-10">
           <button
             onClick={onCreateThread}
-            className="w-12 h-12 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-full transition-all shadow-lg hover:shadow-xl"
+            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#EF4444] to-[#DC2626] hover:from-[#DC2626] hover:to-[#B91C1C] text-white rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
             title="Create New Thread"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-6 h-6 stroke-[2.5]" />
           </button>
         </div>
       </div>

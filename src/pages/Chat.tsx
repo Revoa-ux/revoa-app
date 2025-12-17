@@ -25,9 +25,7 @@ import {
   List,
   ChevronDown,
   CheckCircle,
-  Package,
-  MoreVertical,
-  RotateCcw
+  Package
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -132,7 +130,6 @@ const Chat = () => {
   const [deleteThreadModalOpen, setDeleteThreadModalOpen] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<ChannelThread | null>(null);
   const [isDeletingThread, setIsDeletingThread] = useState(false);
-  const [threadDropdownMenuOpen, setThreadDropdownMenuOpen] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -525,33 +522,8 @@ const Chat = () => {
   };
 
   const handleRestartThread = async (threadId: string) => {
-    const thread = threads.find(t => t.id === threadId);
-    if (!thread || !chat) return;
-
-    try {
-      // Call the flow trigger service to restart the conversational flow
-      const { error } = await supabase.functions.invoke('auto-tag-conversations', {
-        body: {
-          action: 'restart_flow',
-          threadId: threadId,
-          chatId: chat.id,
-          tag: thread.tag
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Thread flow restarted successfully');
-
-      // Reload messages if we're viewing this thread
-      if (selectedThreadId === threadId) {
-        const msgs = await chatService.getThreadMessages(threadId);
-        setMessages(msgs);
-      }
-    } catch (error) {
-      console.error('Error restarting thread:', error);
-      toast.error('Failed to restart thread flow');
-    }
+    // Removed - restart functionality not needed for now
+    toast.info('Feature coming soon');
   };
 
   const handleMoveToThread = async (threadId: string) => {
@@ -698,49 +670,23 @@ const Chat = () => {
                               )}
                             </div>
                             {thread.unread_count && thread.unread_count > 0 && (
-                              <span className="flex-shrink-0 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                              <span className="flex-shrink-0 bg-[#EF4444] text-white text-xs font-medium px-2 py-0.5 rounded-full">
                                 {thread.unread_count}
                               </span>
                             )}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setThreadDropdownMenuOpen(threadDropdownMenuOpen === thread.id ? null : thread.id);
+                                setThreadToDelete(thread);
+                                setDeleteThreadModalOpen(true);
+                                setShowThreadDropdown(false);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
-                              title="Thread actions"
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#EF4444]/10 dark:hover:bg-[#EF4444]/20 rounded transition-all"
+                              title="Close thread"
                             >
-                              <MoreVertical className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                              <X className="w-3.5 h-3.5 text-[#EF4444]" />
                             </button>
                           </button>
-
-                          {/* Action Menu */}
-                          {threadDropdownMenuOpen === thread.id && (
-                            <div className="absolute right-2 top-full z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[140px] mt-1">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRestartThread(thread.id);
-                                  setThreadDropdownMenuOpen(null);
-                                }}
-                                className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
-                              >
-                                <RotateCcw className="w-4 h-4" />
-                                Restart Flow
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCloseThread(thread.id);
-                                  setThreadDropdownMenuOpen(null);
-                                }}
-                                className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete Thread
-                              </button>
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
@@ -754,7 +700,7 @@ const Chat = () => {
                       }}
                       className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
                     >
-                      <Plus className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
+                      <Plus className="w-5 h-5 flex-shrink-0 text-[#EF4444]" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create New Thread</span>
                     </button>
                   </div>
