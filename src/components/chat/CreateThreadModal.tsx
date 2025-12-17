@@ -145,7 +145,17 @@ export function CreateThreadModal({
       if (error) throw error;
 
       // Skip welcome message if a conversational flow will auto-start
-      const flowTags = ['return', 'damage', 'defective'];
+      const flowTags = [
+        'return',
+        'damaged',
+        'defective',
+        'cancel_modify',
+        'wrong_item',
+        'missing_items',
+        'shipping',
+        'refund',
+        'replacement'
+      ];
       const willAutoStartFlow = threadData.tag && flowTags.includes(threadData.tag.toLowerCase());
 
       if (!willAutoStartFlow) {

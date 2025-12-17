@@ -786,45 +786,72 @@ export const chatService = {
 
       const threadId = data?.id;
 
-      // Send automated welcome message if tag is specified
+      // Initialize conversational flow if tag is specified
       if (threadId && tag) {
         try {
-          const { data: autoMessage } = await supabase
-            .from('thread_category_auto_messages')
-            .select('message_body')
-            .eq('category_tag', tag)
+          // Map tags to flow categories
+          const tagToCategory: Record<string, string> = {
+            'damaged': 'damage',
+            'return': 'return',
+            'defective': 'defective',
+            'cancel_modify': 'cancel_modify',
+            'wrong_item': 'wrong_item',
+            'missing_items': 'missing_items',
+            'shipping': 'shipping',
+            'refund': 'refund',
+            'replacement': 'replacement',
+          };
+
+          const flowCategory = tagToCategory[tag] || tag;
+
+          // Fetch the flow for this category
+          const { data: flow } = await supabase
+            .from('bot_flows')
+            .select('*')
+            .eq('category', flowCategory)
             .eq('is_active', true)
             .maybeSingle();
 
-          if (autoMessage?.message_body) {
-            // Use comprehensive variable replacement service
-            const { renderTemplate } = await import('./templateVariableService');
+          if (flow?.flow_definition) {
+            const flowDef = flow.flow_definition as any;
+            const startNode = flowDef.nodes.find((n: any) => n.id === flowDef.startNodeId);
 
-            let messageContent = await renderTemplate(autoMessage.message_body, {
-              orderId: orderId,
-              userId: user.id,
-              threadId: threadId
-            });
+            if (startNode) {
+              // Create flow session
+              const { data: session } = await supabase
+                .from('thread_flow_sessions')
+                .insert({
+                  thread_id: threadId,
+                  flow_id: flow.id,
+                  current_node_id: startNode.id,
+                  flow_state: {},
+                  is_active: true
+                })
+                .select()
+                .single();
 
-            // Add template suggestion footer
-            messageContent += '\n\n---\n\n💡 **Tip:** Click the **Templates** button in the sidebar to send a curated email to your customer relevant to their order and situation.';
-
-            await supabase.from('messages').insert({
-              chat_id: chatId,
-              thread_id: threadId,
-              content: messageContent,
-              type: 'text',
-              sender: 'team',
-              metadata: {
-                automated: true,
-                thread_welcome: true,
-                thread_tag: tag
+              if (session) {
+                // Send the initial message from the flow
+                await supabase.from('messages').insert({
+                  chat_id: chatId,
+                  thread_id: threadId,
+                  content: startNode.content,
+                  type: 'text',
+                  sender: 'team',
+                  metadata: {
+                    automated: true,
+                    flow_message: true,
+                    flow_session_id: session.id,
+                    node_id: startNode.id,
+                    node_type: startNode.type
+                  }
+                });
               }
-            });
+            }
           }
         } catch (messageError) {
-          console.error('Error sending welcome message:', messageError);
-          // Don't fail thread creation if message fails
+          console.error('Error initializing flow:', messageError);
+          // Don't fail thread creation if flow fails
         }
       }
 
