@@ -44,10 +44,22 @@ export default function AdminSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth >= 1024);
+      const width = window.innerWidth;
+      setScreenWidth(width);
+
+      // Above 900px: normal sidebar with collapse option
+      // 500-900px: collapsed sidebar always visible
+      // Below 500px: bottom sheet only
+      setIsLargeScreen(width >= 500);
+
+      // Auto-collapse between 500-900px
+      if (width >= 500 && width < 900) {
+        setIsCollapsed(true);
+      }
     };
 
     checkScreenSize();
@@ -93,7 +105,8 @@ export default function AdminSidebar() {
     : adminUser?.name || adminUser?.email || 'Admin';
   const adminInitials = getAdminInitials();
 
-  const effectiveCollapsed = !isLargeScreen || isCollapsed;
+  // Auto-collapse for screens 500-900px, or manual collapse above 900px
+  const effectiveCollapsed = (screenWidth >= 500 && screenWidth < 900) || (!isLargeScreen ? false : isCollapsed);
 
   const renderSidebarContent = () => (
     <>
@@ -107,7 +120,7 @@ export default function AdminSidebar() {
               className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
-          {isLargeScreen && (
+          {isLargeScreen && screenWidth >= 900 && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
@@ -131,7 +144,7 @@ export default function AdminSidebar() {
               className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          {isLargeScreen && (
+          {isLargeScreen && screenWidth >= 900 && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
@@ -262,21 +275,25 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* Desktop sidebar - hidden on mobile */}
-      <div className={`hidden lg:block fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
-        effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
-      }`}>
-        <div className="flex flex-col h-full">
-          {renderSidebarContent()}
+      {/* Desktop sidebar - visible from 500px and up */}
+      {isLargeScreen && (
+        <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
+          effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
+        }`}>
+          <div className="flex flex-col h-full">
+            {renderSidebarContent()}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Mobile bottom sheet */}
-      <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <div className="flex flex-col h-full overflow-y-auto">
-          {renderSidebarContent()}
-        </div>
-      </BottomSheet>
+      {/* Mobile bottom sheet - only below 500px */}
+      {!isLargeScreen && (
+        <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <div className="flex flex-col h-full overflow-y-auto">
+            {renderSidebarContent()}
+          </div>
+        </BottomSheet>
+      )}
     </>
   );
 }
