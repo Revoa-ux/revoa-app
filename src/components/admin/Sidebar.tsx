@@ -110,7 +110,7 @@ export default function AdminSidebar() {
     <>
       {/* Logo and Collapse Button */}
       {effectiveCollapsed ? (
-        <div className="py-8 px-2 flex flex-col items-center gap-3">
+        <div className="py-8 px-2 flex flex-col items-center gap-3 relative z-10">
           <div className="w-10 h-10 relative">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
@@ -121,7 +121,7 @@ export default function AdminSidebar() {
           {isLargeScreen && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
