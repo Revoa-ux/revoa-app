@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useConversationalFlow } from '../../hooks/useConversationalFlow';
 import { FlowMessage } from './FlowMessage';
+import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { toast } from 'sonner';
 
 interface ConversationalFlowContainerProps {
@@ -41,16 +42,39 @@ export function ConversationalFlowContainer({ threadId, onFlowActive }: Conversa
   }
 
   return (
-    <div className="space-y-2">
-      {flowMessages.map((flowMessage) => (
-        <FlowMessage
-          key={flowMessage.nodeId}
-          data={flowMessage}
-          onResponse={handleResponse}
-          isLoading={isLoading}
-          progress={flowMessage.isCurrentStep ? progress : undefined}
-        />
-      ))}
+    <div className="relative">
+      {/* Progress bar at the top */}
+      {progress && (
+        <div className="sticky top-0 z-10 mb-4">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm">
+            <div className="px-4 py-2 flex items-center justify-between text-xs">
+              <span className="text-gray-600 dark:text-gray-400 font-medium">
+                Flow Progress
+              </span>
+              <span className="text-gray-900 dark:text-white font-semibold">
+                {progress.current} of {progress.total}
+              </span>
+            </div>
+            <FlowProgressIndicator
+              current={progress.current}
+              total={progress.total}
+              percentage={progress.percentage}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Flow messages */}
+      <div className="space-y-2">
+        {flowMessages.map((flowMessage) => (
+          <FlowMessage
+            key={flowMessage.nodeId}
+            data={flowMessage}
+            onResponse={handleResponse}
+            isLoading={isLoading}
+          />
+        ))}
+      </div>
     </div>
   );
 }

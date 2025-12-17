@@ -6,6 +6,8 @@ import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
 import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { FlowAttachmentNode } from './FlowAttachmentNode';
+import { getThreadProductWarranty, formatWarrantyForFlow } from '../../lib/flowWarrantyService';
+import { supabase } from '../../lib/supabase';
 
 interface FlowMessageProps {
   data: FlowMessageData;
@@ -23,6 +25,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [dynamicContent, setDynamicContent] = useState<string | null>(null);
+  const [productOptions, setProductOptions] = useState<any[]>([]);
+  const [needsProductSelection, setNeedsProductSelection] = useState(false);
+  const [loadingWarranty, setLoadingWarranty] = useState(false);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -31,11 +37,120 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
       .catch(err => console.error('Failed to load animation:', err));
   }, []);
 
+  // Load dynamic warranty content
+  useEffect(() => {
+    const loadWarrantyContent = async () => {
+      if (!node.metadata?.dynamicContent || node.metadata?.contentSource !== 'product_warranty') {
+        return;
+      }
+
+      if (!isCurrentStep) return;
+
+      setLoadingWarranty(true);
+
+      try {
+        // Get thread ID from the session data
+        const { data: sessionData } = await supabase
+          .from('thread_flow_sessions')
+          .select('thread_id')
+          .eq('id', data.sessionId)
+          .maybeSingle();
+
+        if (!sessionData?.thread_id) {
+          setDynamicContent('⚠️ Unable to load warranty information - thread not found.');
+          return;
+        }
+
+        const warrantyInfo = await getThreadProductWarranty(sessionData.thread_id);
+
+        if (!warrantyInfo) {
+          setDynamicContent('⚠️ Unable to load warranty information - no order linked to this thread.');
+          return;
+        }
+
+        if (warrantyInfo.needsProductSelection && warrantyInfo.availableProducts) {
+          // Show product selection
+          setNeedsProductSelection(true);
+          setProductOptions(warrantyInfo.availableProducts);
+          setDynamicContent('This order has multiple products. Please select which product is damaged:');
+        } else {
+          // Show warranty info
+          const formattedWarranty = formatWarrantyForFlow(warrantyInfo.warranty);
+          const productInfo = warrantyInfo.variantTitle
+            ? `**Product**: ${warrantyInfo.productName} - ${warrantyInfo.variantTitle}\n\n`
+            : `**Product**: ${warrantyInfo.productName}\n\n`;
+
+          setDynamicContent(productInfo + formattedWarranty);
+          setNeedsProductSelection(false);
+        }
+      } catch (error) {
+        console.error('Error loading warranty content:', error);
+        setDynamicContent('⚠️ Error loading warranty information. Please try again.');
+      } finally {
+        setLoadingWarranty(false);
+      }
+    };
+
+    loadWarrantyContent();
+  }, [node.metadata, isCurrentStep, data.sessionId]);
+
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
 
+  const handleProductSelection = async (productId: string) => {
+    try {
+      // Get thread ID
+      const { data: sessionData } = await supabase
+        .from('thread_flow_sessions')
+        .select('thread_id')
+        .eq('id', data.sessionId)
+        .maybeSingle();
+
+      if (!sessionData?.thread_id) return;
+
+      // Update thread with selected line item
+      const { error } = await supabase
+        .from('chat_threads')
+        .update({ line_item_id: productId })
+        .eq('id', sessionData.thread_id);
+
+      if (error) throw error;
+
+      // Reload warranty info with selected product
+      const warrantyInfo = await getThreadProductWarranty(sessionData.thread_id);
+      if (warrantyInfo && !warrantyInfo.needsProductSelection) {
+        const formattedWarranty = formatWarrantyForFlow(warrantyInfo.warranty);
+        const productInfo = warrantyInfo.variantTitle
+          ? `**Product**: ${warrantyInfo.productName} - ${warrantyInfo.variantTitle}\n\n`
+          : `**Product**: ${warrantyInfo.productName}\n\n`;
+
+        setDynamicContent(productInfo + formattedWarranty);
+        setNeedsProductSelection(false);
+        setProductOptions([]);
+      }
+    } catch (error) {
+      console.error('Error selecting product:', error);
+    }
+  };
+
   const renderResponseInput = () => {
     if (!isActive) return null;
+
+    // Handle product selection for warranty
+    if (needsProductSelection && productOptions.length > 0) {
+      return (
+        <QuickReplyButtons
+          options={productOptions.map(p => ({
+            id: p.id,
+            label: p.variant ? `${p.name} - ${p.variant}` : p.name,
+            value: p.id,
+          }))}
+          onSelect={handleProductSelection}
+          multiSelect={false}
+          disabled={loadingWarranty}
+        />
+      );
+    }
 
     // Handle attachment node type
     if (node.type === 'attachment') {
@@ -83,6 +198,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   const renderContinueButton = () => {
     if (!isActive) return null;
 
+    // Don't show continue if product selection is needed
+    if (needsProductSelection) return null;
+
     // Show continue button for attachment nodes when minimum files uploaded
     if (node.type === 'attachment') {
       const minFiles = node.metadata?.attachmentConfig?.minFiles || 1;
@@ -100,12 +218,17 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
       }
     }
 
-    // Show continue button for info nodes or nodes without response types
+    // Show continue button for info nodes or nodes without response types (including dynamic warranty display)
     if (node.type === 'info' || !node.responseType) {
+      // For warranty display, wait until content is loaded
+      if (node.metadata?.dynamicContent && loadingWarranty) {
+        return null;
+      }
+
       return (
         <button
           onClick={() => onResponse(null)}
-          disabled={isLoading}
+          disabled={isLoading || loadingWarranty}
           className="group inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <span>Continue</span>
@@ -193,13 +316,19 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
           }`}>
 
           <div className="flex items-start justify-between gap-2 mb-2">
-            <p className={`text-sm ${
+            <div className={`text-sm flex-1 ${
               isActive
                 ? 'text-white font-medium'
                 : 'text-gray-600 dark:text-gray-400'
             }`}>
-              {node.content}
-            </p>
+              {loadingWarranty ? (
+                <p>Loading warranty information...</p>
+              ) : dynamicContent ? (
+                <div className="whitespace-pre-wrap">{dynamicContent}</div>
+              ) : (
+                <p>{node.content}</p>
+              )}
+            </div>
 
             {node.metadata?.helpText && (
               <button

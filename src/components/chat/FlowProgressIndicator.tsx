@@ -8,9 +8,9 @@ export function FlowProgressIndicator({
   percentage,
 }: FlowProgressIndicatorProps) {
   return (
-    <div className="absolute top-0 left-0 right-0 h-0.5 bg-white/30 rounded-t-lg overflow-hidden">
+    <div className="h-1.5 bg-gray-100 dark:bg-gray-700 overflow-hidden">
       <div
-        className="h-full bg-white transition-all duration-500 ease-out"
+        className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500 ease-out"
         style={{ width: `${percentage}%` }}
       />
     </div>
