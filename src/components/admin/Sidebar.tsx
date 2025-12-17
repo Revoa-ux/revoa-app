@@ -41,10 +41,20 @@ export default function AdminSidebar() {
   const { signOut } = useAuth();
   const { isSuperAdmin, adminUser } = useAdmin();
   const { effectiveTheme, setTheme } = useTheme();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Load from localStorage or auto-collapse based on screen size
+    const saved = localStorage.getItem('adminSidebarCollapsed');
+    if (saved !== null) return saved === 'true';
+    return window.innerWidth >= 500 && window.innerWidth < 900;
+  });
   const [isLargeScreen, setIsLargeScreen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  // Save collapsed state to localStorage
+  useEffect(() => {
+    localStorage.setItem('adminSidebarCollapsed', String(isCollapsed));
+  }, [isCollapsed]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -54,18 +64,13 @@ export default function AdminSidebar() {
       // Above 500px: sidebar visible
       // Below 500px: bottom sheet only
       setIsLargeScreen(width >= 500);
-
-      // Auto-collapse on initial load if between 500-900px
-      if (width >= 500 && width < 900 && !isCollapsed) {
-        setIsCollapsed(true);
-      }
     };
 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
 
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, [isCollapsed]);
+  }, []);
 
   const isDarkMode = effectiveTheme === 'dark';
 

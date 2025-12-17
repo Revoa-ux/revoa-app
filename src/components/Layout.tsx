@@ -46,7 +46,12 @@ export default function Layout() {
   const { signOut, user } = useAuth();
   const { effectiveTheme, setTheme } = useTheme();
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    // Load from localStorage or auto-collapse based on screen size
+    const saved = localStorage.getItem('sidebarCollapsed');
+    if (saved !== null) return saved === 'true';
+    return window.innerWidth >= 500 && window.innerWidth < 900;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(true);
   const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -61,6 +66,11 @@ export default function Layout() {
 
   const isDarkMode = effectiveTheme === 'dark';
 
+  // Save collapsed state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+  }, [isCollapsed]);
+
   // Handle responsive breakpoints
   useEffect(() => {
     const checkScreenSize = () => {
@@ -70,18 +80,13 @@ export default function Layout() {
       // Above 500px: sidebar visible
       // Below 500px: bottom sheet only
       setIsLargeScreen(width >= 500);
-
-      // Auto-collapse on initial load if between 500-900px
-      if (width >= 500 && width < 900 && !isCollapsed) {
-        setIsCollapsed(true);
-      }
     };
 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
 
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, [isCollapsed]);
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
