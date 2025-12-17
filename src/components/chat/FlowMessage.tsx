@@ -22,7 +22,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
-  const [attachmentCount, setAttachmentCount] = useState(0);
+  const [attachments, setAttachments] = useState<any[]>([]);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -47,14 +47,14 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             sessionId={data.sessionId}
             minFiles={minFiles}
             maxFiles={node.metadata?.attachmentConfig?.maxFiles || 10}
-            onAttachmentsChange={(attachments) => {
-              setAttachmentCount(attachments.length);
+            onAttachmentsChange={(newAttachments) => {
+              setAttachments(newAttachments);
             }}
             disabled={isLoading}
           />
-          {attachmentCount >= minFiles && (
+          {attachments.length >= minFiles && (
             <button
-              onClick={() => onResponse({ attachmentCount })}
+              onClick={() => onResponse({ attachments })}
               disabled={isLoading}
               className="group relative mt-3 w-full px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm transition-all overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
@@ -116,17 +116,33 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
     if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
 
     // For attachment responses, show a compact view
-    if (node.type === 'attachment' && previousResponse?.attachments) {
-      return (
-        <div className="mt-3">
-          <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
-            <span className="text-xs font-medium text-rose-900 dark:text-rose-100">
-              {previousResponse.attachments.length} file{previousResponse.attachments.length !== 1 ? 's' : ''} uploaded
-            </span>
+    if (node.type === 'attachment') {
+      if (previousResponse?.attachments) {
+        return (
+          <div className="mt-3">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                {previousResponse.attachments.length} file{previousResponse.attachments.length !== 1 ? 's' : ''} uploaded
+              </span>
+            </div>
           </div>
-        </div>
-      );
+        );
+      }
+
+      // Backwards compatibility for old format
+      if (previousResponse?.attachmentCount) {
+        return (
+          <div className="mt-3">
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                {previousResponse.attachmentCount} file{previousResponse.attachmentCount !== 1 ? 's' : ''} uploaded
+              </span>
+            </div>
+          </div>
+        );
+      }
     }
 
     const displayValue = typeof previousResponse === 'object'

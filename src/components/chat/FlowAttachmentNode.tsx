@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Download, Image as ImageIcon, Video, FileText, Loader2, Copy, Check } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Video, FileText, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 
@@ -30,7 +30,6 @@ export function FlowAttachmentNode({
 }: FlowAttachmentNodeProps) {
   const [attachments, setAttachments] = useState<FlowAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Load existing attachments
   React.useEffect(() => {
@@ -161,52 +160,6 @@ export function FlowAttachmentNode({
     }
   };
 
-  const handleDownload = async (attachment: FlowAttachment) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('flow-attachments')
-        .download(attachment.file_url);
-
-      if (error) throw error;
-
-      // Create download link
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = attachment.file_name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      toast.success('Download started');
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      toast.error('Failed to download file');
-    }
-  };
-
-  const handleCopyUrl = async (attachment: FlowAttachment) => {
-    try {
-      const { data: { publicUrl } } = supabase.storage
-        .from('flow-attachments')
-        .getPublicUrl(attachment.file_url);
-
-      await navigator.clipboard.writeText(publicUrl);
-      setCopiedId(attachment.id);
-      setTimeout(() => setCopiedId(null), 2000);
-      toast.success('URL copied to clipboard');
-    } catch (error) {
-      console.error('Error copying URL:', error);
-      toast.error('Failed to copy URL');
-    }
-  };
-
-  const getFileIcon = (fileType: string) => {
-    if (fileType.startsWith('image/')) return <ImageIcon className="w-5 h-5" />;
-    if (fileType.startsWith('video/')) return <Video className="w-5 h-5" />;
-    return <FileText className="w-5 h-5" />;
-  };
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -256,9 +209,24 @@ export function FlowAttachmentNode({
 
         {/* Uploaded Files */}
         {attachments.map((attachment) => {
-          const { data: { publicUrl } } = supabase.storage
-            .from('flow-attachments')
-            .getPublicUrl(attachment.file_url);
+          const [imageUrl, setImageUrl] = useState<string>('');
+
+          // Get signed URL for private bucket
+          useEffect(() => {
+            const getSignedUrl = async () => {
+              const { data, error } = await supabase.storage
+                .from('flow-attachments')
+                .createSignedUrl(attachment.file_url, 3600); // 1 hour expiry
+
+              if (data) {
+                setImageUrl(data.signedUrl);
+              } else {
+                console.error('Failed to get signed URL:', error);
+              }
+            };
+
+            getSignedUrl();
+          }, [attachment.file_url]);
 
           return (
             <div
@@ -268,16 +236,24 @@ export function FlowAttachmentNode({
               {/* Preview */}
               {attachment.file_type.startsWith('image/') && (
                 <>
-                  <img
-                    src={publicUrl}
-                    alt=""
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }}
-                  />
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={attachment.file_name}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      loading="lazy"
+                      onError={(e) => {
+                        console.error('Image failed to load:', imageUrl, attachment);
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+                    </div>
+                  )}
                   <div className="w-full h-full flex flex-col items-center justify-center p-2 hidden">
                     <ImageIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-1" />
                     <span className="text-xs text-gray-400 dark:text-gray-500 text-center truncate w-full px-2">
@@ -286,9 +262,9 @@ export function FlowAttachmentNode({
                   </div>
                 </>
               )}
-              {attachment.file_type.startsWith('video/') && (
+              {attachment.file_type.startsWith('video/') && imageUrl && (
                 <video
-                  src={publicUrl}
+                  src={imageUrl}
                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 />
               )}
@@ -298,47 +274,20 @@ export function FlowAttachmentNode({
                 </div>
               )}
 
-              {/* Overlay on Hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
-                  <div className="flex items-center gap-1.5">
+              {/* Overlay on Hover - Lighter overlay with only delete button */}
+              {!disabled && (
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="absolute inset-0 flex items-center justify-center">
                     <button
-                      onClick={() => handleDownload(attachment)}
-                      className="p-2 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
-                      title="Download"
+                      onClick={() => handleDelete(attachment)}
+                      className="p-2.5 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-lg"
+                      title="Remove"
                     >
-                      <Download className="w-3.5 h-3.5 text-gray-700" />
+                      <X className="w-4 h-4 text-gray-700" />
                     </button>
-                    <button
-                      onClick={() => handleCopyUrl(attachment)}
-                      className="p-2 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
-                      title="Copy URL"
-                    >
-                      {copiedId === attachment.id ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5 text-gray-700" />
-                      )}
-                    </button>
-                    {!disabled && (
-                      <button
-                        onClick={() => handleDelete(attachment)}
-                        className="p-2 bg-rose-500 hover:bg-rose-600 rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
-                        title="Remove"
-                      >
-                        <X className="w-3.5 h-3.5 text-white" />
-                      </button>
-                    )}
                   </div>
                 </div>
-              </div>
-
-              {/* File name badge at bottom */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2">
-                <p className="text-xs text-white truncate font-medium">
-                  {attachment.file_name}
-                </p>
-              </div>
+              )}
             </div>
           );
         })}
@@ -349,14 +298,6 @@ export function FlowAttachmentNode({
         <div className="text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Upload up to {maxFiles} files • 50MB each
-          </p>
-        </div>
-      )}
-
-      {attachments.length > 0 && (
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {attachments.length} of {maxFiles}
           </p>
         </div>
       )}
