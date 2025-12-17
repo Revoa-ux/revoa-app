@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HelpCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import { HelpCircle, CheckCircle, ArrowRight, Mail, Sparkles } from 'lucide-react';
 import Lottie from 'lottie-react';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
@@ -18,9 +18,10 @@ interface FlowMessageProps {
     total: number;
     percentage: number;
   };
+  onOpenTemplateModal?: (templateIds?: string[]) => void;
 }
 
-export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessageProps) {
+export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -29,6 +30,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   const [productOptions, setProductOptions] = useState<any[]>([]);
   const [needsProductSelection, setNeedsProductSelection] = useState(false);
   const [loadingWarranty, setLoadingWarranty] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -61,10 +63,12 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
           return;
         }
 
+        setThreadId(sessionData.thread_id);
+
         const warrantyInfo = await getThreadProductWarranty(sessionData.thread_id);
 
         if (!warrantyInfo) {
-          setDynamicContent('⚠️ Unable to load warranty information - no order linked to this thread.');
+          setDynamicContent('⚠️ **No order linked to this thread yet.**\n\nTo check warranty coverage, please link this thread to an order first. You can do this from the customer sidebar on the right.\n\nOnce an order is linked, refresh this flow to see warranty details.');
           return;
         }
 
@@ -397,6 +401,29 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         {renderContinueButton() && (
           <div className="mt-3">
             {renderContinueButton()}
+          </div>
+        )}
+
+        {/* Template Suggestions */}
+        {isActive && node.metadata?.templateSuggestions && node.metadata.templateSuggestions.length > 0 && onOpenTemplateModal && (
+          <div className="mt-3 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Recommended Email Templates:</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {node.metadata.templateSuggestions.map((templateId: string) => (
+                <button
+                  key={templateId}
+                  onClick={() => onOpenTemplateModal([templateId])}
+                  className="group inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-all hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm"
+                >
+                  <Mail className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200" />
+                  <span className="capitalize">{templateId.replace(/_/g, ' ')}</span>
+                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 dark:text-gray-400" />
+                </button>
+              ))}
+            </div>
           </div>
         )}
         </div>

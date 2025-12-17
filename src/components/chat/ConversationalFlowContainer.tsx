@@ -7,9 +7,10 @@ import { toast } from 'sonner';
 interface ConversationalFlowContainerProps {
   threadId: string | null;
   onFlowActive?: (isActive: boolean) => void;
+  onOpenTemplateModal?: (templateIds?: string[]) => void;
 }
 
-export function ConversationalFlowContainer({ threadId, onFlowActive }: ConversationalFlowContainerProps) {
+export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemplateModal }: ConversationalFlowContainerProps) {
   const {
     session,
     flow,
@@ -72,6 +73,7 @@ export function ConversationalFlowContainer({ threadId, onFlowActive }: Conversa
             data={flowMessage}
             onResponse={handleResponse}
             isLoading={isLoading}
+            onOpenTemplateModal={onOpenTemplateModal}
           />
         ))}
       </div>

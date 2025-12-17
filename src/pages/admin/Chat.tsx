@@ -770,7 +770,12 @@ const AdminChat = () => {
               {/* Conversational Flow Container - Shows at the top of messages */}
               {selectedThreadId && activeFlowSession?.is_active && (
                 <div className="mb-4">
-                  <ConversationalFlowContainer threadId={selectedThreadId} />
+                  <ConversationalFlowContainer
+                    threadId={selectedThreadId}
+                    onOpenTemplateModal={(templateIds) => {
+                      setShowScenarioTemplate(true);
+                    }}
+                  />
                 </div>
               )}
 
