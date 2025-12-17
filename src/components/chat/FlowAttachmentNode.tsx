@@ -216,125 +216,136 @@ export function FlowAttachmentNode({
 
   const meetsMinimum = attachments.length >= minFiles;
 
+  const getPreviewUrl = (attachment: FlowAttachment) => {
+    const { data: { publicUrl } } = supabase.storage
+      .from('flow-attachments')
+      .getPublicUrl(attachment.file_url);
+    return publicUrl;
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Upload Zone */}
-      {attachments.length < maxFiles && (
-        <div
-          {...getRootProps()}
-          className={`
-            border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-gray-400 bg-gray-50 dark:bg-gray-800' : 'border-gray-300 dark:border-gray-600'}
-            ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'}
-          `}
-        >
-          <input {...getInputProps()} />
-          <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
-          {uploading ? (
-            <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Uploading...</span>
-            </div>
-          ) : (
-            <>
-              <p className="text-gray-600 dark:text-gray-400 mb-2">
-                {isDragActive ? 'Drop files here...' : 'Drag and drop files here, or click to browse'}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">
-                Images (JPG, PNG, GIF, WebP) and Videos (MP4, MOV, AVI, WebM) up to 50MB
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-                {attachments.length} of {maxFiles} files uploaded
-              </p>
-            </>
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {attachments.length} / {maxFiles}
+          </span>
+          {minFiles > 0 && (
+            <span className={`text-xs px-2 py-0.5 rounded-full ${
+              meetsMinimum
+                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+            }`}>
+              {meetsMinimum ? `${minFiles}+ required ✓` : `${minFiles} minimum`}
+            </span>
           )}
         </div>
-      )}
+      </div>
 
-      {/* Attachments List */}
-      {attachments.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Uploaded Files ({attachments.length}/{maxFiles})
-            </h4>
-            {!meetsMinimum && (
-              <span className="text-xs text-amber-600 dark:text-amber-400">
-                Minimum {minFiles} file(s) required
-              </span>
-            )}
+      {/* Grid with Upload Button and Attachments */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {/* Upload Button */}
+        {attachments.length < maxFiles && (
+          <div
+            {...getRootProps()}
+            className={`
+              relative aspect-square rounded-xl border-2 border-dashed cursor-pointer
+              transition-all duration-200 overflow-hidden
+              ${isDragActive
+                ? 'border-gray-400 bg-gray-50 dark:bg-gray-800 scale-105'
+                : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+              }
+              ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+          >
+            <input {...getInputProps()} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+              {uploading ? (
+                <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+              ) : (
+                <>
+                  <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2" />
+                  <span className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                    {isDragActive ? 'Drop here' : 'Add files'}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
+        )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {attachments.map((attachment) => (
-              <div
-                key={attachment.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-800"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 text-gray-400 dark:text-gray-500">
-                    {getFileIcon(attachment.file_type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {attachment.file_name}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatFileSize(attachment.file_size)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 mt-3">
-                  <button
-                    onClick={() => handleDownload(attachment)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
-                    title="Download"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    Download
-                  </button>
-
-                  <button
-                    onClick={() => handleCopyUrl(attachment)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-                    title="Copy URL"
-                  >
-                    {copiedId === attachment.id ? (
-                      <>
-                        <Check className="w-3.5 h-3.5" />
-                        Copied
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        Copy URL
-                      </>
-                    )}
-                  </button>
-
-                  {!disabled && (
-                    <button
-                      onClick={() => handleDelete(attachment)}
-                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-auto"
-                      title="Remove"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      Remove
-                    </button>
-                  )}
-                </div>
+        {/* Uploaded Files */}
+        {attachments.map((attachment) => (
+          <div
+            key={attachment.id}
+            className="relative aspect-square rounded-xl overflow-hidden group bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+          >
+            {/* Preview */}
+            {attachment.file_type.startsWith('image/') ? (
+              <img
+                src={getPreviewUrl(attachment)}
+                alt={attachment.file_name}
+                className="w-full h-full object-cover"
+              />
+            ) : attachment.file_type.startsWith('video/') ? (
+              <video
+                src={getPreviewUrl(attachment)}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <FileText className="w-12 h-12 text-gray-400" />
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+            )}
 
-      {/* Validation Message */}
-      {!meetsMinimum && attachments.length > 0 && (
-        <div className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg">
-          Please upload at least {minFiles} file(s) to continue.
-        </div>
+            {/* Overlay on Hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-200">
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-2">
+                <button
+                  onClick={() => handleDownload(attachment)}
+                  className="p-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Download"
+                >
+                  <Download className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                </button>
+                <button
+                  onClick={() => handleCopyUrl(attachment)}
+                  className="p-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Copy URL"
+                >
+                  {copiedId === attachment.id ? (
+                    <Check className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+                  )}
+                </button>
+                {!disabled && (
+                  <button
+                    onClick={() => handleDelete(attachment)}
+                    className="p-2 bg-red-500/90 hover:bg-red-600 rounded-lg transition-colors"
+                    title="Remove"
+                  >
+                    <X className="w-4 h-4 text-white" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* File Info Badge */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <p className="text-xs text-white truncate">{attachment.file_name}</p>
+              <p className="text-xs text-gray-300">{formatFileSize(attachment.file_size)}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Helper Text */}
+      {attachments.length === 0 && (
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          Images and videos up to 50MB
+        </p>
       )}
     </div>
   );
