@@ -214,8 +214,6 @@ export function FlowAttachmentNode({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const meetsMinimum = attachments.length >= minFiles;
-
   const getPreviewUrl = (attachment: FlowAttachment) => {
     const { data: { publicUrl } } = supabase.storage
       .from('flow-attachments')
@@ -224,37 +222,21 @@ export function FlowAttachmentNode({
   };
 
   return (
-    <div className="space-y-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {attachments.length} / {maxFiles}
-          </span>
-          {minFiles > 0 && (
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-              meetsMinimum
-                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-            }`}>
-              {meetsMinimum ? `${minFiles}+ required ✓` : `${minFiles} minimum`}
-            </span>
-          )}
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Grid with Upload Button and Attachments */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
         {/* Upload Button */}
         {attachments.length < maxFiles && (
           <div
             {...getRootProps()}
             className={`
-              relative aspect-square rounded-xl border-2 border-dashed cursor-pointer
-              transition-all duration-200 overflow-hidden
+              relative aspect-square rounded-2xl cursor-pointer
+              transition-all duration-300 overflow-hidden
+              bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900
+              border-2 border-dashed
               ${isDragActive
-                ? 'border-gray-400 bg-gray-50 dark:bg-gray-800 scale-105'
-                : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                ? 'border-blue-400 dark:border-blue-500 scale-105 shadow-lg shadow-blue-500/20'
+                : 'border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:scale-105 hover:shadow-xl hover:shadow-gray-500/10 dark:hover:shadow-gray-700/30'
               }
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
@@ -262,12 +244,19 @@ export function FlowAttachmentNode({
             <input {...getInputProps()} />
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
               {uploading ? (
-                <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+                <>
+                  <Loader2 className="w-10 h-10 text-blue-500 dark:text-blue-400 animate-spin mb-2" />
+                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                    Uploading...
+                  </span>
+                </>
               ) : (
                 <>
-                  <Upload className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2" />
-                  <span className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    {isDragActive ? 'Drop here' : 'Add files'}
+                  <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center mb-2 shadow-md">
+                    <Upload className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center">
+                    {isDragActive ? 'Drop here' : 'Add'}
                   </span>
                 </>
               )}
@@ -279,63 +268,67 @@ export function FlowAttachmentNode({
         {attachments.map((attachment) => (
           <div
             key={attachment.id}
-            className="relative aspect-square rounded-xl overflow-hidden group bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+            className="relative aspect-square rounded-2xl overflow-hidden group bg-gray-100 dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300"
           >
             {/* Preview */}
             {attachment.file_type.startsWith('image/') ? (
               <img
                 src={getPreviewUrl(attachment)}
                 alt={attachment.file_name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
             ) : attachment.file_type.startsWith('video/') ? (
               <video
                 src={getPreviewUrl(attachment)}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
                 <FileText className="w-12 h-12 text-gray-400" />
               </div>
             )}
 
             {/* Overlay on Hover */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-200">
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-2 p-2">
-                <button
-                  onClick={() => handleDownload(attachment)}
-                  className="p-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Download"
-                >
-                  <Download className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                </button>
-                <button
-                  onClick={() => handleCopyUrl(attachment)}
-                  className="p-2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Copy URL"
-                >
-                  {copiedId === attachment.id ? (
-                    <Check className="w-4 h-4 text-emerald-600" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                  )}
-                </button>
-                {!disabled && (
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleDelete(attachment)}
-                    className="p-2 bg-red-500/90 hover:bg-red-600 rounded-lg transition-colors"
-                    title="Remove"
+                    onClick={() => handleDownload(attachment)}
+                    className="p-2.5 bg-white/95 hover:bg-white rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
+                    title="Download"
                   >
-                    <X className="w-4 h-4 text-white" />
+                    <Download className="w-4 h-4 text-gray-700" />
                   </button>
-                )}
+                  <button
+                    onClick={() => handleCopyUrl(attachment)}
+                    className="p-2.5 bg-white/95 hover:bg-white rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
+                    title="Copy URL"
+                  >
+                    {copiedId === attachment.id ? (
+                      <Check className="w-4 h-4 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-4 h-4 text-gray-700" />
+                    )}
+                  </button>
+                  {!disabled && (
+                    <button
+                      onClick={() => handleDelete(attachment)}
+                      className="p-2.5 bg-red-500 hover:bg-red-600 rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
+                      title="Remove"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  )}
+                </div>
+                <div className="text-center px-2">
+                  <p className="text-xs font-medium text-white truncate max-w-full">
+                    {attachment.file_name}
+                  </p>
+                  <p className="text-xs text-gray-300 mt-0.5">
+                    {formatFileSize(attachment.file_size)}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            {/* File Info Badge */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <p className="text-xs text-white truncate">{attachment.file_name}</p>
-              <p className="text-xs text-gray-300">{formatFileSize(attachment.file_size)}</p>
             </div>
           </div>
         ))}
@@ -343,9 +336,19 @@ export function FlowAttachmentNode({
 
       {/* Helper Text */}
       {attachments.length === 0 && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          Images and videos up to 50MB
-        </p>
+        <div className="text-center py-2">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Upload photos and videos • Up to {maxFiles} files • 50MB max each
+          </p>
+        </div>
+      )}
+
+      {attachments.length > 0 && (
+        <div className="text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {attachments.length} of {maxFiles} files
+          </p>
+        </div>
       )}
     </div>
   );
