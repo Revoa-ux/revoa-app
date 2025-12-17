@@ -306,7 +306,7 @@ export function FlowAttachmentNode({
 
       {/* Helper Text */}
       <div className="text-center">
-        <p className="text-xs text-white/90">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
           Upload up to {maxFiles} files • 50MB each
         </p>
       </div>

@@ -309,16 +309,20 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         <div className="flex-1 min-w-0">
           <div className={`rounded-lg p-4 relative overflow-hidden ${
             isActive
-              ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg'
+              ? 'bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 shadow-lg'
               : isCompleted
               ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
               : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
           }`}>
+            {/* Apple-style red gradient accent for active state */}
+            {isActive && (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)] pointer-events-none"></div>
+            )}
 
-          <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-start justify-between gap-2 mb-2 relative z-10">
             <div className={`text-sm flex-1 ${
               isActive
-                ? 'text-white font-medium'
+                ? 'text-gray-900 dark:text-white font-medium'
                 : 'text-gray-600 dark:text-gray-400'
             }`}>
               {loadingWarranty ? (
@@ -335,14 +339,14 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
                 onClick={() => setShowHelp(!showHelp)}
                 className={`flex-shrink-0 p-1 rounded transition-colors ${
                   isActive
-                    ? 'hover:bg-white/20'
+                    ? 'hover:bg-gray-100 dark:hover:bg-gray-700'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                 }`}
                 title="Show help"
               >
                 <HelpCircle className={`w-4 h-4 ${
                   isActive
-                    ? 'text-white/80 hover:text-white'
+                    ? 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`} />
               </button>
@@ -350,9 +354,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
           </div>
 
           {showHelp && node.metadata?.helpText && (
-            <div className={`mb-3 p-2 rounded text-xs border ${
+            <div className={`mb-3 p-2 rounded text-xs border relative z-10 ${
               isActive
-                ? 'bg-white/20 text-white border-white/30'
+                ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-100 border-rose-100 dark:border-rose-800'
                 : 'bg-rose-50 dark:bg-rose-900/20 text-rose-900 dark:text-rose-100 border-rose-100 dark:border-rose-800'
             }`}>
               {node.metadata.helpText}
@@ -360,12 +364,11 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
           )}
 
           {renderPreviousResponse()}
-          {renderResponseInput()}
 
           {node.metadata?.skipable && isActive && (
             <button
               onClick={() => onResponse(null)}
-              className="mt-2 text-xs text-white/80 hover:text-white underline"
+              className="mt-2 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white underline relative z-10"
               disabled={isLoading}
             >
               Skip this step
@@ -374,18 +377,25 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         </div>
 
         {isLoading && (
-          <div className="mt-2 flex items-center gap-2 text-xs text-white/90">
+          <div className="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex gap-1">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
             <span>Processing...</span>
           </div>
         )}
 
+        {/* Interactive elements moved outside bubble */}
+        {renderResponseInput() && (
+          <div className="mt-3">
+            {renderResponseInput()}
+          </div>
+        )}
+
         {renderContinueButton() && (
-          <div className="mt-2">
+          <div className="mt-3">
             {renderContinueButton()}
           </div>
         )}
