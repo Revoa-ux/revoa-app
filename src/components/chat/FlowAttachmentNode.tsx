@@ -254,9 +254,9 @@ export function FlowAttachmentNode({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Grid with Upload Button and Attachments */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 min-h-[120px]">
         {/* Upload Button */}
         {attachments.length < maxFiles && (
           <div
@@ -266,7 +266,8 @@ export function FlowAttachmentNode({
               transition-all duration-200 overflow-hidden
               bg-gray-50 dark:bg-gray-800
               border-2 border-dashed border-gray-200 dark:border-gray-700
-              ${isDragActive ? 'scale-105' : ''}
+              hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50
+              ${isDragActive ? 'scale-105 border-gray-400 dark:border-gray-500' : ''}
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >
@@ -281,8 +282,8 @@ export function FlowAttachmentNode({
                 </>
               ) : (
                 <>
-                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-1.5">
-                    <Upload className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-2">
+                    <Upload className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                   </div>
                   <span className="text-xs font-medium text-gray-500 dark:text-gray-400 text-center">
                     {isDragActive ? 'Drop here' : 'Add'}
@@ -305,7 +306,7 @@ export function FlowAttachmentNode({
       </div>
 
       {/* Helper Text */}
-      <div className="text-center">
+      <div>
         <p className="text-xs text-gray-600 dark:text-gray-400">
           Upload up to {maxFiles} files • 50MB each
         </p>

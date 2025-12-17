@@ -309,14 +309,14 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         <div className="flex-1 min-w-0">
           <div className={`rounded-lg p-4 relative overflow-hidden ${
             isActive
-              ? 'bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 shadow-lg'
+              ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700 shadow-lg'
               : isCompleted
               ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
               : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
           }`}>
             {/* Apple-style red gradient accent for active state */}
             {isActive && (
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)] pointer-events-none"></div>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.08)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.1)_0%,transparent_50%)] pointer-events-none"></div>
             )}
 
           <div className="flex items-start justify-between gap-2 mb-2 relative z-10">
