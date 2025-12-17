@@ -222,10 +222,17 @@ export class FlowEngineService {
   } {
     const { flow, session } = context;
     const allNodes = this.parseFlow(flow);
-    const answeredNodes = Object.keys(session.flow_state).length;
 
-    const totalNodes = allNodes.filter(
+    // Only count question and decision nodes for progress
+    const progressNodes = allNodes.filter(
       node => node.type === 'question' || node.type === 'decision'
+    );
+
+    const totalNodes = progressNodes.length;
+
+    // Count how many progress nodes have been answered
+    const answeredNodes = progressNodes.filter(
+      node => session.flow_state[node.id]?.response !== undefined
     ).length;
 
     return {

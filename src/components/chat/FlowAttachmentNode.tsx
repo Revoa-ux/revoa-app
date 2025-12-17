@@ -225,12 +225,9 @@ export function FlowAttachmentNode({
             className={`
               relative aspect-square rounded-xl cursor-pointer
               transition-all duration-200 overflow-hidden
-              bg-white dark:bg-gray-800
-              border-2 border-dashed
-              ${isDragActive
-                ? 'border-rose-400 dark:border-rose-500 scale-105 shadow-lg shadow-rose-500/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 hover:scale-[1.02] hover:shadow-lg'
-              }
+              bg-gray-50 dark:bg-gray-800
+              border-2 border-dashed border-gray-200 dark:border-gray-700
+              ${isDragActive ? 'scale-105' : ''}
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >
@@ -238,17 +235,17 @@ export function FlowAttachmentNode({
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
               {uploading ? (
                 <>
-                  <Loader2 className="w-8 h-8 text-rose-500 dark:text-rose-400 animate-spin mb-1.5" />
-                  <span className="text-xs font-medium text-rose-600 dark:text-rose-400">
+                  <Loader2 className="w-8 h-8 text-gray-400 dark:text-gray-500 animate-spin mb-1.5" />
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
                     Uploading...
                   </span>
                 </>
               ) : (
                 <>
-                  <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center mb-1.5">
-                    <Upload className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+                  <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-1.5">
+                    <Upload className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400 text-center">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 text-center">
                     {isDragActive ? 'Drop here' : 'Add'}
                   </span>
                 </>
