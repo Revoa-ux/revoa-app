@@ -157,7 +157,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
             <button
               onClick={handleDownloadAll}
               disabled={downloadingAll}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+              className="text-xs text-rose-600 dark:text-rose-400 hover:underline disabled:opacity-50"
             >
               {downloadingAll ? 'Downloading...' : 'Download All'}
             </button>
@@ -175,7 +175,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
               </span>
               <button
                 onClick={() => handleDownload(attachment)}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300"
               >
                 <Download className="w-3.5 h-3.5" />
               </button>
@@ -197,7 +197,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
           <button
             onClick={handleDownloadAll}
             disabled={downloadingAll}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors disabled:opacity-50"
           >
             {downloadingAll ? (
               <>
@@ -255,7 +255,7 @@ export function FlowAttachmentList({ sessionId, compact = false }: FlowAttachmen
                 <div className="flex items-center gap-2 mt-3">
                   <button
                     onClick={() => handleDownload(attachment)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Download

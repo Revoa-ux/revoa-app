@@ -224,8 +224,8 @@ export function FlowAttachmentNode({
           {...getRootProps()}
           className={`
             border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600'}
-            ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-blue-400 dark:hover:border-blue-500'}
+            ${isDragActive ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20' : 'border-gray-300 dark:border-gray-600'}
+            ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-rose-400 dark:hover:border-rose-500'}
           `}
         >
           <input {...getInputProps()} />
@@ -288,7 +288,7 @@ export function FlowAttachmentNode({
                 <div className="flex items-center gap-2 mt-3">
                   <button
                     onClick={() => handleDownload(attachment)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded transition-colors"
                     title="Download"
                   >
                     <Download className="w-3.5 h-3.5" />
