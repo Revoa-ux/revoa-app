@@ -6,7 +6,8 @@ import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
 import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { FlowAttachmentNode } from './FlowAttachmentNode';
-import { getThreadProductWarranty, formatWarrantyForFlow } from '../../lib/flowWarrantyService';
+import { FlowGuidancePanel } from './FlowGuidancePanel';
+import { getThreadProductWarranty, formatWarrantyForFlow, getDamageResolutionGuidance } from '../../lib/flowWarrantyService';
 import { supabase } from '../../lib/supabase';
 
 interface FlowMessageProps {
@@ -31,6 +32,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const [needsProductSelection, setNeedsProductSelection] = useState(false);
   const [loadingWarranty, setLoadingWarranty] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
+  const [intelligentGuidance, setIntelligentGuidance] = useState<any>(null);
+  const [loadingGuidance, setLoadingGuidance] = useState(false);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -38,6 +41,25 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       .then(data => setAnimationData(data))
       .catch(err => console.error('Failed to load animation:', err));
   }, []);
+
+  // Load thread ID upfront
+  useEffect(() => {
+    const loadThreadId = async () => {
+      if (threadId) return;
+
+      const { data: sessionData } = await supabase
+        .from('thread_flow_sessions')
+        .select('thread_id')
+        .eq('id', data.sessionId)
+        .maybeSingle();
+
+      if (sessionData?.thread_id) {
+        setThreadId(sessionData.thread_id);
+      }
+    };
+
+    loadThreadId();
+  }, [data.sessionId, threadId]);
 
   // Load dynamic warranty content
   useEffect(() => {
@@ -97,6 +119,49 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
 
     loadWarrantyContent();
   }, [node.metadata, isCurrentStep, data.sessionId]);
+
+  // Load intelligent guidance for resolution nodes
+  useEffect(() => {
+    const loadGuidance = async () => {
+      // Only load guidance for info nodes with resolution metadata
+      if (!isCurrentStep || node.type !== 'info' || !node.metadata?.resolution) {
+        setIntelligentGuidance(null);
+        return;
+      }
+
+      if (!threadId) {
+        return;
+      }
+
+      // Get the damage type from flow state
+      const { data: sessionState } = await supabase
+        .from('thread_flow_sessions')
+        .select('flow_state')
+        .eq('id', data.sessionId)
+        .maybeSingle();
+
+      const damageType = sessionState?.flow_state?.damage_assessment?.response;
+
+      if (!damageType) {
+        console.log('[FlowMessage] No damage type found in flow state');
+        return;
+      }
+
+      console.log('[FlowMessage] Loading guidance for damage type:', damageType);
+      setLoadingGuidance(true);
+      try {
+        const guidance = await getDamageResolutionGuidance(threadId, damageType);
+        console.log('[FlowMessage] Guidance loaded:', guidance);
+        setIntelligentGuidance(guidance);
+      } catch (error) {
+        console.error('Error loading guidance:', error);
+      } finally {
+        setLoadingGuidance(false);
+      }
+    };
+
+    loadGuidance();
+  }, [isCurrentStep, node.type, node.metadata, threadId, data.sessionId]);
 
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
@@ -402,6 +467,17 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           <div className="mt-3">
             {renderContinueButton()}
           </div>
+        )}
+
+        {/* Intelligent Guidance Panel */}
+        {isActive && intelligentGuidance && !loadingGuidance && (
+          <FlowGuidancePanel
+            resolution={intelligentGuidance.resolution}
+            reasoning={intelligentGuidance.reasoning}
+            nextSteps={intelligentGuidance.nextSteps}
+            urgency={intelligentGuidance.urgency}
+            confidence={intelligentGuidance.confidence}
+          />
         )}
 
         {/* Template Suggestions */}
