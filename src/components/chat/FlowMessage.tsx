@@ -191,13 +191,6 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
               ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
               : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
           }`}>
-          {progress && isActive && (
-            <FlowProgressIndicator
-              current={progress.current}
-              total={progress.total}
-              percentage={progress.percentage}
-            />
-          )}
 
           <div className="flex items-start justify-between gap-2 mb-2">
             <p className={`text-sm ${
