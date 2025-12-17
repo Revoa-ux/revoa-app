@@ -43,7 +43,6 @@ export function CreateThreadModal({
   userId,
   onThreadCreated,
 }: CreateThreadModalProps) {
-  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -112,15 +111,13 @@ export function CreateThreadModal({
       return;
     }
 
-    if (!title.trim()) {
-      toast.error('Please enter a title for this thread');
-      return;
-    }
-
     if (!selectedOrderId) {
       toast.error('Please select an order for this thread');
       return;
     }
+
+    // Auto-generate title from order number
+    const title = selectedOrder?.order_number || `Order ${selectedOrderId.slice(0, 8)}`;
 
     setIsCreating(true);
     try {
@@ -132,7 +129,7 @@ export function CreateThreadModal({
           chat_id: chatId,
           order_id: selectedOrderId,
           shopify_order_id: selectedOrder?.shopify_order_id,
-          title: title.trim(),
+          title: title,
           description: description.trim() || null,
           tag: selectedTag || null,
           created_by_user_id: currentUser?.id,
@@ -516,7 +513,6 @@ Browse the scenario templates to find relevant responses for:
   };
 
   const handleClose = () => {
-    setTitle('');
     setDescription('');
     setSelectedOrderId('');
     setSelectedOrder(null);
@@ -581,24 +577,6 @@ Browse the scenario templates to find relevant responses for:
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Thread Title */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Issue Title *
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g., Defective product received, Shipping delay, etc."
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white"
-            maxLength={100}
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {title.length}/100 characters
-          </p>
         </div>
 
         {/* Description */}
@@ -760,7 +738,7 @@ Browse the scenario templates to find relevant responses for:
         <button
           type="button"
           onClick={handleCreate}
-          disabled={!title.trim() || !selectedOrderId || !selectedTag || isCreating}
+          disabled={!selectedOrderId || !selectedTag || isCreating}
           className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-sm"
         >
           {isCreating ? (
