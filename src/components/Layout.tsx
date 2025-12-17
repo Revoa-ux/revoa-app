@@ -261,7 +261,7 @@ export default function Layout() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 title={effectiveCollapsed ? item.name : undefined}
                 className={cn(
-                  'flex items-center rounded-lg transition-all',
+                  'flex items-center rounded-lg transition-colors duration-150',
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
                   'text-[13px]',
                   isActive

@@ -197,7 +197,7 @@ export default function AdminSidebar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 title={effectiveCollapsed ? item.name : undefined}
                 className={cn(
-                  'flex items-center rounded-lg transition-all',
+                  'flex items-center rounded-lg transition-colors duration-150',
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                   'text-[13px]',
                   isActive
@@ -226,7 +226,7 @@ export default function AdminSidebar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 title={effectiveCollapsed ? item.name : undefined}
                 className={cn(
-                  'flex items-center text-[13px] rounded-lg transition-all',
+                  'flex items-center text-[13px] rounded-lg transition-colors duration-150',
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
                   isActive
                     ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
