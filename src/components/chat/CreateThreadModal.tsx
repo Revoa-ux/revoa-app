@@ -3,6 +3,7 @@ import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
+import { flowTriggerService } from '@/lib/flowTriggerService';
 
 interface Order {
   id: string;
@@ -141,22 +142,15 @@ export function CreateThreadModal({
 
       if (error) throw error;
 
-      // Skip welcome message if a conversational flow will auto-start
-      const flowTags = [
-        'return',
-        'damaged',
-        'defective',
-        'cancel_modify',
-        'wrong_item',
-        'missing_items',
-        'shipping',
-        'refund',
-        'replacement'
-      ];
-      const willAutoStartFlow = threadData.tag && flowTags.includes(threadData.tag.toLowerCase());
+      // Try to auto-start a conversational flow for this thread
+      const flowStarted = await flowTriggerService.autoStartFlowIfNeeded(
+        threadData.id,
+        title,
+        threadData.tag || undefined
+      );
 
-      if (!willAutoStartFlow) {
-        // Send automated welcome message for the thread
+      // Only send welcome message if no flow was started
+      if (!flowStarted) {
         const welcomeMessage = getThreadWelcomeMessage(threadData.tag, selectedOrder);
 
         if (welcomeMessage) {
@@ -176,12 +170,10 @@ export function CreateThreadModal({
 
           if (messageError) {
             console.error('Error creating welcome message:', messageError);
-            // Don't fail the thread creation if message fails
           }
         }
       }
 
-      toast.success('Thread created successfully');
       onThreadCreated(threadData.id);
       handleClose();
     } catch (error) {

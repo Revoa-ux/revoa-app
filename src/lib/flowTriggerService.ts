@@ -9,12 +9,47 @@ export interface FlowTrigger {
 const FLOW_TRIGGERS: FlowTrigger[] = [
   {
     category: 'return',
-    keywords: ['return', 'send back', 'refund', 'dont want'],
+    keywords: ['return', 'send back', 'dont want'],
     autoStart: true,
   },
   {
     category: 'damage',
-    keywords: ['damaged', 'broken', 'defective', 'not working', 'issue with'],
+    keywords: ['damaged', 'broken', 'not working', 'issue with'],
+    autoStart: true,
+  },
+  {
+    category: 'defective',
+    keywords: ['defective', 'defect', 'faulty', 'malfunction'],
+    autoStart: true,
+  },
+  {
+    category: 'cancel_modify',
+    keywords: ['cancel', 'modify', 'change order', 'update order'],
+    autoStart: true,
+  },
+  {
+    category: 'wrong_item',
+    keywords: ['wrong item', 'incorrect item', 'wrong product', 'not what i ordered'],
+    autoStart: true,
+  },
+  {
+    category: 'missing_items',
+    keywords: ['missing', 'missing item', 'didnt receive', 'incomplete order'],
+    autoStart: true,
+  },
+  {
+    category: 'shipping',
+    keywords: ['shipping', 'delivery', 'tracking', 'not arrived', 'delayed'],
+    autoStart: true,
+  },
+  {
+    category: 'refund',
+    keywords: ['refund', 'money back', 'reimburse'],
+    autoStart: true,
+  },
+  {
+    category: 'replacement',
+    keywords: ['replacement', 'replace', 'exchange', 'swap'],
     autoStart: true,
   },
 ];
@@ -23,9 +58,12 @@ export class FlowTriggerService {
   private mapTagToCategory(tag: string): string {
     const tagLower = tag.toLowerCase();
 
-    // Map defective/defect to damage flow
-    if (tagLower === 'defective' || tagLower === 'defect') {
+    // Map tag variations to their flow categories
+    if (tagLower === 'damaged') {
       return 'damage';
+    }
+    if (tagLower === 'cancel' || tagLower === 'modify') {
+      return 'cancel_modify';
     }
 
     return tagLower;
