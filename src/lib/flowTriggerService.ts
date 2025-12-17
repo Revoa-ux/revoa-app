@@ -20,12 +20,35 @@ const FLOW_TRIGGERS: FlowTrigger[] = [
 ];
 
 export class FlowTriggerService {
+  private mapTagToCategory(tag: string): string {
+    const tagLower = tag.toLowerCase();
+
+    // Map defective/defect to damage flow
+    if (tagLower === 'defective' || tagLower === 'defect') {
+      return 'damage';
+    }
+
+    return tagLower;
+  }
+
   async suggestFlowForThread(threadId: string, threadTitle?: string, threadTag?: string): Promise<string | null> {
     if (threadTag) {
       const tagLower = threadTag.toLowerCase();
+      const mappedCategory = this.mapTagToCategory(tagLower);
 
+      // First try direct category match with mapped category
       for (const trigger of FLOW_TRIGGERS) {
-        if (trigger.category === tagLower || trigger.keywords.some(kw => tagLower.includes(kw))) {
+        if (trigger.category === mappedCategory || trigger.category === tagLower) {
+          const flows = await flowStateService.getActiveFlowsByCategory(trigger.category);
+          if (flows.length > 0) {
+            return flows[0].id;
+          }
+        }
+      }
+
+      // Then try keyword matching
+      for (const trigger of FLOW_TRIGGERS) {
+        if (trigger.keywords.some(kw => tagLower.includes(kw))) {
           const flows = await flowStateService.getActiveFlowsByCategory(trigger.category);
           if (flows.length > 0) {
             return flows[0].id;

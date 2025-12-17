@@ -144,27 +144,33 @@ export function CreateThreadModal({
 
       if (error) throw error;
 
-      // Send automated welcome message for the thread
-      const welcomeMessage = getThreadWelcomeMessage(threadData.tag, selectedOrder);
+      // Skip welcome message if a conversational flow will auto-start
+      const flowTags = ['return', 'damage', 'defective'];
+      const willAutoStartFlow = threadData.tag && flowTags.includes(threadData.tag.toLowerCase());
 
-      if (welcomeMessage) {
-        const { error: messageError } = await supabase.from('messages').insert({
-          chat_id: chatId,
-          thread_id: threadData.id,
-          content: welcomeMessage,
-          type: 'text',
-          sender: 'team',
-          timestamp: new Date().toISOString(),
-          metadata: {
-            automated: true,
-            thread_welcome: true,
-            thread_tag: threadData.tag
+      if (!willAutoStartFlow) {
+        // Send automated welcome message for the thread
+        const welcomeMessage = getThreadWelcomeMessage(threadData.tag, selectedOrder);
+
+        if (welcomeMessage) {
+          const { error: messageError } = await supabase.from('messages').insert({
+            chat_id: chatId,
+            thread_id: threadData.id,
+            content: welcomeMessage,
+            type: 'text',
+            sender: 'team',
+            timestamp: new Date().toISOString(),
+            metadata: {
+              automated: true,
+              thread_welcome: true,
+              thread_tag: threadData.tag
+            }
+          });
+
+          if (messageError) {
+            console.error('Error creating welcome message:', messageError);
+            // Don't fail the thread creation if message fails
           }
-        });
-
-        if (messageError) {
-          console.error('Error creating welcome message:', messageError);
-          // Don't fail the thread creation if message fails
         }
       }
 
