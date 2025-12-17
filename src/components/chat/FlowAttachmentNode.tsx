@@ -266,18 +266,33 @@ export function FlowAttachmentNode({
               className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200"
             >
               {/* Preview */}
-              {attachment.file_type.startsWith('image/') ? (
-                <img
-                  src={publicUrl}
-                  alt={attachment.file_name}
-                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                />
-              ) : attachment.file_type.startsWith('video/') ? (
+              {attachment.file_type.startsWith('image/') && (
+                <>
+                  <img
+                    src={publicUrl}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full flex flex-col items-center justify-center p-2 hidden">
+                    <ImageIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-1" />
+                    <span className="text-xs text-gray-400 dark:text-gray-500 text-center truncate w-full px-2">
+                      {attachment.file_name}
+                    </span>
+                  </div>
+                </>
+              )}
+              {attachment.file_type.startsWith('video/') && (
                 <video
                   src={publicUrl}
                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 />
-              ) : (
+              )}
+              {!attachment.file_type.startsWith('image/') && !attachment.file_type.startsWith('video/') && (
                 <div className="w-full h-full flex items-center justify-center">
                   <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600" />
                 </div>
