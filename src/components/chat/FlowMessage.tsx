@@ -65,10 +65,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             <button
               onClick={() => onResponse(null)}
               disabled={isLoading}
-              className="mt-3 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-1.5"
+              className="group mt-3 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all gap-1.5"
             >
               <span>Continue</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </button>
           );
         }
@@ -77,7 +77,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   };
 
   const renderPreviousResponse = () => {
-    if (!isCompleted || previousResponse === undefined) return null;
+    if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
 
     const displayValue = typeof previousResponse === 'object'
       ? JSON.stringify(previousResponse)

@@ -21,7 +21,12 @@ export function ConversationalFlowContainer({ threadId, onFlowActive }: Conversa
 
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      const errorMessage = typeof error === 'string'
+        ? error
+        : error instanceof Error
+        ? error.message
+        : 'An unexpected error occurred';
+      toast.error(errorMessage);
     }
   }, [error]);
 
