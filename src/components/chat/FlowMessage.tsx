@@ -20,9 +20,10 @@ interface FlowMessageProps {
     percentage: number;
   };
   onOpenTemplateModal?: (templateIds?: string[]) => void;
+  isLastMessage?: boolean;
 }
 
-export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal }: FlowMessageProps) {
+export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, isLastMessage = false }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -365,7 +366,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   return (
     <div className={`flex justify-start mb-4 ${isActive ? 'animate-in fade-in slide-in-from-left-2' : ''}`}>
       <div className="flex gap-3 max-w-2xl">
-        {animationData && (
+        {animationData && isLastMessage && (
           <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
             <Lottie
               animationData={animationData}
@@ -373,6 +374,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
               className={`w-full h-full ${isActive ? '' : 'opacity-60'}`}
             />
           </div>
+        )}
+        {!isLastMessage && (
+          <div className="flex-shrink-0 w-8 h-8" />
         )}
 
         <div className="flex-1 min-w-0">
