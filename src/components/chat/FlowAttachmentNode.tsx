@@ -224,8 +224,8 @@ export function FlowAttachmentNode({
           {...getRootProps()}
           className={`
             border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-            ${isDragActive ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20' : 'border-gray-300 dark:border-gray-600'}
-            ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'hover:border-rose-400 dark:hover:border-rose-500'}
+            ${isDragActive ? 'border-gray-400 bg-gray-50 dark:bg-gray-800' : 'border-gray-300 dark:border-gray-600'}
+            ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'}
           `}
         >
           <input {...getInputProps()} />
