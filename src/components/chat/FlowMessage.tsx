@@ -56,10 +56,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             <button
               onClick={() => onResponse(null)}
               disabled={isLoading}
-              className="mt-3 inline-flex items-center justify-center px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
+              className="mt-3 inline-flex items-center justify-center px-3 py-1.5 text-xs bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-1.5"
             >
               <span>Continue</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3 h-3" />
             </button>
           );
         }

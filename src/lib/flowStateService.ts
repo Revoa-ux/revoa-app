@@ -247,30 +247,42 @@ export class FlowStateService {
     error?: string;
   }> {
     try {
+      console.log('[flowStateService] handleFlowResponse called with:', { sessionId, response });
+
       const context = await this.buildExecutionContext(sessionId, threadData);
+      console.log('[flowStateService] Context built:', { hasContext: !!context, hasSession: !!context?.session, hasFlow: !!context?.flow, hasCurrentNode: !!context?.currentNode });
+
       if (!context) {
         return { success: false, error: 'Session not found' };
       }
 
+      console.log('[flowStateService] Validating response for node:', context.currentNode.id);
       const validation = flowEngine.validateResponse(context.currentNode, response);
+      console.log('[flowStateService] Validation result:', validation);
+
       if (!validation.valid) {
         return { success: false, error: validation.error };
       }
 
+      console.log('[flowStateService] Determining next node...');
       const navigationResult = flowEngine.determineNextNode(context, response);
+      console.log('[flowStateService] Navigation result:', { hasNextNode: !!navigationResult.nextNode, completed: navigationResult.completed, error: navigationResult.error });
 
       if (navigationResult.error) {
         return { success: false, error: navigationResult.error };
       }
 
+      console.log('[flowStateService] Updating session response...');
       await this.updateSessionResponse(
         sessionId,
         context.currentNode.id,
         response,
         navigationResult.nextNode?.id
       );
+      console.log('[flowStateService] Session response updated successfully');
 
       if (navigationResult.completed) {
+        console.log('[flowStateService] Flow completed, marking session as complete');
         await this.completeSession(sessionId);
         return { success: true, completed: true };
       }
@@ -281,10 +293,15 @@ export class FlowStateService {
         completed: false,
       };
     } catch (error) {
-      console.error('Error handling flow response:', error);
+      console.error('[flowStateService] Error handling flow response:', error);
+      console.error('[flowStateService] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        raw: error
+      });
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : `Unknown error: ${String(error)}`,
       };
     }
   }
