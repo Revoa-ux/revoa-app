@@ -214,29 +214,22 @@ export function FlowAttachmentNode({
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const getPreviewUrl = (attachment: FlowAttachment) => {
-    const { data: { publicUrl } } = supabase.storage
-      .from('flow-attachments')
-      .getPublicUrl(attachment.file_url);
-    return publicUrl;
-  };
-
   return (
     <div className="space-y-4">
       {/* Grid with Upload Button and Attachments */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
         {/* Upload Button */}
         {attachments.length < maxFiles && (
           <div
             {...getRootProps()}
             className={`
-              relative aspect-square rounded-2xl cursor-pointer
-              transition-all duration-300 overflow-hidden
-              bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900
+              relative aspect-square rounded-xl cursor-pointer
+              transition-all duration-200 overflow-hidden
+              bg-white dark:bg-gray-800
               border-2 border-dashed
               ${isDragActive
-                ? 'border-blue-400 dark:border-blue-500 scale-105 shadow-lg shadow-blue-500/20'
-                : 'border-gray-300 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:scale-105 hover:shadow-xl hover:shadow-gray-500/10 dark:hover:shadow-gray-700/30'
+                ? 'border-rose-400 dark:border-rose-500 scale-105 shadow-lg shadow-rose-500/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-rose-300 dark:hover:border-rose-600 hover:scale-[1.02] hover:shadow-lg'
               }
               ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
@@ -245,17 +238,17 @@ export function FlowAttachmentNode({
             <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
               {uploading ? (
                 <>
-                  <Loader2 className="w-10 h-10 text-blue-500 dark:text-blue-400 animate-spin mb-2" />
-                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                  <Loader2 className="w-8 h-8 text-rose-500 dark:text-rose-400 animate-spin mb-1.5" />
+                  <span className="text-xs font-medium text-rose-600 dark:text-rose-400">
                     Uploading...
                   </span>
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center mb-2 shadow-md">
-                    <Upload className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                  <div className="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center mb-1.5">
+                    <Upload className="w-5 h-5 text-rose-500 dark:text-rose-400" />
                   </div>
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center">
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-400 text-center">
                     {isDragActive ? 'Drop here' : 'Add'}
                   </span>
                 </>
@@ -265,80 +258,85 @@ export function FlowAttachmentNode({
         )}
 
         {/* Uploaded Files */}
-        {attachments.map((attachment) => (
-          <div
-            key={attachment.id}
-            className="relative aspect-square rounded-2xl overflow-hidden group bg-gray-100 dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300"
-          >
-            {/* Preview */}
-            {attachment.file_type.startsWith('image/') ? (
-              <img
-                src={getPreviewUrl(attachment)}
-                alt={attachment.file_name}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-            ) : attachment.file_type.startsWith('video/') ? (
-              <video
-                src={getPreviewUrl(attachment)}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
-                <FileText className="w-12 h-12 text-gray-400" />
-              </div>
-            )}
+        {attachments.map((attachment) => {
+          const { data: { publicUrl } } = supabase.storage
+            .from('flow-attachments')
+            .getPublicUrl(attachment.file_url);
 
-            {/* Overlay on Hover */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300">
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleDownload(attachment)}
-                    className="p-2.5 bg-white/95 hover:bg-white rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
-                    title="Download"
-                  >
-                    <Download className="w-4 h-4 text-gray-700" />
-                  </button>
-                  <button
-                    onClick={() => handleCopyUrl(attachment)}
-                    className="p-2.5 bg-white/95 hover:bg-white rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
-                    title="Copy URL"
-                  >
-                    {copiedId === attachment.id ? (
-                      <Check className="w-4 h-4 text-emerald-600" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-gray-700" />
-                    )}
-                  </button>
-                  {!disabled && (
+          return (
+            <div
+              key={attachment.id}
+              className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200"
+            >
+              {/* Preview */}
+              {attachment.file_type.startsWith('image/') ? (
+                <img
+                  src={publicUrl}
+                  alt={attachment.file_name}
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                />
+              ) : attachment.file_type.startsWith('video/') ? (
+                <video
+                  src={publicUrl}
+                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+                </div>
+              )}
+
+              {/* Overlay on Hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-2">
+                  <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => handleDelete(attachment)}
-                      className="p-2.5 bg-red-500 hover:bg-red-600 rounded-xl transition-all duration-200 hover:scale-110 shadow-lg"
-                      title="Remove"
+                      onClick={() => handleDownload(attachment)}
+                      className="p-2 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
+                      title="Download"
                     >
-                      <X className="w-4 h-4 text-white" />
+                      <Download className="w-3.5 h-3.5 text-gray-700" />
                     </button>
-                  )}
+                    <button
+                      onClick={() => handleCopyUrl(attachment)}
+                      className="p-2 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
+                      title="Copy URL"
+                    >
+                      {copiedId === attachment.id ? (
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5 text-gray-700" />
+                      )}
+                    </button>
+                    {!disabled && (
+                      <button
+                        onClick={() => handleDelete(attachment)}
+                        className="p-2 bg-rose-500 hover:bg-rose-600 rounded-lg transition-all duration-150 hover:scale-105 shadow-md"
+                        title="Remove"
+                      >
+                        <X className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="text-center px-2">
-                  <p className="text-xs font-medium text-white truncate max-w-full">
-                    {attachment.file_name}
-                  </p>
-                  <p className="text-xs text-gray-300 mt-0.5">
-                    {formatFileSize(attachment.file_size)}
-                  </p>
-                </div>
+              </div>
+
+              {/* File name badge at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-2">
+                <p className="text-xs text-white truncate font-medium">
+                  {attachment.file_name}
+                </p>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Helper Text */}
       {attachments.length === 0 && (
-        <div className="text-center py-2">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Upload photos and videos • Up to {maxFiles} files • 50MB max each
+        <div className="text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Upload up to {maxFiles} files • 50MB each
           </p>
         </div>
       )}
@@ -346,7 +344,7 @@ export function FlowAttachmentNode({
       {attachments.length > 0 && (
         <div className="text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {attachments.length} of {maxFiles} files
+            {attachments.length} of {maxFiles}
           </p>
         </div>
       )}

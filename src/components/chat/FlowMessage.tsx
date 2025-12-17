@@ -103,6 +103,20 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
     // Only show response if completed and has actual response data
     if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
 
+    // For attachment responses, show a compact view
+    if (node.type === 'attachment' && previousResponse?.attachments) {
+      return (
+        <div className="mt-3">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
+            <span className="text-xs font-medium text-rose-900 dark:text-rose-100">
+              {previousResponse.attachments.length} file{previousResponse.attachments.length !== 1 ? 's' : ''} uploaded
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     const displayValue = typeof previousResponse === 'object'
       ? JSON.stringify(previousResponse)
       : String(previousResponse);
