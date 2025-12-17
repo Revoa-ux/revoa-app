@@ -131,7 +131,7 @@ const AdminChat = () => {
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
   const [suggestedFlowId, setSuggestedFlowId] = useState<string | null>(null);
   const [showFlowSuggestion, setShowFlowSuggestion] = useState(false);
-  const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '');
+  const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '__no_thread__');
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -1176,6 +1176,9 @@ const AdminChat = () => {
               setShowScenarioTemplate(false);
             }}
             threadId={selectedThreadId}
+            threadCategory={threads.find(t => t.id === selectedThreadId)?.tag || undefined}
+            orderId={threads.find(t => t.id === selectedThreadId)?.order_id || undefined}
+            userId={selectedChat.user_id}
           />
         )}
     </>

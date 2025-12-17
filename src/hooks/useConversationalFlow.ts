@@ -31,6 +31,16 @@ export function useConversationalFlow(threadId: string): UseConversationalFlowRe
   const [error, setError] = useState<string | null>(null);
 
   const loadSession = useCallback(async () => {
+    // Guard: Don't load if no valid thread ID
+    if (!threadId || threadId === '__no_thread__') {
+      setSession(null);
+      setFlow(null);
+      setCurrentNode(null);
+      setFlowMessages([]);
+      setProgress(null);
+      return;
+    }
+
     try {
       const activeSession = await flowStateService.getActiveSessionForThread(threadId);
       if (!activeSession) {

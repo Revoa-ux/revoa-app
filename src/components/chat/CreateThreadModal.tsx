@@ -598,15 +598,15 @@ Browse the scenario templates to find relevant responses for:
 
           {/* Selected Order Display */}
           {selectedOrder && (
-            <div className="mb-3 border-2 border-pink-500 dark:border-pink-600 bg-pink-50 dark:bg-pink-900/20 rounded-lg p-3">
+            <div className="mb-3 border border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+                  <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
                   <div>
-                    <p className="font-medium text-pink-900 dark:text-pink-100">
+                    <p className="font-medium text-red-900 dark:text-red-100">
                       {selectedOrder.order_number}
                     </p>
-                    <p className="text-xs text-pink-700 dark:text-pink-300">
+                    <p className="text-xs text-red-700 dark:text-red-300">
                       <span className="font-medium">
                         {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
                           [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
@@ -621,7 +621,7 @@ Browse the scenario templates to find relevant responses for:
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-pink-900 dark:text-pink-100">
+                  <p className="font-medium text-red-900 dark:text-red-100">
                     {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
                   </p>
                   <button
@@ -631,7 +631,7 @@ Browse the scenario templates to find relevant responses for:
                       setSearchQuery('');
                       setOrders([]);
                     }}
-                    className="text-xs text-pink-600 dark:text-pink-400 hover:underline mt-0.5"
+                    className="text-xs text-red-600 dark:text-red-400 hover:underline mt-0.5"
                   >
                     Clear selection
                   </button>
