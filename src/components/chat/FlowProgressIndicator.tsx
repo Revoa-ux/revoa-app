@@ -17,7 +17,7 @@ export function FlowProgressIndicator({
       </div>
       <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
+          className="h-full bg-gradient-to-r from-rose-500 to-pink-600 transition-all duration-500 ease-out"
           style={{ width: `${percentage}%` }}
         />
       </div>
