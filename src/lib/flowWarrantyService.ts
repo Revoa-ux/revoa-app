@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import { getWarrantyInfo, formatWarrantyStatus, getCoverageDescription } from './warrantyService';
 import type { WarrantyInfo } from './warrantyService';
+import { flowContextService } from './flowContextService';
+import { flowDecisionEngine } from './flowDecisionEngine';
 
 /**
  * Get warranty info for a specific product in an order thread
@@ -165,5 +167,125 @@ export async function setThreadLineItem(threadId: string, lineItemId: string): P
   } catch (error) {
     console.error('Error setting thread line item:', error);
     return false;
+  }
+}
+
+/**
+ * Get intelligent resolution guidance for a damage claim
+ * This integrates warranty data with smart routing decisions
+ */
+export async function getDamageResolutionGuidance(threadId: string, damageType: string) {
+  try {
+    const context = await flowContextService.loadOrderContext(threadId);
+
+    if (!context.hasOrder || !context.warranty) {
+      return {
+        canAutoRoute: false,
+        recommendation: 'Unable to determine warranty status. Please verify order is linked to thread.',
+        nextSteps: ['Link order to thread', 'Reload flow to check warranty'],
+        confidence: 'low' as const,
+      };
+    }
+
+    const decision = flowDecisionEngine.decideDamageResolution(damageType, context.warranty);
+    const guidance = flowDecisionEngine.getResolutionGuidance(damageType, context.warranty);
+
+    return {
+      canAutoRoute: decision.shouldAutoRoute,
+      targetNodeId: decision.targetNodeId,
+      reasoning: decision.reasoning,
+      confidence: decision.confidence,
+      resolution: guidance.resolution,
+      nextSteps: guidance.nextSteps,
+      templateSuggestions: guidance.templateSuggestions,
+      urgency: guidance.urgency,
+    };
+  } catch (error) {
+    console.error('Error getting damage resolution guidance:', error);
+    return {
+      canAutoRoute: false,
+      recommendation: 'Error loading resolution guidance',
+      nextSteps: [],
+      confidence: 'low' as const,
+    };
+  }
+}
+
+/**
+ * Check if thread has necessary context for intelligent flows
+ */
+export async function validateFlowContext(threadId: string): Promise<{
+  valid: boolean;
+  issues: string[];
+  warnings: string[];
+}> {
+  const issues: string[] = [];
+  const warnings: string[] = [];
+
+  try {
+    const context = await flowContextService.loadOrderContext(threadId);
+
+    if (!context.hasOrder) {
+      issues.push('No order linked to thread');
+    }
+
+    if (context.hasOrder && !context.warranty) {
+      warnings.push('Order has no warranty information');
+    }
+
+    if (context.hasOrder && context.order && context.order.lineItems.length > 1 && !context.selectedLineItem) {
+      warnings.push('Order has multiple items but none selected');
+    }
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      warnings,
+    };
+  } catch (error) {
+    issues.push('Error loading flow context');
+    return { valid: false, issues, warnings };
+  }
+}
+
+/**
+ * Get dynamic content for a flow node
+ * This replaces placeholder content with real data from the order/warranty
+ */
+export async function getFlowNodeDynamicContent(
+  threadId: string,
+  nodeId: string,
+  defaultContent: string
+): Promise<string> {
+  try {
+    return await flowContextService.getNodeContent(threadId, nodeId, defaultContent);
+  } catch (error) {
+    console.error('Error getting dynamic node content:', error);
+    return defaultContent;
+  }
+}
+
+/**
+ * Get email template suggestions based on damage type and warranty context
+ */
+export async function getEmailTemplateSuggestions(
+  threadId: string,
+  damageType: string
+): Promise<Array<{
+  templateId: string;
+  reason: string;
+  timing: 'immediate' | 'after_factory' | 'optional';
+}>> {
+  try {
+    const context = await flowContextService.loadOrderContext(threadId);
+
+    if (!context.hasOrder) {
+      return [];
+    }
+
+    return flowDecisionEngine.getEmailSuggestions(context, damageType);
+  } catch (error) {
+    console.error('Error getting email template suggestions:', error);
+    return [];
   }
 }
