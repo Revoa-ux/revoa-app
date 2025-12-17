@@ -153,13 +153,16 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         </div>
 
         {/* Floating Add Thread Button */}
-        <div className="absolute bottom-4 right-4 z-10">
+        <div className="absolute bottom-3 left-3 z-10">
           <button
             onClick={onCreateThread}
-            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            className="group relative px-3 py-2 flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md rounded-xl transition-all"
             title="Create New Thread"
           >
-            <Plus className="w-6 h-6 stroke-[2.5]" />
+            <div className="relative flex items-center justify-center w-5 h-5 rounded-lg bg-gradient-to-br from-rose-400 via-rose-500 to-pink-500 shadow-sm">
+              <Plus className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+            </div>
+            <span className="text-xs font-medium text-gray-700 dark:text-gray-300 pr-0.5">New</span>
           </button>
         </div>
       </div>

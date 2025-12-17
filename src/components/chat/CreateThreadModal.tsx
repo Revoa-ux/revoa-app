@@ -579,24 +579,6 @@ Browse the scenario templates to find relevant responses for:
           </div>
         </div>
 
-        {/* Description */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Description (Optional)
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Provide additional details about the issue..."
-            rows={3}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white resize-none"
-            maxLength={500}
-          />
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            {description.length}/500 characters
-          </p>
-        </div>
-
         {/* Order Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
