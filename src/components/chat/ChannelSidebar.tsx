@@ -109,22 +109,24 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
               >
                 <Hash className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
+                  <div className="flex flex-col gap-1">
                     <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       {(thread.order_number || thread.order_id.slice(0, 8)).replace(/^#/, '')}
                     </span>
-                    {thread.tag && (
-                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0', TAG_COLORS[thread.tag])}>
-                        {TAG_LABELS[thread.tag]}
-                      </span>
-                    )}
-                    {thread.unread_count && thread.unread_count > 0 && (
-                      <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0">
-                        {thread.unread_count}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {thread.tag && (
+                        <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full whitespace-nowrap', TAG_COLORS[thread.tag])}>
+                          {TAG_LABELS[thread.tag]}
+                        </span>
+                      )}
+                      {thread.unread_count && thread.unread_count > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                          {thread.unread_count}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                     {thread.customer_name || 'Guest Customer'}
                   </div>
                 </div>

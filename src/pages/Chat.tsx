@@ -47,6 +47,7 @@ import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
 import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
 import { DeleteThreadModal } from '@/components/chat/DeleteThreadModal';
+import { ConversationalFlowContainer } from '@/components/chat/ConversationalFlowContainer';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -815,6 +816,12 @@ const Chat = () => {
               </div>
             </div>
           ) : null}
+
+          {/* Conversational Flow - Show if a thread is selected and has an active flow */}
+          {!isLoading && selectedThreadId && (
+            <ConversationalFlowContainer threadId={selectedThreadId} />
+          )}
+
           {!isLoading && messages.map((message, index) => (
             <React.Fragment key={message.id}>
               {shouldShowDateLabel(message, messages[index - 1]) && (
@@ -1255,6 +1262,34 @@ const Chat = () => {
         onSelectTemplate={(template) => {
           setSelectedTemplateForAssignment({ id: template.id, name: template.name });
           setShowAssignToOrderModal(true);
+        }}
+      />
+
+      {/* Thread Template Modal (from header when thread is selected) */}
+      <ScenarioTemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        userId={user?.id}
+        threadTag={threads.find(t => t.id === selectedThreadId)?.tag || undefined}
+        onSelectTemplate={async (template) => {
+          if (!chat || !selectedThreadId) return;
+
+          try {
+            await supabase.from('messages').insert({
+              chat_id: chat.id,
+              thread_id: selectedThreadId,
+              content: template.body,
+              type: 'text',
+              sender: 'user',
+              timestamp: new Date().toISOString(),
+            });
+
+            setShowTemplateModal(false);
+            toast.success('Template sent');
+          } catch (error) {
+            console.error('Error sending template:', error);
+            toast.error('Failed to send template');
+          }
         }}
       />
 
