@@ -10,12 +10,12 @@ const FLOW_TRIGGERS: FlowTrigger[] = [
   {
     category: 'return',
     keywords: ['return', 'send back', 'refund', 'dont want'],
-    autoStart: false,
+    autoStart: true,
   },
   {
     category: 'damage',
     keywords: ['damaged', 'broken', 'defective', 'not working', 'issue with'],
-    autoStart: false,
+    autoStart: true,
   },
 ];
 

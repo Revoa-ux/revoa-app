@@ -15,7 +15,10 @@ import {
   Trash2,
   Tag,
   Package,
-  Hash
+  Hash,
+  Sparkles,
+  Play,
+  AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -40,6 +43,9 @@ import { ChannelDropdown } from '@/components/chat/ChannelDropdown';
 import { ChannelThread } from '@/components/chat/ChannelTabs';
 import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
+import { ConversationalFlowContainer } from '@/components/chat/ConversationalFlowContainer';
+import { flowTriggerService } from '@/lib/flowTriggerService';
+import { useConversationalFlow } from '@/hooks/useConversationalFlow';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -123,6 +129,9 @@ const AdminChat = () => {
   const [linkedOrderId, setLinkedOrderId] = useState<string | null>(null);
   const [threadTags, setThreadTags] = useState<string[]>([]);
   const [isLoadingThreads, setIsLoadingThreads] = useState(false);
+  const [suggestedFlowId, setSuggestedFlowId] = useState<string | null>(null);
+  const [showFlowSuggestion, setShowFlowSuggestion] = useState(false);
+  const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '');
 
   // Auto-open customer sidebar when on order threads
   useEffect(() => {
@@ -192,6 +201,54 @@ const AdminChat = () => {
 
     loadThreadMessages();
   }, [selectedChat, selectedThreadId]);
+
+  // Auto-suggest and auto-trigger flows based on thread tags
+  useEffect(() => {
+    if (!selectedThreadId) {
+      setSuggestedFlowId(null);
+      setShowFlowSuggestion(false);
+      return;
+    }
+
+    const checkAndSuggestFlow = async () => {
+      const currentThread = threads.find(t => t.id === selectedThreadId);
+      if (!currentThread) return;
+
+      // Don't suggest if there's already an active flow
+      if (activeFlowSession?.is_active) {
+        setShowFlowSuggestion(false);
+        return;
+      }
+
+      const flowId = await flowTriggerService.suggestFlowForThread(
+        selectedThreadId,
+        currentThread.title,
+        currentThread.tag || undefined
+      );
+
+      if (flowId) {
+        setSuggestedFlowId(flowId);
+        setShowFlowSuggestion(true);
+
+        // Auto-start flows for specific tags
+        const shouldAutoStart = currentThread.tag && ['return', 'damage', 'defective'].includes(currentThread.tag.toLowerCase());
+        if (shouldAutoStart) {
+          const autoStarted = await flowTriggerService.autoStartFlowIfNeeded(
+            selectedThreadId,
+            currentThread.title,
+            currentThread.tag || undefined
+          );
+
+          if (autoStarted) {
+            toast.success(`Started ${currentThread.tag} resolution flow`);
+            setShowFlowSuggestion(false);
+          }
+        }
+      }
+    };
+
+    checkAndSuggestFlow();
+  }, [selectedThreadId, threads, activeFlowSession]);
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -614,9 +671,68 @@ const AdminChat = () => {
               </div>
             </div>
 
+            {/* Flow Suggestion Banner */}
+            {showFlowSuggestion && suggestedFlowId && !activeFlowSession?.is_active && (
+              <div className="mx-4 sm:mx-6 mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                      Suggested Resolution Flow
+                    </h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      We detected this case might benefit from a guided resolution process. Start the flow to streamline the resolution.
+                    </p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={async () => {
+                        if (suggestedFlowId) {
+                          await startFlow(suggestedFlowId);
+                          setShowFlowSuggestion(false);
+                          toast.success('Resolution flow started');
+                        }
+                      }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <Play className="w-4 h-4" />
+                      Start Flow
+                    </button>
+                    <button
+                      onClick={() => setShowFlowSuggestion(false)}
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Active Flow Indicator */}
+            {activeFlowSession?.is_active && activeFlow && (
+              <div className="mx-4 sm:mx-6 mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                    Active Flow: {activeFlow.name}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
-              {messages.length === 0 ? (
+              {/* Conversational Flow Container - Shows at the top of messages */}
+              {selectedThreadId && activeFlowSession?.is_active && (
+                <div className="mb-4">
+                  <ConversationalFlowContainer threadId={selectedThreadId} />
+                </div>
+              )}
+
+              {messages.length === 0 && !activeFlowSession?.is_active ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
                     <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
