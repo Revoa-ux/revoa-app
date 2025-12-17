@@ -13,6 +13,92 @@ interface FlowAttachment {
   uploaded_at: string;
 }
 
+interface AttachmentPreviewProps {
+  attachment: FlowAttachment;
+  onDelete: (attachment: FlowAttachment) => void;
+  disabled: boolean;
+}
+
+function AttachmentPreview({ attachment, onDelete, disabled }: AttachmentPreviewProps) {
+  const [imageUrl, setImageUrl] = useState<string>('');
+
+  useEffect(() => {
+    const getSignedUrl = async () => {
+      const { data, error } = await supabase.storage
+        .from('flow-attachments')
+        .createSignedUrl(attachment.file_url, 3600);
+
+      if (data) {
+        setImageUrl(data.signedUrl);
+      } else {
+        console.error('Failed to get signed URL:', error);
+      }
+    };
+
+    getSignedUrl();
+  }, [attachment.file_url]);
+
+  return (
+    <div className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200">
+      {/* Preview */}
+      {attachment.file_type.startsWith('image/') && (
+        <>
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={attachment.file_name}
+              className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+              loading="lazy"
+              onError={(e) => {
+                console.error('Image failed to load:', imageUrl, attachment);
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+            </div>
+          )}
+          <div className="w-full h-full flex flex-col items-center justify-center p-2 hidden">
+            <ImageIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-1" />
+            <span className="text-xs text-gray-400 dark:text-gray-500 text-center truncate w-full px-2">
+              {attachment.file_name}
+            </span>
+          </div>
+        </>
+      )}
+      {attachment.file_type.startsWith('video/') && imageUrl && (
+        <video
+          src={imageUrl}
+          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+        />
+      )}
+      {!attachment.file_type.startsWith('image/') && !attachment.file_type.startsWith('video/') && (
+        <div className="w-full h-full flex items-center justify-center">
+          <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+        </div>
+      )}
+
+      {/* Overlay on Hover - Lighter overlay with only delete button */}
+      {!disabled && (
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button
+              onClick={() => onDelete(attachment)}
+              className="p-2.5 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-lg"
+              title="Remove"
+            >
+              <X className="w-4 h-4 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface FlowAttachmentNodeProps {
   sessionId: string;
   minFiles?: number;
@@ -208,89 +294,14 @@ export function FlowAttachmentNode({
         )}
 
         {/* Uploaded Files */}
-        {attachments.map((attachment) => {
-          const [imageUrl, setImageUrl] = useState<string>('');
-
-          // Get signed URL for private bucket
-          useEffect(() => {
-            const getSignedUrl = async () => {
-              const { data, error } = await supabase.storage
-                .from('flow-attachments')
-                .createSignedUrl(attachment.file_url, 3600); // 1 hour expiry
-
-              if (data) {
-                setImageUrl(data.signedUrl);
-              } else {
-                console.error('Failed to get signed URL:', error);
-              }
-            };
-
-            getSignedUrl();
-          }, [attachment.file_url]);
-
-          return (
-            <div
-              key={attachment.id}
-              className="relative aspect-square rounded-xl overflow-hidden group bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200"
-            >
-              {/* Preview */}
-              {attachment.file_type.startsWith('image/') && (
-                <>
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={attachment.file_name}
-                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                      loading="lazy"
-                      onError={(e) => {
-                        console.error('Image failed to load:', imageUrl, attachment);
-                        e.currentTarget.style.display = 'none';
-                        const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                        if (fallback) fallback.style.display = 'flex';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
-                    </div>
-                  )}
-                  <div className="w-full h-full flex flex-col items-center justify-center p-2 hidden">
-                    <ImageIcon className="w-10 h-10 text-gray-300 dark:text-gray-600 mb-1" />
-                    <span className="text-xs text-gray-400 dark:text-gray-500 text-center truncate w-full px-2">
-                      {attachment.file_name}
-                    </span>
-                  </div>
-                </>
-              )}
-              {attachment.file_type.startsWith('video/') && imageUrl && (
-                <video
-                  src={imageUrl}
-                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                />
-              )}
-              {!attachment.file_type.startsWith('image/') && !attachment.file_type.startsWith('video/') && (
-                <div className="w-full h-full flex items-center justify-center">
-                  <FileText className="w-10 h-10 text-gray-300 dark:text-gray-600" />
-                </div>
-              )}
-
-              {/* Overlay on Hover - Lighter overlay with only delete button */}
-              {!disabled && (
-                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <button
-                      onClick={() => handleDelete(attachment)}
-                      className="p-2.5 bg-white/95 hover:bg-white rounded-lg transition-all duration-150 hover:scale-105 shadow-lg"
-                      title="Remove"
-                    >
-                      <X className="w-4 h-4 text-gray-700" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {attachments.map((attachment) => (
+          <AttachmentPreview
+            key={attachment.id}
+            attachment={attachment}
+            onDelete={handleDelete}
+            disabled={disabled}
+          />
+        ))}
       </div>
 
       {/* Helper Text */}
