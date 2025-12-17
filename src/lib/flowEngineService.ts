@@ -104,6 +104,13 @@ export class FlowEngineService {
   ): FlowNavigationResult {
     const { currentNode, flow, session } = context;
 
+    console.log('[flowEngine] determineNextNode:', {
+      currentNodeId: currentNode.id,
+      currentNodeType: currentNode.type,
+      hasConditionalNext: !!currentNode.conditionalNext?.length,
+      nextNodeId: currentNode.nextNodeId,
+    });
+
     if (currentNode.type === 'completion') {
       return {
         nextNode: null,
@@ -116,6 +123,7 @@ export class FlowEngineService {
         if (this.evaluateConditions(conditional.conditions, session.flow_state, currentResponse)) {
           const nextNode = this.getNodeById(flow, conditional.nodeId);
           if (nextNode) {
+            console.log('[flowEngine] Using conditional next node:', nextNode.id);
             return {
               nextNode,
               completed: false,
@@ -128,21 +136,30 @@ export class FlowEngineService {
     if (currentNode.nextNodeId) {
       const nextNode = this.getNodeById(flow, currentNode.nextNodeId);
       if (nextNode) {
+        console.log('[flowEngine] Using next node:', nextNode.id);
         return {
           nextNode,
           completed: false,
         };
+      } else {
+        console.error('[flowEngine] Next node not found:', currentNode.nextNodeId);
       }
     }
 
+    console.error('[flowEngine] No valid next node found for current node:', currentNode.id);
     return {
       nextNode: null,
       completed: true,
-      error: 'No valid next node found',
+      error: `Configuration error: No next step defined for "${currentNode.content.substring(0, 50)}..."`,
     };
   }
 
   validateResponse(node: FlowNode, response: any): { valid: boolean; error?: string } {
+    // Info nodes don't need validation since they don't collect user input
+    if (node.type === 'info' || !node.responseType) {
+      return { valid: true };
+    }
+
     if (!node.validations || node.validations.length === 0) {
       return { valid: true };
     }

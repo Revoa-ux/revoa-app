@@ -299,9 +299,25 @@ export class FlowStateService {
         stack: error instanceof Error ? error.stack : undefined,
         raw: error
       });
+
+      // Extract meaningful error message
+      let errorMessage = 'Failed to process response';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (error && typeof error === 'object') {
+        // Try to extract message from various error formats
+        if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message;
+        } else if ('error' in error && typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if ('details' in error && typeof error.details === 'string') {
+          errorMessage = error.details;
+        }
+      }
+
       return {
         success: false,
-        error: error instanceof Error ? error.message : `Unknown error: ${String(error)}`,
+        error: errorMessage,
       };
     }
   }
