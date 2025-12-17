@@ -260,12 +260,12 @@ export default function Layout() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 title={effectiveCollapsed ? item.name : undefined}
                 className={cn(
-                  'flex items-center rounded-lg transition-colors duration-150',
+                  'flex items-center rounded-lg',
                   effectiveCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
                   'text-[13px]',
                   isActive
                     ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
                 )}
               >
                 {effectiveCollapsed ? (
@@ -303,11 +303,11 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={effectiveCollapsed ? 'Settings' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-colors duration-150',
+              'flex items-center text-[13px] rounded-lg',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/settings'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
             <Settings className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
@@ -318,11 +318,11 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={effectiveCollapsed ? 'Plans and Pricing' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-colors duration-150',
+              'flex items-center text-[13px] rounded-lg',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/pricing'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150'
             )}
           >
             <Sparkles className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
