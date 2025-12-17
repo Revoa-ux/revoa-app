@@ -186,7 +186,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         <div className="flex-1 min-w-0">
           <div className={`rounded-lg p-4 relative overflow-hidden ${
             isActive
-              ? 'bg-gradient-to-r from-red-500 to-pink-600 shadow-lg'
+              ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg'
               : isCompleted
               ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
               : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'

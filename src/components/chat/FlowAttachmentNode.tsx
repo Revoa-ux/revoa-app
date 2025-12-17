@@ -305,13 +305,11 @@ export function FlowAttachmentNode({
       </div>
 
       {/* Helper Text */}
-      {attachments.length === 0 && (
-        <div className="text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Upload up to {maxFiles} files • 50MB each
-          </p>
-        </div>
-      )}
+      <div className="text-center">
+        <p className="text-xs text-white/90">
+          Upload up to {maxFiles} files • 50MB each
+        </p>
+      </div>
     </div>
   );
 }
