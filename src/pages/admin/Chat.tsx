@@ -457,8 +457,28 @@ const AdminChat = () => {
     if (selectedChat) {
       const updatedThreads = await chatService.getChatThreads(selectedChat.id);
       setThreads(updatedThreads);
+
       // Switch to the newly created thread
       setSelectedThreadId(threadId);
+
+      // Manually trigger flow auto-start for the new thread
+      const newThread = updatedThreads.find(t => t.id === threadId);
+      if (newThread?.tag) {
+        const shouldAutoStart = ['return', 'damage', 'defective', 'damaged'].includes(newThread.tag.toLowerCase());
+        if (shouldAutoStart) {
+          setTimeout(async () => {
+            const autoStarted = await flowTriggerService.autoStartFlowIfNeeded(
+              threadId,
+              newThread.title,
+              newThread.tag || undefined
+            );
+
+            if (autoStarted) {
+              toast.success(`Started ${newThread.tag} resolution flow`);
+            }
+          }, 500);
+        }
+      }
     }
   };
 

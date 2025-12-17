@@ -92,7 +92,10 @@ export class FlowTriggerService {
 
     if (!flowId) return false;
 
+    const mappedCategory = threadTag ? this.mapTagToCategory(threadTag) : null;
+
     const categoryMatch = FLOW_TRIGGERS.find(t => {
+      if (mappedCategory && t.category === mappedCategory) return true;
       if (threadTag && t.category === threadTag.toLowerCase()) return true;
       if (threadTitle && t.keywords.some(kw => threadTitle.toLowerCase().includes(kw))) return true;
       return false;
