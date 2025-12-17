@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HelpCircle, CheckCircle, ArrowRight } from 'lucide-react';
+import Lottie from 'lottie-react';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
@@ -19,6 +20,14 @@ interface FlowMessageProps {
 export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
+  const [animationData, setAnimationData] = useState<any>(null);
+
+  useEffect(() => {
+    fetch('/revoa_ai_bot_white.json')
+      .then(res => res.json())
+      .then(data => setAnimationData(data))
+      .catch(err => console.error('Failed to load animation:', err));
+  }, []);
 
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
@@ -89,11 +98,15 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
   return (
     <div className={`flex gap-3 mb-4 ${isActive ? 'animate-in fade-in slide-in-from-left-2' : ''}`}>
       <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-        <img
-          src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-Bot.gif"
-          alt="Revoa Bot"
-          className={`w-full h-full object-contain ${isActive ? '' : 'opacity-60'}`}
-        />
+        {animationData ? (
+          <Lottie
+            animationData={animationData}
+            loop
+            className={`w-full h-full ${isActive ? '' : 'opacity-60'}`}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
