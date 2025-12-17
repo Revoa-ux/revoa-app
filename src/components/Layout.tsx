@@ -67,13 +67,12 @@ export default function Layout() {
       const width = window.innerWidth;
       setScreenWidth(width);
 
-      // Above 900px: normal sidebar with collapse option
-      // 500-900px: collapsed sidebar always visible
+      // Above 500px: sidebar visible
       // Below 500px: bottom sheet only
       setIsLargeScreen(width >= 500);
 
-      // Auto-collapse between 500-900px
-      if (width >= 500 && width < 900) {
+      // Auto-collapse on initial load if between 500-900px
+      if (width >= 500 && width < 900 && !isCollapsed) {
         setIsCollapsed(true);
       }
     };
@@ -82,7 +81,7 @@ export default function Layout() {
     window.addEventListener('resize', checkScreenSize);
 
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [isCollapsed]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -197,7 +196,7 @@ export default function Layout() {
     }
   };
 
-  const effectiveCollapsed = (screenWidth >= 500 && screenWidth < 900) || (!isLargeScreen ? false : isCollapsed);
+  const effectiveCollapsed = isLargeScreen && isCollapsed;
 
   const renderSidebarContent = () => (
     <>
@@ -211,10 +210,10 @@ export default function Layout() {
               className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
-          {isLargeScreen && screenWidth >= 900 && (
+          {isLargeScreen && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -235,10 +234,10 @@ export default function Layout() {
               className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          {isLargeScreen && screenWidth >= 900 && (
+          {isLargeScreen && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -304,7 +303,7 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={effectiveCollapsed ? 'Settings' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-all',
+              'flex items-center text-[13px] rounded-lg transition-colors duration-150',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/settings'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
@@ -319,7 +318,7 @@ export default function Layout() {
             onClick={() => setIsMobileMenuOpen(false)}
             title={effectiveCollapsed ? 'Plans and Pricing' : undefined}
             className={cn(
-              'flex items-center text-[13px] rounded-lg transition-all',
+              'flex items-center text-[13px] rounded-lg transition-colors duration-150',
               effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/pricing'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'

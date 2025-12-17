@@ -51,13 +51,12 @@ export default function AdminSidebar() {
       const width = window.innerWidth;
       setScreenWidth(width);
 
-      // Above 900px: normal sidebar with collapse option
-      // 500-900px: collapsed sidebar always visible
+      // Above 500px: sidebar visible
       // Below 500px: bottom sheet only
       setIsLargeScreen(width >= 500);
 
-      // Auto-collapse between 500-900px
-      if (width >= 500 && width < 900) {
+      // Auto-collapse on initial load if between 500-900px
+      if (width >= 500 && width < 900 && !isCollapsed) {
         setIsCollapsed(true);
       }
     };
@@ -66,7 +65,7 @@ export default function AdminSidebar() {
     window.addEventListener('resize', checkScreenSize);
 
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [isCollapsed]);
 
   const isDarkMode = effectiveTheme === 'dark';
 
@@ -105,8 +104,7 @@ export default function AdminSidebar() {
     : adminUser?.name || adminUser?.email || 'Admin';
   const adminInitials = getAdminInitials();
 
-  // Auto-collapse for screens 500-900px, or manual collapse above 900px
-  const effectiveCollapsed = (screenWidth >= 500 && screenWidth < 900) || (!isLargeScreen ? false : isCollapsed);
+  const effectiveCollapsed = isLargeScreen && isCollapsed;
 
   const renderSidebarContent = () => (
     <>
@@ -120,10 +118,10 @@ export default function AdminSidebar() {
               className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
-          {isLargeScreen && screenWidth >= 900 && (
+          {isLargeScreen && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Expand sidebar"
             >
               <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -144,10 +142,10 @@ export default function AdminSidebar() {
               className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          {isLargeScreen && screenWidth >= 900 && (
+          {isLargeScreen && (
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
