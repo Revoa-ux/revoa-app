@@ -808,7 +808,7 @@ const Chat = () => {
                 </div>
               </div>
             </div>
-          ) : (messages.length === 0 && !hasActiveFlow) ? (
+          ) : (messages.length === 0 && !hasActiveFlow && !selectedThreadId) ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />

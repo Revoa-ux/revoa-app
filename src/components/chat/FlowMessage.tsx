@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { HelpCircle, CheckCircle } from 'lucide-react';
+import { HelpCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
@@ -56,17 +56,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             <button
               onClick={() => onResponse(null)}
               disabled={isLoading}
-              className="mt-3 px-3 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2"
+              className="mt-3 inline-flex items-center justify-center px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors gap-2"
             >
               <span>Continue</span>
-              <svg
-                className="w-3 h-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
+              <ArrowRight className="w-4 h-4" />
             </button>
           );
         }
