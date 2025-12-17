@@ -122,28 +122,39 @@ export function useConversationalFlow(threadId: string): UseConversationalFlowRe
 
   const handleResponse = useCallback(
     async (response: any) => {
-      if (!session || !flow || !currentNode) return;
+      console.log('[useConversationalFlow] handleResponse called with:', { response, session: !!session, flow: !!flow, currentNode: !!currentNode });
+
+      if (!session || !flow || !currentNode) {
+        console.error('[useConversationalFlow] Missing required data:', { session: !!session, flow: !!flow, currentNode: !!currentNode });
+        setError('Flow session is not properly initialized');
+        return;
+      }
 
       try {
         setIsLoading(true);
         setError(null);
 
+        console.log('[useConversationalFlow] Calling flowStateService.handleFlowResponse...');
         const result = await flowStateService.handleFlowResponse(session.id, response);
+        console.log('[useConversationalFlow] handleFlowResponse result:', result);
 
         if (!result.success) {
+          console.error('[useConversationalFlow] Flow response failed:', result.error);
           setError(result.error || 'Failed to process response');
           return;
         }
 
+        console.log('[useConversationalFlow] Reloading session...');
         await loadSession();
 
         if (result.completed) {
-          console.log('Flow completed successfully');
+          console.log('[useConversationalFlow] Flow completed successfully');
         }
       } catch (err) {
-        console.error('Error handling response:', err);
+        console.error('[useConversationalFlow] Error handling response:', err);
         setError(err instanceof Error ? err.message : 'Failed to process response');
       } finally {
+        console.log('[useConversationalFlow] Setting isLoading to false');
         setIsLoading(false);
       }
     },

@@ -5,9 +5,10 @@ import { toast } from 'sonner';
 
 interface ConversationalFlowContainerProps {
   threadId: string | null;
+  onFlowActive?: (isActive: boolean) => void;
 }
 
-export function ConversationalFlowContainer({ threadId }: ConversationalFlowContainerProps) {
+export function ConversationalFlowContainer({ threadId, onFlowActive }: ConversationalFlowContainerProps) {
   const {
     session,
     flow,
@@ -23,6 +24,12 @@ export function ConversationalFlowContainer({ threadId }: ConversationalFlowCont
       toast.error(error);
     }
   }, [error]);
+
+  // Notify parent about flow active state
+  useEffect(() => {
+    const hasActiveFlow = !!threadId && !!session && !!flow && flowMessages.length > 0;
+    onFlowActive?.(hasActiveFlow);
+  }, [threadId, session, flow, flowMessages.length, onFlowActive]);
 
   if (!threadId || !session || !flow || flowMessages.length === 0) {
     return null;

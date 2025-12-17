@@ -131,6 +131,7 @@ const Chat = () => {
   const [deleteThreadModalOpen, setDeleteThreadModalOpen] = useState(false);
   const [threadToDelete, setThreadToDelete] = useState<ChannelThread | null>(null);
   const [isDeletingThread, setIsDeletingThread] = useState(false);
+  const [hasActiveFlow, setHasActiveFlow] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -807,7 +808,7 @@ const Chat = () => {
                 </div>
               </div>
             </div>
-          ) : messages.length === 0 ? (
+          ) : (messages.length === 0 && !hasActiveFlow) ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
@@ -819,7 +820,10 @@ const Chat = () => {
 
           {/* Conversational Flow - Show if a thread is selected and has an active flow */}
           {!isLoading && selectedThreadId && (
-            <ConversationalFlowContainer threadId={selectedThreadId} />
+            <ConversationalFlowContainer
+              threadId={selectedThreadId}
+              onFlowActive={setHasActiveFlow}
+            />
           )}
 
           {!isLoading && messages.map((message, index) => (
