@@ -50,6 +50,18 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
         );
 
       default:
+        // Info nodes or nodes without response types need a continue button
+        if (node.type === 'info' || !node.responseType) {
+          return (
+            <button
+              onClick={() => onResponse(null)}
+              disabled={isLoading}
+              className="mt-3 px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-medium text-sm rounded-lg hover:from-rose-600 hover:to-pink-700 transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue
+            </button>
+          );
+        }
         return null;
     }
   };
