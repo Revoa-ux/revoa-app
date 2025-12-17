@@ -48,6 +48,8 @@ export default function Layout() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(true);
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const [userProfile, setUserProfile] = useState<{
     display_name?: string;
     first_name?: string;
@@ -58,6 +60,29 @@ export default function Layout() {
   const { shopify } = useConnectionStore();
 
   const isDarkMode = effectiveTheme === 'dark';
+
+  // Handle responsive breakpoints
+  useEffect(() => {
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setScreenWidth(width);
+
+      // Above 900px: normal sidebar with collapse option
+      // 500-900px: collapsed sidebar always visible
+      // Below 500px: bottom sheet only
+      setIsLargeScreen(width >= 500);
+
+      // Auto-collapse between 500-900px
+      if (width >= 500 && width < 900) {
+        setIsCollapsed(true);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -172,11 +197,13 @@ export default function Layout() {
     }
   };
 
+  const effectiveCollapsed = (screenWidth >= 500 && screenWidth < 900) || (!isLargeScreen ? false : isCollapsed);
+
   const renderSidebarContent = () => (
     <>
-      {/* Logo and Collapse Button - Desktop Only */}
-      {isCollapsed ? (
-        <div className="hidden lg:flex py-8 px-2 flex-col items-center gap-3">
+      {/* Logo and Collapse Button */}
+      {effectiveCollapsed ? (
+        <div className="py-8 px-2 flex flex-col items-center gap-3">
           <div className="w-10 h-10 relative">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
@@ -184,16 +211,18 @@ export default function Layout() {
               className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
             />
           </div>
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-            title="Expand sidebar"
-          >
-            <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-          </button>
+          {isLargeScreen && screenWidth >= 900 && (
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              title="Expand sidebar"
+            >
+              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+          )}
         </div>
       ) : (
-        <div className="hidden lg:flex py-8 px-4 items-center justify-between">
+        <div className="py-8 px-4 flex items-center justify-between">
           <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
             <img
               src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
@@ -206,19 +235,21 @@ export default function Layout() {
               className="w-full h-full object-contain hidden dark:block"
             />
           </div>
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-            title="Collapse sidebar"
-          >
-            <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-          </button>
+          {isLargeScreen && screenWidth >= 900 && (
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </button>
+          )}
         </div>
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 lg:pt-4 border-b lg:border-y border-gray-100/50 dark:border-gray-700/50">
-        <nav className="space-y-1 lg:space-y-0.5">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 border-b border-y border-gray-100/50 dark:border-gray-700/50">
+        <nav className="space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
@@ -228,17 +259,17 @@ export default function Layout() {
                 key={item.name}
                 to={item.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                title={isCollapsed ? item.name : undefined}
+                title={effectiveCollapsed ? item.name : undefined}
                 className={cn(
                   'flex items-center rounded-lg transition-all',
-                  isCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-3 lg:py-2',
+                  effectiveCollapsed ? 'justify-center px-3 py-2' : 'justify-between px-3 py-2',
                   'text-[13px]',
                   isActive
                     ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
                 )}
               >
-                {isCollapsed ? (
+                {effectiveCollapsed ? (
                   <div className="relative">
                     <Icon className="h-4 w-4" strokeWidth={1.5} />
                     {hasBadge && (
@@ -264,88 +295,91 @@ export default function Layout() {
         </nav>
       </div>
 
-      {/* Bottom Navigation Group - Desktop Only */}
-      <div className="hidden lg:block px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
+      {/* Bottom Navigation Group */}
+      {isLargeScreen && (
+        <div className="px-3 py-3 border-t border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-0.5">
           <Link
             to="/settings"
             onClick={() => setIsMobileMenuOpen(false)}
-            title={isCollapsed ? 'Settings' : undefined}
+            title={effectiveCollapsed ? 'Settings' : undefined}
             className={cn(
               'flex items-center text-[13px] rounded-lg transition-all',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/settings'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             )}
           >
-            <Settings className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!isCollapsed && 'Settings'}
+            <Settings className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Settings'}
           </Link>
           <Link
             to="/pricing"
             onClick={() => setIsMobileMenuOpen(false)}
-            title={isCollapsed ? 'Plans and Pricing' : undefined}
+            title={effectiveCollapsed ? 'Plans and Pricing' : undefined}
             className={cn(
               'flex items-center text-[13px] rounded-lg transition-all',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2',
               location.pathname === '/pricing'
                 ? 'bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white font-medium shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
             )}
           >
-            <Sparkles className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!isCollapsed && 'Plans and Pricing'}
+            <Sparkles className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Plans and Pricing'}
           </Link>
           <button
             onClick={() => setShowHelpModal(true)}
-            title={isCollapsed ? 'Help & Support' : undefined}
+            title={effectiveCollapsed ? 'Help & Support' : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
-            <Headphones className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!isCollapsed && 'Help & Support'}
+            <Headphones className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Help & Support'}
           </button>
           <button
             onClick={() => setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')}
-            title={isCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
+            title={effectiveCollapsed ? (isDarkMode ? 'Light Mode' : 'Dark Mode') : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
             {isDarkMode ? (
-              <Sun className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+              <Sun className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             ) : (
-              <Moon className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+              <Moon className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
             )}
-            {!isCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
+            {!effectiveCollapsed && (isDarkMode ? 'Light Mode' : 'Dark Mode')}
           </button>
           <button
             onClick={handleLogout}
-            title={isCollapsed ? 'Log Out' : undefined}
+            title={effectiveCollapsed ? 'Log Out' : undefined}
             className={cn(
               'w-full flex items-center text-[13px] text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors',
-              isCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
+              effectiveCollapsed ? 'justify-center px-3 py-2' : 'px-3 py-2'
             )}
           >
-            <LogOut className={isCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
-            {!isCollapsed && 'Log Out'}
+            <LogOut className={effectiveCollapsed ? 'h-4 w-4' : 'mr-2.5 h-4 w-4'} strokeWidth={1.5} />
+            {!effectiveCollapsed && 'Log Out'}
           </button>
         </nav>
-      </div>
+        </div>
+      )}
 
       {/* Account Profile - Bottom */}
-      {!isCollapsed && (
-        <div className="px-3 py-4 lg:py-3 border-t border-gray-100/50 dark:border-gray-700/50">
+      {!effectiveCollapsed && (
+        <div className="px-3 py-4 border-t border-gray-100/50 dark:border-gray-700/50">
           {/* Desktop Profile Card */}
-          <Link
-            to="/settings"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="hidden lg:flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
-          >
+          {isLargeScreen && (
+            <Link
+              to="/settings"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex w-full items-center p-2.5 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 hover:shadow-md rounded-xl transition-all"
+            >
             <div className="flex items-center space-x-3">
               <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm">
                 {getInitials()}
@@ -359,10 +393,12 @@ export default function Layout() {
                 </div>
               </div>
             </div>
-          </Link>
+            </Link>
+          )}
 
           {/* Mobile Profile Card with Action Buttons */}
-          <div className="lg:hidden w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
+          {!isLargeScreen && (
+            <div className="w-full flex items-center justify-between p-3 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border border-gray-200/60 dark:border-gray-700/60 rounded-xl">
             <Link
               to="/settings"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -400,10 +436,11 @@ export default function Layout() {
                 <LogOut className="h-5 w-5 text-gray-600 dark:text-gray-400" strokeWidth={1.5} />
               </button>
             </div>
-          </div>
+            </div>
+          )}
         </div>
       )}
-      {isCollapsed && (
+      {effectiveCollapsed && isLargeScreen && (
         <div className="px-2 py-3 border-t border-gray-100/50 dark:border-gray-700/50 flex justify-center">
           <Link to="/settings" onClick={() => setIsMobileMenuOpen(false)} title="Account Settings">
             <div className="h-9 w-9 rounded-full bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] flex items-center justify-center text-white font-semibold text-sm hover:ring-2 hover:ring-gray-300 dark:hover:ring-gray-600 transition-all">
@@ -417,25 +454,29 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
-      {/* Desktop sidebar - hidden on mobile */}
-      <div className={`hidden lg:block fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
-        isCollapsed ? 'w-[70px]' : 'w-[280px]'
-      }`}>
-        <div className="flex flex-col h-full">
-          {renderSidebarContent()}
+      {/* Sidebar - visible from 500px and up */}
+      {isLargeScreen && (
+        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+          effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
+        }`}>
+          <div className="flex flex-col h-full">
+            {renderSidebarContent()}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Mobile bottom sheet */}
-      <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <div className="flex flex-col h-full overflow-y-auto">
-          {renderSidebarContent()}
-        </div>
-      </BottomSheet>
+      {/* Mobile bottom sheet - only below 500px */}
+      {!isLargeScreen && (
+        <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <div className="flex flex-col h-full overflow-y-auto">
+            {renderSidebarContent()}
+          </div>
+        </BottomSheet>
+      )}
 
       {/* Main content area */}
       <div className={`flex-1 transition-all duration-300 ease-in-out h-screen flex flex-col overflow-x-hidden ${
-        isCollapsed ? 'lg:pl-[88px]' : 'lg:pl-[298px]'
+        isLargeScreen ? (effectiveCollapsed ? 'pl-[88px]' : 'pl-[298px]') : ''
       }`}>
         <div className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-[1800px] mx-auto flex flex-col min-h-0 overflow-x-hidden ${
           location.pathname === '/audit' ? 'overflow-y-hidden' : 'overflow-y-auto'
