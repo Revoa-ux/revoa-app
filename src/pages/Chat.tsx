@@ -25,7 +25,9 @@ import {
   List,
   ChevronDown,
   CheckCircle,
-  Package
+  Package,
+  MoreVertical,
+  RotateCcw
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -46,6 +48,7 @@ import { MoveToThreadModal } from '@/components/chat/MoveToThreadModal';
 import { CustomerSidebar } from '@/components/chat/CustomerSidebar';
 import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
 import { CreateThreadModal } from '@/components/chat/CreateThreadModal';
+import { DeleteThreadModal } from '@/components/chat/DeleteThreadModal';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 
 const getDateLabel = (date: Date): string => {
@@ -126,6 +129,10 @@ const Chat = () => {
   const [showThreadSidebar, setShowThreadSidebar] = useState(true);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showThreadDropdown, setShowThreadDropdown] = useState(false);
+  const [deleteThreadModalOpen, setDeleteThreadModalOpen] = useState(false);
+  const [threadToDelete, setThreadToDelete] = useState<ChannelThread | null>(null);
+  const [isDeletingThread, setIsDeletingThread] = useState(false);
+  const [threadDropdownMenuOpen, setThreadDropdownMenuOpen] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -481,24 +488,35 @@ const Chat = () => {
     const thread = threads.find(t => t.id === threadId);
     if (!thread) return;
 
-    const confirmMessage = `Are you sure you want to close "${thread.title}"? This will permanently delete the thread and its messages.`;
-    if (!confirm(confirmMessage)) return;
+    // Open the delete modal instead of using browser confirm
+    setThreadToDelete(thread);
+    setDeleteThreadModalOpen(true);
+  };
 
-    const success = await chatService.closeThread(threadId);
+  const confirmDeleteThread = async () => {
+    if (!threadToDelete) return;
+
+    setIsDeletingThread(true);
+    const success = await chatService.closeThread(threadToDelete.id);
+
     if (success) {
-      toast.success('Thread closed');
+      toast.success('Thread deleted');
       // Reload threads
       if (chat) {
         const updatedThreads = await chatService.getChatThreads(chat.id);
         setThreads(updatedThreads);
       }
       // If we were viewing this thread, switch to main chat
-      if (selectedThreadId === threadId) {
+      if (selectedThreadId === threadToDelete.id) {
         setSelectedThreadId(null);
       }
     } else {
-      toast.error('Failed to close thread');
+      toast.error('Failed to delete thread');
     }
+
+    setIsDeletingThread(false);
+    setDeleteThreadModalOpen(false);
+    setThreadToDelete(null);
   };
 
   const handleDeleteThread = async (threadId: string) => {
@@ -507,8 +525,33 @@ const Chat = () => {
   };
 
   const handleRestartThread = async (threadId: string) => {
-    toast.info('Thread restart feature coming soon');
-    // TODO: Implement flow restart for user threads
+    const thread = threads.find(t => t.id === threadId);
+    if (!thread || !chat) return;
+
+    try {
+      // Call the flow trigger service to restart the conversational flow
+      const { error } = await supabase.functions.invoke('auto-tag-conversations', {
+        body: {
+          action: 'restart_flow',
+          threadId: threadId,
+          chatId: chat.id,
+          tag: thread.tag
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Thread flow restarted successfully');
+
+      // Reload messages if we're viewing this thread
+      if (selectedThreadId === threadId) {
+        const msgs = await chatService.getThreadMessages(threadId);
+        setMessages(msgs);
+      }
+    } catch (error) {
+      console.error('Error restarting thread:', error);
+      toast.error('Failed to restart thread flow');
+    }
   };
 
   const handleMoveToThread = async (threadId: string) => {
@@ -623,43 +666,82 @@ const Chat = () => {
 
                       {/* Threads */}
                       {threads.filter(t => t.status === 'open').map((thread) => (
-                        <button
-                          key={thread.id}
-                          onClick={() => {
-                            setSelectedThreadId(thread.id);
-                            setShowThreadDropdown(false);
-                          }}
-                          className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-100 dark:border-gray-700 ${
-                            selectedThreadId === thread.id ? 'bg-gray-100 dark:bg-gray-700/30' : ''
-                          }`}
-                        >
-                          <div className="flex-1 min-w-0 text-left">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                {thread.order_number || thread.title}
-                              </span>
-                              {thread.tag && (
-                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                                  thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                                  thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                                  thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
-                                  thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
-                                  'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                                }`}>
-                                  {thread.tag}
+                        <div key={thread.id} className="relative group border-t border-gray-100 dark:border-gray-700">
+                          <button
+                            onClick={() => {
+                              setSelectedThreadId(thread.id);
+                              setShowThreadDropdown(false);
+                            }}
+                            className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                              selectedThreadId === thread.id ? 'bg-gray-100 dark:bg-gray-700/30' : ''
+                            }`}
+                          >
+                            <div className="flex-1 min-w-0 text-left">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                  {thread.order_number || thread.title}
                                 </span>
+                                {thread.tag && (
+                                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                                    thread.tag === 'Return' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                                    thread.tag === 'Replacement' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                    thread.tag === 'Damaged' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    thread.tag === 'Defective' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                    'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                                  }`}>
+                                    {thread.tag}
+                                  </span>
+                                )}
+                              </div>
+                              {thread.customer_name && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{thread.customer_name}</div>
                               )}
                             </div>
-                            {thread.customer_name && (
-                              <div className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{thread.customer_name}</div>
+                            {thread.unread_count && thread.unread_count > 0 && (
+                              <span className="flex-shrink-0 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                                {thread.unread_count}
+                              </span>
                             )}
-                          </div>
-                          {thread.unread_count && thread.unread_count > 0 && (
-                            <span className="flex-shrink-0 bg-red-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                              {thread.unread_count}
-                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setThreadDropdownMenuOpen(threadDropdownMenuOpen === thread.id ? null : thread.id);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
+                              title="Thread actions"
+                            >
+                              <MoreVertical className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                            </button>
+                          </button>
+
+                          {/* Action Menu */}
+                          {threadDropdownMenuOpen === thread.id && (
+                            <div className="absolute right-2 top-full z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[140px] mt-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRestartThread(thread.id);
+                                  setThreadDropdownMenuOpen(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                              >
+                                <RotateCcw className="w-4 h-4" />
+                                Restart Flow
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCloseThread(thread.id);
+                                  setThreadDropdownMenuOpen(null);
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Delete Thread
+                              </button>
+                            </div>
                           )}
-                        </button>
+                        </div>
                       ))}
                     </div>
 
@@ -1241,6 +1323,21 @@ const Chat = () => {
         onMoveToThread={handleMoveToThread}
         currentThreadId={selectedThreadId}
       />
+
+      {/* Delete Thread Modal */}
+      {deleteThreadModalOpen && threadToDelete && (
+        <DeleteThreadModal
+          isOpen={deleteThreadModalOpen}
+          onClose={() => {
+            setDeleteThreadModalOpen(false);
+            setThreadToDelete(null);
+            setIsDeletingThread(false);
+          }}
+          onConfirm={confirmDeleteThread}
+          threadTitle={threadToDelete.order_number || threadToDelete.title}
+          isDeleting={isDeletingThread}
+        />
+      )}
 
     </div>
   );

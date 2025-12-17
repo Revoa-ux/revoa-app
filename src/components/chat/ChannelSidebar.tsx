@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Hash, X, ChevronLeft, Plus, MoreVertical, Trash2, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
+import { DeleteThreadModal } from './DeleteThreadModal';
 
 interface ChannelSidebarProps {
   threads: ChannelThread[];
@@ -41,6 +42,9 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
   isCustomerSidebarOpen = false,
 }) => {
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [threadToDelete, setThreadToDelete] = useState<ChannelThread | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const openThreads = threads.filter(t => t.status === 'open');
 
   return (
@@ -157,10 +161,9 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (confirm('Are you sure you want to delete this thread?')) {
-                          onDeleteThread(thread.id);
-                          setMenuOpenFor(null);
-                        }
+                        setThreadToDelete(thread);
+                        setDeleteModalOpen(true);
+                        setMenuOpenFor(null);
                       }}
                       className="w-full px-3 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
                     >
@@ -181,16 +184,37 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         </div>
 
         {/* Floating Add Thread Button */}
-        <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <div className="absolute bottom-4 right-4 z-10">
           <button
             onClick={onCreateThread}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-pink-600 hover:bg-pink-700 text-white rounded-lg transition-colors shadow-sm"
+            className="w-12 h-12 flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-full transition-all shadow-lg hover:shadow-xl"
+            title="Create New Thread"
           >
-            <Plus className="w-4 h-4" />
-            <span className="text-sm font-medium">New Thread</span>
+            <Plus className="w-5 h-5" />
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && threadToDelete && onDeleteThread && (
+        <DeleteThreadModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setThreadToDelete(null);
+            setIsDeleting(false);
+          }}
+          onConfirm={async () => {
+            setIsDeleting(true);
+            await onDeleteThread(threadToDelete.id);
+            setDeleteModalOpen(false);
+            setThreadToDelete(null);
+            setIsDeleting(false);
+          }}
+          threadTitle={threadToDelete.order_number || threadToDelete.title}
+          isDeleting={isDeleting}
+        />
+      )}
     </>
   );
 };
