@@ -61,6 +61,7 @@ export default function Layout() {
     last_name?: string;
     store_type?: string;
   } | null>(null);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
   const { shopify } = useConnectionStore();
 
@@ -125,6 +126,46 @@ export default function Layout() {
               store_type: newData.store_type
             });
           }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user?.id]);
+
+  // Track unread messages for notification badge
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchUnreadCount = async () => {
+      const { data, error } = await supabase
+        .from('chats')
+        .select('unread_count_user')
+        .eq('user_id', user.id)
+        .eq('is_archived', false);
+
+      if (data && !error) {
+        const totalUnread = data.reduce((sum, chat) => sum + (chat.unread_count_user || 0), 0);
+        setUnreadMessageCount(totalUnread);
+      }
+    };
+
+    fetchUnreadCount();
+
+    const subscription = supabase
+      .channel('unread_messages_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chats',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          fetchUnreadCount();
         }
       )
       .subscribe();
@@ -258,6 +299,7 @@ export default function Layout() {
             const Icon = item.icon;
             const isActive = location.pathname === item.href;
             const hasBadge = 'badge' in item && item.badge;
+            const hasUnreadMessages = item.href === '/chat' && unreadMessageCount > 0;
             return (
               <Link
                 key={item.name}
@@ -274,11 +316,21 @@ export default function Layout() {
                 )}
               >
                 {effectiveCollapsed ? (
-                  <Icon className="h-4 w-4" strokeWidth={1.5} />
+                  <div className="relative">
+                    <Icon className="h-4 w-4" strokeWidth={1.5} />
+                    {hasUnreadMessages && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full ring-2 ring-white dark:ring-gray-800" />
+                    )}
+                  </div>
                 ) : (
                   <>
                     <div className="flex items-center">
-                      <Icon className="mr-2.5 h-4 w-4" strokeWidth={1.5} />
+                      <div className="relative mr-2.5">
+                        <Icon className="h-4 w-4" strokeWidth={1.5} />
+                        {hasUnreadMessages && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full ring-1 ring-white dark:ring-gray-800" />
+                        )}
+                      </div>
                       {item.name}
                     </div>
                     {hasBadge && (
