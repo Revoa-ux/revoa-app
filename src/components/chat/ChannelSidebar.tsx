@@ -135,10 +135,10 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
                       setThreadToDelete(thread);
                       setDeleteModalOpen(true);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#EF4444]/10 dark:hover:bg-[#EF4444]/20 rounded transition-all ml-auto"
+                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded transition-all ml-auto"
                     title="Close thread"
                   >
-                    <X className="w-3.5 h-3.5 text-[#EF4444]" />
+                    <X className="w-3.5 h-3.5 text-rose-500" />
                   </button>
                 )}
               </button>
@@ -156,7 +156,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         <div className="absolute bottom-4 right-4 z-10">
           <button
             onClick={onCreateThread}
-            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-[#EF4444] to-[#DC2626] hover:from-[#DC2626] hover:to-[#B91C1C] text-white rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            className="w-14 h-14 flex items-center justify-center bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white rounded-2xl transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
             title="Create New Thread"
           >
             <Plus className="w-6 h-6 stroke-[2.5]" />

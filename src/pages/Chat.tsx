@@ -670,7 +670,7 @@ const Chat = () => {
                               )}
                             </div>
                             {thread.unread_count && thread.unread_count > 0 && (
-                              <span className="flex-shrink-0 bg-[#EF4444] text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                              <span className="flex-shrink-0 bg-rose-600 text-white text-xs font-medium px-2 py-0.5 rounded-full">
                                 {thread.unread_count}
                               </span>
                             )}
@@ -681,10 +681,10 @@ const Chat = () => {
                                 setDeleteThreadModalOpen(true);
                                 setShowThreadDropdown(false);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#EF4444]/10 dark:hover:bg-[#EF4444]/20 rounded transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-500/10 dark:hover:bg-rose-500/20 rounded transition-all"
                               title="Close thread"
                             >
-                              <X className="w-3.5 h-3.5 text-[#EF4444]" />
+                              <X className="w-3.5 h-3.5 text-rose-500" />
                             </button>
                           </button>
                         </div>
@@ -700,7 +700,7 @@ const Chat = () => {
                       }}
                       className="sticky bottom-0 w-full flex items-center space-x-3 px-4 py-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-t border-gray-200 dark:border-gray-600 rounded-b-lg"
                     >
-                      <Plus className="w-5 h-5 flex-shrink-0 text-[#EF4444]" />
+                      <Plus className="w-5 h-5 flex-shrink-0 text-rose-600" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Create New Thread</span>
                     </button>
                   </div>

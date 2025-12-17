@@ -19,11 +19,11 @@ export function DeleteThreadModal({
 }: DeleteThreadModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="">
-      <div className="space-y-6">
+      <div className="space-y-6 text-center">
         {/* Header */}
-        <div className="flex items-start gap-4">
-          <div className="p-3 bg-[#EF4444]/10 dark:bg-[#EF4444]/20 rounded-full">
-            <AlertTriangle className="w-6 h-6 text-[#EF4444]" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="p-3 bg-rose-500/10 dark:bg-rose-500/20 rounded-full">
+            <AlertTriangle className="w-6 h-6 text-rose-500" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -43,7 +43,7 @@ export function DeleteThreadModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex gap-3 justify-center">
           <button
             onClick={onClose}
             disabled={isDeleting}
@@ -54,7 +54,7 @@ export function DeleteThreadModal({
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="px-6 py-2.5 text-sm font-medium text-white bg-[#EF4444] hover:bg-[#DC2626] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isDeleting ? (
               <>
