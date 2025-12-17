@@ -56,16 +56,16 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
             <button
               onClick={() => onResponse(null)}
               disabled={isLoading}
-              className="mt-3 px-4 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2 group"
+              className="mt-3 px-3 py-2 text-sm bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:opacity-50 transition-colors flex items-center gap-2"
             >
               <span>Continue</span>
               <svg
-                className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                className="w-3 h-3"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </button>
           );
@@ -95,22 +95,18 @@ export function FlowMessage({ data, onResponse, isLoading, progress }: FlowMessa
 
   return (
     <div className={`flex gap-3 mb-4 ${isActive ? 'animate-in fade-in slide-in-from-left-2' : ''}`}>
-      <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${
-        isActive
-          ? 'shadow-lg shadow-rose-500/30'
-          : ''
-      }`}>
+      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
         <img
           src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa-Bot.gif"
           alt="Revoa Bot"
-          className={`w-full h-full object-cover ${isActive ? '' : 'opacity-60'}`}
+          className={`w-full h-full object-contain ${isActive ? '' : 'opacity-60'}`}
         />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className={`rounded-lg p-4 relative overflow-hidden ${
           isActive
-            ? 'bg-gradient-to-br from-white via-rose-50/30 to-pink-50/20 dark:from-gray-800 dark:via-rose-950/20 dark:to-pink-950/10 border-2 border-rose-500 shadow-lg'
+            ? 'bg-gradient-to-br from-white via-rose-50/30 to-pink-50/20 dark:from-gray-800 dark:via-rose-950/20 dark:to-pink-950/10 border border-rose-500 shadow-lg'
             : isCompleted
             ? 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800 opacity-75'
             : 'bg-gradient-to-br from-gray-50 to-gray-100/50 dark:from-gray-900 dark:to-gray-800/50 border border-gray-200 dark:border-gray-800'
