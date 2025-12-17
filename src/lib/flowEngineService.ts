@@ -26,9 +26,14 @@ export class FlowEngineService {
   evaluateCondition(
     condition: FlowCondition,
     value: any,
-    flowState: FlowState
+    flowState: FlowState,
+    currentNodeId?: string
   ): boolean {
-    const fieldValue = flowState[condition.field]?.response;
+    // If the condition field matches the current node ID, use the current response value
+    // Otherwise, look it up in the flow state (for checking previous responses)
+    const fieldValue = (condition.field === currentNodeId)
+      ? value
+      : flowState[condition.field]?.response;
 
     switch (condition.operator) {
       case 'equals':
@@ -72,7 +77,8 @@ export class FlowEngineService {
   evaluateConditions(
     conditions: FlowCondition[],
     flowState: FlowState,
-    currentResponse?: any
+    currentResponse?: any,
+    currentNodeId?: string
   ): boolean {
     if (conditions.length === 0) return true;
 
@@ -83,7 +89,8 @@ export class FlowEngineService {
       const conditionResult = this.evaluateCondition(
         condition,
         currentResponse,
-        flowState
+        flowState,
+        currentNodeId
       );
 
       if (currentLogic === 'AND') {
@@ -120,7 +127,7 @@ export class FlowEngineService {
 
     if (currentNode.conditionalNext && currentNode.conditionalNext.length > 0) {
       for (const conditional of currentNode.conditionalNext) {
-        if (this.evaluateConditions(conditional.conditions, session.flow_state, currentResponse)) {
+        if (this.evaluateConditions(conditional.conditions, session.flow_state, currentResponse, currentNode.id)) {
           const nextNode = this.getNodeById(flow, conditional.nodeId);
           if (nextNode) {
             console.log('[flowEngine] Using conditional next node:', nextNode.id);
