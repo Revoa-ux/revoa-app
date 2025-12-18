@@ -669,15 +669,15 @@ Browse the scenario templates to find relevant responses for:
 
           {/* Smart Filter Notice */}
           {selectedTag && (
-            <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <p className="text-xs text-blue-700 dark:text-blue-300">
+            <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
-                  ? '🎯 Showing only delivered orders'
+                  ? `🎯 Showing only delivered orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
                   : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
-                  ? '🎯 Showing only unfulfilled orders'
+                  ? `🎯 Showing only unfulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
                   : selectedTag === 'wrong_item'
-                  ? '🎯 Showing only fulfilled orders'
-                  : '🎯 Filtering orders based on issue type'}
+                  ? `🎯 Showing only fulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                  : `🎯 Filtering orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'selected issue'}`}
               </p>
             </div>
           )}
@@ -693,111 +693,114 @@ Browse the scenario templates to find relevant responses for:
             />
           </div>
 
-          {/* Selected Order Display */}
-          {selectedOrder && (
-            <div className="mb-3 border border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
-                  <div>
-                    <p className="font-medium text-red-900 dark:text-red-100">
-                      {selectedOrder.order_number}
-                    </p>
-                    <p className="text-xs text-red-700 dark:text-red-300">
-                      <span className="font-medium">
-                        {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
-                          [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
-                        ) : selectedOrder.customer_email ? (
-                          selectedOrder.customer_email.split('@')[0].charAt(0).toUpperCase() + selectedOrder.customer_email.split('@')[0].slice(1)
-                        ) : (
-                          'Guest Customer'
-                        )} • {' '}
-                      </span>
-                      {formatDate(selectedOrder.ordered_at)}
-                    </p>
+          {/* Fixed height container for order display/search to prevent modal height jumping */}
+          <div className="min-h-[180px]">
+            {/* Selected Order Display */}
+            {selectedOrder && (
+              <div className="mb-3 border border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    <div>
+                      <p className="font-medium text-red-900 dark:text-red-100">
+                        {selectedOrder.order_number}
+                      </p>
+                      <p className="text-xs text-red-700 dark:text-red-300">
+                        <span className="font-medium">
+                          {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
+                            [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
+                          ) : selectedOrder.customer_email ? (
+                            selectedOrder.customer_email.split('@')[0].charAt(0).toUpperCase() + selectedOrder.customer_email.split('@')[0].slice(1)
+                          ) : (
+                            'Guest Customer'
+                          )} • {' '}
+                        </span>
+                        {formatDate(selectedOrder.ordered_at)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-red-900 dark:text-red-100">
-                    {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSelectedOrderId('');
-                      setSelectedOrder(null);
-                      setSearchQuery('');
-                      setOrders([]);
-                    }}
-                    className="text-xs text-red-600 dark:text-red-400 hover:underline mt-0.5"
-                  >
-                    Clear selection
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Search Results */}
-          {!selectedOrder && searchQuery && (
-            <>
-              {isLoadingOrders ? (
-                <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
-                </div>
-              ) : orders.length === 0 ? (
-                <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
-                  <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
-                </div>
-              ) : (
-                <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
-                  {orders.map((order) => (
+                  <div className="text-right">
+                    <p className="font-medium text-red-900 dark:text-red-100">
+                      {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
+                    </p>
                     <button
-                      key={order.id}
                       onClick={() => {
-                        setSelectedOrderId(order.id);
-                        setSelectedOrder(order);
+                        setSelectedOrderId('');
+                        setSelectedOrder(null);
                         setSearchQuery('');
                         setOrders([]);
                       }}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                      className="text-xs text-red-600 dark:text-red-400 hover:underline mt-0.5"
                     >
-                      <div className="flex items-center gap-3">
-                        <Package className="w-5 h-5 text-gray-400" />
-                        <div className="text-left">
-                          <p className="font-medium text-gray-900 dark:text-white">
-                            {order.order_number}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            <span className="font-medium">
-                              {(order.customer_first_name || order.customer_last_name) ? (
-                                [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
-                              ) : order.customer_email ? (
-                                order.customer_email.split('@')[0].charAt(0).toUpperCase() + order.customer_email.split('@')[0].slice(1)
-                              ) : (
-                                'Guest Customer'
-                              )} • {' '}
-                            </span>
-                            {formatDate(order.ordered_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="font-medium text-gray-600 dark:text-gray-300">
-                        {formatCurrency(order.total_price, order.currency)}
-                      </span>
+                      Clear selection
                     </button>
-                  ))}
-                  {orders.length === 10 && (
-                    <div className="px-4 py-2 text-xs text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">
-                      Showing top 10 results. Refine your search for more specific results.
-                    </div>
-                  )}
+                  </div>
                 </div>
-              )}
-            </>
-          )}
+              </div>
+            )}
+
+            {/* Search Results */}
+            {!selectedOrder && searchQuery && (
+              <>
+                {isLoadingOrders ? (
+                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
+                  </div>
+                ) : orders.length === 0 ? (
+                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
+                  </div>
+                ) : (
+                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                    {orders.map((order) => (
+                      <button
+                        key={order.id}
+                        onClick={() => {
+                          setSelectedOrderId(order.id);
+                          setSelectedOrder(order);
+                          setSearchQuery('');
+                          setOrders([]);
+                        }}
+                        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Package className="w-5 h-5 text-gray-400" />
+                          <div className="text-left">
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {order.order_number}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="font-medium">
+                                {(order.customer_first_name || order.customer_last_name) ? (
+                                  [order.customer_first_name, order.customer_last_name].filter(Boolean).join(' ')
+                                ) : order.customer_email ? (
+                                  order.customer_email.split('@')[0].charAt(0).toUpperCase() + order.customer_email.split('@')[0].slice(1)
+                                ) : (
+                                  'Guest Customer'
+                                )} • {' '}
+                              </span>
+                              {formatDate(order.ordered_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="font-medium text-gray-600 dark:text-gray-300">
+                          {formatCurrency(order.total_price, order.currency)}
+                        </span>
+                      </button>
+                    ))}
+                    {orders.length === 10 && (
+                      <div className="px-4 py-2 text-xs text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">
+                        Showing top 10 results. Refine your search for more specific results.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
         </div>
 
