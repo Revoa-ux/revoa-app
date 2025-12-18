@@ -603,27 +603,18 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           </div>
         )}
 
-        {/* Template Preview Cards for Completion Nodes */}
-        {isActive && node.type === 'completion' && recommendedTemplates.length > 0 && (
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
-              <Sparkles className="w-4 h-4 text-rose-500" />
-              <span>Recommended Email Templates</span>
-            </div>
-            <div className="space-y-2">
-              {recommendedTemplates.map((template, index) => (
-                <FlowTemplatePreviewCard
-                  key={template.id}
-                  template={template}
-                  onClick={() => handleTemplateClick(template.id, template.name)}
-                  isRecommended={index === 0}
-                />
-              ))}
-            </div>
+        {/* Single Template Preview for Completion Nodes */}
+        {isActive && node.type === 'completion' && !loadingTemplates && recommendedTemplates.length > 0 && (
+          <div className="mt-4">
+            <FlowTemplatePreviewCard
+              template={recommendedTemplates[0]}
+              onClick={() => handleTemplateClick(recommendedTemplates[0].id, recommendedTemplates[0].name)}
+              isRecommended={true}
+            />
           </div>
         )}
 
-        {/* Loading Templates Indicator */}
+        {/* Loading Template Indicator */}
         {isActive && node.type === 'completion' && loadingTemplates && (
           <div className="mt-4">
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
@@ -632,7 +623,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                 <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span>Finding best templates...</span>
+              <span>Loading template...</span>
             </div>
           </div>
         )}

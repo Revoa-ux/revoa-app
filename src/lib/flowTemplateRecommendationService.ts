@@ -9,7 +9,6 @@ interface TemplateRecommendation {
   badges: string[];
   subject_line: string;
   body_plain: string;
-  relevanceScore: number;
 }
 
 interface OrderContext {
@@ -20,184 +19,151 @@ interface OrderContext {
   is_delivered?: boolean;
 }
 
+interface FlowStateKey {
+  shipping_issue_type?: string;
+  not_updating_duration?: string;
+  delayed_customer_intent?: string;
+  lost_package_status?: string;
+  failed_specific_reason?: string;
+  damage_assessment?: string;
+  return_reason?: string;
+}
+
 export class FlowTemplateRecommendationService {
+  private templateMappings: Record<string, string> = {
+    'shipping:not_updating:less_than_7': 'order_status_shipped',
+    'shipping:not_updating:7_plus_days': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d',
+    'shipping:not_updating:delivered_2_plus': 'delivery_status_2_plus_days',
+
+    'shipping:delayed:just_update': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d',
+    'shipping:delayed:wants_refund': 'shipping_complaint',
+
+    'shipping:lost:no_updates_14': 'lost_package_protocol',
+    'shipping:lost:returned': 'package_returned_to_warehouse',
+    'shipping:lost:delivered_not_received': 'delivery_status_delivered_not_received',
+
+    'shipping:delivery_failed:not_home': 'delivery_exception_general',
+    'shipping:delivery_failed:invalid_address': 'invalid_address_exception',
+    'shipping:delivery_failed:no_access': 'no_access_exception',
+    'shipping:delivery_failed:no_such_number': 'no_such_number_exception',
+    'shipping:delivery_failed:payment_hold': 'carrier_payment_hold',
+  };
+
   async getRecommendedTemplatesForFlowCompletion(
     flowCategory: string,
     flowState: FlowState,
     orderContext?: OrderContext
   ): Promise<TemplateRecommendation[]> {
     try {
-      console.log('[TemplateRecommendation] Getting recommendations for:', {
+      console.log('[TemplateRecommendation] Getting single best template for:', {
         flowCategory,
         flowState,
         orderContext
       });
 
+      const templateId = this.getSingleBestTemplate(flowCategory, flowState);
+
+      if (!templateId) {
+        console.log('[TemplateRecommendation] No direct mapping found, using fallback');
+        return this.getFallbackTemplate(flowCategory);
+      }
+
+      console.log('[TemplateRecommendation] Mapped template ID:', templateId);
+
+      const { data: template, error } = await supabase
+        .from('email_templates')
+        .select('*')
+        .eq('id', templateId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!template) {
+        console.log('[TemplateRecommendation] Template not found, using fallback');
+        return this.getFallbackTemplate(flowCategory);
+      }
+
+      return [{
+        ...template,
+        description: template.description || template.name,
+      }];
+    } catch (error) {
+      console.error('[TemplateRecommendation] Error getting template recommendation:', error);
+      return this.getFallbackTemplate(flowCategory);
+    }
+  }
+
+  private getSingleBestTemplate(flowCategory: string, flowState: FlowState): string | null {
+    const stateKey = this.buildStateKey(flowCategory, flowState);
+    console.log('[TemplateRecommendation] State key:', stateKey);
+
+    const templateId = this.templateMappings[stateKey];
+    return templateId || null;
+  }
+
+  private buildStateKey(flowCategory: string, flowState: FlowState): string {
+    const parts: string[] = [flowCategory];
+
+    if (flowCategory === 'shipping') {
+      const issueType = flowState.shipping_issue_type?.response;
+      if (!issueType) return '';
+
+      parts.push(issueType);
+
+      if (issueType === 'not_updating') {
+        const duration = flowState.not_updating_duration?.response;
+        if (duration) parts.push(duration);
+      } else if (issueType === 'delayed') {
+        const intent = flowState.delayed_customer_intent?.response;
+        if (intent) parts.push(intent);
+      } else if (issueType === 'lost') {
+        const status = flowState.lost_package_status?.response;
+        if (status) parts.push(status);
+      } else if (issueType === 'delivery_failed') {
+        const reason = flowState.failed_specific_reason?.response;
+        if (reason) parts.push(reason);
+      }
+    } else if (flowCategory === 'damage') {
+      const damageType = flowState.damage_assessment?.response;
+      if (damageType) parts.push(damageType);
+    } else if (flowCategory === 'return') {
+      const returnReason = flowState.return_reason?.response;
+      if (returnReason) parts.push(returnReason);
+    }
+
+    return parts.join(':');
+  }
+
+  private async getFallbackTemplate(flowCategory: string): Promise<TemplateRecommendation[]> {
+    const fallbackCategories: Record<string, string> = {
+      'shipping': 'order_status',
+      'damage': 'damaged',
+      'return': 'return',
+      'refund': 'refund',
+    };
+
+    const category = fallbackCategories[flowCategory] || 'general';
+
+    try {
       const { data: templates, error } = await supabase
         .from('email_templates')
         .select('*')
-        .eq('is_active', true);
+        .eq('category', category)
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true })
+        .limit(1);
 
       if (error) throw error;
-      if (!templates) {
-        console.log('[TemplateRecommendation] No templates found');
-        return [];
-      }
 
-      console.log('[TemplateRecommendation] Found templates:', templates.length);
-
-      const scoredTemplates = templates.map(template => {
-        const score = this.calculateRelevanceScore(
-          template,
-          flowCategory,
-          flowState,
-          orderContext
-        );
-        console.log('[TemplateRecommendation] Template:', template.name, 'Score:', score);
-        return {
-          ...template,
-          description: template.description || template.name,
-          relevanceScore: score
-        };
-      })
-      .filter(t => t.relevanceScore > 0)
-      .sort((a, b) => b.relevanceScore - a.relevanceScore);
-
-      console.log('[TemplateRecommendation] Top scored templates:', scoredTemplates.slice(0, 3).map(t => ({ name: t.name, score: t.relevanceScore })));
-
-      return scoredTemplates.slice(0, 3);
+      return (templates || []).map(t => ({
+        ...t,
+        description: t.description || t.name,
+      }));
     } catch (error) {
-      console.error('[TemplateRecommendation] Error getting template recommendations:', error);
+      console.error('[TemplateRecommendation] Error getting fallback template:', error);
       return [];
     }
-  }
-
-  private calculateRelevanceScore(
-    template: any,
-    flowCategory: string,
-    flowState: FlowState,
-    orderContext?: OrderContext
-  ): number {
-    let score = 0;
-
-    // Extract key scenario data from flow state
-    const shippingIssueType = flowState.shipping_issue_type?.response;
-    const damageType = flowState.damage_assessment?.response;
-    const returnReason = flowState.return_reason?.response;
-
-    // Match by flow category (highest priority)
-    if (this.matchesFlowCategory(template.category, flowCategory, shippingIssueType, damageType)) {
-      score += 100;
-    }
-
-    // Match by specific scenario
-    if (shippingIssueType) {
-      score += this.matchShippingScenario(template, shippingIssueType);
-    }
-
-    if (damageType) {
-      score += this.matchDamageScenario(template, damageType);
-    }
-
-    // Match by order status hints
-    if (orderContext) {
-      score += this.matchOrderStatus(template, orderContext);
-    }
-
-    // Boost frequently used templates slightly
-    if (template.usage_count > 10) {
-      score += 5;
-    }
-
-    // Use sort_order as tiebreaker (lower = higher priority)
-    score -= (template.sort_order || 999) * 0.1;
-
-    return score;
-  }
-
-  private matchesFlowCategory(
-    templateCategory: string,
-    flowCategory: string,
-    shippingIssueType?: string,
-    damageType?: string
-  ): boolean {
-    // Direct category match
-    if (templateCategory === flowCategory) return true;
-
-    // Shipping flow special handling
-    if (flowCategory === 'shipping') {
-      if (shippingIssueType === 'not_updating' && templateCategory === 'order_status') return true;
-      if (shippingIssueType === 'delayed' && templateCategory === 'shipping') return true;
-      if (shippingIssueType === 'lost' && templateCategory === 'delivery_exception') return true;
-      if (shippingIssueType === 'delivery_failed' && templateCategory === 'delivery_exception') return true;
-    }
-
-    // Damage flow handling
-    if (flowCategory === 'damage') {
-      if (templateCategory === 'damaged' || templateCategory === 'defective' || templateCategory === 'quality') {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private matchShippingScenario(template: any, issueType: string): number {
-    const badges = template.badges || [];
-    const category = template.category;
-
-    switch (issueType) {
-      case 'not_updating':
-        if (badges.includes('Shipped') || badges.includes('Follow Up')) return 50;
-        if (category === 'order_status') return 30;
-        break;
-
-      case 'delayed':
-        if (badges.includes('Shipped') || badges.includes('Follow Up')) return 50;
-        if (template.name.toLowerCase().includes('delay')) return 40;
-        break;
-
-      case 'lost':
-        if (category === 'delivery_exception') return 50;
-        if (template.name.toLowerCase().includes('lost')) return 40;
-        if (badges.includes('Delivery Exception')) return 30;
-        break;
-
-      case 'delivery_failed':
-        if (badges.includes('Delivery Exception')) return 50;
-        if (category === 'delivery_exception') return 40;
-        if (template.name.toLowerCase().includes('failed') ||
-            template.name.toLowerCase().includes('exception')) return 30;
-        break;
-    }
-
-    return 0;
-  }
-
-  private matchDamageScenario(template: any, damageType: string): number {
-    const category = template.category;
-    const badges = template.badges || [];
-
-    if (damageType === 'physical_damage' && category === 'damaged') return 50;
-    if (damageType === 'not_working' && category === 'defective') return 50;
-    if (damageType === 'quality_issue' && category === 'quality') return 50;
-    if (badges.includes('Warranty Issue')) return 30;
-    if (badges.includes('Need Reason')) return 20;
-
-    return 0;
-  }
-
-  private matchOrderStatus(template: any, orderContext: OrderContext): number {
-    const hints = template.order_status_hints || [];
-    let score = 0;
-
-    if (orderContext.status === 'pending' && hints.includes('pending')) score += 20;
-    if (orderContext.status === 'pending' && hints.includes('not_shipped')) score += 20;
-    if (orderContext.fulfillment_status === 'fulfilled' && hints.includes('shipped')) score += 20;
-    if (orderContext.fulfillment_status === 'fulfilled' && hints.includes('in_transit')) score += 15;
-    if (orderContext.is_delivered && hints.includes('delivered')) score += 25;
-
-    return score;
   }
 
   async getTemplatesByIds(templateIds: string[]): Promise<TemplateRecommendation[]> {
@@ -213,7 +179,6 @@ export class FlowTemplateRecommendationService {
       return (templates || []).map(t => ({
         ...t,
         description: t.description || t.name,
-        relevanceScore: 100
       }));
     } catch (error) {
       console.error('Error fetching templates by IDs:', error);
