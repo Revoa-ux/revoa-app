@@ -32,6 +32,18 @@ interface FlowMessageProps {
 
 // Helper function to parse simple markdown into readable React elements
 const parseMarkdown = (text: string) => {
+  // Parse inline bold text within a string
+  const parseInlineBold = (str: string) => {
+    const parts = str.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        const boldText = part.slice(2, -2);
+        return <strong key={i} className="font-semibold text-gray-900 dark:text-white">{boldText}</strong>;
+      }
+      return part;
+    });
+  };
+
   // Split by double newlines to get paragraphs
   const paragraphs = text.split(/\\n\\n|\n\n/);
 
@@ -42,27 +54,27 @@ const parseMarkdown = (text: string) => {
       return (
         <div key={pIndex} className="flex gap-2 mb-2">
           <span className="text-gray-500 dark:text-gray-400 font-medium">•</span>
-          <span>{listMatch[1].replace(/\*\*/g, '')}</span>
+          <span>{parseInlineBold(listMatch[1])}</span>
         </div>
       );
     }
 
-    // Check if it's a bold header (starts and ends with **)
+    // Check if it's a bold header (starts and ends with ** and possibly ends with :)
     const headerMatch = paragraph.match(/^\*\*(.+?)\*\*:?$/);
     if (headerMatch) {
       return (
-        <div key={pIndex} className="font-semibold mb-2">
+        <div key={pIndex} className="font-semibold text-gray-900 dark:text-white mb-2">
           {headerMatch[1]}
         </div>
       );
     }
 
-    // Regular paragraph - remove ** formatting
-    const cleaned = paragraph.replace(/\*\*/g, '').replace(/\\n/g, ' ');
+    // Regular paragraph - parse inline bold
+    const cleaned = paragraph.replace(/\\n/g, ' ');
     if (cleaned.trim()) {
       return (
         <p key={pIndex} className="mb-2">
-          {cleaned}
+          {parseInlineBold(cleaned)}
         </p>
       );
     }
@@ -315,21 +327,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     loadFlowContinuations();
   }, [isCurrentStep, node.type, threadId, data.flowId]);
 
-  // Auto-advance simple info nodes
-  useEffect(() => {
-    if (!isCurrentStep || node.type !== 'info') return;
-    if (node.type === 'completion') return;
-    if (node.metadata?.templateSuggestions && node.metadata.templateSuggestions.length > 0) return;
-    if (node.metadata?.dynamicContent) return;
-    if (node.metadata?.resolution) return;
-    if (isLoading) return;
-
-    const timer = setTimeout(() => {
-      onResponse(null);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, [isCurrentStep, node.type, node.metadata, isLoading, onResponse]);
+  // Disabled auto-advance - users should read and manually click Continue
+  // This ensures merchants can fully read operational guidance before it grays out
 
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
@@ -510,8 +509,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       }
     }
 
-    // Show continue button for info nodes with dynamic content or resolution guidance
-    if (node.type === 'info' && (node.metadata?.dynamicContent || node.metadata?.resolution)) {
+    // Show continue button for ALL info nodes so users can read before it grays out
+    if (node.type === 'info') {
       if (loadingWarranty || loadingGuidance) {
         return null;
       }
