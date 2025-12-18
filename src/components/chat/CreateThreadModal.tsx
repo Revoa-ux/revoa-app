@@ -682,8 +682,8 @@ Browse the scenario templates to find relevant responses for:
             </div>
           )}
 
-          {/* Search Input */}
-          <div className="mb-3">
+          {/* Search Input with absolute dropdown */}
+          <div className="mb-3 relative">
             <input
               type="text"
               placeholder="Search order number..."
@@ -691,70 +691,23 @@ Browse the scenario templates to find relevant responses for:
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
             />
-          </div>
 
-          {/* Fixed height container for order display/search to prevent modal height jumping */}
-          <div className="min-h-[180px]">
-            {/* Selected Order Display */}
-            {selectedOrder && (
-              <div className="mb-3 border border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    <div>
-                      <p className="font-medium text-red-900 dark:text-red-100">
-                        {selectedOrder.order_number}
-                      </p>
-                      <p className="text-xs text-red-700 dark:text-red-300">
-                        <span className="font-medium">
-                          {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
-                            [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
-                          ) : selectedOrder.customer_email ? (
-                            selectedOrder.customer_email.split('@')[0].charAt(0).toUpperCase() + selectedOrder.customer_email.split('@')[0].slice(1)
-                          ) : (
-                            'Guest Customer'
-                          )} • {' '}
-                        </span>
-                        {formatDate(selectedOrder.ordered_at)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-red-900 dark:text-red-100">
-                      {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSelectedOrderId('');
-                        setSelectedOrder(null);
-                        setSearchQuery('');
-                        setOrders([]);
-                      }}
-                      className="text-xs text-red-600 dark:text-red-400 hover:underline mt-0.5"
-                    >
-                      Clear selection
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Search Results */}
+            {/* Search Results Dropdown - Absolutely positioned */}
             {!selectedOrder && searchQuery && (
-              <>
+              <div className="absolute top-full left-0 right-0 mt-1 z-50">
                 {isLoadingOrders ? (
-                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
                     <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
                     <span className="text-sm text-gray-500 dark:text-gray-400">Searching...</span>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <div className="text-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
                     <Package className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">No matching orders found</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Try searching by order number (e.g., #1001)</p>
                   </div>
                 ) : (
-                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto">
+                  <div className="border border-gray-300 dark:border-gray-600 rounded-lg max-h-64 overflow-y-auto bg-white dark:bg-gray-800 shadow-lg">
                     {orders.map((order) => (
                       <button
                         key={order.id}
@@ -798,9 +751,53 @@ Browse the scenario templates to find relevant responses for:
                     )}
                   </div>
                 )}
-              </>
+              </div>
             )}
           </div>
+
+          {/* Selected Order Display - Only takes space when shown */}
+          {selectedOrder && (
+            <div className="mb-3 border border-red-300 dark:border-red-700/60 bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  <div>
+                    <p className="font-medium text-red-900 dark:text-red-100">
+                      {selectedOrder.order_number}
+                    </p>
+                    <p className="text-xs text-red-700 dark:text-red-300">
+                      <span className="font-medium">
+                        {(selectedOrder.customer_first_name || selectedOrder.customer_last_name) ? (
+                          [selectedOrder.customer_first_name, selectedOrder.customer_last_name].filter(Boolean).join(' ')
+                        ) : selectedOrder.customer_email ? (
+                          selectedOrder.customer_email.split('@')[0].charAt(0).toUpperCase() + selectedOrder.customer_email.split('@')[0].slice(1)
+                        ) : (
+                          'Guest Customer'
+                        )} • {' '}
+                      </span>
+                      {formatDate(selectedOrder.ordered_at)}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium text-red-900 dark:text-red-100">
+                    {formatCurrency(selectedOrder.total_price, selectedOrder.currency)}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSelectedOrderId('');
+                      setSelectedOrder(null);
+                      setSearchQuery('');
+                      setOrders([]);
+                    }}
+                    className="text-xs text-red-600 dark:text-red-400 hover:underline mt-0.5"
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
 
