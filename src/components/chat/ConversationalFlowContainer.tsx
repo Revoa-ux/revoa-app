@@ -7,9 +7,10 @@ interface ConversationalFlowContainerProps {
   threadId: string | null;
   onFlowActive?: (isActive: boolean) => void;
   onOpenTemplateModal?: (templateIds?: string[]) => void;
+  onTemplateSelect?: (templateContent: string, templateName: string) => void;
 }
 
-export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemplateModal }: ConversationalFlowContainerProps) {
+export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemplateModal, onTemplateSelect }: ConversationalFlowContainerProps) {
   const {
     session,
     flow,
@@ -51,6 +52,7 @@ export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemp
             onResponse={handleResponse}
             isLoading={isLoading}
             onOpenTemplateModal={onOpenTemplateModal}
+            onTemplateSelect={onTemplateSelect}
             isLastMessage={index === flowMessages.length - 1}
           />
         ))}

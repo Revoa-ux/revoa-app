@@ -775,6 +775,14 @@ const AdminChat = () => {
                     onOpenTemplateModal={(templateIds) => {
                       setShowScenarioTemplate(true);
                     }}
+                    onTemplateSelect={(templateContent, templateName) => {
+                      setNewMessage(templateContent);
+                      toast.success(`"${templateName}" template loaded - ready to edit and send!`);
+                      // Focus the textarea
+                      if (textareaRef.current) {
+                        textareaRef.current.focus();
+                      }
+                    }}
                   />
                 </div>
               )}

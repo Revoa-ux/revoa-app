@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelpCircle, CheckCircle, ArrowRight, Mail, Sparkles, CheckSquare } from 'lucide-react';
 import Lottie from 'lottie-react';
+import { toast } from 'sonner';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
 import { FlowTextInput } from './FlowTextInput';
@@ -22,10 +23,11 @@ interface FlowMessageProps {
     percentage: number;
   };
   onOpenTemplateModal?: (templateIds?: string[]) => void;
+  onTemplateSelect?: (templateContent: string, templateName: string) => void;
   isLastMessage?: boolean;
 }
 
-export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, isLastMessage = false }: FlowMessageProps) {
+export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, isLastMessage = false }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -172,9 +174,11 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   useEffect(() => {
     const loadTemplateRecommendations = async () => {
       if (!isCurrentStep || node.type !== 'completion') {
+        console.log('[FlowMessage] Not loading templates - not completion node or not current step');
         return;
       }
 
+      console.log('[FlowMessage] Loading template recommendations for sessionId:', data.sessionId);
       setLoadingTemplates(true);
       try {
         const { data: sessionData } = await supabase
@@ -183,7 +187,12 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           .eq('id', data.sessionId)
           .maybeSingle();
 
-        if (!sessionData) return;
+        console.log('[FlowMessage] Session data:', sessionData);
+
+        if (!sessionData) {
+          console.log('[FlowMessage] No session data found');
+          return;
+        }
 
         const { data: flowData } = await supabase
           .from('bot_flows')
@@ -192,6 +201,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           .maybeSingle();
 
         const flowCategory = flowData?.category || 'general';
+        console.log('[FlowMessage] Flow category:', flowCategory);
 
         const templates = await flowTemplateRecommendation.getRecommendedTemplatesForFlowCompletion(
           flowCategory,
@@ -199,9 +209,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           undefined
         );
 
+        console.log('[FlowMessage] Recommended templates:', templates);
         setRecommendedTemplates(templates);
       } catch (error) {
-        console.error('Error loading template recommendations:', error);
+        console.error('[FlowMessage] Error loading template recommendations:', error);
       } finally {
         setLoadingTemplates(false);
       }
@@ -228,6 +239,40 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
 
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
+
+  const handleTemplateClick = async (templateId: string, templateName: string) => {
+    try {
+      console.log('[FlowMessage] Template clicked:', templateId, templateName);
+
+      // Fetch the full template
+      const { data: template, error } = await supabase
+        .from('email_templates')
+        .select('body_plain')
+        .eq('id', templateId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!template) {
+        toast.error('Template not found');
+        return;
+      }
+
+      // Call the onTemplateSelect callback with the template content
+      if (onTemplateSelect) {
+        console.log('[FlowMessage] Calling onTemplateSelect with content');
+        onTemplateSelect(template.body_plain, templateName);
+      } else {
+        console.log('[FlowMessage] onTemplateSelect not provided, falling back to modal');
+        // Fallback to opening modal if new prop not provided
+        if (onOpenTemplateModal) {
+          onOpenTemplateModal([templateId]);
+        }
+      }
+    } catch (error) {
+      console.error('[FlowMessage] Error loading template:', error);
+      toast.error('Failed to load template');
+    }
+  };
 
   const handleProductSelection = async (productId: string) => {
     try {
@@ -559,7 +604,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         )}
 
         {/* Template Preview Cards for Completion Nodes */}
-        {isActive && node.type === 'completion' && recommendedTemplates.length > 0 && onOpenTemplateModal && (
+        {isActive && node.type === 'completion' && recommendedTemplates.length > 0 && (
           <div className="mt-4 space-y-3">
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
               <Sparkles className="w-4 h-4 text-rose-500" />
@@ -570,7 +615,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                 <FlowTemplatePreviewCard
                   key={template.id}
                   template={template}
-                  onClick={() => onOpenTemplateModal([template.id])}
+                  onClick={() => handleTemplateClick(template.id, template.name)}
                   isRecommended={index === 0}
                 />
               ))}

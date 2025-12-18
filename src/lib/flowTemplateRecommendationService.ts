@@ -27,30 +27,47 @@ export class FlowTemplateRecommendationService {
     orderContext?: OrderContext
   ): Promise<TemplateRecommendation[]> {
     try {
+      console.log('[TemplateRecommendation] Getting recommendations for:', {
+        flowCategory,
+        flowState,
+        orderContext
+      });
+
       const { data: templates, error } = await supabase
         .from('email_templates')
         .select('*')
         .eq('is_active', true);
 
       if (error) throw error;
-      if (!templates) return [];
+      if (!templates) {
+        console.log('[TemplateRecommendation] No templates found');
+        return [];
+      }
 
-      const scoredTemplates = templates.map(template => ({
-        ...template,
-        description: template.description || template.name,
-        relevanceScore: this.calculateRelevanceScore(
+      console.log('[TemplateRecommendation] Found templates:', templates.length);
+
+      const scoredTemplates = templates.map(template => {
+        const score = this.calculateRelevanceScore(
           template,
           flowCategory,
           flowState,
           orderContext
-        )
-      }))
+        );
+        console.log('[TemplateRecommendation] Template:', template.name, 'Score:', score);
+        return {
+          ...template,
+          description: template.description || template.name,
+          relevanceScore: score
+        };
+      })
       .filter(t => t.relevanceScore > 0)
       .sort((a, b) => b.relevanceScore - a.relevanceScore);
 
+      console.log('[TemplateRecommendation] Top scored templates:', scoredTemplates.slice(0, 3).map(t => ({ name: t.name, score: t.relevanceScore })));
+
       return scoredTemplates.slice(0, 3);
     } catch (error) {
-      console.error('Error getting template recommendations:', error);
+      console.error('[TemplateRecommendation] Error getting template recommendations:', error);
       return [];
     }
   }
