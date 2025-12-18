@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight } from 'lucide-react';
+import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
 import { flowTriggerService } from '@/lib/flowTriggerService';
+import { manualSync } from '@/lib/shopifyAutoSync';
 
 interface Order {
   id: string;
@@ -52,6 +53,7 @@ export function CreateThreadModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     if (isOpen && !userId) {
@@ -582,6 +584,32 @@ Browse the scenario templates to find relevant responses for:
     });
   };
 
+  const handleRefresh = async () => {
+    if (!userId) {
+      toast.error('Please log in to refresh orders');
+      return;
+    }
+
+    setIsRefreshing(true);
+    try {
+      const result = await manualSync(userId);
+      if (result.success) {
+        toast.success('Orders refreshed successfully');
+        // Re-run the search if there's a query
+        if (searchQuery) {
+          await searchOrders(searchQuery);
+        }
+      } else {
+        toast.error(result.error || 'Failed to refresh orders');
+      }
+    } catch (error) {
+      console.error('Error refreshing orders:', error);
+      toast.error('Failed to refresh orders');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Create Issue Thread">
       <div className="pb-20">
@@ -624,9 +652,20 @@ Browse the scenario templates to find relevant responses for:
 
         {/* Order Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Related Order *
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Related Order *
+            </label>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="p-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Refresh order status"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-gray-600 dark:text-gray-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
 
           {/* Smart Filter Notice */}
           {selectedTag && (
