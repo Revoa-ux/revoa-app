@@ -139,11 +139,12 @@ export class FlowStateService {
     const endTime = Date.now();
     const durationSeconds = Math.round((endTime - startTime) / 1000);
 
+    // Mark as completed but keep active so templates remain accessible
     await supabase
       .from('thread_flow_sessions')
       .update({
         completed_at: new Date().toISOString(),
-        is_active: false,
+        is_active: true, // Keep active for template access
       })
       .eq('id', sessionId);
 

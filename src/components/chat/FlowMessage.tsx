@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HelpCircle, CheckCircle, ArrowRight, Mail, Sparkles } from 'lucide-react';
+import { HelpCircle, CheckCircle, ArrowRight, Mail, Sparkles, CheckSquare } from 'lucide-react';
 import Lottie from 'lottie-react';
 import type { FlowNode, FlowMessageData } from '../../types/conversationalFlows';
 import { QuickReplyButtons } from './QuickReplyButtons';
@@ -7,7 +7,9 @@ import { FlowTextInput } from './FlowTextInput';
 import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { FlowAttachmentNode } from './FlowAttachmentNode';
 import { FlowGuidancePanel } from './FlowGuidancePanel';
+import { FlowTemplatePreviewCard } from './FlowTemplatePreviewCard';
 import { getThreadProductWarranty, formatWarrantyForFlow, getDamageResolutionGuidance } from '../../lib/flowWarrantyService';
+import { flowTemplateRecommendation } from '../../lib/flowTemplateRecommendationService';
 import { supabase } from '../../lib/supabase';
 
 interface FlowMessageProps {
@@ -35,6 +37,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const [threadId, setThreadId] = useState<string | null>(null);
   const [intelligentGuidance, setIntelligentGuidance] = useState<any>(null);
   const [loadingGuidance, setLoadingGuidance] = useState(false);
+  const [recommendedTemplates, setRecommendedTemplates] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -164,6 +168,64 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     loadGuidance();
   }, [isCurrentStep, node.type, node.metadata, threadId, data.sessionId]);
 
+  // Load recommended templates for completion nodes
+  useEffect(() => {
+    const loadTemplateRecommendations = async () => {
+      if (!isCurrentStep || node.type !== 'completion') {
+        return;
+      }
+
+      setLoadingTemplates(true);
+      try {
+        const { data: sessionData } = await supabase
+          .from('thread_flow_sessions')
+          .select('flow_state, flow_id, thread_id')
+          .eq('id', data.sessionId)
+          .maybeSingle();
+
+        if (!sessionData) return;
+
+        const { data: flowData } = await supabase
+          .from('bot_flows')
+          .select('category')
+          .eq('id', sessionData.flow_id)
+          .maybeSingle();
+
+        const flowCategory = flowData?.category || 'general';
+
+        const templates = await flowTemplateRecommendation.getRecommendedTemplatesForFlowCompletion(
+          flowCategory,
+          sessionData.flow_state,
+          undefined
+        );
+
+        setRecommendedTemplates(templates);
+      } catch (error) {
+        console.error('Error loading template recommendations:', error);
+      } finally {
+        setLoadingTemplates(false);
+      }
+    };
+
+    loadTemplateRecommendations();
+  }, [isCurrentStep, node.type, data.sessionId]);
+
+  // Auto-advance simple info nodes
+  useEffect(() => {
+    if (!isCurrentStep || node.type !== 'info') return;
+    if (node.type === 'completion') return;
+    if (node.metadata?.templateSuggestions && node.metadata.templateSuggestions.length > 0) return;
+    if (node.metadata?.dynamicContent) return;
+    if (node.metadata?.resolution) return;
+    if (isLoading) return;
+
+    const timer = setTimeout(() => {
+      onResponse(null);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [isCurrentStep, node.type, node.metadata, isLoading, onResponse]);
+
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
 
@@ -268,6 +330,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const renderContinueButton = () => {
     if (!isActive) return null;
 
+    // NEVER show continue button for completion nodes
+    if (node.type === 'completion') return null;
+
     // Don't show continue if product selection is needed
     if (needsProductSelection) return null;
 
@@ -288,10 +353,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       }
     }
 
-    // Show continue button for info nodes or nodes without response types (including dynamic warranty display)
-    if (node.type === 'info' || !node.responseType) {
-      // For warranty display, wait until content is loaded
-      if (node.metadata?.dynamicContent && loadingWarranty) {
+    // Show continue button for info nodes with dynamic content or resolution guidance
+    if (node.type === 'info' && (node.metadata?.dynamicContent || node.metadata?.resolution)) {
+      if (loadingWarranty || loadingGuidance) {
         return null;
       }
 
@@ -449,7 +513,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           )}
         </div>
 
-        {isLoading && (
+        {isActive && isLoading && (
           <div className="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex gap-1">
               <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -484,25 +548,46 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           />
         )}
 
-        {/* Template Suggestions */}
-        {isActive && node.metadata?.templateSuggestions && node.metadata.templateSuggestions.length > 0 && onOpenTemplateModal && (
-          <div className="mt-3 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Recommended Email Templates:</span>
+        {/* Completion Badge */}
+        {node.type === 'completion' && isActive && (
+          <div className="mt-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <CheckSquare className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <span className="text-sm font-medium text-green-900 dark:text-green-100">Flow Complete</span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {node.metadata.templateSuggestions.map((templateId: string) => (
-                <button
-                  key={templateId}
-                  onClick={() => onOpenTemplateModal([templateId])}
-                  className="group inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-all hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-sm"
-                >
-                  <Mail className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200" />
-                  <span className="capitalize">{templateId.replace(/_/g, ' ')}</span>
-                  <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 dark:text-gray-400" />
-                </button>
+          </div>
+        )}
+
+        {/* Template Preview Cards for Completion Nodes */}
+        {isActive && node.type === 'completion' && recommendedTemplates.length > 0 && onOpenTemplateModal && (
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+              <Sparkles className="w-4 h-4 text-rose-500" />
+              <span>Recommended Email Templates</span>
+            </div>
+            <div className="space-y-2">
+              {recommendedTemplates.map((template, index) => (
+                <FlowTemplatePreviewCard
+                  key={template.id}
+                  template={template}
+                  onClick={() => onOpenTemplateModal([template.id])}
+                  isRecommended={index === 0}
+                />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Loading Templates Indicator */}
+        {isActive && node.type === 'completion' && loadingTemplates && (
+          <div className="mt-4">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+              <span>Finding best templates...</span>
             </div>
           </div>
         )}
