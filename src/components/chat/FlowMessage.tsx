@@ -92,6 +92,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const [suggestedFlows, setSuggestedFlows] = useState<FlowSuggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [showContinuationOptions, setShowContinuationOptions] = useState(false);
+  const [templateCopied, setTemplateCopied] = useState(false);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -337,10 +338,12 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     try {
       console.log('[FlowMessage] Template copied:', templateId);
 
+      // Mark template as copied to show resolution options
+      setTemplateCopied(true);
+
       // Determine appropriate close-off message
       const closeOff = await determineCloseOffMessage(data.sessionId, templateId);
       setCloseOffMessage(closeOff.message);
-      setShowCloseOff(true);
     } catch (error) {
       console.error('[FlowMessage] Error handling template copy:', error);
     }
@@ -691,6 +694,13 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           )}
         </div>
 
+        {/* Interactive elements moved outside bubble */}
+        {renderResponseInput() && (
+          <div className="mt-3">
+            {renderResponseInput()}
+          </div>
+        )}
+
         {isActive && isLoading && (
           <div className="mt-2 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex gap-1">
@@ -699,13 +709,6 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
               <span className="w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
             <span>Processing...</span>
-          </div>
-        )}
-
-        {/* Interactive elements moved outside bubble */}
-        {renderResponseInput() && (
-          <div className="mt-3">
-            {renderResponseInput()}
           </div>
         )}
 
@@ -753,7 +756,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         )}
 
         {/* Flow Continuation Options */}
-        {isActive && node.type === 'completion' && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
+        {isActive && node.type === 'completion' && templateCopied && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
           <div className="mt-4">
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">

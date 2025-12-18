@@ -40,6 +40,9 @@ export function FlowTemplateDisplay({
 
     const loadTemplate = async () => {
       console.log('[FlowTemplateDisplay] Loading template:', templateId);
+      console.log('[FlowTemplateDisplay] Thread ID:', threadId);
+      console.log('[FlowTemplateDisplay] Order ID:', orderId);
+      console.log('[FlowTemplateDisplay] User ID:', userId);
 
       try {
         const { data, error } = await supabase
@@ -53,10 +56,10 @@ export function FlowTemplateDisplay({
         if (!mounted) return;
 
         if (error) {
-          console.error('[FlowTemplateDisplay] Error:', error);
+          console.error('[FlowTemplateDisplay] Database error:', error);
           setTemplateContent({
-            subject: 'Error',
-            body: 'Failed to load template. Please refresh and try again.',
+            subject: 'Database Error',
+            body: `Failed to load template: ${error.message}`,
           });
           toast.error('Failed to load template');
           return;
@@ -66,10 +69,16 @@ export function FlowTemplateDisplay({
           console.error('[FlowTemplateDisplay] No template found for ID:', templateId);
           setTemplateContent({
             subject: 'Template Not Found',
-            body: 'This template could not be loaded. Please contact support.',
+            body: `Template ID "${templateId}" does not exist in the database. Please check that the template has been created.`,
           });
+          toast.error('Template not found');
           return;
         }
+
+        console.log('[FlowTemplateDisplay] Template loaded successfully:', {
+          subject: data.subject,
+          bodyLength: data.body_plain?.length || 0
+        });
 
         setTemplateContent({
           subject: data.subject || '',
@@ -80,7 +89,7 @@ export function FlowTemplateDisplay({
         if (mounted) {
           setTemplateContent({
             subject: 'Error',
-            body: 'An unexpected error occurred. Please try again.',
+            body: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
           });
           toast.error('Failed to load template');
         }
@@ -89,16 +98,18 @@ export function FlowTemplateDisplay({
 
     loadTemplate();
 
-    // Timeout after 5 seconds
+    // Timeout after 10 seconds (increased from 5)
     timeoutId = setTimeout(() => {
       if (mounted && !templateContent) {
-        console.error('[FlowTemplateDisplay] Timeout loading template');
+        console.error('[FlowTemplateDisplay] Timeout loading template after 10 seconds');
+        console.error('[FlowTemplateDisplay] Template ID:', templateId);
         setTemplateContent({
           subject: 'Loading Timeout',
-          body: 'Template took too long to load. Please refresh the page.',
+          body: `Template ID "${templateId}" took too long to load. This may indicate a database connection issue or the template doesn't exist.`,
         });
+        toast.error('Template loading timeout');
       }
-    }, 5000);
+    }, 10000);
 
     return () => {
       mounted = false;
