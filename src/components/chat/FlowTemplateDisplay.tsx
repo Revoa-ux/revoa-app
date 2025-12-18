@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { Copy, Check, ArrowRight, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import { fetchVariableData, replaceVariables } from '../../lib/templateVariableService';
 
@@ -64,7 +63,6 @@ export function FlowTemplateDisplay({
             subject: 'Database Error',
             body: `Failed to load template: ${error.message}`,
           });
-          toast.error('Failed to load template');
           return;
         }
 
@@ -76,7 +74,6 @@ export function FlowTemplateDisplay({
             subject: 'Template Not Found',
             body: `Template ID "${templateId}" does not exist in the database. Please check that the template has been created.`,
           });
-          toast.error('Template not found');
           return;
         }
 
@@ -100,7 +97,6 @@ export function FlowTemplateDisplay({
             subject: 'Error',
             body: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
           });
-          toast.error('Failed to load template');
         }
       }
     };
@@ -116,7 +112,6 @@ export function FlowTemplateDisplay({
           subject: 'Loading Timeout',
           body: `Template ID "${templateId}" took too long to load. This may indicate a database connection issue or the template doesn't exist.`,
         });
-        toast.error('Template loading timeout');
       }
     }, 10000);
 
@@ -188,10 +183,8 @@ export function FlowTemplateDisplay({
         body: populatedBody,
       });
       setIsPopulated(true);
-      toast.success('Email populated with your data');
     } catch (error) {
       console.error('Error populating template:', error);
-      toast.error('Failed to populate template');
     } finally {
       setIsLoading(false);
     }
@@ -205,14 +198,12 @@ export function FlowTemplateDisplay({
     try {
       await navigator.clipboard.writeText(fullEmail);
       setIsCopied(true);
-      toast.success('Email copied to clipboard');
 
       setTimeout(() => {
         onCopied?.();
       }, 500);
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      toast.error('Failed to copy to clipboard');
     }
   };
 
