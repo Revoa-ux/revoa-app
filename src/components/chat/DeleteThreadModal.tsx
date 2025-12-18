@@ -30,9 +30,9 @@ export function DeleteThreadModal({
           <X className="w-5 h-5" />
         </button>
 
-        <div className="space-y-6 text-center pt-2">
+        <div className="space-y-4 text-center pt-2">
           {/* Header */}
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-3">
             <div className="p-3 bg-rose-500/10 dark:bg-rose-500/20 rounded-full">
               <AlertTriangle className="w-6 h-6 text-rose-500" />
             </div>
@@ -57,7 +57,7 @@ export function DeleteThreadModal({
           <div className="border-t border-gray-200/60 dark:border-gray-700/60"></div>
 
           {/* Action Button */}
-          <div className="flex justify-center -mt-2 pb-1">
+          <div className="flex justify-center -mt-1">
             <button
               onClick={onConfirm}
               disabled={isDeleting}
