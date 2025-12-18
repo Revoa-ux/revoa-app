@@ -57,7 +57,7 @@ export function DeleteThreadModal({
           <div className="border-t border-gray-200/60 dark:border-gray-700/60"></div>
 
           {/* Action Button */}
-          <div className="flex justify-center -mt-1">
+          <div className="flex justify-center -mt-1 -mb-2">
             <button
               onClick={onConfirm}
               disabled={isDeleting}
