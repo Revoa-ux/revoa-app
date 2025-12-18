@@ -36,7 +36,12 @@ export function FlowTemplateDisplay({
 
   // Load template content on mount
   useEffect(() => {
+    let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
     const loadTemplate = async () => {
+      console.log('[FlowTemplateDisplay] Loading template:', templateId);
+
       try {
         const { data, error } = await supabase
           .from('email_templates')
@@ -44,21 +49,63 @@ export function FlowTemplateDisplay({
           .eq('id', templateId)
           .maybeSingle();
 
-        if (error) throw error;
-        if (!data) return;
+        console.log('[FlowTemplateDisplay] Query result:', { data, error });
+
+        if (!mounted) return;
+
+        if (error) {
+          console.error('[FlowTemplateDisplay] Error:', error);
+          setTemplateContent({
+            subject: 'Error',
+            body: 'Failed to load template. Please refresh and try again.',
+          });
+          toast.error('Failed to load template');
+          return;
+        }
+
+        if (!data) {
+          console.error('[FlowTemplateDisplay] No template found for ID:', templateId);
+          setTemplateContent({
+            subject: 'Template Not Found',
+            body: 'This template could not be loaded. Please contact support.',
+          });
+          return;
+        }
 
         setTemplateContent({
           subject: data.subject || '',
           body: data.body_plain || '',
         });
       } catch (error) {
-        console.error('Error loading template:', error);
-        toast.error('Failed to load template');
+        console.error('[FlowTemplateDisplay] Unexpected error:', error);
+        if (mounted) {
+          setTemplateContent({
+            subject: 'Error',
+            body: 'An unexpected error occurred. Please try again.',
+          });
+          toast.error('Failed to load template');
+        }
       }
     };
 
     loadTemplate();
-  }, [templateId]);
+
+    // Timeout after 5 seconds
+    timeoutId = setTimeout(() => {
+      if (mounted && !templateContent) {
+        console.error('[FlowTemplateDisplay] Timeout loading template');
+        setTemplateContent({
+          subject: 'Loading Timeout',
+          body: 'Template took too long to load. Please refresh the page.',
+        });
+      }
+    }, 5000);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, [templateId, templateContent]);
 
   const extractVariables = (text: string): string[] => {
     const regex = /\{\{([a-zA-Z0-9_]+)\}\}/g;
