@@ -30,6 +30,47 @@ interface FlowMessageProps {
   isLastMessage?: boolean;
 }
 
+// Helper function to parse simple markdown into readable React elements
+const parseMarkdown = (text: string) => {
+  // Split by double newlines to get paragraphs
+  const paragraphs = text.split(/\\n\\n|\n\n/);
+
+  return paragraphs.map((paragraph, pIndex) => {
+    // Check if it's a numbered list item
+    const listMatch = paragraph.match(/^\d+\.\s+(.+)$/);
+    if (listMatch) {
+      return (
+        <div key={pIndex} className="flex gap-2 mb-2">
+          <span className="text-gray-500 dark:text-gray-400 font-medium">•</span>
+          <span>{listMatch[1].replace(/\*\*/g, '')}</span>
+        </div>
+      );
+    }
+
+    // Check if it's a bold header (starts and ends with **)
+    const headerMatch = paragraph.match(/^\*\*(.+?)\*\*:?$/);
+    if (headerMatch) {
+      return (
+        <div key={pIndex} className="font-semibold mb-2">
+          {headerMatch[1]}
+        </div>
+      );
+    }
+
+    // Regular paragraph - remove ** formatting
+    const cleaned = paragraph.replace(/\*\*/g, '').replace(/\\n/g, ' ');
+    if (cleaned.trim()) {
+      return (
+        <p key={pIndex} className="mb-2">
+          {cleaned}
+        </p>
+      );
+    }
+
+    return null;
+  }).filter(Boolean);
+};
+
 export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, onStartFlow, isLastMessage = false }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
@@ -527,7 +568,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     return null; // Return null - responses are now rendered as separate messages
   };
 
-  // Render merchant response as a separate message bubble (right-aligned)
+  // Render merchant response as a small red circle with checkmark
   const renderMerchantResponseBubble = () => {
     // Never show for info nodes or completion nodes
     if (node.type === 'info' || node.type === 'completion') return null;
@@ -538,16 +579,24 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     // Skip attachment responses (handled differently)
     if (node.type === 'attachment') return null;
 
-    const displayValue = typeof previousResponse === 'object'
-      ? JSON.stringify(previousResponse)
-      : String(previousResponse);
+    // Get option label if it's a choice response
+    let displayValue = '';
+    if (node.options && typeof previousResponse === 'string') {
+      const selectedOption = node.options.find(opt => opt.value === previousResponse);
+      displayValue = selectedOption?.label || previousResponse;
+    } else if (typeof previousResponse === 'object') {
+      displayValue = JSON.stringify(previousResponse);
+    } else {
+      displayValue = String(previousResponse);
+    }
 
     return (
-      <div className="flex justify-end mt-3 mb-4">
-        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-br from-[#f14361] to-[#e83653] text-white shadow-sm max-w-[75%]">
-          <span className="text-sm font-medium">
-            {displayValue}
-          </span>
+      <div className="flex justify-end items-center gap-2 mt-2 mb-3">
+        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+          {displayValue}
+        </span>
+        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-[#f14361] to-[#e83653] flex items-center justify-center shadow-sm">
+          <CheckCircle className="w-4 h-4 text-white" fill="currentColor" />
         </div>
       </div>
     );
@@ -593,7 +642,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
               ) : dynamicContent ? (
                 <div className="whitespace-pre-wrap">{dynamicContent}</div>
               ) : (
-                <p>{node.content}</p>
+                <div>{parseMarkdown(node.content)}</div>
               )}
             </div>
 
