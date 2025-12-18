@@ -607,9 +607,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
 
   return (
     <div className={`flex justify-start mb-4 ${isActive ? 'animate-in fade-in slide-in-from-left-2' : ''}`}>
-      <div className="flex gap-3 max-w-2xl">
+      <div className="flex gap-3 max-w-2xl items-center">
         {animationData && isLastMessage && (
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center self-start mt-1">
             <Lottie
               animationData={animationData}
               loop
@@ -622,7 +622,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         )}
 
         <div className="flex-1 min-w-0">
-          <div className={`rounded-lg p-4 relative overflow-hidden ${
+          <div className={`rounded-lg p-3 relative overflow-hidden ${
             isActive
               ? 'bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 border border-gray-200 dark:border-gray-700'
               : isCompleted

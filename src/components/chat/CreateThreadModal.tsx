@@ -612,7 +612,7 @@ Browse the scenario templates to find relevant responses for:
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Create Issue Thread">
-      <div className="pb-20">
+      <div className="pb-20 max-h-[calc(80vh-140px)] overflow-y-auto">
         {/* Info Banner */}
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
