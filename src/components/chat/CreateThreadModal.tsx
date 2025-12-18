@@ -667,22 +667,7 @@ Browse the scenario templates to find relevant responses for:
             </button>
           </div>
 
-          {/* Smart Filter Notice */}
-          {selectedTag && (
-            <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
-                  ? `🎯 Showing only delivered orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                  : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
-                  ? `🎯 Showing only unfulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                  : selectedTag === 'wrong_item'
-                  ? `🎯 Showing only fulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                  : `🎯 Filtering orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'selected issue'}`}
-              </p>
-            </div>
-          )}
-
-          {/* Search Input with absolute dropdown */}
+          {/* Search Input with absolute dropdown and filter notice */}
           <div className="mb-3 relative">
             <input
               type="text"
@@ -692,9 +677,24 @@ Browse the scenario templates to find relevant responses for:
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 dark:bg-gray-800 dark:text-white text-sm"
             />
 
-            {/* Search Results Dropdown - Absolutely positioned */}
+            {/* Smart Filter Notice - Absolutely positioned above search */}
+            {selectedTag && (
+              <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg z-40">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
+                    ? `🎯 Showing only delivered orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                    : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
+                    ? `🎯 Showing only unfulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                    : selectedTag === 'wrong_item'
+                    ? `🎯 Showing only fulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                    : `🎯 Filtering orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'selected issue'}`}
+                </p>
+              </div>
+            )}
+
+            {/* Search Results Dropdown - Absolutely positioned above search */}
             {!selectedOrder && searchQuery && (
-              <div className="absolute top-full left-0 right-0 mt-1 z-50">
+              <div className="absolute bottom-full left-0 right-0 mb-1 z-50">
                 {isLoadingOrders ? (
                   <div className="flex items-center justify-center py-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-lg">
                     <Loader2 className="w-4 h-4 animate-spin text-gray-400 mr-2" />
