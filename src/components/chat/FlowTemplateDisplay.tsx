@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Copy, Check, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, Check, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import { fetchVariableData, replaceVariables } from '../../lib/templateVariableService';
@@ -21,7 +21,6 @@ export function FlowTemplateDisplay({
   userId,
   onCopied,
 }: FlowTemplateDisplayProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isPopulated, setIsPopulated] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +104,7 @@ export function FlowTemplateDisplay({
       mounted = false;
       clearTimeout(timeoutId);
     };
-  }, [templateId, templateContent]);
+  }, [templateId]);
 
   const extractVariables = (text: string): string[] => {
     const regex = /\{\{([a-zA-Z0-9_]+)\}\}/g;
@@ -209,129 +208,72 @@ export function FlowTemplateDisplay({
   }
 
   const displayContent = isPopulated ? populatedContent : templateContent;
-  const subjectVariables = extractVariables(templateContent.subject);
-  const bodyVariables = extractVariables(templateContent.body);
-  const totalVariables = new Set([...subjectVariables, ...bodyVariables]).size;
-
-  const previewLines = displayContent.body.split('\n').slice(0, 3);
-  const hasMore = displayContent.body.split('\n').length > 3;
 
   return (
-    <div className="mt-4 max-w-2xl">
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-        {/* Email Header */}
-        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
-          <div className="flex items-center gap-2">
-            <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-              Email Template
-            </span>
-            {!isPopulated && totalVariables > 0 && (
-              <span className="ml-auto text-[10px] text-gray-500 dark:text-gray-400">
-                {totalVariables} variable{totalVariables !== 1 ? 's' : ''}
-              </span>
-            )}
+    <div className="mt-4">
+      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        {/* Subject Line */}
+        <div className="mb-3">
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            Subject
+          </div>
+          <div className="text-sm font-medium text-gray-900 dark:text-white">
+            {isPopulated ? displayContent.subject : renderTextWithVariables(displayContent.subject)}
           </div>
         </div>
 
-        {/* Email Content */}
-        <div className="p-4">
-          {/* Subject Line */}
-          <div className="mb-3">
-            <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-              Subject
-            </div>
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              {isPopulated ? displayContent.subject : renderTextWithVariables(displayContent.subject)}
-            </div>
+        {/* Body */}
+        <div className="mb-4">
+          <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+            Message
           </div>
-
-          {/* Body */}
-          <div>
-            <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
-              Message
-            </div>
-            <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {isExpanded ? (
-                isPopulated ? displayContent.body : renderTextWithVariables(displayContent.body)
-              ) : (
-                <>
-                  {isPopulated ? (
-                    previewLines.join('\n')
-                  ) : (
-                    <div>{renderTextWithVariables(previewLines.join('\n'))}</div>
-                  )}
-                  {hasMore && <span className="text-gray-400">...</span>}
-                </>
-              )}
-            </div>
-
-            {/* Expand/Collapse Button */}
-            {hasMore && (
-              <button
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="mt-2 inline-flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                {isExpanded ? (
-                  <>
-                    <ChevronUp className="w-3 h-3" />
-                    Show less
-                  </>
-                ) : (
-                  <>
-                    <ChevronDown className="w-3 h-3" />
-                    Show full email
-                  </>
-                )}
-              </button>
-            )}
+          <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+            {isPopulated ? displayContent.body : renderTextWithVariables(displayContent.body)}
           </div>
         </div>
 
         {/* Action Button */}
-        <div className="px-4 pb-4">
-          {!isPopulated ? (
-            <button
-              onClick={handlePopulate}
-              disabled={isLoading}
-              className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm w-full"
-            >
-              {isLoading ? (
-                <>
-                  <div className="flex gap-1">
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  <span>Populating email...</span>
-                </>
-              ) : (
-                <>
-                  <span>Populate Email</span>
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-                </>
-              )}
-            </button>
-          ) : (
-            <button
-              onClick={handleCopy}
-              disabled={isCopied}
-              className="group inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm w-full"
-            >
-              {isCopied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copy to Clipboard</span>
-                </>
-              )}
-            </button>
-          )}
-        </div>
+        {!isPopulated ? (
+          <button
+            onClick={handlePopulate}
+            disabled={isLoading}
+            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <div className="flex gap-1">
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+                <span>Populating email...</span>
+              </>
+            ) : (
+              <>
+                <span>Populate Email</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </>
+            )}
+          </button>
+        ) : (
+          <button
+            onClick={handleCopy}
+            disabled={isCopied}
+            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCopied ? (
+              <>
+                <Check className="w-4 h-4" />
+                <span>Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                <span>Copy to Clipboard</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

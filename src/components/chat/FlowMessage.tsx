@@ -568,7 +568,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     return null; // Return null - responses are now rendered as separate messages
   };
 
-  // Render merchant response as a small red circle with checkmark
+  // Render merchant response bubble
   const renderMerchantResponseBubble = () => {
     // Never show for info nodes or completion nodes
     if (node.type === 'info' || node.type === 'completion') return null;
@@ -591,12 +591,12 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     }
 
     return (
-      <div className="flex justify-end items-center gap-2 mt-2 mb-3">
-        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-          {displayValue}
-        </span>
-        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-[#f14361] to-[#e83653] flex items-center justify-center shadow-sm">
-          <CheckCircle className="w-4 h-4 text-white" fill="currentColor" />
+      <div className="flex justify-start mt-2 mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-rose-400 dark:border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-900/10">
+          <CheckCircle className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0" fill="currentColor" />
+          <span className="text-xs font-medium text-rose-900 dark:text-rose-100">
+            {displayValue}
+          </span>
         </div>
       </div>
     );
@@ -762,7 +762,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                     setCloseOffMessage('Great! If you\'ve sent the customer response, you can now close this thread or keep it open to monitor their reply.');
                     setShowCloseOff(true);
                   }}
-                  className="flex-1 px-4 py-2 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+                  className="flex-1 px-3 py-1.5 bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   Yes, resolved
                 </button>
@@ -774,7 +774,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                       toast.info('No additional templates available for this scenario');
                     }
                   }}
-                  className="flex-1 px-4 py-2 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium rounded-lg transition-colors border border-gray-300 dark:border-gray-600"
+                  className="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm font-medium rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
                 >
                   No, need help
                 </button>
