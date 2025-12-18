@@ -363,7 +363,7 @@ Deno.serve(async (req: Request) => {
                 user_id: userId,
                 shopify_order_id: order.id.toString(),
                 product_id: product?.id || null,
-                product_name: item.name || item.title || 'Unknown Product',
+                product_name: item.title || item.name || 'Unknown Product',
                 variant_name: item.variant_title || null,
                 quantity: item.quantity,
                 unit_cost: unitCost,

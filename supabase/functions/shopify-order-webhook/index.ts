@@ -64,7 +64,7 @@ async function processOrderCOGS(supabase: any, userId: string, orderData: any, s
       user_id: userId,
       shopify_order_id: orderData.id.toString(),
       product_id: product?.id || null,
-      product_name: item.name || item.title || 'Unknown Product',
+      product_name: item.title || item.name || 'Unknown Product',
       variant_name: item.variant_title || null,
       quantity: item.quantity,
       unit_cost: unitCost,
@@ -186,7 +186,6 @@ Deno.serve(async (req: Request) => {
     const shippingAddress = orderData.shipping_address || {};
     const discountCodes = (orderData.discount_codes || []).map((dc: any) => dc.code);
 
-    // Fetch full customer details if customer data is incomplete (common for draft orders)
     let customerData = orderData.customer;
     const hasIncompleteCustomer = orderData.customer?.id &&
       (!orderData.customer?.first_name || !orderData.customer?.last_name || !orderData.customer?.email);
