@@ -8,9 +8,10 @@ import { FlowTextInput } from './FlowTextInput';
 import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { FlowAttachmentNode } from './FlowAttachmentNode';
 import { FlowGuidancePanel } from './FlowGuidancePanel';
-import { FlowTemplatePreviewCard } from './FlowTemplatePreviewCard';
+import { FlowTemplateDisplay } from './FlowTemplateDisplay';
 import { getThreadProductWarranty, formatWarrantyForFlow, getDamageResolutionGuidance } from '../../lib/flowWarrantyService';
 import { flowTemplateRecommendation } from '../../lib/flowTemplateRecommendationService';
+import { determineCloseOffMessage } from '../../lib/flowCloseOffService';
 import { supabase } from '../../lib/supabase';
 
 interface FlowMessageProps {
@@ -41,6 +42,10 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const [loadingGuidance, setLoadingGuidance] = useState(false);
   const [recommendedTemplates, setRecommendedTemplates] = useState<any[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [closeOffMessage, setCloseOffMessage] = useState<string | null>(null);
+  const [showCloseOff, setShowCloseOff] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -49,9 +54,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       .catch(err => console.error('Failed to load animation:', err));
   }, []);
 
-  // Load thread ID upfront
+  // Load thread ID and context data upfront
   useEffect(() => {
-    const loadThreadId = async () => {
+    const loadContextData = async () => {
       if (threadId) return;
 
       const { data: sessionData } = await supabase
@@ -62,10 +67,22 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
 
       if (sessionData?.thread_id) {
         setThreadId(sessionData.thread_id);
+
+        // Load order ID from thread
+        const { data: threadData } = await supabase
+          .from('chat_threads')
+          .select('order_id, user_id')
+          .eq('id', sessionData.thread_id)
+          .maybeSingle();
+
+        if (threadData) {
+          setOrderId(threadData.order_id);
+          setUserId(threadData.user_id);
+        }
       }
     };
 
-    loadThreadId();
+    loadContextData();
   }, [data.sessionId, threadId]);
 
   // Load dynamic warranty content
@@ -240,37 +257,16 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const isCompleted = !isCurrentStep && previousResponse !== undefined;
   const isActive = isCurrentStep && !isCompleted;
 
-  const handleTemplateClick = async (templateId: string, templateName: string) => {
+  const handleTemplateCopied = async (templateId: string) => {
     try {
-      console.log('[FlowMessage] Template clicked:', templateId, templateName);
+      console.log('[FlowMessage] Template copied:', templateId);
 
-      // Fetch the full template
-      const { data: template, error } = await supabase
-        .from('email_templates')
-        .select('body_plain')
-        .eq('id', templateId)
-        .maybeSingle();
-
-      if (error) throw error;
-      if (!template) {
-        toast.error('Template not found');
-        return;
-      }
-
-      // Call the onTemplateSelect callback with the template content
-      if (onTemplateSelect) {
-        console.log('[FlowMessage] Calling onTemplateSelect with content');
-        onTemplateSelect(template.body_plain, templateName);
-      } else {
-        console.log('[FlowMessage] onTemplateSelect not provided, falling back to modal');
-        // Fallback to opening modal if new prop not provided
-        if (onOpenTemplateModal) {
-          onOpenTemplateModal([templateId]);
-        }
-      }
+      // Determine appropriate close-off message
+      const closeOff = await determineCloseOffMessage(data.sessionId, templateId);
+      setCloseOffMessage(closeOff.message);
+      setShowCloseOff(true);
     } catch (error) {
-      console.error('[FlowMessage] Error loading template:', error);
-      toast.error('Failed to load template');
+      console.error('[FlowMessage] Error handling template copy:', error);
     }
   };
 
@@ -420,8 +416,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   };
 
   const renderPreviousResponse = () => {
-    // Never show response boxes for info nodes
-    if (node.type === 'info') return null;
+    // Never show response boxes for info nodes or completion nodes
+    if (node.type === 'info' || node.type === 'completion') return null;
 
     // Only show response if completed and has actual response data
     if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
@@ -456,15 +452,28 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       }
     }
 
+    return null; // Return null - responses are now rendered as separate messages
+  };
+
+  // Render merchant response as a separate message bubble (right-aligned)
+  const renderMerchantResponseBubble = () => {
+    // Never show for info nodes or completion nodes
+    if (node.type === 'info' || node.type === 'completion') return null;
+
+    // Only show response if completed and has actual response data
+    if (!isCompleted || previousResponse === undefined || previousResponse === null) return null;
+
+    // Skip attachment responses (handled differently)
+    if (node.type === 'attachment') return null;
+
     const displayValue = typeof previousResponse === 'object'
       ? JSON.stringify(previousResponse)
       : String(previousResponse);
 
     return (
-      <div className="mt-2 px-3 py-2 bg-rose-50 dark:bg-rose-900/20 rounded-lg border border-rose-200 dark:border-rose-800">
-        <div className="flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
-          <span className="text-sm text-rose-900 dark:text-rose-100 font-medium">
+      <div className="flex justify-end mt-3 mb-4">
+        <div className="px-4 py-2.5 rounded-lg bg-gradient-to-br from-[#f14361] to-[#e83653] text-white shadow-sm max-w-[75%]">
+          <span className="text-sm font-medium">
             {displayValue}
           </span>
         </div>
@@ -593,24 +602,29 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           />
         )}
 
-        {/* Completion Badge */}
-        {node.type === 'completion' && isActive && (
-          <div className="mt-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <CheckSquare className="w-4 h-4 text-green-600 dark:text-green-400" />
-              <span className="text-sm font-medium text-green-900 dark:text-green-100">Flow Complete</span>
-            </div>
-          </div>
+        {/* Template Display for Completion Nodes */}
+        {isActive && node.type === 'completion' && !loadingTemplates && recommendedTemplates.length > 0 && !showCloseOff && (
+          <FlowTemplateDisplay
+            templateId={recommendedTemplates[0].id}
+            templateName={recommendedTemplates[0].name}
+            threadId={threadId || ''}
+            orderId={orderId || undefined}
+            userId={userId || undefined}
+            onCopied={() => handleTemplateCopied(recommendedTemplates[0].id)}
+          />
         )}
 
-        {/* Single Template Preview for Completion Nodes */}
-        {isActive && node.type === 'completion' && !loadingTemplates && recommendedTemplates.length > 0 && (
+        {/* Close-off Message */}
+        {showCloseOff && closeOffMessage && (
           <div className="mt-4">
-            <FlowTemplatePreviewCard
-              template={recommendedTemplates[0]}
-              onClick={() => handleTemplateClick(recommendedTemplates[0].id, recommendedTemplates[0].name)}
-              isRecommended={true}
-            />
+            <div className="px-4 py-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-green-900 dark:text-green-100">
+                  {closeOffMessage}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -629,6 +643,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         )}
         </div>
       </div>
+
+      {/* Merchant Response Bubble - rendered separately after the question */}
+      {renderMerchantResponseBubble()}
     </div>
   );
 }
