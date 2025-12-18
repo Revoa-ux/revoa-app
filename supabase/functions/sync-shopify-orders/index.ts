@@ -85,10 +85,25 @@ interface SyncResult {
   totalOrders: number;
   processedCount: number;
   fulfillmentsCreated: number;
+  trackingRecordsCreated: number;
   skipped: number;
   pages: number;
   errors?: string[];
   error?: string;
+}
+
+interface ShopifyFulfillment {
+  id: number;
+  order_id: number;
+  status: string;
+  tracking_number?: string;
+  tracking_company?: string;
+  tracking_url?: string;
+  tracking_numbers?: string[];
+  tracking_urls?: string[];
+  shipment_status?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 function parseNextPageInfo(linkHeader: string | null): string | null {
@@ -141,6 +156,31 @@ async function fetchShopifyOrders(
   const { orders } = await response.json() as { orders: ShopifyOrder[] };
 
   return { orders, nextPageInfo };
+}
+
+async function fetchOrderFulfillments(
+  storeUrl: string,
+  accessToken: string,
+  orderId: number
+): Promise<ShopifyFulfillment[]> {
+  const url = `https://${storeUrl}/admin/api/2024-01/orders/${orderId}/fulfillments.json`;
+
+  const response = await fetch(url, {
+    headers: {
+      'X-Shopify-Access-Token': accessToken,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return [];
+    }
+    throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
+  }
+
+  const { fulfillments } = await response.json() as { fulfillments: ShopifyFulfillment[] };
+  return fulfillments || [];
 }
 
 Deno.serve(async (req: Request) => {
@@ -265,6 +305,7 @@ Deno.serve(async (req: Request) => {
 
     let processedCount = 0;
     let fulfillmentsCreated = 0;
+    let trackingRecordsCreated = 0;
     let skippedCount = 0;
     const errors: string[] = [];
 
@@ -457,6 +498,56 @@ Deno.serve(async (req: Request) => {
 
           fulfillmentsCreated++;
           processedCount++;
+
+          // Fetch and store fulfillment/tracking data
+          try {
+            const fulfillments = await fetchOrderFulfillments(
+              installation.store_url,
+              installation.access_token,
+              order.id
+            );
+
+            if (fulfillments.length > 0) {
+              for (const fulfillment of fulfillments) {
+                const trackingNumber = fulfillment.tracking_number || fulfillment.tracking_numbers?.[0] || null;
+                const trackingUrl = fulfillment.tracking_url || fulfillment.tracking_urls?.[0] || null;
+
+                // Determine shipment status
+                let shipmentStatus = 'label_created';
+                if (fulfillment.shipment_status) {
+                  shipmentStatus = fulfillment.shipment_status.toLowerCase();
+                } else if (fulfillment.status === 'success') {
+                  shipmentStatus = 'delivered';
+                }
+
+                const { error: trackingError } = await supabase
+                  .from('shopify_order_fulfillments')
+                  .upsert({
+                    user_id: userId,
+                    order_id: storedOrder.id,
+                    shopify_order_id: order.id.toString(),
+                    shopify_fulfillment_id: fulfillment.id.toString(),
+                    tracking_number: trackingNumber,
+                    tracking_company: fulfillment.tracking_company || null,
+                    tracking_url: trackingUrl,
+                    shipment_status: shipmentStatus,
+                    shipped_at: fulfillment.created_at || null,
+                    delivered_at: shipmentStatus === 'delivered' ? fulfillment.updated_at : null,
+                  }, {
+                    onConflict: 'user_id,shopify_fulfillment_id',
+                    ignoreDuplicates: false
+                  });
+
+                if (trackingError) {
+                  console.error('[Sync] Error inserting tracking data:', trackingError);
+                } else {
+                  trackingRecordsCreated++;
+                }
+              }
+            }
+          } catch (fulfillmentError) {
+            console.error(`[Sync] Error fetching fulfillments for order ${order.name}:`, fulfillmentError);
+          }
         } catch (error) {
           errors.push(`Order ${order.name}: ${error.message}`);
         }
@@ -476,13 +567,14 @@ Deno.serve(async (req: Request) => {
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[Sync] Completed in ${duration}s: ${processedCount} processed, ${fulfillmentsCreated} fulfillments, ${skippedCount} skipped`);
+    console.log(`[Sync] Completed in ${duration}s: ${processedCount} processed, ${fulfillmentsCreated} fulfillments, ${trackingRecordsCreated} tracking records, ${skippedCount} skipped`);
 
     const result: SyncResult = {
       success: true,
       totalOrders: allOrders.length,
       processedCount,
       fulfillmentsCreated,
+      trackingRecordsCreated,
       skipped: skippedCount,
       pages: pageCount,
       errors: errors.length > 0 ? errors.slice(0, 10) : undefined,
