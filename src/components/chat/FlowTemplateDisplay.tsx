@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Copy, Check, ArrowRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Copy, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabase';
 import { fetchVariableData, replaceVariables } from '../../lib/templateVariableService';
@@ -32,6 +32,7 @@ export function FlowTemplateDisplay({
     subject: string;
     body: string;
   } | null>(null);
+  const loadingCompleted = useRef(false);
 
   // Load template content on mount
   useEffect(() => {
@@ -57,6 +58,8 @@ export function FlowTemplateDisplay({
 
         if (error) {
           console.error('[FlowTemplateDisplay] Database error:', error);
+          loadingCompleted.current = true;
+          clearTimeout(timeoutId);
           setTemplateContent({
             subject: 'Database Error',
             body: `Failed to load template: ${error.message}`,
@@ -67,6 +70,8 @@ export function FlowTemplateDisplay({
 
         if (!data) {
           console.error('[FlowTemplateDisplay] No template found for ID:', templateId);
+          loadingCompleted.current = true;
+          clearTimeout(timeoutId);
           setTemplateContent({
             subject: 'Template Not Found',
             body: `Template ID "${templateId}" does not exist in the database. Please check that the template has been created.`,
@@ -80,6 +85,8 @@ export function FlowTemplateDisplay({
           bodyLength: data.body_plain?.length || 0
         });
 
+        loadingCompleted.current = true;
+        clearTimeout(timeoutId);
         setTemplateContent({
           subject: data.subject_line || '',
           body: data.body_plain || '',
@@ -87,6 +94,8 @@ export function FlowTemplateDisplay({
       } catch (error) {
         console.error('[FlowTemplateDisplay] Unexpected error:', error);
         if (mounted) {
+          loadingCompleted.current = true;
+          clearTimeout(timeoutId);
           setTemplateContent({
             subject: 'Error',
             body: `An unexpected error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -98,9 +107,9 @@ export function FlowTemplateDisplay({
 
     loadTemplate();
 
-    // Timeout after 10 seconds (increased from 5)
+    // Timeout after 10 seconds
     timeoutId = setTimeout(() => {
-      if (mounted && !templateContent) {
+      if (mounted && !loadingCompleted.current) {
         console.error('[FlowTemplateDisplay] Timeout loading template after 10 seconds');
         console.error('[FlowTemplateDisplay] Template ID:', templateId);
         setTemplateContent({
@@ -143,8 +152,9 @@ export function FlowTemplateDisplay({
       parts.push(
         <span
           key={`${match.index}-${match[1]}`}
-          className="inline-flex items-center px-1.5 py-0.5 mx-0.5 text-[10px] font-medium rounded border bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700"
+          className="inline-flex items-center gap-1 px-2 py-0.5 mx-0.5 text-xs font-mono rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
         >
+          <Sparkles className="w-3 h-3" />
           {match[1]}
         </span>
       );
