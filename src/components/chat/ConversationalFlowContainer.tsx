@@ -18,6 +18,7 @@ export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemp
     isLoading,
     error,
     handleResponse,
+    startFlow,
   } = useConversationalFlow(threadId || '');
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemp
             isLoading={isLoading}
             onOpenTemplateModal={onOpenTemplateModal}
             onTemplateSelect={onTemplateSelect}
+            onStartFlow={startFlow}
             isLastMessage={index === flowMessages.length - 1}
           />
         ))}

@@ -12,6 +12,7 @@ import { FlowTemplateDisplay } from './FlowTemplateDisplay';
 import { getThreadProductWarranty, formatWarrantyForFlow, getDamageResolutionGuidance } from '../../lib/flowWarrantyService';
 import { flowTemplateRecommendation } from '../../lib/flowTemplateRecommendationService';
 import { determineCloseOffMessage } from '../../lib/flowCloseOffService';
+import { flowContinuationService, type FlowSuggestion } from '../../lib/flowContinuationService';
 import { supabase } from '../../lib/supabase';
 
 interface FlowMessageProps {
@@ -25,10 +26,11 @@ interface FlowMessageProps {
   };
   onOpenTemplateModal?: (templateIds?: string[]) => void;
   onTemplateSelect?: (templateContent: string, templateName: string) => void;
+  onStartFlow?: (flowId: string) => Promise<void>;
   isLastMessage?: boolean;
 }
 
-export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, isLastMessage = false }: FlowMessageProps) {
+export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, onStartFlow, isLastMessage = false }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -46,6 +48,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   const [showCloseOff, setShowCloseOff] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [suggestedFlows, setSuggestedFlows] = useState<FlowSuggestion[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [showContinuationOptions, setShowContinuationOptions] = useState(false);
 
   useEffect(() => {
     fetch('/revoa_ai_bot_white.json')
@@ -238,6 +243,36 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     loadTemplateRecommendations();
   }, [isCurrentStep, node.type, data.sessionId]);
 
+  // Load flow continuation suggestions for completion nodes
+  useEffect(() => {
+    const loadFlowContinuations = async () => {
+      if (!isCurrentStep || node.type !== 'completion') {
+        return;
+      }
+
+      if (!threadId) {
+        return;
+      }
+
+      console.log('[FlowMessage] Loading flow continuation suggestions');
+      setLoadingSuggestions(true);
+      try {
+        const suggestions = await flowContinuationService.getSuggestedNextFlows(
+          threadId,
+          data.flowId
+        );
+        console.log('[FlowMessage] Flow suggestions loaded:', suggestions);
+        setSuggestedFlows(suggestions);
+      } catch (error) {
+        console.error('[FlowMessage] Error loading flow suggestions:', error);
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    };
+
+    loadFlowContinuations();
+  }, [isCurrentStep, node.type, threadId, data.flowId]);
+
   // Auto-advance simple info nodes
   useEffect(() => {
     if (!isCurrentStep || node.type !== 'info') return;
@@ -303,6 +338,43 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
       }
     } catch (error) {
       console.error('Error selecting product:', error);
+    }
+  };
+
+  const handleFlowContinuation = async (nextFlowId: string) => {
+    if (!onStartFlow || !threadId) {
+      console.error('[FlowMessage] Cannot continue flow - missing required props');
+      return;
+    }
+
+    try {
+      // Start the next flow
+      await onStartFlow(nextFlowId);
+
+      // Get the new session ID that was just created
+      const { data: newSession } = await supabase
+        .from('thread_flow_sessions')
+        .select('id')
+        .eq('thread_id', threadId)
+        .eq('flow_id', nextFlowId)
+        .eq('is_active', true)
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (newSession) {
+        // Record the flow continuation in history
+        await flowContinuationService.recordFlowContinuation(
+          threadId,
+          data.sessionId,
+          newSession.id
+        );
+      }
+
+      toast.success('Starting next flow...');
+    } catch (error) {
+      console.error('[FlowMessage] Error continuing flow:', error);
+      toast.error('Failed to continue to next flow');
     }
   };
 
@@ -623,6 +695,52 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
                 <p className="text-sm text-green-900 dark:text-green-100">
                   {closeOffMessage}
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Flow Continuation Options */}
+        {isActive && node.type === 'completion' && !showCloseOff && suggestedFlows.length > 0 && !showContinuationOptions && (
+          <div className="mt-4">
+            <div className="px-4 py-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                    Continue with related issue?
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300 mb-3">
+                    The customer might have additional concerns:
+                  </p>
+                  <div className="space-y-2">
+                    {suggestedFlows.map((suggestion) => (
+                      <button
+                        key={suggestion.flowId}
+                        onClick={() => handleFlowContinuation(suggestion.flowId)}
+                        className="w-full text-left px-3 py-2 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg transition-colors group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {suggestion.flowName}
+                            </p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                              {suggestion.reason}
+                            </p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setShowContinuationOptions(true)}
+                    className="mt-3 text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 transition-colors"
+                  >
+                    No, this issue is resolved
+                  </button>
+                </div>
               </div>
             </div>
           </div>
