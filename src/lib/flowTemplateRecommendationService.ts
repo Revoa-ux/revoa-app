@@ -31,22 +31,22 @@ interface FlowStateKey {
 
 export class FlowTemplateRecommendationService {
   private templateMappings: Record<string, string> = {
-    'shipping:not_updating:less_than_7': 'order_status_shipped',
-    'shipping:not_updating:7_plus_days': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d',
-    'shipping:not_updating:delivered_2_plus': 'delivery_status_2_plus_days',
+    'shipping:not_updating:less_than_7': '5b0af7b3-3103-4683-a3a2-e7544f3d95ee', // Order Status: Shipped
+    'shipping:not_updating:7_plus_days': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d', // Order Status Follow-Up
+    'shipping:not_updating:delivered_2_plus': 'd8e5dfe7-0057-4254-b211-3a4ad941b61a', // Delivery Status: 2+ Days Not Located
 
-    'shipping:delayed:just_update': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d',
-    'shipping:delayed:wants_refund': 'shipping_complaint',
+    'shipping:delayed:just_update': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d', // Order Status Follow-Up
+    'shipping:delayed:wants_refund': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d', // Order Status Follow-Up
 
-    'shipping:lost:no_updates_14': 'lost_package_protocol',
-    'shipping:lost:returned': 'package_returned_to_warehouse',
-    'shipping:lost:delivered_not_received': 'delivery_status_delivered_not_received',
+    'shipping:lost:no_updates_14': '5dd91fc3-cb2d-48cc-8f4f-b80d874a918d', // Order Status Follow-Up
+    'shipping:lost:returned': 'f7ab35da-e245-407a-b63c-08a049afadac', // Delivery Exception: Package Being Returned
+    'shipping:lost:delivered_not_received': '48c75f44-c1f9-41e5-8df6-fffb44009439', // Delivery Status: Delivered Not Received
 
-    'shipping:delivery_failed:not_home': 'delivery_exception_general',
-    'shipping:delivery_failed:invalid_address': 'invalid_address_exception',
-    'shipping:delivery_failed:no_access': 'no_access_exception',
-    'shipping:delivery_failed:no_such_number': 'no_such_number_exception',
-    'shipping:delivery_failed:payment_hold': 'carrier_payment_hold',
+    'shipping:delivery_failed:not_home': 'f7ab35da-e245-407a-b63c-08a049afadac', // Delivery Exception: Package Being Returned
+    'shipping:delivery_failed:invalid_address': 'd843b0e6-b02b-4425-b7a4-7ae851c36e6c', // Invalid Address Exception
+    'shipping:delivery_failed:no_access': 'f7ab35da-e245-407a-b63c-08a049afadac', // Delivery Exception: Package Being Returned
+    'shipping:delivery_failed:no_such_number': 'f7ab35da-e245-407a-b63c-08a049afadac', // Delivery Exception: Package Being Returned
+    'shipping:delivery_failed:payment_hold': '0783c1c0-58f2-4479-ae5d-4c24c03efea7', // Carrier Payment Hold
   };
 
   async getRecommendedTemplatesForFlowCompletion(

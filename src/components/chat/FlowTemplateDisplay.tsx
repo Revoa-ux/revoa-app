@@ -47,7 +47,7 @@ export function FlowTemplateDisplay({
       try {
         const { data, error } = await supabase
           .from('email_templates')
-          .select('subject, body_plain')
+          .select('subject_line, body_plain')
           .eq('id', templateId)
           .maybeSingle();
 
@@ -76,12 +76,12 @@ export function FlowTemplateDisplay({
         }
 
         console.log('[FlowTemplateDisplay] Template loaded successfully:', {
-          subject: data.subject,
+          subject: data.subject_line,
           bodyLength: data.body_plain?.length || 0
         });
 
         setTemplateContent({
-          subject: data.subject || '',
+          subject: data.subject_line || '',
           body: data.body_plain || '',
         });
       } catch (error) {
