@@ -68,17 +68,68 @@ export function CreateThreadModal({
 
     setIsLoadingOrders(true);
     try {
-      const { data, error } = await supabase
+      let ordersQuery = supabase
         .from('shopify_orders')
-        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name, customer_email')
+        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name, customer_email, fulfillment_status')
         .eq('user_id', userId)
-        .ilike('order_number', `%${query}%`)
+        .ilike('order_number', `%${query}%`);
+
+      // Smart filtering based on selected tag
+      if (selectedTag) {
+        switch (selectedTag) {
+          case 'damaged':
+          case 'defective':
+          case 'return':
+          case 'missing_items':
+            // Only show delivered orders - these issues require the customer to have received the item
+            // We'll filter by tracking status in a secondary query
+            break;
+
+          case 'cancel_modify':
+          case 'cancel':
+          case 'modify':
+            // Only show orders NOT yet fulfilled - can't modify what's already shipped
+            ordersQuery = ordersQuery.or('fulfillment_status.is.null,fulfillment_status.neq.fulfilled');
+            break;
+
+          case 'wrong_item':
+            // Only show fulfilled orders - customer received wrong item
+            ordersQuery = ordersQuery.eq('fulfillment_status', 'fulfilled');
+            break;
+
+          // shipping, refund, replacement, and default don't need special filtering
+        }
+      }
+
+      const { data: orderResults, error } = await ordersQuery
         .order('ordered_at', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (error) throw error;
 
-      setOrders(data || []);
+      // For damage/defect/return/missing - do secondary filtering on delivery status
+      if (selectedTag && ['damaged', 'defective', 'return', 'missing_items'].includes(selectedTag)) {
+        // Get tracking info for these orders
+        const orderIds = orderResults?.map(o => o.id) || [];
+
+        if (orderIds.length > 0) {
+          const { data: fulfillments } = await supabase
+            .from('shopify_order_fulfillments')
+            .select('order_id, shipment_status')
+            .in('order_id', orderIds)
+            .eq('shipment_status', 'delivered');
+
+          const deliveredOrderIds = new Set(fulfillments?.map(f => f.order_id) || []);
+
+          // Only include orders that have been delivered
+          const filteredOrders = orderResults?.filter(o => deliveredOrderIds.has(o.id)) || [];
+          setOrders(filteredOrders.slice(0, 10));
+        } else {
+          setOrders([]);
+        }
+      } else {
+        setOrders(orderResults?.slice(0, 10) || []);
+      }
     } catch (error) {
       console.error('Error searching orders:', error);
       toast.error('Failed to search orders');
@@ -93,7 +144,7 @@ export function CreateThreadModal({
     }, 300);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, userId]);
+  }, [searchQuery, userId, selectedTag]);
 
   const handleCreate = async () => {
     // Check for valid chatId first
@@ -576,6 +627,21 @@ Browse the scenario templates to find relevant responses for:
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Related Order *
           </label>
+
+          {/* Smart Filter Notice */}
+          {selectedTag && (
+            <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
+                  ? '🎯 Showing only delivered orders'
+                  : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
+                  ? '🎯 Showing only unfulfilled orders'
+                  : selectedTag === 'wrong_item'
+                  ? '🎯 Showing only fulfilled orders'
+                  : '🎯 Filtering orders based on issue type'}
+              </p>
+            </div>
+          )}
 
           {/* Search Input */}
           <div className="mb-3">
