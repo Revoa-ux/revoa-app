@@ -591,7 +591,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
     }
 
     return (
-      <div className="flex justify-start mt-2 mb-3">
+      <div className="mt-3 relative z-10">
         <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-rose-400 dark:border-rose-500 bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-rose-900/20 dark:to-rose-900/10">
           <CheckCircle className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0" fill="currentColor" />
           <span className="text-xs font-medium text-rose-900 dark:text-rose-100">
@@ -676,6 +676,9 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           )}
 
           {renderPreviousResponse()}
+
+          {/* Merchant Response Bubble - inside the message bubble */}
+          {renderMerchantResponseBubble()}
 
           {node.metadata?.skipable && isActive && (
             <button
@@ -830,9 +833,6 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
         )}
         </div>
       </div>
-
-      {/* Merchant Response Bubble - rendered separately after the question */}
-      {renderMerchantResponseBubble()}
     </div>
   );
 }
