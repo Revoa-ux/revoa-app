@@ -875,7 +875,7 @@ setCurrentTemplate(template);
                   {/* Add Metric button within each active platform section */}
                   <button
                     onClick={() => setShowCardSelector(true)}
-                    className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+                    className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
                   >
                     <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
                       <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
@@ -972,7 +972,7 @@ setCurrentTemplate(template);
 
           <button
             onClick={() => setShowCardSelector(true)}
-            className="h-[180px] rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
+            className="h-[180px] rounded-xl border border-dashed border-gray-300 dark:border-gray-600 hover:border-gray-900 dark:hover:border-gray-100 hover:bg-gray-50/70 dark:hover:bg-gray-700/70 transition-all duration-200 flex flex-col items-center justify-center group"
           >
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 flex items-center justify-center mb-3 transition-colors border border-gray-200 dark:border-gray-600 group-hover:border-gray-400 dark:group-hover:border-gray-400">
               <Plus className="w-6 h-6 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
