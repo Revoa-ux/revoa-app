@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, User } from 'lucide-react';
+import { CheckCircle, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getEscalationMessageForMerchant } from '@/lib/flowEscalationService';
 
@@ -7,6 +7,11 @@ interface FlowEscalationNoticeProps {
   threadId: string;
   escalationType?: string;
   escalationMessage?: string;
+}
+
+interface AdminInfo {
+  name: string;
+  profilePictureUrl?: string;
 }
 
 /**
@@ -18,7 +23,7 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
   escalationType,
   escalationMessage,
 }) => {
-  const [adminName, setAdminName] = useState<string>('Your support agent');
+  const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,14 +35,27 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
           .select(`
             chat:chats!inner(
               admin_id,
-              admin:user_profiles!chats_admin_id_fkey(name)
+              admin:user_profiles!chats_admin_id_fkey(
+                name,
+                first_name,
+                last_name,
+                profile_picture_url
+              )
             )
           `)
           .eq('id', threadId)
           .maybeSingle();
 
-        if (threadData?.chat?.admin?.name) {
-          setAdminName(threadData.chat.admin.name);
+        if (threadData?.chat?.admin) {
+          const admin = threadData.chat.admin;
+          const name = admin.name ||
+            (admin.first_name && admin.last_name ? `${admin.first_name} ${admin.last_name}` : null) ||
+            'Your support agent';
+
+          setAdminInfo({
+            name,
+            profilePictureUrl: admin.profile_picture_url
+          });
         }
       } catch (error) {
         console.error('Error loading admin info:', error);
@@ -50,9 +68,10 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
   }, [threadId]);
 
   if (loading) {
-    return null; // Don't show anything while loading
+    return null;
   }
 
+  const adminName = adminInfo?.name || 'Your support agent';
   const message = escalationMessage ||
     (escalationType ? getEscalationMessageForMerchant(escalationType, undefined, adminName) : null);
 
@@ -61,31 +80,40 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
   }
 
   return (
-    <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 mt-0.5">
-          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-            <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+    <div className="flex justify-start my-3">
+      <div className="flex items-start gap-3 max-w-[85%] lg:max-w-[75%] xl:max-w-[65%]">
+        {/* Admin Profile Picture - only show if we have one */}
+        {adminInfo?.profilePictureUrl && (
+          <div className="flex-shrink-0 mt-1">
+            <img
+              src={adminInfo.profilePictureUrl}
+              alt={adminName}
+              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700"
+            />
           </div>
-        </div>
+        )}
 
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-              {adminName} has been notified
-            </h4>
-          </div>
+        {/* Message Bubble */}
+        <div className="message-bubble-team bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+          <div className="px-3 pt-2 pb-1.5">
+            {/* Header with checkmark */}
+            <div className="flex items-center gap-2 mb-2">
+              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                {adminName} has been notified
+              </span>
+            </div>
 
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-            {message}
-          </p>
+            {/* Main message */}
+            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-2">
+              {message}
+            </p>
 
-          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 pt-1">
-            <AlertCircle className="w-4 h-4" />
-            <span>
-              You'll receive an update within 24 hours. No further action needed from you.
-            </span>
+            {/* Footer info */}
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 pt-1 border-t border-gray-200 dark:border-gray-700/50 mt-2">
+              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>You'll receive an update within 24 hours</span>
+            </div>
           </div>
         </div>
       </div>
