@@ -156,7 +156,7 @@ export const ChannelSidebar: React.FC<ChannelSidebarProps> = ({
         <div className="absolute bottom-3 left-3 z-10">
           <button
             onClick={onCreateThread}
-            className="group relative px-3 py-2 flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800 hover:shadow-md rounded-xl transition-all"
+            className="group relative px-3 py-2 flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-800 rounded-xl transition-all"
             title="Create New Thread"
           >
             <div className="relative flex items-center justify-center w-5 h-5 rounded-lg bg-gradient-to-br from-rose-400 via-rose-500 to-pink-500 shadow-sm">
