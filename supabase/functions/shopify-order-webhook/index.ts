@@ -45,6 +45,21 @@ function parseClickIDsFromURL(url: string): Record<string, string> {
   }
 }
 
+function addBusinessDays(startDate: Date, businessDays: number): Date {
+  let currentDate = new Date(startDate);
+  let daysAdded = 0;
+
+  while (daysAdded < businessDays) {
+    currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      daysAdded++;
+    }
+  }
+
+  return currentDate;
+}
+
 async function processOrderCOGS(supabase: any, userId: string, orderData: any, storedOrderId: string) {
   console.log('[Order Webhook] Processing COGS for order:', orderData.name);
   const lineItems = orderData.line_items || [];
@@ -287,6 +302,10 @@ Deno.serve(async (req: Request) => {
       landing_site: landingSite,
       referring_site: referringSite,
       ordered_at: orderData.created_at || new Date().toISOString(),
+      fulfillment_created_at: orderData.fulfillments?.[0]?.created_at || null,
+      fulfillment_updated_at: orderData.fulfillments?.[0]?.updated_at || null,
+      tracking_number: orderData.fulfillments?.[0]?.tracking_number || null,
+      tracking_company: orderData.fulfillments?.[0]?.tracking_company || null,
       ...utmParams,
       ...clickIDs
     }, {onConflict: 'user_id,shopify_order_id', ignoreDuplicates: false}).select('id').single();
@@ -304,6 +323,40 @@ Deno.serve(async (req: Request) => {
     const backgroundProcessing = (async () => {
       try {
         await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
+
+        if (orderData.fulfillments?.[0]?.created_at) {
+          console.log('[Order Webhook] Calculating expected delivery date...');
+          const { data: lineItems } = await supabase
+            .from('shopify_line_items')
+            .select('quote_id')
+            .eq('order_id', storedOrder.id)
+            .not('quote_id', 'is', null)
+            .limit(1);
+
+          let shippingTimeframeMax = 7;
+          if (lineItems && lineItems.length > 0 && lineItems[0].quote_id) {
+            const { data: quote } = await supabase
+              .from('product_quotes')
+              .select('shipping_timeframe_max')
+              .eq('id', lineItems[0].quote_id)
+              .maybeSingle();
+
+            if (quote?.shipping_timeframe_max) {
+              shippingTimeframeMax = quote.shipping_timeframe_max;
+            }
+          }
+
+          const fulfillmentDate = new Date(orderData.fulfillments[0].created_at);
+          const expectedDeliveryDate = addBusinessDays(fulfillmentDate, shippingTimeframeMax);
+
+          await supabase
+            .from('shopify_orders')
+            .update({ expected_delivery_date: expectedDeliveryDate.toISOString().split('T')[0] })
+            .eq('id', storedOrder.id);
+
+          console.log('[Order Webhook] Expected delivery date set:', expectedDeliveryDate.toISOString().split('T')[0]);
+        }
+
         if (utmParams.utm_source && utmParams.utm_term) {
           console.log('[Order Webhook] Attempting to match order to ads...');
           const { data: matchingAds } = await supabase.from('ads').select(`id,platform_ad_id,name,ad_sets!inner(campaign_id,ad_campaigns!inner(ad_account_id,ad_accounts!inner(user_id)))`).eq('ad_sets.ad_campaigns.ad_accounts.user_id', userId);

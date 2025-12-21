@@ -16,7 +16,7 @@ interface Quote {
 interface ProcessQuoteModalProps {
   quote: Quote;
   onClose: () => void;
-  onSubmit: (variants: QuoteVariant[]) => void;
+  onSubmit: (variants: QuoteVariant[], shippingTimeframe: { min: number; max: number }) => void;
 }
 
 export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
@@ -27,6 +27,8 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
   const [variants, setVariants] = useState<QuoteVariant[]>([
     { packSize: 1, skuPrefix: '', finalVariants: [] }
   ]);
+  const [shippingTimeframeMin, setShippingTimeframeMin] = useState(4);
+  const [shippingTimeframeMax, setShippingTimeframeMax] = useState(7);
 
   const addPackOption = () => {
     const newPack: QuoteVariant = {
@@ -52,6 +54,19 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
   };
 
   const handleSubmit = () => {
+    if (shippingTimeframeMin < 1) {
+      toast.error('Minimum shipping timeframe must be at least 1 business day');
+      return;
+    }
+    if (shippingTimeframeMax < shippingTimeframeMin) {
+      toast.error('Maximum shipping timeframe must be greater than or equal to minimum');
+      return;
+    }
+    if (shippingTimeframeMax > 30) {
+      toast.error('Maximum shipping timeframe cannot exceed 30 business days');
+      return;
+    }
+
     for (let i = 0; i < variants.length; i++) {
       const pack = variants[i];
       if (!pack.skuPrefix.trim()) {
@@ -75,7 +90,7 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
       }
     }
 
-    onSubmit(variants);
+    onSubmit(variants, { min: shippingTimeframeMin, max: shippingTimeframeMax });
   };
 
   return (
@@ -107,6 +122,48 @@ export const ProcessQuoteModal: React.FC<ProcessQuoteModalProps> = ({
               View Product
               <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
             </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Shipping Timeframe
+          </h3>
+          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+              Expected delivery time in business days (excludes weekends and holidays)
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Minimum Business Days
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={shippingTimeframeMin}
+                  onChange={(e) => setShippingTimeframeMin(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Maximum Business Days
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={shippingTimeframeMax}
+                  onChange={(e) => setShippingTimeframeMax(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+              Customer expectation: Delivery within {shippingTimeframeMin === shippingTimeframeMax ? `${shippingTimeframeMin}` : `${shippingTimeframeMin}-${shippingTimeframeMax}`} business days after shipment
+            </p>
           </div>
         </div>
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Truck, ExternalLink, Edit2, Check, X, Loader2 } from 'lucide-react';
+import { Package, Truck, ExternalLink, Edit2, Check, X, Loader2, Clock, Calendar, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { analyzeOrderDelay, type DelayAnalysis } from '@/lib/packageDelayDetectionService';
 
 interface ThreadOrderInfoProps {
   threadId: string;
@@ -27,6 +28,7 @@ interface TrackingInfo {
 export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOrderInfoProps) {
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [trackingInfo, setTrackingInfo] = useState<TrackingInfo[]>([]);
+  const [delayAnalysis, setDelayAnalysis] = useState<DelayAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingWEN, setIsEditingWEN] = useState(false);
   const [wenValue, setWenValue] = useState('');
@@ -91,6 +93,12 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
       if (trackingError) throw trackingError;
 
       setTrackingInfo(fulfillments || []);
+
+      // Fetch delay analysis if order is fulfilled
+      if (order.fulfillment_status === 'fulfilled') {
+        const analysis = await analyzeOrderDelay(orderIdToFetch);
+        setDelayAnalysis(analysis);
+      }
     } catch (error) {
       console.error('Error fetching order info:', error);
     } finally {
@@ -215,6 +223,112 @@ export function ThreadOrderInfo({ threadId, orderId, isAdmin = false }: ThreadOr
             </p>
           )}
         </div>
+
+        {/* Delivery Timeline */}
+        {delayAnalysis && (
+          <div className="space-y-3">
+            <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5" />
+              Delivery Timeline
+            </h4>
+
+            <div className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
+              {/* Timeline Visualization */}
+              <div className="relative">
+                <div className="flex items-center justify-between">
+                  {/* Fulfilled */}
+                  <div className="flex flex-col items-center gap-1 z-10">
+                    <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shipped</span>
+                    {delayAnalysis.fulfillmentDate && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(delayAnalysis.fulfillmentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Progress Line */}
+                  <div className="flex-1 h-1 mx-2 bg-gray-300 dark:bg-gray-600 relative">
+                    <div
+                      className={`h-full transition-all ${
+                        delayAnalysis.status === 'on_time' || delayAnalysis.status === 'arriving_today'
+                          ? 'bg-green-500'
+                          : delayAnalysis.status === 'slightly_delayed'
+                          ? 'bg-amber-500'
+                          : delayAnalysis.status === 'significantly_delayed'
+                          ? 'bg-red-500'
+                          : 'bg-gray-400'
+                      }`}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  {/* Expected Delivery */}
+                  <div className="flex flex-col items-center gap-1 z-10">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      delayAnalysis.status === 'on_time' || delayAnalysis.status === 'arriving_today'
+                        ? 'bg-green-500'
+                        : delayAnalysis.status === 'slightly_delayed'
+                        ? 'bg-amber-500'
+                        : delayAnalysis.status === 'significantly_delayed'
+                        ? 'bg-red-500'
+                        : 'bg-gray-400'
+                    }`}>
+                      {delayAnalysis.status === 'arriving_today' ? (
+                        <Package className="w-4 h-4 text-white" />
+                      ) : delayAnalysis.isDelayed ? (
+                        <AlertCircle className="w-4 h-4 text-white" />
+                      ) : (
+                        <Calendar className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Expected</span>
+                    {delayAnalysis.expectedDeliveryDate && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(delayAnalysis.expectedDeliveryDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Badge */}
+              <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                  delayAnalysis.status === 'on_time'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                    : delayAnalysis.status === 'arriving_today'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                    : delayAnalysis.status === 'slightly_delayed'
+                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                    : delayAnalysis.status === 'significantly_delayed'
+                    ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-400'
+                }`}>
+                  {delayAnalysis.status === 'on_time' && '✓ On Time'}
+                  {delayAnalysis.status === 'arriving_today' && '📦 Arriving Today'}
+                  {delayAnalysis.status === 'slightly_delayed' && `⏱ ${delayAnalysis.daysPastExpected}d Delayed`}
+                  {delayAnalysis.status === 'significantly_delayed' && `⚠️ ${delayAnalysis.daysPastExpected}d Delayed`}
+                </span>
+
+                <span className="text-xs text-gray-600 dark:text-gray-400">
+                  {delayAnalysis.businessDaysElapsed} business days elapsed
+                </span>
+              </div>
+
+              {/* Admin Note (Admin Only) */}
+              {isAdmin && delayAnalysis.internalNote && (
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {delayAnalysis.internalNote}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Tracking Information */}
         {trackingInfo.length > 0 && (

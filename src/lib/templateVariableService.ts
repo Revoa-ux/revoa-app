@@ -57,6 +57,16 @@ interface VariableData {
   last_mile_carrier?: string;
   shipment_status?: string;
 
+  // Delivery delay variables
+  fulfillment_date?: string;
+  expected_delivery_date?: string;
+  delay_status?: string;
+  days_past_expected?: string;
+  business_days_elapsed?: string;
+  estimated_timeframe?: string;
+  delay_customer_message?: string;
+  delay_admin_note?: string;
+
   // Merchant variables
   merchant_name?: string;
   merchant_store_name?: string;
@@ -245,6 +255,41 @@ export async function fetchVariableData(context: VariableContext): Promise<Varia
           data.shipment_status = fulfillmentData.shipment_status || undefined;
         }
 
+        // Fetch delay analysis data if order has fulfillment info
+        const { data: delayOrderData } = await supabase
+          .from('shopify_orders')
+          .select('fulfillment_created_at, expected_delivery_date, tracking_number, tracking_company')
+          .eq('id', context.orderId)
+          .maybeSingle();
+
+        if (delayOrderData?.fulfillment_created_at) {
+          const { analyzeOrderDelay } = await import('./packageDelayDetectionService');
+          const delayAnalysis = await analyzeOrderDelay(context.orderId);
+
+          if (delayAnalysis) {
+            data.fulfillment_date = new Date(delayOrderData.fulfillment_created_at).toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric'
+            });
+            data.expected_delivery_date = delayAnalysis.expectedDeliveryDate
+              ? new Date(delayAnalysis.expectedDeliveryDate).toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric'
+                })
+              : undefined;
+            data.delay_status = delayAnalysis.status;
+            data.days_past_expected = delayAnalysis.daysPastExpected > 0
+              ? delayAnalysis.daysPastExpected.toString()
+              : undefined;
+            data.business_days_elapsed = delayAnalysis.businessDaysElapsed.toString();
+            data.estimated_timeframe = delayAnalysis.estimatedTimeframe;
+            data.delay_customer_message = delayAnalysis.customerMessage;
+            data.delay_admin_note = delayAnalysis.internalNote;
+          }
+        }
+
         // Fetch product IDs from order line items if not provided
         if (!context.productIds || context.productIds.length === 0) {
           const { data: lineItems } = await supabase
@@ -421,7 +466,15 @@ export const VARIABLE_FALLBACKS: Record<string, string> = {
   'carrier_phone_number': 'their customer service number',
   'tracking_status': 'tracking status pending',
   'order_status_url': 'your order status page',
-  'shipped_date': 'your ship date'
+  'shipped_date': 'your ship date',
+  'fulfillment_date': 'shipment date',
+  'expected_delivery_date': 'estimated delivery date',
+  'delay_status': 'on time',
+  'days_past_expected': '0',
+  'business_days_elapsed': '0',
+  'estimated_timeframe': '4-7 business days',
+  'delay_customer_message': 'Your package is on its way',
+  'delay_admin_note': 'No delay information available'
 };
 
 export const VARIABLE_DISPLAY_NAMES: Record<string, string> = {
@@ -443,7 +496,15 @@ export const VARIABLE_DISPLAY_NAMES: Record<string, string> = {
   'carrier_phone_number': 'Carrier Phone',
   'last_mile_carrier': 'Last Mile Carrier',
   'product_factory_name': 'Factory Name',
-  'estimated_delivery': 'Estimated Delivery'
+  'estimated_delivery': 'Estimated Delivery',
+  'fulfillment_date': 'Fulfillment Date',
+  'expected_delivery_date': 'Expected Delivery Date',
+  'delay_status': 'Delay Status',
+  'days_past_expected': 'Days Past Expected',
+  'business_days_elapsed': 'Business Days Since Shipment',
+  'estimated_timeframe': 'Estimated Timeframe',
+  'delay_customer_message': 'Delay Customer Message',
+  'delay_admin_note': 'Delay Admin Note'
 };
 
 export interface ReplaceVariablesResult {

@@ -298,7 +298,7 @@ export default function AdminQuotes() {
     }
   };
 
-  const handleProcessQuote = async (variants: QuoteVariant[], policies: any) => {
+  const handleProcessQuote = async (variants: QuoteVariant[], policies: any, shippingTimeframe?: { min: number; max: number }) => {
     if (!selectedQuote) return;
 
     try {
@@ -314,6 +314,12 @@ export default function AdminQuotes() {
         updateData.covers_lost_items = policies.coversLostItems;
         updateData.covers_damaged_items = policies.coversDamagedItems;
         updateData.covers_late_delivery = policies.coversLateDelivery;
+      }
+
+      // Add shipping timeframe if provided
+      if (shippingTimeframe) {
+        updateData.shipping_timeframe_min = shippingTimeframe.min;
+        updateData.shipping_timeframe_max = shippingTimeframe.max;
       }
 
       const { error } = await supabase

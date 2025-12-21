@@ -17,7 +17,7 @@ export interface ProductPolicies {
 interface NewProcessQuoteModalProps {
   quote: Quote;
   onClose: () => void;
-  onSubmit: (variants: QuoteVariant[], policies: ProductPolicies) => void;
+  onSubmit: (variants: QuoteVariant[], policies: ProductPolicies, shippingTimeframe: { min: number; max: number }) => void;
 }
 
 export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
@@ -72,6 +72,10 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
   const [variants, setVariants] = useState<NewQuoteVariant[]>(() =>
     convertExistingVariants(quote.variants)
   );
+
+  // Shipping timeframe fields
+  const [shippingTimeframeMin, setShippingTimeframeMin] = useState(4);
+  const [shippingTimeframeMax, setShippingTimeframeMax] = useState(7);
 
   // Policy fields - initialize from existing quote data
   const [hasWarranty, setHasWarranty] = useState(!!quote.warrantyDays);
@@ -136,6 +140,19 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
       return;
     }
 
+    if (shippingTimeframeMin < 1) {
+      toast.error('Minimum shipping timeframe must be at least 1 business day');
+      return;
+    }
+    if (shippingTimeframeMax < shippingTimeframeMin) {
+      toast.error('Maximum shipping timeframe must be greater than or equal to minimum');
+      return;
+    }
+    if (shippingTimeframeMax > 30) {
+      toast.error('Maximum shipping timeframe cannot exceed 30 business days');
+      return;
+    }
+
     const legacyVariants = convertToLegacyFormat();
 
     const policies: ProductPolicies = {
@@ -145,7 +162,7 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
       coversLateDelivery: hasShippingCoverage ? coversLateDelivery : false
     };
 
-    onSubmit(legacyVariants, policies);
+    onSubmit(legacyVariants, policies, { min: shippingTimeframeMin, max: shippingTimeframeMax });
   };
 
   return (
@@ -180,6 +197,52 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
           onVariantsChange={setVariants}
           productName={quote.productName}
         />
+
+        {/* Shipping Timeframe Section */}
+        <div>
+          <div className="mb-3">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Shipping Timeframe
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Expected delivery time in business days (excludes weekends and holidays)
+            </p>
+          </div>
+
+          <div className="p-5 bg-gray-50 dark:bg-gray-900/30 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Minimum Business Days
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={shippingTimeframeMin}
+                  onChange={(e) => setShippingTimeframeMin(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Maximum Business Days
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={shippingTimeframeMax}
+                  onChange={(e) => setShippingTimeframeMax(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500 dark:focus:ring-rose-400 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
+              Customer expectation: Delivery within {shippingTimeframeMin === shippingTimeframeMax ? `${shippingTimeframeMin}` : `${shippingTimeframeMin}-${shippingTimeframeMax}`} business days after shipment
+            </p>
+          </div>
+        </div>
 
         {/* Product Policies Section */}
         <div>
