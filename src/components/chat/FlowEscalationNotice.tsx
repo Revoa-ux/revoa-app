@@ -98,7 +98,7 @@ export const FlowEscalationNotice: React.FC<FlowEscalationNoticeProps> = ({
           <div className="px-3 pt-2 pb-1.5">
             {/* Header with checkmark */}
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+              <CheckCircle className="w-4 h-4 text-[#f3405f] dark:text-[#f3405f] flex-shrink-0" />
               <span className="text-sm font-semibold text-gray-900 dark:text-white">
                 {adminName} has been notified
               </span>
