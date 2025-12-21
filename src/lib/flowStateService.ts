@@ -7,6 +7,7 @@ import type {
   FlowExecutionContext,
 } from '../types/conversationalFlows';
 import { flowEngine } from './flowEngineService';
+import { checkAndTriggerEscalation } from './flowEscalationService';
 
 export class FlowStateService {
   async getActiveFlowsByCategory(category: string): Promise<BotFlow[]> {
@@ -294,6 +295,25 @@ export class FlowStateService {
         context.currentNode.type
       );
       console.log('[flowStateService] Session response updated successfully');
+
+      // Check if next node requires agent escalation
+      if (navigationResult.nextNode?.metadata?.requiresAgentAction) {
+        console.log('[flowStateService] Next node requires agent escalation, triggering...');
+        try {
+          const escalated = await checkAndTriggerEscalation(
+            context.session.thread_id,
+            navigationResult.nextNode.metadata,
+            context.session.flow_state,
+            navigationResult.nextNode.id
+          );
+          if (escalated) {
+            console.log('[flowStateService] Escalation triggered successfully');
+          }
+        } catch (escalationError) {
+          console.error('[flowStateService] Error triggering escalation:', escalationError);
+          // Don't fail the flow if escalation fails, just log it
+        }
+      }
 
       if (navigationResult.completed) {
         console.log('[flowStateService] Flow completed, marking session as complete');

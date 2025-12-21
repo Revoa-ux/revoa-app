@@ -9,6 +9,7 @@ import { FlowProgressIndicator } from './FlowProgressIndicator';
 import { FlowAttachmentNode } from './FlowAttachmentNode';
 import { FlowGuidancePanel } from './FlowGuidancePanel';
 import { FlowTemplateDisplay } from './FlowTemplateDisplay';
+import { FlowEscalationNotice } from './FlowEscalationNotice';
 import { getThreadProductWarranty, formatWarrantyForFlow, getDamageResolutionGuidance } from '../../lib/flowWarrantyService';
 import { flowTemplateRecommendation } from '../../lib/flowTemplateRecommendationService';
 import { determineCloseOffMessage } from '../../lib/flowCloseOffService';
@@ -737,6 +738,15 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
             orderId={orderId || undefined}
             userId={userId || undefined}
             onCopied={() => handleTemplateCopied(recommendedTemplates[0].id)}
+          />
+        )}
+
+        {/* Escalation Notice for Completion Nodes */}
+        {isActive && node.type === 'completion' && node.metadata?.requiresAgentAction && threadId && (
+          <FlowEscalationNotice
+            threadId={threadId}
+            escalationType={node.metadata.escalationType}
+            escalationMessage={node.metadata.escalationMessage}
           />
         )}
 

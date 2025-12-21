@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Chat } from '@/lib/chatService';
 import { formatDistanceToNow } from 'date-fns';
+import { AlertTriangle } from 'lucide-react';
 import { conversationTagService, ConversationTagAssignment } from '@/lib/conversationTagService';
+import { supabase } from '@/lib/supabase';
 
 interface ConversationListItemProps {
   chat: Chat;
@@ -22,9 +24,11 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
   const unreadCount = chat.unread_count_admin || 0;
   const lastMessagePreview = chat.last_message_preview || 'No messages yet';
   const [tags, setTags] = useState<ConversationTagAssignment[]>([]);
+  const [hasEscalatedThreads, setHasEscalatedThreads] = useState(false);
 
   useEffect(() => {
     loadTags();
+    checkEscalations();
 
     // Subscribe to tag changes for this chat
     const subscription = conversationTagService.subscribeToTagAssignments(chat.id, () => {
@@ -42,6 +46,26 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
       setTags(chatTags);
     } catch (error) {
       console.error('Error loading tags:', error);
+    }
+  };
+
+  const checkEscalations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('chat_threads')
+        .select('id')
+        .eq('chat_id', chat.id)
+        .eq('requires_agent_action', true)
+        .limit(1)
+        .maybeSingle();
+
+      if (!error && data) {
+        setHasEscalatedThreads(true);
+      } else {
+        setHasEscalatedThreads(false);
+      }
+    } catch (error) {
+      console.error('Error checking escalations:', error);
     }
   };
 
@@ -102,6 +126,12 @@ export const ConversationListItem: React.FC<ConversationListItemProps> = ({
           </p>
 
           <div className="flex items-center gap-2 flex-wrap">
+            {hasEscalatedThreads && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs bg-red-500/10 text-red-600 dark:text-red-400 font-medium">
+                <AlertTriangle className="w-3 h-3" />
+                Action Needed
+              </span>
+            )}
             {tags.length > 0 && (
               <>
                 {tags.slice(0, 2).map((assignment) => (

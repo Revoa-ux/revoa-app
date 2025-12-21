@@ -44,6 +44,7 @@ import { ChannelThread } from '@/components/chat/ChannelTabs';
 import { CustomerProfileSidebar } from '@/components/admin/CustomerProfileSidebar';
 import { formatMessageContent, shouldFormatAsMarkdown } from '@/lib/messageFormatter';
 import { ConversationalFlowContainer } from '@/components/chat/ConversationalFlowContainer';
+import { ThreadEscalationBanner } from '@/components/chat/ThreadEscalationBanner';
 import { flowTriggerService } from '@/lib/flowTriggerService';
 import { useConversationalFlow } from '@/hooks/useConversationalFlow';
 
@@ -767,6 +768,19 @@ const AdminChat = () => {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+              {/* Escalation Banner - Shows when agent action is needed */}
+              {selectedThreadId && (
+                <ThreadEscalationBanner
+                  threadId={selectedThreadId}
+                  onResolved={() => {
+                    // Reload threads to update the conversation list
+                    if (selectedChat) {
+                      loadThreads();
+                    }
+                  }}
+                />
+              )}
+
               {/* Conversational Flow Container - Shows at the top of messages */}
               {selectedThreadId && activeFlowSession?.is_active && (
                 <div className="mb-4">
