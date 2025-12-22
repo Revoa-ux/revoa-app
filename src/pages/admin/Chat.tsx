@@ -163,6 +163,23 @@ const AdminChat = () => {
     }
   }, [selectedChat]);
 
+  // Smart sidebar management: on mobile, opening one closes the other
+  const handleToggleConversationList = () => {
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (!isLargeScreen && !showConversationList && showUserProfile) {
+      setShowUserProfile(false);
+    }
+    setShowConversationList(!showConversationList);
+  };
+
+  const handleToggleUserProfile = () => {
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (!isLargeScreen && !showUserProfile && showConversationList) {
+      setShowConversationList(false);
+    }
+    setShowUserProfile(!showUserProfile);
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -310,9 +327,12 @@ const AdminChat = () => {
     };
   }, [selectedChat, selectedThreadId]);
 
-  // Auto-open sidebar when switching to order thread
+  // Don't auto-open sidebar on mobile to avoid blocking chat
   useEffect(() => {
     if (!selectedThreadId) return;
+
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (!isLargeScreen) return; // Skip auto-open on mobile
 
     const currentThread = threads.find(t => t.id === selectedThreadId);
     if (currentThread?.order_id) {
@@ -583,10 +603,10 @@ const AdminChat = () => {
         </div>
 
         <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-          {/* Conversations List - Overlay on mobile, fixed on desktop */}
+          {/* Conversations List - Overlay on mobile, inline on desktop */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            fixed lg:relative inset-y-0 left-0 z-30 lg:z-0
+            fixed lg:relative inset-y-0 left-0 z-40 lg:z-0
             w-80 lg:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
@@ -596,6 +616,17 @@ const AdminChat = () => {
             h-full
             ${!showConversationList ? 'lg:flex' : ''}
           `}>
+            {/* Header with close button (mobile only) */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 lg:hidden">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</h3>
+              <button
+                onClick={() => setShowConversationList(false)}
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <ConversationFilters
               filters={conversationFilters}
               onFiltersChange={setConversationFilters}
@@ -716,7 +747,7 @@ const AdminChat = () => {
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
                 {/* Menu button - toggle conversation list on mobile */}
                 <button
-                  onClick={() => setShowConversationList(!showConversationList)}
+                  onClick={handleToggleConversationList}
                   className="lg:hidden p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="Toggle conversations"
                 >
@@ -756,7 +787,7 @@ const AdminChat = () => {
 
                 {/* Info button - toggle user profile sidebar */}
                 <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  onClick={handleToggleUserProfile}
                   className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                     showUserProfile
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
@@ -1152,6 +1183,7 @@ const AdminChat = () => {
         <CollapsibleClientProfile
           userId={selectedChat.user_id}
           isExpanded={showUserProfile}
+          onClose={() => setShowUserProfile(false)}
         />
       )}
 
@@ -1164,9 +1196,9 @@ const AdminChat = () => {
       )}
 
       {/* Backdrop for mobile when sidebars are open */}
-      {(showConversationList || showUserProfile) && (
+      {(showConversationList || showUserProfile) && window.innerWidth < 1024 && (
         <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => {
             setShowConversationList(false);
             setShowUserProfile(false);
