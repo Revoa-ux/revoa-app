@@ -591,7 +591,16 @@ const AdminChat = () => {
 
   return (
     <>
-        <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+        {/* Horizontal Conversation List - Mobile Only - Outside Main Container */}
+        {selectedChat && (
+          <HorizontalConversationList
+            chats={chats}
+            selectedChatId={selectedChat?.id || null}
+            onSelectChat={setSelectedChat}
+          />
+        )}
+
+        <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay that slides from left */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
@@ -718,13 +727,6 @@ const AdminChat = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {selectedChat ? (
           <>
-            {/* Horizontal Conversation List - Mobile Only - Above Header */}
-            <HorizontalConversationList
-              chats={chats}
-              selectedChatId={selectedChat?.id || null}
-              onSelectChat={setSelectedChat}
-            />
-
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">

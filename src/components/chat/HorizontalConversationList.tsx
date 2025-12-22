@@ -56,10 +56,10 @@ export const HorizontalConversationList: React.FC<HorizontalConversationListProp
   };
 
   return (
-    <div className="lg:hidden border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div className="lg:hidden">
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto scrollbar-hide gap-2 px-4 py-3"
+        className="flex overflow-x-auto scrollbar-hide gap-2 px-4 py-3 pb-4"
         style={{
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
