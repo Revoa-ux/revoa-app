@@ -165,16 +165,14 @@ const AdminChat = () => {
 
   // Smart sidebar management: on mobile, opening one closes the other
   const handleToggleConversationList = () => {
-    const isLargeScreen = window.innerWidth >= 640;
-    if (!isLargeScreen && !showConversationList && showUserProfile) {
+    if (!showConversationList && showUserProfile) {
       setShowUserProfile(false);
     }
     setShowConversationList(!showConversationList);
   };
 
   const handleToggleUserProfile = () => {
-    const isLargeScreen = window.innerWidth >= 640;
-    if (!isLargeScreen && !showUserProfile && showConversationList) {
+    if (!showUserProfile && showConversationList) {
       setShowConversationList(false);
     }
     setShowUserProfile(!showUserProfile);
@@ -593,21 +591,19 @@ const AdminChat = () => {
   return (
     <>
         <div className="flex h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-          {/* Conversations List - Overlay only under 500px (using sm breakpoint), inline otherwise */}
+          {/* Conversations List - Overlay that slides from left */}
           <div className={`
-            ${showConversationList ? 'translate-x-0' : 'max-sm:-translate-x-full sm:translate-x-0'}
-            max-sm:absolute sm:relative inset-y-0 left-0 max-sm:z-40 sm:z-0
-            w-80 sm:w-96
+            ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
+            absolute inset-y-0 left-0 z-40
+            w-80 lg:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
             transition-transform duration-300 ease-in-out
-            sm:transition-none
             h-full
-            ${!showConversationList ? 'sm:flex' : ''}
           `}>
-            {/* Header with close button (mobile only - under 640px) */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 sm:hidden">
+            {/* Header with close button */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</h3>
               <button
                 onClick={() => setShowConversationList(false)}
@@ -724,6 +720,14 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[90px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                {/* Menu button - toggle conversation list */}
+                <button
+                  onClick={handleToggleConversationList}
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Toggle conversations"
+                >
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
@@ -735,14 +739,6 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-                {/* Menu button - toggle conversation list on mobile (under 640px) */}
-                <button
-                  onClick={handleToggleConversationList}
-                  className="sm:hidden p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Toggle conversations"
-                >
-                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
 
                 <ChannelDropdown
                   threads={threads}
@@ -1012,7 +1008,7 @@ const AdminChat = () => {
                             ref={messageActionsRef}
                             className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
                             style={{
-                              top: messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0,
+                              top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                               right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
                             }}
                           >

@@ -343,9 +343,16 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   }
 
   return (
-    <div className="max-sm:fixed sm:relative right-0 inset-y-0 max-sm:z-40 sm:z-0 w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden relative animate-in slide-in-from-right duration-300 ease-out">
-      {/* Header with close button (mobile only - under 640px) */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 sm:hidden">
+    <div className={`
+      ${isExpanded ? 'translate-x-0' : 'translate-x-full'}
+      absolute right-0 inset-y-0 z-40
+      w-80
+      bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
+      flex flex-col overflow-hidden
+      transition-transform duration-300 ease-in-out
+    `}>
+      {/* Header with close button */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Client Profile</h3>
         <button
           onClick={onClose}
