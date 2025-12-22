@@ -573,8 +573,23 @@ const Chat = () => {
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
-              {/* Thread Dropdown - Left side */}
+            {/* Left: Agent Profile and Name */}
+            <div className="flex items-center space-x-3 min-w-0">
+              <img
+                src={adminAvatar}
+                alt={adminName}
+                className="w-8 h-8 rounded-full flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  {adminName}
+                </h3>
+              </div>
+            </div>
+
+            {/* Right: Actions */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Thread Dropdown */}
               <div ref={threadDropdownRef} className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
