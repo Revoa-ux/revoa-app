@@ -331,7 +331,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
   if (loading) {
     return (
-      <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col rounded-r-xl animate-in slide-in-from-right duration-300">
+      <div className="fixed lg:relative right-0 inset-y-0 z-30 lg:z-0 w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col animate-in slide-in-from-right duration-300">
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white" />
         </div>
@@ -340,7 +340,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   }
 
   return (
-    <div className="w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden rounded-r-xl relative animate-in slide-in-from-right duration-300 ease-out">
+    <div className="fixed lg:relative right-0 inset-y-0 z-30 lg:z-0 w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden relative animate-in slide-in-from-right duration-300 ease-out">
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {/* Overview Section */}
         <div className="px-4 pb-4 space-y-2">

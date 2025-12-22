@@ -18,7 +18,8 @@ import {
   Hash,
   Sparkles,
   Play,
-  AlertCircle
+  AlertCircle,
+  List
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -119,7 +120,8 @@ const AdminChat = () => {
     sortBy: 'recent',
   });
   const [conversationSearch, setConversationSearch] = useState('');
-  const [showUserProfile, setShowUserProfile] = useState(true);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showConversationList, setShowConversationList] = useState(true);
   const [showTagModal, setShowTagModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -134,12 +136,32 @@ const AdminChat = () => {
   const [showFlowSuggestion, setShowFlowSuggestion] = useState(false);
   const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '__no_thread__');
 
-  // Auto-open customer sidebar when on order threads
+  // Handle responsive behavior
   useEffect(() => {
-    if (selectedThreadId) {
-      setShowUserProfile(true);
+    const handleResize = () => {
+      const isLargeScreen = window.innerWidth >= 1024; // lg breakpoint
+      // On large screens, show conversation list and hide user profile by default
+      // On small screens, hide both sidebars to show chat area
+      if (isLargeScreen) {
+        setShowConversationList(true);
+      } else {
+        setShowConversationList(false);
+        setShowUserProfile(false);
+      }
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Auto-close sidebars on mobile when a chat is selected
+  useEffect(() => {
+    if (selectedChat && window.innerWidth < 1024) {
+      setShowConversationList(false);
+      setShowUserProfile(false);
     }
-  }, [selectedThreadId]);
+  }, [selectedChat]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -560,9 +582,20 @@ const AdminChat = () => {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-          {/* Conversations List */}
-          <div className="border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-700 flex flex-col rounded-t-xl md:rounded-l-xl md:rounded-tr-none overflow-hidden transition-all duration-300 w-full md:w-96">
+        <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+          {/* Conversations List - Overlay on mobile, fixed on desktop */}
+          <div className={`
+            ${showConversationList ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            fixed lg:relative inset-y-0 left-0 z-30 lg:z-0
+            w-80 lg:w-96
+            border-r border-gray-200 dark:border-gray-700
+            flex flex-col
+            bg-white dark:bg-gray-800
+            transition-transform duration-300 ease-in-out
+            lg:transition-none
+            h-full
+            ${!showConversationList ? 'lg:flex' : ''}
+          `}>
             <ConversationFilters
               filters={conversationFilters}
               onFiltersChange={setConversationFilters}
@@ -681,6 +714,15 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+                {/* Menu button - toggle conversation list on mobile */}
+                <button
+                  onClick={() => setShowConversationList(!showConversationList)}
+                  className="lg:hidden p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Toggle conversations"
+                >
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
                 <ChannelDropdown
                   threads={threads}
                   selectedThreadId={selectedThreadId}
@@ -710,6 +752,19 @@ const AdminChat = () => {
                   title="Manage tags"
                 >
                   <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* Info button - toggle user profile sidebar */}
+                <button
+                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
+                    showUserProfile
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  title="Toggle info panel"
+                >
+                  <Info className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -1096,15 +1151,26 @@ const AdminChat = () => {
       {selectedChat && !selectedThreadId && (
         <CollapsibleClientProfile
           userId={selectedChat.user_id}
-          isExpanded={true}
+          isExpanded={showUserProfile}
         />
       )}
 
       {selectedChat && selectedThreadId && (
         <CustomerProfileSidebar
           threadId={selectedThreadId}
-          isExpanded={true}
-          onClose={() => {}}
+          isExpanded={showUserProfile}
+          onClose={() => setShowUserProfile(false)}
+        />
+      )}
+
+      {/* Backdrop for mobile when sidebars are open */}
+      {(showConversationList || showUserProfile) && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={() => {
+            setShowConversationList(false);
+            setShowUserProfile(false);
+          }}
         />
       )}
         </div>

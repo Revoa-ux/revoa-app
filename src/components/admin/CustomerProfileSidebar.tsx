@@ -131,7 +131,7 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
   };
 
   return (
-    <div className="w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300">
+    <div className="fixed lg:relative right-0 inset-y-0 z-30 lg:z-0 w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300">
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
           Customer Profile
