@@ -591,7 +591,7 @@ const AdminChat = () => {
 
   return (
     <>
-        <div className="flex h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+        <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay that slides from left */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
@@ -718,16 +718,27 @@ const AdminChat = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {selectedChat ? (
           <>
+            {/* Horizontal Conversation List - Mobile Only - Above Header */}
+            <HorizontalConversationList
+              chats={chats}
+              selectedChatId={selectedChat?.id || null}
+              onSelectChat={setSelectedChat}
+            />
+
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 {/* Menu button - toggle conversation list */}
                 <button
                   onClick={handleToggleConversationList}
-                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Toggle conversations"
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden"
+                  title={showConversationList ? "Close conversations" : "Open conversations"}
                 >
-                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {showConversationList ? (
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  ) : (
+                    <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
                 </button>
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
@@ -786,13 +797,6 @@ const AdminChat = () => {
                 </button>
               </div>
             </div>
-
-            {/* Horizontal Conversation List - Mobile Only */}
-            <HorizontalConversationList
-              chats={chats}
-              selectedChatId={selectedChat?.id || null}
-              onSelectChat={setSelectedChat}
-            />
 
             {/* Flow Suggestion Banner */}
             {showFlowSuggestion && suggestedFlowId && !activeFlowSession?.is_active && (
@@ -1162,10 +1166,45 @@ const AdminChat = () => {
             </div>
           </>
         ) : isLoading ? (
-          <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900/50">
-            <div className="flex flex-col items-center gap-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E85B81]" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">Loading cases...</p>
+          <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="space-y-4 animate-pulse">
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-64">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-48">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-56">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-52">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3" />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
