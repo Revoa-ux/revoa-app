@@ -197,7 +197,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             // Check if OAuth completed successfully
             if (oauthSession.completed_at) {
               console.log('[ShopifyConnectModal] OAuth session completed!');
-              cleanOauthSession(oauthSession);
+
               // Close popup window
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
@@ -207,7 +207,35 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               console.log('[ShopifyConnectModal] Refreshing connection store...');
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal] Connection store refreshed');
+
+                // Mark as success and close modal
+                setIsSuccess(true);
+                setIsLoading(false);
+
+                // Small delay to show success state
+                setTimeout(() => {
+                  const storeUrl = validDomain;
+                  console.log('[ShopifyConnectModal] Calling onSuccess with:', storeUrl);
+                  onSuccess(storeUrl);
+                  onClose();
+
+                  // Reset states for next time
+                  setTimeout(() => {
+                    setIsSuccess(false);
+                    setShopUrl('');
+                    setHasError(false);
+                    setErrorMessage('');
+                  }, 300);
+                }, 800);
+              }).catch((error) => {
+                console.error('[ShopifyConnectModal] Error refreshing connection store:', error);
+                setIsLoading(false);
+                setHasError(true);
+                setErrorMessage('Failed to refresh connection status');
               });
+
+              // Clean up oauth session after starting the refresh
+              cleanOauthSession(oauthSession);
 
               return;
             }
