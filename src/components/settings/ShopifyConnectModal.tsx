@@ -212,16 +212,48 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // Refresh connection store - the useEffect will handle closing the modal
+              // Refresh connection store and then close modal directly
               console.log('[ShopifyConnectModal Polling] Refreshing connection store...');
-              refreshShopifyStatus().then(() => {
-                console.log('[ShopifyConnectModal Polling] ✓ Store refreshed');
-                console.log('[ShopifyConnectModal Polling] shopify.isConnected:', shopify.isConnected);
-                console.log('[ShopifyConnectModal Polling] shopify.installation:', shopify.installation);
-                console.log('[ShopifyConnectModal Polling] useEffect should now trigger to close modal');
-              }).catch((error) => {
-                console.error('[ShopifyConnectModal Polling] ✗ Error refreshing store:', error);
-              });
+
+              // Stop loading and show success immediately
+              setIsSuccess(true);
+              setIsLoading(false);
+
+              refreshShopifyStatus()
+                .then(() => {
+                  console.log('[ShopifyConnectModal Polling] ✓ Store refreshed successfully');
+
+                  // Get the latest state from the store
+                  const currentState = useConnectionStore.getState();
+                  console.log('[ShopifyConnectModal Polling] Latest state isConnected:', currentState.shopify.isConnected);
+                  console.log('[ShopifyConnectModal Polling] Latest state installation:', currentState.shopify.installation?.store_url);
+
+                  // Wait a moment to show success state, then close
+                  setTimeout(() => {
+                    const storeUrl = currentState.shopify.installation?.store_url || validDomain;
+                    console.log('[ShopifyConnectModal Polling] Closing modal with store:', storeUrl);
+
+                    // Call onSuccess to trigger Settings page refresh
+                    onSuccess(storeUrl);
+
+                    // Close the modal
+                    onClose();
+
+                    // Reset states for next time
+                    setTimeout(() => {
+                      setIsSuccess(false);
+                      setShopUrl('');
+                      setHasError(false);
+                      setErrorMessage('');
+                    }, 300);
+                  }, 800);
+                })
+                .catch((error) => {
+                  console.error('[ShopifyConnectModal Polling] ✗ Error refreshing store:', error);
+                  setIsLoading(false);
+                  setHasError(true);
+                  setErrorMessage('Failed to refresh connection status');
+                });
 
               return;
             }
