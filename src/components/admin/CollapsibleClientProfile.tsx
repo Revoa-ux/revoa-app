@@ -344,12 +344,11 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
   return (
     <div className={`
-      ${isExpanded ? 'translate-x-0' : 'translate-x-full'}
-      absolute inset-0 lg:relative lg:inset-auto lg:translate-x-0 right-0 z-40 lg:z-0
-      lg:w-80
+      absolute inset-0 lg:relative lg:inset-auto right-0 z-40 lg:z-0
+      ${isExpanded ? 'lg:w-80 translate-x-0' : 'lg:w-0 translate-x-full lg:translate-x-0'}
       bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
       flex flex-col overflow-hidden
-      transition-transform duration-300 ease-in-out
+      transition-all duration-300 ease-in-out
     `}>
       {/* Header with close button - matches chat header height */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">

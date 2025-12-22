@@ -594,8 +594,11 @@ export const chatService = {
       return [];
     }
 
+    console.log('Raw threads data:', data);
+
     const threads = (data || []).map(thread => {
       const order = Array.isArray(thread.shopify_orders) ? thread.shopify_orders[0] : thread.shopify_orders;
+      console.log('Thread:', thread.id, 'Order ID:', thread.order_id, 'Order data:', order, 'Order number:', order?.order_number);
       return {
         ...thread,
         order_number: order?.order_number || null,
