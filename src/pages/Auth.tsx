@@ -71,7 +71,8 @@ const Auth = () => {
       }
 
       // If email not confirmed, redirect to check email page
-      if (!emailConfirmed) {
+      // Only redirect if emailConfirmed is explicitly false (not undefined/loading)
+      if (emailConfirmed === false) {
         navigate('/check-email', { replace: true, state: { email: user?.email } });
         return;
       }
