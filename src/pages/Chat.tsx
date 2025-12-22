@@ -552,7 +552,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] w-full mx-auto overflow-hidden">
+    <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {chat && (

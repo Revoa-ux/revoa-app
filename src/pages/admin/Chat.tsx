@@ -592,7 +592,7 @@ const AdminChat = () => {
 
   return (
     <>
-        <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+        <div className="flex h-full bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay on mobile, inline on desktop */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
