@@ -247,16 +247,16 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
       <div
         className={cn(
           'bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300 ease-in-out',
-          // Mobile/tablet: full width below header
-          'lg:border-l lg:border-gray-200 lg:dark:border-gray-700',
-          'lg:relative lg:flex-shrink-0',
+          'border-l border-gray-200 dark:border-gray-700',
+          'flex-shrink-0',
           // Responsive behavior
           isExpanded ? [
             'flex',
-            // Mobile/tablet: full width, absolute positioned below header
-            'absolute top-0 left-0 right-0 bottom-0 z-10',
-            'lg:relative lg:w-64 xl:w-80'
-          ] : 'flex w-0 border-0 opacity-0',
+            // Mobile/tablet: slide from right, overlay on top
+            'fixed inset-y-0 right-0 z-30 w-full sm:w-96',
+            // Desktop: normal sidebar
+            'lg:relative lg:z-0 lg:w-64 xl:w-80'
+          ] : 'w-0 border-0 opacity-0 hidden',
         )}
       >
         <div className="flex-1 overflow-y-auto">
@@ -311,23 +311,6 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                     </span>
                   )}
                 </div>
-
-                {/* Email */}
-                <button
-                  onClick={() => setShowUpdateEmailModal(true)}
-                  className="w-full mb-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 hover:border-gray-900 dark:hover:border-gray-400 transition-colors text-left group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      <Mail className="w-3.5 h-3.5" />
-                      <span>Email</span>
-                    </div>
-                    <Edit2 className="w-3 h-3 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors" />
-                  </div>
-                  <p className={`text-sm ${customerInfo.customer_email ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'} break-all`}>
-                    {customerInfo.customer_email || 'Not provided'}
-                  </p>
-                </button>
 
                 {/* Phone */}
                 <button

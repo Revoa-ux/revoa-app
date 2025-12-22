@@ -590,16 +590,7 @@ const AdminChat = () => {
   const displaySecondaryLine = companyName || storeUrl || userEmail;
 
   return (
-    <>
-        {/* Horizontal Conversation List - Mobile Only - Outside Main Container */}
-        {selectedChat && (
-          <HorizontalConversationList
-            chats={chats}
-            selectedChatId={selectedChat?.id || null}
-            onSelectChat={setSelectedChat}
-          />
-        )}
-
+    <div className="overflow-hidden">
         <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay that slides from left */}
           <div className={`
@@ -733,7 +724,7 @@ const AdminChat = () => {
                 {/* Menu button - toggle conversation list */}
                 <button
                   onClick={handleToggleConversationList}
-                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden"
+                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden flex-shrink-0"
                   title={showConversationList ? "Close conversations" : "Open conversations"}
                 >
                   {showConversationList ? (
@@ -742,13 +733,28 @@ const AdminChat = () => {
                     <List className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
-                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
-                  <div className="hidden sm:flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    <span title="User's current time">
-                      User's Current Time: {getUserCurrentTime()}
-                    </span>
+
+                {/* Horizontal Conversation List - Mobile Only */}
+                {selectedChat && (
+                  <div className="lg:hidden flex-1 min-w-0">
+                    <HorizontalConversationList
+                      chats={chats}
+                      selectedChatId={selectedChat?.id || null}
+                      onSelectChat={setSelectedChat}
+                    />
+                  </div>
+                )}
+
+                {/* Desktop view - User info */}
+                <div className="hidden lg:flex min-w-0 flex-1">
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
+                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
+                    <div className="hidden sm:flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      <span title="User's current time">
+                        User's Current Time: {getUserCurrentTime()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1357,7 +1363,7 @@ const AdminChat = () => {
             userId={selectedChat.user_id}
           />
         )}
-    </>
+    </div>
   );
 };
 
