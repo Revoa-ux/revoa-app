@@ -47,7 +47,10 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       return 'main-chat';
     }
     const orderNumber = selectedThread?.order_number;
-    return orderNumber ? orderNumber.replace(/^#/, '') : 'Thread';
+    if (orderNumber) {
+      return orderNumber.replace(/^#/, '');
+    }
+    return selectedThread?.title || 'Thread';
   };
 
   const getCurrentSubtitle = () => {
@@ -126,7 +129,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="truncate font-medium">{orderNumber || 'Thread'}</span>
+                          <span className="truncate font-medium">{orderNumber || thread.title}</span>
                           {tag && (
                             <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
                               {tagLabel}
