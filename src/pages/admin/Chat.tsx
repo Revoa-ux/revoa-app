@@ -234,8 +234,58 @@ const AdminChat = () => {
     if (!selectedChat || !selectedThreadId) return;
 
     const loadThreadMessages = async () => {
-      const msgs = await chatService.getThreadMessages(selectedThreadId);
-      setMessages(msgs);
+      const regularMessages = await chatService.getThreadMessages(selectedThreadId);
+
+      // Load flow messages from all sessions (including completed ones)
+      const { data: sessions } = await chatService.supabase
+        .from('thread_flow_sessions')
+        .select(`
+          *,
+          bot_flows (
+            name,
+            flow_definition
+          )
+        `)
+        .eq('thread_id', selectedThreadId)
+        .order('started_at', { ascending: true });
+
+      const flowMessages: Message[] = [];
+
+      if (sessions) {
+        for (const session of sessions) {
+          const flowState = session.flow_state || {};
+          const flowDefinition = session.bot_flows?.flow_definition;
+
+          // Convert each flow response to a message
+          for (const [nodeId, nodeData] of Object.entries(flowState)) {
+            if (nodeData && typeof nodeData === 'object' && 'response' in nodeData && 'timestamp' in nodeData) {
+              const node = flowDefinition?.nodes?.find((n: any) => n.id === nodeId);
+
+              flowMessages.push({
+                id: `flow-${session.id}-${nodeId}`,
+                content: node?.message || '',
+                type: 'text',
+                sender: 'team',
+                timestamp: new Date(nodeData.timestamp),
+                metadata: {
+                  isFlowMessage: true,
+                  flowSessionId: session.id,
+                  flowName: session.bot_flows?.name,
+                  flowCompleted: !!session.completed_at,
+                  flowActive: session.is_active
+                }
+              });
+            }
+          }
+        }
+      }
+
+      // Combine and sort by timestamp
+      const allMessages = [...regularMessages, ...flowMessages].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+
+      setMessages(allMessages);
     };
 
     loadThreadMessages();
@@ -921,7 +971,9 @@ const AdminChat = () => {
                   >
                     <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[85%] lg:max-w-[75%] xl:max-w-[65%]`}>
                       <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
-                        message.sender === 'team'
+                        message.metadata?.isFlowMessage
+                          ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
+                          : message.sender === 'team'
                           ? 'message-bubble-user text-white'
                           : (() => {
                               const currentThread = threads.find(t => t.id === selectedThreadId);
@@ -993,6 +1045,14 @@ const AdminChat = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col">
+                          {message.metadata?.isFlowMessage && (
+                            <div className="px-3 pt-2 pb-1 border-b border-gray-300 dark:border-gray-600">
+                              <div className="flex items-center gap-1.5">
+                                <Sparkles className="w-3 h-3" />
+                                <span className="text-xs font-medium">Automated Flow</span>
+                              </div>
+                            </div>
+                          )}
                           <div className="px-3 pt-2 pb-1.5">
                             {shouldFormatAsMarkdown(message.content) ? (
                               <div
@@ -1004,12 +1064,16 @@ const AdminChat = () => {
                             )}
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
-                            message.sender === 'team'
+                            message.metadata?.isFlowMessage
+                              ? 'bg-gray-300 dark:bg-gray-600 justify-end'
+                              : message.sender === 'team'
                               ? 'bg-[#e83653] justify-end'
                               : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
-                              message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
+                              message.metadata?.isFlowMessage
+                                ? 'text-gray-600 dark:text-gray-400'
+                                : message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
