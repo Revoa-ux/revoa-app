@@ -2355,7 +2355,7 @@ const SettingsPage = () => {
                       <img
                         src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
                         alt="Shopify"
-                        className="w-6 h-6 object-contain opacity-70 grayscale dark:opacity-100 dark:grayscale-0 dark:invert"
+                        className="w-7 h-7 object-contain opacity-70 grayscale dark:opacity-100 dark:grayscale-0 dark:invert"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
