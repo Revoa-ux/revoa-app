@@ -96,7 +96,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
             <button
               onClick={() => handleThreadSelect(null)}
               className={cn(
-                "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left",
+                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm transition-colors text-left",
                 !selectedThreadId
                   ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -125,7 +125,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                       key={thread.id}
                       onClick={() => handleThreadSelect(thread.id)}
                       className={cn(
-                        "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left mb-1",
+                        "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm transition-colors text-left mb-1",
                         selectedThreadId === thread.id
                           ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white font-medium"
                           : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
@@ -157,7 +157,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                   onCreateThread();
                   setIsOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
               >
                 <Plus className="w-4 h-4 flex-shrink-0" />
                 <span>Create New Thread</span>
