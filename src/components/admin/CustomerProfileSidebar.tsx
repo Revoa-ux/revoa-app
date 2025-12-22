@@ -131,14 +131,14 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
   };
 
   return (
-    <div className="absolute lg:relative right-0 inset-y-0 z-40 lg:z-0 w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300 ease-out">
+    <div className="max-sm:absolute sm:relative right-0 inset-y-0 max-sm:z-40 sm:z-0 w-80 border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col overflow-hidden transition-all duration-300 ease-out">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
           Customer Profile
         </h3>
         <button
           onClick={onClose}
-          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden"
+          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors sm:hidden"
         >
           <X className="w-5 h-5" />
         </button>
