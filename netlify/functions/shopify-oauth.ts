@@ -273,7 +273,14 @@ export const handler: Handler = async (event) => {
       console.error('[OAuth] Error registering webhook:', webhookError);
     }
 
-    await updateErrorByState(supabase, state, "");
+    // Mark the OAuth session as completed
+    await supabase
+      .from("oauth_sessions")
+      .update({
+        error: "",
+        completed_at: new Date().toISOString()
+      })
+      .eq("state", state);
 
     // Return HTML that closes the popup and notifies the parent window
     return {
