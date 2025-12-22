@@ -201,7 +201,7 @@ export default function AdminProfileEdit() {
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="flex space-x-8 px-6">
+          <div className="flex space-x-2 sm:space-x-8 px-3 sm:px-6">
             {[
               { id: 'profile', label: 'Profile', icon: User },
               { id: 'security', label: 'Security', icon: Lock },
@@ -210,14 +210,14 @@ export default function AdminProfileEdit() {
               <button
                 key={id}
                 onClick={() => setActiveTab(id as any)}
-                className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors ${
+                className={`flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-4 py-4 border-b-2 transition-colors ${
                   activeTab === id
                     ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="font-medium text-sm">{label}</span>
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium text-xs sm:text-sm whitespace-nowrap">{label}</span>
               </button>
             ))}
           </div>
