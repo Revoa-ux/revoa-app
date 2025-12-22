@@ -590,8 +590,30 @@ const AdminChat = () => {
   const displaySecondaryLine = companyName || storeUrl || userEmail;
 
   return (
-    <div className="overflow-hidden">
-        <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+    <>
+      {/* Horizontal Conversation List with Conversations Button - Mobile Only */}
+      <div className="lg:hidden mb-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggleConversationList}
+            className="flex-shrink-0 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            title="View all conversations"
+          >
+            <List className="w-5 h-5" />
+          </button>
+          {selectedChat && (
+            <div className="flex-1 min-w-0">
+              <HorizontalConversationList
+                chats={chats}
+                selectedChatId={selectedChat?.id || null}
+                onSelectChat={setSelectedChat}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay that slides from left */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
@@ -721,40 +743,13 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                {/* Menu button - toggle conversation list */}
-                <button
-                  onClick={handleToggleConversationList}
-                  className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden flex-shrink-0"
-                  title={showConversationList ? "Close conversations" : "Open conversations"}
-                >
-                  {showConversationList ? (
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  ) : (
-                    <List className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                </button>
-
-                {/* Horizontal Conversation List - Mobile Only */}
-                {selectedChat && (
-                  <div className="lg:hidden flex-1 min-w-0">
-                    <HorizontalConversationList
-                      chats={chats}
-                      selectedChatId={selectedChat?.id || null}
-                      onSelectChat={setSelectedChat}
-                    />
-                  </div>
-                )}
-
-                {/* Desktop view - User info */}
-                <div className="hidden lg:flex min-w-0 flex-1">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
-                    <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
-                    <div className="hidden sm:flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      <span title="User's current time">
-                        User's Current Time: {getUserCurrentTime()}
-                      </span>
-                    </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
+                  <div className="hidden sm:flex items-center space-x-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <span title="User's current time">
+                      User's Current Time: {getUserCurrentTime()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1238,11 +1233,12 @@ const AdminChat = () => {
       {selectedChat && selectedThreadId && (
         <CustomerProfileSidebar
           threadId={selectedThreadId}
+          userId={selectedChat.user_id}
           isExpanded={showUserProfile}
           onClose={() => setShowUserProfile(false)}
         />
       )}
-        </div>
+      </div>
 
         {showUploadModal && (
           <FileUploadModal
@@ -1363,7 +1359,7 @@ const AdminChat = () => {
             userId={selectedChat.user_id}
           />
         )}
-    </div>
+    </>
   );
 };
 
