@@ -2338,10 +2338,11 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
-                      <svg className="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M24.6 7.8l-1.2-3.6c-.2-.4-.6-.6-1-.6h-.2l-2.8.4c-.4-.4-.8-.6-1.2-.6h-.4c-.4 0-.8.2-1 .6-.2.2-.4.6-.4 1v.4l-1.8.2c-.4 0-.6.2-.8.4l-9 9c-.2.2-.4.6-.4.8 0 .4.2.6.4.8l7.8 7.8c.2.2.6.4.8.4.4 0 .6-.2.8-.4l9-9c.2-.2.4-.4.4-.8V7.8zm-5 3.6c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z" fill="#95BF47"/>
-                        <path d="M10.8 22.6l-2.4 2.4c-.2.2-.4.4-.8.4-.2 0-.6-.2-.8-.4L3 21.2c-.2-.2-.4-.6-.4-.8 0-.4.2-.6.4-.8l2.4-2.4 5.4 5.4z" fill="#5E8E3E"/>
-                      </svg>
+                      <img
+                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
+                        alt="Shopify"
+                        className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
@@ -2349,7 +2350,10 @@ const SettingsPage = () => {
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {shopifyStore.replace('https://', '').replace('.myshopify.com', '')}
                           {shopify.installation?.last_synced_at && (
-                            <span className="text-gray-400"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
+                            <span className="text-gray-400 hidden sm:inline"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
+                          )}
+                          {shopify.installation?.last_synced_at && (
+                            <span className="text-gray-400 sm:hidden"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
                           )}
                         </p>
                       )}
@@ -2360,23 +2364,29 @@ const SettingsPage = () => {
                       <button
                         onClick={handleSyncShopifyOrders}
                         disabled={shopifySyncing}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
                       >
-                        {shopifySyncing ? 'Syncing...' : 'Sync'}
+                        <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
                       </button>
                     )}
                     <button
                       onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
                       disabled={shopifyConnecting}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${
+                      className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                         integrationStatus.shopify
                           ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                          : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
+                      title={integrationStatus.shopify ? 'Disconnect' : 'Connect'}
                     >
-                      {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
+                      {shopifyConnecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : integrationStatus.shopify ? (
+                        <X className="w-4 h-4" />
+                      ) : (
                         <>
-                          Connect
+                          <span className="text-sm">Connect</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </>
                       )}
@@ -2389,7 +2399,7 @@ const SettingsPage = () => {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
-                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-6 h-6 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                     </div>
@@ -2399,7 +2409,10 @@ const SettingsPage = () => {
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {facebookAccounts[0].account_name}
                           {facebookAccounts[0].last_synced_at && (
-                            <span className="text-gray-400"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
+                            <span className="text-gray-400 hidden sm:inline"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
+                          )}
+                          {facebookAccounts[0].last_synced_at && (
+                            <span className="text-gray-400 sm:hidden"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
                           )}
                         </p>
                       )}
@@ -2410,27 +2423,38 @@ const SettingsPage = () => {
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
                       >
-                        {facebookSyncing ? 'Syncing...' : 'Sync'}
+                        <RefreshCw className={`w-4 h-4 ${facebookSyncing ? 'animate-spin' : ''}`} />
                       </button>
                       <button
                         onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookConnecting || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="p-2 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Disconnect"
                       >
-                        {facebookConnecting ? 'Loading...' : 'Disconnect'}
+                        {facebookConnecting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                     >
-                      {facebookConnecting ? 'Connecting...' : (
+                      {facebookConnecting ? (
                         <>
-                          Connect
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </>
                       )}
@@ -2439,7 +2463,7 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -2464,7 +2488,7 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
