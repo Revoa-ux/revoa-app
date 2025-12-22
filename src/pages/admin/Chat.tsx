@@ -592,21 +592,11 @@ const AdminChat = () => {
 
   return (
     <>
-        <div className="mb-6">
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Resolution Center
-          </h1>
-          <div className="flex items-start sm:items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{chats.length} active cases</p>
-          </div>
-        </div>
-
-        <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+        <div className="flex h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
           {/* Conversations List - Overlay on mobile, inline on desktop */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            fixed lg:relative inset-y-0 left-0 z-40 lg:z-0
+            absolute lg:relative inset-y-0 left-0 z-40 lg:z-0
             w-80 lg:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
@@ -1192,17 +1182,6 @@ const AdminChat = () => {
           threadId={selectedThreadId}
           isExpanded={showUserProfile}
           onClose={() => setShowUserProfile(false)}
-        />
-      )}
-
-      {/* Backdrop for mobile when sidebars are open */}
-      {(showConversationList || showUserProfile) && window.innerWidth < 1024 && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => {
-            setShowConversationList(false);
-            setShowUserProfile(false);
-          }}
         />
       )}
         </div>
