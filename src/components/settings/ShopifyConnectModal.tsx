@@ -267,17 +267,24 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
         <div className="p-6">
           <div className="text-center mb-6">
-            <div className="mx-auto flex items-center justify-center h-20 w-20 mb-4">
+            <div className="mx-auto flex items-center justify-center mb-4">
               {isSuccess ? (
-                <div className="w-full h-full rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                   <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
                 </div>
               ) : (
-                <img
-                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                  alt="Revoa Store Sync"
-                  className="w-full h-full object-contain dark:invert"
-                />
+                <>
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image.png"
+                    alt="Revoa Store Sync"
+                    className="w-full max-w-md object-contain dark:hidden"
+                  />
+                  <img
+                    src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image%20Dark%20Mode.png"
+                    alt="Revoa Store Sync"
+                    className="w-full max-w-md object-contain hidden dark:block"
+                  />
+                </>
               )}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">

@@ -205,7 +205,7 @@ export default function Layout() {
     };
   }, [user?.id]);
 
-  const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
+  const shopifyStore = shopify.installation?.store_url?.replace('https://', '').replace('.myshopify.com', '') || null;
 
   const getDisplayName = () => {
     if (userProfile?.display_name) {
