@@ -861,7 +861,7 @@ const AdminChat = () => {
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 pb-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {/* Escalation Banner - Shows when agent action is needed */}
               {selectedThreadId && (
                 <ThreadEscalationBanner
