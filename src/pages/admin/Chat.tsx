@@ -643,8 +643,9 @@ const AdminChat = () => {
     return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
-  // Display company/store name (no email)
-  const displaySecondaryLine = companyName || storeUrl;
+  // Display assigned admin name, then fallback to company/store name
+  const assignedAdminName = selectedChat?.admin_profile?.name;
+  const displaySecondaryLine = assignedAdminName ? `Assigned to: ${assignedAdminName}` : (companyName || storeUrl);
 
   return (
     <>
