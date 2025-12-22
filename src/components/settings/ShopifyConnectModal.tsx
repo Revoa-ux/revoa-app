@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HelpCircle, Link2, X } from 'lucide-react';
+import { HelpCircle, Link2, X, Check } from 'lucide-react';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -20,26 +20,39 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 }) => {
   const [shopUrl, setShopUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [checkInterval, setCheckInterval] = useState<NodeJS.Timeout | null>(null);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Watch connection store for Shopify changes
-  const { shopify } = useConnectionStore();
+  const { shopify, refreshShopifyStatus } = useConnectionStore();
 
   // Auto-close modal when Shopify gets connected
   useEffect(() => {
-    if (shopify.isConnected && isOpen) {
+    if (shopify.isConnected && isOpen && !isSuccess) {
       console.log('[ShopifyConnectModal] Connection detected, closing modal');
       if (checkInterval) {
         clearInterval(checkInterval);
         setCheckInterval(null);
       }
+      setIsSuccess(true);
       setIsLoading(false);
-      onSuccess(shopify.installation?.store_url || '');
-      onClose();
+
+      // Small delay to show success state before closing
+      setTimeout(() => {
+        onSuccess(shopify.installation?.store_url || '');
+        onClose();
+        // Reset states for next time
+        setTimeout(() => {
+          setIsSuccess(false);
+          setShopUrl('');
+          setHasError(false);
+          setErrorMessage('');
+        }, 300);
+      }, 800);
     }
-  }, [shopify.isConnected, isOpen]);
+  }, [shopify.isConnected, isOpen, isSuccess]);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
@@ -189,9 +202,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
-              // Trigger success callback and close modal
-              onSuccess(validDomain);
-              onClose();
+
+              // Refresh connection store to immediately update UI
+              console.log('[ShopifyConnectModal] Refreshing connection store...');
+              refreshShopifyStatus().then(() => {
+                console.log('[ShopifyConnectModal] Connection store refreshed');
+              });
+
               return;
             }
 
@@ -251,14 +268,23 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         <div className="p-6">
           <div className="text-center mb-6">
             <div className="mx-auto flex items-center justify-center h-20 w-20 mb-4">
-              <img
-                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-                alt="Revoa Store Sync"
-                className="w-full h-full object-contain dark:invert"
-              />
+              {isSuccess ? (
+                <div className="w-full h-full rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
+                </div>
+              ) : (
+                <img
+                  src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                  alt="Revoa Store Sync"
+                  className="w-full h-full object-contain dark:invert"
+                />
+              )}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Enter your .myshopify.com URL below. You can find your URL in Settings {'>'} Domains on Shopify.
+              {isSuccess
+                ? 'Store connected successfully!'
+                : 'Enter your .myshopify.com URL below. You can find your URL in Settings > Domains on Shopify.'
+              }
             </p>
           </div>
 

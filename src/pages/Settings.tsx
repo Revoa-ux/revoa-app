@@ -1556,10 +1556,24 @@ const SettingsPage = () => {
   };
 
   const handleShopifySuccess = async (storeUrl: string) => {
+    console.log('[Settings] Shopify connection successful:', storeUrl);
     setShowShopifyModal(false);
+    setShopifyConnecting(false);
 
-    // Immediately refresh the connection store to update UI
+    // Multiple refreshes to ensure UI updates
     await refreshShopifyStatus();
+
+    // Force a second refresh after a delay to catch any async DB updates
+    setTimeout(async () => {
+      await refreshShopifyStatus();
+      console.log('[Settings] Second refresh completed');
+    }, 500);
+
+    // Force a third refresh to be absolutely sure
+    setTimeout(async () => {
+      await refreshShopifyStatus();
+      console.log('[Settings] Final refresh completed');
+    }, 1500);
 
     toast.success('Shopify store connected successfully!');
   };
