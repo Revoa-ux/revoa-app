@@ -516,22 +516,11 @@ export default function Layout() {
 
       {/* Mobile bottom sheet - only below 500px */}
       {!isLargeScreen && (
-        <>
-          <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <div className="flex flex-col h-full overflow-y-auto">
-              {renderSidebarContent()}
-            </div>
-          </BottomSheet>
-
-          {/* Fixed Settings Button - Mobile Only */}
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="fixed bottom-6 right-6 z-30 w-14 h-14 bg-gray-900 dark:bg-gray-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center"
-            title="Open menu"
-          >
-            <Settings className="w-6 h-6" />
-          </button>
-        </>
+        <BottomSheet isOpen={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <div className="flex flex-col h-full overflow-y-auto">
+            {renderSidebarContent()}
+          </div>
+        </BottomSheet>
       )}
 
       {/* Main content area */}
