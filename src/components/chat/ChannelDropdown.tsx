@@ -47,13 +47,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       return 'main-chat';
     }
     const orderNumber = selectedThread?.order_number;
-    if (orderNumber) {
-      return orderNumber.replace(/^#/, '');
-    }
-    // Fallback to thread tag + customer name if no order number
-    const tag = selectedThread?.tag;
-    const tagLabel = tag ? TAG_LABELS[tag as keyof typeof TAG_LABELS] || tag : 'Thread';
-    return tagLabel;
+    return orderNumber ? orderNumber.replace(/^#/, '') : 'Thread';
   };
 
   const getCurrentSubtitle = () => {
@@ -117,8 +111,6 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                   const tag = thread.tag as keyof typeof TAG_COLORS;
                   const tagColor = TAG_COLORS[tag] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400';
                   const tagLabel = TAG_LABELS[tag] || tag;
-                  // Display order number or fallback to tag label
-                  const displayLabel = orderNumber ? orderNumber : (tagLabel || 'Thread');
 
                   return (
                     <button
@@ -134,7 +126,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                       <Hash className="w-4 h-4 flex-shrink-0" />
                       <div className="flex flex-col min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="truncate">{displayLabel}</span>
+                          <span className="truncate font-medium">{orderNumber || 'Thread'}</span>
                           {tag && (
                             <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
                               {tagLabel}
