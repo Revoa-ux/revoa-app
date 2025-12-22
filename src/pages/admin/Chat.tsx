@@ -48,6 +48,7 @@ import { ConversationalFlowContainer } from '@/components/chat/ConversationalFlo
 import { ThreadEscalationBanner } from '@/components/chat/ThreadEscalationBanner';
 import { flowTriggerService } from '@/lib/flowTriggerService';
 import { useConversationalFlow } from '@/hooks/useConversationalFlow';
+import { HorizontalConversationList } from '@/components/chat/HorizontalConversationList';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -786,6 +787,13 @@ const AdminChat = () => {
               </div>
             </div>
 
+            {/* Horizontal Conversation List - Mobile Only */}
+            <HorizontalConversationList
+              chats={chats}
+              selectedChatId={selectedChat?.id || null}
+              onSelectChat={setSelectedChat}
+            />
+
             {/* Flow Suggestion Banner */}
             {showFlowSuggestion && suggestedFlowId && !activeFlowSession?.is_active && (
               <div className="mx-4 sm:mx-6 mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
@@ -1067,9 +1075,9 @@ const AdminChat = () => {
             /> */}
 
             {/* Input */}
-            <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700">
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                <div className="min-h-[44px] p-3">
+                <div className="min-h-[40px] p-2.5">
                   {replyToMessage && (
                     <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
                       <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1153,6 +1161,13 @@ const AdminChat = () => {
               </div>
             </div>
           </>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E85B81]" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">Loading cases...</p>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900/50">
             <div className="text-center">

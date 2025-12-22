@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Hash, Plus, ChevronDown, MoreVertical, Trash2, RotateCcw } from 'lucide-react';
+import { Hash, Plus, ChevronDown, MoreVertical, Trash2, RotateCcw, X } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { cn } from '@/lib/utils';
 import { ChannelThread } from './ChannelTabs';
@@ -76,15 +76,15 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors max-w-[200px] sm:max-w-none"
       >
-        <Hash className="w-4 h-4 flex-shrink-0" />
-        <div className="flex flex-col min-w-0 text-left">
-          <span className="truncate">{getCurrentLabel()}</span>
-          <span className="text-xs text-gray-500 dark:text-gray-400 truncate">{getCurrentSubtitle()}</span>
+        <Hash className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+        <div className="flex flex-col min-w-0 text-left flex-1">
+          <span className="truncate text-xs sm:text-sm">{getCurrentLabel()}</span>
+          <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate hidden sm:block">{getCurrentSubtitle()}</span>
         </div>
         <ChevronDown className={cn(
-          "w-4 h-4 flex-shrink-0 transition-transform ml-1",
+          "w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 transition-transform",
           isOpen && "rotate-180"
         )} />
       </button>
@@ -92,6 +92,18 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
+            {/* Close button */}
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 px-3">Threads</span>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <button
               onClick={() => handleThreadSelect(null)}
               className={cn(
