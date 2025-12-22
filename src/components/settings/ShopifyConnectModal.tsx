@@ -295,7 +295,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
         <div className="p-6">
           <div className="text-center mb-6">
-            <div className="mx-auto flex items-center justify-center mb-4">
+            <div className="mx-auto flex items-center justify-center mb-4 h-32">
               {isSuccess ? (
                 <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                   <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
@@ -305,12 +305,12 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image.png"
                     alt="Revoa Store Sync"
-                    className="w-56 object-contain dark:hidden"
+                    className="w-56 h-32 object-contain dark:hidden"
                   />
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image%20Dark%20Mode.png"
                     alt="Revoa Store Sync"
-                    className="w-56 object-contain hidden dark:block"
+                    className="w-56 h-32 object-contain hidden dark:block"
                   />
                 </>
               )}
