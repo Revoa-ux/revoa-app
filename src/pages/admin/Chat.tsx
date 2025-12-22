@@ -568,9 +568,16 @@ const AdminChat = () => {
     }
   };
 
-  const userName = selectedChat?.user_profile?.name || 'User';
-  const userEmail = selectedChat?.user_profile?.email || '';
-  const companyName = selectedChat?.user_profile?.company || null;
+  const profile = selectedChat?.user_profile;
+  const userName = profile?.name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
+      : profile?.company ||
+        (selectedChat?.shopify_installations?.[0]?.store_url?.replace('https://', '').replace('.myshopify.com', '')) ||
+        profile?.email?.split('@')[0] ||
+        'User');
+  const userEmail = profile?.email || '';
+  const companyName = profile?.company || null;
   const storeUrl = selectedChat?.shopify_installations?.[0]?.store_url || null;
   const userCreatedAt = selectedChat?.user_profile?.created_at;
   const lastInteraction = selectedChat?.user_assignment?.last_interaction_at;
@@ -592,7 +599,7 @@ const AdminChat = () => {
   return (
     <>
       {/* Horizontal Conversation List with Conversations Button - Mobile Only */}
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden">
         <div className="flex items-center gap-2">
           <button
             onClick={handleToggleConversationList}
