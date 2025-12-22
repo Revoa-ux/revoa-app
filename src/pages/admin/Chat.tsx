@@ -586,8 +586,8 @@ const AdminChat = () => {
     return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
-  // Display company/store name instead of email
-  const displaySecondaryLine = companyName || storeUrl || userEmail;
+  // Display company/store name (no email)
+  const displaySecondaryLine = companyName || storeUrl;
 
   return (
     <>

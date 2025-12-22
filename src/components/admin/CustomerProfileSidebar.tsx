@@ -248,15 +248,19 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
         className={cn(
           'bg-white dark:bg-gray-800 flex-col overflow-hidden transition-all duration-300 ease-in-out',
           'border-l border-gray-200 dark:border-gray-700',
-          'flex-shrink-0',
+          'flex-shrink-0 flex',
           // Responsive behavior
           isExpanded ? [
-            'flex',
             // Mobile/tablet: slide from right, overlay on top
-            'fixed inset-y-0 right-0 z-30 w-full sm:w-96',
+            'fixed inset-y-0 right-0 z-30 w-full sm:w-96 translate-x-0',
             // Desktop: normal sidebar
             'lg:relative lg:z-0 lg:w-64 xl:w-80'
-          ] : 'w-0 border-0 opacity-0 hidden',
+          ] : [
+            // Mobile/tablet: slide off screen
+            'fixed inset-y-0 right-0 z-30 w-full sm:w-96 translate-x-full',
+            // Desktop: collapse to zero width
+            'lg:w-0 lg:border-0 lg:opacity-0 lg:translate-x-0'
+          ],
         )}
       >
         <div className="flex-1 overflow-y-auto">
