@@ -1843,7 +1843,7 @@ const SettingsPage = () => {
         onSuccess={handleShopifySuccess}
       />
 
-      <div className="max-w-[1050px] mx-auto px-4 sm:px-0">
+      <div className="max-w-[1050px] mx-auto px-0 sm:px-0">
       {/* Title Section */}
       <div className="mb-8">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
@@ -2188,49 +2188,8 @@ const SettingsPage = () => {
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
             </div>
-            
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <Languages className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Language</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{settings.language}</p>
-                    </div>
-                  </div>
-                  <div className="relative" ref={languageDropdownRef}>
-                    <button
-                      onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                      className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      <span>{settings.language}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    </button>
-                    
-                    {showLanguageDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['English', 'Spanish', 'French'].map((lang) => (
-                          <button
-                            key={lang}
-                            onClick={() => {
-                              setSettings(prev => ({ ...prev, language: lang }));
-                              setShowLanguageDropdown(false);
-                            }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          >
-                            <span>{lang}</span>
-                            {settings.language === lang && <Check className="w-4 h-4 text-primary-500" />}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
 
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -2250,7 +2209,7 @@ const SettingsPage = () => {
                       <span>{settings.currency}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
-                    
+
                     {showCurrencyDropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                         {['USD', 'EUR', 'GBP'].map((currency) => (
@@ -2264,53 +2223,6 @@ const SettingsPage = () => {
                           >
                             <span>{currency}</span>
                             {settings.currency === currency && <Check className="w-4 h-4 text-primary-500" />}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      {theme === 'dark' ? (
-                        <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      ) : (
-                        <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Theme</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {theme.charAt(0).toUpperCase() + theme.slice(1)} mode
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative" ref={themeDropdownRef}>
-                    <button
-                      onClick={() => setShowThemeDropdown(!showThemeDropdown)}
-                      className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      <span>{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    </button>
-
-                    {showThemeDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['light', 'dark', 'system'].map((themeOption) => (
-                          <button
-                            key={themeOption}
-                            onClick={() => {
-                              setTheme(themeOption as 'light' | 'dark' | 'system');
-                              setShowThemeDropdown(false);
-                            }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          >
-                            <span>{themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}</span>
-                            {theme === themeOption && <Check className="w-4 h-4 text-primary-500" />}
                           </button>
                         ))}
                       </div>
@@ -2422,21 +2334,20 @@ const SettingsPage = () => {
             </div>
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <img
-                        src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
-                        alt="Shopify"
-                        className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
-                      />
+              <div className="px-4 sm:px-6 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                      <svg className="w-6 h-6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24.6 7.8l-1.2-3.6c-.2-.4-.6-.6-1-.6h-.2l-2.8.4c-.4-.4-.8-.6-1.2-.6h-.4c-.4 0-.8.2-1 .6-.2.2-.4.6-.4 1v.4l-1.8.2c-.4 0-.6.2-.8.4l-9 9c-.2.2-.4.6-.4.8 0 .4.2.6.4.8l7.8 7.8c.2.2.6.4.8.4.4 0 .6-.2.8-.4l9-9c.2-.2.4-.4.4-.8V7.8zm-5 3.6c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1z" fill="#95BF47"/>
+                        <path d="M10.8 22.6l-2.4 2.4c-.2.2-.4.4-.8.4-.2 0-.6-.2-.8-.4L3 21.2c-.2-.2-.4-.6-.4-.8 0-.4.2-.6.4-.8l2.4-2.4 5.4 5.4z" fill="#5E8E3E"/>
+                      </svg>
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
                       {shopifyStore && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {shopifyStore}
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {shopifyStore.replace('https://', '').replace('.myshopify.com', '')}
                           {shopify.installation?.last_synced_at && (
                             <span className="text-gray-400"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
                           )}
@@ -2444,12 +2355,12 @@ const SettingsPage = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {integrationStatus.shopify && (
                       <button
                         onClick={handleSyncShopifyOrders}
                         disabled={shopifySyncing}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         {shopifySyncing ? 'Syncing...' : 'Sync'}
                       </button>
@@ -2457,7 +2368,7 @@ const SettingsPage = () => {
                     <button
                       onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
                       disabled={shopifyConnecting}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${
                         integrationStatus.shopify
                           ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
                           : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -2474,18 +2385,18 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="px-4 sm:px-6 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                       <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
                       {facebookAccounts.length > 0 && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {facebookAccounts[0].account_name}
                           {facebookAccounts[0].last_synced_at && (
                             <span className="text-gray-400"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
@@ -2495,18 +2406,18 @@ const SettingsPage = () => {
                     </div>
                   </div>
                   {integrationStatus.facebook ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         {facebookSyncing ? 'Syncing...' : 'Sync'}
                       </button>
                       <button
                         onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookConnecting || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         {facebookConnecting ? 'Loading...' : 'Disconnect'}
                       </button>
@@ -2515,7 +2426,7 @@ const SettingsPage = () => {
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
                     >
                       {facebookConnecting ? 'Connecting...' : (
                         <>
