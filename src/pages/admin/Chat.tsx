@@ -595,7 +595,7 @@ const AdminChat = () => {
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
             absolute inset-y-0 left-0 z-40
-            w-80 lg:w-96
+            w-full lg:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
@@ -603,7 +603,7 @@ const AdminChat = () => {
             h-full
           `}>
             {/* Header with close button */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[70px]">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</h3>
               <button
                 onClick={() => setShowConversationList(false)}
@@ -718,7 +718,7 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[90px]">
+            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 {/* Menu button - toggle conversation list */}
                 <button
@@ -839,7 +839,7 @@ const AdminChat = () => {
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {/* Escalation Banner - Shows when agent action is needed */}
               {selectedThreadId && (
                 <ThreadEscalationBanner

@@ -50,8 +50,14 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
     if (!selectedThreadId) {
       return 'main-chat';
     }
-    const orderNumber = selectedThread?.order_number || selectedThread?.order_id.slice(0, 8);
-    return orderNumber.replace(/^#/, '');
+    const orderNumber = selectedThread?.order_number;
+    if (orderNumber) {
+      return orderNumber.replace(/^#/, '');
+    }
+    // Fallback to thread tag + customer name if no order number
+    const tag = selectedThread?.tag;
+    const tagLabel = tag ? TAG_LABELS[tag as keyof typeof TAG_LABELS] || tag : 'Thread';
+    return tagLabel;
   };
 
   const getCurrentSubtitle = () => {
@@ -84,7 +90,7 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             <button
               onClick={() => handleThreadSelect(null)}
@@ -106,10 +112,12 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
               <>
                 <div className="my-2 border-t border-gray-200 dark:border-gray-700"></div>
                 {threads.map((thread) => {
-                  const orderNumber = thread.order_number || thread.order_id.slice(0, 8);
+                  const orderNumber = thread.order_number;
                   const tag = thread.tag as keyof typeof TAG_COLORS;
                   const tagColor = TAG_COLORS[tag] || 'bg-gray-500/10 text-gray-600 dark:text-gray-400';
                   const tagLabel = TAG_LABELS[tag] || tag;
+                  // Display order number or fallback to tag label
+                  const displayLabel = orderNumber ? orderNumber : (tagLabel || 'Thread');
 
                   return (
                     <div key={thread.id} className="relative group mb-1">
@@ -125,10 +133,12 @@ export const ChannelDropdown: React.FC<ChannelDropdownProps> = ({
                         <Hash className="w-4 h-4 flex-shrink-0" />
                         <div className="flex flex-col min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="truncate">{orderNumber}</span>
-                            <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
-                              {tagLabel}
-                            </span>
+                            <span className="truncate">{displayLabel}</span>
+                            {tag && (
+                              <span className={cn("px-1.5 py-0.5 text-xs rounded-md flex-shrink-0", tagColor)}>
+                                {tagLabel}
+                              </span>
+                            )}
                           </div>
                           <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                             {thread.customer_name || 'Guest Customer'}
