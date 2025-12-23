@@ -6,6 +6,7 @@ import { getShopifyAuthUrl } from '@/lib/shopify/auth';
 import { validateStoreUrl } from '@/lib/shopify/validation';
 import { supabase } from '@/lib/supabase';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { toast } from 'sonner';
 
 interface ShopifyConnectModalProps {
   isOpen: boolean;
@@ -55,6 +56,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     if (shopify.isConnected && isOpen && !isSuccess) {
       console.log('[ShopifyConnectModal] Connection detected, closing modal');
       console.log('[ShopifyConnectModal] Store URL:', shopify.installation?.store_url);
+      toast.success('🎉 Shopify connection detected by useEffect!', {
+        description: `Store: ${shopify.installation?.store_url}`
+      });
 
       if (checkInterval) {
         clearInterval(checkInterval);
@@ -66,6 +70,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       // Small delay to show success state before closing
       setTimeout(() => {
         console.log('[ShopifyConnectModal] Calling onSuccess and onClose');
+        toast.info('Closing modal from useEffect...');
         onSuccess(shopify.installation?.store_url || '');
         onClose();
         // Reset states for next time
@@ -155,19 +160,25 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         }
 
         // Set local loading and success states immediately (CRITICAL - don't wait for store)
+        toast.success('✓ postMessage received!', {
+          description: `Shop: ${event.data.shop}`
+        });
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
 
         // CRITICAL: Refresh connection store in background
         console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+        toast.info('Refreshing connection store...');
         await refreshShopifyStatus();
         console.log('[ShopifyConnectModal] Connection store refreshed');
+        toast.success('Connection store refreshed!');
 
         // The useEffect watching shopify.isConnected should trigger and close modal
         // But as a backup, directly close after a delay
         setTimeout(() => {
           console.log('[ShopifyConnectModal] Backup close after postMessage success');
+          toast.info('Backup close triggered (postMessage)');
           onClose();
           window.location.reload();
         }, 1000);
@@ -221,6 +232,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
           // CRITICAL: Refresh connection store in background
           console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+          toast.info('✓ localStorage event detected!', {
+            description: `Shop: ${data.shop}`
+          });
           await refreshShopifyStatus();
           console.log('[ShopifyConnectModal] Connection store refreshed');
 
@@ -228,6 +242,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           // But as a backup, directly close after a delay
           setTimeout(() => {
             console.log('[ShopifyConnectModal] Backup close after storage event');
+            toast.info('Backup close triggered (storage)');
             onClose();
             window.location.reload();
           }, 1000);
@@ -365,6 +380,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
           if (result && result.isConnected) {
             console.log('[ShopifyConnectModal Fallback] ✓✓✓ CONNECTION FOUND! Triggering success flow...');
+            toast.success('✓ Fallback polling detected connection!', {
+              description: `Store: ${result.installation?.store_url}`,
+              duration: 5000
+            });
             clearInterval(fallbackIntervalId);
 
             // Close popup if still open
@@ -387,6 +406,9 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             // But as a backup, also directly close after a delay
             setTimeout(() => {
               console.log('[ShopifyConnectModal Fallback] Backup close triggered');
+              toast.warning('Backup close triggered (fallback)', {
+                description: 'Closing modal and reloading...'
+              });
               onClose();
               window.location.reload();
             }, 1500);
@@ -492,6 +514,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
               // CRITICAL: Refresh connection store in background
               console.log('[ShopifyConnectModal Polling] Manually refreshing connection store...');
+              toast.success('✓ OAuth session polling detected connection!', {
+                description: `Completed at check #${pollAttempts}`,
+                duration: 5000
+              });
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal Polling] Connection store refreshed');
 
@@ -499,6 +525,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 // But as a backup, directly close after a delay
                 setTimeout(() => {
                   console.log('[ShopifyConnectModal Polling] Backup close after polling success');
+                  toast.info('Backup close triggered (polling)');
                   onClose();
                   window.location.reload();
                 }, 1000);
@@ -619,25 +646,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 </p>
               </div>
 
-              {/* Loading Actions */}
+              {/* Loading message only - button removed */}
               <div className="space-y-3">
-                <button
-                  onClick={handleManualConnectionCheck}
-                  disabled={isCheckingConnection}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-[#E11D48] text-[#E11D48] rounded-lg hover:bg-[#E11D48]/5 dark:hover:bg-[#E11D48]/10 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isCheckingConnection ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-[#E11D48] border-t-transparent rounded-full animate-spin"></div>
-                      Checking...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4" />
-                      Check Connection
-                    </>
-                  )}
-                </button>
+                <div className="text-center text-sm text-gray-500 dark:text-gray-400">
+                  Automatically checking connection status...
+                </div>
               </div>
             </>
           ) : (
