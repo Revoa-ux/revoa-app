@@ -196,8 +196,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (!authWindow) {
         console.error('Failed to open popup window - popup was blocked');
         setIsLoading(false);
-        setHasError(true);
-        setErrorMessage('Popup was blocked by your browser. Please allow popups and try again.');
+        // Don't show error - help section already mentions popup requirement
         return;
       }
       console.log('OAuth window opened successfully');
