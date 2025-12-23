@@ -142,33 +142,43 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[ConnectionStore] No user found for Shopify refresh');
+      console.error('[ConnectionStore] ✗ No user found for Shopify refresh');
       return;
     }
 
     console.log('[ConnectionStore] User ID:', user.id);
+    console.log('[ConnectionStore] User email:', user.email);
 
     set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
     try {
-      console.log('[ConnectionStore] Querying database for active installation...');
+      console.log('[ConnectionStore] About to call getActiveShopifyInstallation...');
       const installation = await getActiveShopifyInstallation(user.id);
-      console.log('[ConnectionStore] Query result:', installation);
+      console.log('[ConnectionStore] getActiveShopifyInstallation returned:', installation);
+
+      const isConnected = installation !== null;
 
       set({
         shopify: {
-          isConnected: installation !== null,
+          isConnected,
           installation,
           loading: false,
         },
       });
-      console.log('[ConnectionStore] \u2713 State updated - isConnected:', installation !== null);
+
+      console.log('[ConnectionStore] ===== STATE UPDATE COMPLETE =====');
+      console.log('[ConnectionStore] isConnected:', isConnected);
       console.log('[ConnectionStore] Store URL:', installation?.store_url);
+      console.log('[ConnectionStore] Installation ID:', installation?.id);
+
+      // Verify the state was actually set
+      const currentState = useConnectionStore.getState();
+      console.log('[ConnectionStore] Verified from store - isConnected:', currentState.shopify.isConnected);
       console.log('[ConnectionStore] ====================================');
     } catch (error) {
-      console.error('[ConnectionStore] \u2717 Error refreshing Shopify status:', error);
+      console.error('[ConnectionStore] ✗ Error refreshing Shopify status:', error);
       set(state => ({
         shopify: { ...state.shopify, loading: false }
       }));
