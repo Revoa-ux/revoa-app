@@ -553,6 +553,16 @@ const Chat = () => {
 
   return (
     <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
+      {/* Page Title - Hidden on mobile, visible on desktop */}
+      <div className="hidden lg:block mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Resolution Center
+        </h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          Get help with your orders and issues
+        </p>
+      </div>
+
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {chat && (
