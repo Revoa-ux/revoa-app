@@ -120,21 +120,6 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     emailConfirmed === false &&
     user.email;
 
-  // Debug logging
-  React.useEffect(() => {
-    if (user) {
-      console.log('[App] Route protection check:', {
-        pathname: location.pathname,
-        emailConfirmed,
-        shouldCheckEmail,
-        userEmail: user.email
-      });
-      if (shouldCheckEmail) {
-        toast.warning(`Redirecting to check-email. Email confirmed status: ${emailConfirmed}`);
-      }
-    }
-  }, [user, emailConfirmed, location.pathname, shouldCheckEmail]);
-
   if (shouldCheckEmail) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;
   }
