@@ -125,7 +125,6 @@ const AdminChat = () => {
   const [conversationSearch, setConversationSearch] = useState('');
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showConversationList, setShowConversationList] = useState(true);
-  const [isConversationListCollapsed, setIsConversationListCollapsed] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -140,26 +139,12 @@ const AdminChat = () => {
   const [showFlowSuggestion, setShowFlowSuggestion] = useState(false);
   const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '__no_thread__');
 
-  // Auto-collapse conversation list when client profile or customer sidebar opens
-  useEffect(() => {
-    const isDesktop = window.innerWidth >= 1024;
-    if (isDesktop && showUserProfile && !isConversationListCollapsed) {
-      setIsConversationListCollapsed(true);
-    }
-  }, [showUserProfile, isConversationListCollapsed]);
-
-  // Handle responsive behavior
+  // Handle responsive behavior - keep conversation list closed by default on all screen sizes
   useEffect(() => {
     const handleResize = () => {
-      const isLargeScreen = window.innerWidth >= 1024; // lg breakpoint
-      // On large screens, show conversation list and hide user profile by default
-      // On small screens, hide both sidebars to show chat area
-      if (isLargeScreen) {
-        setShowConversationList(true);
-      } else {
-        setShowConversationList(false);
-        setShowUserProfile(false);
-      }
+      // On all screen sizes, hide sidebars by default to show chat area
+      setShowConversationList(false);
+      setShowUserProfile(false);
     };
 
     handleResize(); // Initial check
@@ -729,136 +714,62 @@ const AdminChat = () => {
       </div>
 
       <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-          {/* Conversations List - Overlay on mobile, collapsible sidebar on desktop */}
+          {/* Conversations List - Slides in from left on all screen sizes */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
-            ${isConversationListCollapsed && showConversationList ? 'lg:w-16' : 'lg:w-96'}
-            absolute inset-y-0 left-0 z-40 lg:relative lg:translate-x-0
-            w-full
+            absolute inset-y-0 left-0 z-40
+            w-full sm:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
             transition-all duration-300 ease-in-out
             h-full
           `}>
-            {/* Header with close button (mobile) or chevron (desktop) */}
+            {/* Header with close button */}
             <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[70px]">
-              <h3 className={`text-sm font-semibold text-gray-900 dark:text-white transition-opacity duration-200 ${isConversationListCollapsed ? 'lg:opacity-0 lg:w-0 lg:overflow-hidden' : ''}`}>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Conversations
               </h3>
 
-              {/* Mobile: X button */}
+              {/* X button to close */}
               <button
                 onClick={() => setShowConversationList(false)}
-                className="lg:hidden p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
-
-              {/* Desktop: Chevron button */}
-              <button
-                onClick={() => setIsConversationListCollapsed(!isConversationListCollapsed)}
-                className="hidden lg:block p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title={isConversationListCollapsed ? 'Expand conversations' : 'Collapse conversations'}
-              >
-                {isConversationListCollapsed ? (
-                  <ChevronRight className="w-5 h-5" />
-                ) : (
-                  <ChevronLeft className="w-5 h-5" />
-                )}
-              </button>
             </div>
 
-            {/* Full conversation list - shown when not collapsed */}
-            {!isConversationListCollapsed && (
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <ConversationFilters
-                  filters={conversationFilters}
-                  onFiltersChange={setConversationFilters}
-                  searchTerm={conversationSearch}
-                  onSearchChange={setConversationSearch}
-                />
+            {/* Conversation filters and list */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <ConversationFilters
+                filters={conversationFilters}
+                onFiltersChange={setConversationFilters}
+                searchTerm={conversationSearch}
+                onSearchChange={setConversationSearch}
+              />
 
-                {/* Full conversation list */}
-                <div className="flex-1 overflow-y-auto">
-                  {isLoading ? (
-                    <ConversationListSkeleton />
-                  ) : chats.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-32 text-center px-4">
-                      <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
-                    </div>
-                  ) : (
-                    chats.map((chat) => (
-                      <ConversationListItem
-                        key={chat.id}
-                        chat={chat}
-                        isSelected={selectedChat?.id === chat.id}
-                        onClick={() => setSelectedChat(chat)}
-                      />
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Mini collapsed view - shown when collapsed */}
-            {isConversationListCollapsed && (
-              <div className="flex-1 overflow-y-auto pt-2">
-                {chats.map((chat, index) => {
-                  const profile = chat.user_profile;
-                  const userName = profile?.name ||
-                    profile?.company ||
-                      (chat.shopify_installations && chat.shopify_installations.length > 0
-                        ? chat.shopify_installations[0].store_url.replace('https://', '').replace('.myshopify.com', '')
-                        : profile?.email?.split('@')[0] || 'User');
-
-                  const getInitials = (name: string) => {
-                    if (!name || name === 'User') {
-                      return 'U';
-                    }
-                    const parts = name.split(' ').filter(p => p.length > 0);
-                    if (parts.length >= 2) {
-                      return (parts[0][0] + parts[1][0]).toUpperCase();
-                    }
-                    return name.substring(0, 2).toUpperCase();
-                  };
-
-                  const isSelected = selectedChat?.id === chat.id;
-
-                  return (
-                    <button
+              {/* Conversation list */}
+              <div className="flex-1 overflow-y-auto">
+                {isLoading ? (
+                  <ConversationListSkeleton />
+                ) : chats.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+                    <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
+                  </div>
+                ) : (
+                  chats.map((chat) => (
+                    <ConversationListItem
                       key={chat.id}
+                      chat={chat}
+                      isSelected={selectedChat?.id === chat.id}
                       onClick={() => setSelectedChat(chat)}
-                      className={`relative w-full flex flex-col items-center py-2 group transition-all duration-200 ${
-                        isSelected
-                          ? 'bg-gray-100 dark:bg-gray-700/50'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
-                      }`}
-                      title={userName}
-                    >
-                      {isSelected && (
-                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
-                      )}
-                      <div className="relative">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 backdrop-blur-sm flex items-center justify-center">
-                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
-                            {getInitials(userName)}
-                          </span>
-                        </div>
-                        {chat.unread_count_admin > 0 && (
-                          <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-white">
-                              {chat.unread_count_admin > 9 ? '9+' : chat.unread_count_admin}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                    />
+                  ))
+                )}
               </div>
-            )}
+            </div>
           </div>
 
       {/* Hidden code - keeping for reference but not rendering */}
@@ -939,6 +850,15 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                {/* Button to open conversation list */}
+                <button
+                  onClick={handleToggleConversationList}
+                  className="flex-shrink-0 p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  title="View all conversations"
+                >
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
                   <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{displaySecondaryLine}</p>
