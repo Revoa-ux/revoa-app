@@ -164,19 +164,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         await refreshShopifyStatus();
         console.log('[ShopifyConnectModal] Connection store refreshed');
 
-        // Give the store a moment to propagate changes, then reload
+        // The useEffect watching shopify.isConnected should trigger and close modal
+        // But as a backup, directly close after a delay
         setTimeout(() => {
-          console.log('[ShopifyConnectModal] Calling onSuccess and closing modal');
-          // Call onSuccess callback
-          onSuccessRef.current(event.data.shop);
-
-          // Close the modal
-          onCloseRef.current();
-
-          // Reload page to refresh all UI with new connection state
-          console.log('[ShopifyConnectModal] Reloading page to update UI...');
+          console.log('[ShopifyConnectModal] Backup close after postMessage success');
+          onClose();
           window.location.reload();
-        }, 500);
+        }, 1000);
 
       } else if (event.data.type === 'shopify:error') {
         console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
@@ -230,19 +224,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           await refreshShopifyStatus();
           console.log('[ShopifyConnectModal] Connection store refreshed');
 
-          // Give the store a moment to propagate changes, then reload
+          // The useEffect watching shopify.isConnected should trigger and close modal
+          // But as a backup, directly close after a delay
           setTimeout(() => {
-            console.log('[ShopifyConnectModal] Calling onSuccess and closing modal via storage');
-            // Call onSuccess callback
-            onSuccessRef.current(data.shop);
-
-            // Close modal
-            onCloseRef.current();
-
-            // Reload page
-            console.log('[ShopifyConnectModal] Reloading page via storage event...');
+            console.log('[ShopifyConnectModal] Backup close after storage event');
+            onClose();
             window.location.reload();
-          }, 500);
+          }, 1000);
         } catch (err) {
           console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
         }
@@ -369,32 +357,39 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
         try {
           const result = await refreshShopifyStatus();
+          console.log('[ShopifyConnectModal Fallback] Result:', {
+            success: result?.success,
+            isConnected: result?.isConnected,
+            storeUrl: result?.installation?.store_url
+          });
+
           if (result && result.isConnected) {
-            console.log('[ShopifyConnectModal Fallback] ✓ Connection detected!');
+            console.log('[ShopifyConnectModal Fallback] ✓✓✓ CONNECTION FOUND! Triggering success flow...');
             clearInterval(fallbackIntervalId);
 
-            // Stop polling
-            if (checkInterval) {
-              clearInterval(checkInterval);
-              setCheckInterval(null);
+            // Close popup if still open
+            try {
+              if (authWindow && !authWindow.closed) {
+                console.log('[ShopifyConnectModal Fallback] Closing OAuth popup...');
+                authWindow.close();
+              }
+            } catch (e) {
+              console.log('[ShopifyConnectModal Fallback] Could not close popup (might be already closed)');
             }
 
-            // Set success state
+            // Set success state - this should trigger the useEffect that watches shopify.isConnected
+            console.log('[ShopifyConnectModal Fallback] Setting success state...');
             setIsLoading(false);
             setIsSuccess(true);
             setHasError(false);
 
-            // Close popup
-            if (authWindow && !authWindow.closed) {
-              authWindow.close();
-            }
-
-            // Wait a moment then reload
+            // The useEffect at line 51-80 should now trigger and close the modal
+            // But as a backup, also directly close after a delay
             setTimeout(() => {
-              onSuccessRef.current(result.installation?.store_url || validDomain);
-              onCloseRef.current();
+              console.log('[ShopifyConnectModal Fallback] Backup close triggered');
+              onClose();
               window.location.reload();
-            }, 800);
+            }, 1500);
           } else if (fallbackCheckCount >= maxFallbackChecks) {
             console.log('[ShopifyConnectModal Fallback] ✗ Max checks reached without success');
             clearInterval(fallbackIntervalId);
@@ -500,19 +495,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal Polling] Connection store refreshed');
 
-                // Give the store a moment to propagate changes, then reload
+                // The useEffect watching shopify.isConnected should trigger and close modal
+                // But as a backup, directly close after a delay
                 setTimeout(() => {
-                  console.log('[ShopifyConnectModal Polling] Calling onSuccess and closing modal');
-                  // Call onSuccess callback
-                  onSuccessRef.current(validDomain);
-
-                  // Close modal
-                  onCloseRef.current();
-
-                  // Reload page
-                  console.log('[ShopifyConnectModal Polling] Reloading page...');
+                  console.log('[ShopifyConnectModal Polling] Backup close after polling success');
+                  onClose();
                   window.location.reload();
-                }, 500);
+                }, 1000);
               });
 
               return;
