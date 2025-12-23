@@ -10,6 +10,7 @@ interface FlowTemplateDisplayProps {
   orderId?: string;
   userId?: string;
   onCopied?: () => void;
+  isAdminView?: boolean;
 }
 
 export function FlowTemplateDisplay({
@@ -19,6 +20,7 @@ export function FlowTemplateDisplay({
   orderId,
   userId,
   onCopied,
+  isAdminView = false,
 }: FlowTemplateDisplayProps) {
   const [isPopulated, setIsPopulated] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -244,47 +246,51 @@ export function FlowTemplateDisplay({
           </div>
         </div>
 
-        {/* Action Button */}
-        {!isPopulated ? (
-          <button
-            onClick={handlePopulate}
-            disabled={isLoading}
-            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <>
-                <div className="flex gap-1">
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                </div>
-                <span>Populating email...</span>
-              </>
+        {/* Action Button - Hidden for admin view */}
+        {!isAdminView && (
+          <>
+            {!isPopulated ? (
+              <button
+                onClick={handlePopulate}
+                disabled={isLoading}
+                className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="flex gap-1">
+                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span>Populating email...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Populate Email</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  </>
+                )}
+              </button>
             ) : (
-              <>
-                <span>Populate Email</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </>
+              <button
+                onClick={handleCopy}
+                disabled={isCopied}
+                className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Copy to Clipboard</span>
+                  </>
+                )}
+              </button>
             )}
-          </button>
-        ) : (
-          <button
-            onClick={handleCopy}
-            disabled={isCopied}
-            className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-700 hover:bg-gray-900 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isCopied ? (
-              <>
-                <Check className="w-4 h-4" />
-                <span>Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                <span>Copy to Clipboard</span>
-              </>
-            )}
-          </button>
+          </>
         )}
       </div>
     </div>

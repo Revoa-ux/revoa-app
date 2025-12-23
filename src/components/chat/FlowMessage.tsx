@@ -739,6 +739,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
             orderId={orderId || undefined}
             userId={userId || undefined}
             onCopied={() => handleTemplateCopied(recommendedTemplates[0].id)}
+            isAdminView={isAdminView}
           />
         )}
 
@@ -765,8 +766,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           </div>
         )}
 
-        {/* Flow Continuation Options */}
-        {isActive && node.type === 'completion' && templateCopied && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
+        {/* Flow Continuation Options - Hidden for admin view */}
+        {!isAdminView && isActive && node.type === 'completion' && templateCopied && !showCloseOff && !showContinuationOptions && recommendedTemplates.length > 0 && (
           <div className="mt-4">
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
@@ -799,8 +800,8 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
           </div>
         )}
 
-        {/* Show related flows if user needs more help */}
-        {showContinuationOptions && suggestedFlows.length > 0 && (
+        {/* Show related flows if user needs more help - Hidden for admin view */}
+        {!isAdminView && showContinuationOptions && suggestedFlows.length > 0 && (
           <div className="mt-4">
             <div className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg">
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
