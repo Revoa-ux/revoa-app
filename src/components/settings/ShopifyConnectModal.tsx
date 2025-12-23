@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Info, Link2, X, Check, ChevronDown, RefreshCw } from 'lucide-react';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import GlassCard from '@/components/GlassCard';
@@ -30,6 +30,16 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
   // Watch connection store for Shopify changes
   const { shopify, refreshShopifyStatus } = useConnectionStore();
+
+  // Use refs to hold stable references to callbacks to avoid recreating message listener
+  const onSuccessRef = useRef(onSuccess);
+  const onCloseRef = useRef(onClose);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onCloseRef.current = onClose;
+  }, [onSuccess, onClose]);
 
   // Auto-expand help section when error occurs
   useEffect(() => {
@@ -84,10 +94,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
       if (result && result.isConnected) {
         console.log('[ShopifyConnectModal] Manual check found connection!');
-        setIsSuccess(true);
-        setIsLoading(false);
-        setHasError(false);
-        setErrorMessage('');
 
         // Stop any polling
         if (checkInterval) {
@@ -99,11 +105,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           setAutoCheckTimeout(null);
         }
 
-        // Close modal and reload page immediately
-        console.log('[ShopifyConnectModal] Manual check - closing modal and reloading page...');
-        onSuccess(result.installation?.store_url || '');
-        onClose();
-        setTimeout(() => window.location.reload(), 100);
+        // Call onSuccess callback
+        onSuccessRef.current(result.installation?.store_url || '');
+
+        // Close modal
+        onCloseRef.current();
+
+        // Reload page immediately
+        console.log('[ShopifyConnectModal] Manual check - reloading page...');
+        window.location.reload();
       } else {
         console.log('[ShopifyConnectModal] Manual check - not connected yet');
         setIsCheckingConnection(false);
@@ -144,36 +154,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           console.log('[ShopifyConnectModal] Cleared auto-check timeout');
         }
 
-        // Update UI state immediately to show success
-        setIsLoading(false);
-        setIsSuccess(true);
-        setHasError(false);
-        setErrorMessage('');
+        // Call onSuccess callback
+        onSuccessRef.current(event.data.shop);
 
-        // Refresh connection store and close modal immediately
-        console.log('[ShopifyConnectModal] Refreshing connection store...');
-        refreshShopifyStatus().then(() => {
-          console.log('[ShopifyConnectModal] Connection store refreshed successfully');
-          console.log('[ShopifyConnectModal] Closing modal and triggering page reload...');
+        // Close the modal
+        onCloseRef.current();
 
-          // Call onSuccess callback
-          onSuccess(event.data.shop);
-
-          // Close the modal
-          onClose();
-
-          // Force a page reload to update all UI components with the new connection state
-          // This ensures sidebar, settings page, and all other components reflect the connection
-          setTimeout(() => {
-            console.log('[ShopifyConnectModal] Reloading page to update UI...');
-            window.location.reload();
-          }, 100);
-        }).catch(err => {
-          console.error('[ShopifyConnectModal] Error refreshing connection store:', err);
-          // Still try to reload the page to update UI
-          onClose();
-          setTimeout(() => window.location.reload(), 100);
-        });
+        // Reload page immediately to refresh all UI with new connection state
+        console.log('[ShopifyConnectModal] Reloading page to update UI...');
+        window.location.reload();
 
       } else if (event.data.type === 'shopify:error') {
         console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
@@ -214,24 +203,18 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             setAutoCheckTimeout(null);
           }
 
-          // Update UI
-          setIsLoading(false);
-          setIsSuccess(true);
-          setHasError(false);
-          setErrorMessage('');
-
-          // Refresh connection store
-          console.log('[ShopifyConnectModal] Refreshing connection store via storage event...');
-          await refreshShopifyStatus();
-
           // Clean up localStorage
           localStorage.removeItem('shopify_oauth_success');
 
-          // Close modal and reload page immediately
-          console.log('[ShopifyConnectModal] Closing modal and reloading page...');
-          onSuccess(data.shop);
-          onClose();
-          setTimeout(() => window.location.reload(), 100);
+          // Call onSuccess callback
+          onSuccessRef.current(data.shop);
+
+          // Close modal
+          onCloseRef.current();
+
+          // Reload page immediately
+          console.log('[ShopifyConnectModal] Reloading page via storage event...');
+          window.location.reload();
         } catch (err) {
           console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
         }
@@ -279,7 +262,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         clearTimeout(autoCheckTimeout);
       }
     };
-  }, [checkInterval, autoCheckTimeout, onSuccess, onClose, refreshShopifyStatus]);
+  }, []); // No dependencies - stable listener that uses refs for callbacks
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -441,27 +424,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // Show success state immediately
-              console.log('[ShopifyConnectModal Polling] Setting success state');
-              setIsSuccess(true);
-              setIsLoading(false);
-              setHasError(false);
-              setErrorMessage('');
+              // Call onSuccess callback
+              onSuccessRef.current(validDomain);
 
-              // Refresh connection store in background
-              console.log('[ShopifyConnectModal Polling] Refreshing connection store...');
-              refreshShopifyStatus().then(() => {
-                console.log('[ShopifyConnectModal Polling] Connection store refreshed successfully');
+              // Close modal
+              onCloseRef.current();
 
-                // Close modal and reload page immediately
-                console.log('[ShopifyConnectModal Polling] Closing modal and reloading page...');
-                onSuccess(validDomain);
-                onClose();
-                setTimeout(() => window.location.reload(), 100);
-              }).catch(err => {
-                console.error('[ShopifyConnectModal Polling] Error refreshing connection store:', err);
-                // Still show success - user can manually close or refresh
-              });
+              // Reload page immediately
+              console.log('[ShopifyConnectModal Polling] Reloading page...');
+              window.location.reload();
 
               return;
             }
@@ -580,13 +551,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
               {/* Loading Actions */}
               <div className="space-y-3">
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-300">
-                  <p className="font-medium mb-1">Waiting for authorization...</p>
-                  <p className="text-blue-700 dark:text-blue-400">
-                    If the popup closed, click the button below to check if connection was established.
-                  </p>
-                </div>
-
                 <button
                   onClick={handleManualConnectionCheck}
                   disabled={isCheckingConnection}
