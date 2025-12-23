@@ -64,21 +64,44 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   };
 
   useEffect(() => {
-    const messageHandler = (event: MessageEvent) => {
+    const messageHandler = async (event: MessageEvent) => {
       if (event.data.type === 'shopify:success') {
-        console.log('[ShopifyConnectModal] Received success message from popup');
+        console.log('[ShopifyConnectModal] ✓ OAuth Success message received!');
+        console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+
         setIsLoading(false);
+        setIsSuccess(true);
         setHasError(false);
+        setErrorMessage('');
+
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
-        onSuccess(event.data.shop);
-        onClose();
+
+        // Force refresh the connection store to pick up the new installation
+        await refreshShopifyStatus();
+        console.log('[ShopifyConnectModal] Connection store refreshed');
+
+        // Give the store a moment to update, then close modal
+        setTimeout(() => {
+          console.log('[ShopifyConnectModal] Closing modal with store:', event.data.shop);
+          onSuccess(event.data.shop);
+          onClose();
+
+          // Reset states after modal closes
+          setTimeout(() => {
+            setIsSuccess(false);
+            setShopUrl('');
+            setHasError(false);
+            setErrorMessage('');
+          }, 300);
+        }, 500);
       } else if (event.data.type === 'shopify:error') {
-        console.log('[ShopifyConnectModal] Received error message from popup');
+        console.log('[ShopifyConnectModal] ✗ OAuth Error received:', event.data.error);
         setIsLoading(false);
         setHasError(true);
+        setErrorMessage(event.data.error || 'Failed to connect to Shopify');
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
@@ -93,7 +116,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         clearInterval(checkInterval);
       }
     };
-  }, [checkInterval, onSuccess, onClose]);
+  }, [checkInterval, onSuccess, onClose, refreshShopifyStatus]);
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
