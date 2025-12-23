@@ -850,10 +850,10 @@ const AdminChat = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-                {/* Button to open conversation list */}
+                {/* Button to open conversation list - Hidden on mobile since horizontal list has its own button */}
                 <button
                   onClick={handleToggleConversationList}
-                  className="flex-shrink-0 p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="hidden lg:flex flex-shrink-0 p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   title="View all conversations"
                 >
                   <List className="w-4 h-4 sm:w-5 sm:h-5" />
