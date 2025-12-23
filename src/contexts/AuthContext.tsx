@@ -17,7 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;
-  emailConfirmed: boolean;
+  emailConfirmed: boolean | undefined;
   refreshEmailConfirmed: () => Promise<void>;
 }
 
@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const [emailConfirmed, setEmailConfirmed] = useState(false);
+  const [emailConfirmed, setEmailConfirmed] = useState<boolean | undefined>(undefined);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,11 +89,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (profileError) {
                 console.error('[AuthContext] Error fetching user profile:', profileError);
-                // Don't reset states on error - preserve existing state
-              } else {
+                // Leave emailConfirmed as undefined to indicate data not loaded
+              } else if (profile) {
                 console.log('[AuthContext] User profile:', profile);
-                setHasCompletedOnboarding(profile?.onboarding_completed || false);
-                setEmailConfirmed(profile?.email_confirmed || false);
+                setHasCompletedOnboarding(profile.onboarding_completed || false);
+                // Explicitly set to true/false based on database value
+                setEmailConfirmed(profile.email_confirmed === true);
+              } else {
+                // Profile is null - user might not have a profile yet
+                console.warn('[AuthContext] No profile found for user');
+                setEmailConfirmed(false);
               }
             }
           } catch (err) {
@@ -150,11 +155,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN/TOKEN_REFRESHED:', error);
-                // Don't reset states on error - preserve existing state
-              } else {
+                // Leave emailConfirmed as undefined to indicate data not loaded
+              } else if (profile) {
                 console.log('[AuthContext] Profile:', profile);
-                setHasCompletedOnboarding(profile?.onboarding_completed || false);
-                setEmailConfirmed(profile?.email_confirmed || false);
+                setHasCompletedOnboarding(profile.onboarding_completed || false);
+                // Explicitly set to true/false based on database value
+                setEmailConfirmed(profile.email_confirmed === true);
+              } else {
+                // Profile is null - user might not have a profile yet
+                console.warn('[AuthContext] No profile found for user on SIGNED_IN');
+                setEmailConfirmed(false);
               }
             }
           } catch (err) {
@@ -252,7 +262,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .maybeSingle();
 
       if (profile) {
-        setEmailConfirmed(profile.email_confirmed || false);
+        setEmailConfirmed(profile.email_confirmed === true);
+      } else {
+        setEmailConfirmed(false);
       }
     } catch (err) {
       console.error('[AuthContext] Error refreshing email confirmed status:', err);

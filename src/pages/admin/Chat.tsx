@@ -48,6 +48,7 @@ import { ConversationalFlowContainer } from '@/components/chat/ConversationalFlo
 import { ThreadEscalationBanner } from '@/components/chat/ThreadEscalationBanner';
 import { flowTriggerService } from '@/lib/flowTriggerService';
 import { useConversationalFlow } from '@/hooks/useConversationalFlow';
+import { HorizontalConversationList } from '@/components/chat/HorizontalConversationList';
 
 const getDateLabel = (date: Date): string => {
   const today = new Date();
@@ -163,6 +164,21 @@ const AdminChat = () => {
     }
   }, [selectedChat]);
 
+  // Smart sidebar management: on mobile, opening one closes the other
+  const handleToggleConversationList = () => {
+    if (!showConversationList && showUserProfile) {
+      setShowUserProfile(false);
+    }
+    setShowConversationList(!showConversationList);
+  };
+
+  const handleToggleUserProfile = () => {
+    if (!showUserProfile && showConversationList) {
+      setShowConversationList(false);
+    }
+    setShowUserProfile(!showUserProfile);
+  };
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -218,8 +234,58 @@ const AdminChat = () => {
     if (!selectedChat || !selectedThreadId) return;
 
     const loadThreadMessages = async () => {
-      const msgs = await chatService.getThreadMessages(selectedThreadId);
-      setMessages(msgs);
+      const regularMessages = await chatService.getThreadMessages(selectedThreadId);
+
+      // Load flow messages from all sessions (including completed ones)
+      const { data: sessions } = await chatService.supabase
+        .from('thread_flow_sessions')
+        .select(`
+          *,
+          bot_flows (
+            name,
+            flow_definition
+          )
+        `)
+        .eq('thread_id', selectedThreadId)
+        .order('started_at', { ascending: true });
+
+      const flowMessages: Message[] = [];
+
+      if (sessions) {
+        for (const session of sessions) {
+          const flowState = session.flow_state || {};
+          const flowDefinition = session.bot_flows?.flow_definition;
+
+          // Convert each flow response to a message
+          for (const [nodeId, nodeData] of Object.entries(flowState)) {
+            if (nodeData && typeof nodeData === 'object' && 'response' in nodeData && 'timestamp' in nodeData) {
+              const node = flowDefinition?.nodes?.find((n: any) => n.id === nodeId);
+
+              flowMessages.push({
+                id: `flow-${session.id}-${nodeId}`,
+                content: node?.message || '',
+                type: 'text',
+                sender: 'team',
+                timestamp: new Date(nodeData.timestamp),
+                metadata: {
+                  isFlowMessage: true,
+                  flowSessionId: session.id,
+                  flowName: session.bot_flows?.name,
+                  flowCompleted: !!session.completed_at,
+                  flowActive: session.is_active
+                }
+              });
+            }
+          }
+        }
+      }
+
+      // Combine and sort by timestamp
+      const allMessages = [...regularMessages, ...flowMessages].sort(
+        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+      );
+
+      setMessages(allMessages);
     };
 
     loadThreadMessages();
@@ -310,9 +376,12 @@ const AdminChat = () => {
     };
   }, [selectedChat, selectedThreadId]);
 
-  // Auto-open sidebar when switching to order thread
+  // Don't auto-open sidebar on mobile to avoid blocking chat
   useEffect(() => {
     if (!selectedThreadId) return;
+
+    const isLargeScreen = window.innerWidth >= 1024;
+    if (!isLargeScreen) return; // Skip auto-open on mobile
 
     const currentThread = threads.find(t => t.id === selectedThreadId);
     if (currentThread?.order_id) {
@@ -549,9 +618,16 @@ const AdminChat = () => {
     }
   };
 
-  const userName = selectedChat?.user_profile?.name || 'User';
-  const userEmail = selectedChat?.user_profile?.email || '';
-  const companyName = selectedChat?.user_profile?.company || null;
+  const profile = selectedChat?.user_profile;
+  const userName = profile?.name ||
+    (profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
+      : profile?.company ||
+        (selectedChat?.shopify_installations?.[0]?.store_url?.replace('https://', '').replace('.myshopify.com', '')) ||
+        profile?.email?.split('@')[0] ||
+        'User');
+  const userEmail = profile?.email || '';
+  const companyName = profile?.company || null;
   const storeUrl = selectedChat?.shopify_installations?.[0]?.store_url || null;
   const userCreatedAt = selectedChat?.user_profile?.created_at;
   const lastInteraction = selectedChat?.user_assignment?.last_interaction_at;
@@ -567,35 +643,57 @@ const AdminChat = () => {
     return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
-  // Display company/store name instead of email
-  const displaySecondaryLine = companyName || storeUrl || userEmail;
+  // Display assigned admin name, then fallback to company/store name
+  const assignedAdminName = selectedChat?.admin_profile?.name;
+  const displaySecondaryLine = assignedAdminName ? `Assigned to: ${assignedAdminName}` : (companyName || storeUrl);
 
   return (
     <>
-        <div className="mb-6">
-          <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
-            Resolution Center
-          </h1>
-          <div className="flex items-start sm:items-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{chats.length} active cases</p>
-          </div>
+      {/* Horizontal Conversation List with Conversations Button - Mobile Only */}
+      <div className="lg:hidden">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggleConversationList}
+            className="flex-shrink-0 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            title="View all conversations"
+          >
+            <List className="w-5 h-5" />
+          </button>
+          {selectedChat && (
+            <div className="flex-1 min-w-0">
+              <HorizontalConversationList
+                chats={chats}
+                selectedChatId={selectedChat?.id || null}
+                onSelectChat={setSelectedChat}
+              />
+            </div>
+          )}
         </div>
+      </div>
 
-        <div className="flex h-[calc(100vh-8rem)] sm:h-[calc(100vh-8.5rem)] lg:h-[calc(100vh-9rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-          {/* Conversations List - Overlay on mobile, fixed on desktop */}
+      <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+          {/* Conversations List - Overlay that slides from left */}
           <div className={`
-            ${showConversationList ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            fixed lg:relative inset-y-0 left-0 z-30 lg:z-0
-            w-80 lg:w-96
+            ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
+            absolute inset-y-0 left-0 z-40
+            w-full lg:w-96
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
             transition-transform duration-300 ease-in-out
-            lg:transition-none
             h-full
-            ${!showConversationList ? 'lg:flex' : ''}
           `}>
+            {/* Header with close button */}
+            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[70px]">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</h3>
+              <button
+                onClick={() => setShowConversationList(false)}
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <ConversationFilters
               filters={conversationFilters}
               onFiltersChange={setConversationFilters}
@@ -701,7 +799,7 @@ const AdminChat = () => {
         {selectedChat ? (
           <>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[90px]">
+            <div className="flex items-center justify-between px-4 sm:px-6 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
               <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
                 <div className="min-w-0 flex-1">
                   <h2 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">{userName}</h2>
@@ -714,14 +812,6 @@ const AdminChat = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
-                {/* Menu button - toggle conversation list on mobile */}
-                <button
-                  onClick={() => setShowConversationList(!showConversationList)}
-                  className="lg:hidden p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  title="Toggle conversations"
-                >
-                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
 
                 <ChannelDropdown
                   threads={threads}
@@ -756,7 +846,7 @@ const AdminChat = () => {
 
                 {/* Info button - toggle user profile sidebar */}
                 <button
-                  onClick={() => setShowUserProfile(!showUserProfile)}
+                  onClick={handleToggleUserProfile}
                   className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                     showUserProfile
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
@@ -822,7 +912,7 @@ const AdminChat = () => {
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 pb-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {/* Escalation Banner - Shows when agent action is needed */}
               {selectedThreadId && (
                 <ThreadEscalationBanner
@@ -882,7 +972,9 @@ const AdminChat = () => {
                   >
                     <div className={`flex ${message.sender === 'team' ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-[85%] lg:max-w-[75%] xl:max-w-[65%]`}>
                       <div className={`${message.type === 'text' ? 'max-w-full' : 'max-w-md'} ${
-                        message.sender === 'team'
+                        message.metadata?.isFlowMessage
+                          ? 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600'
+                          : message.sender === 'team'
                           ? 'message-bubble-user text-white'
                           : (() => {
                               const currentThread = threads.find(t => t.id === selectedThreadId);
@@ -954,6 +1046,14 @@ const AdminChat = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col">
+                          {message.metadata?.isFlowMessage && (
+                            <div className="px-3 pt-2 pb-1 border-b border-gray-300 dark:border-gray-600">
+                              <div className="flex items-center gap-1.5">
+                                <Sparkles className="w-3 h-3" />
+                                <span className="text-xs font-medium">Automated Flow</span>
+                              </div>
+                            </div>
+                          )}
                           <div className="px-3 pt-2 pb-1.5">
                             {shouldFormatAsMarkdown(message.content) ? (
                               <div
@@ -965,12 +1065,16 @@ const AdminChat = () => {
                             )}
                           </div>
                           <div className={`px-2 py-1.5 -mx-px -mb-px flex items-center ${
-                            message.sender === 'team'
+                            message.metadata?.isFlowMessage
+                              ? 'bg-gray-300 dark:bg-gray-600 justify-end'
+                              : message.sender === 'team'
                               ? 'bg-[#e83653] justify-end'
                               : 'bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600'
                           }`}>
                             <span className={`text-[8px] leading-none ${
-                              message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
+                              message.metadata?.isFlowMessage
+                                ? 'text-gray-600 dark:text-gray-400'
+                                : message.sender === 'team' ? 'text-white/90' : 'text-gray-600 dark:text-gray-400'
                             }`}>
                               {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
@@ -991,7 +1095,7 @@ const AdminChat = () => {
                             ref={messageActionsRef}
                             className="fixed bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 py-1 z-[9999] min-w-[140px]"
                             style={{
-                              top: messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0,
+                              top: (messageRefs.current[message.id]?.getBoundingClientRect().bottom || 0) + 4,
                               right: window.innerWidth - (messageRefs.current[message.id]?.getBoundingClientRect().right || 0)
                             }}
                           >
@@ -1050,9 +1154,9 @@ const AdminChat = () => {
             /> */}
 
             {/* Input */}
-            <div className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="px-3 sm:px-4 lg:px-6 py-2 sm:py-3 border-t border-gray-200 dark:border-gray-700">
               <div className="relative bg-gray-50 dark:bg-gray-900/50 rounded-xl">
-                <div className="min-h-[44px] p-3">
+                <div className="min-h-[40px] p-2.5">
                   {replyToMessage && (
                     <div className="mb-2 p-2 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-400 dark:border-gray-500 rounded flex items-start gap-2">
                       <Reply className="w-4 h-4 text-gray-500 dark:text-gray-400 mt-0.5 flex-shrink-0" />
@@ -1136,6 +1240,48 @@ const AdminChat = () => {
               </div>
             </div>
           </>
+        ) : isLoading ? (
+          <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
+            <div className="space-y-4 animate-pulse">
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-64">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-48">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Team message skeleton */}
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-56">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* User message skeleton */}
+              <div className="flex justify-end">
+                <div className="flex items-end gap-2 max-w-[85%] lg:max-w-[75%]">
+                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg p-3 w-52">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2" />
+                    <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-2/3" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-900/50">
             <div className="text-center">
@@ -1152,28 +1298,19 @@ const AdminChat = () => {
         <CollapsibleClientProfile
           userId={selectedChat.user_id}
           isExpanded={showUserProfile}
+          onClose={() => setShowUserProfile(false)}
         />
       )}
 
       {selectedChat && selectedThreadId && (
         <CustomerProfileSidebar
           threadId={selectedThreadId}
+          userId={selectedChat.user_id}
           isExpanded={showUserProfile}
           onClose={() => setShowUserProfile(false)}
         />
       )}
-
-      {/* Backdrop for mobile when sidebars are open */}
-      {(showConversationList || showUserProfile) && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
-          onClick={() => {
-            setShowConversationList(false);
-            setShowUserProfile(false);
-          }}
-        />
-      )}
-        </div>
+      </div>
 
         {showUploadModal && (
           <FileUploadModal

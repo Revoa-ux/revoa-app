@@ -34,6 +34,11 @@ export interface Message {
     nonce?: string;
     signature?: string;
     senderPublicKey?: string;
+    isFlowMessage?: boolean;
+    flowSessionId?: string;
+    flowName?: string;
+    flowCompleted?: boolean;
+    flowActive?: boolean;
   };
 }
 

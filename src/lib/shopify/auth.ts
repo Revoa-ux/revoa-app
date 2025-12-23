@@ -78,6 +78,14 @@ export const getShopifyAuthUrl = async (shopDomain: string): Promise<string> => 
     localStorage.setItem('shopify_state', state);
     localStorage.setItem('shopify_shop', normalizedDomain);
 
+    // CRITICAL: Delete any existing OAuth sessions for this user/shop to avoid polling wrong session
+    console.debug('Cleaning up old OAuth sessions for user:', session.user.id, 'shop:', normalizedDomain);
+    await supabase
+      .from('oauth_sessions')
+      .delete()
+      .eq('user_id', session.user.id)
+      .eq('shop_domain', normalizedDomain);
+
     // Store pending OAuth session in database
     const { error: oauthError } = await supabase
       .from('oauth_sessions')

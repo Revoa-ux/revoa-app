@@ -13,8 +13,8 @@ import {
   Sparkles,
   Mail,
   Package,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeft,
+  PanelRight,
   Table2,
   Database,
   Cpu,
@@ -205,7 +205,7 @@ export default function Layout() {
     };
   }, [user?.id]);
 
-  const shopifyStore = shopify.installation?.store_url?.replace('.myshopify.com', '') || null;
+  const shopifyStore = shopify.installation?.store_url?.replace('https://', '').replace('.myshopify.com', '') || null;
 
   const getDisplayName = () => {
     if (userProfile?.display_name) {
@@ -246,54 +246,52 @@ export default function Layout() {
 
   const renderSidebarContent = () => (
     <>
-      {/* Logo and Collapse Button */}
-      {effectiveCollapsed ? (
-        <div className="py-8 px-2 flex flex-col items-center gap-3 relative z-10">
-          <div className="w-10 h-10 relative">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
-              alt="Logo"
-              className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
-            />
-          </div>
-          {isLargeScreen && (
+      {/* Logo and Collapse Button - Only show on desktop */}
+      {isLargeScreen && (
+        effectiveCollapsed ? (
+          <div className="py-5 px-2 flex flex-col items-center gap-2 relative z-10">
+            <div className="w-10 h-10 relative">
+              <img
+                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
+                alt="Logo"
+                className="w-full h-full object-contain dark:invert dark:brightness-0 dark:contrast-200"
+              />
+            </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
               title="Expand sidebar"
             >
-              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <PanelRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
-          )}
-        </div>
-      ) : (
-        <div className="py-8 px-4 flex items-center justify-between">
-          <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
-              alt="Logo"
-              className="w-full h-full object-contain dark:hidden"
-            />
-            <img
-              src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
-              alt="Logo"
-              className="w-full h-full object-contain hidden dark:block"
-            />
           </div>
-          {isLargeScreen && (
+        ) : (
+          <div className="py-5 px-4 flex items-center justify-between">
+            <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
+              <img
+                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
+                alt="Logo"
+                className="w-full h-full object-contain dark:hidden"
+              />
+              <img
+                src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20White.png"
+                alt="Logo"
+                className="w-full h-full object-contain hidden dark:block"
+              />
+            </div>
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Collapse sidebar"
             >
-              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <PanelLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
-          )}
-        </div>
+          </div>
+        )
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 border-b border-y border-gray-100/50 dark:border-gray-700/50">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-b border-y border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-0.5">
           {navigation.map((item) => {
             const Icon = item.icon;

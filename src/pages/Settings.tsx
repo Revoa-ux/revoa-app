@@ -1556,10 +1556,24 @@ const SettingsPage = () => {
   };
 
   const handleShopifySuccess = async (storeUrl: string) => {
+    console.log('[Settings] Shopify connection successful:', storeUrl);
     setShowShopifyModal(false);
+    setShopifyConnecting(false);
 
-    // Immediately refresh the connection store to update UI
+    // Multiple refreshes to ensure UI updates
     await refreshShopifyStatus();
+
+    // Force a second refresh after a delay to catch any async DB updates
+    setTimeout(async () => {
+      await refreshShopifyStatus();
+      console.log('[Settings] Second refresh completed');
+    }, 500);
+
+    // Force a third refresh to be absolutely sure
+    setTimeout(async () => {
+      await refreshShopifyStatus();
+      console.log('[Settings] Final refresh completed');
+    }, 1500);
 
     toast.success('Shopify store connected successfully!');
   };
@@ -1843,7 +1857,7 @@ const SettingsPage = () => {
         onSuccess={handleShopifySuccess}
       />
 
-      <div className="max-w-[1050px] mx-auto px-4 sm:px-0">
+      <div className="max-w-[1050px] mx-auto px-0 sm:px-0">
       {/* Title Section */}
       <div className="mb-8">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
@@ -2188,49 +2202,8 @@ const SettingsPage = () => {
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-medium text-gray-900 dark:text-white">Preferences</h2>
             </div>
-            
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <Languages className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Language</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{settings.language}</p>
-                    </div>
-                  </div>
-                  <div className="relative" ref={languageDropdownRef}>
-                    <button
-                      onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                      className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      <span>{settings.language}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    </button>
-                    
-                    {showLanguageDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['English', 'Spanish', 'French'].map((lang) => (
-                          <button
-                            key={lang}
-                            onClick={() => {
-                              setSettings(prev => ({ ...prev, language: lang }));
-                              setShowLanguageDropdown(false);
-                            }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          >
-                            <span>{lang}</span>
-                            {settings.language === lang && <Check className="w-4 h-4 text-primary-500" />}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
 
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
               <div className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -2250,7 +2223,7 @@ const SettingsPage = () => {
                       <span>{settings.currency}</span>
                       <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                     </button>
-                    
+
                     {showCurrencyDropdown && (
                       <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
                         {['USD', 'EUR', 'GBP'].map((currency) => (
@@ -2264,53 +2237,6 @@ const SettingsPage = () => {
                           >
                             <span>{currency}</span>
                             {settings.currency === currency && <Check className="w-4 h-4 text-primary-500" />}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      {theme === 'dark' ? (
-                        <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      ) : (
-                        <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Theme</h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {theme.charAt(0).toUpperCase() + theme.slice(1)} mode
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative" ref={themeDropdownRef}>
-                    <button
-                      onClick={() => setShowThemeDropdown(!showThemeDropdown)}
-                      className="flex items-center space-x-1 text-sm text-gray-700 dark:text-gray-300"
-                    >
-                      <span>{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                    </button>
-
-                    {showThemeDropdown && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
-                        {['light', 'dark', 'system'].map((themeOption) => (
-                          <button
-                            key={themeOption}
-                            onClick={() => {
-                              setTheme(themeOption as 'light' | 'dark' | 'system');
-                              setShowThemeDropdown(false);
-                            }}
-                            className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          >
-                            <span>{themeOption.charAt(0).toUpperCase() + themeOption.slice(1)}</span>
-                            {theme === themeOption && <Check className="w-4 h-4 text-primary-500" />}
                           </button>
                         ))}
                       </div>
@@ -2422,50 +2348,59 @@ const SettingsPage = () => {
             </div>
 
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div className="px-4 sm:px-6 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
                       <img
                         src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Shopify%20logo%20black.png"
                         alt="Shopify"
-                        className="w-6 h-6 object-contain grayscale dark:grayscale-0 dark:invert dark:brightness-0 dark:contrast-200"
+                        className="w-7 h-7 object-contain grayscale dark:grayscale-0 dark:invert"
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Shopify Store</h3>
                       {shopifyStore && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {shopifyStore}
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {shopifyStore.replace('https://', '').replace('.myshopify.com', '')}
                           {shopify.installation?.last_synced_at && (
-                            <span className="text-gray-400"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
+                            <span className="text-gray-400 hidden sm:inline"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
+                          )}
+                          {shopify.installation?.last_synced_at && (
+                            <span className="text-gray-400 sm:hidden"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
                           )}
                         </p>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {integrationStatus.shopify && (
                       <button
                         onClick={handleSyncShopifyOrders}
                         disabled={shopifySyncing}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
                       >
-                        {shopifySyncing ? 'Syncing...' : 'Sync'}
+                        <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
                       </button>
                     )}
                     <button
                       onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
                       disabled={shopifyConnecting}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                         integrationStatus.shopify
                           ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                          : 'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
+                      title={integrationStatus.shopify ? 'Disconnect' : 'Connect'}
                     >
-                      {shopifyConnecting ? 'Loading...' : integrationStatus.shopify ? 'Disconnect' : (
+                      {shopifyConnecting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : integrationStatus.shopify ? (
+                        <X className="w-4 h-4" />
+                      ) : (
                         <>
-                          Connect
+                          <span className="text-sm">Connect</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </>
                       )}
@@ -2474,52 +2409,66 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <svg className="w-5 h-5 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+              <div className="px-4 sm:px-6 py-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                      <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-medium text-gray-900 dark:text-white">Facebook Ads</h3>
                       {facebookAccounts.length > 0 && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {facebookAccounts[0].account_name}
                           {facebookAccounts[0].last_synced_at && (
-                            <span className="text-gray-400"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
+                            <span className="text-gray-400 hidden sm:inline"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
+                          )}
+                          {facebookAccounts[0].last_synced_at && (
+                            <span className="text-gray-400 sm:hidden"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
                           )}
                         </p>
                       )}
                     </div>
                   </div>
                   {integrationStatus.facebook ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookSyncing || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Sync"
                       >
-                        {facebookSyncing ? 'Syncing...' : 'Sync'}
+                        <RefreshCw className={`w-4 h-4 ${facebookSyncing ? 'animate-spin' : ''}`} />
                       </button>
                       <button
                         onClick={() => facebookAccounts[0] && handleDisconnectFacebook(facebookAccounts[0].platform_account_id)}
                         disabled={facebookConnecting || facebookAccounts.length === 0}
-                        className="px-3 py-1.5 text-sm text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Disconnect"
                       >
-                        {facebookConnecting ? 'Loading...' : 'Disconnect'}
+                        {facebookConnecting ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <X className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   ) : (
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                     >
-                      {facebookConnecting ? 'Connecting...' : (
+                      {facebookConnecting ? (
                         <>
-                          Connect
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Connecting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Connect</span>
                           <ChevronRight className="w-3.5 h-3.5" />
                         </>
                       )}
@@ -2528,11 +2477,11 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <svg className="w-6 h-6 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -2553,11 +2502,11 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-4 opacity-60">
+              <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <svg className="w-6 h-6 text-gray-700 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                       </svg>
                     </div>

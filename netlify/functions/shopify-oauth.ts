@@ -218,7 +218,9 @@ export const handler: Handler = async (event) => {
     }
 
     // Now insert the new installation record
-    const { error: installError } = await supabase
+    console.log('[OAuth] Inserting shopify_installation for user:', oauthSession.user_id);
+    console.log('[OAuth] Store URL:', shop);
+    const { data: insertData, error: installError } = await supabase
     .from("shopify_installations")
     .insert({
       user_id: oauthSession.user_id,
@@ -226,13 +228,15 @@ export const handler: Handler = async (event) => {
       access_token,
       scopes: scope.split(","),
       status: "installed",
+      uninstalled_at: null, // Explicitly set to NULL
       installed_at: new Date().toISOString(),
       last_auth_at: new Date().toISOString(),
       metadata: {
         install_count: 1,
         last_install: new Date().toISOString(),
       },
-    });
+    })
+    .select();
 
     if (installError) {
       const errorText = `Error saving Shopify installation: ${installError ?? 'Unknown error'}`;
@@ -244,6 +248,9 @@ export const handler: Handler = async (event) => {
         body: getErrorHTML('Installation Failed', 'Could not save your Shopify installation. Please try again.'),
       };
     }
+
+    console.log('[OAuth] ✓ Installation record created successfully');
+    console.log('[OAuth] Installation data:', insertData);
 
     // Register webhooks
     try {
@@ -273,9 +280,29 @@ export const handler: Handler = async (event) => {
       console.error('[OAuth] Error registering webhook:', webhookError);
     }
 
-    await updateErrorByState(supabase, state, "");
+    // Mark the OAuth session as completed
+    console.log('[OAuth] Marking OAuth session as completed');
+    const completedAt = new Date().toISOString();
+    const { error: sessionUpdateError } = await supabase
+      .from("oauth_sessions")
+      .update({
+        error: "",
+        completed_at: completedAt
+      })
+      .eq("state", state);
+
+    if (sessionUpdateError) {
+      console.error('[OAuth] ✗ Failed to update OAuth session:', sessionUpdateError);
+    } else {
+      console.log('[OAuth] ✓ OAuth session marked as completed at:', completedAt);
+    }
 
     // Return HTML that closes the popup and notifies the parent window
+    console.log('[OAuth] ========== SHOPIFY OAUTH COMPLETE ==========');
+    console.log('[OAuth] User ID:', oauthSession.user_id);
+    console.log('[OAuth] Store:', shop);
+    console.log('[OAuth] Returning success HTML to close popup');
+
     return {
       statusCode: 200,
       headers: {

@@ -16,7 +16,8 @@ import {
   ChevronDown,
   FileText,
   Receipt,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -25,6 +26,7 @@ import { ActiveQuotesModal } from './ActiveQuotesModal';
 interface CollapsibleClientProfileProps {
   userId: string;
   isExpanded: boolean;
+  onClose?: () => void;
 }
 
 interface ProfileData {
@@ -62,7 +64,8 @@ interface MetricsData {
 
 export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> = ({
   userId,
-  isExpanded
+  isExpanded,
+  onClose
 }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [metrics, setMetrics] = useState<MetricsData>({
@@ -331,7 +334,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
   if (loading) {
     return (
-      <div className="fixed lg:relative right-0 inset-y-0 z-30 lg:z-0 w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col animate-in slide-in-from-right duration-300">
+      <div className="absolute inset-0 lg:relative lg:inset-auto right-0 lg:w-80 z-40 lg:z-0 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col">
         <div className="flex items-center justify-center h-full">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 dark:border-white" />
         </div>
@@ -340,7 +343,32 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
   }
 
   return (
-    <div className="fixed lg:relative right-0 inset-y-0 z-30 lg:z-0 w-80 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden relative animate-in slide-in-from-right duration-300 ease-out">
+    <div
+      className={`
+        absolute inset-0 lg:relative lg:inset-auto right-0 z-40 lg:z-0
+        bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700
+        flex flex-col overflow-hidden
+        transition-all duration-300 ease-in-out
+        ${isExpanded
+          ? 'translate-x-0 lg:w-80 opacity-100'
+          : 'translate-x-full lg:translate-x-0 lg:w-0 lg:opacity-0 lg:border-0'
+        }
+      `}
+      style={{
+        willChange: isExpanded ? 'auto' : 'width, opacity, transform'
+      }}
+    >
+      {/* Header with close button - matches chat header height */}
+      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px]">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Client Profile</h3>
+        <button
+          onClick={onClose}
+          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {/* Overview Section */}
         <div className="px-4 pb-4 space-y-2">

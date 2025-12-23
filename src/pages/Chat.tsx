@@ -552,17 +552,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-full w-full mx-auto overflow-x-hidden">
-      <div className="mb-4 sm:mb-6 flex-shrink-0 px-1">
-        <h1 className="text-xl sm:text-2xl font-normal text-gray-900 dark:text-white mb-2">
-          Resolution Center
-        </h1>
-        <div className="flex items-start sm:items-center space-x-2">
-          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Get help with your orders and issues</p>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
         {/* Thread Sidebar - Full Height */}
         {chat && (
@@ -583,24 +573,23 @@ const Chat = () => {
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
           {/* Header - Only spans middle chat area */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
-              {/* Agent Info - Shows on larger screens when there's space */}
-              <div className="hidden lg:flex items-center space-x-3 min-w-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 flex-shrink-0">
-                  <img
-                    src={adminAvatar}
-                    alt={adminName}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <h2 className="text-base font-medium text-gray-900 dark:text-white truncate">{adminName}</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Revoa Agent</p>
-                </div>
+            {/* Left: Agent Profile and Name */}
+            <div className="flex items-center space-x-3 min-w-0">
+              <img
+                src={adminAvatar}
+                alt={adminName}
+                className="w-8 h-8 rounded-full flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                  {adminName}
+                </h3>
               </div>
             </div>
-            <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
-              {/* Thread Dropdown - Available on all screens */}
+
+            {/* Right: Actions */}
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* Thread Dropdown */}
               <div ref={threadDropdownRef} className="relative flex-shrink-0">
                 <button
                   onClick={() => setShowThreadDropdown(!showThreadDropdown)}
@@ -622,7 +611,7 @@ const Chat = () => {
 
                 {/* Thread Dropdown Menu */}
                 {showThreadDropdown && (
-                  <div className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100] flex flex-col max-h-96">
                     {/* Scrollable thread list */}
                     <div className="flex-1 overflow-y-auto">
                       {/* Main Chat */}

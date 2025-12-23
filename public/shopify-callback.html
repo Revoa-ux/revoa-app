@@ -211,26 +211,52 @@
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // Notify parent window
+        // Notify parent window - send multiple times to ensure delivery
         if (window.opener && !window.opener.closed) {
-          console.log('Sending success message to parent window');
-          window.opener.postMessage({
+          console.log('[Shopify Callback] Sending success message to parent window');
+
+          const successMessage = {
             type: 'shopify:success',
             shop: shop,
-            data: result
-          }, '*');
+            data: result,
+            timestamp: Date.now()
+          };
+
+          // Send immediately
+          window.opener.postMessage(successMessage, '*');
+          console.log('[Shopify Callback] Success message sent #1');
+
+          // Send again after 100ms to ensure delivery
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(successMessage, '*');
+              console.log('[Shopify Callback] Success message sent #2');
+            }
+          }, 100);
+
+          // Send again after 300ms as final backup
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(successMessage, '*');
+              console.log('[Shopify Callback] Success message sent #3');
+            }
+          }, 300);
 
           // Also try to trigger a storage event as fallback
           localStorage.setItem('shopify_oauth_success', JSON.stringify({
             shop: shop,
             timestamp: Date.now()
           }));
+          console.log('[Shopify Callback] Set localStorage success flag');
+        } else {
+          console.warn('[Shopify Callback] No parent window available to send message');
         }
 
-        // Close window after delay
+        // Close window after longer delay to ensure message delivery
         setTimeout(() => {
+          console.log('[Shopify Callback] Closing popup window');
           window.close();
-        }, 1500);
+        }, 2500);
 
       } catch (error) {
         console.error('OAuth callback error:', error);
@@ -250,20 +276,39 @@
 
         // Notify parent window of error
         if (window.opener && !window.opener.closed) {
-          window.opener.postMessage({
+          console.log('[Shopify Callback] Sending error message to parent window');
+
+          const errorMessage = {
             type: 'shopify:error',
-            error: error.message || 'Failed to connect to Shopify'
-          }, '*');
+            error: error.message || 'Failed to connect to Shopify',
+            timestamp: Date.now()
+          };
+
+          // Send immediately
+          window.opener.postMessage(errorMessage, '*');
+          console.log('[Shopify Callback] Error message sent #1');
+
+          // Send again after 100ms to ensure delivery
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(errorMessage, '*');
+              console.log('[Shopify Callback] Error message sent #2');
+            }
+          }, 100);
 
           // Also set localStorage error as fallback
           localStorage.setItem('shopify_oauth_error', JSON.stringify({
             error: error.message,
             timestamp: Date.now()
           }));
+          console.log('[Shopify Callback] Set localStorage error flag');
+        } else {
+          console.warn('[Shopify Callback] No parent window available to send error');
         }
 
         // Close window after delay
         setTimeout(() => {
+          console.log('[Shopify Callback] Closing popup window after error');
           window.close();
         }, 5000);
       }

@@ -67,6 +67,9 @@ export default function TemplateSelector({
     setIsOpen(false);
   };
 
+  // Get first word for mobile display
+  const getFirstWord = (name: string) => name.split(' ')[0];
+
   return (
     <div className="relative">
       <button
@@ -75,7 +78,11 @@ export default function TemplateSelector({
         className="flex items-center space-x-2 h-[39px] px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        {/* Show first word only on mobile, full name on larger screens */}
+        <span className="sm:hidden text-sm font-medium text-gray-700 dark:text-gray-300">
+          {currentTemplateData ? getFirstWord(currentTemplateData.name) : 'Select'}
+        </span>
+        <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
           {currentTemplateData?.name || 'Select Template'}
         </span>
         <ChevronDown className="w-4 h-4 text-gray-400" />

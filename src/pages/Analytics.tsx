@@ -724,7 +724,7 @@ setCurrentTemplate(template);
 
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <TemplateSelector
             currentTemplate={currentTemplate}
             onTemplateChange={handleTemplateChange}
@@ -752,7 +752,7 @@ setCurrentTemplate(template);
           )}
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           <button
             className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             onClick={handleApplyDateRange}
