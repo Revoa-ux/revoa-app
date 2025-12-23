@@ -172,7 +172,7 @@ export default function ShopifyCallback() {
           console.log('[Shopify Callback] Set localStorage success flag');
         }
 
-        // Auto-close popup after showing success state
+        // Auto-close popup after brief delay to ensure messages are sent
         setTimeout(() => {
           console.log('[Shopify Callback] Auto-closing popup window...');
           if (window.opener && !window.opener.closed) {
@@ -182,7 +182,7 @@ export default function ShopifyCallback() {
             console.log('[Shopify Callback] No parent window, redirecting to settings');
             navigate('/settings');
           }
-        }, 2000);
+        }, 500);
 
       } catch (error) {
         console.error('[Callback] OAuth callback error:', error);

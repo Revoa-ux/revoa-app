@@ -94,20 +94,16 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
+        if (autoCheckTimeout) {
+          clearTimeout(autoCheckTimeout);
+          setAutoCheckTimeout(null);
+        }
 
-        // Auto-close after brief delay
-        setTimeout(() => {
-          onSuccess(result.installation?.store_url || '');
-          onClose();
-          setTimeout(() => {
-            setIsSuccess(false);
-            setShopUrl('');
-            setHasError(false);
-            setErrorMessage('');
-            setIsHelpExpanded(false);
-            setIsCheckingConnection(false);
-          }, 300);
-        }, 1500);
+        // Close modal and reload page immediately
+        console.log('[ShopifyConnectModal] Manual check - closing modal and reloading page...');
+        onSuccess(result.installation?.store_url || '');
+        onClose();
+        setTimeout(() => window.location.reload(), 100);
       } else {
         console.log('[ShopifyConnectModal] Manual check - not connected yet');
         setIsCheckingConnection(false);
@@ -154,29 +150,29 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         setHasError(false);
         setErrorMessage('');
 
-        // Refresh connection store in background
+        // Refresh connection store and close modal immediately
         console.log('[ShopifyConnectModal] Refreshing connection store...');
         refreshShopifyStatus().then(() => {
           console.log('[ShopifyConnectModal] Connection store refreshed successfully');
+          console.log('[ShopifyConnectModal] Closing modal and triggering page reload...');
 
-          // Try to auto-close modal after a brief delay
+          // Call onSuccess callback
+          onSuccess(event.data.shop);
+
+          // Close the modal
+          onClose();
+
+          // Force a page reload to update all UI components with the new connection state
+          // This ensures sidebar, settings page, and all other components reflect the connection
           setTimeout(() => {
-            console.log('[ShopifyConnectModal] Attempting auto-close');
-            onSuccess(event.data.shop);
-            onClose();
-
-            // Reset states after modal animation
-            setTimeout(() => {
-              setIsSuccess(false);
-              setShopUrl('');
-              setHasError(false);
-              setErrorMessage('');
-              setIsHelpExpanded(false);
-            }, 300);
-          }, 2000);
+            console.log('[ShopifyConnectModal] Reloading page to update UI...');
+            window.location.reload();
+          }, 100);
         }).catch(err => {
           console.error('[ShopifyConnectModal] Error refreshing connection store:', err);
-          // Still show success - user can manually close or refresh
+          // Still try to reload the page to update UI
+          onClose();
+          setTimeout(() => window.location.reload(), 100);
         });
 
       } else if (event.data.type === 'shopify:error') {
@@ -231,18 +227,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           // Clean up localStorage
           localStorage.removeItem('shopify_oauth_success');
 
-          // Auto-close after delay
-          setTimeout(() => {
-            onSuccess(data.shop);
-            onClose();
-            setTimeout(() => {
-              setIsSuccess(false);
-              setShopUrl('');
-              setHasError(false);
-              setErrorMessage('');
-              setIsHelpExpanded(false);
-            }, 300);
-          }, 2000);
+          // Close modal and reload page immediately
+          console.log('[ShopifyConnectModal] Closing modal and reloading page...');
+          onSuccess(data.shop);
+          onClose();
+          setTimeout(() => window.location.reload(), 100);
         } catch (err) {
           console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
         }
@@ -464,21 +453,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal Polling] Connection store refreshed successfully');
 
-                // Try to auto-close modal after brief success display
-                setTimeout(() => {
-                  console.log('[ShopifyConnectModal Polling] Attempting auto-close with store:', validDomain);
-                  onSuccess(validDomain);
-                  onClose();
-
-                  // Reset states
-                  setTimeout(() => {
-                    setIsSuccess(false);
-                    setShopUrl('');
-                    setHasError(false);
-                    setErrorMessage('');
-                    setIsHelpExpanded(false);
-                  }, 300);
-                }, 2000);
+                // Close modal and reload page immediately
+                console.log('[ShopifyConnectModal Polling] Closing modal and reloading page...');
+                onSuccess(validDomain);
+                onClose();
+                setTimeout(() => window.location.reload(), 100);
               }).catch(err => {
                 console.error('[ShopifyConnectModal Polling] Error refreshing connection store:', err);
                 // Still show success - user can manually close or refresh
