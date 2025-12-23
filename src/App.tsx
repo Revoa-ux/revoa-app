@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
@@ -99,7 +99,6 @@ const SuperAdminProtectedRoute = ({ children }: { children: React.ReactNode }) =
 const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading, emailConfirmed } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
-  const location = useLocation();
 
   if (isLoading || adminLoading) {
     return <LoadingPage />;
@@ -109,18 +108,7 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Only redirect to check-email if:
-  // 1. We're not already on the check-email or confirm-email pages
-  // 2. Email is explicitly confirmed as false (not undefined/unloaded)
-  // 3. User has an email address
-  // Note: emailConfirmed will be undefined until profile data is loaded
-  const shouldCheckEmail =
-    location.pathname !== '/check-email' &&
-    location.pathname !== '/confirm-email' &&
-    emailConfirmed === false &&
-    user.email;
-
-  if (shouldCheckEmail) {
+  if (!emailConfirmed) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;
   }
 

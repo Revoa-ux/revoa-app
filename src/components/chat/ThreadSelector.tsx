@@ -127,7 +127,7 @@ export function ThreadSelector({
                               ? 'text-pink-900 dark:text-pink-100'
                               : 'text-gray-900 dark:text-white'
                           }`}>
-                            {thread.order_number ? `Order #${thread.order_number}` : thread.title}
+                            {thread.title}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -148,6 +148,12 @@ export function ThreadSelector({
                               <span className="truncate">{thread.customer_name}</span>
                             </>
                           )}
+                          {thread.order_number && (
+                            <>
+                              {(thread.tag || thread.customer_name) && <span>•</span>}
+                              <span className="truncate">Order {thread.order_number}</span>
+                            </>
+                          )}
                           <span>•</span>
                           <span>{formatDate(thread.updated_at)}</span>
                         </div>
@@ -163,7 +169,7 @@ export function ThreadSelector({
                             e.stopPropagation();
                             onCloseThread(thread.id);
                           }}
-                          className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-all"
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-all"
                           title="Close thread"
                         >
                           <X className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
@@ -206,7 +212,7 @@ export function ThreadSelector({
                               ? 'text-green-900 dark:text-green-100'
                               : 'text-gray-900 dark:text-white'
                           }`}>
-                            {thread.order_number ? `Order #${thread.order_number}` : thread.title}
+                            {thread.title}
                           </p>
                         </div>
                         <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -227,6 +233,12 @@ export function ThreadSelector({
                               <span className="truncate">{thread.customer_name}</span>
                             </>
                           )}
+                          {thread.order_number && (
+                            <>
+                              {(thread.tag || thread.customer_name) && <span>•</span>}
+                              <span className="truncate">Order {thread.order_number}</span>
+                            </>
+                          )}
                           <span>•</span>
                           <span>{formatDate(thread.updated_at)}</span>
                         </div>
@@ -236,7 +248,7 @@ export function ThreadSelector({
                           e.stopPropagation();
                           onCloseThread(thread.id);
                         }}
-                        className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-all"
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-all"
                         title="Delete thread"
                       >
                         <X className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
