@@ -25,6 +25,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isHelpExpanded, setIsHelpExpanded] = useState(false);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(false);
 
   // Watch connection store for Shopify changes
   const { shopify, refreshShopifyStatus } = useConnectionStore();
@@ -72,10 +73,63 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     setShopUrl(e.target.value);
   };
 
+  const handleManualConnectionCheck = async () => {
+    console.log('[ShopifyConnectModal] Manual connection check triggered');
+    setIsCheckingConnection(true);
+
+    try {
+      const result = await refreshShopifyStatus();
+      console.log('[ShopifyConnectModal] Manual check result:', result);
+
+      if (result && result.isConnected) {
+        console.log('[ShopifyConnectModal] Manual check found connection!');
+        setIsSuccess(true);
+        setIsLoading(false);
+        setHasError(false);
+        setErrorMessage('');
+
+        // Stop any polling
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          setCheckInterval(null);
+        }
+
+        // Auto-close after brief delay
+        setTimeout(() => {
+          onSuccess(result.installation?.store_url || '');
+          onClose();
+          setTimeout(() => {
+            setIsSuccess(false);
+            setShopUrl('');
+            setHasError(false);
+            setErrorMessage('');
+            setIsHelpExpanded(false);
+            setIsCheckingConnection(false);
+          }, 300);
+        }, 1500);
+      } else {
+        console.log('[ShopifyConnectModal] Manual check - not connected yet');
+        setIsCheckingConnection(false);
+      }
+    } catch (err) {
+      console.error('[ShopifyConnectModal] Manual check error:', err);
+      setIsCheckingConnection(false);
+    }
+  };
+
   useEffect(() => {
+    console.log('[ShopifyConnectModal] Setting up message listener');
+
     const messageHandler = async (event: MessageEvent) => {
+      console.log('[ShopifyConnectModal] Message received:', event.data);
+
       // Verify the message is from our callback page
-      if (!event.data || !event.data.type) return;
+      if (!event.data || !event.data.type) {
+        console.log('[ShopifyConnectModal] Message ignored - no type');
+        return;
+      }
+
+      console.log('[ShopifyConnectModal] Message type:', event.data.type);
 
       if (event.data.type === 'shopify:success') {
         console.log('[ShopifyConnectModal] ✓ OAuth Success message received from callback page!');
@@ -135,9 +189,82 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       }
     };
 
+    // Also listen for localStorage changes as a backup
+    const storageHandler = async (event: StorageEvent) => {
+      console.log('[ShopifyConnectModal] Storage event:', event.key, event.newValue);
+
+      if (event.key === 'shopify_oauth_success' && event.newValue) {
+        try {
+          const data = JSON.parse(event.newValue);
+          console.log('[ShopifyConnectModal] ✓ Success detected via localStorage!', data);
+
+          // Stop polling
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            setCheckInterval(null);
+          }
+
+          // Update UI
+          setIsLoading(false);
+          setIsSuccess(true);
+          setHasError(false);
+          setErrorMessage('');
+
+          // Refresh connection store
+          console.log('[ShopifyConnectModal] Refreshing connection store via storage event...');
+          await refreshShopifyStatus();
+
+          // Clean up localStorage
+          localStorage.removeItem('shopify_oauth_success');
+
+          // Auto-close after delay
+          setTimeout(() => {
+            onSuccess(data.shop);
+            onClose();
+            setTimeout(() => {
+              setIsSuccess(false);
+              setShopUrl('');
+              setHasError(false);
+              setErrorMessage('');
+              setIsHelpExpanded(false);
+            }, 300);
+          }, 2000);
+        } catch (err) {
+          console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
+        }
+      }
+
+      if (event.key === 'shopify_oauth_error' && event.newValue) {
+        try {
+          const data = JSON.parse(event.newValue);
+          console.log('[ShopifyConnectModal] ✗ Error detected via localStorage:', data);
+
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            setCheckInterval(null);
+          }
+
+          setIsLoading(false);
+          setHasError(true);
+          setErrorMessage(data.error || 'Failed to connect to Shopify');
+
+          // Clean up localStorage
+          localStorage.removeItem('shopify_oauth_error');
+        } catch (err) {
+          console.error('[ShopifyConnectModal] Error parsing localStorage error:', err);
+        }
+      }
+    };
+
     window.addEventListener('message', messageHandler);
+    window.addEventListener('storage', storageHandler);
+
+    console.log('[ShopifyConnectModal] Message and storage listeners active');
+
     return () => {
+      console.log('[ShopifyConnectModal] Removing message and storage listeners');
       window.removeEventListener('message', messageHandler);
+      window.removeEventListener('storage', storageHandler);
       if (checkInterval) {
         clearInterval(checkInterval);
       }
@@ -425,6 +552,49 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     Close
                   </button>
                 </div>
+              </div>
+            </>
+          ) : isLoading ? (
+            <>
+              {/* Loading State */}
+              <div className="text-center mb-6">
+                <div className="mx-auto flex items-center justify-center mb-4">
+                  <div className="w-16 h-16 border-4 border-gray-200 dark:border-gray-700 border-t-[#E11D48] rounded-full animate-spin"></div>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Connecting to Shopify
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Complete the authorization in the popup window...
+                </p>
+              </div>
+
+              {/* Loading Actions */}
+              <div className="space-y-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-4 text-sm text-blue-800 dark:text-blue-300">
+                  <p className="font-medium mb-1">Waiting for authorization...</p>
+                  <p className="text-blue-700 dark:text-blue-400">
+                    If the popup closed, click the button below to check if connection was established.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleManualConnectionCheck}
+                  disabled={isCheckingConnection}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-700 border-2 border-[#E11D48] text-[#E11D48] rounded-lg hover:bg-[#E11D48]/5 dark:hover:bg-[#E11D48]/10 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCheckingConnection ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-[#E11D48] border-t-transparent rounded-full animate-spin"></div>
+                      Checking...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4" />
+                      Check Connection
+                    </>
+                  )}
+                </button>
               </div>
             </>
           ) : (
