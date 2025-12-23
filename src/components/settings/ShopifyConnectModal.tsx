@@ -160,7 +160,13 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         clearInterval(checkInterval);
       }
 
+      let pollAttempts = 0;
+      const maxPollAttempts = 120; // 2 minutes (120 * 1 second)
+
       const intervalId = setInterval(() => {
+        pollAttempts++;
+        console.log(`[ShopifyConnectModal Polling] Attempt ${pollAttempts}/${maxPollAttempts} - Checking oauth session...`);
+
         const cleanOauthSession = (oauthSession: any) => {
           if (oauthSession?.id) {
             supabase
@@ -179,6 +185,27 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           setIsLoading(false);
         };
 
+        // Check if window was closed by user
+        if (authWindow && authWindow.closed) {
+          console.log('[ShopifyConnectModal Polling] ✗ Window closed by user');
+          cleanOauthSession(null);
+          setHasError(true);
+          setErrorMessage('Authentication window was closed. Please try again.');
+          return;
+        }
+
+        // Check if we've exceeded max attempts
+        if (pollAttempts >= maxPollAttempts) {
+          console.error('[ShopifyConnectModal Polling] ✗ Max polling attempts reached');
+          cleanOauthSession(null);
+          setHasError(true);
+          setErrorMessage('Connection timeout. Please try again.');
+          if (authWindow && !authWindow.closed) {
+            authWindow.close();
+          }
+          return;
+        }
+
         supabase
           .from("oauth_sessions")
           .select("*")
@@ -187,8 +214,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           .maybeSingle()
           .then(({ data: oauthSession, error }) => {
             if (error) {
+              console.error('[ShopifyConnectModal Polling] ✗ Database error:', error);
               cleanOauthSession(null);
               setHasError(true);
+              setErrorMessage('Database error. Please try again.');
               if (authWindow && !authWindow.closed) {
                 authWindow.close();
               }
@@ -196,8 +225,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             }
 
             if (!oauthSession) {
+              console.log(`[ShopifyConnectModal Polling] Attempt ${pollAttempts}/${maxPollAttempts} - No session found yet`);
               return;
             }
+
+            console.log(`[ShopifyConnectModal Polling] Attempt ${pollAttempts}/${maxPollAttempts} - Session found, completed_at:`, oauthSession.completed_at);
 
             // Check if OAuth completed successfully
             if (oauthSession.completed_at) {
