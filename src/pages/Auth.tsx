@@ -64,8 +64,11 @@ const Auth = () => {
 
     // Handle regular auth flow
     if (isAuthenticated) {
+      toast.info(`DEBUG: Auth check - isAdmin: ${isAdmin}, emailConfirmed: ${emailConfirmed}, hasCompletedOnboarding: ${hasCompletedOnboarding}`);
+
       // If user is admin, redirect to admin panel
       if (isAdmin) {
+        toast.success('DEBUG: Redirecting to admin dashboard');
         navigate('/admin/dashboard', { replace: true });
         return;
       }
@@ -73,14 +76,17 @@ const Auth = () => {
       // If email not confirmed, redirect to check email page
       // Only redirect if emailConfirmed is explicitly false (not undefined/loading)
       if (emailConfirmed === false) {
+        toast.warning('DEBUG: Email not confirmed - redirecting to check-email');
         navigate('/check-email', { replace: true, state: { email: user?.email } });
         return;
       }
 
       // Regular users go through onboarding
       if (!hasCompletedOnboarding) {
+        toast.info('DEBUG: Redirecting to onboarding');
         navigate('/onboarding/store', { replace: true });
       } else {
+        toast.success('DEBUG: Redirecting to dashboard');
         navigate('/', { replace: true });
       }
       return;
