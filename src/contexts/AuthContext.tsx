@@ -89,15 +89,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (profileError) {
                 console.error('[AuthContext] Error fetching user profile:', profileError);
+                toast.error(`Profile load error: ${profileError.message}`);
                 // Leave emailConfirmed as undefined to indicate data not loaded
               } else if (profile) {
                 console.log('[AuthContext] User profile:', profile);
+                const emailStatus = profile.email_confirmed === true;
+                toast.info(`Email confirmed status: ${emailStatus}`);
                 setHasCompletedOnboarding(profile.onboarding_completed || false);
                 // Explicitly set to true/false based on database value
-                setEmailConfirmed(profile.email_confirmed === true);
+                setEmailConfirmed(emailStatus);
               } else {
                 // Profile is null - user might not have a profile yet
                 console.warn('[AuthContext] No profile found for user');
+                toast.warning('No profile found - creating new profile');
                 setEmailConfirmed(false);
               }
             }
@@ -155,15 +159,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (isMounted) {
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN/TOKEN_REFRESHED:', error);
+                toast.error(`Auth state error: ${error.message}`);
                 // Leave emailConfirmed as undefined to indicate data not loaded
               } else if (profile) {
                 console.log('[AuthContext] Profile:', profile);
+                const emailStatus = profile.email_confirmed === true;
+                toast.success(`Logged in - Email confirmed: ${emailStatus}`);
                 setHasCompletedOnboarding(profile.onboarding_completed || false);
                 // Explicitly set to true/false based on database value
-                setEmailConfirmed(profile.email_confirmed === true);
+                setEmailConfirmed(emailStatus);
               } else {
                 // Profile is null - user might not have a profile yet
                 console.warn('[AuthContext] No profile found for user on SIGNED_IN');
+                toast.warning('No profile found on login');
                 setEmailConfirmed(false);
               }
             }

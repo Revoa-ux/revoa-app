@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
 import Analytics from './pages/Analytics';
@@ -119,6 +119,21 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     location.pathname !== '/confirm-email' &&
     emailConfirmed === false &&
     user.email;
+
+  // Debug logging
+  React.useEffect(() => {
+    if (user) {
+      console.log('[App] Route protection check:', {
+        pathname: location.pathname,
+        emailConfirmed,
+        shouldCheckEmail,
+        userEmail: user.email
+      });
+      if (shouldCheckEmail) {
+        toast.warning(`Redirecting to check-email. Email confirmed status: ${emailConfirmed}`);
+      }
+    }
+  }, [user, emailConfirmed, location.pathname, shouldCheckEmail]);
 
   if (shouldCheckEmail) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;
