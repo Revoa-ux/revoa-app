@@ -140,6 +140,14 @@ const AdminChat = () => {
   const [showFlowSuggestion, setShowFlowSuggestion] = useState(false);
   const { session: activeFlowSession, startFlow, flow: activeFlow } = useConversationalFlow(selectedThreadId || '__no_thread__');
 
+  // Auto-collapse conversation list when client profile or customer sidebar opens
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop && showUserProfile && !isConversationListCollapsed) {
+      setIsConversationListCollapsed(true);
+    }
+  }, [showUserProfile, isConversationListCollapsed]);
+
   // Handle responsive behavior
   useEffect(() => {
     const handleResize = () => {
@@ -761,36 +769,96 @@ const AdminChat = () => {
               </button>
             </div>
 
-            {/* Filters and conversation list - hidden when collapsed on desktop */}
-            <div className={`flex-1 flex flex-col overflow-hidden transition-opacity duration-200 ${isConversationListCollapsed ? 'lg:opacity-0 lg:pointer-events-none' : ''}`}>
-              <ConversationFilters
-                filters={conversationFilters}
-                onFiltersChange={setConversationFilters}
-                searchTerm={conversationSearch}
-                onSearchChange={setConversationSearch}
-              />
+            {/* Full conversation list - shown when not collapsed */}
+            {!isConversationListCollapsed && (
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <ConversationFilters
+                  filters={conversationFilters}
+                  onFiltersChange={setConversationFilters}
+                  searchTerm={conversationSearch}
+                  onSearchChange={setConversationSearch}
+                />
 
-              {/* Full conversation list */}
-              <div className="flex-1 overflow-y-auto">
-                {isLoading ? (
-                  <ConversationListSkeleton />
-                ) : chats.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-32 text-center px-4">
-                    <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
-                  </div>
-                ) : (
-                  chats.map((chat) => (
-                    <ConversationListItem
-                      key={chat.id}
-                      chat={chat}
-                      isSelected={selectedChat?.id === chat.id}
-                      onClick={() => setSelectedChat(chat)}
-                    />
-                  ))
-                )}
+                {/* Full conversation list */}
+                <div className="flex-1 overflow-y-auto">
+                  {isLoading ? (
+                    <ConversationListSkeleton />
+                  ) : chats.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+                      <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
+                    </div>
+                  ) : (
+                    chats.map((chat) => (
+                      <ConversationListItem
+                        key={chat.id}
+                        chat={chat}
+                        isSelected={selectedChat?.id === chat.id}
+                        onClick={() => setSelectedChat(chat)}
+                      />
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Mini collapsed view - shown when collapsed */}
+            {isConversationListCollapsed && (
+              <div className="flex-1 overflow-y-auto pt-2">
+                {chats.map((chat, index) => {
+                  const profile = chat.user_profile;
+                  const userName = profile?.name ||
+                    profile?.company ||
+                      (chat.shopify_installations && chat.shopify_installations.length > 0
+                        ? chat.shopify_installations[0].store_url.replace('https://', '').replace('.myshopify.com', '')
+                        : profile?.email?.split('@')[0] || 'User');
+
+                  const getInitials = (name: string) => {
+                    if (!name || name === 'User') {
+                      return 'U';
+                    }
+                    const parts = name.split(' ').filter(p => p.length > 0);
+                    if (parts.length >= 2) {
+                      return (parts[0][0] + parts[1][0]).toUpperCase();
+                    }
+                    return name.substring(0, 2).toUpperCase();
+                  };
+
+                  const isSelected = selectedChat?.id === chat.id;
+
+                  return (
+                    <button
+                      key={chat.id}
+                      onClick={() => setSelectedChat(chat)}
+                      className={`relative w-full flex flex-col items-center py-2 group transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-gray-100 dark:bg-gray-700/50'
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                      }`}
+                      title={userName}
+                    >
+                      {isSelected && (
+                        <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#E85B81] to-[#E87D55]" />
+                      )}
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200/80 via-gray-300/70 to-gray-200/60 dark:bg-gradient-to-br dark:from-gray-700/50 dark:via-gray-600/40 dark:to-gray-700/50 backdrop-blur-sm flex items-center justify-center">
+                          <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">
+                            {getInitials(userName)}
+                          </span>
+                        </div>
+                        {chat.unread_count_admin > 0 && (
+                          <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-white">
+                              {chat.unread_count_admin > 9 ? '9+' : chat.unread_count_admin}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
       {/* Hidden code - keeping for reference but not rendering */}
@@ -1012,6 +1080,7 @@ const AdminChat = () => {
                         textareaRef.current.focus();
                       }
                     }}
+                    isAdminView={true}
                   />
                 </div>
               )}

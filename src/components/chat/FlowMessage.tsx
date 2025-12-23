@@ -29,6 +29,7 @@ interface FlowMessageProps {
   onTemplateSelect?: (templateContent: string, templateName: string) => void;
   onStartFlow?: (flowId: string) => Promise<void>;
   isLastMessage?: boolean;
+  isAdminView?: boolean;
 }
 
 // Helper function to parse simple markdown into readable React elements
@@ -84,7 +85,7 @@ const parseMarkdown = (text: string) => {
   }).filter(Boolean);
 };
 
-export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, onStartFlow, isLastMessage = false }: FlowMessageProps) {
+export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTemplateModal, onTemplateSelect, onStartFlow, isLastMessage = false, isAdminView = false }: FlowMessageProps) {
   const { node, isCurrentStep, previousResponse } = data;
   const [showHelp, setShowHelp] = useState(false);
   const [animationData, setAnimationData] = useState<any>(null);
@@ -423,7 +424,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   };
 
   const renderResponseInput = () => {
-    if (!isActive) return null;
+    if (!isActive || isAdminView) return null;
 
     // Handle product selection for warranty
     if (needsProductSelection && productOptions.length > 0) {
@@ -485,7 +486,7 @@ export function FlowMessage({ data, onResponse, isLoading, progress, onOpenTempl
   };
 
   const renderContinueButton = () => {
-    if (!isActive) return null;
+    if (!isActive || isAdminView) return null;
 
     // NEVER show continue button for completion nodes
     if (node.type === 'completion') return null;

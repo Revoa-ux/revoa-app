@@ -8,9 +8,10 @@ interface ConversationalFlowContainerProps {
   onFlowActive?: (isActive: boolean) => void;
   onOpenTemplateModal?: (templateIds?: string[]) => void;
   onTemplateSelect?: (templateContent: string, templateName: string) => void;
+  isAdminView?: boolean;
 }
 
-export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemplateModal, onTemplateSelect }: ConversationalFlowContainerProps) {
+export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemplateModal, onTemplateSelect, isAdminView = false }: ConversationalFlowContainerProps) {
   const {
     session,
     flow,
@@ -56,6 +57,7 @@ export function ConversationalFlowContainer({ threadId, onFlowActive, onOpenTemp
             onTemplateSelect={onTemplateSelect}
             onStartFlow={startFlow}
             isLastMessage={index === flowMessages.length - 1}
+            isAdminView={isAdminView}
           />
         ))}
       </div>
