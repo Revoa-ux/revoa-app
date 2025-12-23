@@ -126,27 +126,38 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
 
   const loadCustomerInfo = async () => {
     setIsLoading(true);
+    console.log('[CustomerProfileSidebar] Starting to load customer info for thread:', threadId);
+
     try {
       // Get thread with order_id and tag
+      console.log('[CustomerProfileSidebar] Fetching thread data...');
       const { data: thread, error: threadError } = await supabase
         .from('chat_threads')
         .select('order_id, tag')
         .eq('id', threadId)
         .single();
 
-      if (threadError) throw threadError;
+      if (threadError) {
+        console.error('[CustomerProfileSidebar] Thread query error:', threadError);
+        toast.error(`Thread query failed: ${threadError.message}`);
+        throw threadError;
+      }
+
+      console.log('[CustomerProfileSidebar] Thread data loaded:', thread);
 
       // Store thread tag for template filtering
       setThreadTag(thread.tag || '');
 
       if (!thread.order_id) {
-        console.log('Thread has no order_id:', threadId);
+        console.warn('[CustomerProfileSidebar] Thread has no order_id:', threadId);
+        toast.info('This thread is not linked to an order');
         setCustomerInfo(null);
         setIsLoading(false);
         return;
       }
 
-      console.log('Loading customer info for order:', thread.order_id);
+      console.log('[CustomerProfileSidebar] Loading customer info for order:', thread.order_id);
+      toast.info('Loading order details...');
 
       // Get customer info from order
       const { data: order, error: orderError } = await supabase
@@ -188,33 +199,56 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
         .eq('id', thread.order_id)
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('[CustomerProfileSidebar] Order query error:', {
+          error: orderError,
+          message: orderError.message,
+          code: orderError.code,
+          details: orderError.details,
+          hint: orderError.hint
+        });
+        toast.error(`Order query failed: ${orderError.message} (Code: ${orderError.code})`);
+        throw orderError;
+      }
+
+      console.log('[CustomerProfileSidebar] Order data loaded:', order);
+      toast.success('Order details loaded');
 
       setCustomerInfo(order);
       setOrderId(thread.order_id); // Store order ID for actions
 
       // Load line items
-      const { data: items } = await supabase
+      console.log('[CustomerProfileSidebar] Loading line items...');
+      const { data: items, error: itemsError } = await supabase
         .from('order_line_items')
         .select('*')
         .eq('shopify_order_id', order.shopify_order_id);
 
-      if (items) {
-        setLineItems(items);
+      if (itemsError) {
+        console.error('[CustomerProfileSidebar] Line items query error:', itemsError);
+        toast.warning('Could not load line items');
+      } else {
+        console.log('[CustomerProfileSidebar] Line items loaded:', items?.length || 0, 'items');
+        if (items) {
+          setLineItems(items);
+        }
       }
 
       // Load warranty status
       if (thread.order_id) {
+        console.log('[CustomerProfileSidebar] Loading warranty status...');
         const warranty = await getOrderWarrantyStatus(thread.order_id);
+        console.log('[CustomerProfileSidebar] Warranty status loaded:', warranty);
         setWarrantyStatus(warranty);
       }
     } catch (error: any) {
-      console.error('Error loading customer info:', error);
-      console.error('Error details:', {
+      console.error('[CustomerProfileSidebar] Error loading customer info:', error);
+      console.error('[CustomerProfileSidebar] Error details:', {
         message: error?.message,
         code: error?.code,
         details: error?.details,
-        hint: error?.hint
+        hint: error?.hint,
+        stack: error?.stack
       });
       toast.error(`Failed to load customer information: ${error?.message || 'Unknown error'}`);
     } finally {

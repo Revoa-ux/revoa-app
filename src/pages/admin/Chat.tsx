@@ -19,7 +19,9 @@ import {
   Sparkles,
   Play,
   AlertCircle,
-  List
+  List,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
@@ -123,6 +125,7 @@ const AdminChat = () => {
   const [conversationSearch, setConversationSearch] = useState('');
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showConversationList, setShowConversationList] = useState(true);
+  const [isConversationListCollapsed, setIsConversationListCollapsed] = useState(false);
   const [showTagModal, setShowTagModal] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -234,58 +237,93 @@ const AdminChat = () => {
     if (!selectedChat || !selectedThreadId) return;
 
     const loadThreadMessages = async () => {
-      const regularMessages = await chatService.getThreadMessages(selectedThreadId);
+      console.log('[Chat] Loading messages for thread:', selectedThreadId);
 
-      // Load flow messages from all sessions (including completed ones)
-      const { data: sessions } = await chatService.supabase
-        .from('thread_flow_sessions')
-        .select(`
-          *,
-          bot_flows (
-            name,
-            flow_definition
-          )
-        `)
-        .eq('thread_id', selectedThreadId)
-        .order('started_at', { ascending: true });
+      try {
+        const regularMessages = await chatService.getThreadMessages(selectedThreadId);
+        console.log('[Chat] Regular messages loaded:', regularMessages.length);
 
-      const flowMessages: Message[] = [];
+        // Load flow messages from all sessions (including completed ones)
+        console.log('[Chat] Fetching flow sessions...');
+        const { data: sessions, error: sessionsError } = await chatService.supabase
+          .from('thread_flow_sessions')
+          .select(`
+            *,
+            bot_flows (
+              name,
+              flow_definition
+            )
+          `)
+          .eq('thread_id', selectedThreadId)
+          .order('started_at', { ascending: true });
 
-      if (sessions) {
-        for (const session of sessions) {
-          const flowState = session.flow_state || {};
-          const flowDefinition = session.bot_flows?.flow_definition;
+        if (sessionsError) {
+          console.error('[Chat] Flow sessions query error:', sessionsError);
+          toast.error(`Failed to load flow sessions: ${sessionsError.message}`);
+        }
 
-          // Convert each flow response to a message
-          for (const [nodeId, nodeData] of Object.entries(flowState)) {
-            if (nodeData && typeof nodeData === 'object' && 'response' in nodeData && 'timestamp' in nodeData) {
-              const node = flowDefinition?.nodes?.find((n: any) => n.id === nodeId);
+        console.log('[Chat] Flow sessions loaded:', sessions?.length || 0, 'sessions');
 
-              flowMessages.push({
-                id: `flow-${session.id}-${nodeId}`,
-                content: node?.message || '',
-                type: 'text',
-                sender: 'team',
-                timestamp: new Date(nodeData.timestamp),
-                metadata: {
-                  isFlowMessage: true,
-                  flowSessionId: session.id,
-                  flowName: session.bot_flows?.name,
-                  flowCompleted: !!session.completed_at,
-                  flowActive: session.is_active
-                }
-              });
+        const flowMessages: Message[] = [];
+
+        if (sessions) {
+          for (const session of sessions) {
+            console.log('[Chat] Processing flow session:', session.id, {
+              flow_name: session.bot_flows?.name,
+              is_active: session.is_active,
+              completed_at: session.completed_at,
+              flow_state: session.flow_state
+            });
+
+            const flowState = session.flow_state || {};
+            const flowDefinition = session.bot_flows?.flow_definition;
+
+            console.log('[Chat] Flow definition nodes:', flowDefinition?.nodes?.length || 0);
+            console.log('[Chat] Flow state entries:', Object.keys(flowState).length);
+
+            // Convert each flow response to a message
+            for (const [nodeId, nodeData] of Object.entries(flowState)) {
+              if (nodeData && typeof nodeData === 'object' && 'response' in nodeData && 'timestamp' in nodeData) {
+                const node = flowDefinition?.nodes?.find((n: any) => n.id === nodeId);
+
+                console.log('[Chat] Creating flow message for node:', nodeId, {
+                  has_node: !!node,
+                  message: node?.message,
+                  timestamp: nodeData.timestamp
+                });
+
+                flowMessages.push({
+                  id: `flow-${session.id}-${nodeId}`,
+                  content: node?.message || '',
+                  type: 'text',
+                  sender: 'team',
+                  timestamp: new Date(nodeData.timestamp),
+                  metadata: {
+                    isFlowMessage: true,
+                    flowSessionId: session.id,
+                    flowName: session.bot_flows?.name,
+                    flowCompleted: !!session.completed_at,
+                    flowActive: session.is_active
+                  }
+                });
+              }
             }
           }
         }
+
+        console.log('[Chat] Flow messages created:', flowMessages.length);
+
+        // Combine and sort by timestamp
+        const allMessages = [...regularMessages, ...flowMessages].sort(
+          (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+        );
+
+        console.log('[Chat] Total messages (regular + flow):', allMessages.length);
+        setMessages(allMessages);
+      } catch (error) {
+        console.error('[Chat] Error loading thread messages:', error);
+        toast.error('Failed to load thread messages');
       }
-
-      // Combine and sort by timestamp
-      const allMessages = [...regularMessages, ...flowMessages].sort(
-        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-      );
-
-      setMessages(allMessages);
     };
 
     loadThreadMessages();
@@ -683,54 +721,75 @@ const AdminChat = () => {
       </div>
 
       <div className="flex h-[calc(100vh-8rem)] lg:h-[calc(100vh-6rem)] bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-          {/* Conversations List - Overlay that slides from left */}
+          {/* Conversations List - Overlay on mobile, collapsible sidebar on desktop */}
           <div className={`
             ${showConversationList ? 'translate-x-0' : '-translate-x-full'}
-            absolute inset-y-0 left-0 z-40
-            w-full lg:w-96
+            ${isConversationListCollapsed && showConversationList ? 'lg:w-16' : 'lg:w-96'}
+            absolute inset-y-0 left-0 z-40 lg:relative lg:translate-x-0
+            w-full
             border-r border-gray-200 dark:border-gray-700
             flex flex-col
             bg-white dark:bg-gray-800
-            transition-transform duration-300 ease-in-out
+            transition-all duration-300 ease-in-out
             h-full
           `}>
-            {/* Header with close button */}
+            {/* Header with close button (mobile) or chevron (desktop) */}
             <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700 min-h-[70px] sm:min-h-[70px]">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Conversations</h3>
+              <h3 className={`text-sm font-semibold text-gray-900 dark:text-white transition-opacity duration-200 ${isConversationListCollapsed ? 'lg:opacity-0 lg:w-0 lg:overflow-hidden' : ''}`}>
+                Conversations
+              </h3>
+
+              {/* Mobile: X button */}
               <button
                 onClick={() => setShowConversationList(false)}
-                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="lg:hidden p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
+
+              {/* Desktop: Chevron button */}
+              <button
+                onClick={() => setIsConversationListCollapsed(!isConversationListCollapsed)}
+                className="hidden lg:block p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title={isConversationListCollapsed ? 'Expand conversations' : 'Collapse conversations'}
+              >
+                {isConversationListCollapsed ? (
+                  <ChevronRight className="w-5 h-5" />
+                ) : (
+                  <ChevronLeft className="w-5 h-5" />
+                )}
+              </button>
             </div>
 
-            <ConversationFilters
-              filters={conversationFilters}
-              onFiltersChange={setConversationFilters}
-              searchTerm={conversationSearch}
-              onSearchChange={setConversationSearch}
-            />
+            {/* Filters and conversation list - hidden when collapsed on desktop */}
+            <div className={`flex-1 flex flex-col overflow-hidden transition-opacity duration-200 ${isConversationListCollapsed ? 'lg:opacity-0 lg:pointer-events-none' : ''}`}>
+              <ConversationFilters
+                filters={conversationFilters}
+                onFiltersChange={setConversationFilters}
+                searchTerm={conversationSearch}
+                onSearchChange={setConversationSearch}
+              />
 
-            {/* Full conversation list */}
-            <div className="flex-1 overflow-y-auto">
-              {isLoading ? (
-                <ConversationListSkeleton />
-              ) : chats.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-center px-4">
-                  <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
-                </div>
-              ) : (
-                chats.map((chat) => (
-                  <ConversationListItem
-                    key={chat.id}
-                    chat={chat}
-                    isSelected={selectedChat?.id === chat.id}
-                    onClick={() => setSelectedChat(chat)}
-                  />
-                ))
-              )}
+              {/* Full conversation list */}
+              <div className="flex-1 overflow-y-auto">
+                {isLoading ? (
+                  <ConversationListSkeleton />
+                ) : chats.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-32 text-center px-4">
+                    <MessageSquare className="w-8 h-8 text-gray-300 mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No cases yet</p>
+                  </div>
+                ) : (
+                  chats.map((chat) => (
+                    <ConversationListItem
+                      key={chat.id}
+                      chat={chat}
+                      isSelected={selectedChat?.id === chat.id}
+                      onClick={() => setSelectedChat(chat)}
+                    />
+                  ))
+                )}
+              </div>
             </div>
           </div>
 
