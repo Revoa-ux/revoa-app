@@ -74,31 +74,36 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
   useEffect(() => {
     const messageHandler = async (event: MessageEvent) => {
+      // Verify the message is from our callback page
+      if (!event.data || !event.data.type) return;
+
       if (event.data.type === 'shopify:success') {
-        console.log('[ShopifyConnectModal] ✓ OAuth Success message received!');
-        console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+        console.log('[ShopifyConnectModal] ✓ OAuth Success message received from callback page!');
+        console.log('[ShopifyConnectModal] Shop:', event.data.shop);
 
-        setIsLoading(false);
-        setIsSuccess(true);
-        setHasError(false);
-        setErrorMessage('');
-
+        // Stop polling immediately
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
 
-        // Force refresh the connection store to pick up the new installation
-        await refreshShopifyStatus();
-        console.log('[ShopifyConnectModal] Connection store refreshed');
+        // Update UI state
+        setIsLoading(false);
+        setIsSuccess(true);
+        setHasError(false);
+        setErrorMessage('');
 
-        // Give the store a moment to update, then close modal
+        // Refresh connection store
+        console.log('[ShopifyConnectModal] Refreshing connection store...');
+        await refreshShopifyStatus();
+
+        // Close modal after showing success briefly
         setTimeout(() => {
-          console.log('[ShopifyConnectModal] Closing modal with store:', event.data.shop);
+          console.log('[ShopifyConnectModal] Closing modal');
           onSuccess(event.data.shop);
           onClose();
 
-          // Reset states after modal closes
+          // Reset states after modal animation
           setTimeout(() => {
             setIsSuccess(false);
             setShopUrl('');
@@ -106,16 +111,21 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             setErrorMessage('');
             setIsHelpExpanded(false);
           }, 300);
-        }, 500);
+        }, 800);
+
       } else if (event.data.type === 'shopify:error') {
-        console.log('[ShopifyConnectModal] ✗ OAuth Error received:', event.data.error);
-        setIsLoading(false);
-        setHasError(true);
-        setErrorMessage(event.data.error || 'Failed to connect to Shopify');
+        console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
+
+        // Stop polling
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
         }
+
+        // Show error
+        setIsLoading(false);
+        setHasError(true);
+        setErrorMessage(event.data.error || 'Failed to connect to Shopify');
       }
     };
 
@@ -184,8 +194,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       );
 
       if (!authWindow) {
-        console.error('Failed to open popup window');
-        throw new Error('Please allow pop-ups for this site to connect your Shopify store');
+        console.error('Failed to open popup window - popup was blocked');
+        setIsLoading(false);
+        setHasError(true);
+        setErrorMessage('Popup was blocked by your browser. Please allow popups and try again.');
+        return;
       }
       console.log('OAuth window opened successfully');
 
@@ -245,7 +258,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           .eq("user_id", session.user.id)
           .eq("shop_domain", validDomain)
           .maybeSingle()
-          .then(({ data: oauthSession, error }) => {
+          .then(async ({ data: oauthSession, error }) => {
             if (error) {
               console.error('[ShopifyConnectModal Polling] ✗ Database error:', error);
               cleanOauthSession(null);
@@ -277,75 +290,32 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // Refresh connection store and WAIT for it to actually update
-              console.log('[ShopifyConnectModal Polling] ========== OAuth Complete! ==========');
-              console.log('[ShopifyConnectModal Polling] Starting refresh and waiting for store update...');
-
-              // Show success immediately
+              // Show success state
+              console.log('[ShopifyConnectModal Polling] Setting success state');
               setIsSuccess(true);
               setIsLoading(false);
+              setHasError(false);
+              setErrorMessage('');
 
-              // Poll the store until it shows connected
-              // Call refreshShopifyStatus() on EVERY attempt to handle database replication delays
-              let attempts = 0;
-              const maxAttempts = 20; // 10 seconds max
+              // Refresh connection store
+              console.log('[ShopifyConnectModal Polling] Refreshing connection store...');
+              await refreshShopifyStatus();
 
-              const waitForStoreUpdate = setInterval(async () => {
-                attempts++;
-                console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Refreshing store...`);
+              // Close modal after brief success display
+              setTimeout(() => {
+                console.log('[ShopifyConnectModal Polling] Closing modal with store:', validDomain);
+                onSuccess(validDomain);
+                onClose();
 
-                // Refresh the store on EVERY attempt (not just once)
-                // This handles database replication delays
-                try {
-                  await refreshShopifyStatus();
-                  const currentState = useConnectionStore.getState();
-
-                  console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - isConnected:`, currentState.shopify.isConnected);
-                  console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Store URL:`, currentState.shopify.installation?.store_url);
-
-                  if (currentState.shopify.isConnected) {
-                    clearInterval(waitForStoreUpdate);
-                    console.log('[ShopifyConnectModal Polling] ✓✓✓ STORE UPDATED! Connection confirmed!');
-                    console.log('[ShopifyConnectModal Polling] Store URL:', currentState.shopify.installation?.store_url);
-
-                    // Wait a moment to show success state
-                    setTimeout(() => {
-                      const storeUrl = currentState.shopify.installation?.store_url || validDomain;
-                      console.log('[ShopifyConnectModal Polling] NOW closing modal with store:', storeUrl);
-
-                      // Call onSuccess and close
-                      onSuccess(storeUrl);
-                      onClose();
-
-                      // Reset states
-                      setTimeout(() => {
-                        setIsSuccess(false);
-                        setShopUrl('');
-                        setHasError(false);
-                        setErrorMessage('');
-                        setIsHelpExpanded(false);
-                      }, 300);
-                    }, 500);
-                  } else if (attempts >= maxAttempts) {
-                    clearInterval(waitForStoreUpdate);
-                    console.error('[ShopifyConnectModal Polling] ✗ Timeout waiting for store update');
-
-                    // Still close the modal but show error
-                    setIsLoading(false);
-                    setHasError(true);
-                    setErrorMessage('Connection established but UI update timed out. Please refresh the page.');
-                  }
-                } catch (error) {
-                  console.error(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Error refreshing store:`, error);
-                  // Don't stop polling on error, keep trying until maxAttempts
-                  if (attempts >= maxAttempts) {
-                    clearInterval(waitForStoreUpdate);
-                    setIsLoading(false);
-                    setHasError(true);
-                    setErrorMessage('Failed to refresh connection status');
-                  }
-                }
-              }, 500);
+                // Reset states
+                setTimeout(() => {
+                  setIsSuccess(false);
+                  setShopUrl('');
+                  setHasError(false);
+                  setErrorMessage('');
+                  setIsHelpExpanded(false);
+                }, 300);
+              }, 800);
 
               return;
             }
