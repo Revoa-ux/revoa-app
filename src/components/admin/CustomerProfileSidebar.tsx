@@ -140,13 +140,10 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
       setThreadTag(thread.tag || '');
 
       if (!thread.order_id) {
-        console.log('Thread has no order_id:', threadId);
         setCustomerInfo(null);
         setIsLoading(false);
         return;
       }
-
-      console.log('Loading customer info for order:', thread.order_id);
 
       // Get customer info from order
       const { data: order, error: orderError } = await supabase
@@ -208,15 +205,9 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
         const warranty = await getOrderWarrantyStatus(thread.order_id);
         setWarrantyStatus(warranty);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error loading customer info:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        code: error?.code,
-        details: error?.details,
-        hint: error?.hint
-      });
-      toast.error(`Failed to load customer information: ${error?.message || 'Unknown error'}`);
+      toast.error('Failed to load customer information');
     } finally {
       setIsLoading(false);
     }

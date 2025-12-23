@@ -11,8 +11,8 @@ import {
   Moon,
   User,
   Settings,
-  PanelLeft,
-  PanelRight,
+  ChevronLeft,
+  ChevronRight,
   Receipt
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -116,7 +116,7 @@ export default function AdminSidebar() {
       {/* Logo and Collapse Button - Only show on desktop */}
       {isLargeScreen && (
         effectiveCollapsed ? (
-          <div className="py-5 px-2 flex flex-col items-center gap-2 relative z-10">
+          <div className="py-8 px-2 flex flex-col items-center gap-3 relative z-10">
             <div className="w-10 h-10 relative">
               <img
                 src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Transparent%20Icon.png"
@@ -129,11 +129,11 @@ export default function AdminSidebar() {
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative z-10"
               title="Expand sidebar"
             >
-              <PanelRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         ) : (
-          <div className="py-5 px-4 flex items-center justify-between">
+          <div className="py-8 px-4 flex items-center justify-between">
             <div className="w-32 h-8 relative overflow-hidden transition-all duration-300">
               <img
                 src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/Revoa%20Logo%20Black.png"
@@ -151,14 +151,14 @@ export default function AdminSidebar() {
               className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               title="Collapse sidebar"
             >
-              <PanelLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         )
       )}
 
       {/* Main Menu */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 pt-2 border-b border-y border-gray-100/50 dark:border-gray-700/50">
+      <div className="flex-1 overflow-y-auto px-3 py-4 pt-6 border-b border-y border-gray-100/50 dark:border-gray-700/50">
         <nav className="space-y-0.5">
           {filteredMainNavigation.map((item) => {
             const Icon = item.icon;
@@ -330,7 +330,7 @@ export default function AdminSidebar() {
     <>
       {/* Desktop sidebar - visible from 500px and up */}
       {isLargeScreen && (
-        <div className={`fixed top-3 bottom-3 left-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl transition-all duration-300 ease-in-out z-50 ${
+        <div className={`fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out z-40 ${
           effectiveCollapsed ? 'w-[70px]' : 'w-[280px]'
         }`}>
           <div className="flex flex-col h-full">

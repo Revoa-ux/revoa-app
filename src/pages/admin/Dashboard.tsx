@@ -431,34 +431,36 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <AdReportsTimeSelector
-          selectedTime={selectedTime}
-          onTimeChange={handleTimeChange}
-          dateRange={dateRange}
-          onDateRangeChange={handleDateRangeChange}
-          onApply={handleApplyDateRange}
-        />
-        <button
-          className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          onClick={handleApplyDateRange}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span className="hidden sm:inline">Refreshing...</span>
-            </>
-          ) : (
-            <>
-              <RefreshCw className="w-4 h-4" />
-              <span className="hidden sm:inline">Refresh</span>
-            </>
-          )}
-        </button>
-        <div className="flex items-center space-x-2 px-3 h-[39px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <AdReportsTimeSelector
+            selectedTime={selectedTime}
+            onTimeChange={handleTimeChange}
+            dateRange={dateRange}
+            onDateRangeChange={handleDateRangeChange}
+            onApply={handleApplyDateRange}
+          />
+          <button
+            className="flex items-center justify-center space-x-2 h-[39px] px-3 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            onClick={handleApplyDateRange}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span className="hidden sm:inline">Refreshing...</span>
+              </>
+            ) : (
+              <>
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden sm:inline">Refresh</span>
+              </>
+            )}
+          </button>
+        </div>
+        <div className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} active users</p>
+          <p className="text-sm text-gray-900 dark:text-gray-100">{onlineUsers} users active now</p>
         </div>
       </div>
 

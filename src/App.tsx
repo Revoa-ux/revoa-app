@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { Toaster, toast } from 'sonner';
+import { Toaster } from 'sonner';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/Layout';
 import Analytics from './pages/Analytics';
@@ -119,15 +119,6 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     location.pathname !== '/confirm-email' &&
     emailConfirmed === false &&
     user.email;
-
-  // Debug logging for developers (not shown to users)
-  if (emailConfirmed === false) {
-    console.log('[UserProtectedRoute] Email not confirmed, redirecting to check-email', {
-      pathname: location.pathname,
-      emailConfirmed,
-      userEmail: user.email
-    });
-  }
 
   if (shouldCheckEmail) {
     return <Navigate to="/check-email" replace state={{ email: user.email }} />;

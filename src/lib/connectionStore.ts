@@ -142,51 +142,36 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      console.error('[ConnectionStore] ✗ No user found for Shopify refresh');
+      console.error('[ConnectionStore] No user found for Shopify refresh');
       return;
     }
 
     console.log('[ConnectionStore] User ID:', user.id);
-    console.log('[ConnectionStore] User email:', user.email);
 
     set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
     try {
-      console.log('[ConnectionStore] About to call getActiveShopifyInstallation...');
+      console.log('[ConnectionStore] Querying database for active installation...');
       const installation = await getActiveShopifyInstallation(user.id);
-      console.log('[ConnectionStore] getActiveShopifyInstallation returned:', installation);
+      console.log('[ConnectionStore] Query result:', installation);
 
-      const isConnected = installation !== null;
-
-      // Update the store state - this will automatically notify all subscribers
       set({
         shopify: {
-          isConnected,
+          isConnected: installation !== null,
           installation,
           loading: false,
         },
       });
-
-      console.log('[ConnectionStore] ===== STATE UPDATE COMPLETE =====');
-      console.log('[ConnectionStore] isConnected:', isConnected);
+      console.log('[ConnectionStore] \u2713 State updated - isConnected:', installation !== null);
       console.log('[ConnectionStore] Store URL:', installation?.store_url);
-      console.log('[ConnectionStore] Installation ID:', installation?.id);
-
-      // Verify the state was actually set and log subscriber notification
-      const currentState = useConnectionStore.getState();
-      console.log('[ConnectionStore] Verified from store - isConnected:', currentState.shopify.isConnected);
-      console.log('[ConnectionStore] All subscribed components will now re-render automatically');
       console.log('[ConnectionStore] ====================================');
-
-      return { success: true, isConnected, installation };
     } catch (error) {
-      console.error('[ConnectionStore] ✗ Error refreshing Shopify status:', error);
+      console.error('[ConnectionStore] \u2717 Error refreshing Shopify status:', error);
       set(state => ({
         shopify: { ...state.shopify, loading: false }
       }));
-      throw error;
     }
   },
 

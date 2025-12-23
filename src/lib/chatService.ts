@@ -53,7 +53,6 @@ export interface Chat {
     email: string;
   };
   user_assignment?: {
-    admin_id?: string;
     total_transactions?: number;
     total_invoices?: number;
     last_interaction_at?: string;
@@ -204,7 +203,7 @@ export const chatService = {
     // Get assigned user IDs for this admin
     const { data: assignments, error: assignmentError } = await supabase
       .from('user_assignments')
-      .select('user_id, admin_id, total_transactions, total_invoices, last_interaction_at')
+      .select('user_id, total_transactions, total_invoices, last_interaction_at')
       .eq('admin_id', adminId);
 
     if (assignmentError) {
@@ -215,8 +214,7 @@ export const chatService = {
       (assignments || []).map(a => [a.user_id, {
         total_transactions: a.total_transactions || 0,
         total_invoices: a.total_invoices || 0,
-        last_interaction_at: a.last_interaction_at,
-        admin_id: a.admin_id
+        last_interaction_at: a.last_interaction_at
       }])
     );
 
@@ -280,22 +278,12 @@ export const chatService = {
       .in('user_id', userIds)
       .is('uninstalled_at', null);
 
-    // Fetch admin profile details for all assigned admins
-    const assignedAdminIds = Array.from(new Set((assignments || []).map(a => a.admin_id)));
-    const { data: adminProfiles } = await supabase
+    // Fetch admin profile details (already fetched is_super_admin above)
+    const { data: adminProfileDetails } = await supabase
       .from('user_profiles')
-      .select('id, first_name, last_name, display_name, email')
-      .in('id', assignedAdminIds);
-
-    // Create a map of admin profiles
-    const adminProfileMap = new Map(
-      (adminProfiles || []).map(p => {
-        const name = p.display_name ||
-          (p.first_name && p.last_name ? `${p.first_name} ${p.last_name}` :
-          p.first_name || p.last_name || p.email?.split('@')[0] || 'Admin');
-        return [p.id, { name, email: p.email }];
-      })
-    );
+      .select('id, name, email')
+      .eq('id', adminId)
+      .maybeSingle();
 
     // Fetch last message for each chat
     const chatIds = chats.map(c => c.id);
@@ -334,18 +322,14 @@ export const chatService = {
       shopifyMap.set(shop.user_id, existing);
     });
 
-    let enrichedChats = chats.map(chat => {
-      const assignment = assignmentMap.get(chat.user_id);
-      const adminProfile = assignment?.admin_id ? adminProfileMap.get(assignment.admin_id) : null;
-      return {
-        ...chat,
-        user_profile: userProfileMap.get(chat.user_id) || null,
-        admin_profile: adminProfile || null,
-        user_assignment: assignment || null,
-        shopify_installations: shopifyMap.get(chat.user_id) || null,
-        last_message_preview: lastMessageMap.get(chat.id) || 'No messages yet'
-      };
-    });
+    let enrichedChats = chats.map(chat => ({
+      ...chat,
+      user_profile: userProfileMap.get(chat.user_id) || null,
+      admin_profile: adminProfileDetails ? { name: adminProfileDetails.name, email: adminProfileDetails.email } : null,
+      user_assignment: assignmentMap.get(chat.user_id) || null,
+      shopify_installations: shopifyMap.get(chat.user_id) || null,
+      last_message_preview: lastMessageMap.get(chat.id) || 'No messages yet'
+    }));
 
     // Apply search filter
     if (filters?.search) {
