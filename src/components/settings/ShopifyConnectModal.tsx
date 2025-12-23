@@ -220,60 +220,66 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               setIsSuccess(true);
               setIsLoading(false);
 
-              // Refresh the store
-              refreshShopifyStatus()
-                .then(() => {
-                  console.log('[ShopifyConnectModal Polling] Refresh call completed, now waiting for store to update...');
+              // Poll the store until it shows connected
+              // Call refreshShopifyStatus() on EVERY attempt to handle database replication delays
+              let attempts = 0;
+              const maxAttempts = 20; // 10 seconds max
 
-                  // Poll the store until it shows connected
-                  let attempts = 0;
-                  const maxAttempts = 20; // 10 seconds max
+              const waitForStoreUpdate = setInterval(async () => {
+                attempts++;
+                console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Refreshing store...`);
 
-                  const waitForStoreUpdate = setInterval(() => {
-                    attempts++;
-                    const currentState = useConnectionStore.getState();
+                // Refresh the store on EVERY attempt (not just once)
+                // This handles database replication delays
+                try {
+                  await refreshShopifyStatus();
+                  const currentState = useConnectionStore.getState();
 
-                    console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - isConnected:`, currentState.shopify.isConnected);
+                  console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - isConnected:`, currentState.shopify.isConnected);
+                  console.log(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Store URL:`, currentState.shopify.installation?.store_url);
 
-                    if (currentState.shopify.isConnected) {
-                      clearInterval(waitForStoreUpdate);
-                      console.log('[ShopifyConnectModal Polling] ✓✓✓ STORE UPDATED! Connection confirmed!');
-                      console.log('[ShopifyConnectModal Polling] Store URL:', currentState.shopify.installation?.store_url);
+                  if (currentState.shopify.isConnected) {
+                    clearInterval(waitForStoreUpdate);
+                    console.log('[ShopifyConnectModal Polling] ✓✓✓ STORE UPDATED! Connection confirmed!');
+                    console.log('[ShopifyConnectModal Polling] Store URL:', currentState.shopify.installation?.store_url);
 
-                      // Wait a moment to show success state
+                    // Wait a moment to show success state
+                    setTimeout(() => {
+                      const storeUrl = currentState.shopify.installation?.store_url || validDomain;
+                      console.log('[ShopifyConnectModal Polling] NOW closing modal with store:', storeUrl);
+
+                      // Call onSuccess and close
+                      onSuccess(storeUrl);
+                      onClose();
+
+                      // Reset states
                       setTimeout(() => {
-                        const storeUrl = currentState.shopify.installation?.store_url || validDomain;
-                        console.log('[ShopifyConnectModal Polling] NOW closing modal with store:', storeUrl);
+                        setIsSuccess(false);
+                        setShopUrl('');
+                        setHasError(false);
+                        setErrorMessage('');
+                      }, 300);
+                    }, 500);
+                  } else if (attempts >= maxAttempts) {
+                    clearInterval(waitForStoreUpdate);
+                    console.error('[ShopifyConnectModal Polling] ✗ Timeout waiting for store update');
 
-                        // Call onSuccess and close
-                        onSuccess(storeUrl);
-                        onClose();
-
-                        // Reset states
-                        setTimeout(() => {
-                          setIsSuccess(false);
-                          setShopUrl('');
-                          setHasError(false);
-                          setErrorMessage('');
-                        }, 300);
-                      }, 500);
-                    } else if (attempts >= maxAttempts) {
-                      clearInterval(waitForStoreUpdate);
-                      console.error('[ShopifyConnectModal Polling] ✗ Timeout waiting for store update');
-
-                      // Still close the modal but show error
-                      setIsLoading(false);
-                      setHasError(true);
-                      setErrorMessage('Connection established but UI update timed out. Please refresh the page.');
-                    }
-                  }, 500);
-                })
-                .catch((error) => {
-                  console.error('[ShopifyConnectModal Polling] ✗ Error refreshing store:', error);
-                  setIsLoading(false);
-                  setHasError(true);
-                  setErrorMessage('Failed to refresh connection status');
-                });
+                    // Still close the modal but show error
+                    setIsLoading(false);
+                    setHasError(true);
+                    setErrorMessage('Connection established but UI update timed out. Please refresh the page.');
+                  }
+                } catch (error) {
+                  console.error(`[ShopifyConnectModal Polling] Attempt ${attempts}/${maxAttempts} - Error refreshing store:`, error);
+                  // Don't stop polling on error, keep trying until maxAttempts
+                  if (attempts >= maxAttempts) {
+                    clearInterval(waitForStoreUpdate);
+                    setIsLoading(false);
+                    setHasError(true);
+                    setErrorMessage('Failed to refresh connection status');
+                  }
+                }
+              }, 500);
 
               return;
             }
