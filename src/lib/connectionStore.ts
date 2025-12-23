@@ -160,6 +160,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 
       const isConnected = installation !== null;
 
+      // Update the store state - this will automatically notify all subscribers
       set({
         shopify: {
           isConnected,
@@ -173,15 +174,19 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       console.log('[ConnectionStore] Store URL:', installation?.store_url);
       console.log('[ConnectionStore] Installation ID:', installation?.id);
 
-      // Verify the state was actually set
+      // Verify the state was actually set and log subscriber notification
       const currentState = useConnectionStore.getState();
       console.log('[ConnectionStore] Verified from store - isConnected:', currentState.shopify.isConnected);
+      console.log('[ConnectionStore] All subscribed components will now re-render automatically');
       console.log('[ConnectionStore] ====================================');
+
+      return { success: true, isConnected, installation };
     } catch (error) {
       console.error('[ConnectionStore] ✗ Error refreshing Shopify status:', error);
       set(state => ({
         shopify: { ...state.shopify, loading: false }
       }));
+      throw error;
     }
   },
 

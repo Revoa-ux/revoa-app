@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Info, Link2, X, Check, ChevronDown } from 'lucide-react';
+import { Info, Link2, X, Check, ChevronDown, RefreshCw } from 'lucide-react';
 import ShopifyFormInput from '@/components/ShopifyFormInput';
 import GlassCard from '@/components/GlassCard';
 import { getShopifyAuthUrl } from '@/lib/shopify/auth';
@@ -80,6 +80,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (event.data.type === 'shopify:success') {
         console.log('[ShopifyConnectModal] ✓ OAuth Success message received from callback page!');
         console.log('[ShopifyConnectModal] Shop:', event.data.shop);
+        console.log('[ShopifyConnectModal] Timestamp:', event.data.timestamp);
 
         // Stop polling immediately
         if (checkInterval) {
@@ -87,31 +88,36 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           setCheckInterval(null);
         }
 
-        // Update UI state
+        // Update UI state immediately to show success
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
         setErrorMessage('');
 
-        // Refresh connection store
+        // Refresh connection store in background
         console.log('[ShopifyConnectModal] Refreshing connection store...');
-        await refreshShopifyStatus();
+        refreshShopifyStatus().then(() => {
+          console.log('[ShopifyConnectModal] Connection store refreshed successfully');
 
-        // Close modal after showing success briefly
-        setTimeout(() => {
-          console.log('[ShopifyConnectModal] Closing modal');
-          onSuccess(event.data.shop);
-          onClose();
-
-          // Reset states after modal animation
+          // Try to auto-close modal after a brief delay
           setTimeout(() => {
-            setIsSuccess(false);
-            setShopUrl('');
-            setHasError(false);
-            setErrorMessage('');
-            setIsHelpExpanded(false);
-          }, 300);
-        }, 800);
+            console.log('[ShopifyConnectModal] Attempting auto-close');
+            onSuccess(event.data.shop);
+            onClose();
+
+            // Reset states after modal animation
+            setTimeout(() => {
+              setIsSuccess(false);
+              setShopUrl('');
+              setHasError(false);
+              setErrorMessage('');
+              setIsHelpExpanded(false);
+            }, 300);
+          }, 2000);
+        }).catch(err => {
+          console.error('[ShopifyConnectModal] Error refreshing connection store:', err);
+          // Still show success - user can manually close or refresh
+        });
 
       } else if (event.data.type === 'shopify:error') {
         console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
@@ -289,32 +295,37 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // Show success state
+              // Show success state immediately
               console.log('[ShopifyConnectModal Polling] Setting success state');
               setIsSuccess(true);
               setIsLoading(false);
               setHasError(false);
               setErrorMessage('');
 
-              // Refresh connection store
+              // Refresh connection store in background
               console.log('[ShopifyConnectModal Polling] Refreshing connection store...');
-              await refreshShopifyStatus();
+              refreshShopifyStatus().then(() => {
+                console.log('[ShopifyConnectModal Polling] Connection store refreshed successfully');
 
-              // Close modal after brief success display
-              setTimeout(() => {
-                console.log('[ShopifyConnectModal Polling] Closing modal with store:', validDomain);
-                onSuccess(validDomain);
-                onClose();
-
-                // Reset states
+                // Try to auto-close modal after brief success display
                 setTimeout(() => {
-                  setIsSuccess(false);
-                  setShopUrl('');
-                  setHasError(false);
-                  setErrorMessage('');
-                  setIsHelpExpanded(false);
-                }, 300);
-              }, 800);
+                  console.log('[ShopifyConnectModal Polling] Attempting auto-close with store:', validDomain);
+                  onSuccess(validDomain);
+                  onClose();
+
+                  // Reset states
+                  setTimeout(() => {
+                    setIsSuccess(false);
+                    setShopUrl('');
+                    setHasError(false);
+                    setErrorMessage('');
+                    setIsHelpExpanded(false);
+                  }, 300);
+                }, 2000);
+              }).catch(err => {
+                console.error('[ShopifyConnectModal Polling] Error refreshing connection store:', err);
+                // Still show success - user can manually close or refresh
+              });
 
               return;
             }
@@ -373,14 +384,54 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         </div>
 
         <div className="p-6">
-          <div className="text-center mb-6">
-            <div className="mx-auto flex items-center justify-center mb-4 h-32">
-              {isSuccess ? (
-                <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
+          {isSuccess ? (
+            <>
+              {/* Success State */}
+              <div className="text-center mb-6">
+                <div className="mx-auto flex items-center justify-center mb-4">
+                  <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <Check className="w-10 h-10 text-green-600 dark:text-green-400" />
+                  </div>
                 </div>
-              ) : (
-                <>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Connection Successful!
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Your Shopify store has been connected successfully.
+                </p>
+              </div>
+
+              {/* Success Actions */}
+              <div className="space-y-3">
+                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-lg p-4 text-sm text-green-800 dark:text-green-300">
+                  <p className="font-medium mb-1">This dialog will close automatically.</p>
+                  <p className="text-green-700 dark:text-green-400">
+                    If your page doesn't update, use the button below to refresh.
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    Refresh Page
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Normal State */}
+              <div className="text-center mb-6">
+                <div className="mx-auto flex items-center justify-center mb-4 h-32">
                   <img
                     src="https://iipaykvimkbbnoobtpzz.supabase.co/storage/v1/object/public/public-bucket/REVOA%20Sync%20to%20Shopify%20Image.png"
                     alt="Revoa Store Sync"
@@ -391,16 +442,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                     alt="Revoa Store Sync"
                     className="w-56 h-32 object-contain hidden dark:block"
                   />
-                </>
-              )}
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {isSuccess
-                ? 'Store connected successfully!'
-                : 'Enter your .myshopify.com URL below. You can find your URL in Settings > Domains on Shopify.'
-              }
-            </p>
-          </div>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Enter your .myshopify.com URL below. You can find your URL in Settings &gt; Domains on Shopify.
+                </p>
+              </div>
 
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-6">
             <form onSubmit={handleConnect} className="space-y-6">
@@ -478,6 +524,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               </div>
             </form>
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>
