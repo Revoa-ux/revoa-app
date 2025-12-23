@@ -555,12 +555,13 @@ const Chat = () => {
     <div className="flex flex-col h-full w-full mx-auto overflow-hidden">
       {/* Page Title - Hidden on mobile, visible on desktop */}
       <div className="hidden lg:block mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2">
           Resolution Center
         </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Get help with your orders and issues
-        </p>
+        <div className="flex items-start sm:items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></span>
+          <span>Get help with your orders and issues</span>
+        </div>
       </div>
 
       <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 flex overflow-hidden min-h-0 w-full max-w-full relative">
