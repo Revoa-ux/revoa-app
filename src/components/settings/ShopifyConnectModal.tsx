@@ -26,6 +26,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isHelpExpanded, setIsHelpExpanded] = useState(false);
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
+  const [autoCheckTimeout, setAutoCheckTimeout] = useState<NodeJS.Timeout | null>(null);
 
   // Watch connection store for Shopify changes
   const { shopify, refreshShopifyStatus } = useConnectionStore();
@@ -136,10 +137,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         console.log('[ShopifyConnectModal] Shop:', event.data.shop);
         console.log('[ShopifyConnectModal] Timestamp:', event.data.timestamp);
 
-        // Stop polling immediately
+        // Stop polling and auto-check timeout immediately
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
+        }
+        if (autoCheckTimeout) {
+          clearTimeout(autoCheckTimeout);
+          setAutoCheckTimeout(null);
+          console.log('[ShopifyConnectModal] Cleared auto-check timeout');
         }
 
         // Update UI state immediately to show success
@@ -176,10 +182,14 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       } else if (event.data.type === 'shopify:error') {
         console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
 
-        // Stop polling
+        // Stop polling and auto-check timeout
         if (checkInterval) {
           clearInterval(checkInterval);
           setCheckInterval(null);
+        }
+        if (autoCheckTimeout) {
+          clearTimeout(autoCheckTimeout);
+          setAutoCheckTimeout(null);
         }
 
         // Show error
@@ -198,10 +208,14 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           const data = JSON.parse(event.newValue);
           console.log('[ShopifyConnectModal] ✓ Success detected via localStorage!', data);
 
-          // Stop polling
+          // Stop polling and auto-check timeout
           if (checkInterval) {
             clearInterval(checkInterval);
             setCheckInterval(null);
+          }
+          if (autoCheckTimeout) {
+            clearTimeout(autoCheckTimeout);
+            setAutoCheckTimeout(null);
           }
 
           // Update UI
@@ -243,6 +257,10 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             clearInterval(checkInterval);
             setCheckInterval(null);
           }
+          if (autoCheckTimeout) {
+            clearTimeout(autoCheckTimeout);
+            setAutoCheckTimeout(null);
+          }
 
           setIsLoading(false);
           setHasError(true);
@@ -268,8 +286,11 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (checkInterval) {
         clearInterval(checkInterval);
       }
+      if (autoCheckTimeout) {
+        clearTimeout(autoCheckTimeout);
+      }
     };
-  }, [checkInterval, onSuccess, onClose, refreshShopifyStatus]);
+  }, [checkInterval, autoCheckTimeout, onSuccess, onClose, refreshShopifyStatus]);
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,6 +358,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       if (checkInterval) {
         clearInterval(checkInterval);
       }
+
+      // Set up automatic connection check after 3 seconds as a fallback
+      // This catches cases where postMessage might not work
+      const timeoutId = setTimeout(() => {
+        console.log('[ShopifyConnectModal] Auto-check triggered (no message received after 3s)');
+        handleManualConnectionCheck();
+      }, 3000);
+      setAutoCheckTimeout(timeoutId);
+      console.log('[ShopifyConnectModal] Auto-check timeout set for 3 seconds');
 
       let pollAttempts = 0;
       const maxPollAttempts = 120; // 2 minutes (120 * 1 second)

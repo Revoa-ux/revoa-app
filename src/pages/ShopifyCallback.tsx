@@ -135,27 +135,54 @@ export default function ShopifyCallback() {
         localStorage.removeItem('shopify_shop');
 
         if (window.opener && !window.opener.closed) {
-          console.log('[Callback] Sending success message to parent window');
-          window.opener.postMessage({
+          console.log('[Shopify Callback] Sending success messages to parent window (multiple attempts)');
+
+          const successMessage = {
             type: 'shopify:success',
             shop: shop,
-            data: result
-          }, '*');
+            data: result,
+            timestamp: Date.now()
+          };
 
+          // Send message immediately
+          window.opener.postMessage(successMessage, '*');
+          console.log('[Shopify Callback] Success message sent #1');
+
+          // Send again after 100ms
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(successMessage, '*');
+              console.log('[Shopify Callback] Success message sent #2');
+            }
+          }, 100);
+
+          // Send again after 300ms
+          setTimeout(() => {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage(successMessage, '*');
+              console.log('[Shopify Callback] Success message sent #3');
+            }
+          }, 300);
+
+          // Set localStorage as backup
           localStorage.setItem('shopify_oauth_success', JSON.stringify({
             shop: shop,
             timestamp: Date.now()
           }));
+          console.log('[Shopify Callback] Set localStorage success flag');
         }
 
-        // Keep window open for debugging - comment out auto-close
-        // setTimeout(() => {
-        //   if (window.opener && !window.opener.closed) {
-        //     window.close();
-        //   } else {
-        //     navigate('/settings');
-        //   }
-        // }, 1500);
+        // Auto-close popup after showing success state
+        setTimeout(() => {
+          console.log('[Shopify Callback] Auto-closing popup window...');
+          if (window.opener && !window.opener.closed) {
+            console.log('[Shopify Callback] Parent window detected, closing popup');
+            window.close();
+          } else {
+            console.log('[Shopify Callback] No parent window, redirecting to settings');
+            navigate('/settings');
+          }
+        }, 2000);
 
       } catch (error) {
         console.error('[Callback] OAuth callback error:', error);
@@ -168,10 +195,14 @@ export default function ShopifyCallback() {
         localStorage.removeItem('shopify_shop');
 
         if (window.opener && !window.opener.closed) {
-          window.opener.postMessage({
+          const errorMessage = {
             type: 'shopify:error',
-            error: errorMsg
-          }, '*');
+            error: errorMsg,
+            timestamp: Date.now()
+          };
+
+          window.opener.postMessage(errorMessage, '*');
+          console.log('[Shopify Callback] Error message sent to parent');
 
           localStorage.setItem('shopify_oauth_error', JSON.stringify({
             error: errorMsg,
@@ -179,14 +210,15 @@ export default function ShopifyCallback() {
           }));
         }
 
-        // Keep window open for debugging - comment out auto-close
-        // setTimeout(() => {
-        //   if (window.opener && !window.opener.closed) {
-        //     window.close();
-        //   } else {
-        //     navigate('/settings');
-        //   }
-        // }, 5000);
+        // Keep error window open longer for user to read the message
+        setTimeout(() => {
+          console.log('[Shopify Callback] Auto-closing error popup window...');
+          if (window.opener && !window.opener.closed) {
+            window.close();
+          } else {
+            navigate('/settings');
+          }
+        }, 5000);
       }
     };
 
