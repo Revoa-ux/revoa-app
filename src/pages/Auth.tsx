@@ -31,7 +31,7 @@ const Auth = () => {
     confirmPassword?: string;
   }>({});
 
-  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding, emailConfirmed, user, isLoading: authLoading } = useAuth();
+  const { signIn, signUp, resetPassword, isAuthenticated, hasCompletedOnboarding, emailConfirmed, profileLoaded, user, isLoading: authLoading } = useAuth();
   const { checkAdminStatus, isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
@@ -64,15 +64,13 @@ const Auth = () => {
 
     // Handle regular auth flow
     if (isAuthenticated) {
-      // IMPORTANT: Wait for emailConfirmed to be loaded from database
-      // undefined = still loading, don't make decisions yet
-      // true/false = loaded, safe to make redirect decision
-      if (emailConfirmed === undefined) {
+      // IMPORTANT: Wait for profile to be loaded from database before making decisions
+      if (!profileLoaded) {
         toast.info('DEBUG: Waiting for profile to load...');
         return;
       }
 
-      toast.info(`DEBUG: Auth check - isAdmin: ${isAdmin}, emailConfirmed: ${emailConfirmed}, hasCompletedOnboarding: ${hasCompletedOnboarding}`);
+      toast.info(`DEBUG: Auth check - isAdmin: ${isAdmin}, emailConfirmed: ${emailConfirmed}, hasCompletedOnboarding: ${hasCompletedOnboarding}, profileLoaded: ${profileLoaded}`);
 
       // If user is admin, redirect to admin panel
       if (isAdmin) {
@@ -82,7 +80,6 @@ const Auth = () => {
       }
 
       // If email not confirmed, redirect to check email page
-      // Only redirect if emailConfirmed is explicitly false (not undefined/loading)
       if (emailConfirmed === false) {
         toast.warning('DEBUG: Email not confirmed - redirecting to check-email');
         navigate('/check-email', { replace: true, state: { email: user?.email } });
@@ -112,7 +109,7 @@ const Auth = () => {
     if (params.get('mode') === 'reset-password') {
       setMode('forgot-password');
     }
-  }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, authLoading, navigate, location, emailConfirmed, user]);
+  }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, authLoading, navigate, location, emailConfirmed, profileLoaded, user]);
   
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

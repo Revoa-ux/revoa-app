@@ -18,6 +18,7 @@ interface AuthContextType {
   hasCompletedOnboarding: boolean;
   setHasCompletedOnboarding: (value: boolean) => void;
   emailConfirmed: boolean | undefined;
+  profileLoaded: boolean;
   refreshEmailConfirmed: () => Promise<void>;
 }
 
@@ -37,6 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [emailConfirmed, setEmailConfirmed] = useState<boolean | undefined>(undefined);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -90,13 +92,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (profileError) {
                 console.error('[AuthContext] Error fetching user profile:', profileError);
                 toast.error(`DEBUG: Profile fetch error - ${profileError.message}`);
-                // Leave emailConfirmed as undefined to indicate data not loaded
+                setEmailConfirmed(false);
               } else if (profile) {
                 console.log('[AuthContext] User profile:', profile);
                 const emailConfirmedValue = profile.email_confirmed === true;
                 toast.info(`DEBUG: Profile loaded - email_confirmed: ${emailConfirmedValue}`);
                 setHasCompletedOnboarding(profile.onboarding_completed || false);
-                // Explicitly set to true/false based on database value
                 setEmailConfirmed(emailConfirmedValue);
               } else {
                 // Profile is null - user might not have a profile yet
@@ -104,11 +105,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 toast.warning('DEBUG: No profile found - setting email_confirmed to false');
                 setEmailConfirmed(false);
               }
+              setProfileLoaded(true);
             }
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile fetch timeout or error:', err);
-              // Don't reset states on timeout - preserve existing state
+              toast.warning('DEBUG: Profile fetch timeout');
+              // Don't reset states on timeout - set profileLoaded anyway
+              setProfileLoaded(true);
             }
           }
         }
@@ -160,13 +164,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               if (error) {
                 console.error('[AuthContext] Error on SIGNED_IN/TOKEN_REFRESHED:', error);
                 toast.error(`DEBUG: SIGNED_IN error - ${error.message}`);
-                // Leave emailConfirmed as undefined to indicate data not loaded
+                setEmailConfirmed(false);
               } else if (profile) {
                 console.log('[AuthContext] Profile:', profile);
                 const emailConfirmedValue = profile.email_confirmed === true;
                 toast.info(`DEBUG: SIGNED_IN profile - email_confirmed: ${emailConfirmedValue}`);
                 setHasCompletedOnboarding(profile.onboarding_completed || false);
-                // Explicitly set to true/false based on database value
                 setEmailConfirmed(emailConfirmedValue);
               } else {
                 // Profile is null - user might not have a profile yet
@@ -174,11 +177,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 toast.warning('DEBUG: SIGNED_IN no profile - setting email_confirmed to false');
                 setEmailConfirmed(false);
               }
+              setProfileLoaded(true);
             }
           } catch (err) {
             if (isMounted) {
               console.warn('[AuthContext] Profile check timeout');
-              // Don't reset states on timeout - preserve existing state
+              toast.warning('DEBUG: SIGNED_IN profile timeout');
+              // Don't reset states on timeout - set profileLoaded anyway
+              setProfileLoaded(true);
             }
           }
         }
@@ -192,6 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(null);
           setHasCompletedOnboarding(false);
           setEmailConfirmed(false);
+          setProfileLoaded(false);
 
           // Only navigate to auth if user was previously authenticated
           // and we're not already on a public route
@@ -292,6 +299,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasCompletedOnboarding,
     setHasCompletedOnboarding: handleSetHasCompletedOnboarding,
     emailConfirmed,
+    profileLoaded,
     refreshEmailConfirmed
   };
 
