@@ -66,32 +66,25 @@ const Auth = () => {
     if (isAuthenticated) {
       // IMPORTANT: Wait for profile to be loaded from database before making decisions
       if (!profileLoaded) {
-        toast.info('DEBUG: Waiting for profile to load...');
         return;
       }
 
-      toast.info(`DEBUG: Auth check - isAdmin: ${isAdmin}, emailConfirmed: ${emailConfirmed}, hasCompletedOnboarding: ${hasCompletedOnboarding}, profileLoaded: ${profileLoaded}`);
-
       // If user is admin, redirect to admin panel
       if (isAdmin) {
-        toast.success('DEBUG: Redirecting to admin dashboard');
         navigate('/admin/dashboard', { replace: true });
         return;
       }
 
       // If email not confirmed, redirect to check email page
       if (emailConfirmed === false) {
-        toast.warning('DEBUG: Email not confirmed - redirecting to check-email');
         navigate('/check-email', { replace: true, state: { email: user?.email } });
         return;
       }
 
       // Regular users go through onboarding
       if (!hasCompletedOnboarding) {
-        toast.info('DEBUG: Redirecting to onboarding');
         navigate('/onboarding/store', { replace: true });
       } else {
-        toast.success('DEBUG: Redirecting to dashboard');
         navigate('/', { replace: true });
       }
       return;
