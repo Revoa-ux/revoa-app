@@ -64,6 +64,14 @@ const Auth = () => {
 
     // Handle regular auth flow
     if (isAuthenticated) {
+      // IMPORTANT: Wait for emailConfirmed to be loaded from database
+      // undefined = still loading, don't make decisions yet
+      // true/false = loaded, safe to make redirect decision
+      if (emailConfirmed === undefined) {
+        toast.info('DEBUG: Waiting for profile to load...');
+        return;
+      }
+
       toast.info(`DEBUG: Auth check - isAdmin: ${isAdmin}, emailConfirmed: ${emailConfirmed}, hasCompletedOnboarding: ${hasCompletedOnboarding}`);
 
       // If user is admin, redirect to admin panel
