@@ -154,15 +154,24 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           console.log('[ShopifyConnectModal] Cleared auto-check timeout');
         }
 
-        // Call onSuccess callback
-        onSuccessRef.current(event.data.shop);
+        // CRITICAL: Refresh connection store FIRST before any UI updates
+        console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+        await refreshShopifyStatus();
+        console.log('[ShopifyConnectModal] Connection store refreshed');
 
-        // Close the modal
-        onCloseRef.current();
+        // Give the store a moment to propagate changes
+        setTimeout(() => {
+          console.log('[ShopifyConnectModal] Calling onSuccess and closing modal');
+          // Call onSuccess callback
+          onSuccessRef.current(event.data.shop);
 
-        // Reload page immediately to refresh all UI with new connection state
-        console.log('[ShopifyConnectModal] Reloading page to update UI...');
-        window.location.reload();
+          // Close the modal
+          onCloseRef.current();
+
+          // Reload page to refresh all UI with new connection state
+          console.log('[ShopifyConnectModal] Reloading page to update UI...');
+          window.location.reload();
+        }, 500);
 
       } else if (event.data.type === 'shopify:error') {
         console.log('[ShopifyConnectModal] ✗ OAuth Error received from callback page:', event.data.error);
@@ -206,15 +215,24 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           // Clean up localStorage
           localStorage.removeItem('shopify_oauth_success');
 
-          // Call onSuccess callback
-          onSuccessRef.current(data.shop);
+          // CRITICAL: Refresh connection store FIRST before any UI updates
+          console.log('[ShopifyConnectModal] Manually refreshing connection store...');
+          await refreshShopifyStatus();
+          console.log('[ShopifyConnectModal] Connection store refreshed');
 
-          // Close modal
-          onCloseRef.current();
+          // Give the store a moment to propagate changes
+          setTimeout(() => {
+            console.log('[ShopifyConnectModal] Calling onSuccess and closing modal via storage');
+            // Call onSuccess callback
+            onSuccessRef.current(data.shop);
 
-          // Reload page immediately
-          console.log('[ShopifyConnectModal] Reloading page via storage event...');
-          window.location.reload();
+            // Close modal
+            onCloseRef.current();
+
+            // Reload page
+            console.log('[ShopifyConnectModal] Reloading page via storage event...');
+            window.location.reload();
+          }, 500);
         } catch (err) {
           console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
         }
@@ -424,15 +442,25 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // Call onSuccess callback
-              onSuccessRef.current(validDomain);
+              // CRITICAL: Refresh connection store FIRST before any UI updates
+              console.log('[ShopifyConnectModal Polling] Manually refreshing connection store...');
+              refreshShopifyStatus().then(() => {
+                console.log('[ShopifyConnectModal Polling] Connection store refreshed');
 
-              // Close modal
-              onCloseRef.current();
+                // Give the store a moment to propagate changes
+                setTimeout(() => {
+                  console.log('[ShopifyConnectModal Polling] Calling onSuccess and closing modal');
+                  // Call onSuccess callback
+                  onSuccessRef.current(validDomain);
 
-              // Reload page immediately
-              console.log('[ShopifyConnectModal Polling] Reloading page...');
-              window.location.reload();
+                  // Close modal
+                  onCloseRef.current();
+
+                  // Reload page
+                  console.log('[ShopifyConnectModal Polling] Reloading page...');
+                  window.location.reload();
+                }, 500);
+              });
 
               return;
             }
