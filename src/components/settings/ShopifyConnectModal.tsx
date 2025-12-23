@@ -154,12 +154,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           console.log('[ShopifyConnectModal] Cleared auto-check timeout');
         }
 
-        // CRITICAL: Refresh connection store FIRST before any UI updates
+        // Set local loading and success states immediately (CRITICAL - don't wait for store)
+        setIsLoading(false);
+        setIsSuccess(true);
+        setHasError(false);
+
+        // CRITICAL: Refresh connection store in background
         console.log('[ShopifyConnectModal] Manually refreshing connection store...');
         await refreshShopifyStatus();
         console.log('[ShopifyConnectModal] Connection store refreshed');
 
-        // Give the store a moment to propagate changes
+        // Give the store a moment to propagate changes, then reload
         setTimeout(() => {
           console.log('[ShopifyConnectModal] Calling onSuccess and closing modal');
           // Call onSuccess callback
@@ -215,12 +220,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           // Clean up localStorage
           localStorage.removeItem('shopify_oauth_success');
 
-          // CRITICAL: Refresh connection store FIRST before any UI updates
+          // Set local loading and success states immediately (CRITICAL - don't wait for store)
+          setIsLoading(false);
+          setIsSuccess(true);
+          setHasError(false);
+
+          // CRITICAL: Refresh connection store in background
           console.log('[ShopifyConnectModal] Manually refreshing connection store...');
           await refreshShopifyStatus();
           console.log('[ShopifyConnectModal] Connection store refreshed');
 
-          // Give the store a moment to propagate changes
+          // Give the store a moment to propagate changes, then reload
           setTimeout(() => {
             console.log('[ShopifyConnectModal] Calling onSuccess and closing modal via storage');
             // Call onSuccess callback
@@ -349,14 +359,52 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         clearInterval(checkInterval);
       }
 
-      // Set up automatic connection check after 3 seconds as a fallback
-      // This catches cases where postMessage might not work
-      const timeoutId = setTimeout(() => {
-        console.log('[ShopifyConnectModal] Auto-check triggered (no message received after 3s)');
-        handleManualConnectionCheck();
-      }, 3000);
-      setAutoCheckTimeout(timeoutId);
-      console.log('[ShopifyConnectModal] Auto-check timeout set for 3 seconds');
+      // Set up automatic connection check every 2 seconds as a robust fallback
+      // This catches cases where postMessage might not work or be blocked
+      let fallbackCheckCount = 0;
+      const maxFallbackChecks = 60; // Check for up to 2 minutes
+      const fallbackIntervalId = setInterval(async () => {
+        fallbackCheckCount++;
+        console.log(`[ShopifyConnectModal Fallback] Check ${fallbackCheckCount}/${maxFallbackChecks} - Checking connection status...`);
+
+        try {
+          const result = await refreshShopifyStatus();
+          if (result && result.isConnected) {
+            console.log('[ShopifyConnectModal Fallback] ✓ Connection detected!');
+            clearInterval(fallbackIntervalId);
+
+            // Stop polling
+            if (checkInterval) {
+              clearInterval(checkInterval);
+              setCheckInterval(null);
+            }
+
+            // Set success state
+            setIsLoading(false);
+            setIsSuccess(true);
+            setHasError(false);
+
+            // Close popup
+            if (authWindow && !authWindow.closed) {
+              authWindow.close();
+            }
+
+            // Wait a moment then reload
+            setTimeout(() => {
+              onSuccessRef.current(result.installation?.store_url || validDomain);
+              onCloseRef.current();
+              window.location.reload();
+            }, 800);
+          } else if (fallbackCheckCount >= maxFallbackChecks) {
+            console.log('[ShopifyConnectModal Fallback] ✗ Max checks reached without success');
+            clearInterval(fallbackIntervalId);
+          }
+        } catch (err) {
+          console.error('[ShopifyConnectModal Fallback] Error checking status:', err);
+        }
+      }, 2000);
+
+      console.log('[ShopifyConnectModal] Fallback polling started (every 2 seconds)');
 
       let pollAttempts = 0;
       const maxPollAttempts = 120; // 2 minutes (120 * 1 second)
@@ -442,12 +490,17 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               // Clean up oauth session and stop polling
               cleanOauthSession(oauthSession);
 
-              // CRITICAL: Refresh connection store FIRST before any UI updates
+              // Set local loading and success states immediately (CRITICAL - don't wait for store)
+              setIsSuccess(true);
+              setIsLoading(false);
+              setHasError(false);
+
+              // CRITICAL: Refresh connection store in background
               console.log('[ShopifyConnectModal Polling] Manually refreshing connection store...');
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal Polling] Connection store refreshed');
 
-                // Give the store a moment to propagate changes
+                // Give the store a moment to propagate changes, then reload
                 setTimeout(() => {
                   console.log('[ShopifyConnectModal Polling] Calling onSuccess and closing modal');
                   // Call onSuccess callback
