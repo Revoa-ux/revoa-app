@@ -436,8 +436,6 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               {profile?.last_login ? formatDistanceToNow(new Date(profile.last_login), { addSuffix: true }) : 'Never'}
             </span>
           </div>
-        </div>
-
           </div>
 
           {/* Financial Metrics */}
@@ -526,17 +524,17 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               </span>
             </div>
           )}
-        </div>
+          </div>
 
-        {/* Active Quotes Section */}
-        {activeQuotesCount > 0 && (
-          <div className="px-4 pb-4 space-y-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-4 bg-red-500 rounded-full"></div>
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-                Quotes
-              </h4>
-            </div>
+          {/* Active Quotes Section */}
+          {activeQuotesCount > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                  Quotes
+                </h4>
+              </div>
 
             <div className="w-full flex items-center justify-between py-2">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -552,17 +550,17 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 {activeQuotesCount}
               </span>
             </div>
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Order Metrics */}
-        <div className="px-4 pb-4 space-y-2">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-red-500 rounded-full"></div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-              Orders
-            </h4>
-          </div>
+          {/* Order Metrics */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                Orders
+              </h4>
+            </div>
 
           {/* Unfulfilled Orders */}
           <div className="flex items-center justify-between py-2">
@@ -611,17 +609,16 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
               {metrics.average_fulfillment_days > 0 ? `${metrics.average_fulfillment_days} days` : 'Never'}
             </span>
           </div>
-        </div>
-
-
-        {/* Communication */}
-        <div className="px-4 pb-4 space-y-2">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-4 bg-red-500 rounded-full"></div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
-              Communication
-            </h4>
           </div>
+
+          {/* Communication */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-1 h-4 bg-red-500 rounded-full"></div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                Communication
+              </h4>
+            </div>
 
           <div className="flex items-center justify-between py-2">
             <div className="flex items-center text-gray-600 dark:text-gray-400">
@@ -668,6 +665,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
                 }
               })() : 'Never'}
             </span>
+          </div>
           </div>
         </div>
       </div>
