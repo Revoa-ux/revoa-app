@@ -26,6 +26,7 @@ import AdminProfileSetup from './pages/admin/ProfileSetup';
 import AdminProfileEdit from './pages/admin/ProfileEdit';
 import AcceptInvitation from './pages/admin/AcceptInvitation';
 import AdminInvoices from './pages/admin/Invoices';
+import AdminOrders from './pages/admin/Orders';
 import SignUpNew from './pages/SignUpNew';
 import Onboarding from './pages/Onboarding';
 import ShopifySetup from './pages/ShopifySetup';
@@ -197,6 +198,7 @@ function App() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="quotes" element={<AdminQuotes />} />
               <Route path="invoices" element={<AdminInvoices />} />
+              <Route path="orders" element={<AdminOrders />} />
               <Route path="chat" element={<AdminChat />} />
               <Route path="products" element={<AdminProductApprovals />} />
               <Route path="product-import" element={<AdminProductImport />} />

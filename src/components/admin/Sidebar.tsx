@@ -13,7 +13,8 @@ import {
   Settings,
   PanelLeft,
   PanelRight,
-  Receipt
+  Receipt,
+  Package
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +28,7 @@ const mainNavigation = [
   { name: 'User Management', href: '/admin/users', icon: Users },
   { name: 'Quote Requests', href: '/admin/quotes', icon: FileText },
   { name: 'Invoices', href: '/admin/invoices', icon: Receipt },
+  { name: 'Order Fulfillment', href: '/admin/orders', icon: Package },
   { name: 'Resolution Center', href: '/admin/chat', icon: MessageSquare },
   { name: 'Manage Admins', href: '/admin/admins', icon: UserPlus, superAdminOnly: true }
 ];
