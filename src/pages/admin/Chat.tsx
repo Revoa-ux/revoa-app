@@ -977,18 +977,6 @@ const AdminChat = () => {
               </div>
             )}
 
-            {/* Active Flow Indicator */}
-            {activeFlowSession?.is_active && activeFlow && (
-              <div className="mx-4 sm:mx-6 mt-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 dark:bg-green-500/20 border border-green-500/30 rounded-full">
-                  <AlertCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                  <span className="text-xs font-medium text-green-600 dark:text-green-400">
-                    Active Flow: {activeFlow.name}
-                  </span>
-                </div>
-              </div>
-            )}
-
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4 pb-4 space-y-3 sm:space-y-4 bg-gray-50 dark:bg-gray-900/50">
               {/* Escalation Banner - Shows when agent action is needed */}
@@ -1006,7 +994,7 @@ const AdminChat = () => {
 
               {/* Conversational Flow Container - Shows at the top of messages */}
               {selectedThreadId && activeFlowSession?.is_active && (
-                <div className="mb-4">
+                <div className="mb-4 p-3 bg-green-500/5 dark:bg-green-500/10 border border-green-500/20 dark:border-green-500/30 rounded-lg">
                   <ConversationalFlowContainer
                     threadId={selectedThreadId}
                     onOpenTemplateModal={(templateIds) => {
@@ -1022,6 +1010,12 @@ const AdminChat = () => {
                     }}
                     isAdminView={true}
                   />
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-green-500/20 dark:border-green-500/30">
+                    <AlertCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                    <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                      Active Flow: {activeFlow?.name}
+                    </span>
+                  </div>
                 </div>
               )}
 
