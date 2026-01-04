@@ -40,6 +40,12 @@ const initializeApp = () => {
 
     log('Rendering application...');
 
+    // Hide initial loader before React renders
+    const initialLoader = document.getElementById('initial-loader');
+    if (initialLoader) {
+      initialLoader.style.display = 'none';
+    }
+
     createRoot(root).render(
       <StrictMode>
         <ErrorBoundary>
