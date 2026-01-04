@@ -627,7 +627,10 @@ export default function AdminsManagement() {
                         {row.expiresAt && row.status === 'pending' && (
                           <div className="flex items-center space-x-1 mt-1">
                             <Clock className="w-3 h-3" />
-                            <span>Expires {formatDistanceToNow(new Date(row.expiresAt), { addSuffix: true })}</span>
+                            <span>
+                              {new Date(row.expiresAt) < new Date() ? 'Expired' : 'Expires'}{' '}
+                              {formatDistanceToNow(new Date(row.expiresAt), { addSuffix: true })}
+                            </span>
                           </div>
                         )}
                       </div>
