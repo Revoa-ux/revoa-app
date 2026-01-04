@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
+import { FilterButton } from '@/components/FilterButton';
 import { StripeTopUpModal } from '../components/balance/StripeTopUpModal';
 import { AutoTopUpModal } from '../components/balance/AutoTopUpModal';
 import { BankTransferModal } from '../components/balance/BankTransferModal';  
@@ -332,14 +333,16 @@ export default function Balance() {
               )}
             </div>
             <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
-              <button
+              <FilterButton
+                icon={Filter}
+                label="Status"
+                selectedLabel={statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
                 onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-              </button>
-              
+                isActive={statusFilter !== 'all'}
+                activeCount={statusFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+              />
+
               {showStatusDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
@@ -347,40 +350,40 @@ export default function Balance() {
                       setStatusFilter('all');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>All</span>
-                    {statusFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                    {statusFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setStatusFilter('paid');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Paid</span>
-                    {statusFilter === 'paid' && <Check className="w-4 h-4 text-primary-500" />}
+                    {statusFilter === 'paid' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setStatusFilter('unpaid');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Unpaid</span>
-                    {statusFilter === 'unpaid' && <Check className="w-4 h-4 text-primary-500" />}
+                    {statusFilter === 'unpaid' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setStatusFilter('pending');
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 last:rounded-b-lg"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Pending</span>
-                    {statusFilter === 'pending' && <Check className="w-4 h-4 text-primary-500" />}
+                    {statusFilter === 'pending' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                 </div>
               )}
@@ -458,15 +461,16 @@ export default function Balance() {
               )}
             </div>
             <div className="relative flex-1 sm:flex-initial" ref={typeDropdownRef}>
-              <button
+              <FilterButton
+                icon={Filter}
+                label="Type"
+                selectedLabel={getTypeLabel()}
                 onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-                title={`Type: ${getTypeLabel()}`}
-              >
-                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Type</span>
-              </button>
-              
+                isActive={transactionTypeFilter !== 'all'}
+                activeCount={transactionTypeFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+              />
+
               {showTypeDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   <button
@@ -474,70 +478,70 @@ export default function Balance() {
                       setTransactionTypeFilter('all');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>All</span>
-                    {transactionTypeFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('payment');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Payment</span>
-                    {transactionTypeFilter === 'payment' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'payment' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('refund');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Refund</span>
-                    {transactionTypeFilter === 'refund' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'refund' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('adjustment');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Adjustment</span>
-                    {transactionTypeFilter === 'adjustment' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'adjustment' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('top_up');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Top Up</span>
-                    {transactionTypeFilter === 'top_up' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'top_up' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('order_charge');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Order Charge</span>
-                    {transactionTypeFilter === 'order_charge' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'order_charge' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setTransactionTypeFilter('cancellation');
                       setShowTypeDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 last:rounded-b-lg"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Cancellation</span>
-                    {transactionTypeFilter === 'cancellation' && <Check className="w-4 h-4 text-primary-500" />}
+                    {transactionTypeFilter === 'cancellation' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                 </div>
               )}

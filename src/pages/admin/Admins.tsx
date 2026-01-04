@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { FilterButton } from '@/components/FilterButton';
 import { supabase } from '@/lib/supabase';
 import { InviteAdminModal } from '@/components/admin/InviteAdminModal';
 import Modal from '@/components/Modal';
@@ -455,16 +456,18 @@ export default function AdminsManagement() {
 
         {/* Filter */}
         <div className="relative flex-1 sm:flex-initial" ref={filterDropdownRef}>
-            <button
+            <FilterButton
+              icon={Filter}
+              label="Filter"
+              selectedLabel={filterOptions.find(o => o.value === filterType)?.label || 'All'}
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-            </button>
+              isActive={filterType !== 'all'}
+              activeCount={filterType !== 'all' ? 1 : 0}
+              hideLabel="md"
+            />
 
             {showFilterDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {filterOptions.map(option => (
                   <button
                     key={option.value}
@@ -472,11 +475,11 @@ export default function AdminsManagement() {
                       setFilterType(option.value as FilterType);
                       setShowFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>{option.label}</span>
                     {filterType === option.value && (
-                      <Check className="w-4 h-4 text-primary-500" />
+                      <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                     )}
                   </button>
                 ))}
@@ -486,16 +489,16 @@ export default function AdminsManagement() {
 
           {/* Sort */}
           <div className="relative flex-1 sm:flex-initial" ref={sortDropdownRef}>
-            <button
+            <FilterButton
+              icon={ArrowUpDown}
+              label="Sort"
+              selectedLabel={sortOptions.find(o => o.value === sortBy.field)?.label || 'Sort'}
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-            >
-              <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
-            </button>
+              hideLabel="md"
+            />
 
             {showSortDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {sortOptions.map(option => (
                   <button
                     key={option.value}
@@ -513,11 +516,11 @@ export default function AdminsManagement() {
                       }
                       setShowSortDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>{option.label}</span>
                     {sortBy.field === option.value && (
-                      <Check className="w-4 h-4 text-primary-500" />
+                      <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                     )}
                   </button>
                 ))}

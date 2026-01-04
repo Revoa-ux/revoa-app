@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import AdReportsTimeSelector, { TimeOption } from '../components/reports/AdReportsTimeSelector';
 import TableRowSkeleton from '../components/TableRowSkeleton';
+import { FilterButton } from '@/components/FilterButton';
 
 interface DateRange {
   startDate: Date;
@@ -487,30 +488,29 @@ export default function Inventory() {
             </div>
 
             <div className="relative">
-              <button
+              <FilterButton
+                icon={Filter}
+                label="Filter"
+                selectedLabel={filterOption === 'all' ? 'All' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-                title={`Filter: ${filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`}
-              >
-                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-              </button>
+                isActive={filterOption !== 'all'}
+                activeCount={filterOption !== 'all' ? 1 : 0}
+                hideLabel="md"
+              />
 
               {showFilterDropdown && (
                 <div className="absolute right-0 mt-2 w-[280px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
-                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option, index, array) => (
+                  {(['all', 'in_stock', 'low_stock', 'out_of_stock', 'unfulfilled'] as const).map((option) => (
                     <button
                       key={option}
                       onClick={() => {
                         setFilterOption(option);
                         setShowFilterDropdown(false);
                       }}
-                      className={`w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between ${
-                        index === 0 ? 'rounded-t-lg' : ''
-                      } ${index === array.length - 1 ? 'rounded-b-lg' : ''}`}
+                      className="w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between"
                     >
                       <span>{option === 'all' ? 'All Products' : option.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</span>
-                      {filterOption === option && <Check className="w-4 h-4 text-primary-500" />}
+                      {filterOption === option && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
                   ))}
                 </div>

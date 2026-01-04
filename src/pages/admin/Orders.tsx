@@ -4,6 +4,7 @@ import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, Chevro
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
+import { FilterButton } from '@/components/FilterButton';
 import { toast } from 'sonner';
 import { CustomSelect } from '../../components/CustomSelect';
 import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
@@ -407,19 +408,18 @@ export default function Orders() {
         <div className="flex items-center gap-2 sm:hidden">
           {(isSuperAdmin || permissions?.can_view_all_merchants) && (
             <div className="relative flex-1" ref={merchantDropdownRef}>
-              <button
+              <FilterButton
+                icon={Users}
+                label="Merchant"
+                selectedLabel={selectedMerchant ? selectedMerchant.name : 'All'}
                 onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
-                className="w-full h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between gap-2"
-              >
-                <Users className="w-4 h-4 text-gray-400" />
-                <span className="truncate flex-1 text-left">
-                  {selectedMerchant ? selectedMerchant.name : 'All Merchants'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              </button>
+                isActive={!!filteredUserId}
+                activeCount={filteredUserId ? 1 : 0}
+                fullWidth
+              />
 
               {showMerchantDropdown && (
-                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -428,20 +428,20 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                       />
                     </div>
                   </div>
 
-                  <div className="max-h-64 overflow-y-auto py-1">
+                  <div className="max-h-64 overflow-y-auto">
                     <button
                       onClick={() => handleSelectMerchant(null)}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        !filteredUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
-                      {!filteredUserId && <Check className="w-4 h-4 text-gray-900 dark:text-white" />}
+                      {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
 
                     <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
@@ -459,8 +459,8 @@ export default function Orders() {
                         <button
                           key={merchant.id}
                           onClick={() => handleSelectMerchant(merchant.id)}
-                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                            filteredUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
@@ -469,7 +469,7 @@ export default function Orders() {
                               {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
                             </p>
                           </div>
-                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />}
+                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
                         </button>
                       ))
                     )}
@@ -484,19 +484,18 @@ export default function Orders() {
         <div className="hidden sm:flex flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
           {(isSuperAdmin || permissions?.can_view_all_merchants) && (
             <div className="relative" ref={merchantDropdownRef}>
-              <button
+              <FilterButton
+                icon={Users}
+                label="Merchant"
+                selectedLabel={selectedMerchant ? selectedMerchant.name : 'All'}
                 onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
-                className="w-auto h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-start gap-2"
-              >
-                <Users className="w-4 h-4 text-gray-400" />
-                <span className="truncate max-w-[180px]">
-                  {selectedMerchant ? selectedMerchant.name : 'All Merchants'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              </button>
+                isActive={!!filteredUserId}
+                activeCount={filteredUserId ? 1 : 0}
+                hideLabel="md"
+              />
 
               {showMerchantDropdown && (
-                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -505,20 +504,20 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                       />
                     </div>
                   </div>
 
-                  <div className="max-h-64 overflow-y-auto py-1">
+                  <div className="max-h-64 overflow-y-auto">
                     <button
                       onClick={() => handleSelectMerchant(null)}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        !filteredUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
-                      {!filteredUserId && <Check className="w-4 h-4 text-gray-900 dark:text-white" />}
+                      {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
 
                     <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
@@ -536,8 +535,8 @@ export default function Orders() {
                         <button
                           key={merchant.id}
                           onClick={() => handleSelectMerchant(merchant.id)}
-                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
-                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                            filteredUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
@@ -546,7 +545,7 @@ export default function Orders() {
                               {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
                             </p>
                           </div>
-                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />}
+                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
                         </button>
                       ))
                     )}

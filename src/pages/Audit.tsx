@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Facebook, AlertTriangle, RefreshCw, Filter, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { FilterButton } from '@/components/FilterButton';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
 import { AIInsightsSidebar } from '@/components/reports/AIInsightsSidebar';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
@@ -650,33 +651,30 @@ export default function Audit() {
         <div className="flex items-center gap-3">
           {/* Platform Filter */}
           <div className="relative" ref={platformFilterRef}>
-            <button
+            <FilterButton
+              icon={Filter}
+              label="Platform"
+              selectedLabel={selectedPlatforms.includes('all') ? 'All' : `${selectedPlatforms.length} selected`}
               onClick={() => setShowPlatformFilter(!showPlatformFilter)}
+              isActive={!selectedPlatforms.includes('all')}
+              activeCount={!selectedPlatforms.includes('all') ? selectedPlatforms.length : 0}
+              hideLabel="md"
               disabled={!facebook.isConnected}
-              className="flex items-center gap-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-              {!selectedPlatforms.includes('all') && (
-                <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
-                  {selectedPlatforms.length}
-                </span>
-              )}
-            </button>
+            />
             {showPlatformFilter && (
-              <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
                 {platforms.map((platform) => (
                   <button
                     key={platform.id}
                     onClick={() => handlePlatformFilter(platform.id)}
-                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg"
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <div className="flex items-center space-x-2">
                       <platform.icon className="w-4 h-4" />
                       <span>{platform.name}</span>
                     </div>
                     {(selectedPlatforms.includes(platform.id) || (platform.id === 'all' && selectedPlatforms.includes('all'))) && (
-                      <Check className="w-4 h-4 text-red-600" />
+                      <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                     )}
                   </button>
                 ))}
