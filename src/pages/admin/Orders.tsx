@@ -566,9 +566,9 @@ export default function Orders() {
           {permissions?.can_export_orders && (
             <button
               onClick={() => setShowExportModal(true)}
-              className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-all flex items-center gap-2 ${
+              className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
                 selectedOrders.size > 0
-                  ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/25 hover:shadow-red-500/40'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                   : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
@@ -604,9 +604,9 @@ export default function Orders() {
           {permissions?.can_export_orders && (
             <button
               onClick={() => setShowExportModal(true)}
-              className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
                 selectedOrders.size > 0
-                  ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/25'
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                   : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
             >
