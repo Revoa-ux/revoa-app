@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, MessageSquare } from 'lucide-react';
+import { ChevronDown, ChevronRight, ExternalLink, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,11 @@ interface Order {
   tracking_imported: boolean;
   merchant_name?: string;
   shopify_domain?: string;
+  line_items?: Array<{
+    product_name: string;
+    variant_name: string;
+    quantity: number;
+  }>;
 }
 
 export default function AllOrdersTab({
@@ -47,10 +52,21 @@ export default function AllOrdersTab({
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadOrders();
   }, [user?.id, filteredUserId, refreshKey]);
+
+  const toggleOrderExpansion = (orderId: string) => {
+    const newExpanded = new Set(expandedOrders);
+    if (newExpanded.has(orderId)) {
+      newExpanded.delete(orderId);
+    } else {
+      newExpanded.add(orderId);
+    }
+    setExpandedOrders(newExpanded);
+  };
 
   const loadOrders = async () => {
     if (!user?.id) return;
@@ -109,10 +125,24 @@ export default function AllOrdersTab({
           installations?.map(i => [i.user_id, i.shop_domain])
         );
 
+        const { data: lineItems } = await supabase
+          .from('order_line_items')
+          .select('shopify_order_id, product_name, variant_name, quantity')
+          .in('shopify_order_id', data.map(o => o.shopify_order_id));
+
+        const lineItemsMap = new Map<string, any[]>();
+        lineItems?.forEach(item => {
+          if (!lineItemsMap.has(item.shopify_order_id)) {
+            lineItemsMap.set(item.shopify_order_id, []);
+          }
+          lineItemsMap.get(item.shopify_order_id)!.push(item);
+        });
+
         const ordersWithData = data.map(order => ({
           ...order,
           merchant_name: profileMap.get(order.user_id) || 'Unknown',
-          shopify_domain: domainMap.get(order.user_id)
+          shopify_domain: domainMap.get(order.user_id),
+          line_items: lineItemsMap.get(order.shopify_order_id) || []
         }));
 
         setOrders(ordersWithData);
@@ -239,9 +269,25 @@ export default function AllOrdersTab({
           <div key={order.id} className="p-4 bg-white dark:bg-gray-800">
             {/* Header Row: Order # + Fulfillment Status */}
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOrderExpansion(order.id);
+                  }}
+                  className="p-1.5 -m-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-manipulation"
+                >
+                  {expandedOrders.has(order.id) ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                  {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                </span>
+              </div>
               {getFulfillmentStatusBadge(order.fulfillment_status)}
             </div>
 
@@ -310,6 +356,22 @@ export default function AllOrdersTab({
                 </a>
               )}
             </div>
+
+            {/* Expanded Items */}
+            {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">Items</p>
+                {order.line_items.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-900 dark:text-white truncate flex-1">
+                      {item.product_name}
+                      {item.variant_name && <span className="text-gray-500 ml-1">({item.variant_name})</span>}
+                    </span>
+                    <span className="text-gray-500 dark:text-gray-400 ml-2">x{item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -352,12 +414,29 @@ export default function AllOrdersTab({
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
             {filteredOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-4">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-                  </span>
-                </td>
+              <React.Fragment key={order.id}>
+                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleOrderExpansion(order.id);
+                        }}
+                        className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                      >
+                        {expandedOrders.has(order.id) ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </button>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                      </span>
+                    </div>
+                  </td>
                 {!filteredUserId && (
                   <td className="px-4 py-4">
                     <span className="text-sm text-gray-900 dark:text-white">
@@ -433,6 +512,35 @@ export default function AllOrdersTab({
                   </div>
                 </td>
               </tr>
+              {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+                <tr>
+                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
+                        Order Items
+                      </p>
+                      {order.line_items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-sm">
+                          <div className="flex-1">
+                            <span className="text-gray-900 dark:text-white font-medium">
+                              {item.product_name}
+                            </span>
+                            {item.variant_name && (
+                              <span className="text-gray-500 dark:text-gray-400 ml-2">
+                                ({item.variant_name})
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                            <span>Qty: {item.quantity}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
