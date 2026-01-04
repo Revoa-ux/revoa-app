@@ -771,20 +771,20 @@ export default function Orders() {
       </div>
 
       {/* Search and Filters - Above Tabs */}
-      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
-        {/* Search - appears below filters on mobile, first on desktop */}
-        <div className="relative flex-1 sm:max-w-md order-last sm:order-first">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <div className="flex flex-row items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 sm:max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search orders, customers..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+            placeholder="Search orders..."
+            className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 
-        {/* Filters - appear first on mobile */}
+        {/* Filters */}
         {activeTab === 'unfulfilled' && (
           <div className="relative" ref={exportStatusDropdownRef}>
             <FilterButton
@@ -794,6 +794,7 @@ export default function Orders() {
               onClick={() => setShowExportStatusDropdown(!showExportStatusDropdown)}
               isActive={exportStatusFilter !== 'all'}
               activeCount={exportStatusFilter !== 'all' ? 1 : 0}
+              hideLabel="md"
             />
             {showExportStatusDropdown && (
               <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -822,7 +823,7 @@ export default function Orders() {
         )}
 
         {activeTab === 'tracking' && (
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-row gap-2 sm:gap-3">
             <div className="relative" ref={carrierDropdownRef}>
               <FilterButton
                 icon={Truck}
@@ -831,7 +832,7 @@ export default function Orders() {
                 onClick={() => setShowCarrierDropdown(!showCarrierDropdown)}
                 isActive={carrierFilter !== 'all'}
                 activeCount={carrierFilter !== 'all' ? 1 : 0}
-                fullWidth
+                hideLabel="md"
               />
               {showCarrierDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
@@ -873,7 +874,7 @@ export default function Orders() {
                 onClick={() => setShowSyncStatusDropdown(!showSyncStatusDropdown)}
                 isActive={syncStatusFilter !== 'all'}
                 activeCount={syncStatusFilter !== 'all' ? 1 : 0}
-                fullWidth
+                hideLabel="md"
               />
               {showSyncStatusDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -904,7 +905,7 @@ export default function Orders() {
         )}
 
         {activeTab === 'all' && (
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-row gap-2 sm:gap-3">
             <div className="relative" ref={fulfillmentStatusDropdownRef}>
               <FilterButton
                 icon={Package}
@@ -917,7 +918,7 @@ export default function Orders() {
                 onClick={() => setShowFulfillmentStatusDropdown(!showFulfillmentStatusDropdown)}
                 isActive={fulfillmentStatusFilter !== 'all'}
                 activeCount={fulfillmentStatusFilter !== 'all' ? 1 : 0}
-                fullWidth
+                hideLabel="md"
               />
               {showFulfillmentStatusDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -957,7 +958,7 @@ export default function Orders() {
                 onClick={() => setShowAllOrdersExportDropdown(!showAllOrdersExportDropdown)}
                 isActive={allOrdersExportFilter !== 'all'}
                 activeCount={allOrdersExportFilter !== 'all' ? 1 : 0}
-                fullWidth
+                hideLabel="md"
               />
               {showAllOrdersExportDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

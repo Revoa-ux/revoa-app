@@ -575,8 +575,8 @@ export default function Invoices() {
 
       {/* Filters and Actions */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-          <div className="w-full sm:w-auto">
+        <div className="flex flex-row items-center gap-2 sm:gap-3 w-full lg:w-auto">
+          <div className="hidden sm:block sm:w-auto">
             <AdReportsTimeSelector
               selectedTime={selectedTime}
               onTimeChange={handleTimeChange}
@@ -592,7 +592,7 @@ export default function Invoices() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
             />
             {searchTerm && (
               <button
@@ -604,7 +604,7 @@ export default function Invoices() {
             )}
           </div>
 
-          <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
+          <div className="relative" ref={statusDropdownRef}>
             <FilterButton
               icon={Filter}
               label="Status"
@@ -613,7 +613,6 @@ export default function Invoices() {
               isActive={filters.status !== 'all'}
               activeCount={filters.status !== 'all' ? 1 : 0}
               hideLabel="md"
-              fullWidth
             />
 
             {showStatusDropdown && (
@@ -636,7 +635,7 @@ export default function Invoices() {
           </div>
 
           {isSuperAdmin && (
-            <div className="relative flex-1 sm:flex-initial" ref={adminFilterDropdownRef}>
+            <div className="relative" ref={adminFilterDropdownRef}>
               <FilterButton
                 icon={UsersIcon}
                 label="Admin"
@@ -645,7 +644,6 @@ export default function Invoices() {
                 isActive={selectedAdminFilter !== 'all'}
                 activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
-                fullWidth
               />
 
               {showAdminFilterDropdown && (

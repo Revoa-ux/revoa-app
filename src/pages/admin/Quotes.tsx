@@ -425,16 +425,16 @@ export default function AdminQuotes() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
-          <div className="relative w-full sm:w-[280px]">
+      <div className="flex flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial sm:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search quotes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
             />
             {searchTerm && (
               <button
