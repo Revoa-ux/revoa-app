@@ -448,11 +448,10 @@ export default function AdminQuotes() {
           <div className="relative" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
             >
-              <Filter className="w-4 h-4 text-gray-400" />
-              <span>Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
             </button>
 
             {showStatusDropdown && (
@@ -478,14 +477,11 @@ export default function AdminQuotes() {
             <div className="relative" ref={adminFilterDropdownRef}>
               <button
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2"
+                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+                title={`Admin: ${selectedAdminFilter === 'all' ? 'All Admins' : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
               >
-                <span>
-                  Admin: {selectedAdminFilter === 'all'
-                    ? 'All Admins'
-                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
               </button>
 
               {showAdminFilterDropdown && (

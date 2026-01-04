@@ -377,7 +377,7 @@ export default function Users() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
           User Management
@@ -414,10 +414,11 @@ export default function Users() {
           <div className="relative" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
               title={`Filter: ${selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}`}
             >
               <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
             </button>
 
             {showFilterDropdown && (
@@ -444,7 +445,7 @@ export default function Users() {
             <div className="relative" ref={adminFilterDropdownRef}>
               <button
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
                 title={`Admin: ${selectedAdminFilter === 'all'
                   ? 'All Admins'
                   : selectedAdminFilter === 'unassigned'
@@ -452,6 +453,7 @@ export default function Users() {
                   : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
               >
                 <UsersIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
               </button>
 
               {showAdminFilterDropdown && (
@@ -498,10 +500,11 @@ export default function Users() {
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
               title={`Sort by: ${sortOptions.find(opt => opt.value === sortBy.field)?.label}`}
             >
               <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
             </button>
 
             {showSortDropdown && (

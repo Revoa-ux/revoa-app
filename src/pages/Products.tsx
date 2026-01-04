@@ -701,13 +701,11 @@ const Products: React.FC = () => {
           <div className="relative" ref={categoryDropdownRef}>
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between min-w-[180px]"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+              title={`Category: ${selectedCategory}`}
             >
-              <div className="flex items-center">
-                <Filter className="w-4 h-4 text-gray-400 mr-2" />
-                <span className="text-gray-700 dark:text-gray-300">{selectedCategory}</span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
             </button>
 
             {showCategoryDropdown && (
@@ -734,13 +732,11 @@ const Products: React.FC = () => {
           <div className="relative" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between min-w-[180px]"
+              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+              title={`Sort by: ${sortOptions.find(opt => opt.field === sortConfig.field)?.label}`}
             >
-              <div className="flex items-center">
-                {getSortIcon(sortConfig.field)}
-                <span className="text-gray-700 dark:text-gray-300 ml-2">Sort by: {sortOptions.find(opt => opt.field === sortConfig.field)?.label}</span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
             </button>
 
             {showSortDropdown && (

@@ -439,7 +439,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {/* Financial Metrics */}
-          <div>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-red-500 rounded-full"></div>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
@@ -528,7 +528,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
 
           {/* Active Quotes Section */}
           {activeQuotesCount > 0 && (
-            <div>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1 h-4 bg-red-500 rounded-full"></div>
                 <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
@@ -554,7 +554,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           )}
 
           {/* Order Metrics */}
-          <div>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-red-500 rounded-full"></div>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
@@ -612,7 +612,7 @@ export const CollapsibleClientProfile: React.FC<CollapsibleClientProfileProps> =
           </div>
 
           {/* Communication */}
-          <div>
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-4 bg-red-500 rounded-full"></div>
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">

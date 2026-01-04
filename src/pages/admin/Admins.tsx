@@ -17,7 +17,8 @@ import {
   RotateCw,
   ArrowRight,
   User,
-  Image
+  Image,
+  ArrowUpDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -416,7 +417,7 @@ export default function AdminsManagement() {
   };
 
   return (
-    <div className="max-w-[1050px] mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
@@ -456,15 +457,10 @@ export default function AdminsManagement() {
         <div className="relative flex-1 sm:flex-initial" ref={filterDropdownRef}>
             <button
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
+              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
             >
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-700 dark:text-gray-300">
-                  {filterOptions.find(f => f.value === filterType)?.label}
-                </span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
             </button>
 
             {showFilterDropdown && (
@@ -492,12 +488,10 @@ export default function AdminsManagement() {
           <div className="relative flex-1 sm:flex-initial" ref={sortDropdownRef}>
             <button
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
+              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
             >
-              <span className="text-gray-700 dark:text-gray-300">
-                Sort by: {sortOptions.find(s => s.value === sortBy.field)?.label}
-              </span>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
             </button>
 
             {showSortDropdown && (

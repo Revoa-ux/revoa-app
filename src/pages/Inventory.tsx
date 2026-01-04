@@ -489,15 +489,11 @@ export default function Inventory() {
             <div className="relative">
               <button
                 onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-                className="w-full sm:w-auto flex items-center justify-between h-[38px] px-3 sm:px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+                title={`Filter: ${filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`}
               >
-                <div className="flex items-center space-x-2 min-w-0">
-                  <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  <span className="text-gray-700 dark:text-gray-300 truncate">
-                    Filter by: {filterOption === 'all' ? 'All Products' : filterOption.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" />
+                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
               </button>
 
               {showFilterDropdown && (

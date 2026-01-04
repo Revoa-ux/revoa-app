@@ -334,13 +334,10 @@ export default function Balance() {
             <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
               <button
                 onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-                className="filter-button w-full sm:min-w-[180px] rounded-lg"
+                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
               >
-                <div className="flex items-center min-w-0">
-                  <Filter className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                  <span className="truncate">Status: {getStatusLabel()}</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
               </button>
               
               {showStatusDropdown && (
@@ -463,13 +460,11 @@ export default function Balance() {
             <div className="relative flex-1 sm:flex-initial" ref={typeDropdownRef}>
               <button
                 onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                className="filter-button w-full sm:min-w-[180px] rounded-lg"
+                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+                title={`Type: ${getTypeLabel()}`}
               >
-                <div className="flex items-center min-w-0">
-                  <Filter className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" />
-                  <span className="truncate">Type: {getTypeLabel()}</span>
-                </div>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Type</span>
               </button>
               
               {showTypeDropdown && (

@@ -653,10 +653,10 @@ export default function Audit() {
             <button
               onClick={() => setShowPlatformFilter(!showPlatformFilter)}
               disabled={!facebook.isConnected}
-              className="flex items-center space-x-2 px-3 py-2.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Filter className="w-4 h-4" />
-              <span className="hidden sm:inline">Platform</span>
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
               {!selectedPlatforms.includes('all') && (
                 <span className="px-1.5 py-0.5 bg-red-600 text-white text-xs rounded-full font-medium">
                   {selectedPlatforms.length}
@@ -687,10 +687,10 @@ export default function Audit() {
           <button
             onClick={() => refreshData(true)}
             disabled={isLoading || !facebook.isConnected}
-            className="flex items-center space-x-2 px-3 py-2.5 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden md:inline">Refresh</span>
           </button>
 
           <AdReportsTimeSelector

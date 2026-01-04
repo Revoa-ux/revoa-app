@@ -499,8 +499,8 @@ export default function Invoices() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-2 rounded-lg ${stats.total_outstanding > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <DollarSign className={`w-4 h-4 ${stats.total_outstanding > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
@@ -553,8 +553,8 @@ export default function Invoices() {
 
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-2 rounded-lg ${stats.overdue_count > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <AlertCircle className={`w-4 h-4 ${stats.overdue_count > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
@@ -605,13 +605,10 @@ export default function Invoices() {
           <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
             <button
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
+              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
             >
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-400" />
-                <span>Status: {filters.status === 'all' ? 'All' : filters.status || 'All'}</span>
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
             </button>
 
             {showStatusDropdown && (
@@ -637,14 +634,11 @@ export default function Invoices() {
             <div className="relative flex-1 sm:flex-initial" ref={adminFilterDropdownRef}>
               <button
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start space-x-2"
+                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+                title={`Admin: ${selectedAdminFilter === 'all' ? 'All Admins' : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
               >
-                <span className="truncate">
-                  Admin: {selectedAdminFilter === 'all'
-                    ? 'All Admins'
-                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
               </button>
 
               {showAdminFilterDropdown && (
