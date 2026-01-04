@@ -251,7 +251,7 @@ export default function FulfillmentTrackingTab({
   }
 
   return (
-    <div className="overflow-x-auto -mx-4 sm:mx-0">
+    <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
