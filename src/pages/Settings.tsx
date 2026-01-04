@@ -1654,16 +1654,29 @@ const SettingsPage = () => {
       }
 
       const extracted = result.extracted_data;
-      if (extracted.has_customer) {
-        toast.success(`Customer found: ${extracted.customer?.first_name} ${extracted.customer?.last_name} (${extracted.customer?.email})`);
+      const customer = extracted.customer;
+
+      if (extracted.has_customer && customer) {
+        const customerKeys = Object.keys(customer);
+        const hasData = customer.first_name || customer.last_name || customer.email;
+
+        if (hasData) {
+          toast.success(`Customer: ${customer.first_name || ''} ${customer.last_name || ''} (${customer.email || 'no email'})`);
+        } else {
+          toast.warning(`Customer object exists but all fields are null. Keys: ${customerKeys.join(', ')}`);
+        }
       } else if (extracted.email) {
         toast.warning(`No customer object, but email found: ${extracted.email}`);
       } else if (extracted.contact_email) {
         toast.warning(`No customer object, but contact_email found: ${extracted.contact_email}`);
+      } else if (extracted.shipping_address) {
+        const addr = extracted.shipping_address;
+        toast.info(`No customer, but shipping address found: ${addr.first_name || ''} ${addr.last_name || ''}`);
       } else {
-        toast.error(`No customer data at all. Source: ${extracted.source_name || 'unknown'}`);
+        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. Check console for full data.`);
       }
-      console.log('Full Shopify data:', result);
+      console.log('Full Shopify order data:', result.raw_order);
+      console.log('Extracted data:', extracted);
     } catch (error: any) {
       console.error('Error testing order:', error);
       toast.error(error.message || 'Failed to test order');
