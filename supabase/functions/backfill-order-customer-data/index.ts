@@ -93,17 +93,32 @@ Deno.serve(async (req: Request) => {
         }
 
         const { order: fullOrder } = await response.json();
-        
+
+        console.log(`[Backfill] Order ${order.order_number} raw data:`, {
+          has_customer: !!fullOrder.customer,
+          customer_email: fullOrder.customer?.email,
+          order_email: fullOrder.email,
+          contact_email: fullOrder.contact_email,
+          has_shipping: !!fullOrder.shipping_address,
+          shipping_first: fullOrder.shipping_address?.first_name,
+          shipping_last: fullOrder.shipping_address?.last_name,
+          has_billing: !!fullOrder.billing_address,
+          billing_first: fullOrder.billing_address?.first_name,
+          billing_last: fullOrder.billing_address?.last_name,
+          financial_status: fullOrder.financial_status,
+          tags: fullOrder.tags
+        });
+
         const customerEmail = fullOrder.email || fullOrder.customer?.email || fullOrder.contact_email;
-        const customerFirstName = fullOrder.customer?.first_name || 
-                                 fullOrder.shipping_address?.first_name || 
+        const customerFirstName = fullOrder.customer?.first_name ||
+                                 fullOrder.shipping_address?.first_name ||
                                  fullOrder.billing_address?.first_name;
-        const customerLastName = fullOrder.customer?.last_name || 
-                                fullOrder.shipping_address?.last_name || 
+        const customerLastName = fullOrder.customer?.last_name ||
+                                fullOrder.shipping_address?.last_name ||
                                 fullOrder.billing_address?.last_name;
-        const customerPhone = fullOrder.customer?.phone || 
-                             fullOrder.shipping_address?.phone || 
-                             fullOrder.billing_address?.phone || 
+        const customerPhone = fullOrder.customer?.phone ||
+                             fullOrder.shipping_address?.phone ||
+                             fullOrder.billing_address?.phone ||
                              fullOrder.phone;
 
         const updateData: any = {};
@@ -111,6 +126,8 @@ Deno.serve(async (req: Request) => {
         if (customerFirstName) updateData.customer_first_name = customerFirstName;
         if (customerLastName) updateData.customer_last_name = customerLastName;
         if (customerPhone) updateData.customer_phone = customerPhone;
+
+        console.log(`[Backfill] Update data for ${order.order_number}:`, updateData);
 
         if (Object.keys(updateData).length > 0) {
           const { error: updateError } = await supabase
