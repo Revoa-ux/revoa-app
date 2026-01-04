@@ -59,12 +59,17 @@ export default function AllOrdersTab({
   }, [user?.id, filteredUserId, refreshKey]);
 
   const toggleOrderExpansion = (orderId: string) => {
+    console.log('Toggle expansion for order:', orderId);
+    console.log('Current expanded orders:', expandedOrders);
     const newExpanded = new Set(expandedOrders);
     if (newExpanded.has(orderId)) {
       newExpanded.delete(orderId);
+      console.log('Collapsing order:', orderId);
     } else {
       newExpanded.add(orderId);
+      console.log('Expanding order:', orderId);
     }
+    console.log('New expanded orders:', newExpanded);
     setExpandedOrders(newExpanded);
   };
 
@@ -273,16 +278,10 @@ export default function AllOrdersTab({
                 <button
                   type="button"
                   onClick={(e) => {
-                    e.preventDefault();
                     e.stopPropagation();
                     toggleOrderExpansion(order.id);
                   }}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleOrderExpansion(order.id);
-                  }}
-                  className="p-2 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:bg-gray-100 dark:active:bg-gray-700 rounded-md touch-manipulation select-none"
+                  className="p-2 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:bg-gray-100 dark:active:bg-gray-700 rounded-md touch-manipulation"
                 >
                   {expandedOrders.has(order.id) ? (
                     <ChevronDown className="w-5 h-5" />
@@ -427,7 +426,6 @@ export default function AllOrdersTab({
                       <button
                         type="button"
                         onClick={(e) => {
-                          e.preventDefault();
                           e.stopPropagation();
                           toggleOrderExpansion(order.id);
                         }}
