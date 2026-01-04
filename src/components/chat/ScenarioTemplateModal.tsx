@@ -244,15 +244,17 @@ export function ScenarioTemplateModal({
         throw error;
       }
 
-      toast.success(`Fetched ${data?.length || 0} orders from database`);
-
       // Filter out orders without customer information for better UX
       const ordersWithCustomers = (data || []).filter(order =>
         order.customer_first_name || order.customer_last_name || order.customer_email
       );
 
-      if (ordersWithCustomers.length === 0) {
-        toast.warning('No orders found with customer information');
+      if (ordersWithCustomers.length === 0 && data && data.length > 0) {
+        toast.warning(`Found ${data.length} orders but ALL are missing customer data (name/email)`);
+      } else if (ordersWithCustomers.length === 0) {
+        toast.warning('No orders found in database');
+      } else if (ordersWithCustomers.length < (data?.length || 0)) {
+        toast.success(`Found ${ordersWithCustomers.length} orders with customer info (${data.length - ordersWithCustomers.length} skipped due to missing data)`);
       } else {
         toast.success(`Found ${ordersWithCustomers.length} orders with customer info`);
       }
