@@ -53,9 +53,22 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col relative overflow-hidden">
+      {/* Dotted grid background with soft fade */}
+      <div className="absolute inset-0 flex justify-center pointer-events-none">
+        <div
+          className="w-full max-w-[1280px] dark:opacity-30"
+          style={{
+            backgroundImage: `radial-gradient(circle, #d4d4d4 0.75px, transparent 0.75px)`,
+            backgroundSize: '14px 14px',
+            maskImage: 'radial-gradient(ellipse 70% 55% at 50% 48%, black 0%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 55% at 50% 48%, black 0%, transparent 100%)'
+          }}
+        />
+      </div>
+
       {/* Progress bar and step indicators */}
-      <div className="w-full flex justify-center mt-8 mb-12 px-4">
+      <div className="w-full flex justify-center mt-8 mb-12 px-4 relative z-10">
         <div className="w-full max-w-[700px]">
           {/* Step indicators container */}
           <div className="relative">
@@ -115,7 +128,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
       </div>
       
       {/* Main content */}
-      <main className="flex-1 flex flex-col pb-24">
+      <main className="flex-1 flex flex-col pb-24 relative z-10">
         <div className="max-w-[700px] mx-auto px-4 flex-1">
           {/* Content wrapper */}
           <div className="bg-gray-50/80 dark:bg-gray-900/80 p-8 rounded-xl">
