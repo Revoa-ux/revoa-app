@@ -252,10 +252,19 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       )}
 
       {showCustomPicker && (
-        <div
-          ref={customPickerRef}
-          className="fixed sm:absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 sm:left-auto sm:right-0 sm:translate-x-0 sm:top-auto sm:translate-y-0 sm:mt-2 w-[340px] sm:w-[380px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
-        >
+        <>
+          <div
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={handleCancelCustomDate}
+          />
+          <div
+            ref={customPickerRef}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-3 z-50"
+            style={{
+              marginLeft: 'max(0px, env(safe-area-inset-left))',
+              marginRight: 'max(0px, env(safe-area-inset-right))'
+            }}
+          >
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white">Select Date Range</h3>
             <button
@@ -321,6 +330,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
             </button>
           </div>
         </div>
+        </>
       )}
     </div>
   );
