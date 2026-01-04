@@ -164,7 +164,7 @@ export default function AcceptInvitation() {
     setSubmitting(true);
 
     try {
-      // Create user account
+      // Try to sign up first
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: invitation!.email,
         password: formData.password,
@@ -176,10 +176,52 @@ export default function AcceptInvitation() {
         },
       });
 
+      // If user already exists, try signing in instead
+      if (signUpError?.message?.includes('already registered') || signUpError?.message?.includes('User already registered')) {
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: invitation!.email,
+          password: formData.password,
+        });
+
+        if (signInError) {
+          throw new Error('An account with this email already exists. Please use the correct password to sign in and accept the invitation.');
+        }
+
+        if (!signInData.user) throw new Error('Failed to sign in');
+
+        // Promote existing user to admin
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .update({
+            is_admin: true,
+            admin_role: invitation!.role,
+          })
+          .eq('user_id', signInData.user.id);
+
+        if (profileError) throw profileError;
+
+        // Mark invitation as accepted
+        const { error: updateError } = await supabase
+          .from('admin_invitations')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+          })
+          .eq('invitation_token', token);
+
+        if (updateError) {
+          console.error('Failed to update invitation status:', updateError);
+        }
+
+        toast.success('Welcome back! Your account has been upgraded to admin.');
+        navigate('/admin/dashboard');
+        return;
+      }
+
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Failed to create user');
 
-      // Update user profile to admin
+      // Update new user profile to admin
       const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
