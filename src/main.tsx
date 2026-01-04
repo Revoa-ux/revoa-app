@@ -22,6 +22,16 @@ const initializeApp = () => {
   try {
     log('Initializing application...');
 
+    // Unregister any existing service workers to prevent caching issues
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => registration.unregister());
+        log('Unregistered service workers', { count: registrations.length });
+      }).catch(err => {
+        log('Failed to unregister service workers', err);
+      });
+    }
+
     // Initialize app
     const root = document.getElementById('root');
     if (!root) {
