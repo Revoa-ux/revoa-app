@@ -40,11 +40,10 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
 
       const isSuperAdmin = profile?.is_super_admin || false;
 
-      // Get merchants
       let merchantQuery = supabase
         .from('user_profiles')
-        .select('id, first_name, last_name, business_name')
-        .order('business_name');
+        .select('id, first_name, last_name, company, name')
+        .order('company');
 
       if (!isSuperAdmin) {
         // Get assigned merchants
@@ -66,9 +65,8 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
       const { data: merchantData } = await merchantQuery;
 
       if (merchantData) {
-        // Get order counts for each merchant
         const merchantsWithCounts = await Promise.all(
-          merchantData.map(async (m) => {
+          merchantData.map(async (m: any) => {
             const { count } = await supabase
               .from('shopify_orders')
               .select('*', { count: 'exact', head: true })
@@ -78,7 +76,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
 
             return {
               id: m.id,
-              name: m.business_name || `${m.first_name || ''} ${m.last_name || ''}`.trim() || 'Unknown',
+              name: m.company || m.name || `${m.first_name || ''} ${m.last_name || ''}`.trim() || 'Unknown',
               orderCount: count || 0,
             };
           })

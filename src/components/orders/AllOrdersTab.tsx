@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
 interface AllOrdersTabProps {
@@ -59,7 +60,6 @@ export default function AllOrdersTab({
         .order('created_at', { ascending: false })
         .limit(500);
 
-      // Filter by merchant
       if (filteredUserId) {
         query = query.eq('user_id', filteredUserId);
       } else if (!isSuperAdmin) {
@@ -82,18 +82,17 @@ export default function AllOrdersTab({
 
       if (error) throw error;
 
-      if (data) {
-        // Get merchant names
+      if (data && data.length > 0) {
         const userIds = [...new Set(data.map(o => o.user_id))];
         const { data: profiles } = await supabase
           .from('user_profiles')
-          .select('id, first_name, last_name, business_name')
+          .select('id, first_name, last_name, company, name')
           .in('id', userIds);
 
         const profileMap = new Map(
           profiles?.map(p => [
             p.id,
-            p.business_name || `${p.first_name || ''} ${p.last_name || ''}`.trim()
+            p.company || p.name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'
           ])
         );
 
@@ -103,6 +102,8 @@ export default function AllOrdersTab({
         }));
 
         setOrders(ordersWithMerchants);
+      } else {
+        setOrders([]);
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -129,21 +130,18 @@ export default function AllOrdersTab({
   };
 
   const filteredOrders = orders.filter(order => {
-    // Search filter
     const searchMatch =
       order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.customer_first_name + ' ' + order.customer_last_name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.merchant_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!searchMatch) return false;
 
-    // Fulfillment status filter
     if (fulfillmentStatusFilter !== 'all' && order.fulfillment_status !== fulfillmentStatusFilter) {
       return false;
     }
 
-    // Export status filter
     if (exportStatusFilter === 'exported' && !order.exported_to_3pl) return false;
     if (exportStatusFilter === 'not_exported' && order.exported_to_3pl) return false;
     if (exportStatusFilter === 'has_tracking' && !order.tracking_imported) return false;
@@ -151,6 +149,21 @@ export default function AllOrdersTab({
 
     return true;
   });
+
+  const fulfillmentStatusOptions = [
+    { value: 'all', label: 'All Fulfillment Status' },
+    { value: 'UNFULFILLED', label: 'Unfulfilled' },
+    { value: 'FULFILLED', label: 'Fulfilled' },
+    { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
+  ];
+
+  const exportStatusOptions = [
+    { value: 'all', label: 'All Export Status' },
+    { value: 'exported', label: 'Exported to 3PL' },
+    { value: 'not_exported', label: 'Not Exported' },
+    { value: 'has_tracking', label: 'Has Tracking' },
+    { value: 'no_tracking', label: 'No Tracking' },
+  ];
 
   if (loading) {
     return (
@@ -163,7 +176,6 @@ export default function AllOrdersTab({
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -172,35 +184,25 @@ export default function AllOrdersTab({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search orders, customers..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <select
+        <CustomSelect
           value={fulfillmentStatusFilter}
-          onChange={(e) => setFulfillmentStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Fulfillment Status</option>
-          <option value="UNFULFILLED">Unfulfilled</option>
-          <option value="FULFILLED">Fulfilled</option>
-          <option value="PARTIALLY_FULFILLED">Partially Fulfilled</option>
-        </select>
+          onChange={(val) => setFulfillmentStatusFilter(val as string)}
+          options={fulfillmentStatusOptions}
+          className="w-52"
+        />
 
-        <select
+        <CustomSelect
           value={exportStatusFilter}
-          onChange={(e) => setExportStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Export Status</option>
-          <option value="exported">Exported to 3PL</option>
-          <option value="not_exported">Not Exported</option>
-          <option value="has_tracking">Has Tracking</option>
-          <option value="no_tracking">No Tracking</option>
-        </select>
+          onChange={(val) => setExportStatusFilter(val as string)}
+          options={exportStatusOptions}
+          className="w-44"
+        />
       </div>
 
-      {/* Orders Table */}
       {filteredOrders.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
@@ -293,10 +295,10 @@ export default function AllOrdersTab({
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-1">
                       {order.exported_to_3pl && (
-                        <span className="text-xs text-blue-600 dark:text-blue-400">✓ Exported</span>
+                        <span className="text-xs text-blue-600 dark:text-blue-400">Exported</span>
                       )}
                       {order.tracking_imported && (
-                        <span className="text-xs text-green-600 dark:text-green-400">✓ Tracking</span>
+                        <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
                       )}
                       {!order.exported_to_3pl && !order.tracking_imported && (
                         <span className="text-xs text-gray-400">-</span>
@@ -313,7 +315,7 @@ export default function AllOrdersTab({
                         <MessageSquare className="w-4 h-4" />
                       </Link>
                       <a
-                        href={`https://${order.shopify_order_id.split('/')[0]}/admin/orders/${order.shopify_order_id.split('/').pop()}`}
+                        href={`https://${order.shopify_order_id?.split('/')[0]}/admin/orders/${order.shopify_order_id?.split('/').pop()}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"

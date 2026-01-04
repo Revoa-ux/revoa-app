@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
 import Button from '../Button';
+import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
 interface FulfillmentTrackingTabProps {
@@ -49,6 +50,7 @@ export default function FulfillmentTrackingTab({
   const [carrierFilter, setCarrierFilter] = useState<string>('all');
   const [syncStatusFilter, setSyncStatusFilter] = useState<string>('all');
   const [syncing, setSyncing] = useState<Set<string>>(new Set());
+  const [carriers, setCarriers] = useState<string[]>([]);
 
   useEffect(() => {
     loadFulfillments();
@@ -74,7 +76,6 @@ export default function FulfillmentTrackingTab({
         `)
         .order('shipped_at', { ascending: false });
 
-      // Build filter for merchant access
       if (filteredUserId) {
         query = query.eq('shopify_orders.user_id', filteredUserId);
       } else if (!isSuperAdmin) {
@@ -97,18 +98,17 @@ export default function FulfillmentTrackingTab({
 
       if (error) throw error;
 
-      if (data) {
-        // Get merchant names
+      if (data && data.length > 0) {
         const userIds = [...new Set(data.map((f: any) => f.shopify_orders.user_id))];
         const { data: profiles } = await supabase
           .from('user_profiles')
-          .select('id, first_name, last_name, business_name')
+          .select('id, first_name, last_name, company, name')
           .in('id', userIds);
 
         const profileMap = new Map(
           profiles?.map(p => [
             p.id,
-            p.business_name || `${p.first_name || ''} ${p.last_name || ''}`.trim()
+            p.company || p.name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'
           ])
         );
 
@@ -121,6 +121,12 @@ export default function FulfillmentTrackingTab({
         }));
 
         setFulfillments(fulfillmentsWithMerchants);
+
+        const uniqueCarriers = [...new Set(data.map((f: any) => f.tracking_company).filter(Boolean))];
+        setCarriers(uniqueCarriers as string[]);
+      } else {
+        setFulfillments([]);
+        setCarriers([]);
       }
     } catch (error) {
       console.error('Error loading fulfillments:', error);
@@ -197,27 +203,34 @@ export default function FulfillmentTrackingTab({
   };
 
   const filteredFulfillments = fulfillments.filter(f => {
-    // Search filter
     const searchMatch =
       f.order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       f.tracking_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (f.order.customer_first_name + ' ' + f.order.customer_last_name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${f.order.customer_first_name || ''} ${f.order.customer_last_name || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       f.order.merchant_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!searchMatch) return false;
 
-    // Carrier filter
     if (carrierFilter !== 'all' && f.tracking_company !== carrierFilter) return false;
 
-    // Sync status filter
     if (syncStatusFilter === 'synced' && !f.synced_to_shopify) return false;
-    if (syncStatusFilter === 'pending' && f.synced_to_shopify) return false;
+    if (syncStatusFilter === 'pending' && (f.synced_to_shopify || f.sync_error)) return false;
     if (syncStatusFilter === 'failed' && !f.sync_error) return false;
 
     return true;
   });
 
-  const carriers = [...new Set(fulfillments.map(f => f.tracking_company))].filter(Boolean);
+  const carrierOptions = [
+    { value: 'all', label: 'All Carriers' },
+    ...carriers.map(c => ({ value: c, label: c }))
+  ];
+
+  const syncStatusOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'synced', label: 'Synced' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'failed', label: 'Failed' },
+  ];
 
   if (loading) {
     return (
@@ -230,7 +243,6 @@ export default function FulfillmentTrackingTab({
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -239,34 +251,25 @@ export default function FulfillmentTrackingTab({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search orders, tracking numbers..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <select
+        <CustomSelect
           value={carrierFilter}
-          onChange={(e) => setCarrierFilter(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Carriers</option>
-          {carriers.map(carrier => (
-            <option key={carrier} value={carrier}>{carrier}</option>
-          ))}
-        </select>
+          onChange={(val) => setCarrierFilter(val as string)}
+          options={carrierOptions}
+          className="w-40"
+        />
 
-        <select
+        <CustomSelect
           value={syncStatusFilter}
-          onChange={(e) => setSyncStatusFilter(e.target.value)}
-          className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Status</option>
-          <option value="synced">Synced</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-        </select>
+          onChange={(val) => setSyncStatusFilter(val as string)}
+          options={syncStatusOptions}
+          className="w-36"
+        />
       </div>
 
-      {/* Fulfillments Table */}
       {filteredFulfillments.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
@@ -344,7 +347,7 @@ export default function FulfillmentTrackingTab({
                   </td>
                   <td className="px-4 py-4">
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {format(new Date(fulfillment.shipped_at), 'MMM d, yyyy')}
+                      {fulfillment.shipped_at ? format(new Date(fulfillment.shipped_at), 'MMM d, yyyy') : '-'}
                     </span>
                   </td>
                   <td className="px-4 py-4">

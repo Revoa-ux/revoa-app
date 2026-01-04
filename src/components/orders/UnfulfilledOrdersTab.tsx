@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import Button from '../Button';
+import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
 interface UnfulfilledOrdersTabProps {
@@ -35,9 +36,8 @@ interface Order {
   exported_at: string | null;
   merchant_name?: string;
   line_items?: Array<{
-    title: string;
-    variant_title: string;
-    sku: string;
+    product_name: string;
+    variant_name: string;
     quantity: number;
   }>;
 }
@@ -55,7 +55,7 @@ export default function UnfulfilledOrdersTab({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
-  const [exportStatusFilter, setExportStatusFilter] = useState<'all' | 'ready' | 'exported'>('all');
+  const [exportStatusFilter, setExportStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     loadOrders();
@@ -69,16 +69,12 @@ export default function UnfulfilledOrdersTab({
 
       let query = supabase
         .from('shopify_orders')
-        .select(`
-          *,
-          shopify_order_line_items(title, variant_title, sku, quantity)
-        `)
+        .select('*')
         .eq('fulfillment_status', 'UNFULFILLED')
         .in('financial_status', ['PAID', 'AUTHORIZED'])
         .is('cancelled_at', null)
         .order('created_at', { ascending: false });
 
-      // Filter by merchant
       if (filteredUserId) {
         query = query.eq('user_id', filteredUserId);
       } else if (!isSuperAdmin) {
@@ -101,28 +97,43 @@ export default function UnfulfilledOrdersTab({
 
       if (error) throw error;
 
-      if (data) {
-        // Get merchant names
+      if (data && data.length > 0) {
         const userIds = [...new Set(data.map(o => o.user_id))];
         const { data: profiles } = await supabase
           .from('user_profiles')
-          .select('id, first_name, last_name, business_name')
+          .select('id, first_name, last_name, company, name')
           .in('id', userIds);
 
         const profileMap = new Map(
           profiles?.map(p => [
             p.id,
-            p.business_name || `${p.first_name || ''} ${p.last_name || ''}`.trim()
+            p.company || p.name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'
           ])
         );
 
-        const ordersWithMerchants = data.map(order => ({
+        const orderIds = data.map(o => o.id);
+        const { data: lineItems } = await supabase
+          .from('order_line_items')
+          .select('shopify_order_id, product_name, variant_name, quantity')
+          .in('shopify_order_id', data.map(o => o.shopify_order_id));
+
+        const lineItemsMap = new Map<string, any[]>();
+        lineItems?.forEach(item => {
+          if (!lineItemsMap.has(item.shopify_order_id)) {
+            lineItemsMap.set(item.shopify_order_id, []);
+          }
+          lineItemsMap.get(item.shopify_order_id)!.push(item);
+        });
+
+        const ordersWithData = data.map(order => ({
           ...order,
           merchant_name: profileMap.get(order.user_id) || 'Unknown',
-          line_items: order.shopify_order_line_items || []
+          line_items: lineItemsMap.get(order.shopify_order_id) || []
         }));
 
-        setOrders(ordersWithMerchants);
+        setOrders(ordersWithData);
+      } else {
+        setOrders([]);
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -161,21 +172,25 @@ export default function UnfulfilledOrdersTab({
   };
 
   const filteredOrders = orders.filter(order => {
-    // Search filter
     const searchMatch =
       order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.customer_first_name + ' ' + order.customer_last_name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.merchant_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!searchMatch) return false;
 
-    // Export status filter
     if (exportStatusFilter === 'ready' && order.exported_to_3pl) return false;
     if (exportStatusFilter === 'exported' && !order.exported_to_3pl) return false;
 
     return true;
   });
+
+  const exportStatusOptions = [
+    { value: 'all', label: 'All Orders' },
+    { value: 'ready', label: 'Ready to Export' },
+    { value: 'exported', label: 'Already Exported' },
+  ];
 
   if (loading) {
     return (
@@ -188,7 +203,6 @@ export default function UnfulfilledOrdersTab({
 
   return (
     <div className="space-y-4">
-      {/* Filters and Actions */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1">
           <div className="relative flex-1 max-w-md">
@@ -198,19 +212,16 @@ export default function UnfulfilledOrdersTab({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search orders, customers, merchants..."
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          <select
+          <CustomSelect
             value={exportStatusFilter}
-            onChange={(e) => setExportStatusFilter(e.target.value as any)}
-            className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">All Orders</option>
-            <option value="ready">Ready to Export</option>
-            <option value="exported">Already Exported</option>
-          </select>
+            onChange={(val) => setExportStatusFilter(val as string)}
+            options={exportStatusOptions}
+            className="w-48"
+          />
         </div>
 
         {selectedOrders.size > 0 && permissions?.can_export_orders && (
@@ -224,7 +235,6 @@ export default function UnfulfilledOrdersTab({
         )}
       </div>
 
-      {/* Orders Table */}
       {filteredOrders.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
@@ -239,7 +249,7 @@ export default function UnfulfilledOrdersTab({
                 <th className="px-4 py-3 text-left">
                   <input
                     type="checkbox"
-                    checked={selectedOrders.size === filteredOrders.length}
+                    checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
                     onChange={toggleAllOrders}
                     className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                   />
@@ -355,7 +365,7 @@ export default function UnfulfilledOrdersTab({
                           <MessageSquare className="w-4 h-4" />
                         </Link>
                         <a
-                          href={`https://${order.shopify_order_id.split('/')[0]}/admin/orders/${order.shopify_order_id.split('/').pop()}`}
+                          href={`https://${order.shopify_order_id?.split('/')[0]}/admin/orders/${order.shopify_order_id?.split('/').pop()}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
@@ -377,16 +387,15 @@ export default function UnfulfilledOrdersTab({
                             <div key={idx} className="flex items-center justify-between text-sm">
                               <div className="flex-1">
                                 <span className="text-gray-900 dark:text-white font-medium">
-                                  {item.title}
+                                  {item.product_name}
                                 </span>
-                                {item.variant_title && (
+                                {item.variant_name && (
                                   <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                    ({item.variant_title})
+                                    ({item.variant_name})
                                   </span>
                                 )}
                               </div>
                               <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                                <span className="text-xs">SKU: {item.sku || 'N/A'}</span>
                                 <span>Qty: {item.quantity}</span>
                               </div>
                             </div>

@@ -30,9 +30,8 @@ interface OrderForExport {
   shipping_country: string;
   merchant_name?: string;
   line_items: Array<{
-    sku: string;
-    title: string;
-    variant_title: string;
+    product_name: string;
+    variant_name: string;
     quantity: number;
   }>;
 }
@@ -66,10 +65,7 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
 
       let query = supabase
         .from('shopify_orders')
-        .select(`
-          *,
-          shopify_order_line_items(sku, title, variant_title, quantity)
-        `)
+        .select('*')
         .eq('fulfillment_status', 'UNFULFILLED')
         .eq('exported_to_3pl', false)
         .in('financial_status', ['PAID', 'AUTHORIZED'])
@@ -98,31 +94,44 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
 
       if (error) throw error;
 
-      if (data) {
-        // Get merchant names
+      if (data && data.length > 0) {
         const userIds = [...new Set(data.map(o => o.user_id))];
         const { data: profiles } = await supabase
           .from('user_profiles')
-          .select('id, first_name, last_name, business_name')
+          .select('id, first_name, last_name, company, name')
           .in('id', userIds);
 
         const profileMap = new Map(
           profiles?.map(p => [
             p.id,
-            p.business_name || `${p.first_name || ''} ${p.last_name || ''}`.trim()
+            p.company || p.name || `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'
           ])
         );
+
+        const { data: lineItems } = await supabase
+          .from('order_line_items')
+          .select('shopify_order_id, product_name, variant_name, quantity')
+          .in('shopify_order_id', data.map(o => o.shopify_order_id));
+
+        const lineItemsMap = new Map<string, any[]>();
+        lineItems?.forEach(item => {
+          if (!lineItemsMap.has(item.shopify_order_id)) {
+            lineItemsMap.set(item.shopify_order_id, []);
+          }
+          lineItemsMap.get(item.shopify_order_id)!.push(item);
+        });
 
         const ordersWithData = data.map(order => ({
           ...order,
           merchant_name: profileMap.get(order.user_id) || 'Unknown',
-          line_items: order.shopify_order_line_items || []
+          line_items: lineItemsMap.get(order.shopify_order_id) || []
         }));
 
         setOrders(ordersWithData);
-        // Auto-select all orders
         setSelectedOrders(new Set(ordersWithData.map(o => o.id)));
         validateOrders(ordersWithData);
+      } else {
+        setOrders([]);
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -147,11 +156,6 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
       }
       if (!order.line_items || order.line_items.length === 0) {
         newWarnings.push(`Order #${order.order_number}: No line items found`);
-      } else {
-        const missingSkus = order.line_items.filter(item => !item.sku);
-        if (missingSkus.length > 0) {
-          newWarnings.push(`Order #${order.order_number}: ${missingSkus.length} items missing SKU`);
-        }
       }
     });
 
@@ -232,9 +236,8 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
             excelData.push({
               'Order Number': order.order_number,
               'Transaction Number': order.shopify_order_id,
-              'SKU': item.sku || '',
-              'Product Name': item.title,
-              'Variant': item.variant_title || '',
+              'Product Name': item.product_name,
+              'Variant': item.variant_name || '',
               'Quantity': item.quantity,
               'Buyer Name': `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim(),
               'Buyer Account': order.customer_email || '',
@@ -263,8 +266,7 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
       ws['!cols'] = [
         { wch: 15 }, // Order Number
         { wch: 20 }, // Transaction Number
-        { wch: 15 }, // SKU
-        { wch: 30 }, // Product Name
+        { wch: 35 }, // Product Name
         { wch: 20 }, // Variant
         { wch: 10 }, // Quantity
         { wch: 20 }, // Buyer Name
