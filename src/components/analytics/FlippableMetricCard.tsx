@@ -359,7 +359,7 @@ export default function FlippableMetricCard({
                           fill={PLATFORM_COLORS[platform]}
                           fillOpacity={0.15}
                           dot={false}
-                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: '#fff' }}
+                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: '#9CA3AF' }}
                         />
                       ))
                     ) : (
@@ -370,7 +370,7 @@ export default function FlippableMetricCard({
                         strokeWidth={2}
                         fill={`url(#fill-gradient-${data.id})`}
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: '#fff' }}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: '#9CA3AF' }}
                         baseValue={allNegative ? 'dataMax' : 'dataMin'}
                       />
                     )}

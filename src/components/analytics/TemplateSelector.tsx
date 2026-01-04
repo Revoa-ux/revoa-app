@@ -128,7 +128,7 @@ export default function TemplateSelector({
                           {template.name}
                         </h4>
                         {isActive && (
-                          <Check className="w-4 h-4 text-green-500 dark:text-green-400 flex-shrink-0 ml-2" />
+                          <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />
                         )}
                       </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
