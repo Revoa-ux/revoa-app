@@ -14,14 +14,12 @@ import {
   DollarSign,
   RefreshCw,
   User,
-  UserPlus,
   Phone,
   Building,
   Lock,
   Save,
   ArrowRight,
-  FileText,
-  Bug
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -1582,135 +1580,6 @@ const SettingsPage = () => {
     toast.success('Shopify store connected successfully!');
   };
 
-  const handleBackfillCustomerData = async () => {
-    if (!user?.id || !shopify.installation) return;
-
-    try {
-      setShopifySyncing(true);
-      toast.info('Backfilling customer data from Shopify...');
-
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/backfill-order-customer-data`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to backfill customer data');
-      }
-
-      if (result.updated > 0) {
-        toast.success(`Updated ${result.updated} orders with customer data!`);
-      } else {
-        toast.info(result.message || 'No orders needed updating');
-      }
-    } catch (error: any) {
-      console.error('Error backfilling customer data:', error);
-      toast.error(error.message || 'Failed to backfill customer data');
-    } finally {
-      setShopifySyncing(false);
-    }
-  };
-
-  const handleTestShopifyOrder = async () => {
-    if (!user?.id || !shopify.installation) return;
-
-    try {
-      setShopifySyncing(true);
-      toast.info('Testing order #1024 from Shopify...');
-
-      const { data: session } = await supabase.auth.getSession();
-      if (!session.session) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/test-shopify-raw-order`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to test order');
-      }
-
-      const summary = result.summary;
-      const extracted = result.extracted_data;
-      const customer = extracted.customer;
-      const shippingAddr = extracted.shipping_address;
-      const billingAddr = extracted.billing_address;
-
-      console.log('=== Order Summary ===');
-      console.log(summary);
-      console.log('=== Full Order Data ===');
-      console.log('Customer object:', customer);
-      console.log('Shipping address:', shippingAddr);
-      console.log('Billing address:', billingAddr);
-      console.log('Order email:', extracted.email);
-      console.log('Contact email:', extracted.contact_email);
-      console.log('=== Raw Shopify Order ===');
-      console.log(result.raw_order);
-
-      if (!summary.customer_populated && !summary.shipping_populated && !summary.billing_populated && !summary.order_email) {
-        toast.error(`Order ${summary.order_name}: NO customer data anywhere. Empty draft order. Status: ${summary.financial_status}/${summary.fulfillment_status || 'unfulfilled'}`);
-        return;
-      }
-
-      if (extracted.has_customer && customer) {
-        const hasData = customer.first_name || customer.last_name || customer.email;
-
-        if (hasData) {
-          toast.success(`Customer: ${customer.first_name || ''} ${customer.last_name || ''} (${customer.email || 'no email'})`);
-        } else {
-          const shippingName = shippingAddr ? `${shippingAddr.first_name || ''} ${shippingAddr.last_name || ''}`.trim() : null;
-          const billingName = billingAddr ? `${billingAddr.first_name || ''} ${billingAddr.last_name || ''}`.trim() : null;
-
-          if (shippingName) {
-            toast.warning(`Customer empty → Using shipping address: ${shippingName} (${extracted.email || 'no email'})`);
-          } else if (billingName) {
-            toast.warning(`Customer empty → Using billing address: ${billingName} (${extracted.email || 'no email'})`);
-          } else if (extracted.email) {
-            toast.warning(`Customer empty → Only email available: ${extracted.email}`);
-          } else {
-            toast.error(`Customer object exists but all fields null. Order: ${summary.order_name}. See console for details.`);
-          }
-        }
-      } else if (extracted.email) {
-        toast.warning(`No customer object, but email found: ${extracted.email}`);
-      } else if (extracted.contact_email) {
-        toast.warning(`No customer object, but contact_email found: ${extracted.contact_email}`);
-      } else if (shippingAddr) {
-        const name = `${shippingAddr.first_name || ''} ${shippingAddr.last_name || ''}`.trim();
-        toast.info(`No customer, but shipping address: ${name || 'no name'}`);
-      } else {
-        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. See console.`);
-      }
-    } catch (error: any) {
-      console.error('Error testing order:', error);
-      toast.error(error.message || 'Failed to test order');
-    } finally {
-      setShopifySyncing(false);
-    }
-  };
 
   const handleSyncShopifyOrders = async () => {
     if (!user?.id || !shopify.installation) return;
@@ -2520,22 +2389,6 @@ const SettingsPage = () => {
                           title="Sync Orders"
                         >
                           <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
-                        </button>
-                        <button
-                          onClick={handleBackfillCustomerData}
-                          disabled={shopifySyncing}
-                          className="p-2 text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Fix Missing Customer Data"
-                        >
-                          <UserPlus className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={handleTestShopifyOrder}
-                          disabled={shopifySyncing}
-                          className="p-2 text-gray-700 dark:text-gray-300 bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Test Order #1024"
-                        >
-                          <Bug className="w-4 h-4" />
                         </button>
                       </>
                     )}
