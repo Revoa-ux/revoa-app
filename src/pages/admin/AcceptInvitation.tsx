@@ -207,14 +207,19 @@ export default function AcceptInvitation() {
             status: 'accepted',
             accepted_at: new Date().toISOString(),
           })
-          .eq('invitation_token', token);
+          .eq('invitation_token', token)
+          .eq('email', invitation!.email);
 
         if (updateError) {
           console.error('Failed to update invitation status:', updateError);
         }
 
         toast.success('Welcome back! Your account has been upgraded to admin.');
-        navigate('/admin/dashboard');
+
+        // Use window.location to ensure AdminContext reloads with new admin status
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard';
+        }, 500);
         return;
       }
 
@@ -242,7 +247,8 @@ export default function AcceptInvitation() {
           status: 'accepted',
           accepted_at: new Date().toISOString(),
         })
-        .eq('invitation_token', token);
+        .eq('invitation_token', token)
+        .eq('email', invitation!.email);
 
       if (updateError) {
         console.error('Failed to update invitation status:', updateError);
@@ -250,8 +256,10 @@ export default function AcceptInvitation() {
 
       toast.success('Account created successfully! Welcome to Revoa.');
 
-      // Redirect to profile setup or dashboard
-      navigate('/admin/profile-setup');
+      // Use window.location to ensure AdminContext reloads with new admin status
+      setTimeout(() => {
+        window.location.href = '/admin/profile-setup';
+      }, 500);
     } catch (err: any) {
       console.error('Error creating account:', err);
       toast.error(err.message || 'Failed to create account. Please try again.');
