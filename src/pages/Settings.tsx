@@ -14,6 +14,7 @@ import {
   DollarSign,
   RefreshCw,
   User,
+  UserPlus,
   Phone,
   Building,
   Lock,
@@ -1580,6 +1581,48 @@ const SettingsPage = () => {
     toast.success('Shopify store connected successfully!');
   };
 
+  const handleBackfillCustomerData = async () => {
+    if (!user?.id || !shopify.installation) return;
+
+    try {
+      setShopifySyncing(true);
+      toast.info('Backfilling customer data from Shopify...');
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/backfill-order-customer-data`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to backfill customer data');
+      }
+
+      if (result.updated > 0) {
+        toast.success(`Updated ${result.updated} orders with customer data!`);
+      } else {
+        toast.info(result.message || 'No orders needed updating');
+      }
+    } catch (error: any) {
+      console.error('Error backfilling customer data:', error);
+      toast.error(error.message || 'Failed to backfill customer data');
+    } finally {
+      setShopifySyncing(false);
+    }
+  };
+
   const handleSyncShopifyOrders = async () => {
     if (!user?.id || !shopify.installation) return;
 
@@ -2380,14 +2423,24 @@ const SettingsPage = () => {
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {integrationStatus.shopify && (
-                      <button
-                        onClick={handleSyncShopifyOrders}
-                        disabled={shopifySyncing}
-                        className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Sync"
-                      >
-                        <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
-                      </button>
+                      <>
+                        <button
+                          onClick={handleSyncShopifyOrders}
+                          disabled={shopifySyncing}
+                          className="p-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Sync Orders"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${shopifySyncing ? 'animate-spin' : ''}`} />
+                        </button>
+                        <button
+                          onClick={handleBackfillCustomerData}
+                          disabled={shopifySyncing}
+                          className="p-2 text-gray-700 dark:text-gray-300 bg-blue-100 dark:bg-blue-900/30 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Fix Missing Customer Data"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                        </button>
+                      </>
                     )}
                     <button
                       onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
