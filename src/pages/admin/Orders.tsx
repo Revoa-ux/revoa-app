@@ -443,12 +443,10 @@ export default function Orders() {
                 <>
                   <div
                     className="fixed inset-0 z-40 sm:hidden"
-                    onClick={() => setShowMerchantDropdown(false)}
+                    onMouseDown={() => setShowMerchantDropdown(false)}
+                    onTouchStart={() => setShowMerchantDropdown(false)}
                   />
-                  <div
-                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -465,7 +463,16 @@ export default function Orders() {
                   <div className="max-h-64 overflow-y-auto overscroll-contain">
                     <button
                       type="button"
-                      onClick={() => handleSelectMerchant(null)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectMerchant(null);
+                      }}
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelectMerchant(null);
+                      }}
                       className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors touch-manipulation ${
                         !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                       }`}
@@ -489,7 +496,16 @@ export default function Orders() {
                         <button
                           type="button"
                           key={merchant.id}
-                          onClick={() => handleSelectMerchant(merchant.id)}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSelectMerchant(merchant.id);
+                          }}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSelectMerchant(merchant.id);
+                          }}
                           className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors touch-manipulation ${
                             filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                           }`}
