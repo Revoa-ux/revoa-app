@@ -224,9 +224,37 @@ export default function AcceptInvitation() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+      <div
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{
+          backgroundColor: 'var(--auth-bg-color, #fafafa)',
+          backgroundImage: 'var(--auth-bg-pattern)',
+        }}
+      >
+        <style>{`
+          :root {
+            --auth-bg-color: #fafafa;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(0, 0, 0, 0.03) 4px,
+              rgba(0, 0, 0, 0.03) 5px
+            );
+          }
+          .dark {
+            --auth-bg-color: #171717;
+            --auth-bg-pattern: repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 4px,
+              rgba(255, 255, 255, 0.06) 4px,
+              rgba(255, 255, 255, 0.06) 5px
+            );
+          }
+        `}</style>
         <div className="w-full max-w-md">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+          <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
@@ -239,6 +267,7 @@ export default function AcceptInvitation() {
               size="lg"
               onClick={() => navigate('/auth')}
               fullWidth
+              className="!bg-gray-900 hover:!bg-gray-800 dark:!bg-gray-800 dark:hover:!bg-gray-700"
             >
               Go to Login
             </Button>
@@ -256,9 +285,37 @@ export default function AcceptInvitation() {
   const roleDisplay = invitation.role === 'super_admin' ? 'Super Admin' : 'Admin';
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        backgroundColor: 'var(--auth-bg-color, #fafafa)',
+        backgroundImage: 'var(--auth-bg-pattern)',
+      }}
+    >
+      <style>{`
+        :root {
+          --auth-bg-color: #fafafa;
+          --auth-bg-pattern: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 4px,
+            rgba(0, 0, 0, 0.03) 4px,
+            rgba(0, 0, 0, 0.03) 5px
+          );
+        }
+        .dark {
+          --auth-bg-color: #171717;
+          --auth-bg-pattern: repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 4px,
+            rgba(255, 255, 255, 0.06) 4px,
+            rgba(255, 255, 255, 0.06) 5px
+          );
+        }
+      `}</style>
       <div className="w-full max-w-2xl">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-gradient-to-r from-[#E85B81] to-[#E87D55] px-8 py-6">
             <div className="flex items-center justify-center mb-3">
               <CheckCircle2 className="w-12 h-12 text-white" />
@@ -414,6 +471,7 @@ export default function AcceptInvitation() {
                   size="lg"
                   loading={submitting}
                   fullWidth
+                  className="!bg-gray-900 hover:!bg-gray-800 dark:!bg-gray-800 dark:hover:!bg-gray-700"
                 >
                   {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}
                 </Button>
