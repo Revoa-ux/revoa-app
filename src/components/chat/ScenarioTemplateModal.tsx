@@ -252,6 +252,13 @@ export function ScenarioTemplateModal({
     }
   }, [isOpen, userId, orderId]);
 
+  useEffect(() => {
+    if (showOrderSelector && userId && !orderId && allOrders.length === 0 && !isLoadingOrders) {
+      console.log('showOrderSelector triggered, loading orders');
+      loadOrders();
+    }
+  }, [showOrderSelector, userId, orderId]);
+
   // Helper function to map database category to UI category
   // Templates now use their category directly from the database
   const mapCategoryToUI = (category: string): typeof PROBLEM_CATEGORIES[number]['id'] => {
@@ -332,8 +339,12 @@ export function ScenarioTemplateModal({
   ];
 
   const loadOrders = async () => {
-    if (!userId) return;
+    if (!userId) {
+      console.log('loadOrders: No userId available');
+      return;
+    }
 
+    console.log('loadOrders: Loading orders for userId:', userId);
     setIsLoadingOrders(true);
     try {
       const { data, error } = await supabase
@@ -343,12 +354,19 @@ export function ScenarioTemplateModal({
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error('loadOrders: Query error:', error);
+        throw error;
+      }
+
+      console.log('loadOrders: Fetched', data?.length || 0, 'orders');
 
       // Filter out orders without customer information for better UX
       const ordersWithCustomers = (data || []).filter(order =>
         order.customer_first_name || order.customer_last_name || order.customer_email
       );
+
+      console.log('loadOrders: After filtering,', ordersWithCustomers.length, 'orders with customer info');
 
       setAllOrders(ordersWithCustomers);
       setOrders(ordersWithCustomers);
@@ -375,10 +393,8 @@ export function ScenarioTemplateModal({
   };
 
   const handleSyncToOrder = () => {
+    console.log('handleSyncToOrder called, userId:', userId, 'orderId:', orderId);
     setShowOrderSelector(true);
-    if (userId && !orderId) {
-      loadOrders();
-    }
   };
 
   const handleOrderSelection = async (selectedOrderId: string) => {
@@ -467,7 +483,7 @@ export function ScenarioTemplateModal({
       return (
         <>
           {renderTextPart(textBeforeNote)}
-          <MerchantNoteBox note={noteContent} />
+          <MerchantNoteBox type="warning">{noteContent}</MerchantNoteBox>
           {textAfterNote && renderTextPart(textAfterNote)}
         </>
       );
@@ -477,17 +493,26 @@ export function ScenarioTemplateModal({
   };
 
   const parseMerchantNote = (text: string) => {
-    const merchantNoteRegex = /\[MERCHANT NOTE:([^\]]+)\]/;
+    const merchantNoteRegex = /\[MERCHANT NOTE:([^\]]+)\]/s;
     const match = text.match(merchantNoteRegex);
 
     if (match) {
       const noteContent = match[1].trim();
       const textBeforeNote = text.substring(0, match.index);
-      const textAfterNote = text.substring(match.index! + match[0].length);
+      let textAfterNote = text.substring(match.index! + match[0].length);
+
+      const exampleRegex = /^\s*Example:\s*"([^"]+)"/;
+      const exampleMatch = textAfterNote.match(exampleRegex);
+
+      let fullNoteContent = noteContent;
+      if (exampleMatch) {
+        fullNoteContent = noteContent + '\n\nExample: "' + exampleMatch[1].trim() + '"';
+        textAfterNote = textAfterNote.substring(exampleMatch[0].length);
+      }
 
       return {
         hasNote: true,
-        noteContent,
+        noteContent: fullNoteContent,
         textBeforeNote,
         textAfterNote
       };
@@ -541,7 +566,7 @@ export function ScenarioTemplateModal({
       return (
         <>
           {renderTextPart(textBeforeNote)}
-          <MerchantNoteBox note={noteContent} />
+          <MerchantNoteBox type="warning">{noteContent}</MerchantNoteBox>
           {textAfterNote && renderTextPart(textAfterNote)}
         </>
       );

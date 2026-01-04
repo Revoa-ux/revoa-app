@@ -48,7 +48,7 @@ export function MerchantNoteBox({
   const Icon = style.IconComponent;
 
   return (
-    <div className={`relative rounded-lg border-2 ${style.container} p-4 shadow-sm ${className}`}>
+    <div className={`relative rounded-lg border ${style.container} p-4 my-3 ${className}`}>
       <div className="flex items-start gap-3">
         <div className={`flex-shrink-0 ${style.icon}`}>
           <Icon className="w-5 h-5" />
