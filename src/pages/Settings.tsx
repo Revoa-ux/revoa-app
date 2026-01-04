@@ -1655,25 +1655,37 @@ const SettingsPage = () => {
 
       const extracted = result.extracted_data;
       const customer = extracted.customer;
+      const shippingAddr = extracted.shipping_address;
+      const billingAddr = extracted.billing_address;
 
       if (extracted.has_customer && customer) {
-        const customerKeys = Object.keys(customer);
         const hasData = customer.first_name || customer.last_name || customer.email;
 
         if (hasData) {
           toast.success(`Customer: ${customer.first_name || ''} ${customer.last_name || ''} (${customer.email || 'no email'})`);
         } else {
-          toast.warning(`Customer object exists but all fields are null. Keys: ${customerKeys.join(', ')}`);
+          const shippingName = shippingAddr ? `${shippingAddr.first_name || ''} ${shippingAddr.last_name || ''}`.trim() : null;
+          const billingName = billingAddr ? `${billingAddr.first_name || ''} ${billingAddr.last_name || ''}`.trim() : null;
+
+          if (shippingName) {
+            toast.warning(`Customer empty → Using shipping address: ${shippingName} (${extracted.email || 'no email'})`);
+          } else if (billingName) {
+            toast.warning(`Customer empty → Using billing address: ${billingName} (${extracted.email || 'no email'})`);
+          } else if (extracted.email) {
+            toast.warning(`Customer empty → Only email available: ${extracted.email}`);
+          } else {
+            toast.error(`Customer object exists but all name/email fields are null. Check console.`);
+          }
         }
       } else if (extracted.email) {
         toast.warning(`No customer object, but email found: ${extracted.email}`);
       } else if (extracted.contact_email) {
         toast.warning(`No customer object, but contact_email found: ${extracted.contact_email}`);
-      } else if (extracted.shipping_address) {
-        const addr = extracted.shipping_address;
-        toast.info(`No customer, but shipping address found: ${addr.first_name || ''} ${addr.last_name || ''}`);
+      } else if (shippingAddr) {
+        const name = `${shippingAddr.first_name || ''} ${shippingAddr.last_name || ''}`.trim();
+        toast.info(`No customer, but shipping address: ${name || 'no name'}`);
       } else {
-        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. Check console for full data.`);
+        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. Check console.`);
       }
       console.log('Full Shopify order data:', result.raw_order);
       console.log('Extracted data:', extracted);
