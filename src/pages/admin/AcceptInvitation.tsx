@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Shield, ShieldCheck, Lock, Mail, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Shield, ShieldCheck, Lock, Mail, User, Eye, EyeOff, AlertCircle, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
@@ -328,7 +328,7 @@ export default function AcceptInvitation() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex items-center justify-center p-4 py-12"
       style={{
         backgroundColor: 'var(--auth-bg-color, #fafafa)',
         backgroundImage: 'var(--auth-bg-pattern)',
@@ -356,108 +356,94 @@ export default function AcceptInvitation() {
           );
         }
       `}</style>
-      <div className="w-full max-w-2xl">
-        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="bg-gradient-to-r from-[#E85B81] to-[#E87D55] px-8 py-6">
-            <div className="flex items-center justify-center mb-3">
-              <CheckCircle2 className="w-12 h-12 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-white text-center">
-              You're Invited!
-            </h1>
-            <p className="text-white/90 mt-2 text-center">
-              Join Revoa as {roleDisplay === 'Super Admin' ? 'a' : 'an'} {roleDisplay}
-            </p>
+      <div className="w-full max-w-lg">
+        {/* Header - Outside the card */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center mb-3">
+            <CheckCircle2 className="w-10 h-10 text-[#E85B81]" />
           </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            You're Invited!
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1.5 text-sm">
+            Join Revoa as {roleDisplay === 'Super Admin' ? 'a' : 'an'} {roleDisplay}
+          </p>
+        </div>
 
-          <div className="p-8">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <RoleIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-200 mb-1">
-                    Invitation Details
-                  </p>
-                  <div className="space-y-1 text-sm text-blue-700 dark:text-blue-300">
-                    <p><strong>Email:</strong> {invitation.email}</p>
-                    <p><strong>Role:</strong> {roleDisplay}</p>
-                    <p><strong>Invited by:</strong> {invitation.invited_by_email}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Form Card */}
+        <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     First Name *
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleChange('firstName', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       placeholder="John"
                     />
                   </div>
                   {errors.firstName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+                    <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                     Last Name *
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <User className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleChange('lastName', e.target.value)}
-                      className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                         errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       placeholder="Doe"
                     />
                   </div>
                   {errors.lastName && (
-                    <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+                    <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type="email"
                     value={invitation.email}
                     disabled
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Password *
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type={showPassword.password ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter a strong password"
@@ -465,13 +451,13 @@ export default function AcceptInvitation() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, password: !prev.password }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword.password ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.password ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.password}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Must be at least 8 characters with uppercase, lowercase, number, and special character
@@ -479,16 +465,16 @@ export default function AcceptInvitation() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   Confirm Password *
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
                     type={showPassword.confirm ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    className={`w-full pl-10 pr-12 py-2.5 border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Confirm your password"
@@ -496,27 +482,29 @@ export default function AcceptInvitation() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  <p className="mt-1 text-xs text-red-600">{errors.confirmPassword}</p>
                 )}
               </div>
 
-              <div className="pt-4">
-                <Button
+              <div className="pt-3">
+                <button
                   type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={submitting}
-                  fullWidth
-                  className="!bg-gray-900 hover:!bg-gray-800 dark:!bg-gray-800 dark:hover:!bg-gray-700"
+                  disabled={submitting}
+                  className="group relative w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
-                  {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}
-                </Button>
+                  <span className="flex items-center gap-2">
+                    {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}
+                    {!submitting && (
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    )}
+                  </span>
+                </button>
               </div>
             </form>
           </div>
