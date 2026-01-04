@@ -143,12 +143,16 @@ export default function AllOrdersTab({
           lineItemsMap.get(item.shopify_order_id)!.push(item);
         });
 
-        const ordersWithData = data.map(order => ({
-          ...order,
-          merchant_name: profileMap.get(order.user_id) || 'Unknown',
-          shopify_domain: domainMap.get(order.user_id),
-          line_items: lineItemsMap.get(order.shopify_order_id) || []
-        }));
+        const ordersWithData = data.map(order => {
+          const items = lineItemsMap.get(order.shopify_order_id) || [];
+          console.log('Order:', order.order_number, 'Line items:', items);
+          return {
+            ...order,
+            merchant_name: profileMap.get(order.user_id) || 'Unknown',
+            shopify_domain: domainMap.get(order.user_id),
+            line_items: items
+          };
+        });
 
         setOrders(ordersWithData);
       } else {
@@ -281,7 +285,7 @@ export default function AllOrdersTab({
                     e.stopPropagation();
                     toggleOrderExpansion(order.id);
                   }}
-                  className="p-2 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:bg-gray-100 dark:active:bg-gray-700 rounded-md touch-manipulation"
+                  className="p-2 -m-1 text-gray-400 rounded-md"
                 >
                   {expandedOrders.has(order.id) ? (
                     <ChevronDown className="w-5 h-5" />
@@ -363,18 +367,22 @@ export default function AllOrdersTab({
             </div>
 
             {/* Expanded Items */}
-            {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+            {expandedOrders.has(order.id) && (
               <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
                 <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">Items</p>
-                {order.line_items.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="text-gray-900 dark:text-white truncate flex-1">
-                      {item.product_name}
-                      {item.variant_name && <span className="text-gray-500 ml-1">({item.variant_name})</span>}
-                    </span>
-                    <span className="text-gray-500 dark:text-gray-400 ml-2">x{item.quantity}</span>
-                  </div>
-                ))}
+                {order.line_items && order.line_items.length > 0 ? (
+                  order.line_items.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs">
+                      <span className="text-gray-900 dark:text-white truncate flex-1">
+                        {item.product_name}
+                        {item.variant_name && <span className="text-gray-500 ml-1">({item.variant_name})</span>}
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400 ml-2">x{item.quantity}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No line items found</p>
+                )}
               </div>
             )}
           </div>
@@ -429,7 +437,7 @@ export default function AllOrdersTab({
                           e.stopPropagation();
                           toggleOrderExpansion(order.id);
                         }}
-                        className="p-1.5 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 -m-1 text-gray-400 rounded"
                       >
                         {expandedOrders.has(order.id) ? (
                           <ChevronDown className="w-4 h-4" />
@@ -517,30 +525,34 @@ export default function AllOrdersTab({
                   </div>
                 </td>
               </tr>
-              {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+              {expandedOrders.has(order.id) && (
                 <tr>
                   <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
                         Order Items
                       </p>
-                      {order.line_items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                          <div className="flex-1">
-                            <span className="text-gray-900 dark:text-white font-medium">
-                              {item.product_name}
-                            </span>
-                            {item.variant_name && (
-                              <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                ({item.variant_name})
+                      {order.line_items && order.line_items.length > 0 ? (
+                        order.line_items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <div className="flex-1">
+                              <span className="text-gray-900 dark:text-white font-medium">
+                                {item.product_name}
                               </span>
-                            )}
+                              {item.variant_name && (
+                                <span className="text-gray-500 dark:text-gray-400 ml-2">
+                                  ({item.variant_name})
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                              <span>Qty: {item.quantity}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                            <span>Qty: {item.quantity}</span>
-                          </div>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No line items found</p>
+                      )}
                     </div>
                   </td>
                 </tr>
