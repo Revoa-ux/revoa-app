@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
 import { FilterButton } from '@/components/FilterButton';
 import { toast } from 'sonner';
-import { CustomSelect } from '../../components/CustomSelect';
 import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
@@ -65,8 +64,25 @@ export default function Orders() {
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [availableCarriers, setAvailableCarriers] = useState<string[]>([]);
 
+  const [showExportStatusDropdown, setShowExportStatusDropdown] = useState(false);
+  const [showCarrierDropdown, setShowCarrierDropdown] = useState(false);
+  const [showSyncStatusDropdown, setShowSyncStatusDropdown] = useState(false);
+  const [showFulfillmentStatusDropdown, setShowFulfillmentStatusDropdown] = useState(false);
+  const [showAllOrdersExportDropdown, setShowAllOrdersExportDropdown] = useState(false);
+
   const merchantDropdownRef = useRef<HTMLDivElement>(null);
+  const exportStatusDropdownRef = useRef<HTMLDivElement>(null);
+  const carrierDropdownRef = useRef<HTMLDivElement>(null);
+  const syncStatusDropdownRef = useRef<HTMLDivElement>(null);
+  const fulfillmentStatusDropdownRef = useRef<HTMLDivElement>(null);
+  const allOrdersExportDropdownRef = useRef<HTMLDivElement>(null);
+
   useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false));
+  useClickOutside(exportStatusDropdownRef, () => setShowExportStatusDropdown(false));
+  useClickOutside(carrierDropdownRef, () => setShowCarrierDropdown(false));
+  useClickOutside(syncStatusDropdownRef, () => setShowSyncStatusDropdown(false));
+  useClickOutside(fulfillmentStatusDropdownRef, () => setShowFulfillmentStatusDropdown(false));
+  useClickOutside(allOrdersExportDropdownRef, () => setShowAllOrdersExportDropdown(false));
 
   const filteredUserId = searchParams.get('userId');
 
@@ -762,68 +778,205 @@ export default function Orders() {
 
         {/* Filters - appear first on mobile */}
         {activeTab === 'unfulfilled' && (
-          <CustomSelect
-            value={exportStatusFilter}
-            onChange={(val) => setExportStatusFilter(val as string)}
-            options={[
-              { value: 'all', label: 'All Export Status' },
-              { value: 'ready', label: 'Ready to Export' },
-              { value: 'exported', label: 'Already Exported' },
-            ]}
-            className="w-full sm:w-44"
-          />
+          <div className="relative" ref={exportStatusDropdownRef}>
+            <FilterButton
+              icon={Package}
+              label="Export"
+              selectedLabel={exportStatusFilter === 'all' ? 'All' : exportStatusFilter === 'ready' ? 'Ready' : 'Exported'}
+              onClick={() => setShowExportStatusDropdown(!showExportStatusDropdown)}
+              isActive={exportStatusFilter !== 'all'}
+              activeCount={exportStatusFilter !== 'all' ? 1 : 0}
+            />
+            {showExportStatusDropdown && (
+              <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {[
+                  { value: 'all', label: 'All Export Status' },
+                  { value: 'ready', label: 'Ready to Export' },
+                  { value: 'exported', label: 'Already Exported' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setExportStatusFilter(option.value);
+                      setShowExportStatusDropdown(false);
+                    }}
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      exportStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    }`}
+                  >
+                    <span className="text-gray-900 dark:text-white">{option.label}</span>
+                    {exportStatusFilter === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {activeTab === 'tracking' && (
           <div className="flex flex-col sm:flex-row gap-3">
-            <CustomSelect
-              value={carrierFilter}
-              onChange={(val) => setCarrierFilter(val as string)}
-              options={[
-                { value: 'all', label: 'All Carriers' },
-                ...availableCarriers.map(c => ({ value: c, label: c }))
-              ]}
-              className="w-full sm:w-40"
-            />
-            <CustomSelect
-              value={syncStatusFilter}
-              onChange={(val) => setSyncStatusFilter(val as string)}
-              options={[
-                { value: 'all', label: 'All Sync Status' },
-                { value: 'synced', label: 'Synced' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'failed', label: 'Failed' },
-              ]}
-              className="w-full sm:w-40"
-            />
+            <div className="relative" ref={carrierDropdownRef}>
+              <FilterButton
+                icon={Truck}
+                label="Carrier"
+                selectedLabel={carrierFilter === 'all' ? 'All' : carrierFilter}
+                onClick={() => setShowCarrierDropdown(!showCarrierDropdown)}
+                isActive={carrierFilter !== 'all'}
+                activeCount={carrierFilter !== 'all' ? 1 : 0}
+                fullWidth
+              />
+              {showCarrierDropdown && (
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => {
+                      setCarrierFilter('all');
+                      setShowCarrierDropdown(false);
+                    }}
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      carrierFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    }`}
+                  >
+                    <span className="text-gray-900 dark:text-white">All Carriers</span>
+                    {carrierFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                  {availableCarriers.map((carrier) => (
+                    <button
+                      key={carrier}
+                      onClick={() => {
+                        setCarrierFilter(carrier);
+                        setShowCarrierDropdown(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        carrierFilter === carrier ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white">{carrier}</span>
+                      {carrierFilter === carrier && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="relative" ref={syncStatusDropdownRef}>
+              <FilterButton
+                icon={RefreshCw}
+                label="Sync"
+                selectedLabel={syncStatusFilter === 'all' ? 'All' : syncStatusFilter.charAt(0).toUpperCase() + syncStatusFilter.slice(1)}
+                onClick={() => setShowSyncStatusDropdown(!showSyncStatusDropdown)}
+                isActive={syncStatusFilter !== 'all'}
+                activeCount={syncStatusFilter !== 'all' ? 1 : 0}
+                fullWidth
+              />
+              {showSyncStatusDropdown && (
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  {[
+                    { value: 'all', label: 'All Sync Status' },
+                    { value: 'synced', label: 'Synced' },
+                    { value: 'pending', label: 'Pending' },
+                    { value: 'failed', label: 'Failed' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setSyncStatusFilter(option.value);
+                        setShowSyncStatusDropdown(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        syncStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white">{option.label}</span>
+                      {syncStatusFilter === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {activeTab === 'all' && (
           <div className="flex flex-col sm:flex-row gap-3">
-            <CustomSelect
-              value={fulfillmentStatusFilter}
-              onChange={(val) => setFulfillmentStatusFilter(val as string)}
-              options={[
-                { value: 'all', label: 'All Fulfillment Status' },
-                { value: 'UNFULFILLED', label: 'Unfulfilled' },
-                { value: 'FULFILLED', label: 'Fulfilled' },
-                { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
-              ]}
-              className="w-full sm:w-52"
-            />
-            <CustomSelect
-              value={allOrdersExportFilter}
-              onChange={(val) => setAllOrdersExportFilter(val as string)}
-              options={[
-                { value: 'all', label: 'All Export Status' },
-                { value: 'exported', label: 'Exported to 3PL' },
-                { value: 'not_exported', label: 'Not Exported' },
-                { value: 'has_tracking', label: 'Has Tracking' },
-                { value: 'no_tracking', label: 'No Tracking' },
-              ]}
-              className="w-full sm:w-44"
-            />
+            <div className="relative" ref={fulfillmentStatusDropdownRef}>
+              <FilterButton
+                icon={Package}
+                label="Fulfillment"
+                selectedLabel={
+                  fulfillmentStatusFilter === 'all' ? 'All' :
+                  fulfillmentStatusFilter === 'UNFULFILLED' ? 'Unfulfilled' :
+                  fulfillmentStatusFilter === 'FULFILLED' ? 'Fulfilled' : 'Partial'
+                }
+                onClick={() => setShowFulfillmentStatusDropdown(!showFulfillmentStatusDropdown)}
+                isActive={fulfillmentStatusFilter !== 'all'}
+                activeCount={fulfillmentStatusFilter !== 'all' ? 1 : 0}
+                fullWidth
+              />
+              {showFulfillmentStatusDropdown && (
+                <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  {[
+                    { value: 'all', label: 'All Fulfillment Status' },
+                    { value: 'UNFULFILLED', label: 'Unfulfilled' },
+                    { value: 'FULFILLED', label: 'Fulfilled' },
+                    { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setFulfillmentStatusFilter(option.value);
+                        setShowFulfillmentStatusDropdown(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        fulfillmentStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white">{option.label}</span>
+                      {fulfillmentStatusFilter === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="relative" ref={allOrdersExportDropdownRef}>
+              <FilterButton
+                icon={Download}
+                label="Export"
+                selectedLabel={
+                  allOrdersExportFilter === 'all' ? 'All' :
+                  allOrdersExportFilter === 'exported' ? 'Exported' :
+                  allOrdersExportFilter === 'not_exported' ? 'Not Exported' :
+                  allOrdersExportFilter === 'has_tracking' ? 'Has Tracking' : 'No Tracking'
+                }
+                onClick={() => setShowAllOrdersExportDropdown(!showAllOrdersExportDropdown)}
+                isActive={allOrdersExportFilter !== 'all'}
+                activeCount={allOrdersExportFilter !== 'all' ? 1 : 0}
+                fullWidth
+              />
+              {showAllOrdersExportDropdown && (
+                <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  {[
+                    { value: 'all', label: 'All Export Status' },
+                    { value: 'exported', label: 'Exported to 3PL' },
+                    { value: 'not_exported', label: 'Not Exported' },
+                    { value: 'has_tracking', label: 'Has Tracking' },
+                    { value: 'no_tracking', label: 'No Tracking' },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setAllOrdersExportFilter(option.value);
+                        setShowAllOrdersExportDropdown(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                        allOrdersExportFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white">{option.label}</span>
+                      {allOrdersExportFilter === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
