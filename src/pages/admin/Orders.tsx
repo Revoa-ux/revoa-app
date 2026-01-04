@@ -72,13 +72,14 @@ export default function Orders() {
 
   const merchantDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMerchantDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMerchantDropdownMenuRef = useRef<HTMLDivElement>(null);
   const exportStatusDropdownRef = useRef<HTMLDivElement>(null);
   const carrierDropdownRef = useRef<HTMLDivElement>(null);
   const syncStatusDropdownRef = useRef<HTMLDivElement>(null);
   const fulfillmentStatusDropdownRef = useRef<HTMLDivElement>(null);
   const allOrdersExportDropdownRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false));
+  useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false), [mobileMerchantDropdownMenuRef]);
   useClickOutside(exportStatusDropdownRef, () => setShowExportStatusDropdown(false));
   useClickOutside(carrierDropdownRef, () => setShowCarrierDropdown(false));
   useClickOutside(syncStatusDropdownRef, () => setShowSyncStatusDropdown(false));
@@ -446,6 +447,7 @@ export default function Orders() {
                     onClick={() => setShowMerchantDropdown(false)}
                   />
                   <div
+                    ref={mobileMerchantDropdownMenuRef}
                     className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
                     onClick={(e) => e.stopPropagation()}
                   >
