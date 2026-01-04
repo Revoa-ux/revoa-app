@@ -69,8 +69,8 @@ export default function UnfulfilledOrdersTab({
       let query = supabase
         .from('shopify_orders')
         .select('*')
-        .eq('fulfillment_status', 'UNFULFILLED')
-        .in('financial_status', ['PAID', 'AUTHORIZED'])
+        .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
+        .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
         .is('cancelled_at', null)
         .order('created_at', { ascending: false });
 

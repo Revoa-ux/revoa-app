@@ -368,7 +368,7 @@ export default function AdminQuotes() {
 
       {isSuperAdmin && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -386,7 +386,7 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -404,10 +404,10 @@ export default function AdminQuotes() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <div className={`p-2 rounded-lg ${quoteStats.pendingCount > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <AlertCircle className={`w-4 h-4 ${quoteStats.pendingCount > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
             </div>
             <div>
@@ -521,7 +521,7 @@ export default function AdminQuotes() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-visible">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-visible">
         <div className="overflow-x-auto rounded-xl">
           <table className="w-full">
             <thead>

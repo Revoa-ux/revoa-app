@@ -188,7 +188,7 @@ export default function Orders() {
               .from('shopify_orders')
               .select('*', { count: 'exact', head: true })
               .eq('user_id', m.id)
-              .eq('fulfillment_status', 'UNFULFILLED')
+              .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
               .eq('exported_to_3pl', false);
 
             return {
@@ -242,9 +242,9 @@ export default function Orders() {
       let readyQuery = supabase
         .from('shopify_orders')
         .select('*', { count: 'exact', head: true })
-        .eq('fulfillment_status', 'UNFULFILLED')
+        .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
         .eq('exported_to_3pl', false)
-        .in('financial_status', ['PAID', 'AUTHORIZED'])
+        .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
         .is('cancelled_at', null);
 
       if (merchantIds) {
@@ -499,7 +499,7 @@ export default function Orders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${stats.readyToExport > 10 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
               <TrendingUp className={`w-5 h-5 ${stats.readyToExport > 10 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
@@ -518,7 +518,7 @@ export default function Orders() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${stats.exportedAwaitingTracking > 5 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
               <Clock className={`w-5 h-5 ${stats.exportedAwaitingTracking > 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
@@ -532,10 +532,10 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <CheckCircle2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400">Imported Today</p>
@@ -546,7 +546,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -562,7 +562,7 @@ export default function Orders() {
       </div>
 
       {/* Tabs and Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex -mb-px">
             <button

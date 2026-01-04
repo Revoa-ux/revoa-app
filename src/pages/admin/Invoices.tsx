@@ -497,10 +497,10 @@ export default function Invoices() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <DollarSign className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <div className={`p-2 rounded-lg ${stats.total_outstanding > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <DollarSign className={`w-5 h-5 ${stats.total_outstanding > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
@@ -511,10 +511,10 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Paid in Period</p>
@@ -525,10 +525,10 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              <div className={`p-2 rounded-lg ${stats.pending_count > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <Clock className={`w-5 h-5 ${stats.pending_count > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
@@ -539,10 +539,10 @@ export default function Invoices() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <div className={`p-2 rounded-lg ${stats.overdue_count > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <AlertCircle className={`w-5 h-5 ${stats.overdue_count > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
               <div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
@@ -677,7 +677,7 @@ export default function Invoices() {
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
         <div className="relative overflow-x-auto">
             <table className="w-full">
               <thead>

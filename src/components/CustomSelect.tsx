@@ -52,11 +52,11 @@ export function CustomSelect({
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`w-full px-4 py-2.5 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent text-left transition-all ${
-          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-400 dark:hover:border-gray-500'
+        className={`w-full h-[38px] px-3 pr-8 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-left transition-all text-sm ${
+          disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50'
         }`}
       >
-        <span className={selectedOption ? '' : 'text-gray-500 dark:text-gray-400'}>
+        <span className={`truncate block ${selectedOption ? '' : 'text-gray-500 dark:text-gray-400'}`}>
           {selectedOption?.label || placeholder}
         </span>
         <ChevronDown
@@ -73,7 +73,7 @@ export function CustomSelect({
               key={option.value}
               type="button"
               onClick={() => handleSelect(option.value)}
-              className={`w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between ${
+              className={`w-full px-3 py-2 text-left text-sm transition-colors flex items-center justify-between whitespace-nowrap ${
                 index === 0 ? 'rounded-t-lg' : ''
               } ${
                 index === options.length - 1 ? 'rounded-b-lg' : ''
@@ -83,9 +83,9 @@ export function CustomSelect({
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
               }`}
             >
-              <span>{option.label}</span>
+              <span className="truncate">{option.label}</span>
               {option.value === value && (
-                <Check className="w-4 h-4 text-red-500 dark:text-red-400" />
+                <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />
               )}
             </button>
           ))}

@@ -71,7 +71,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
               .from('shopify_orders')
               .select('*', { count: 'exact', head: true })
               .eq('user_id', m.id)
-              .eq('fulfillment_status', 'UNFULFILLED')
+              .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
               .eq('exported_to_3pl', false);
 
             return {
