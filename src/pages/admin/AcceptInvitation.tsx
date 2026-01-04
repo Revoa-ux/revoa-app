@@ -85,16 +85,7 @@ export default function AcceptInvitation() {
       // First try with invitation_token (the token in the URL)
       const { data: tokenData, error: tokenError } = await anonClient
         .from('admin_invitations')
-        .select(`
-          email,
-          role,
-          expires_at,
-          status,
-          invited_by,
-          user_profiles!admin_invitations_invited_by_fkey (
-            email
-          )
-        `)
+        .select('email, role, expires_at, status')
         .eq('invitation_token', token)
         .maybeSingle();
 
@@ -104,16 +95,7 @@ export default function AcceptInvitation() {
         // Fallback: try with id (in case the token is actually the invitation id)
         const { data: idData, error: idError } = await anonClient
           .from('admin_invitations')
-          .select(`
-            email,
-            role,
-            expires_at,
-            status,
-            invited_by,
-            user_profiles!admin_invitations_invited_by_fkey (
-              email
-            )
-          `)
+          .select('email, role, expires_at, status')
           .eq('id', token)
           .maybeSingle();
 
@@ -143,7 +125,7 @@ export default function AcceptInvitation() {
       setInvitation({
         email: data.email,
         role: data.role,
-        invited_by_email: (data.user_profiles as any)?.email || 'Unknown',
+        invited_by_email: 'Revoa Admin',
         expires_at: data.expires_at,
       });
     } catch (err) {
