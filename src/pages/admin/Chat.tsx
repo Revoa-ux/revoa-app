@@ -979,11 +979,13 @@ const AdminChat = () => {
 
             {/* Active Flow Indicator */}
             {activeFlowSession?.is_active && activeFlow && (
-              <div className="mx-4 sm:mx-6 mt-4 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">
-                  Active Flow: {activeFlow.name}
-                </p>
+              <div className="mx-4 sm:mx-6 mt-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 dark:bg-green-500/20 border border-green-500/30 rounded-full">
+                  <AlertCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                  <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                    Active Flow: {activeFlow.name}
+                  </span>
+                </div>
               </div>
             )}
 
