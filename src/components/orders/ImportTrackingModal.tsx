@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, UploadCloud, Trash2, Users, Search, Check } from 'lucide-react';
+import { X, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, UploadCloud, Trash2, Users, Search, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
@@ -350,19 +350,13 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Import Tracking from Mabang
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Step {getStepNumber()} of {getTotalSteps()}
-                  {selectedMerchant && ` - ${selectedMerchant.name}`}
-                </p>
-              </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Import Tracking from Mabang
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Step {getStepNumber()} of {getTotalSteps()}
+              </p>
             </div>
             <button
               onClick={handleClose}
@@ -469,23 +463,68 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             {step === 'upload' && (
               <>
                 <div className="px-6 py-4 space-y-4">
-                  {/* Selected Merchant Info */}
-                  {selectedMerchant && (
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {selectedMerchant.name}
-                        </span>
+                  {/* Selected Merchant Tag or Search */}
+                  {selectedMerchant ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Merchant:</span>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full text-sm font-medium">
+                        <span>{selectedMerchant.name}</span>
+                        {!filteredUserId && (
+                          <button
+                            onClick={() => setSelectedMerchantId(null)}
+                            className="p-0.5 hover:bg-white/20 dark:hover:bg-gray-900/20 rounded-full transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
-                      {!filteredUserId && (
-                        <button
-                          onClick={() => setStep('merchant')}
-                          className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                        >
-                          Change
-                        </button>
-                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={merchantSearchTerm}
+                          onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                          placeholder="Search and select a merchant..."
+                          className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                        />
+                      </div>
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <div className="max-h-48 overflow-y-auto">
+                          {filteredMerchants.length === 0 ? (
+                            <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                              No merchants found
+                            </div>
+                          ) : (
+                            filteredMerchants.map((merchant) => (
+                              <button
+                                key={merchant.id}
+                                onClick={() => {
+                                  setSelectedMerchantId(merchant.id);
+                                  setMerchantSearchTerm('');
+                                }}
+                                className="flex items-center justify-between w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-7 h-7 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                    <Users className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                      {merchant.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                      {merchant.orderCount} orders
+                                    </p>
+                                  </div>
+                                </div>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
 
@@ -503,11 +542,13 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
 
                   {/* Drag and Drop Zone */}
                   <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
+                    onDragOver={selectedMerchantId ? handleDragOver : undefined}
+                    onDragLeave={selectedMerchantId ? handleDragLeave : undefined}
+                    onDrop={selectedMerchantId ? handleDrop : undefined}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
-                      isDragging
+                      !selectedMerchantId
+                        ? 'border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 opacity-60'
+                        : isDragging
                         ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
                         : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                     }`}
@@ -516,8 +557,8 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       type="file"
                       accept=".xlsx,.xls,.csv"
                       onChange={handleFileSelect}
-                      disabled={uploading}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={uploading || !selectedMerchantId}
+                      className={`absolute inset-0 w-full h-full opacity-0 ${selectedMerchantId ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                     />
                     <div className="flex flex-col items-center gap-3">
                       <div className={`p-3 rounded-full transition-colors ${
@@ -533,11 +574,17 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {isDragging ? 'Drop your file here' : 'Drag and drop your file here'}
+                          {!selectedMerchantId
+                            ? 'Select a merchant first'
+                            : isDragging
+                            ? 'Drop your file here'
+                            : 'Drag and drop your file here'}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          or click to browse
-                        </p>
+                        {selectedMerchantId && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            or click to browse
+                          </p>
+                        )}
                       </div>
                       <p className="text-xs text-gray-400 dark:text-gray-500">
                         Supports: .xlsx, .xls, .csv
@@ -562,7 +609,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                       disabled={true}
                       className="flex-1 px-5 py-2 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed"
                     >
-                      Upload file to continue
+                      {!selectedMerchantId ? 'Select merchant first' : 'Upload file to continue'}
                     </button>
                   </div>
                 </div>
@@ -573,14 +620,12 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
             {step === 'preview' && file && (
               <>
                 <div className="px-6 py-4 space-y-4">
-                  {/* Selected Merchant Info */}
+                  {/* Selected Merchant Tag */}
                   {selectedMerchant && (
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          Importing for {selectedMerchant.name}
-                        </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Importing for:</span>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full text-sm font-medium">
+                        <span>{selectedMerchant.name}</span>
                       </div>
                     </div>
                   )}

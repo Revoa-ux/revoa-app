@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Download, AlertTriangle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
+import { X, AlertTriangle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
@@ -391,18 +391,13 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Export to Mabang 3PL
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {orders.length} orders ready for export
-                </p>
-              </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Export to Mabang 3PL
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {orders.length} orders ready for export
+              </p>
             </div>
             <button
               onClick={onClose}
