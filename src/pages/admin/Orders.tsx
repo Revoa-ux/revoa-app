@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
@@ -10,7 +10,7 @@ import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
 import ExportToMabangModal from '../../components/orders/ExportToMabangModal';
-import ImportTrackingModal from '../../components/orders/ImportTrackingModal';
+import ImportTrackingModal, { SyncFailureInfo } from '../../components/orders/ImportTrackingModal';
 
 interface OrderPermissions {
   can_export_orders: boolean;
@@ -48,6 +48,7 @@ export default function Orders() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncFailure, setSyncFailure] = useState<SyncFailureInfo | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showMerchantDropdown, setShowMerchantDropdown] = useState(false);
   const [merchants, setMerchants] = useState<Merchant[]>([]);
@@ -309,21 +310,26 @@ export default function Orders() {
     }
   };
 
-  const handleManualSync = async () => {
-    if (!permissions?.can_sync_to_shopify) {
-      toast.error('You do not have permission to sync to Shopify');
-      return;
-    }
-
+  const handleRetrySync = async (merchantId?: string) => {
     setIsSyncing(true);
     try {
       const { data, error } = await supabase.functions.invoke('shopify-sync-fulfillments', {
-        body: { userId: filteredUserId || undefined }
+        body: { userId: merchantId || syncFailure?.merchantId || filteredUserId || undefined }
       });
 
       if (error) throw error;
 
-      toast.success(`Synced ${data.synced || 0} fulfillments to Shopify`);
+      if (data?.failed > 0) {
+        setSyncFailure({
+          failedCount: data.failed,
+          errorMessage: data.message || 'Some fulfillments failed to sync',
+          merchantId: merchantId || syncFailure?.merchantId || filteredUserId || ''
+        });
+        toast.success(`Synced ${data.synced || 0} fulfillments, ${data.failed} still pending`);
+      } else {
+        setSyncFailure(null);
+        toast.success(`Successfully synced ${data.synced || 0} fulfillments to Shopify`);
+      }
       loadStats();
       setRefreshKey(prev => prev + 1);
     } catch (error: any) {
@@ -472,16 +478,6 @@ export default function Orders() {
               )}
             </div>
           )}
-          {permissions?.can_sync_to_shopify && (
-            <button
-              onClick={handleManualSync}
-              disabled={isSyncing}
-              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-            >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Sync...' : 'Sync'}</span>
-            </button>
-          )}
         </div>
 
         {/* Desktop: Merchant Filter Dropdown */}
@@ -610,17 +606,6 @@ export default function Orders() {
               )}
             </div>
           )}
-
-          {permissions?.can_sync_to_shopify && (
-            <button
-              onClick={handleManualSync}
-              disabled={isSyncing}
-              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Syncing...' : 'Sync to Shopify'}</span>
-            </button>
-          )}
         </div>
 
         {/* Mobile: Export and Import buttons */}
@@ -658,6 +643,52 @@ export default function Orders() {
           )}
         </div>
       </div>
+
+      {/* Sync Failure Banner */}
+      {syncFailure && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                  Shopify Sync Failed
+                </h3>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  {syncFailure.failedCount} fulfillment{syncFailure.failedCount !== 1 ? 's' : ''} could not be synced to Shopify.
+                </p>
+                <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                  <p className="font-medium">Possible reasons:</p>
+                  <ul className="mt-1 space-y-0.5 list-disc list-inside">
+                    <li>Shopify store connection expired</li>
+                    <li>Order was already fulfilled in Shopify</li>
+                    <li>Network or API rate limit issues</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 sm:flex-shrink-0">
+              <button
+                onClick={() => handleRetrySync()}
+                disabled={isSyncing}
+                className="flex-1 sm:flex-none h-9 px-4 text-sm font-medium bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Retrying...' : 'Retry Sync'}</span>
+              </button>
+              <button
+                onClick={() => setSyncFailure(null)}
+                className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
+                title="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -928,8 +959,11 @@ export default function Orders() {
           merchants={merchants}
           isSuperAdmin={isSuperAdmin}
           onClose={() => setShowImportModal(false)}
-          onSuccess={() => {
+          onSuccess={(failure) => {
             setShowImportModal(false);
+            if (failure) {
+              setSyncFailure(failure);
+            }
             loadStats();
             setRefreshKey(prev => prev + 1);
           }}

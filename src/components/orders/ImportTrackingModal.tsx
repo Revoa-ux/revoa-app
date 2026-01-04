@@ -3,7 +3,6 @@ import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, Arrow
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
-import { CustomCheckbox } from '../CustomCheckbox';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
@@ -13,12 +12,18 @@ interface Merchant {
   orderCount: number;
 }
 
+export interface SyncFailureInfo {
+  failedCount: number;
+  errorMessage: string;
+  merchantId: string;
+}
+
 interface ImportTrackingModalProps {
   filteredUserId?: string;
   merchants?: Merchant[];
   isSuperAdmin?: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (syncFailure?: SyncFailureInfo) => void;
 }
 
 interface TrackingRow {
@@ -48,7 +53,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
   const [preview, setPreview] = useState<TrackingRow[]>([]);
   const [fullData, setFullData] = useState<TrackingRow[]>([]);
   const [result, setResult] = useState<ImportResult | null>(null);
-  const [autoSync, setAutoSync] = useState(true);
+  const [syncFailure, setSyncFailure] = useState<SyncFailureInfo | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const selectedMerchant = merchants.find(m => m.id === selectedMerchantId);
@@ -260,18 +265,33 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
 
       setResult({ success, failed, duplicates });
 
-      if (autoSync && success.length > 0) {
+      if (success.length > 0) {
         try {
-          await supabase.functions.invoke('shopify-sync-fulfillments', {
+          const { data: syncResult, error: syncError } = await supabase.functions.invoke('shopify-sync-fulfillments', {
             body: { userId: selectedMerchantId }
           });
-          toast.success(`Imported ${success.length} tracking numbers and synced to Shopify`);
-        } catch (syncError) {
+
+          if (syncError) throw syncError;
+
+          if (syncResult?.failed > 0) {
+            setSyncFailure({
+              failedCount: syncResult.failed,
+              errorMessage: syncResult.message || 'Some fulfillments failed to sync',
+              merchantId: selectedMerchantId!
+            });
+            toast.success(`Imported ${success.length} tracking numbers`);
+          } else {
+            toast.success(`Imported ${success.length} tracking numbers and synced to Shopify`);
+          }
+        } catch (syncError: any) {
           console.error('Auto-sync error:', syncError);
-          toast.success(`Imported ${success.length} tracking numbers (sync pending)`);
+          setSyncFailure({
+            failedCount: success.length,
+            errorMessage: syncError.message || 'Failed to sync to Shopify',
+            merchantId: selectedMerchantId!
+          });
+          toast.success(`Imported ${success.length} tracking numbers`);
         }
-      } else {
-        toast.success(`Successfully imported ${success.length} tracking numbers`);
       }
 
       if (failed.length > 0) {
@@ -288,7 +308,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
 
   const handleClose = () => {
     if (result && result.success.length > 0) {
-      onSuccess();
+      onSuccess(syncFailure || undefined);
     } else {
       onClose();
     }
@@ -631,21 +651,20 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                     </div>
                   )}
 
-                  {/* Auto-sync Option */}
-                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                    <CustomCheckbox
-                      checked={autoSync}
-                      onChange={(e) => setAutoSync(e.target.checked)}
-                    />
+                  {/* Auto-sync Info */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-full">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         Auto-sync to Shopify
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Automatically update Shopify fulfillment status after import
+                        Tracking will automatically sync to Shopify after import
                       </p>
                     </div>
-                  </label>
+                  </div>
                 </div>
 
                 {/* Footer */}
@@ -700,7 +719,7 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                         {result.success.length}
                       </p>
                       <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        tracking {result.success.length === 1 ? 'number' : 'numbers'} imported and {autoSync ? 'synced to Shopify' : 'ready to sync'}
+                        tracking {result.success.length === 1 ? 'number' : 'numbers'} imported{syncFailure ? '' : ' and synced to Shopify'}
                       </p>
                     </div>
                   </div>
