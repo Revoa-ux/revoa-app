@@ -441,8 +441,14 @@ export default function Orders() {
 
               {showMerchantDropdown && (
                 <>
-                  <div className="fixed inset-0 z-40 sm:hidden" />
-                  <div className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden">
+                  <div
+                    className="fixed inset-0 z-40 sm:hidden"
+                    onClick={() => setShowMerchantDropdown(false)}
+                  />
+                  <div
+                    className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
@@ -457,7 +463,10 @@ export default function Orders() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => setShowMerchantDropdown(false)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowMerchantDropdown(false);
+                        }}
                         className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-manipulation"
                       >
                         <X className="w-5 h-5" />
@@ -468,7 +477,10 @@ export default function Orders() {
                   <div className="max-h-64 overflow-y-auto overscroll-contain">
                     <button
                       type="button"
-                      onClick={() => handleSelectMerchant(null)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectMerchant(null);
+                      }}
                       className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-gray-600/50 transition-colors touch-manipulation ${
                         !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                       }`}
@@ -492,7 +504,10 @@ export default function Orders() {
                         <button
                           type="button"
                           key={merchant.id}
-                          onClick={() => handleSelectMerchant(merchant.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectMerchant(merchant.id);
+                          }}
                           className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left active:bg-gray-100 dark:active:bg-gray-600/50 transition-colors touch-manipulation ${
                             filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                           }`}
