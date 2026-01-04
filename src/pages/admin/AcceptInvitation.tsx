@@ -200,26 +200,41 @@ export default function AcceptInvitation() {
 
         if (profileError) throw profileError;
 
-        // Mark invitation as accepted
-        const { error: updateError } = await supabase
+        // Mark invitation as accepted - try multiple methods to ensure update succeeds
+        let updateError = null;
+
+        // First try with invitation_token
+        const { error: tokenError, data: tokenData } = await supabase
           .from('admin_invitations')
           .update({
             status: 'accepted',
             accepted_at: new Date().toISOString(),
           })
           .eq('invitation_token', token)
-          .eq('email', invitation!.email);
+          .eq('email', invitation!.email)
+          .select();
+
+        if (tokenError || !tokenData || tokenData.length === 0) {
+          // Fallback: try with just email and pending status
+          const { error: emailError } = await supabase
+            .from('admin_invitations')
+            .update({
+              status: 'accepted',
+              accepted_at: new Date().toISOString(),
+            })
+            .eq('email', invitation!.email)
+            .eq('status', 'pending')
+            .select();
+
+          updateError = emailError;
+        }
 
         if (updateError) {
           console.error('Failed to update invitation status:', updateError);
         }
 
-        toast.success('Welcome back! Your account has been upgraded to admin.');
-
         // Use window.location to ensure AdminContext reloads with new admin status
-        setTimeout(() => {
-          window.location.href = '/admin/dashboard';
-        }, 500);
+        window.location.href = '/admin/dashboard';
         return;
       }
 
@@ -240,26 +255,41 @@ export default function AcceptInvitation() {
 
       if (profileError) throw profileError;
 
-      // Mark invitation as accepted
-      const { error: updateError } = await supabase
+      // Mark invitation as accepted - try multiple methods to ensure update succeeds
+      let updateError = null;
+
+      // First try with invitation_token
+      const { error: tokenError, data: tokenData } = await supabase
         .from('admin_invitations')
         .update({
           status: 'accepted',
           accepted_at: new Date().toISOString(),
         })
         .eq('invitation_token', token)
-        .eq('email', invitation!.email);
+        .eq('email', invitation!.email)
+        .select();
+
+      if (tokenError || !tokenData || tokenData.length === 0) {
+        // Fallback: try with just email and pending status
+        const { error: emailError } = await supabase
+          .from('admin_invitations')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+          })
+          .eq('email', invitation!.email)
+          .eq('status', 'pending')
+          .select();
+
+        updateError = emailError;
+      }
 
       if (updateError) {
         console.error('Failed to update invitation status:', updateError);
       }
 
-      toast.success('Account created successfully! Welcome to Revoa.');
-
       // Use window.location to ensure AdminContext reloads with new admin status
-      setTimeout(() => {
-        window.location.href = '/admin/profile-setup';
-      }, 500);
+      window.location.href = '/admin/profile-setup';
     } catch (err: any) {
       console.error('Error creating account:', err);
       toast.error(err.message || 'Failed to create account. Please try again.');

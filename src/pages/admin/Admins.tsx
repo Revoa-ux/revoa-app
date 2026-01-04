@@ -92,6 +92,44 @@ export default function AdminsManagement() {
 
   useEffect(() => {
     fetchData();
+
+    // Set up real-time subscription for invitation changes
+    const invitationSubscription = supabase
+      .channel('admin_invitations_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'admin_invitations'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    // Set up real-time subscription for admin profile changes
+    const adminSubscription = supabase
+      .channel('user_profiles_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_profiles',
+          filter: 'is_admin=eq.true'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      invitationSubscription.unsubscribe();
+      adminSubscription.unsubscribe();
+    };
   }, []);
 
   const fetchData = async () => {
