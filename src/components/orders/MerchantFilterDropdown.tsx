@@ -129,7 +129,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search merchants..."
-                  className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                   setIsOpen(false);
                 }}
                 className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                  !currentUserId ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                  !currentUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -150,7 +150,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                     All Merchants
                   </span>
                   {!currentUserId && (
-                    <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                    <div className="w-2 h-2 bg-rose-500 dark:bg-rose-400 rounded-full" />
                   )}
                 </div>
               </button>
@@ -173,7 +173,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                       setIsOpen(false);
                     }}
                     className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                      currentUserId === merchant.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      currentUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -186,7 +186,7 @@ export default function MerchantFilterDropdown({ currentUserId, onSelectMerchant
                         </p>
                       </div>
                       {currentUserId === merchant.id && (
-                        <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full ml-2" />
+                        <div className="w-2 h-2 bg-rose-500 dark:bg-rose-400 rounded-full ml-2" />
                       )}
                     </div>
                   </button>

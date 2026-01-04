@@ -423,7 +423,7 @@ export default function Users() {
             />
 
             {showFilterDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {[
                   { value: 'all', label: 'All Users' },
                   { value: 'assigned', label: 'Assigned' },
@@ -432,10 +432,10 @@ export default function Users() {
                   <button
                     key={filter.value}
                     onClick={() => handleFilter(filter.value as typeof selectedFilter)}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>{filter.label}</span>
-                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-primary-500" />}
+                    {selectedFilter === filter.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                 ))}
               </div>
@@ -461,26 +461,26 @@ export default function Users() {
               />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>All Admins</span>
-                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('unassigned');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>Unassigned</span>
-                    {selectedAdminFilter === 'unassigned' && <Check className="w-4 h-4 text-primary-500" />}
+                    {selectedAdminFilter === 'unassigned' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                   {admins.map((admin) => (
@@ -490,10 +490,10 @@ export default function Users() {
                         setSelectedAdminFilter(admin.id);
                         setShowAdminFilterDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <span className="truncate">{admin.name}</span>
-                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
+                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
                     </button>
                   ))}
                 </div>
@@ -511,7 +511,7 @@ export default function Users() {
             />
 
             {showSortDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {sortOptions.map((option) => (
                   <button
                     key={option.value}
@@ -519,10 +519,10 @@ export default function Users() {
                       handleSort(option.value as keyof User);
                       setShowSortDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>{option.label}</span>
-                    {sortBy.field === option.value && <Check className="w-4 h-4 text-primary-500" />}
+                    {sortBy.field === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                 ))}
               </div>

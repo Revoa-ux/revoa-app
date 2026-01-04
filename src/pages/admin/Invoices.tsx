@@ -18,11 +18,13 @@ import {
   MoreVertical,
   Eye,
   Trash2,
-  ArrowRight
+  ArrowRight,
+  Users as UsersIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
+import { FilterButton } from '@/components/FilterButton';
 import { useClickOutside } from '@/lib/useClickOutside';
 import AdReportsTimeSelector, { TimeOption } from '@/components/reports/AdReportsTimeSelector';
 import { invoiceService, Invoice, InvoiceFilters, InvoiceStats } from '@/lib/invoiceService';
@@ -603,16 +605,19 @@ export default function Invoices() {
           </div>
 
           <div className="relative flex-1 sm:flex-initial" ref={statusDropdownRef}>
-            <button
+            <FilterButton
+              icon={Filter}
+              label="Status"
+              selectedLabel={filters.status === 'all' ? 'All' : filters.status?.charAt(0).toUpperCase() + filters.status?.slice(1) || 'All'}
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-            </button>
+              isActive={filters.status !== 'all'}
+              activeCount={filters.status !== 'all' ? 1 : 0}
+              hideLabel="md"
+              fullWidth
+            />
 
             {showStatusDropdown && (
-              <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+              <div className="absolute z-50 right-0 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                 {(['all', 'pending', 'paid', 'unpaid', 'overdue', 'cancelled'] as const).map((status) => (
                   <button
                     key={status}
@@ -620,10 +625,10 @@ export default function Invoices() {
                       handleStatusFilterChange(status);
                       setShowStatusDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 capitalize"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors capitalize"
                   >
                     <span>{status === 'all' ? 'All' : status}</span>
-                    {filters.status === status && <Check className="w-4 h-4 text-primary-500" />}
+                    {filters.status === status && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                 ))}
               </div>
@@ -632,26 +637,28 @@ export default function Invoices() {
 
           {isSuperAdmin && (
             <div className="relative flex-1 sm:flex-initial" ref={adminFilterDropdownRef}>
-              <button
+              <FilterButton
+                icon={UsersIcon}
+                label="Admin"
+                selectedLabel={selectedAdminFilter === 'all' ? 'All' : admins.find(a => a.id === selectedAdminFilter)?.name || 'Admin'}
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="w-full sm:w-auto px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-                title={`Admin: ${selectedAdminFilter === 'all' ? 'All Admins' : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
-              >
-                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
-              </button>
+                isActive={selectedAdminFilter !== 'all'}
+                activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+                fullWidth
+              />
 
               {showAdminFilterDropdown && (
-                <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
+                <div className="absolute z-50 right-0 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
                   <button
                     onClick={() => {
                       setSelectedAdminFilter('all');
                       setShowAdminFilterDropdown(false);
                     }}
-                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                    className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span>All Admins</span>
-                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+                    {selectedAdminFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                   </button>
                   <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                   {admins.map((admin) => (
@@ -661,10 +668,10 @@ export default function Invoices() {
                         setSelectedAdminFilter(admin.id);
                         setShowAdminFilterDropdown(false);
                       }}
-                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                      className="flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                     >
                       <span className="truncate">{admin.name}</span>
-                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-primary-500 flex-shrink-0 ml-2" />}
+                      {selectedAdminFilter === admin.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
                     </button>
                   ))}
                 </div>
