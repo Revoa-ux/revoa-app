@@ -349,7 +349,7 @@ export default function UnfulfilledOrdersTab({
                 <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                   <button
                     onClick={() => handleChatClick(order)}
-                    className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                    className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                     title="Message"
                   >
                     <MessageSquare className="w-4 h-4" />
@@ -502,7 +502,7 @@ export default function UnfulfilledOrdersTab({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleChatClick(order)}
-                        className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                         title="Message"
                       >
                         <MessageSquare className="w-4 h-4" />
