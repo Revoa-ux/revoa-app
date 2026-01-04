@@ -66,9 +66,9 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
       let query = supabase
         .from('shopify_orders')
         .select('*')
-        .eq('fulfillment_status', 'UNFULFILLED')
+        .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
         .eq('exported_to_3pl', false)
-        .in('financial_status', ['PAID', 'AUTHORIZED'])
+        .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
         .is('cancelled_at', null)
         .order('created_at', { ascending: false });
 
@@ -456,7 +456,7 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
                       />
                     </td>
                     <td className="px-4 py-2 text-gray-900 dark:text-white font-medium">
-                      #{order.order_number}
+                      {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
                     </td>
                     <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
                       {order.merchant_name}

@@ -194,24 +194,46 @@ export default function UnfulfilledOrdersTab({
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-        <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="h-10 w-64 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+            <div className="h-10 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          </div>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="px-4 py-4 flex items-center gap-4">
+                <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="flex-1">
+                  <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
+                  <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                </div>
+                <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="w-24 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1">
-          <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
+          <div className="relative flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search orders, customers, merchants..."
+              placeholder="Search orders..."
               className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
             />
           </div>
@@ -220,17 +242,18 @@ export default function UnfulfilledOrdersTab({
             value={exportStatusFilter}
             onChange={(val) => setExportStatusFilter(val as string)}
             options={exportStatusOptions}
-            className="w-48"
+            className="w-full sm:w-48"
           />
         </div>
 
         {selectedOrders.size > 0 && permissions?.can_export_orders && (
           <button
             onClick={onExport}
-            className="h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-2"
+            className="h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
           >
             <Download className="w-4 h-4" />
-            Export Selected ({selectedOrders.size})
+            <span className="hidden sm:inline">Export Selected ({selectedOrders.size})</span>
+            <span className="sm:hidden">Export ({selectedOrders.size})</span>
           </button>
         )}
       </div>
@@ -247,36 +270,36 @@ export default function UnfulfilledOrdersTab({
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left">
+                <th className="px-3 sm:px-4 py-3 text-left">
                   <CustomCheckbox
                     checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
                     onChange={toggleAllOrders}
                   />
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Order #
                 </th>
                 {!filteredUserId && (
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  <th className="hidden lg:table-cell px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                     Merchant
                   </th>
                 )}
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="hidden xl:table-cell px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Shipping Address
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="hidden md:table-cell px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Value
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 sm:px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -285,13 +308,13 @@ export default function UnfulfilledOrdersTab({
               {filteredOrders.map((order) => (
                 <React.Fragment key={order.id}>
                   <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-4 py-4">
+                    <td className="px-3 sm:px-4 py-3 sm:py-4">
                       <CustomCheckbox
                         checked={selectedOrders.has(order.id)}
                         onChange={() => toggleOrderSelection(order.id)}
                       />
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-3 sm:px-4 py-3 sm:py-4">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => toggleOrderExpansion(order.id)}
@@ -304,55 +327,57 @@ export default function UnfulfilledOrdersTab({
                           )}
                         </button>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          #{order.order_number}
+                          {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
                         </span>
                       </div>
                     </td>
                     {!filteredUserId && (
-                      <td className="px-4 py-4">
+                      <td className="hidden lg:table-cell px-4 py-4">
                         <span className="text-sm text-gray-900 dark:text-white">
                           {order.merchant_name}
                         </span>
                       </td>
                     )}
-                    <td className="px-4 py-4">
+                    <td className="hidden sm:table-cell px-4 py-4">
                       <span className="text-sm text-gray-600 dark:text-gray-400">
                         {format(new Date(order.created_at), 'MMM d, yyyy')}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-3 sm:px-4 py-3 sm:py-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[120px] sm:max-w-none">
                           {order.customer_first_name} {order.customer_last_name}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-none">
                           {order.customer_email}
                         </p>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="hidden xl:table-cell px-4 py-4">
                       <div className="text-sm text-gray-600 dark:text-gray-400">
                         <p>{order.shipping_city}, {order.shipping_state}</p>
                         <p className="text-xs">{order.shipping_country}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="hidden md:table-cell px-4 py-4">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
                         ${order.total_price?.toFixed(2) || '0.00'}
                       </span>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-3 sm:px-4 py-3 sm:py-4">
                       {order.exported_to_3pl ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                          Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}
+                        <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                          <span className="hidden sm:inline">Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}</span>
+                          <span className="sm:hidden">Done</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                          Ready to Export
+                        <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                          <span className="hidden sm:inline">Ready to Export</span>
+                          <span className="sm:hidden">Ready</span>
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="hidden sm:table-cell px-4 py-4">
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/admin/chat?orderId=${order.shopify_order_id}`}
