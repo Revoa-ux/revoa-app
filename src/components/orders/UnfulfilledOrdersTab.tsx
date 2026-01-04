@@ -270,55 +270,30 @@ export default function UnfulfilledOrdersTab({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-          <tr>
-            <th className="px-4 py-3 text-left">
+    <>
+      {/* Mobile Card View */}
+      <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        {/* Mobile Select All */}
+        <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 flex items-center gap-3">
+          <CustomCheckbox
+            checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
+            onChange={toggleAllOrders}
+          />
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            {selectedOrders.size > 0 ? `${selectedOrders.size} selected` : 'Select all'}
+          </span>
+        </div>
+
+        {filteredOrders.map((order) => (
+          <div key={order.id} className="p-4 bg-white dark:bg-gray-800">
+            <div className="flex items-start gap-3">
               <CustomCheckbox
-                checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
-                onChange={toggleAllOrders}
+                checked={selectedOrders.has(order.id)}
+                onChange={() => toggleOrderSelection(order.id)}
               />
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Order #
-            </th>
-            {!filteredUserId && (
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Merchant
-              </th>
-            )}
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Date
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Customer
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Shipping Address
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Value
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-          {filteredOrders.map((order) => (
-            <React.Fragment key={order.id}>
-              <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                <td className="px-4 py-4">
-                  <CustomCheckbox
-                    checked={selectedOrders.has(order.id)}
-                    onChange={() => toggleOrderSelection(order.id)}
-                  />
-                </td>
-                <td className="px-4 py-4">
+              <div className="flex-1 min-w-0">
+                {/* Header Row: Order # + Status */}
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => toggleOrderExpansion(order.id)}
@@ -330,110 +305,255 @@ export default function UnfulfilledOrdersTab({
                         <ChevronRight className="w-4 h-4" />
                       )}
                     </button>
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
                       {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
                     </span>
                   </div>
-                </td>
-                {!filteredUserId && (
-                  <td className="px-4 py-4">
-                    <span className="text-sm text-gray-900 dark:text-white">
-                      {order.merchant_name}
-                    </span>
-                  </td>
-                )}
-                <td className="px-4 py-4">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {format(new Date(order.created_at), 'MMM d, yyyy')}
-                  </span>
-                </td>
-                <td className="px-4 py-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {order.customer_first_name} {order.customer_last_name}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {order.customer_email}
-                    </p>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <p>{order.shipping_city}, {order.shipping_state}</p>
-                    <p className="text-xs">{order.shipping_country}</p>
-                  </div>
-                </td>
-                <td className="px-4 py-4">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">
-                    ${order.total_price?.toFixed(2) || '0.00'}
-                  </span>
-                </td>
-                <td className="px-4 py-4">
                   {order.exported_to_3pl ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                      Exported
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                      Ready to Export
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 whitespace-nowrap">
+                      Ready
                     </span>
                   )}
-                </td>
-                <td className="px-4 py-4">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleChatClick(order)}
-                      className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                      title="View in Chat"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                    </button>
-                    {getShopifyOrderUrl(order) && (
-                      <a
-                        href={getShopifyOrderUrl(order)!}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        title="View in Shopify"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
+                </div>
+
+                {/* Customer + Date */}
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-900 dark:text-white font-medium truncate">
+                    {order.customer_first_name} {order.customer_last_name}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
+                    {format(new Date(order.created_at), 'MMM d')}
+                  </span>
+                </div>
+
+                {/* Location + Value */}
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+                  <span className="truncate">{order.shipping_city}, {order.shipping_country}</span>
+                  <span className="font-medium text-gray-900 dark:text-white ml-2 flex-shrink-0">
+                    ${order.total_price?.toFixed(2) || '0.00'}
+                  </span>
+                </div>
+
+                {/* Merchant (if showing all) */}
+                {!filteredUserId && (
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    <span className="font-medium">{order.merchant_name}</span>
                   </div>
-                </td>
-              </tr>
-              {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
-                <tr>
-                  <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
-                        Order Items
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <button
+                    onClick={() => handleChatClick(order)}
+                    className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>Message</span>
+                  </button>
+                  {getShopifyOrderUrl(order) && (
+                    <a
+                      href={getShopifyOrderUrl(order)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Shopify</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Expanded Items */}
+                {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
+                    <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">Items</p>
+                    {order.line_items.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-xs">
+                        <span className="text-gray-900 dark:text-white truncate flex-1">
+                          {item.product_name}
+                          {item.variant_name && <span className="text-gray-500 ml-1">({item.variant_name})</span>}
+                        </span>
+                        <span className="text-gray-500 dark:text-gray-400 ml-2">x{item.quantity}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left">
+                <CustomCheckbox
+                  checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
+                  onChange={toggleAllOrders}
+                />
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Order #
+              </th>
+              {!filteredUserId && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Merchant
+                </th>
+              )}
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Customer
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Location
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Value
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+            {filteredOrders.map((order) => (
+              <React.Fragment key={order.id}>
+                <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-4">
+                    <CustomCheckbox
+                      checked={selectedOrders.has(order.id)}
+                      onChange={() => toggleOrderSelection(order.id)}
+                    />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => toggleOrderExpansion(order.id)}
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      >
+                        {expandedOrders.has(order.id) ? (
+                          <ChevronDown className="w-4 h-4" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4" />
+                        )}
+                      </button>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                      </span>
+                    </div>
+                  </td>
+                  {!filteredUserId && (
+                    <td className="px-4 py-4">
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {order.merchant_name}
+                      </span>
+                    </td>
+                  )}
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {format(new Date(order.created_at), 'MMM d, yyyy')}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {order.customer_first_name} {order.customer_last_name}
                       </p>
-                      {order.line_items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-sm">
-                          <div className="flex-1">
-                            <span className="text-gray-900 dark:text-white font-medium">
-                              {item.product_name}
-                            </span>
-                            {item.variant_name && (
-                              <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                ({item.variant_name})
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                            <span>Qty: {item.quantity}</span>
-                          </div>
-                        </div>
-                      ))}
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {order.customer_email}
+                      </p>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      <p>{order.shipping_city}, {order.shipping_state}</p>
+                      <p className="text-xs">{order.shipping_country}</p>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      ${order.total_price?.toFixed(2) || '0.00'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    {order.exported_to_3pl ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                        Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 whitespace-nowrap">
+                        Ready
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleChatClick(order)}
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        title="View in Chat"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </button>
+                      {getShopifyOrderUrl(order) && (
+                        <a
+                          href={getShopifyOrderUrl(order)!}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          title="View in Shopify"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
                     </div>
                   </td>
                 </tr>
-              )}
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                {expandedOrders.has(order.id) && order.line_items && order.line_items.length > 0 && (
+                  <tr>
+                    <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
+                          Order Items
+                        </p>
+                        {order.line_items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-sm">
+                            <div className="flex-1">
+                              <span className="text-gray-900 dark:text-white font-medium">
+                                {item.product_name}
+                              </span>
+                              {item.variant_name && (
+                                <span className="text-gray-500 dark:text-gray-400 ml-2">
+                                  ({item.variant_name})
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                              <span>Qty: {item.quantity}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

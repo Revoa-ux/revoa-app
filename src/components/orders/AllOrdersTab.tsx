@@ -232,127 +232,211 @@ export default function AllOrdersTab({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Order #
-            </th>
+    <>
+      {/* Mobile Card View */}
+      <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        {filteredOrders.map((order) => (
+          <div key={order.id} className="p-4 bg-white dark:bg-gray-800">
+            {/* Header Row: Order # + Fulfillment Status */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+              </span>
+              {getFulfillmentStatusBadge(order.fulfillment_status)}
+            </div>
+
+            {/* Customer + Date */}
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="text-gray-900 dark:text-white font-medium truncate">
+                {order.customer_first_name} {order.customer_last_name}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
+                {format(new Date(order.created_at), 'MMM d')}
+              </span>
+            </div>
+
+            {/* Merchant (if showing all) */}
             {!filteredUserId && (
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Merchant
-              </th>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {order.merchant_name}
+              </div>
             )}
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Date
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Customer
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Value
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Payment Status
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Fulfillment
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              3PL Status
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-          {filteredOrders.map((order) => (
-            <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-              <td className="px-4 py-4">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-                </span>
-              </td>
+
+            {/* Value + Payment Status */}
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                ${order.total_price?.toFixed(2) || '0.00'}
+              </span>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
+                order.financial_status === 'PAID'
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                  : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+              }`}>
+                {order.financial_status}
+              </span>
+            </div>
+
+            {/* 3PL Status Row */}
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+              {order.exported_to_3pl && (
+                <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Exported</span>
+              )}
+              {order.tracking_imported && (
+                <span className="px-1.5 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded">Tracking</span>
+              )}
+              {!order.exported_to_3pl && !order.tracking_imported && (
+                <span className="text-gray-400">Not exported</span>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+              <button
+                onClick={() => handleChatClick(order)}
+                className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Message</span>
+              </button>
+              {getShopifyOrderUrl(order) && (
+                <a
+                  href={getShopifyOrderUrl(order)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Shopify</span>
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Order #
+              </th>
               {!filteredUserId && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Merchant
+                </th>
+              )}
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Customer
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Value
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Payment
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Fulfillment
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                3PL
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+            {filteredOrders.map((order) => (
+              <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td className="px-4 py-4">
-                  <span className="text-sm text-gray-900 dark:text-white">
-                    {order.merchant_name}
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
                   </span>
                 </td>
-              )}
-              <td className="px-4 py-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {format(new Date(order.created_at), 'MMM d, yyyy')}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {order.customer_first_name} {order.customer_last_name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {order.customer_email}
-                  </p>
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  ${order.total_price?.toFixed(2) || '0.00'}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  order.financial_status === 'PAID'
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                    : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                }`}>
-                  {order.financial_status}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                {getFulfillmentStatusBadge(order.fulfillment_status)}
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex flex-col gap-1">
-                  {order.exported_to_3pl && (
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Exported</span>
-                  )}
-                  {order.tracking_imported && (
-                    <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
-                  )}
-                  {!order.exported_to_3pl && !order.tracking_imported && (
-                    <span className="text-xs text-gray-400">-</span>
-                  )}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleChatClick(order)}
-                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                    title="View in Chat"
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                  </button>
-                  {getShopifyOrderUrl(order) && (
-                    <a
-                      href={getShopifyOrderUrl(order)!}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                {!filteredUserId && (
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-900 dark:text-white">
+                      {order.merchant_name}
+                    </span>
+                  </td>
+                )}
+                <td className="px-4 py-4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {format(new Date(order.created_at), 'MMM d, yyyy')}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {order.customer_first_name} {order.customer_last_name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {order.customer_email}
+                    </p>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    ${order.total_price?.toFixed(2) || '0.00'}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                    order.financial_status === 'PAID'
+                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                      : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                  }`}>
+                    {order.financial_status}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  {getFulfillmentStatusBadge(order.fulfillment_status)}
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex flex-col gap-1">
+                    {order.exported_to_3pl && (
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Exported</span>
+                    )}
+                    {order.tracking_imported && (
+                      <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
+                    )}
+                    {!order.exported_to_3pl && !order.tracking_imported && (
+                      <span className="text-xs text-gray-400">-</span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleChatClick(order)}
                       className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                      title="View in Shopify"
+                      title="View in Chat"
                     >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                      <MessageSquare className="w-4 h-4" />
+                    </button>
+                    {getShopifyOrderUrl(order) && (
+                      <a
+                        href={getShopifyOrderUrl(order)!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                        title="View in Shopify"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }

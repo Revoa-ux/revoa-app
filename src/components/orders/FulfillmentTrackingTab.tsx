@@ -250,105 +250,175 @@ export default function FulfillmentTrackingTab({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-          <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Order #
-            </th>
+    <>
+      {/* Mobile Card View */}
+      <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+        {filteredFulfillments.map((fulfillment) => (
+          <div key={fulfillment.id} className="p-4 bg-white dark:bg-gray-800">
+            {/* Header Row: Order # + Sync Status */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                {fulfillment.order.order_number.startsWith('#') ? fulfillment.order.order_number : `#${fulfillment.order.order_number}`}
+              </span>
+              {getSyncStatusBadge(fulfillment)}
+            </div>
+
+            {/* Customer */}
+            <div className="text-sm text-gray-900 dark:text-white mb-1">
+              {fulfillment.order.customer_first_name} {fulfillment.order.customer_last_name}
+            </div>
+
+            {/* Merchant (if showing all) */}
             {!filteredUserId && (
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Merchant
-              </th>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                {fulfillment.order.merchant_name}
+              </div>
             )}
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Customer
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Tracking Number
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Carrier
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Shipped Date
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Shopify Sync
-            </th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-          {filteredFulfillments.map((fulfillment) => (
-            <tr key={fulfillment.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-              <td className="px-4 py-4">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {fulfillment.order.order_number.startsWith('#') ? fulfillment.order.order_number : `#${fulfillment.order.order_number}`}
-                </span>
-              </td>
+
+            {/* Tracking Info */}
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+              <div className="flex items-center gap-1">
+                <span className="font-medium">{fulfillment.tracking_company}</span>
+              </div>
+              <span>{fulfillment.shipped_at ? format(new Date(fulfillment.shipped_at), 'MMM d') : '-'}</span>
+            </div>
+
+            {/* Tracking Number Link */}
+            <a
+              href={getTrackingUrl(fulfillment.tracking_number, fulfillment.tracking_company)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors mb-2"
+            >
+              <span className="font-mono">{fulfillment.tracking_number}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+
+            {/* Sync Error */}
+            {fulfillment.sync_error && (
+              <p className="text-xs text-red-600 dark:text-red-400 mb-2" title={fulfillment.sync_error}>
+                {fulfillment.sync_error.substring(0, 40)}...
+              </p>
+            )}
+
+            {/* Actions */}
+            {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                <button
+                  onClick={() => handleResync(fulfillment.id)}
+                  disabled={syncing.has(fulfillment.id)}
+                  className="w-full h-[34px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
+                  {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync to Shopify'}
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Order #
+              </th>
               {!filteredUserId && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Merchant
+                </th>
+              )}
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Customer
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Tracking Number
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Carrier
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Shipped
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Sync
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+            {filteredFulfillments.map((fulfillment) => (
+              <tr key={fulfillment.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                 <td className="px-4 py-4">
-                  <span className="text-sm text-gray-900 dark:text-white">
-                    {fulfillment.order.merchant_name}
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {fulfillment.order.order_number.startsWith('#') ? fulfillment.order.order_number : `#${fulfillment.order.order_number}`}
                   </span>
                 </td>
-              )}
-              <td className="px-4 py-4">
-                <span className="text-sm text-gray-900 dark:text-white">
-                  {fulfillment.order.customer_first_name} {fulfillment.order.customer_last_name}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <a
-                  href={getTrackingUrl(fulfillment.tracking_number, fulfillment.tracking_company)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-gray-900 dark:text-white hover:underline flex items-center gap-1"
-                >
-                  {fulfillment.tracking_number}
-                  <ExternalLink className="w-3 h-3 text-gray-400" />
-                </a>
-              </td>
-              <td className="px-4 py-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {fulfillment.tracking_company}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {fulfillment.shipped_at ? format(new Date(fulfillment.shipped_at), 'MMM d, yyyy') : '-'}
-                </span>
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex flex-col gap-1">
-                  {getSyncStatusBadge(fulfillment)}
-                  {fulfillment.sync_error && (
-                    <p className="text-xs text-red-600 dark:text-red-400" title={fulfillment.sync_error}>
-                      {fulfillment.sync_error.substring(0, 30)}...
-                    </p>
-                  )}
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
-                  <button
-                    onClick={() => handleResync(fulfillment.id)}
-                    disabled={syncing.has(fulfillment.id)}
-                    className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
-                    {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
-                  </button>
+                {!filteredUserId && (
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-900 dark:text-white">
+                      {fulfillment.order.merchant_name}
+                    </span>
+                  </td>
                 )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <td className="px-4 py-4">
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {fulfillment.order.customer_first_name} {fulfillment.order.customer_last_name}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <a
+                    href={getTrackingUrl(fulfillment.tracking_number, fulfillment.tracking_company)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-gray-900 dark:text-white hover:underline flex items-center gap-1"
+                  >
+                    {fulfillment.tracking_number}
+                    <ExternalLink className="w-3 h-3 text-gray-400" />
+                  </a>
+                </td>
+                <td className="px-4 py-4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {fulfillment.tracking_company}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {fulfillment.shipped_at ? format(new Date(fulfillment.shipped_at), 'MMM d, yyyy') : '-'}
+                  </span>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="flex flex-col gap-1">
+                    {getSyncStatusBadge(fulfillment)}
+                    {fulfillment.sync_error && (
+                      <p className="text-xs text-red-600 dark:text-red-400" title={fulfillment.sync_error}>
+                        {fulfillment.sync_error.substring(0, 30)}...
+                      </p>
+                    )}
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
+                    <button
+                      onClick={() => handleResync(fulfillment.id)}
+                      disabled={syncing.has(fulfillment.id)}
+                      className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
+                      {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
