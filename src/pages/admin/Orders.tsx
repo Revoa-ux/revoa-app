@@ -499,63 +499,76 @@ export default function Orders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${stats.readyToExport > 10 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-              <TrendingUp className={`w-5 h-5 ${stats.readyToExport > 10 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {stats.readyToExport}
-              </p>
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className={`p-2 rounded-lg ${stats.readyToExport > 50 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+              <TrendingUp className={`w-4 h-4 ${stats.readyToExport > 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
             </div>
           </div>
-          {stats.readyToExport > 10 && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
-              High volume - export soon
-            </p>
-          )}
-        </div>
-
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${stats.exportedAwaitingTracking > 5 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-              <Clock className={`w-5 h-5 ${stats.exportedAwaitingTracking > 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {stats.exportedAwaitingTracking}
-              </p>
+          <div>
+            <h3 className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.readyToExport}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
+              <span className={`text-xs font-medium ${stats.readyToExport > 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                {stats.readyToExport > 50 ? 'High volume' : 'Normal'}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <CheckCircle2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Imported Today</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {stats.trackingImportedToday}
-              </p>
+          </div>
+          <div>
+            <h3 className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.exportedAwaitingTracking}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Exported orders</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.exportedAwaitingTracking}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center gap-3">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
-            <div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Synced Today</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                {stats.autoSyncedToday}
-              </p>
+          </div>
+          <div>
+            <h3 className="text-xs text-gray-500 dark:text-gray-400">Imported Today</h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.trackingImportedToday}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Tracking numbers</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.trackingImportedToday}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <RefreshCw className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div>
+            <h3 className="text-xs text-gray-500 dark:text-gray-400">Synced Today</h3>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.autoSyncedToday}</p>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500 dark:text-gray-400">To Shopify</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.autoSyncedToday}</span>
             </div>
           </div>
         </div>

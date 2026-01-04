@@ -497,58 +497,74 @@ export default function Invoices() {
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
               <div className={`p-2 rounded-lg ${stats.total_outstanding > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <DollarSign className={`w-5 h-5 ${stats.total_outstanding > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+                <DollarSign className={`w-4 h-4 ${stats.total_outstanding > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  ${stats.total_outstanding.toLocaleString()}
-                </p>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Outstanding</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">${stats.total_outstanding.toLocaleString()}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Unpaid invoices</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">${stats.total_outstanding.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <CheckCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Paid in Period</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  ${stats.paid_this_month.toLocaleString()}
-                </p>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Paid in Period</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">${stats.paid_this_month.toLocaleString()}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">This period</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">${stats.paid_this_month.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${stats.pending_count > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <Clock className={`w-5 h-5 ${stats.pending_count > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Pending</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  {stats.pending_count}
-                </p>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Pending</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.pending_count}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Awaiting payment</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.pending_count}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl p-4 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center gap-3">
+          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
               <div className={`p-2 rounded-lg ${stats.overdue_count > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <AlertCircle className={`w-5 h-5 ${stats.overdue_count > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+                <AlertCircle className={`w-4 h-4 ${stats.overdue_count > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
               </div>
-              <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Overdue</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-                  {stats.overdue_count}
-                </p>
+            </div>
+            <div>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400">Overdue</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.overdue_count}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500 dark:text-gray-400">Past due date</span>
+                <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.overdue_count}</span>
               </div>
             </div>
           </div>

@@ -353,7 +353,7 @@ export default function AdminQuotes() {
   });
 
   return (
-    <div className="max-w-[1050px] mx-auto space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100 mb-2">
           Quote Requests
@@ -406,8 +406,8 @@ export default function AdminQuotes() {
 
           <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-2 rounded-lg ${quoteStats.pendingCount > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-                <AlertCircle className={`w-4 h-4 ${quoteStats.pendingCount > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
