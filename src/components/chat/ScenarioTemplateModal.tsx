@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck, MessageSquare, ThumbsUp, Sparkles, Link as LinkIcon, Search, Loader2, Shield, DollarSign, MapPin, AlertTriangle, Edit3, ArrowLeft, ArrowRight, Warehouse, PackageCheck, CheckCircle, ShieldAlert, ChevronDown, ChevronUp, Filter, Tag, Pencil } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
@@ -197,6 +197,8 @@ export function ScenarioTemplateModal({
   const { user } = useAuth();
   const userId = propUserId || user?.id;
 
+  console.log('ScenarioTemplateModal render - userId:', userId, 'propUserId:', propUserId, 'user?.id:', user?.id, 'orderId:', orderId, 'isOpen:', isOpen);
+
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isAssignedToOrder, setIsAssignedToOrder] = useState(false);
   const [populatedSubject, setPopulatedSubject] = useState('');
@@ -247,17 +249,21 @@ export function ScenarioTemplateModal({
     if (isOpen) {
       loadTemplates();
       if (userId && !orderId) {
+        console.log('Modal opened, loading orders on mount');
         loadOrders();
       }
     }
-  }, [isOpen, userId, orderId]);
+  }, [isOpen, userId, orderId, loadOrders]);
 
   useEffect(() => {
-    if (showOrderSelector && userId && !orderId && allOrders.length === 0 && !isLoadingOrders) {
-      console.log('showOrderSelector triggered, loading orders');
+    console.log('showOrderSelector effect - showOrderSelector:', showOrderSelector, 'userId:', userId, 'orderId:', orderId, 'allOrders.length:', allOrders.length, 'isLoadingOrders:', isLoadingOrders);
+
+    if (showOrderSelector && userId && !orderId) {
+      // Load orders when order selector is shown
+      console.log('showOrderSelector is true and userId exists, loading orders');
       loadOrders();
     }
-  }, [showOrderSelector, userId, orderId]);
+  }, [showOrderSelector, loadOrders, userId, orderId]);
 
   // Helper function to map database category to UI category
   // Templates now use their category directly from the database
@@ -338,7 +344,7 @@ export function ScenarioTemplateModal({
     'Chargebacks'
   ];
 
-  const loadOrders = async () => {
+  const loadOrders = useCallback(async () => {
     if (!userId) {
       console.log('loadOrders: No userId available');
       return;
@@ -376,7 +382,7 @@ export function ScenarioTemplateModal({
     } finally {
       setIsLoadingOrders(false);
     }
-  };
+  }, [userId]);
 
   const handleSelectTemplate = (template: Template) => {
     setSelectedTemplate(template);
