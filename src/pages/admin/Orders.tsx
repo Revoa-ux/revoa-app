@@ -564,27 +564,51 @@ export default function Orders() {
         {/* Action Buttons - Desktop only (Export, Import, Sync) */}
         <div className="hidden sm:flex items-center gap-2">
           {permissions?.can_export_orders && (
-            <button
-              onClick={() => setShowExportModal(true)}
-              className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-                selectedOrders.size > 0
-                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Download className="w-4 h-4" />
-              <span>{selectedOrders.size > 0 ? `Export ${selectedOrders.size} Orders` : 'Export to Mabang'}</span>
-            </button>
+            <div className="relative group">
+              <button
+                onClick={() => setShowExportModal(true)}
+                disabled={!isSuperAdmin && !filteredUserId}
+                className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
+                  !isSuperAdmin && !filteredUserId
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                    : selectedOrders.size > 0
+                    ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
+                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <Download className="w-4 h-4" />
+                <span>{selectedOrders.size > 0 ? `Export ${selectedOrders.size} Orders` : 'Export to Mabang'}</span>
+              </button>
+              {!isSuperAdmin && !filteredUserId && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Select a merchant first
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
+                </div>
+              )}
+            </div>
           )}
 
           {permissions?.can_import_tracking && (
-            <button
-              onClick={() => setShowImportModal(true)}
-              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-            >
-              <Upload className="w-4 h-4" />
-              <span>Import Tracking</span>
-            </button>
+            <div className="relative group">
+              <button
+                onClick={() => setShowImportModal(true)}
+                disabled={!isSuperAdmin && !filteredUserId}
+                className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
+                  !isSuperAdmin && !filteredUserId
+                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
+                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
+                }`}
+              >
+                <Upload className="w-4 h-4" />
+                <span>Import Tracking</span>
+              </button>
+              {!isSuperAdmin && !filteredUserId && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                  Select a merchant first
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
+                </div>
+              )}
+            </div>
           )}
 
           {permissions?.can_sync_to_shopify && (
@@ -604,8 +628,11 @@ export default function Orders() {
           {permissions?.can_export_orders && (
             <button
               onClick={() => setShowExportModal(true)}
+              disabled={!isSuperAdmin && !filteredUserId}
               className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                selectedOrders.size > 0
+                !isSuperAdmin && !filteredUserId
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : selectedOrders.size > 0
                   ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
                   : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
@@ -618,7 +645,12 @@ export default function Orders() {
           {permissions?.can_import_tracking && (
             <button
               onClick={() => setShowImportModal(true)}
-              className="flex-1 h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+              disabled={!isSuperAdmin && !filteredUserId}
+              className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                !isSuperAdmin && !filteredUserId
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
+                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
             >
               <Upload className="w-4 h-4" />
               <span>Import</span>
@@ -879,9 +911,11 @@ export default function Orders() {
       {showExportModal && (
         <ExportToMabangModal
           filteredUserId={filteredUserId || undefined}
+          preSelectedOrderIds={selectedOrders.size > 0 ? selectedOrders : undefined}
           onClose={() => setShowExportModal(false)}
           onSuccess={() => {
             setShowExportModal(false);
+            setSelectedOrders(new Set());
             loadStats();
             setRefreshKey(prev => prev + 1);
           }}
@@ -890,6 +924,9 @@ export default function Orders() {
 
       {showImportModal && (
         <ImportTrackingModal
+          filteredUserId={filteredUserId || undefined}
+          merchants={merchants}
+          isSuperAdmin={isSuperAdmin}
           onClose={() => setShowImportModal(false)}
           onSuccess={() => {
             setShowImportModal(false);

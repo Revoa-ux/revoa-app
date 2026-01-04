@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, RefreshCw, CheckCircle2, Clock, AlertCircle, MessageSquare } from 'lucide-react';
+import { ExternalLink, CheckCircle2, Clock, AlertCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -54,7 +54,6 @@ export default function FulfillmentTrackingTab({
   const navigate = useNavigate();
   const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadFulfillments();
@@ -166,35 +165,6 @@ export default function FulfillmentTrackingTab({
       toast.error('Failed to load fulfillments');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResync = async (fulfillmentId: string) => {
-    if (!permissions?.can_sync_to_shopify) {
-      toast.error('You do not have permission to sync to Shopify');
-      return;
-    }
-
-    setSyncing(prev => new Set(prev).add(fulfillmentId));
-
-    try {
-      const { error } = await supabase.functions.invoke('shopify-sync-fulfillments', {
-        body: { fulfillmentId }
-      });
-
-      if (error) throw error;
-
-      toast.success('Fulfillment synced to Shopify');
-      loadFulfillments();
-    } catch (error: any) {
-      console.error('Error syncing fulfillment:', error);
-      toast.error(error.message || 'Failed to sync fulfillment');
-    } finally {
-      setSyncing(prev => {
-        const next = new Set(prev);
-        next.delete(fulfillmentId);
-        return next;
-      });
     }
   };
 
@@ -336,21 +306,11 @@ export default function FulfillmentTrackingTab({
             <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2">
               <button
                 onClick={() => handleChatClick(fulfillment)}
-                className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                 title="Message"
               >
                 <MessageSquare className="w-4 h-4" />
               </button>
-              {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
-                <button
-                  onClick={() => handleResync(fulfillment.id)}
-                  disabled={syncing.has(fulfillment.id)}
-                  className="flex-1 h-[34px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
-                  {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
-                </button>
-              )}
             </div>
           </div>
         ))}
@@ -444,21 +404,11 @@ export default function FulfillmentTrackingTab({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleChatClick(fulfillment)}
-                      className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                      className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                       title="Message"
                     >
                       <MessageSquare className="w-4 h-4" />
                     </button>
-                    {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
-                      <button
-                        onClick={() => handleResync(fulfillment.id)}
-                        disabled={syncing.has(fulfillment.id)}
-                        className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                      >
-                        <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
-                        {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
-                      </button>
-                    )}
                   </div>
                 </td>
               </tr>

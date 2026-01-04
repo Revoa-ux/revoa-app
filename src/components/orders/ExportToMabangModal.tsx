@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 
 interface ExportToMabangModalProps {
   filteredUserId?: string;
+  preSelectedOrderIds?: Set<string>;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -36,13 +37,14 @@ interface OrderForExport {
   }>;
 }
 
-export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess }: ExportToMabangModalProps) {
+export default function ExportToMabangModal({ filteredUserId, preSelectedOrderIds, onClose, onSuccess }: ExportToMabangModalProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [orders, setOrders] = useState<OrderForExport[]>([]);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [warnings, setWarnings] = useState<string[]>([]);
+  const [hasAppliedPreSelection, setHasAppliedPreSelection] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -127,7 +129,18 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
         }));
 
         setOrders(ordersWithData);
-        setSelectedOrders(new Set(ordersWithData.map(o => o.id)));
+
+        if (preSelectedOrderIds && preSelectedOrderIds.size > 0 && !hasAppliedPreSelection) {
+          const validPreSelected = new Set(
+            ordersWithData.filter(o => preSelectedOrderIds.has(o.id)).map(o => o.id)
+          );
+          setSelectedOrders(validPreSelected.size > 0 ? validPreSelected : new Set(ordersWithData.map(o => o.id)));
+          setHasAppliedPreSelection(true);
+        } else if (!hasAppliedPreSelection) {
+          setSelectedOrders(new Set(ordersWithData.map(o => o.id)));
+          setHasAppliedPreSelection(true);
+        }
+
         validateOrders(ordersWithData);
       } else {
         setOrders([]);

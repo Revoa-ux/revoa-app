@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, UploadCloud, Trash2 } from 'lucide-react';
+import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, ArrowLeft, ArrowRight, UploadCloud, Trash2, Users, Search, Check } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
@@ -7,7 +7,16 @@ import { CustomCheckbox } from '../CustomCheckbox';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
+interface Merchant {
+  id: string;
+  name: string;
+  orderCount: number;
+}
+
 interface ImportTrackingModalProps {
+  filteredUserId?: string;
+  merchants?: Merchant[];
+  isSuperAdmin?: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -26,8 +35,13 @@ interface ImportResult {
   duplicates: TrackingRow[];
 }
 
-export default function ImportTrackingModal({ onClose, onSuccess }: ImportTrackingModalProps) {
+type Step = 'upload' | 'merchant' | 'preview';
+
+export default function ImportTrackingModal({ filteredUserId, merchants = [], isSuperAdmin = false, onClose, onSuccess }: ImportTrackingModalProps) {
   const { user } = useAuth();
+  const [step, setStep] = useState<Step>(filteredUserId ? 'upload' : 'merchant');
+  const [selectedMerchantId, setSelectedMerchantId] = useState<string | null>(filteredUserId || null);
+  const [merchantSearchTerm, setMerchantSearchTerm] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -36,6 +50,8 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
   const [result, setResult] = useState<ImportResult | null>(null);
   const [autoSync, setAutoSync] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
+
+  const selectedMerchant = merchants.find(m => m.id === selectedMerchantId);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -154,6 +170,7 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
 
       setFullData(trackingData);
       setPreview(trackingData.slice(0, 5));
+      setStep('preview');
       toast.success(`Found ${trackingData.length} tracking entries`);
     } catch (error: any) {
       console.error('Error parsing file:', error);
@@ -165,7 +182,7 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
   };
 
   const handleImport = async () => {
-    if (!file || !user?.id || fullData.length === 0) return;
+    if (!file || !user?.id || fullData.length === 0 || !selectedMerchantId) return;
 
     setImporting(true);
 
@@ -180,10 +197,11 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
             .from('shopify_orders')
             .select('id, shopify_order_id, user_id')
             .eq('order_number', track.orderNumber)
+            .eq('user_id', selectedMerchantId)
             .maybeSingle();
 
           if (orderError || !order) {
-            failed.push({ ...track, reason: 'Order not found' });
+            failed.push({ ...track, reason: 'Order not found for this merchant' });
             continue;
           }
 
@@ -244,7 +262,9 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
 
       if (autoSync && success.length > 0) {
         try {
-          await supabase.functions.invoke('shopify-sync-fulfillments');
+          await supabase.functions.invoke('shopify-sync-fulfillments', {
+            body: { userId: selectedMerchantId }
+          });
           toast.success(`Imported ${success.length} tracking numbers and synced to Shopify`);
         } catch (syncError) {
           console.error('Auto-sync error:', syncError);
@@ -278,7 +298,31 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
     setFile(null);
     setPreview([]);
     setFullData([]);
+    setStep('upload');
   };
+
+  const handleMerchantSelect = (merchantId: string) => {
+    setSelectedMerchantId(merchantId);
+  };
+
+  const handleMerchantContinue = () => {
+    if (selectedMerchantId) {
+      setStep('upload');
+    }
+  };
+
+  const filteredMerchants = merchants.filter(m =>
+    m.name.toLowerCase().includes(merchantSearchTerm.toLowerCase())
+  );
+
+  const getStepNumber = () => {
+    if (filteredUserId) {
+      return step === 'upload' ? 1 : 2;
+    }
+    return step === 'merchant' ? 1 : step === 'upload' ? 2 : 3;
+  };
+
+  const getTotalSteps = () => filteredUserId ? 2 : 3;
 
   return (
     <Modal isOpen={true} onClose={handleClose} maxWidth="max-w-3xl">
@@ -295,7 +339,8 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
                   Import Tracking from Mabang
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Upload your tracking file to update orders
+                  Step {getStepNumber()} of {getTotalSteps()}
+                  {selectedMerchant && ` - ${selectedMerchant.name}`}
                 </p>
               </div>
             </div>
@@ -310,180 +355,332 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
 
         {!result ? (
           <>
-            <div className="px-6 py-4 space-y-4">
-              {/* File Requirements */}
-              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  File Requirements
-                </h3>
-                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                  <p>Excel (.xlsx, .xls) or CSV format</p>
-                  <p>Required columns: "Order Number" and "Tracking Number"</p>
-                  <p>Optional columns: "Carrier", "Ship Date", "Status"</p>
-                </div>
-              </div>
-
-              {/* Drag and Drop Zone */}
-              {!file ? (
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
-                    isDragging
-                      ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
-                      : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <input
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    onChange={handleFileSelect}
-                    disabled={uploading}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <div className="flex flex-col items-center gap-3">
-                    <div className={`p-3 rounded-full transition-colors ${
-                      isDragging
-                        ? 'bg-gray-200 dark:bg-gray-700'
-                        : 'bg-gray-100 dark:bg-gray-800'
-                    }`}>
-                      <UploadCloud className={`w-8 h-8 transition-colors ${
-                        isDragging
-                          ? 'text-gray-600 dark:text-gray-300'
-                          : 'text-gray-400 dark:text-gray-500'
-                      }`} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {isDragging ? 'Drop your file here' : 'Drag and drop your file here'}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        or click to browse
-                      </p>
-                    </div>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      Supports: .xlsx, .xls, .csv
+            {/* Step: Merchant Selection */}
+            {step === 'merchant' && (
+              <>
+                <div className="px-6 py-4 space-y-4">
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      Select Merchant
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Choose the merchant whose orders this tracking file belongs to.
                     </p>
                   </div>
-                </div>
-              ) : (
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <FileSpreadsheet className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {fullData.length} tracking entries found
-                        </p>
-                      </div>
+
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={merchantSearchTerm}
+                      onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                      placeholder="Search merchants..."
+                      className="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+                    />
+                  </div>
+
+                  {/* Merchant List */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <div className="max-h-64 overflow-y-auto">
+                      {filteredMerchants.length === 0 ? (
+                        <div className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                          No merchants found
+                        </div>
+                      ) : (
+                        filteredMerchants.map((merchant) => (
+                          <button
+                            key={merchant.id}
+                            onClick={() => handleMerchantSelect(merchant.id)}
+                            className={`flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700 last:border-b-0 ${
+                              selectedMerchantId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {merchant.name}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {merchant.orderCount} orders ready
+                                </p>
+                              </div>
+                            </div>
+                            {selectedMerchantId === merchant.id && (
+                              <div className="w-5 h-5 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center">
+                                <Check className="w-3 h-3 text-white dark:text-gray-900" />
+                              </div>
+                            )}
+                          </button>
+                        ))
+                      )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                  <div className="flex space-x-3">
                     <button
-                      onClick={clearFile}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      onClick={handleClose}
+                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4" />
+                      Cancel
+                    </button>
+
+                    <button
+                      onClick={handleMerchantContinue}
+                      disabled={!selectedMerchantId}
+                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      Continue
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
                 </div>
-              )}
+              </>
+            )}
 
-              {/* Preview */}
-              {preview.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                    Preview (First 5 Rows)
-                  </h3>
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-                        <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                            Order #
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                            Tracking Number
-                          </th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                            Carrier
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {preview.map((row, idx) => (
-                          <tr key={idx}>
-                            <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">
-                              {row.orderNumber}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono text-xs">
-                              {row.trackingNumber}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                              {row.carrier}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+            {/* Step: File Upload */}
+            {step === 'upload' && (
+              <>
+                <div className="px-6 py-4 space-y-4">
+                  {/* Selected Merchant Info */}
+                  {selectedMerchant && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {selectedMerchant.name}
+                        </span>
+                      </div>
+                      {!filteredUserId && (
+                        <button
+                          onClick={() => setStep('merchant')}
+                          className="text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        >
+                          Change
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* File Requirements */}
+                  <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                      File Requirements
+                    </h3>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                      <p>Excel (.xlsx, .xls) or CSV format</p>
+                      <p>Required columns: "Order Number" and "Tracking Number"</p>
+                      <p>Optional columns: "Carrier", "Ship Date", "Status"</p>
+                    </div>
+                  </div>
+
+                  {/* Drag and Drop Zone */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                      isDragging
+                        ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
+                        : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+                    }`}
+                  >
+                    <input
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleFileSelect}
+                      disabled={uploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="flex flex-col items-center gap-3">
+                      <div className={`p-3 rounded-full transition-colors ${
+                        isDragging
+                          ? 'bg-gray-200 dark:bg-gray-700'
+                          : 'bg-gray-100 dark:bg-gray-800'
+                      }`}>
+                        <UploadCloud className={`w-8 h-8 transition-colors ${
+                          isDragging
+                            ? 'text-gray-600 dark:text-gray-300'
+                            : 'text-gray-400 dark:text-gray-500'
+                        }`} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {isDragging ? 'Drop your file here' : 'Drag and drop your file here'}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          or click to browse
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
+                        Supports: .xlsx, .xls, .csv
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* Auto-sync Option */}
-              {file && fullData.length > 0 && (
-                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <CustomCheckbox
-                    checked={autoSync}
-                    onChange={(e) => setAutoSync(e.target.checked)}
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      Auto-sync to Shopify
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Automatically update Shopify fulfillment status after import
-                    </p>
+                {/* Footer */}
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => filteredUserId ? handleClose() : setStep('merchant')}
+                      disabled={uploading}
+                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      {filteredUserId ? 'Cancel' : 'Back'}
+                    </button>
+
+                    <button
+                      disabled={true}
+                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-400 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg flex items-center justify-center gap-2 cursor-not-allowed"
+                    >
+                      Upload file to continue
+                    </button>
                   </div>
-                </label>
-              )}
-            </div>
+                </div>
+              </>
+            )}
 
-            {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleClose}
-                  disabled={uploading || importing}
-                  className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Cancel
-                </button>
-
-                <button
-                  onClick={handleImport}
-                  disabled={!file || uploading || importing || fullData.length === 0}
-                  className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
-                >
-                  {importing ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Importing...
-                    </>
-                  ) : (
-                    <>
-                      Import {fullData.length} Entries
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                    </>
+            {/* Step: Preview & Import */}
+            {step === 'preview' && file && (
+              <>
+                <div className="px-6 py-4 space-y-4">
+                  {/* Selected Merchant Info */}
+                  {selectedMerchant && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          Importing for {selectedMerchant.name}
+                        </span>
+                      </div>
+                    </div>
                   )}
-                </button>
-              </div>
-            </div>
+
+                  {/* File Info */}
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                          <FileSpreadsheet className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            {file.name}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {fullData.length} tracking entries found
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={clearFile}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Preview */}
+                  {preview.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                        Preview (First 5 Rows)
+                      </h3>
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                                Order #
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                                Tracking Number
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                                Carrier
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                            {preview.map((row, idx) => (
+                              <tr key={idx}>
+                                <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">
+                                  {row.orderNumber}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono text-xs">
+                                  {row.trackingNumber}
+                                </td>
+                                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                  {row.carrier}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Auto-sync Option */}
+                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <CustomCheckbox
+                      checked={autoSync}
+                      onChange={(e) => setAutoSync(e.target.checked)}
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        Auto-sync to Shopify
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Automatically update Shopify fulfillment status after import
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setStep('upload')}
+                      disabled={uploading || importing}
+                      className="flex-1 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Back
+                    </button>
+
+                    <button
+                      onClick={handleImport}
+                      disabled={!file || uploading || importing || fullData.length === 0}
+                      className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
+                    >
+                      {importing ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Importing...
+                        </>
+                      ) : (
+                        <>
+                          Import {fullData.length} Entries
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <>
