@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Download,
   MessageSquare,
@@ -96,8 +97,10 @@ const getThreadBubbleColor = (tag?: string) => {
 
 const AdminChat = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [chats, setChats] = useState<ChatType[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
+  const [pendingOrderThreadId, setPendingOrderThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -201,6 +204,32 @@ const AdminChat = () => {
 
     loadChats();
   }, [user, conversationFilters, conversationSearch, refreshTrigger]);
+
+  useEffect(() => {
+    if (!chats.length || isLoading) return;
+
+    const chatId = searchParams.get('chatId');
+    const threadId = searchParams.get('threadId');
+    const createThread = searchParams.get('createThread');
+    const orderId = searchParams.get('orderId');
+
+    if (chatId) {
+      const targetChat = chats.find(c => c.id === chatId);
+      if (targetChat && targetChat.id !== selectedChat?.id) {
+        setSelectedChat(targetChat);
+      }
+    }
+
+    if (threadId && selectedChat) {
+      setSelectedThreadId(threadId);
+    }
+
+    if (createThread === 'order' && orderId && selectedChat) {
+      setPendingOrderThreadId(orderId);
+      setShowCreateThreadModal(true);
+      setSearchParams({});
+    }
+  }, [chats, isLoading, searchParams, selectedChat?.id]);
 
   useEffect(() => {
     if (!selectedChat) return;
@@ -1455,10 +1484,14 @@ const AdminChat = () => {
         {selectedChat && (
           <CreateThreadModal
             isOpen={showCreateThreadModal}
-            onClose={() => setShowCreateThreadModal(false)}
+            onClose={() => {
+              setShowCreateThreadModal(false);
+              setPendingOrderThreadId(null);
+            }}
             chatId={selectedChat.id}
             userId={selectedChat.user_id}
             onThreadCreated={handleThreadCreated}
+            initialOrderId={pendingOrderThreadId || undefined}
           />
         )}
 

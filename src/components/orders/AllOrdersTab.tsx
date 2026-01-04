@@ -293,7 +293,7 @@ export default function AllOrdersTab({
             <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
               <button
                 onClick={() => handleChatClick(order)}
-                className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>Message</span>
@@ -414,10 +414,11 @@ export default function AllOrdersTab({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleChatClick(order)}
-                      className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                      title="View in Chat"
+                      className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      title="Open Chat Thread"
                     >
-                      <MessageSquare className="w-4 h-4" />
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Message</span>
                     </button>
                     {getShopifyOrderUrl(order) && (
                       <a

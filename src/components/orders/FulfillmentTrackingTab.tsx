@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, RefreshCw, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { ExternalLink, RefreshCw, CheckCircle2, Clock, AlertCircle, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -50,6 +51,7 @@ export default function FulfillmentTrackingTab({
   onCarriersLoaded
 }: FulfillmentTrackingTabProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [fulfillments, setFulfillments] = useState<Fulfillment[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState<Set<string>>(new Set());
@@ -57,6 +59,35 @@ export default function FulfillmentTrackingTab({
   useEffect(() => {
     loadFulfillments();
   }, [user?.id, filteredUserId, refreshKey]);
+
+  const handleChatClick = async (fulfillment: Fulfillment) => {
+    try {
+      const { data: existingThread } = await supabase
+        .from('chat_threads')
+        .select('id, chat_id')
+        .eq('shopify_order_id', fulfillment.order.shopify_order_id)
+        .maybeSingle();
+
+      if (existingThread) {
+        navigate(`/admin/chat?chatId=${existingThread.chat_id}&threadId=${existingThread.id}`);
+      } else {
+        const { data: chat } = await supabase
+          .from('chats')
+          .select('id')
+          .eq('user_id', fulfillment.order.user_id)
+          .maybeSingle();
+
+        if (chat) {
+          navigate(`/admin/chat?chatId=${chat.id}&createThread=order&orderId=${fulfillment.order.shopify_order_id}`);
+        } else {
+          toast.error('No chat found for this merchant');
+        }
+      }
+    } catch (error) {
+      console.error('Error navigating to chat:', error);
+      toast.error('Failed to open chat');
+    }
+  };
 
   const loadFulfillments = async () => {
     if (!user?.id) return;
@@ -302,18 +333,26 @@ export default function FulfillmentTrackingTab({
             )}
 
             {/* Actions */}
-            {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
-              <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+            <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2">
+              <button
+                onClick={() => handleChatClick(fulfillment)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                title="Open Chat Thread"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Message</span>
+              </button>
+              {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
                 <button
                   onClick={() => handleResync(fulfillment.id)}
                   disabled={syncing.has(fulfillment.id)}
-                  className="w-full h-[34px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 h-[34px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
-                  {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync to Shopify'}
+                  {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -403,16 +442,26 @@ export default function FulfillmentTrackingTab({
                   </div>
                 </td>
                 <td className="px-4 py-4">
-                  {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => handleResync(fulfillment.id)}
-                      disabled={syncing.has(fulfillment.id)}
-                      className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      onClick={() => handleChatClick(fulfillment)}
+                      className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                      title="Open Chat Thread"
                     >
-                      <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
-                      {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Message</span>
                     </button>
-                  )}
+                    {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
+                      <button
+                        onClick={() => handleResync(fulfillment.id)}
+                        disabled={syncing.has(fulfillment.id)}
+                        className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
+                        {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

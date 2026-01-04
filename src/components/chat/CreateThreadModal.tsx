@@ -24,6 +24,7 @@ interface CreateThreadModalProps {
   chatId: string;
   userId: string;
   onThreadCreated: (threadId: string) => void;
+  initialOrderId?: string;
 }
 
 const TAG_OPTIONS: Array<{ value: string; label: string; color: string }> = [
@@ -44,6 +45,7 @@ export function CreateThreadModal({
   chatId,
   userId,
   onThreadCreated,
+  initialOrderId,
 }: CreateThreadModalProps) {
   const [description, setDescription] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
@@ -61,6 +63,39 @@ export function CreateThreadModal({
       setSearchQuery('');
     }
   }, [isOpen, userId]);
+
+  useEffect(() => {
+    if (isOpen && initialOrderId && userId) {
+      loadInitialOrder();
+    }
+  }, [isOpen, initialOrderId, userId]);
+
+  const loadInitialOrder = async () => {
+    if (!initialOrderId || !userId) return;
+
+    setIsLoadingOrders(true);
+    try {
+      const { data: orderData, error } = await supabase
+        .from('shopify_orders')
+        .select('id, shopify_order_id, order_number, total_price, ordered_at, currency, customer_first_name, customer_last_name, customer_email')
+        .eq('shopify_order_id', initialOrderId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (orderData) {
+        setSelectedOrder(orderData);
+        setSelectedOrderId(orderData.id);
+        setOrders([orderData]);
+        setSearchQuery(orderData.order_number.replace('#', ''));
+      }
+    } catch (error) {
+      console.error('Error loading initial order:', error);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
 
   const searchOrders = async (query: string) => {
     if (!userId || !query.trim()) {
