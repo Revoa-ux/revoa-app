@@ -344,7 +344,7 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
 
   if (loading) {
     return (
-      <Modal onClose={onClose} size="lg">
+      <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
@@ -354,7 +354,7 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
   }
 
   return (
-    <Modal onClose={onClose} size="lg">
+    <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Export to Mabang 3PL

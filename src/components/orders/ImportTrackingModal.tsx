@@ -272,7 +272,7 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
   };
 
   return (
-    <Modal onClose={handleClose} size="lg">
+    <Modal isOpen={true} onClose={handleClose} maxWidth="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Import Tracking from Mabang

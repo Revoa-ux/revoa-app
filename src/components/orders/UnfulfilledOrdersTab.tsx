@@ -349,10 +349,10 @@ export default function UnfulfilledOrdersTab({
                 <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
                   <button
                     onClick={() => handleChatClick(order)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                    title="Message"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Message</span>
+                    <MessageSquare className="w-4 h-4" />
                   </button>
                   {getShopifyOrderUrl(order) && (
                     <a
@@ -502,11 +502,10 @@ export default function UnfulfilledOrdersTab({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleChatClick(order)}
-                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md border border-red-300 dark:border-red-500/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title="Open Chat Thread"
+                        className="p-1.5 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                        title="Message"
                       >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Message</span>
+                        <MessageSquare className="w-4 h-4" />
                       </button>
                       {getShopifyOrderUrl(order) && (
                         <a
