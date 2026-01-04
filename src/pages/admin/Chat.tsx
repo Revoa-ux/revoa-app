@@ -994,7 +994,7 @@ const AdminChat = () => {
 
               {/* Conversational Flow Container - Shows at the top of messages */}
               {selectedThreadId && activeFlowSession?.is_active && (
-                <div className="mb-4 p-3 bg-green-500/5 dark:bg-green-500/10 border border-green-500/20 dark:border-green-500/30 rounded-lg">
+                <div className="mb-4 p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 dark:border-amber-500/30 rounded-lg">
                   <ConversationalFlowContainer
                     threadId={selectedThreadId}
                     onOpenTemplateModal={(templateIds) => {
@@ -1010,9 +1010,9 @@ const AdminChat = () => {
                     }}
                     isAdminView={true}
                   />
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-green-500/20 dark:border-green-500/30">
-                    <AlertCircle className="w-3.5 h-3.5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                    <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-amber-500/20 dark:border-amber-500/30">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                    <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
                       Active Flow: {activeFlow?.name}
                     </span>
                   </div>
