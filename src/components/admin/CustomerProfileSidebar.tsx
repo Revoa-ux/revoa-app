@@ -16,7 +16,6 @@ import {
   Truck,
   ExternalLink,
   Edit2,
-  ArrowRight,
   Shield,
   CheckCircle2,
   AlertCircle,
@@ -24,7 +23,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { ScenarioTemplateModal } from '@/components/chat/ScenarioTemplateModal';
 import { CancelOrderModal } from '@/components/chat/CancelOrderModal';
 import { RefundOrderModal } from '@/components/chat/RefundOrderModal';
 import { EditShippingAddressModal } from '@/components/chat/EditShippingAddressModal';
@@ -84,7 +82,6 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
 }) => {
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [userName, setUserName] = useState('');
   const [lineItems, setLineItems] = useState<any[]>([]);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -367,38 +364,6 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
                   <p className={`text-sm ${customerInfo.customer_phone ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500 italic'}`}>
                     {customerInfo.customer_phone || 'Not provided'}
                   </p>
-                </button>
-              </div>
-
-              {/* Email Templates Showcase - Below Contact */}
-              <div className="mt-4">
-                <button
-                  onClick={() => setShowTemplateSelector(true)}
-                  className="relative w-full p-4 border border-gray-200 dark:border-gray-700 rounded-xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md transition-all text-left group overflow-hidden"
-                >
-                  {/* Subtle background pattern */}
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.03)_0%,transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(239,68,68,0.05)_0%,transparent_50%)]"></div>
-
-                  <div className="relative flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Quick Email Templates
-                        </h4>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 font-bold uppercase tracking-wider leading-none">
-                          New
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                        Send professional pre-written emails in seconds for common scenarios
-                      </p>
-                    </div>
-                    <div className="ml-3 flex-shrink-0 mt-0.5">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
-                        <ArrowRight className="w-4 h-4 text-gray-600 dark:text-gray-400 group-hover:translate-x-0.5 transition-transform" />
-                      </div>
-                    </div>
-                  </div>
                 </button>
               </div>
 
@@ -821,19 +786,6 @@ export const CustomerProfileSidebar: React.FC<CustomerProfileSidebarProps> = ({
           )}
         </div>
       </div>
-
-      {/* Template Selector Modal */}
-      {showTemplateSelector && customerInfo && (
-        <ScenarioTemplateModal
-          isOpen={showTemplateSelector}
-          onClose={() => setShowTemplateSelector(false)}
-          threadId={threadId}
-          threadCategory={threadTag}
-          orderId={orderId}
-          userId={userId}
-          recipientEmail={customerInfo.customer_email || undefined}
-        />
-      )}
 
       {/* Order Action Modals */}
       {customerInfo && orderId && (

@@ -908,15 +908,6 @@ const AdminChat = () => {
                   onDeleteThread={handleDeleteThread}
                   onRestartThread={handleRestartThread}
                 />
-                {selectedThreadId && (
-                  <button
-                    onClick={() => setShowScenarioTemplate(true)}
-                    className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                    title="Email templates"
-                  >
-                    <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                )}
                 <button
                   onClick={() => setShowSearchModal(true)}
                   className="p-1.5 sm:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -1302,6 +1293,13 @@ const AdminChat = () => {
                           </div>
                         )}
                       </div>
+                      <button
+                        onClick={() => setShowScenarioTemplate(true)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        title="Email templates"
+                      >
+                        <FileText className="w-5 h-5" />
+                      </button>
                     </div>
 
                     <button
@@ -1509,7 +1507,7 @@ const AdminChat = () => {
         )}
 
         {/* Scenario Template Modal */}
-        {showScenarioTemplate && selectedChat && selectedThreadId && (
+        {showScenarioTemplate && selectedChat && (
           <ScenarioTemplateModal
             isOpen={showScenarioTemplate}
             onClose={() => setShowScenarioTemplate(false)}
@@ -1517,9 +1515,9 @@ const AdminChat = () => {
               setNewMessage(template);
               setShowScenarioTemplate(false);
             }}
-            threadId={selectedThreadId}
-            threadCategory={threads.find(t => t.id === selectedThreadId)?.tag || undefined}
-            orderId={threads.find(t => t.id === selectedThreadId)?.order_id || undefined}
+            threadId={selectedThreadId || undefined}
+            threadCategory={selectedThreadId ? threads.find(t => t.id === selectedThreadId)?.tag || undefined : undefined}
+            orderId={selectedThreadId ? threads.find(t => t.id === selectedThreadId)?.order_id || undefined : undefined}
             userId={selectedChat.user_id}
           />
         )}
