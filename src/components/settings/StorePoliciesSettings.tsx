@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Percent, Package, MapPin, Phone, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { DollarSign, Percent, X, MapPin, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -8,8 +8,6 @@ interface StoreConfig {
   restocking_fee_percent: number;
   restocking_fee_fixed: number;
   return_warehouse_address: string;
-  carrier_name: string;
-  carrier_phone_number: string;
 }
 
 export function StorePoliciesSettings({ userId }: { userId: string }) {
@@ -19,9 +17,13 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
     restocking_fee_type: 'none',
     restocking_fee_percent: 0,
     restocking_fee_fixed: 0,
-    return_warehouse_address: '',
-    carrier_name: '',
-    carrier_phone_number: ''
+    return_warehouse_address: ''
+  });
+  const [originalConfig, setOriginalConfig] = useState<StoreConfig>({
+    restocking_fee_type: 'none',
+    restocking_fee_percent: 0,
+    restocking_fee_fixed: 0,
+    return_warehouse_address: ''
   });
 
   useEffect(() => {
@@ -40,14 +42,14 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
       if (error) throw error;
 
       if (data) {
-        setConfig({
+        const configData = {
           restocking_fee_type: data.restocking_fee_type || 'none',
           restocking_fee_percent: data.restocking_fee_percent || 0,
           restocking_fee_fixed: data.restocking_fee_fixed || 0,
-          return_warehouse_address: data.return_warehouse_address || '',
-          carrier_name: data.carrier_name || '',
-          carrier_phone_number: data.carrier_phone_number || ''
-        });
+          return_warehouse_address: data.return_warehouse_address || ''
+        };
+        setConfig(configData);
+        setOriginalConfig(configData);
       }
     } catch (error) {
       console.error('Error loading store config:', error);
@@ -72,6 +74,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
 
       if (error) throw error;
 
+      setOriginalConfig(config);
       toast.success('Store policies saved successfully');
     } catch (error) {
       console.error('Error saving store config:', error);
@@ -80,6 +83,12 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
       setSaving(false);
     }
   };
+
+  const hasChanges =
+    config.restocking_fee_type !== originalConfig.restocking_fee_type ||
+    config.restocking_fee_percent !== originalConfig.restocking_fee_percent ||
+    config.restocking_fee_fixed !== originalConfig.restocking_fee_fixed ||
+    config.return_warehouse_address !== originalConfig.return_warehouse_address;
 
   const getRestockingFeePreview = () => {
     if (config.restocking_fee_type === 'percentage' && config.restocking_fee_percent > 0) {
@@ -133,7 +142,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   }
                 `}
               >
-                <Package className="w-4 h-4" />
+                <X className="w-4 h-4" />
                 <span className="text-sm font-medium">None</span>
               </button>
 
@@ -241,7 +250,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               onChange={(e) => setConfig({ ...config, return_warehouse_address: e.target.value })}
               rows={3}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
-              placeholder="5130 E. Santa Ana Street, Ontario, CA 91761"
+              placeholder="43100 Christy St., Fremont CA 94538 US"
             />
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -249,44 +258,16 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
           </p>
         </div>
 
-        {/* Carrier Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Carrier Name
-            </label>
-            <input
-              type="text"
-              value={config.carrier_name}
-              onChange={(e) => setConfig({ ...config, carrier_name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
-              placeholder="YunExpress, USPS, etc."
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Carrier Phone Number
-            </label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="tel"
-                value={config.carrier_phone_number}
-                onChange={(e) => setConfig({ ...config, carrier_phone_number: e.target.value })}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
-                placeholder="1-800-123-4567"
-              />
-            </div>
-          </div>
-        </div>
-
         {/* Save Button */}
         <div className="flex justify-end pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={saveConfig}
-            disabled={saving}
-            className="group flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={saving || !hasChanges}
+            className={`group px-5 py-1.5 text-sm font-medium text-white rounded-lg transition-all flex items-center gap-2 shadow-sm ${
+              hasChanges
+                ? 'bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 hover:shadow-md'
+                : 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {saving ? (
               <>
@@ -295,7 +276,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               </>
             ) : (
               <>
-                Save Policies
+                Save Changes
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </>
             )}
