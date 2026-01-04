@@ -8,6 +8,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MetricCardData } from '../../lib/analyticsService';
 import { AdPlatform, PLATFORM_COLORS, PLATFORM_LABELS } from '../../types/crossPlatform';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface ChartDataPoint {
   date: string;
@@ -73,6 +74,7 @@ export default function FlippableMetricCard({
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAutoFlipping, setIsAutoFlipping] = useState(false);
   const lastAutoFlipRef = useRef<number>(0);
+  const { effectiveTheme } = useTheme();
   const Icon = iconMap[data.icon] || HelpCircle;
 
   useEffect(() => {
@@ -359,7 +361,7 @@ export default function FlippableMetricCard({
                           fill={PLATFORM_COLORS[platform]}
                           fillOpacity={0.15}
                           dot={false}
-                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: '#9CA3AF' }}
+                          activeDot={{ r: 4, strokeWidth: 2, stroke: PLATFORM_COLORS[platform], fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
                         />
                       ))
                     ) : (
@@ -370,7 +372,7 @@ export default function FlippableMetricCard({
                         strokeWidth={2}
                         fill={`url(#fill-gradient-${data.id})`}
                         dot={false}
-                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: '#9CA3AF' }}
+                        activeDot={{ r: 4, strokeWidth: 2, stroke: '#E11D48', fill: effectiveTheme === 'light' ? '#fff' : '#1F2937' }}
                         baseValue={allNegative ? 'dataMax' : 'dataMin'}
                       />
                     )}
