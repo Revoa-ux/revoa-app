@@ -143,6 +143,22 @@ const UserProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const ThemedToaster = () => {
   const { effectiveTheme } = useTheme();
+  const { isAdmin } = useAdmin();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile && !isAdmin) {
+    return null;
+  }
+
   return (
     <Toaster
       position="bottom-right"
