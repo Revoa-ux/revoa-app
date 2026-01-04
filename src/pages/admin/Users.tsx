@@ -390,28 +390,28 @@ export default function Users() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial sm:w-[280px]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto flex-wrap">
+          <div className="relative flex-1 min-w-[180px] sm:flex-initial sm:w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="text"
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200 dark:border-gray-700"
+              className="w-full h-[38px] pl-10 pr-10 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
             />
             {searchTerm && (
               <button
                 onClick={() => handleSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
               >
                 <X className="w-4 h-4 text-gray-400" />
               </button>
             )}
           </div>
 
-          <div className="relative" ref={filterDropdownRef}>
+          <div className="relative flex-shrink-0" ref={filterDropdownRef}>
             <FilterButton
               icon={Filter}
               label="Filter"
@@ -444,7 +444,7 @@ export default function Users() {
           </div>
 
           {isSuperAdmin && (
-            <div className="relative" ref={adminFilterDropdownRef}>
+            <div className="relative flex-shrink-0" ref={adminFilterDropdownRef}>
               <FilterButton
                 icon={UsersIcon}
                 label="Admin"
@@ -503,7 +503,7 @@ export default function Users() {
             </div>
           )}
 
-          <div className="relative" ref={sortDropdownRef}>
+          <div className="relative flex-shrink-0" ref={sortDropdownRef}>
             <FilterButton
               icon={ArrowUpDown}
               label="Sort"
@@ -536,7 +536,7 @@ export default function Users() {
         {selectedUsers.length > 0 && (
           <button
             onClick={() => setShowAssignModal(true)}
-            className="px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center space-x-2 whitespace-nowrap"
+            className="w-full sm:w-auto px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-center sm:justify-start space-x-2 whitespace-nowrap"
           >
             <UserPlus className="w-4 h-4" />
             <span>Assign ({selectedUsers.length})</span>
