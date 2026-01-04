@@ -18,7 +18,8 @@ import {
   Building,
   Lock,
   Save,
-  ArrowRight
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -31,6 +32,7 @@ import ShopifyConnectModal from '@/components/settings/ShopifyConnectModal';
 import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
+import { StorePoliciesSettings } from '@/components/settings/StorePoliciesSettings';
 
 interface UserProfile {
   first_name: string;
@@ -73,7 +75,7 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'policies'>('profile');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
     last_name: '',
@@ -1879,6 +1881,7 @@ const SettingsPage = () => {
               {[
                 { id: 'profile', label: 'Profile', icon: User },
                 { id: 'security', label: 'Security', icon: Lock },
+                { id: 'policies', label: 'Store Policies', icon: FileText },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -2193,6 +2196,10 @@ const SettingsPage = () => {
                   </button>
                 </div>
               </form>
+            )}
+
+            {activeTab === 'policies' && user?.id && (
+              <StorePoliciesSettings userId={user.id} />
             )}
           </div>
         </div>

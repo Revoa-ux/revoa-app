@@ -350,23 +350,33 @@ export async function fetchVariableData(context: VariableContext): Promise<Varia
         data.merchant_company = userData.company || undefined;
       }
 
-      // Fetch product configuration for return/policy variables
-      const { data: productConfigs } = await supabase
-        .from('product_configurations')
-        .select('restocking_fee_percent, return_warehouse_address')
+      // Fetch store configuration for return/policy variables
+      const { data: storeConfig } = await supabase
+        .from('user_store_configurations')
+        .select('restocking_fee_type, restocking_fee_percent, restocking_fee_fixed, return_warehouse_address, carrier_name, carrier_phone_number')
         .eq('user_id', context.userId)
-        .limit(1)
         .maybeSingle();
 
-      if (productConfigs) {
-        data.restocking_fee = productConfigs.restocking_fee_percent
-          ? `${productConfigs.restocking_fee_percent}%`
-          : '15%';
-        data.return_warehouse_address = productConfigs.return_warehouse_address ||
+      if (storeConfig) {
+        // Format restocking fee based on type
+        if (storeConfig.restocking_fee_type === 'percentage' && storeConfig.restocking_fee_percent) {
+          data.restocking_fee = `${storeConfig.restocking_fee_percent}%`;
+        } else if (storeConfig.restocking_fee_type === 'fixed' && storeConfig.restocking_fee_fixed) {
+          data.restocking_fee = `$${Number(storeConfig.restocking_fee_fixed).toFixed(2)}`;
+        } else {
+          data.restocking_fee = 'no restocking fee';
+        }
+
+        data.return_warehouse_address = storeConfig.return_warehouse_address ||
           '5130 E. Santa Ana Street, Ontario, CA 91761';
+        data.carrier_name = storeConfig.carrier_name || 'the carrier';
+        data.carrier_phone_number = storeConfig.carrier_phone_number || 'their customer service number';
       } else {
-        data.restocking_fee = '15%';
+        // Defaults if no config exists
+        data.restocking_fee = 'no restocking fee';
         data.return_warehouse_address = '5130 E. Santa Ana Street, Ontario, CA 91761';
+        data.carrier_name = 'the carrier';
+        data.carrier_phone_number = 'their customer service number';
       }
     }
 
@@ -460,7 +470,7 @@ export const VARIABLE_FALLBACKS: Record<string, string> = {
   'estimated_delivery': '7-10 business days',
   'merchant_name': 'Our Team',
   'merchant_store_name': 'Our Store',
-  'restocking_fee': '15%',
+  'restocking_fee': 'no restocking fee',
   'return_warehouse_address': '5130 E. Santa Ana Street, Ontario, CA 91761',
   'carrier_name': 'the carrier',
   'carrier_phone_number': 'their customer service number',
