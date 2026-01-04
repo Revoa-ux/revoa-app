@@ -273,15 +273,21 @@ export default function AllOrdersTab({
                 <button
                   type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     toggleOrderExpansion(order.id);
                   }}
-                  className="p-1.5 -m-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-manipulation"
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleOrderExpansion(order.id);
+                  }}
+                  className="p-2 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 active:bg-gray-100 dark:active:bg-gray-700 rounded-md touch-manipulation select-none"
                 >
                   {expandedOrders.has(order.id) ? (
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className="w-5 h-5" />
                   ) : (
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-5 h-5" />
                   )}
                 </button>
                 <span className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -421,10 +427,11 @@ export default function AllOrdersTab({
                       <button
                         type="button"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           toggleOrderExpansion(order.id);
                         }}
-                        className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                       >
                         {expandedOrders.has(order.id) ? (
                           <ChevronDown className="w-4 h-4" />
