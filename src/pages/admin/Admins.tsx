@@ -434,28 +434,29 @@ export default function AdminsManagement() {
 
       {/* Controls */}
       <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[180px] sm:flex-initial sm:min-w-[240px] lg:w-[280px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search admins..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
-          />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
-            >
-              <X className="w-4 h-4 text-gray-400" />
-            </button>
-          )}
-        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Search */}
+          <div className="relative flex-1 sm:flex-initial sm:min-w-[240px] lg:w-[280px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search admins..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-200"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            )}
+          </div>
 
-        {/* Filter */}
-        <div className="relative flex-1 sm:flex-initial flex-shrink-0" ref={filterDropdownRef}>
+          {/* Filter */}
+          <div className="relative flex-shrink-0" ref={filterDropdownRef}>
             <FilterButton
               icon={Filter}
               label="Filter"
@@ -489,7 +490,7 @@ export default function AdminsManagement() {
           </div>
 
           {/* Sort */}
-          <div className="relative flex-1 sm:flex-initial flex-shrink-0" ref={sortDropdownRef}>
+          <div className="relative flex-shrink-0" ref={sortDropdownRef}>
             <FilterButton
               icon={ArrowUpDown}
               label="Sort"
@@ -529,6 +530,7 @@ export default function AdminsManagement() {
               </div>
             )}
           </div>
+        </div>
 
         {/* Invite Button */}
         <button
