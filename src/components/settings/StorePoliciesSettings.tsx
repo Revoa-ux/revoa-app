@@ -46,10 +46,19 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
           restocking_fee_type: data.restocking_fee_type || 'none',
           restocking_fee_percent: data.restocking_fee_percent || 0,
           restocking_fee_fixed: data.restocking_fee_fixed || 0,
-          return_warehouse_address: data.return_warehouse_address || ''
+          return_warehouse_address: data.return_warehouse_address || '43100 Christy St., Fremont CA 94538 US'
         };
         setConfig(configData);
         setOriginalConfig(configData);
+      } else {
+        const defaultConfig = {
+          restocking_fee_type: 'none' as const,
+          restocking_fee_percent: 0,
+          restocking_fee_fixed: 0,
+          return_warehouse_address: '43100 Christy St., Fremont CA 94538 US'
+        };
+        setConfig(defaultConfig);
+        setOriginalConfig(defaultConfig);
       }
     } catch (error) {
       console.error('Error loading store config:', error);

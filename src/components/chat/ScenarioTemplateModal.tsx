@@ -3,6 +3,8 @@ import { X, Copy, Check, Mail, Package, RotateCcw, AlertCircle, Truck, FileCheck
 import { supabase } from '../../lib/supabase';
 import { toast } from 'sonner';
 import { fetchVariableData, replaceVariablesWithTracking, VARIABLE_FALLBACKS, VARIABLE_DISPLAY_NAMES } from '../../lib/templateVariableService';
+import { MerchantNoteBox } from './MerchantNoteBox';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ScenarioTemplateModalProps {
   isOpen: boolean;
@@ -188,10 +190,13 @@ export function ScenarioTemplateModal({
   threadId,
   threadCategory,
   orderId,
-  userId,
+  userId: propUserId,
   recipientEmail,
   onSelectTemplate
 }: ScenarioTemplateModalProps) {
+  const { user } = useAuth();
+  const userId = propUserId || user?.id;
+
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isAssignedToOrder, setIsAssignedToOrder] = useState(false);
   const [populatedSubject, setPopulatedSubject] = useState('');
@@ -241,8 +246,11 @@ export function ScenarioTemplateModal({
 
     if (isOpen) {
       loadTemplates();
+      if (userId && !orderId) {
+        loadOrders();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, userId, orderId]);
 
   // Helper function to map database category to UI category
   // Templates now use their category directly from the database
@@ -434,60 +442,112 @@ export function ScenarioTemplateModal({
   };
 
   const renderTextWithVariables = (text: string) => {
-    const parts = text.split(/(\{\{[^}]+\}\})/g);
-    return parts.map((part, index) => {
-      if (part.startsWith('{{') && part.endsWith('}}')) {
-        const variableName = part.slice(2, -2);
-        return (
-          <span
-            key={index}
-            className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-mono"
-          >
-            <Sparkles className="w-3 h-3" />
-            {variableName}
-          </span>
-        );
-      }
-      return <span key={index}>{part}</span>;
-    });
+    const { hasNote, noteContent, textBeforeNote, textAfterNote } = parseMerchantNote(text);
+
+    const renderTextPart = (textPart: string) => {
+      const parts = textPart.split(/(\{\{[^}]+\}\})/g);
+      return parts.map((part, index) => {
+        if (part.startsWith('{{') && part.endsWith('}}')) {
+          const variableName = part.slice(2, -2);
+          return (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-mono"
+            >
+              <Sparkles className="w-3 h-3" />
+              {variableName}
+            </span>
+          );
+        }
+        return <span key={index}>{part}</span>;
+      });
+    };
+
+    if (hasNote) {
+      return (
+        <>
+          {renderTextPart(textBeforeNote)}
+          <MerchantNoteBox note={noteContent} />
+          {textAfterNote && renderTextPart(textAfterNote)}
+        </>
+      );
+    }
+
+    return renderTextPart(text);
+  };
+
+  const parseMerchantNote = (text: string) => {
+    const merchantNoteRegex = /\[MERCHANT NOTE:([^\]]+)\]/;
+    const match = text.match(merchantNoteRegex);
+
+    if (match) {
+      const noteContent = match[1].trim();
+      const textBeforeNote = text.substring(0, match.index);
+      const textAfterNote = text.substring(match.index! + match[0].length);
+
+      return {
+        hasNote: true,
+        noteContent,
+        textBeforeNote,
+        textAfterNote
+      };
+    }
+
+    return { hasNote: false, noteContent: '', textBeforeNote: text, textAfterNote: '' };
   };
 
   const renderPopulatedText = (text: string) => {
-    if (fallbackVariables.length === 0 && unresolvedVariables.length === 0) {
-      return text;
+    const { hasNote, noteContent, textBeforeNote, textAfterNote } = parseMerchantNote(text);
+
+    const renderTextPart = (textPart: string) => {
+      if (fallbackVariables.length === 0 && unresolvedVariables.length === 0) {
+        return textPart;
+      }
+
+      const fallbackValues = Object.values(VARIABLE_FALLBACKS);
+      const escapedFallbacks = fallbackValues.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+      const fallbackPattern = new RegExp(`(${escapedFallbacks.join('|')}|\\{\\{[^}]+\\}\\})`, 'g');
+
+      const parts = textPart.split(fallbackPattern);
+
+      return parts.map((part, index) => {
+        if (fallbackValues.includes(part)) {
+          return (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
+            >
+              <AlertCircle className="w-3 h-3" />
+              {part}
+            </span>
+          );
+        }
+        if (part.startsWith('{{') && part.endsWith('}}')) {
+          return (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
+            >
+              <AlertCircle className="w-3 h-3" />
+              {part}
+            </span>
+          );
+        }
+        return <span key={index}>{part}</span>;
+      });
+    };
+
+    if (hasNote) {
+      return (
+        <>
+          {renderTextPart(textBeforeNote)}
+          <MerchantNoteBox note={noteContent} />
+          {textAfterNote && renderTextPart(textAfterNote)}
+        </>
+      );
     }
 
-    const fallbackValues = Object.values(VARIABLE_FALLBACKS);
-    const escapedFallbacks = fallbackValues.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-    const fallbackPattern = new RegExp(`(${escapedFallbacks.join('|')}|\\{\\{[^}]+\\}\\})`, 'g');
-
-    const parts = text.split(fallbackPattern);
-
-    return parts.map((part, index) => {
-      if (fallbackValues.includes(part)) {
-        return (
-          <span
-            key={index}
-            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
-          >
-            <AlertCircle className="w-3 h-3" />
-            {part}
-          </span>
-        );
-      }
-      if (part.startsWith('{{') && part.endsWith('}}')) {
-        return (
-          <span
-            key={index}
-            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded text-xs border border-red-200 dark:border-red-800"
-          >
-            <AlertCircle className="w-3 h-3" />
-            {part}
-          </span>
-        );
-      }
-      return <span key={index}>{part}</span>;
-    });
+    return renderTextPart(text);
   };
 
   const getWarningCount = () => {
