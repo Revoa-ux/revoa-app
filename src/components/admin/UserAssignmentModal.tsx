@@ -56,15 +56,18 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
         countMap.set(assignment.admin_id, currentCount + 1);
       });
 
-      const adminList = adminProfiles?.map(admin => ({
-        id: admin.user_id,
-        name: admin.first_name && admin.last_name
-          ? `${admin.first_name} ${admin.last_name}`
-          : admin.email.split('@')[0],
-        role: admin.is_super_admin ? 'super_admin' : 'admin',
-        assignedUsers: countMap.get(admin.user_id) || 0,
-        email: admin.email
-      })) || [];
+      // Filter out super admins from assignment list
+      const adminList = adminProfiles
+        ?.filter(admin => !admin.is_super_admin)
+        .map(admin => ({
+          id: admin.user_id,
+          name: admin.first_name && admin.last_name
+            ? `${admin.first_name} ${admin.last_name}`
+            : admin.email.split('@')[0],
+          role: admin.is_super_admin ? 'super_admin' : 'admin',
+          assignedUsers: countMap.get(admin.user_id) || 0,
+          email: admin.email
+        })) || [];
 
       setAdmins(adminList);
     } catch (error) {
@@ -99,34 +102,31 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
   const handleDistributeEvenly = async () => {
     try {
       setIsLoading(true);
-      
-      // Filter out super admins
-      const regularAdmins = admins.filter(admin => admin.role === 'admin');
-      
-      if (regularAdmins.length === 0) {
-        toast.error('No regular admins available for distribution');
+
+      if (admins.length === 0) {
+        toast.error('No admins available for distribution');
         return;
       }
 
       // Calculate users per admin
-      const usersPerAdmin = Math.floor(selectedUsers.length / regularAdmins.length);
-      const remainingUsers = selectedUsers.length % regularAdmins.length;
+      const usersPerAdmin = Math.floor(selectedUsers.length / admins.length);
+      const remainingUsers = selectedUsers.length % admins.length;
 
       let assignedCount = 0;
 
       // Distribute users evenly
-      for (let i = 0; i < regularAdmins.length; i++) {
-        const admin = regularAdmins[i];
+      for (let i = 0; i < admins.length; i++) {
+        const admin = admins[i];
         const userCount = i < remainingUsers ? usersPerAdmin + 1 : usersPerAdmin;
-        
+
         // Get the slice of users for this admin
         const usersToAssign = selectedUsers.slice(assignedCount, assignedCount + userCount);
-        
+
         // Assign users to this admin
         for (const userId of usersToAssign) {
           await onAssign(userId, admin.id);
         }
-        
+
         assignedCount += userCount;
       }
 

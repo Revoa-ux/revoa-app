@@ -195,6 +195,7 @@ export default function AcceptInvitation() {
           .update({
             is_admin: true,
             admin_role: invitation!.role,
+            is_super_admin: invitation!.role === 'super_admin',
           })
           .eq('user_id', signInData.user.id);
 
@@ -250,6 +251,7 @@ export default function AcceptInvitation() {
           display_name: `${formData.firstName} ${formData.lastName}`,
           is_admin: true,
           admin_role: invitation!.role,
+          is_super_admin: invitation!.role === 'super_admin',
         })
         .eq('user_id', authData.user.id);
 
