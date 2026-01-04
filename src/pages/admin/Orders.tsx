@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
 import { toast } from 'sonner';
+import { CustomSelect } from '../../components/CustomSelect';
 import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
@@ -52,6 +53,15 @@ export default function Orders() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [merchantSearchTerm, setMerchantSearchTerm] = useState('');
   const [loadingMerchants, setLoadingMerchants] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [exportStatusFilter, setExportStatusFilter] = useState<string>('all');
+  const [carrierFilter, setCarrierFilter] = useState<string>('all');
+  const [syncStatusFilter, setSyncStatusFilter] = useState<string>('all');
+  const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<string>('all');
+  const [allOrdersExportFilter, setAllOrdersExportFilter] = useState<string>('all');
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [availableCarriers, setAvailableCarriers] = useState<string[]>([]);
 
   const merchantDropdownRef = useRef<HTMLDivElement>(null);
   useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false));
@@ -576,6 +586,86 @@ export default function Orders() {
         </div>
       </div>
 
+      {/* Search and Filters - Above Tabs */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search orders, customers..."
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+          />
+        </div>
+
+        {activeTab === 'unfulfilled' && (
+          <CustomSelect
+            value={exportStatusFilter}
+            onChange={(val) => setExportStatusFilter(val as string)}
+            options={[
+              { value: 'all', label: 'All Export Status' },
+              { value: 'ready', label: 'Ready to Export' },
+              { value: 'exported', label: 'Already Exported' },
+            ]}
+            className="w-44"
+          />
+        )}
+
+        {activeTab === 'tracking' && (
+          <>
+            <CustomSelect
+              value={carrierFilter}
+              onChange={(val) => setCarrierFilter(val as string)}
+              options={[
+                { value: 'all', label: 'All Carriers' },
+                ...availableCarriers.map(c => ({ value: c, label: c }))
+              ]}
+              className="w-40"
+            />
+            <CustomSelect
+              value={syncStatusFilter}
+              onChange={(val) => setSyncStatusFilter(val as string)}
+              options={[
+                { value: 'all', label: 'All Sync Status' },
+                { value: 'synced', label: 'Synced' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'failed', label: 'Failed' },
+              ]}
+              className="w-40"
+            />
+          </>
+        )}
+
+        {activeTab === 'all' && (
+          <>
+            <CustomSelect
+              value={fulfillmentStatusFilter}
+              onChange={(val) => setFulfillmentStatusFilter(val as string)}
+              options={[
+                { value: 'all', label: 'All Fulfillment Status' },
+                { value: 'UNFULFILLED', label: 'Unfulfilled' },
+                { value: 'FULFILLED', label: 'Fulfilled' },
+                { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
+              ]}
+              className="w-52"
+            />
+            <CustomSelect
+              value={allOrdersExportFilter}
+              onChange={(val) => setAllOrdersExportFilter(val as string)}
+              options={[
+                { value: 'all', label: 'All Export Status' },
+                { value: 'exported', label: 'Exported to 3PL' },
+                { value: 'not_exported', label: 'Not Exported' },
+                { value: 'has_tracking', label: 'Has Tracking' },
+                { value: 'no_tracking', label: 'No Tracking' },
+              ]}
+              className="w-44"
+            />
+          </>
+        )}
+      </div>
+
       {/* Tabs and Table */}
       <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700">
@@ -620,7 +710,7 @@ export default function Orders() {
           </nav>
         </div>
 
-        <div className="p-6">
+        <div>
           {activeTab === 'unfulfilled' && (
             <UnfulfilledOrdersTab
               filteredUserId={filteredUserId || undefined}
@@ -628,6 +718,10 @@ export default function Orders() {
               permissions={permissions}
               onExport={() => setShowExportModal(true)}
               refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              exportStatusFilter={exportStatusFilter}
+              selectedOrders={selectedOrders}
+              onSelectedOrdersChange={setSelectedOrders}
             />
           )}
           {activeTab === 'tracking' && (
@@ -636,6 +730,10 @@ export default function Orders() {
               isSuperAdmin={isSuperAdmin}
               permissions={permissions}
               refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              carrierFilter={carrierFilter}
+              syncStatusFilter={syncStatusFilter}
+              onCarriersLoaded={setAvailableCarriers}
             />
           )}
           {activeTab === 'all' && (
@@ -644,6 +742,9 @@ export default function Orders() {
               isSuperAdmin={isSuperAdmin}
               permissions={permissions}
               refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              fulfillmentStatusFilter={fulfillmentStatusFilter}
+              exportStatusFilter={allOrdersExportFilter}
             />
           )}
         </div>

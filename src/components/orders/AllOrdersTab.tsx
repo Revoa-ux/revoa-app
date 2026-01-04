@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ExternalLink, MessageSquare } from 'lucide-react';
+import { ExternalLink, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
 interface AllOrdersTabProps {
@@ -12,6 +11,9 @@ interface AllOrdersTabProps {
   isSuperAdmin: boolean;
   permissions: any;
   refreshKey: number;
+  searchTerm: string;
+  fulfillmentStatusFilter: string;
+  exportStatusFilter: string;
 }
 
 interface Order {
@@ -29,20 +31,22 @@ interface Order {
   exported_to_3pl: boolean;
   tracking_imported: boolean;
   merchant_name?: string;
+  shopify_domain?: string;
 }
 
 export default function AllOrdersTab({
   filteredUserId,
   isSuperAdmin,
   permissions,
-  refreshKey
+  refreshKey,
+  searchTerm,
+  fulfillmentStatusFilter,
+  exportStatusFilter
 }: AllOrdersTabProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<string>('all');
-  const [exportStatusFilter, setExportStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     loadOrders();
@@ -96,12 +100,22 @@ export default function AllOrdersTab({
           ])
         );
 
-        const ordersWithMerchants = data.map(order => ({
+        const { data: installations } = await supabase
+          .from('shopify_installations')
+          .select('user_id, shop_domain')
+          .in('user_id', userIds);
+
+        const domainMap = new Map(
+          installations?.map(i => [i.user_id, i.shop_domain])
+        );
+
+        const ordersWithData = data.map(order => ({
           ...order,
-          merchant_name: profileMap.get(order.user_id) || 'Unknown'
+          merchant_name: profileMap.get(order.user_id) || 'Unknown',
+          shopify_domain: domainMap.get(order.user_id)
         }));
 
-        setOrders(ordersWithMerchants);
+        setOrders(ordersWithData);
       } else {
         setOrders([]);
       }
@@ -129,6 +143,43 @@ export default function AllOrdersTab({
     );
   };
 
+  const handleChatClick = async (order: Order) => {
+    try {
+      const { data: existingThread } = await supabase
+        .from('chat_threads')
+        .select('id, chat_id')
+        .eq('shopify_order_id', order.shopify_order_id)
+        .maybeSingle();
+
+      if (existingThread) {
+        navigate(`/admin/chat?chatId=${existingThread.chat_id}&threadId=${existingThread.id}`);
+      } else {
+        const { data: chat } = await supabase
+          .from('chats')
+          .select('id')
+          .eq('user_id', order.user_id)
+          .maybeSingle();
+
+        if (chat) {
+          navigate(`/admin/chat?chatId=${chat.id}&createThread=order&orderId=${order.shopify_order_id}`);
+        } else {
+          toast.error('No chat found for this merchant');
+        }
+      }
+    } catch (error) {
+      console.error('Error navigating to chat:', error);
+      toast.error('Failed to open chat');
+    }
+  };
+
+  const getShopifyOrderUrl = (order: Order) => {
+    if (order.shopify_domain) {
+      const orderId = order.shopify_order_id?.split('/').pop();
+      return `https://${order.shopify_domain}/admin/orders/${orderId}`;
+    }
+    return null;
+  };
+
   const filteredOrders = orders.filter(order => {
     const searchMatch =
       order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,187 +201,158 @@ export default function AllOrdersTab({
     return true;
   });
 
-  const fulfillmentStatusOptions = [
-    { value: 'all', label: 'All Fulfillment Status' },
-    { value: 'UNFULFILLED', label: 'Unfulfilled' },
-    { value: 'FULFILLED', label: 'Fulfilled' },
-    { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
-  ];
-
-  const exportStatusOptions = [
-    { value: 'all', label: 'All Export Status' },
-    { value: 'exported', label: 'Exported to 3PL' },
-    { value: 'not_exported', label: 'Not Exported' },
-    { value: 'has_tracking', label: 'Has Tracking' },
-    { value: 'no_tracking', label: 'No Tracking' },
-  ];
-
   if (loading) {
     return (
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="px-4 py-4 flex items-center gap-4">
+            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="flex-1">
+              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+            <div className="w-20 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (filteredOrders.length === 0) {
+    return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
-        <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
+        <p className="text-gray-600 dark:text-gray-400">
+          {searchTerm ? 'No orders match your search' : 'No orders found'}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search orders, customers..."
-            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
-          />
-        </div>
-
-        <CustomSelect
-          value={fulfillmentStatusFilter}
-          onChange={(val) => setFulfillmentStatusFilter(val as string)}
-          options={fulfillmentStatusOptions}
-          className="w-52"
-        />
-
-        <CustomSelect
-          value={exportStatusFilter}
-          onChange={(val) => setExportStatusFilter(val as string)}
-          options={exportStatusOptions}
-          className="w-44"
-        />
-      </div>
-
-      {filteredOrders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400">
-            {searchTerm ? 'No orders match your search' : 'No orders found'}
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Order #
-                </th>
-                {!filteredUserId && (
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                    Merchant
-                  </th>
-                )}
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Value
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Payment Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Fulfillment
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  3PL Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-4 py-4">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      #{order.order_number}
-                    </span>
-                  </td>
-                  {!filteredUserId && (
-                    <td className="px-4 py-4">
-                      <span className="text-sm text-gray-900 dark:text-white">
-                        {order.merchant_name}
-                      </span>
-                    </td>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+          <tr>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Order #
+            </th>
+            {!filteredUserId && (
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Merchant
+              </th>
+            )}
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Date
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Customer
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Value
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Payment Status
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Fulfillment
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              3PL Status
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+          {filteredOrders.map((order) => (
+            <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+              <td className="px-4 py-4">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                </span>
+              </td>
+              {!filteredUserId && (
+                <td className="px-4 py-4">
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {order.merchant_name}
+                  </span>
+                </td>
+              )}
+              <td className="px-4 py-4">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {format(new Date(order.created_at), 'MMM d, yyyy')}
+                </span>
+              </td>
+              <td className="px-4 py-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {order.customer_first_name} {order.customer_last_name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {order.customer_email}
+                  </p>
+                </div>
+              </td>
+              <td className="px-4 py-4">
+                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                  ${order.total_price?.toFixed(2) || '0.00'}
+                </span>
+              </td>
+              <td className="px-4 py-4">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  order.financial_status === 'PAID'
+                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                    : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
+                }`}>
+                  {order.financial_status}
+                </span>
+              </td>
+              <td className="px-4 py-4">
+                {getFulfillmentStatusBadge(order.fulfillment_status)}
+              </td>
+              <td className="px-4 py-4">
+                <div className="flex flex-col gap-1">
+                  {order.exported_to_3pl && (
+                    <span className="text-xs text-gray-600 dark:text-gray-400">Exported</span>
                   )}
-                  <td className="px-4 py-4">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {format(new Date(order.created_at), 'MMM d, yyyy')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.customer_first_name} {order.customer_last_name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {order.customer_email}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${order.total_price?.toFixed(2) || '0.00'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      order.financial_status === 'PAID'
-                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                        : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-                    }`}>
-                      {order.financial_status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    {getFulfillmentStatusBadge(order.fulfillment_status)}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex flex-col gap-1">
-                      {order.exported_to_3pl && (
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Exported</span>
-                      )}
-                      {order.tracking_imported && (
-                        <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
-                      )}
-                      {!order.exported_to_3pl && !order.tracking_imported && (
-                        <span className="text-xs text-gray-400">-</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        to={`/admin/chat?orderId=${order.shopify_order_id}`}
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        title="View in Chat"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                      </Link>
-                      <a
-                        href={`https://${order.shopify_order_id?.split('/')[0]}/admin/orders/${order.shopify_order_id?.split('/').pop()}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                        title="View in Shopify"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  {order.tracking_imported && (
+                    <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
+                  )}
+                  {!order.exported_to_3pl && !order.tracking_imported && (
+                    <span className="text-xs text-gray-400">-</span>
+                  )}
+                </div>
+              </td>
+              <td className="px-4 py-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleChatClick(order)}
+                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    title="View in Chat"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                  </button>
+                  {getShopifyOrderUrl(order) && (
+                    <a
+                      href={getShopifyOrderUrl(order)!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                      title="View in Shopify"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
