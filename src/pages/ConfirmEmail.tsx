@@ -99,7 +99,6 @@ const ConfirmEmail = () => {
   const handleContinue = async () => {
     // If user is not authenticated, redirect to sign in
     if (!isAuthenticated || !user) {
-      toast.success('Email confirmed! Please sign in to continue.');
       navigate('/auth', { replace: true });
       return;
     }
