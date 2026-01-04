@@ -465,8 +465,8 @@ export default function Inventory() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white whitespace-nowrap">Product Inventory</h2>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="sm:w-[280px]">
+          <div className="flex flex-row items-center gap-3">
+            <div className="flex-1 sm:flex-initial sm:w-[280px]">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
