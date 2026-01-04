@@ -131,13 +131,13 @@ export const PixelInstallation: React.FC<PixelInstallationProps> = ({ userId }) 
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Your Store ID: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono">{userId}</code>
+          Your Store ID: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded font-mono text-xs sm:text-sm break-all">{userId}</code>
         </div>
         <button
           onClick={handleCopy}
-          className="px-3 py-1.5 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all flex items-center gap-1.5"
+          className="px-3 py-1.5 text-sm text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-all flex items-center justify-center gap-1.5 whitespace-nowrap w-full sm:w-auto"
         >
           <Copy className="w-3.5 h-3.5" />
           <span>Copy Install Code</span>

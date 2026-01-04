@@ -235,16 +235,16 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       </button>
 
       {showDropdown && !showCustomPicker && (
-        <div className="absolute right-0 sm:left-0 mt-2 w-full sm:w-[200px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
+        <div className="absolute right-0 sm:left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
           {timeOptions.map((time, index) => (
             <button
               key={time}
               onClick={() => handleTimeSelect(time)}
-              className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
+              className={`flex items-center justify-between w-full px-4 py-2 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors whitespace-nowrap ${
                 index === 0 ? 'first:rounded-t-lg' : ''
               } ${index === timeOptions.length - 1 ? 'last:rounded-b-lg' : ''}`}
             >
-              <span>{time === 'custom' ? 'Custom Date' : getTimeLabel(time)}</span>
+              <span className="mr-3">{time === 'custom' ? 'Custom Date' : getTimeLabel(time)}</span>
               {selectedTime === time && <Check className="w-4 h-4 text-primary-500" />}
             </button>
           ))}
