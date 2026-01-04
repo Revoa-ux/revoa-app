@@ -359,17 +359,19 @@ export default function Orders() {
   };
 
   const clearMerchantFilter = () => {
-    searchParams.delete('userId');
-    setSearchParams(searchParams);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('userId');
+    setSearchParams(newParams);
   };
 
   const handleSelectMerchant = (merchantId: string | null) => {
+    const newParams = new URLSearchParams(searchParams);
     if (merchantId) {
-      searchParams.set('userId', merchantId);
+      newParams.set('userId', merchantId);
     } else {
-      searchParams.delete('userId');
+      newParams.delete('userId');
     }
-    setSearchParams(searchParams);
+    setSearchParams(newParams);
     setShowMerchantDropdown(false);
   };
 
