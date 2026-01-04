@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  Sparkles
+  Settings
 } from 'lucide-react';
 
 interface OnboardingLayoutProps {
@@ -35,7 +35,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
     { id: 'store', label: 'Store', icon: <Store className="w-4 h-4" /> },
     { id: 'ads', label: 'Ads', icon: <BarChart3 className="w-4 h-4" /> },
     { id: 'products', label: 'Products', icon: <Package className="w-4 h-4" /> },
-    { id: 'complete', label: 'Complete', icon: <Sparkles className="w-4 h-4" /> }
+    { id: 'complete', label: 'Setup', icon: <Settings className="w-4 h-4" /> }
   ];
 
   // Determine if the current step should show "Skip" instead of "Next"
