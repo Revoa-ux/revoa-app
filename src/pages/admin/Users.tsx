@@ -420,6 +420,7 @@ export default function Users() {
               isActive={selectedFilter !== 'all'}
               activeCount={selectedFilter !== 'all' ? 1 : 0}
               hideLabel="md"
+              isOpen={showFilterDropdown}
             />
 
             {showFilterDropdown && (
@@ -458,6 +459,7 @@ export default function Users() {
                 isActive={selectedAdminFilter !== 'all'}
                 activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showAdminFilterDropdown}
               />
 
               {showAdminFilterDropdown && (
@@ -508,6 +510,7 @@ export default function Users() {
               selectedLabel={sortOptions.find(opt => opt.value === sortBy.field)?.label || 'Sort'}
               onClick={() => setShowSortDropdown(!showSortDropdown)}
               hideLabel="md"
+              isOpen={showSortDropdown}
             />
 
             {showSortDropdown && (

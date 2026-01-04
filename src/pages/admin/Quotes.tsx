@@ -455,6 +455,7 @@ export default function AdminQuotes() {
               isActive={statusFilter !== 'all'}
               activeCount={statusFilter !== 'all' ? 1 : 0}
               hideLabel="md"
+              isOpen={showStatusDropdown}
             />
 
             {showStatusDropdown && (
@@ -490,6 +491,7 @@ export default function AdminQuotes() {
                 isActive={selectedAdminFilter !== 'all'}
                 activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showAdminFilterDropdown}
               />
 
               {showAdminFilterDropdown && (

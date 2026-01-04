@@ -613,6 +613,7 @@ export default function Invoices() {
               isActive={filters.status !== 'all'}
               activeCount={filters.status !== 'all' ? 1 : 0}
               hideLabel="md"
+              isOpen={showStatusDropdown}
             />
 
             {showStatusDropdown && (
@@ -644,6 +645,7 @@ export default function Invoices() {
                 isActive={selectedAdminFilter !== 'all'}
                 activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showAdminFilterDropdown}
               />
 
               {showAdminFilterDropdown && (

@@ -496,6 +496,7 @@ export default function Inventory() {
                 isActive={filterOption !== 'all'}
                 activeCount={filterOption !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showFilterDropdown}
               />
 
               {showFilterDropdown && (

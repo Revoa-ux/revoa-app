@@ -341,6 +341,7 @@ export default function Balance() {
                 isActive={statusFilter !== 'all'}
                 activeCount={statusFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showStatusDropdown}
               />
 
               {showStatusDropdown && (
@@ -469,6 +470,7 @@ export default function Balance() {
                 isActive={transactionTypeFilter !== 'all'}
                 activeCount={transactionTypeFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showTypeDropdown}
               />
 
               {showTypeDropdown && (

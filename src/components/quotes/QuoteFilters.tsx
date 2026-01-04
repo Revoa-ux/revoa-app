@@ -48,6 +48,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
           isActive={isFiltered}
           activeCount={isFiltered ? 1 : 0}
           hideLabel="md"
+          isOpen={showStatusDropdown}
         />
 
         {showStatusDropdown && (

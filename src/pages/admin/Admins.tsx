@@ -464,6 +464,7 @@ export default function AdminsManagement() {
               isActive={filterType !== 'all'}
               activeCount={filterType !== 'all' ? 1 : 0}
               hideLabel="md"
+              isOpen={showFilterDropdown}
             />
 
             {showFilterDropdown && (
@@ -495,6 +496,7 @@ export default function AdminsManagement() {
               selectedLabel={sortOptions.find(o => o.value === sortBy.field)?.label || 'Sort'}
               onClick={() => setShowSortDropdown(!showSortDropdown)}
               hideLabel="md"
+              isOpen={showSortDropdown}
             />
 
             {showSortDropdown && (

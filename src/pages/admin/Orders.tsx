@@ -432,6 +432,7 @@ export default function Orders() {
                 isActive={!!filteredUserId}
                 activeCount={filteredUserId ? 1 : 0}
                 fullWidth
+                isOpen={showMerchantDropdown}
               />
 
               {showMerchantDropdown && (
@@ -516,6 +517,7 @@ export default function Orders() {
                 isActive={!!filteredUserId}
                 activeCount={filteredUserId ? 1 : 0}
                 hideLabel="md"
+                isOpen={showMerchantDropdown}
               />
 
               {showMerchantDropdown && (
@@ -795,6 +797,7 @@ export default function Orders() {
               isActive={exportStatusFilter !== 'all'}
               activeCount={exportStatusFilter !== 'all' ? 1 : 0}
               hideLabel="md"
+              isOpen={showExportStatusDropdown}
             />
             {showExportStatusDropdown && (
               <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -833,6 +836,7 @@ export default function Orders() {
                 isActive={carrierFilter !== 'all'}
                 activeCount={carrierFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showCarrierDropdown}
               />
               {showCarrierDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
@@ -875,6 +879,7 @@ export default function Orders() {
                 isActive={syncStatusFilter !== 'all'}
                 activeCount={syncStatusFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showSyncStatusDropdown}
               />
               {showSyncStatusDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -919,6 +924,7 @@ export default function Orders() {
                 isActive={fulfillmentStatusFilter !== 'all'}
                 activeCount={fulfillmentStatusFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showFulfillmentStatusDropdown}
               />
               {showFulfillmentStatusDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-52 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -959,6 +965,7 @@ export default function Orders() {
                 isActive={allOrdersExportFilter !== 'all'}
                 activeCount={allOrdersExportFilter !== 'all' ? 1 : 0}
                 hideLabel="md"
+                isOpen={showAllOrdersExportDropdown}
               />
               {showAllOrdersExportDropdown && (
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
