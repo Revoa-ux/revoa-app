@@ -345,10 +345,10 @@ export const QuoteTable: React.FC<QuoteTableProps> = ({
 
                     {/* Pending Quote Message */}
                     {quote.status === 'quote_pending' && (!quote.variants || quote.variants.length === 0) && (
-                      <tr className="bg-blue-50/50 dark:bg-blue-900/10 border-t border-blue-200 dark:border-blue-800">
+                      <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
                         <td colSpan={4} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center gap-3">
-                            <ShoppingBag className="w-8 h-8 text-blue-500 dark:text-blue-400" />
+                            <ShoppingBag className="w-8 h-8 text-gray-500 dark:text-gray-400" />
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">Quote Pending</p>
                               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
