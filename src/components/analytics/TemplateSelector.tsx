@@ -85,7 +85,7 @@ export default function TemplateSelector({
         <span className="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">
           {currentTemplateData?.name || 'Select Template'}
         </span>
-        <ChevronDown className="w-4 h-4 text-gray-400" />
+        <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

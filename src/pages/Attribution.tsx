@@ -5,7 +5,6 @@ import {
   Copy,
   Check,
   ChevronDown,
-  ChevronUp,
   Facebook,
   Link2,
   ShoppingBag,
@@ -519,11 +518,7 @@ export default function Attribution() {
               </p>
             </div>
           </div>
-          {expandedSection === 'capi' ? (
-            <ChevronUp className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          )}
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'capi' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'capi' && (
           <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
@@ -550,11 +545,7 @@ export default function Attribution() {
               </p>
             </div>
           </div>
-          {expandedSection === 'pixel' ? (
-            <ChevronUp className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          )}
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'pixel' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'pixel' && (
           <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
@@ -581,11 +572,7 @@ export default function Attribution() {
               </p>
             </div>
           </div>
-          {expandedSection === 'utm' ? (
-            <ChevronUp className="w-5 h-5 text-gray-400" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-400" />
-          )}
+          <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${expandedSection === 'utm' ? 'rotate-180' : ''}`} />
         </button>
         {expandedSection === 'utm' && (
           <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">

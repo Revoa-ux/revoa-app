@@ -235,7 +235,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 <span className={formData.store_type ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                   {getStoreTypeLabel()}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showStoreTypeDropdown ? 'rotate-180' : ''}`} />
               </button>
 
               {showStoreTypeDropdown && (

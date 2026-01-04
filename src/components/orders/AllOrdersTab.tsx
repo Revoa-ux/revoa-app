@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, ExternalLink, MessageSquare } from 'lucide-react';
+import { ChevronRight, ExternalLink, MessageSquare } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -287,11 +287,7 @@ export default function AllOrdersTab({
                   }}
                   className="p-2 -m-1 text-gray-400 rounded-md"
                 >
-                  {expandedOrders.has(order.id) ? (
-                    <ChevronDown className="w-5 h-5" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5" />
-                  )}
+                  <ChevronRight className={`w-5 h-5 transition-transform ${expandedOrders.has(order.id) ? 'rotate-90' : ''}`} />
                 </button>
                 <span className="text-sm font-semibold text-gray-900 dark:text-white">
                   {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
@@ -439,11 +435,7 @@ export default function AllOrdersTab({
                         }}
                         className="p-1.5 -m-1 text-gray-400 rounded"
                       >
-                        {expandedOrders.has(order.id) ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
+                        <ChevronRight className={`w-4 h-4 transition-transform ${expandedOrders.has(order.id) ? 'rotate-90' : ''}`} />
                       </button>
                       <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}

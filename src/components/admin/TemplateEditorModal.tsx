@@ -379,11 +379,7 @@ export function TemplateEditorModal({
                                 }
                                 className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                               >
-                                {expandedTemplate === template.id ? (
-                                  <ChevronUp className="w-4 h-4" />
-                                ) : (
-                                  <ChevronDown className="w-4 h-4" />
-                                )}
+                                <ChevronDown className={`w-4 h-4 transition-transform ${expandedTemplate === template.id ? 'rotate-180' : ''}`} />
                               </button>
                             </div>
                           </div>

@@ -158,11 +158,7 @@ export const ProductVariantsEditor: React.FC<ProductVariantsEditorProps> = ({
                     className="flex items-center space-x-2 flex-1 text-left"
                     disabled={disabled}
                   >
-                    {isCollapsed ? (
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    )}
+                    <ChevronRight className={`w-4 h-4 text-gray-400 transition-transform ${isCollapsed ? '' : 'rotate-90'}`} />
                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {group.type}
                     </span>

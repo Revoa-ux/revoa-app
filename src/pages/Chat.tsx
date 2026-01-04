@@ -617,7 +617,7 @@ const Chat = () => {
                       <span className="text-sm font-medium">main-chat</span>
                     </>
                   )}
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showThreadDropdown ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Thread Dropdown Menu */}

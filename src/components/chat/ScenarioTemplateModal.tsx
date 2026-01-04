@@ -649,11 +649,7 @@ export function ScenarioTemplateModal({
                             {stageTemplates.length}
                           </span>
                         </div>
-                        {isExpanded ? (
-                          <ChevronUp className={`w-4 h-4 ${colors.icon} transition-colors`} />
-                        ) : (
-                          <ChevronDown className={`w-4 h-4 ${colors.icon} transition-colors`} />
-                        )}
+                        <ChevronDown className={`w-4 h-4 ${colors.icon} transition-all ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
 
                       {/* Accordion Content */}

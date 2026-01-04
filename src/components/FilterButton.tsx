@@ -12,6 +12,7 @@ interface FilterButtonProps {
   hideLabel?: 'never' | 'md' | 'sm';
   fullWidth?: boolean;
   showChevron?: boolean;
+  isOpen?: boolean;
 }
 
 export const FilterButton: React.FC<FilterButtonProps> = ({
@@ -25,6 +26,7 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
   hideLabel = 'md',
   fullWidth = false,
   showChevron = true,
+  isOpen = false,
 }) => {
   const showBadge = activeCount !== undefined && activeCount > 0;
 
@@ -72,7 +74,7 @@ export const FilterButton: React.FC<FilterButtonProps> = ({
       </div>
 
       {showChevron && (
-        <ChevronDown className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-rose-500 dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'} ${hideLabel === 'never' ? 'inline' : 'hidden lg:inline'}`} />
+        <ChevronDown className={`w-4 h-4 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''} ${isActive ? 'text-rose-500 dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'} ${hideLabel === 'never' ? 'inline' : 'hidden lg:inline'}`} />
       )}
     </button>
   );

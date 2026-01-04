@@ -1238,15 +1238,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               {action.description}
                             </div>
                           </div>
-                          {isExpanded ? (
-                            <ChevronUp className={`w-5 h-5 ${
-                              isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                            }`} />
-                          ) : (
-                            <ChevronDown className={`w-5 h-5 ${
-                              isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                            }`} />
-                          )}
+                          <ChevronDown className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''} ${
+                            isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
+                          }`} />
                         </div>
 
                         {/* Impact metrics */}

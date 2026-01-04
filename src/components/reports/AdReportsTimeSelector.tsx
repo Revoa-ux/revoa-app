@@ -231,7 +231,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
           <span className="hidden sm:inline truncate">{getTimeLabel(selectedTime)}</span>
           <span className="sm:hidden truncate">{getMobileTimeLabel(selectedTime)}</span>
         </div>
-        <ChevronDown className="w-4 h-4 text-gray-400 ml-2 flex-shrink-0" />
+        <ChevronDown className={`w-4 h-4 text-gray-400 ml-2 flex-shrink-0 transition-transform ${showDropdown ? 'rotate-180' : ''}`} />
       </button>
 
       {showDropdown && !showCustomPicker && (

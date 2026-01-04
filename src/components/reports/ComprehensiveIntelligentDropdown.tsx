@@ -476,7 +476,7 @@ export const ComprehensiveIntelligentDropdown: React.FC<ComprehensiveIntelligent
                 onClick={() => setShowMethodology(!showMethodology)}
                 className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               >
-                {showMethodology ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                <ChevronDown className={`w-3 h-3 transition-transform ${showMethodology ? 'rotate-180' : ''}`} />
                 <span>Methodology</span>
               </button>
               {showMethodology && (
