@@ -172,10 +172,14 @@ export default function AdminsManagement() {
 
       if (invitationsError) throw invitationsError;
 
+      // Create a set of active admin emails to filter out
+      const activeAdminEmails = new Set(admins?.map(a => a.email) || []);
+
       // Deduplicate invitations - keep only the most recent one per email
+      // and exclude invitations for users who are already active admins
       const invitationsMap = new Map<string, typeof allInvitations[0]>();
       allInvitations?.forEach(inv => {
-        if (!invitationsMap.has(inv.email)) {
+        if (!invitationsMap.has(inv.email) && !activeAdminEmails.has(inv.email)) {
           invitationsMap.set(inv.email, inv);
         }
       });
