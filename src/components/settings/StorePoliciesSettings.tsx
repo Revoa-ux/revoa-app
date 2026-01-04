@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { DollarSign, Percent, Package, MapPin, Phone, Save, Loader2, AlertCircle } from 'lucide-react';
+import { DollarSign, Percent, Package, MapPin, Phone, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -93,7 +93,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+        <Loader2 className="w-6 h-6 animate-spin text-rose-600" />
       </div>
     );
   }
@@ -126,9 +126,9 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               <button
                 onClick={() => setConfig({ ...config, restocking_fee_type: 'none' })}
                 className={`
-                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all
+                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'none'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
@@ -140,9 +140,9 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               <button
                 onClick={() => setConfig({ ...config, restocking_fee_type: 'percentage' })}
                 className={`
-                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all
+                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'percentage'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
@@ -154,9 +154,9 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               <button
                 onClick={() => setConfig({ ...config, restocking_fee_type: 'fixed' })}
                 className={`
-                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all
+                  flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-all
                   ${config.restocking_fee_type === 'fixed'
-                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                   }
                 `}
@@ -182,7 +182,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.1"
                   value={config.restocking_fee_percent}
                   onChange={(e) => setConfig({ ...config, restocking_fee_percent: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="15"
                 />
               </div>
@@ -205,7 +205,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                   step="0.01"
                   value={config.restocking_fee_fixed}
                   onChange={(e) => setConfig({ ...config, restocking_fee_fixed: parseFloat(e.target.value) || 0 })}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                   placeholder="25.00"
                 />
               </div>
@@ -216,13 +216,13 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
           )}
 
           {/* Preview */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Email Preview</p>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                  In your emails, <code className="bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">{'{{restocking_fee}}'}</code> will display as: <span className="font-semibold">{getRestockingFeePreview()}</span>
+                <p className="text-sm font-medium text-rose-900 dark:text-rose-100">Email Preview</p>
+                <p className="text-sm text-rose-700 dark:text-rose-300 mt-1">
+                  In your emails, <code className="bg-rose-100 dark:bg-rose-900/40 px-1.5 py-0.5 rounded">{'{{restocking_fee}}'}</code> will display as: <span className="font-semibold">{getRestockingFeePreview()}</span>
                 </p>
               </div>
             </div>
@@ -240,7 +240,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               value={config.return_warehouse_address}
               onChange={(e) => setConfig({ ...config, return_warehouse_address: e.target.value })}
               rows={3}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
               placeholder="5130 E. Santa Ana Street, Ontario, CA 91761"
             />
           </div>
@@ -259,7 +259,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               type="text"
               value={config.carrier_name}
               onChange={(e) => setConfig({ ...config, carrier_name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
               placeholder="YunExpress, USPS, etc."
             />
           </div>
@@ -274,7 +274,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
                 type="tel"
                 value={config.carrier_phone_number}
                 onChange={(e) => setConfig({ ...config, carrier_phone_number: e.target.value })}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500"
                 placeholder="1-800-123-4567"
               />
             </div>
@@ -286,7 +286,7 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
           <button
             onClick={saveConfig}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="group flex items-center gap-2 px-6 py-2.5 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {saving ? (
               <>
@@ -295,8 +295,8 @@ export function StorePoliciesSettings({ userId }: { userId: string }) {
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
                 Save Policies
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </>
             )}
           </button>

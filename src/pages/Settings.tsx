@@ -75,7 +75,7 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'policies'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
     last_name: '',
@@ -1881,7 +1881,6 @@ const SettingsPage = () => {
               {[
                 { id: 'profile', label: 'Profile', icon: User },
                 { id: 'security', label: 'Security', icon: Lock },
-                { id: 'policies', label: 'Store Policies', icon: FileText },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -2197,12 +2196,11 @@ const SettingsPage = () => {
                 </div>
               </form>
             )}
-
-            {activeTab === 'policies' && user?.id && (
-              <StorePoliciesSettings userId={user.id} />
-            )}
           </div>
         </div>
+
+        {/* Store Policies Section */}
+        {user?.id && <StorePoliciesSettings userId={user.id} />}
 
         {/* Preferences Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
