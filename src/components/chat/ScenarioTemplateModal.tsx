@@ -884,10 +884,10 @@ export function ScenarioTemplateModal({
                   setUnresolvedVariables([]);
                   setIsEditMode(false);
                 }}
-                className="px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
+                className="group px-5 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-2"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>&larr; Back</span>
+                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Back</span>
               </button>
 
               <div className="flex items-center gap-3">
