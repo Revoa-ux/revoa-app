@@ -209,6 +209,12 @@ export default function AdminsManagement() {
   };
 
   const handleCancelInvite = async (rowId: string, email: string) => {
+    // Protect tyler@revoa.app from being cancelled by anyone except himself
+    if (email === PROTECTED_ADMIN_EMAIL && currentUserEmail !== PROTECTED_ADMIN_EMAIL) {
+      toast.error('This invitation cannot be cancelled');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('admin_invitations')
@@ -301,6 +307,13 @@ export default function AdminsManagement() {
     if (!deleteConfirmation) return;
 
     if (deleteConfirmation.type === 'invitation') {
+      // Protect tyler@revoa.app from being deleted by anyone except himself
+      if (deleteConfirmation.email === PROTECTED_ADMIN_EMAIL && currentUserEmail !== PROTECTED_ADMIN_EMAIL) {
+        toast.error('This invitation cannot be deleted');
+        setDeleteConfirmation(null);
+        return;
+      }
+
       try {
         const { error } = await supabase
           .from('admin_invitations')
@@ -670,16 +683,18 @@ export default function AdminsManagement() {
                                   <RotateCw className="w-4 h-4" />
                                   <span>Resend Invite</span>
                                 </button>
-                                <button
-                                  onClick={() => handleCancelInvite(row.id, row.email)}
-                                  className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
-                                >
-                                  <XCircle className="w-4 h-4" />
-                                  <span>Cancel Invite</span>
-                                </button>
+                                {(row.email !== PROTECTED_ADMIN_EMAIL || currentUserEmail === PROTECTED_ADMIN_EMAIL) && (
+                                  <button
+                                    onClick={() => handleCancelInvite(row.id, row.email)}
+                                    className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                    <span>Cancel Invite</span>
+                                  </button>
+                                )}
                               </>
                             )}
-                            {row.type === 'invitation' && row.status === 'revoked' && (
+                            {row.type === 'invitation' && row.status === 'revoked' && (row.email !== PROTECTED_ADMIN_EMAIL || currentUserEmail === PROTECTED_ADMIN_EMAIL) && (
                               <button
                                 onClick={() => {
                                   setDeleteConfirmation({ id: row.id, email: row.email, type: 'invitation' });
