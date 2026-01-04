@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Download, AlertTriangle, ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -44,7 +44,7 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
   const [orders, setOrders] = useState<OrderForExport[]>([]);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [warnings, setWarnings] = useState<string[]>([]);
-  const [hasAppliedPreSelection, setHasAppliedPreSelection] = useState(false);
+  const hasAppliedPreSelectionRef = useRef(false);
 
   useEffect(() => {
     loadOrders();
@@ -130,15 +130,17 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
 
         setOrders(ordersWithData);
 
-        if (preSelectedOrderIds && preSelectedOrderIds.size > 0 && !hasAppliedPreSelection) {
-          const validPreSelected = new Set(
-            ordersWithData.filter(o => preSelectedOrderIds.has(o.id)).map(o => o.id)
-          );
-          setSelectedOrders(validPreSelected.size > 0 ? validPreSelected : new Set(ordersWithData.map(o => o.id)));
-          setHasAppliedPreSelection(true);
-        } else if (!hasAppliedPreSelection) {
-          setSelectedOrders(new Set(ordersWithData.map(o => o.id)));
-          setHasAppliedPreSelection(true);
+        if (!hasAppliedPreSelectionRef.current) {
+          hasAppliedPreSelectionRef.current = true;
+
+          if (preSelectedOrderIds && preSelectedOrderIds.size > 0) {
+            const validPreSelected = new Set(
+              ordersWithData.filter(o => preSelectedOrderIds.has(o.id)).map(o => o.id)
+            );
+            setSelectedOrders(validPreSelected.size > 0 ? validPreSelected : new Set(ordersWithData.map(o => o.id)));
+          } else {
+            setSelectedOrders(new Set(ordersWithData.map(o => o.id)));
+          }
         }
 
         validateOrders(ordersWithData);

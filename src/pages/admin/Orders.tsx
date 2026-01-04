@@ -567,9 +567,9 @@ export default function Orders() {
             <div className="relative group">
               <button
                 onClick={() => setShowExportModal(true)}
-                disabled={!isSuperAdmin && !filteredUserId}
+                disabled={!filteredUserId}
                 className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-                  !isSuperAdmin && !filteredUserId
+                  !filteredUserId
                     ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                     : selectedOrders.size > 0
                     ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
@@ -579,7 +579,7 @@ export default function Orders() {
                 <Download className="w-4 h-4" />
                 <span>{selectedOrders.size > 0 ? `Export ${selectedOrders.size} Orders` : 'Export to Mabang'}</span>
               </button>
-              {!isSuperAdmin && !filteredUserId && (
+              {!filteredUserId && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   Select a merchant first
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
@@ -592,9 +592,9 @@ export default function Orders() {
             <div className="relative group">
               <button
                 onClick={() => setShowImportModal(true)}
-                disabled={!isSuperAdmin && !filteredUserId}
+                disabled={!filteredUserId}
                 className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-                  !isSuperAdmin && !filteredUserId
+                  !filteredUserId
                     ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
                     : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }`}
@@ -602,7 +602,7 @@ export default function Orders() {
                 <Upload className="w-4 h-4" />
                 <span>Import Tracking</span>
               </button>
-              {!isSuperAdmin && !filteredUserId && (
+              {!filteredUserId && (
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                   Select a merchant first
                   <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
@@ -628,9 +628,9 @@ export default function Orders() {
           {permissions?.can_export_orders && (
             <button
               onClick={() => setShowExportModal(true)}
-              disabled={!isSuperAdmin && !filteredUserId}
+              disabled={!filteredUserId}
               className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                !isSuperAdmin && !filteredUserId
+                !filteredUserId
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                   : selectedOrders.size > 0
                   ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
@@ -645,9 +645,9 @@ export default function Orders() {
           {permissions?.can_import_tracking && (
             <button
               onClick={() => setShowImportModal(true)}
-              disabled={!isSuperAdmin && !filteredUserId}
+              disabled={!filteredUserId}
               className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                !isSuperAdmin && !filteredUserId
+                !filteredUserId
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
                   : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
               }`}
