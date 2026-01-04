@@ -20,7 +20,8 @@ import {
   Lock,
   Save,
   ArrowRight,
-  FileText
+  FileText,
+  Bug
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -1623,6 +1624,54 @@ const SettingsPage = () => {
     }
   };
 
+  const handleTestShopifyOrder = async () => {
+    if (!user?.id || !shopify.installation) return;
+
+    try {
+      setShopifySyncing(true);
+      toast.info('Testing order #1024 from Shopify...');
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Not authenticated');
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/test-shopify-raw-order`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to test order');
+      }
+
+      const extracted = result.extracted_data;
+      if (extracted.has_customer) {
+        toast.success(`Customer found: ${extracted.customer?.first_name} ${extracted.customer?.last_name} (${extracted.customer?.email})`);
+      } else if (extracted.email) {
+        toast.warning(`No customer object, but email found: ${extracted.email}`);
+      } else if (extracted.contact_email) {
+        toast.warning(`No customer object, but contact_email found: ${extracted.contact_email}`);
+      } else {
+        toast.error(`No customer data at all. Source: ${extracted.source_name || 'unknown'}`);
+      }
+      console.log('Full Shopify data:', result);
+    } catch (error: any) {
+      console.error('Error testing order:', error);
+      toast.error(error.message || 'Failed to test order');
+    } finally {
+      setShopifySyncing(false);
+    }
+  };
+
   const handleSyncShopifyOrders = async () => {
     if (!user?.id || !shopify.installation) return;
 
@@ -2439,6 +2488,14 @@ const SettingsPage = () => {
                           title="Fix Missing Customer Data"
                         >
                           <UserPlus className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={handleTestShopifyOrder}
+                          disabled={shopifySyncing}
+                          className="p-2 text-gray-700 dark:text-gray-300 bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Test Order #1024"
+                        >
+                          <Bug className="w-4 h-4" />
                         </button>
                       </>
                     )}
