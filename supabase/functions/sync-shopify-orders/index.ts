@@ -22,6 +22,7 @@ interface ShopifyOrder {
   total_discounts?: string;
   currency: string;
   email?: string;
+  contact_email?: string;
   phone?: string;
   note?: string;
   tags?: string;
@@ -139,6 +140,9 @@ async function fetchShopifyOrders(
     url += `&created_at_min=${createdAtMin}`;
   }
 
+  // Explicitly request customer and address fields for better data completeness
+  url += '&fields=id,name,order_number,created_at,processed_at,cancelled_at,cancel_reason,financial_status,fulfillment_status,total_price,subtotal_price,total_tax,total_discounts,currency,email,phone,note,tags,landing_site,referring_site,order_status_url,discount_codes,total_shipping_price_set,shipping_lines,line_items,shipping_address,billing_address,customer,contact_email';
+
   const response = await fetch(url, {
     headers: {
       'X-Shopify-Access-Token': accessToken,
@@ -153,18 +157,16 @@ async function fetchShopifyOrders(
   const linkHeader = response.headers.get('Link');
   const nextPageInfo = parseNextPageInfo(linkHeader);
 
-  const { orders } = await response.json() as { orders: ShopifyOrder[] };
-
-  return { orders, nextPageInfo };
+  const data = await response.json();
+  return { orders: data.orders || [], nextPageInfo };
 }
 
-async function fetchOrderFulfillments(
+async function fetchFulfillments(
   storeUrl: string,
   accessToken: string,
   orderId: number
 ): Promise<ShopifyFulfillment[]> {
   const url = `https://${storeUrl}/admin/api/2024-01/orders/${orderId}/fulfillments.json`;
-
   const response = await fetch(url, {
     headers: {
       'X-Shopify-Access-Token': accessToken,
@@ -173,14 +175,12 @@ async function fetchOrderFulfillments(
   });
 
   if (!response.ok) {
-    if (response.status === 404) {
-      return [];
-    }
-    throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
+    console.error(`Failed to fetch fulfillments for order ${orderId}:`, response.status);
+    return [];
   }
 
-  const { fulfillments } = await response.json() as { fulfillments: ShopifyFulfillment[] };
-  return fulfillments || [];
+  const data = await response.json();
+  return data.fulfillments || [];
 }
 
 Deno.serve(async (req: Request) => {
@@ -188,13 +188,30 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  const startTime = Date.now();
-
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
+
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { userId } = await req.json();
 
@@ -205,108 +222,86 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('[Sync] Starting order sync for user:', userId);
-
     const { data: installation, error: installError } = await supabase
       .from('shopify_installations')
-      .select('id, store_url, access_token, last_synced_at, orders_synced_count')
+      .select('store_url, access_token, last_synced_at')
       .eq('user_id', userId)
       .eq('status', 'installed')
-      .is('uninstalled_at', null)
       .maybeSingle();
 
     if (installError || !installation) {
-      console.error('[Sync] Installation not found:', installError);
       return new Response(
-        JSON.stringify({ error: 'Shopify installation not found or inactive' }),
+        JSON.stringify({ error: 'Shopify installation not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!installation.access_token) {
-      return new Response(
-        JSON.stringify({ error: 'Access token not found for installation' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const isInitialSync = !installation.last_synced_at;
+    const createdAtMin = installation.last_synced_at
+      ? new Date(new Date(installation.last_synced_at).getTime() - 5 * 60 * 1000).toISOString()
+      : undefined;
 
-    const isInitialSync = !installation.last_synced_at || (installation.orders_synced_count === 0);
-    let createdAtMin: string;
-    if (installation.last_synced_at && !isInitialSync) {
-      createdAtMin = installation.last_synced_at;
-      console.log('[Sync] Incremental sync from:', createdAtMin);
-    } else {
-      const threeYearsAgo = new Date();
-      threeYearsAgo.setFullYear(threeYearsAgo.getFullYear() - 3);
-      createdAtMin = threeYearsAgo.toISOString();
-      console.log('[Sync] Initial sync from:', createdAtMin);
-    }
-
-    const MAX_PAGES = 40;
-    const MAX_DURATION_MS = 110000;
+    console.log('[Sync] Starting order sync:', {
+      userId,
+      storeUrl: installation.store_url,
+      isInitialSync,
+      createdAtMin
+    });
 
     let allOrders: ShopifyOrder[] = [];
+    let currentPageInfo: string | null = null;
     let pageCount = 0;
-    let nextPageInfo: string | null = null;
-    let hasMore = true;
 
-    while (hasMore && pageCount < MAX_PAGES) {
-      if (Date.now() - startTime > MAX_DURATION_MS) {
-        console.warn('[Sync] Approaching timeout, stopping pagination');
-        break;
-      }
-
+    do {
       pageCount++;
-      console.log(`[Sync] Fetching page ${pageCount}...`);
+      console.log(`[Sync] Fetching page ${pageCount}${currentPageInfo ? ` with pageInfo` : ''}`);
 
-      const { orders, nextPageInfo: next } = await fetchShopifyOrders(
+      const { orders, nextPageInfo } = await fetchShopifyOrders(
         installation.store_url,
         installation.access_token,
-        pageCount === 1 ? createdAtMin : undefined,
-        nextPageInfo,
+        createdAtMin,
+        currentPageInfo || undefined,
         250,
         isInitialSync
       );
 
-      console.log(`[Sync] Page ${pageCount}: ${orders.length} orders`);
-      allOrders.push(...orders);
+      allOrders = allOrders.concat(orders);
+      currentPageInfo = nextPageInfo;
 
-      nextPageInfo = next;
-      hasMore = nextPageInfo !== null;
+      console.log(`[Sync] Page ${pageCount}: fetched ${orders.length} orders (total: ${allOrders.length})`);
 
-      if (orders.length === 0) {
-        hasMore = false;
+      if (pageCount >= 10) {
+        console.log('[Sync] Reached max page limit (10 pages)');
+        break;
       }
+    } while (currentPageInfo);
+
+    console.log(`[Sync] Total orders fetched: ${allOrders.length} across ${pageCount} pages`);
+
+    if (allOrders.length === 0) {
+      await supabase
+        .from('shopify_installations')
+        .update({ last_synced_at: new Date().toISOString() })
+        .eq('user_id', userId);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          totalOrders: 0,
+          processedCount: 0,
+          fulfillmentsCreated: 0,
+          trackingRecordsCreated: 0,
+          skipped: 0,
+          pages: pageCount
+        } as SyncResult),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-
-    console.log(`[Sync] Fetched ${allOrders.length} total orders across ${pageCount} pages`);
-
-    const { data: activeQuotes } = await supabase
-      .from('product_quotes')
-      .select('id, variants')
-      .eq('user_id', userId)
-      .eq('status', 'accepted');
-
-    const skuToQuoteMap = new Map<string, { quoteId: string; variant: any }>();
-    activeQuotes?.forEach(quote => {
-      if (quote.variants && Array.isArray(quote.variants)) {
-        quote.variants.forEach(variant => {
-          if (variant.sku) {
-            skuToQuoteMap.set(variant.sku.toLowerCase(), {
-              quoteId: quote.id,
-              variant
-            });
-          }
-        });
-      }
-    });
-
-    console.log(`[Sync] Mapped ${skuToQuoteMap.size} SKUs from ${activeQuotes?.length || 0} quotes`);
 
     let processedCount = 0;
     let fulfillmentsCreated = 0;
     let trackingRecordsCreated = 0;
-    let skippedCount = 0;
+    let skipped = 0;
     const errors: string[] = [];
 
     const BATCH_SIZE = 100;
@@ -315,7 +310,7 @@ Deno.serve(async (req: Request) => {
 
       for (const order of batch) {
         try {
-          const customerEmail = order.email || order.customer?.email || null;
+          const customerEmail = order.email || order.customer?.email || order.contact_email || null;
           const billingAddress = order.billing_address || {};
           const shippingAddress = order.shipping_address || {};
           const discountCodes = (order.discount_codes || []).map((dc: any) => dc.code);
@@ -361,243 +356,145 @@ Deno.serve(async (req: Request) => {
               billing_country: billingAddress.country || billingAddress.country_code || null,
               subtotal_price: parseFloat(order.subtotal_price || '0'),
               total_tax: parseFloat(order.total_tax || '0'),
-              total_shipping: parseFloat(order.total_shipping_price_set?.shop_money?.amount || order.shipping_lines?.[0]?.price || '0'),
               total_discounts: parseFloat(order.total_discounts || '0'),
-              discount_codes: discountCodes,
-              note: order.note || null,
-              tags: order.tags || null,
-              financial_status: order.financial_status || null,
-              fulfillment_status: order.fulfillment_status || null,
-              order_status_url: order.order_status_url || null,
-              is_repeat_customer: isRepeatCustomer,
-              order_count: orderCount,
+              total_shipping: order.total_shipping_price_set?.shop_money?.amount
+                ? parseFloat(order.total_shipping_price_set.shop_money.amount)
+                : (order.shipping_lines && order.shipping_lines[0] ? parseFloat(order.shipping_lines[0].price) : 0),
+              financial_status: order.financial_status || 'unknown',
+              fulfillment_status: order.fulfillment_status || 'unfulfilled',
+              ordered_at: order.created_at,
+              processed_at: order.processed_at || null,
               cancelled_at: order.cancelled_at || null,
               cancel_reason: order.cancel_reason || null,
-              processed_at: order.processed_at || null,
-              ordered_at: order.created_at,
+              tags: order.tags || null,
+              discount_codes: discountCodes.length > 0 ? discountCodes : null,
+              landing_site: order.landing_site || null,
+              referring_site: order.referring_site || null,
+              order_status_url: order.order_status_url || null,
+              is_repeat_customer: isRepeatCustomer,
+              customer_order_count: orderCount,
+              note: order.note || null
             }, {
               onConflict: 'user_id,shopify_order_id',
               ignoreDuplicates: false
             })
             .select('id')
-            .single();
+            .maybeSingle();
 
           if (orderInsertError) {
-            console.error('[Sync] Error inserting order:', orderInsertError);
             errors.push(`Order ${order.name}: ${orderInsertError.message}`);
+            console.error(`[Sync] Error upserting order ${order.name}:`, orderInsertError);
+            skipped++;
             continue;
           }
 
-          if (order.line_items && order.line_items.length > 0) {
-            const orderLineItems = [];
-            for (const item of order.line_items) {
-              const { data: product } = await supabase
-                .from('products')
-                .select('id, cogs_cost')
-                .or(`shopify_product_id.eq.${item.product_id},sku.eq.${item.sku}`)
-                .maybeSingle();
+          if (!storedOrder) {
+            errors.push(`Order ${order.name}: No data returned after upsert`);
+            skipped++;
+            continue;
+          }
 
-              const unitCost = product?.cogs_cost || 0;
-              const unitPrice = parseFloat(item.price || '0');
-
-              orderLineItems.push({
-                user_id: userId,
-                shopify_order_id: order.id.toString(),
-                product_id: product?.id || null,
-                product_name: item.title || item.name || 'Unknown Product',
-                variant_name: item.variant_title || null,
+          for (const item of order.line_items) {
+            await supabase
+              .from('shopify_line_items')
+              .upsert({
+                shopify_order_id: storedOrder.id,
+                shopify_line_item_id: item.id.toString(),
+                product_id: item.product_id?.toString() || null,
+                sku: item.sku || null,
+                product_name: item.name || item.title || 'Unknown Product',
+                variant_title: item.variant_title || null,
                 quantity: item.quantity,
-                unit_cost: unitCost,
-                total_cost: unitCost * item.quantity,
-                unit_price: unitPrice,
-                fulfillment_status: 'pending'
+                unit_price: parseFloat(item.price || '0'),
+                total_price: parseFloat(item.price || '0') * item.quantity
+              }, {
+                onConflict: 'shopify_order_id,shopify_line_item_id',
+                ignoreDuplicates: false
               });
-            }
+          }
 
-            if (orderLineItems.length > 0) {
-              const { error: lineItemsError } = await supabase
-                .from('order_line_items')
-                .upsert(orderLineItems, {
-                  onConflict: 'shopify_order_id,product_name,variant_name',
+          const fulfillments = await fetchFulfillments(
+            installation.store_url,
+            installation.access_token,
+            order.id
+          );
+
+          if (fulfillments && fulfillments.length > 0) {
+            for (const fulfillment of fulfillments) {
+              const { error: fulfillmentError } = await supabase
+                .from('shopify_fulfillments')
+                .upsert({
+                  shopify_order_id: storedOrder.id,
+                  shopify_fulfillment_id: fulfillment.id.toString(),
+                  status: fulfillment.status,
+                  tracking_number: fulfillment.tracking_number || (fulfillment.tracking_numbers && fulfillment.tracking_numbers[0]) || null,
+                  tracking_company: fulfillment.tracking_company || null,
+                  tracking_url: fulfillment.tracking_url || (fulfillment.tracking_urls && fulfillment.tracking_urls[0]) || null,
+                  shipment_status: fulfillment.shipment_status || null,
+                  created_at: fulfillment.created_at,
+                  updated_at: fulfillment.updated_at
+                }, {
+                  onConflict: 'shopify_order_id,shopify_fulfillment_id',
                   ignoreDuplicates: false
                 });
 
-              if (lineItemsError) {
-                console.error('[Sync] Error inserting line items:', lineItemsError);
-              } else {
-                console.log(`[Sync] Inserted ${orderLineItems.length} line items for order ${order.name}`);
+              if (!fulfillmentError) {
+                fulfillmentsCreated++;
               }
             }
           }
 
-          const { data: existingFulfillment } = await supabase
-            .from('shopify_order_fulfillment')
-            .select('id')
-            .eq('shopify_order_id', order.id.toString())
-            .eq('user_id', userId)
-            .maybeSingle();
-
-          if (existingFulfillment) {
-            skippedCount++;
-            continue;
-          }
-
-          const matchedItems: any[] = [];
-          for (const item of order.line_items) {
-            if (!item.sku) continue;
-
-            const quoteMatch = skuToQuoteMap.get(item.sku.toLowerCase());
-            if (!quoteMatch) continue;
-
-            const shippingCountry = order.shipping_address?.country_code || 'US';
-            const shippingCost = quoteMatch.variant.shippingCosts?.[shippingCountry]
-              || quoteMatch.variant.shippingCosts?._default
-              || 0;
-
-            const costPerItem = quoteMatch.variant.costPerItem || 0;
-            const totalCost = (costPerItem + shippingCost) * item.quantity;
-
-            matchedItems.push({
-              sku: item.sku,
-              product_name: item.name,
-              quantity: item.quantity,
-              cost_per_item: costPerItem,
-              shipping_cost: shippingCost,
-              shipping_country: shippingCountry,
-              total_cost: totalCost,
-              quote_id: quoteMatch.quoteId,
-            });
-          }
-
-          if (matchedItems.length === 0) {
-            skippedCount++;
-            continue;
-          }
-
-          const totalCost = matchedItems.reduce((sum, item) => sum + item.total_cost, 0);
-          const totalQuantity = matchedItems.reduce((sum, item) => sum + item.quantity, 0);
-
-          const { error: insertError } = await supabase
-            .from('shopify_order_fulfillment')
-            .insert({
-              user_id: userId,
-              shopify_order_id: order.id.toString(),
-              shopify_order_name: order.name,
-              order_date: order.created_at,
-              fulfillment_status: order.fulfillment_status || 'unfulfilled',
-              line_items: matchedItems,
-              total_quantity: totalQuantity,
-              total_cost: totalCost,
-              processed_for_invoice: false,
-            });
-
-          if (insertError) {
-            errors.push(`Order ${order.name}: ${insertError.message}`);
-            continue;
-          }
-
-          fulfillmentsCreated++;
           processedCount++;
-
-          // Fetch and store fulfillment/tracking data
-          try {
-            const fulfillments = await fetchOrderFulfillments(
-              installation.store_url,
-              installation.access_token,
-              order.id
-            );
-
-            if (fulfillments.length > 0) {
-              for (const fulfillment of fulfillments) {
-                const trackingNumber = fulfillment.tracking_number || fulfillment.tracking_numbers?.[0] || null;
-                const trackingUrl = fulfillment.tracking_url || fulfillment.tracking_urls?.[0] || null;
-
-                // Determine shipment status
-                let shipmentStatus = 'label_created';
-                if (fulfillment.shipment_status) {
-                  shipmentStatus = fulfillment.shipment_status.toLowerCase();
-                } else if (fulfillment.status === 'success') {
-                  shipmentStatus = 'delivered';
-                }
-
-                const { error: trackingError } = await supabase
-                  .from('shopify_order_fulfillments')
-                  .upsert({
-                    user_id: userId,
-                    order_id: storedOrder.id,
-                    shopify_order_id: order.id.toString(),
-                    shopify_fulfillment_id: fulfillment.id.toString(),
-                    tracking_number: trackingNumber,
-                    tracking_company: fulfillment.tracking_company || null,
-                    tracking_url: trackingUrl,
-                    shipment_status: shipmentStatus,
-                    shipped_at: fulfillment.created_at || null,
-                    delivered_at: shipmentStatus === 'delivered' ? fulfillment.updated_at : null,
-                  }, {
-                    onConflict: 'user_id,shopify_fulfillment_id',
-                    ignoreDuplicates: false
-                  });
-
-                if (trackingError) {
-                  console.error('[Sync] Error inserting tracking data:', trackingError);
-                } else {
-                  trackingRecordsCreated++;
-                }
-              }
-            }
-          } catch (fulfillmentError) {
-            console.error(`[Sync] Error fetching fulfillments for order ${order.name}:`, fulfillmentError);
-          }
         } catch (error) {
-          errors.push(`Order ${order.name}: ${error.message}`);
+          const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+          errors.push(`Order ${order.name}: ${errorMsg}`);
+          console.error(`[Sync] Error processing order ${order.name}:`, error);
+          skipped++;
         }
       }
     }
 
-    const { error: updateError } = await supabase
+    await supabase
       .from('shopify_installations')
-      .update({
-        last_synced_at: new Date().toISOString(),
-        orders_synced_count: allOrders.length,
-      })
-      .eq('id', installation.id);
+      .update({ last_synced_at: new Date().toISOString() })
+      .eq('user_id', userId);
 
-    if (updateError) {
-      console.error('[Sync] Error updating last_synced_at:', updateError);
-    }
-
-    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[Sync] Completed in ${duration}s: ${processedCount} processed, ${fulfillmentsCreated} fulfillments, ${trackingRecordsCreated} tracking records, ${skippedCount} skipped`);
-
-    const result: SyncResult = {
-      success: true,
+    console.log('[Sync] Complete:', {
       totalOrders: allOrders.length,
       processedCount,
       fulfillmentsCreated,
       trackingRecordsCreated,
-      skipped: skippedCount,
-      pages: pageCount,
-      errors: errors.length > 0 ? errors.slice(0, 10) : undefined,
-    };
+      skipped,
+      errors: errors.length
+    });
 
     return new Response(
-      JSON.stringify(result),
-      {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      JSON.stringify({
+        success: true,
+        totalOrders: allOrders.length,
+        processedCount,
+        fulfillmentsCreated,
+        trackingRecordsCreated,
+        skipped,
+        pages: pageCount,
+        errors: errors.length > 0 ? errors.slice(0, 10) : undefined
+      } as SyncResult),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('[Sync] Error:', error);
+    console.error('[Sync] Fatal error:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Unknown error occurred',
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+        error: error instanceof Error ? error.message : 'Unknown error',
+        totalOrders: 0,
+        processedCount: 0,
+        fulfillmentsCreated: 0,
+        trackingRecordsCreated: 0,
+        skipped: 0,
+        pages: 0
+      } as SyncResult),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
