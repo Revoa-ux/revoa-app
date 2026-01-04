@@ -60,7 +60,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
               className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <span>All Products</span>
-              {statusFilter === 'all' && <Check className="w-4 h-4 text-blue-500" />}
+              {statusFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
             </button>
             {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'pending_reacceptance', 'synced_with_shopify', 'cancelled'] as const).map((status, index, array) => (
               <button
@@ -74,7 +74,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
                 }`}
               >
                 <span>{getStatusText(status)}</span>
-                {statusFilter === status && <Check className="w-4 h-4 text-blue-500" />}
+                {statusFilter === status && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
               </button>
             ))}
           </div>

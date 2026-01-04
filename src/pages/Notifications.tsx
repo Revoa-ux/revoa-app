@@ -195,7 +195,7 @@ export default function Notifications() {
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
               className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer ${
-                !notification.read ? 'bg-blue-50 dark:bg-blue-900/10' : ''
+                !notification.read ? 'bg-rose-50 dark:bg-rose-900/10' : ''
               }`}
             >
               <div className="flex items-start space-x-4">
@@ -212,7 +212,7 @@ export default function Notifications() {
                         {notification.title}
                       </h4>
                       {!notification.read && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
                       )}
                       {notification.action_required && (
                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200">
