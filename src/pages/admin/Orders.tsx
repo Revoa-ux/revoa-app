@@ -79,7 +79,6 @@ export default function Orders() {
   const allOrdersExportDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false));
-  useClickOutside(mobileMerchantDropdownRef, () => setShowMerchantDropdown(false));
   useClickOutside(exportStatusDropdownRef, () => setShowExportStatusDropdown(false));
   useClickOutside(carrierDropdownRef, () => setShowCarrierDropdown(false));
   useClickOutside(syncStatusDropdownRef, () => setShowSyncStatusDropdown(false));
@@ -439,7 +438,12 @@ export default function Orders() {
               />
 
               {showMerchantDropdown && (
-                <div className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden">
+                <>
+                  <div
+                    className="fixed inset-0 z-40 sm:hidden"
+                    onClick={() => setShowMerchantDropdown(false)}
+                  />
+                  <div className="absolute left-0 right-0 z-50 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden sm:hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -505,6 +509,7 @@ export default function Orders() {
                     )}
                   </div>
                 </div>
+                </>
               )}
             </div>
           )}
