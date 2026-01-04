@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Download, AlertTriangle, CheckCircle } from 'lucide-react';
+import { X, Download, AlertTriangle, ChevronLeft, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
-import Button from '../Button';
+import { CustomCheckbox } from '../CustomCheckbox';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
@@ -54,7 +54,6 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
     try {
       setLoading(true);
 
-      // Check if super admin
       const { data: profile } = await supabase
         .from('user_profiles')
         .select('is_super_admin')
@@ -163,7 +162,6 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
   };
 
   const convertCountryCode = (country: string): string => {
-    // Convert country names to 2-letter ISO codes as Mabang expects
     const countryMap: Record<string, string> = {
       'United States': 'US',
       'Canada': 'CA',
@@ -227,7 +225,6 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
     try {
       const ordersToExport = orders.filter(o => selectedOrders.has(o.id));
 
-      // Build Excel data - One row per line item following Mabang format
       const excelData: any[] = [];
 
       ordersToExport.forEach(order => {
@@ -254,39 +251,33 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
         }
       });
 
-      // Generate filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
       const filename = `mabang_export_${timestamp}.xlsx`;
 
-      // Create workbook and worksheet
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.json_to_sheet(excelData);
 
-      // Set column widths for better readability
       ws['!cols'] = [
-        { wch: 15 }, // Order Number
-        { wch: 20 }, // Transaction Number
-        { wch: 35 }, // Product Name
-        { wch: 20 }, // Variant
-        { wch: 10 }, // Quantity
-        { wch: 20 }, // Buyer Name
-        { wch: 25 }, // Buyer Account
-        { wch: 15 }, // Phone 1
-        { wch: 30 }, // Address 1
-        { wch: 20 }, // Address 2
-        { wch: 15 }, // City
-        { wch: 15 }, // Province/State
-        { wch: 12 }, // Postal Code
-        { wch: 10 }, // Country
-        { wch: 20 }, // Merchant
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 35 },
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 20 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 10 },
+        { wch: 20 },
       ];
 
       XLSX.utils.book_append_sheet(wb, ws, 'Orders');
-
-      // Generate Excel file and trigger download
       XLSX.writeFile(wb, filename);
 
-      // Create export batch record
       const { data: batch, error: batchError } = await supabase
         .from('mabang_export_batches')
         .insert({
@@ -302,7 +293,6 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
 
       if (batchError) throw batchError;
 
-      // Update orders as exported
       const { error: updateError } = await supabase
         .from('shopify_orders')
         .update({
@@ -342,12 +332,39 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
     }
   };
 
+  const merchantCount = [...new Set(orders.filter(o => selectedOrders.has(o.id)).map(o => o.merchant_name))].length;
+
   if (loading) {
     return (
       <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="h-7 w-48 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          </div>
+          <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
+              <div className="flex items-center gap-4">
+                <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+              </div>
+            </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center gap-4">
+                  <div className="h-4 w-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </Modal>
     );
@@ -355,145 +372,180 @@ export default function ExportToMabangModal({ filteredUserId, onClose, onSuccess
 
   return (
     <Modal isOpen={true} onClose={onClose} maxWidth="max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Export to Mabang 3PL
-        </h2>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      </div>
-
-      {orders.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-600 dark:text-gray-400">
-            No orders ready for export
-          </p>
-          <Button onClick={onClose} className="mt-4">
-            Close
-          </Button>
+      <div className="-m-6">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Export to Mabang 3PL
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {orders.length} orders ready for export
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-      ) : (
-        <>
-          {/* Warnings */}
-          {warnings.length > 0 && (
-            <div className="mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-2">
-                    Validation Warnings ({warnings.length})
-                  </h3>
-                  <div className="text-xs text-yellow-800 dark:text-yellow-200 space-y-1 max-h-32 overflow-y-auto">
-                    {warnings.slice(0, 5).map((warning, idx) => (
-                      <p key={idx}>• {warning}</p>
-                    ))}
-                    {warnings.length > 5 && (
-                      <p className="font-medium">...and {warnings.length - 5} more</p>
-                    )}
+
+        {orders.length === 0 ? (
+          <div className="px-6 py-12 text-center">
+            <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="w-6 h-6 text-gray-400" />
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              No orders ready for export
+            </p>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="px-6 py-4 space-y-4">
+              {/* Warnings */}
+              {warnings.length > 0 && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-2">
+                        Validation Warnings ({warnings.length})
+                      </h3>
+                      <div className="text-xs text-amber-800 dark:text-amber-200 space-y-1 max-h-24 overflow-y-auto">
+                        {warnings.slice(0, 5).map((warning, idx) => (
+                          <p key={idx}>{warning}</p>
+                        ))}
+                        {warnings.length > 5 && (
+                          <p className="font-medium">...and {warnings.length - 5} more</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Summary */}
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-                  Export Summary
-                </h3>
-                <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                  <p>• {selectedOrders.size} orders selected for export</p>
-                  <p>• {[...new Set(orders.filter(o => selectedOrders.has(o.id)).map(o => o.merchant_name))].length} merchants</p>
-                  <p>• File format: Excel (.xlsx) compatible with Mabang</p>
+              {/* Summary */}
+              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                <div className="flex items-center gap-6">
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedOrders.size}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Orders Selected</p>
+                  </div>
+                  <div className="h-10 w-px bg-gray-200 dark:bg-gray-700" />
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{merchantCount}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Merchants</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Format</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Excel (.xlsx)</p>
+                </div>
+              </div>
+
+              {/* Order List */}
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <div className="max-h-64 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700 sticky top-0">
+                      <tr>
+                        <th className="px-4 py-3 text-left">
+                          <CustomCheckbox
+                            checked={selectedOrders.size === orders.length && orders.length > 0}
+                            onChange={toggleAll}
+                          />
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          Order #
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          Merchant
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          Customer
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                          Items
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                      {orders.map(order => (
+                        <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td className="px-4 py-3">
+                            <CustomCheckbox
+                              checked={selectedOrders.has(order.id)}
+                              onChange={() => toggleOrderSelection(order.id)}
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">
+                            {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                            {order.merchant_name}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                            {order.customer_first_name} {order.customer_last_name}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                            {order.line_items?.length || 0} items
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Order List */}
-          <div className="mb-6 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
-                <tr>
-                  <th className="px-4 py-2 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedOrders.size === orders.length}
-                      onChange={toggleAll}
-                      className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
-                    />
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                    Order #
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                    Merchant
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                    Customer
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                    Items
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {orders.map(order => (
-                  <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                    <td className="px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedOrders.has(order.id)}
-                        onChange={() => toggleOrderSelection(order.id)}
-                        className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-gray-900 dark:text-white font-medium">
-                      {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-                    </td>
-                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                      {order.merchant_name}
-                    </td>
-                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                      {order.customer_first_name} {order.customer_last_name}
-                    </td>
-                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                      {order.line_items?.length || 0} items
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {/* Footer */}
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={onClose}
+                  disabled={exporting}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back
+                </button>
 
-          {/* Actions */}
-          <div className="flex items-center justify-between gap-3">
-            <Button
-              onClick={onClose}
-              variant="secondary"
-              disabled={exporting}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              onClick={handleExport}
-              disabled={selectedOrders.size === 0 || exporting}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {exporting ? 'Exporting...' : `Export ${selectedOrders.size} Orders`}
-            </Button>
-          </div>
-        </>
-      )}
+                <button
+                  onClick={handleExport}
+                  disabled={selectedOrders.size === 0 || exporting}
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {exporting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent dark:border-t-transparent rounded-full animate-spin" />
+                      Exporting...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      Export {selectedOrders.size} Orders
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </Modal>
   );
 }

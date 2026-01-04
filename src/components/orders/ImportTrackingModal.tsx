@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { X, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, ChevronLeft, UploadCloud, Trash2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Modal from '../Modal';
-import Button from '../Button';
+import { CustomCheckbox } from '../CustomCheckbox';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 
@@ -32,14 +32,42 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
   const [uploading, setUploading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [preview, setPreview] = useState<TrackingRow[]>([]);
+  const [fullData, setFullData] = useState<TrackingRow[]>([]);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [autoSync, setAutoSync] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) {
+      await processFile(droppedFile);
+    }
+  }, []);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
+    if (selectedFile) {
+      await processFile(selectedFile);
+    }
+  };
 
-    // Validate file type
+  const processFile = async (selectedFile: File) => {
     const validTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -70,9 +98,7 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
         return;
       }
 
-      // Parse tracking data with flexible column mapping
       const trackingData: TrackingRow[] = jsonData.map((row: any) => {
-        // Try to find order number (flexible column names)
         const orderNumber =
           row['Order Number'] ||
           row['OrderNumber'] ||
@@ -81,7 +107,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
           row['Order No'] ||
           '';
 
-        // Try to find tracking number
         const trackingNumber =
           row['Tracking Number'] ||
           row['TrackingNumber'] ||
@@ -91,7 +116,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
           row['Tracking No'] ||
           '';
 
-        // Try to find carrier
         const carrier =
           row['Carrier'] ||
           row['Shipping Company'] ||
@@ -100,7 +124,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
           row['Logistics Company'] ||
           'Unknown';
 
-        // Try to find ship date
         const shipDate =
           row['Ship Date'] ||
           row['ShipDate'] ||
@@ -108,7 +131,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
           row['发货日期'] ||
           '';
 
-        // Try to find status
         const status =
           row['Status'] ||
           row['Shipment Status'] ||
@@ -130,6 +152,7 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
         return;
       }
 
+      setFullData(trackingData);
       setPreview(trackingData.slice(0, 5));
       toast.success(`Found ${trackingData.length} tracking entries`);
     } catch (error: any) {
@@ -142,32 +165,17 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
   };
 
   const handleImport = async () => {
-    if (!file || !user?.id) return;
+    if (!file || !user?.id || fullData.length === 0) return;
 
     setImporting(true);
 
     try {
-      // Re-parse the full file
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet);
-
-      const trackingData: TrackingRow[] = jsonData.map((row: any) => ({
-        orderNumber: String(row['Order Number'] || row['OrderNumber'] || row['Order'] || row['订单号'] || row['Order No'] || '').trim(),
-        trackingNumber: String(row['Tracking Number'] || row['TrackingNumber'] || row['Tracking'] || row['Track Number'] || row['物流单号'] || row['Tracking No'] || '').trim(),
-        carrier: String(row['Carrier'] || row['Shipping Company'] || row['ShippingCompany'] || row['物流公司'] || row['Logistics Company'] || 'Unknown').trim(),
-        shipDate: row['Ship Date'] || row['ShipDate'] || row['Shipped At'] || row['发货日期'] || undefined,
-        status: row['Status'] || row['Shipment Status'] || row['状态'] || undefined
-      })).filter(row => row.orderNumber && row.trackingNumber);
-
       const success: TrackingRow[] = [];
       const failed: Array<TrackingRow & { reason: string }> = [];
       const duplicates: TrackingRow[] = [];
 
-      for (const track of trackingData) {
+      for (const track of fullData) {
         try {
-          // Find the order by order number
           const { data: order, error: orderError } = await supabase
             .from('shopify_orders')
             .select('id, shopify_order_id, user_id')
@@ -179,7 +187,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
             continue;
           }
 
-          // Check if fulfillment already exists
           const { data: existingFulfillment } = await supabase
             .from('shopify_order_fulfillments')
             .select('id')
@@ -188,7 +195,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
 
           if (existingFulfillment) {
             duplicates.push(track);
-            // Update existing fulfillment
             await supabase
               .from('shopify_order_fulfillments')
               .update({
@@ -200,7 +206,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
               })
               .eq('id', existingFulfillment.id);
           } else {
-            // Create new fulfillment
             const { error: fulfillmentError } = await supabase
               .from('shopify_order_fulfillments')
               .insert({
@@ -219,7 +224,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
             if (fulfillmentError) throw fulfillmentError;
           }
 
-          // Update order status
           await supabase
             .from('shopify_orders')
             .update({
@@ -238,7 +242,6 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
 
       setResult({ success, failed, duplicates });
 
-      // Auto-sync to Shopify if enabled
       if (autoSync && success.length > 0) {
         try {
           await supabase.functions.invoke('shopify-sync-fulfillments');
@@ -271,208 +274,301 @@ export default function ImportTrackingModal({ onClose, onSuccess }: ImportTracki
     }
   };
 
+  const clearFile = () => {
+    setFile(null);
+    setPreview([]);
+    setFullData([]);
+  };
+
   return (
     <Modal isOpen={true} onClose={handleClose} maxWidth="max-w-3xl">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Import Tracking from Mabang
-        </h2>
-        <button
-          onClick={handleClose}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      </div>
-
-      {!result ? (
-        <>
-          {/* Instructions */}
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-              File Requirements
-            </h3>
-            <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-              <p>• Excel (.xlsx, .xls) or CSV format</p>
-              <p>• Required columns: "Order Number" and "Tracking Number"</p>
-              <p>• Optional columns: "Carrier", "Ship Date", "Status"</p>
-              <p>• Supports both English and Chinese column names</p>
-            </div>
-          </div>
-
-          {/* File Upload */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Upload Tracking File
-            </label>
-            <div className="relative">
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileSelect}
-                disabled={uploading || importing}
-                className="block w-full text-sm text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-400 dark:hover:file:bg-blue-900/30"
-              />
-            </div>
-          </div>
-
-          {/* Preview */}
-          {preview.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-                Preview (First 5 Rows)
-              </h3>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Order #
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Tracking Number
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-600 dark:text-gray-400">
-                        Carrier
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {preview.map((row, idx) => (
-                      <tr key={idx}>
-                        <td className="px-4 py-2 text-gray-900 dark:text-white">
-                          {row.orderNumber}
-                        </td>
-                        <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                          {row.trackingNumber}
-                        </td>
-                        <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                          {row.carrier}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+      <div className="-m-6">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Import Tracking from Mabang
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Upload your tracking file to update orders
+                </p>
               </div>
             </div>
-          )}
-
-          {/* Auto-sync Option */}
-          {file && (
-            <div className="mb-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={autoSync}
-                  onChange={(e) => setAutoSync(e.target.checked)}
-                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
-                  Automatically sync to Shopify after import
-                </span>
-              </label>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-between gap-3">
-            <Button
+            <button
               onClick={handleClose}
-              variant="secondary"
-              disabled={uploading || importing}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              Cancel
-            </Button>
-
-            <Button
-              onClick={handleImport}
-              disabled={!file || uploading || importing}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
-            >
-              {importing ? (
-                <>
-                  <Clock className="w-4 h-4 mr-2 animate-spin" />
-                  Importing...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import Tracking
-                </>
-              )}
-            </Button>
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        </>
-      ) : (
-        <>
-          {/* Import Results */}
-          <div className="space-y-4 mb-6">
-            {/* Success */}
-            {result.success.length > 0 && (
-              <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-green-900 dark:text-green-100 mb-1">
-                      Successfully Imported ({result.success.length})
-                    </h3>
-                    <p className="text-xs text-green-800 dark:text-green-200">
-                      {result.success.length} tracking {result.success.length === 1 ? 'number' : 'numbers'} imported and ready to sync
+        </div>
+
+        {!result ? (
+          <>
+            <div className="px-6 py-4 space-y-4">
+              {/* File Requirements */}
+              <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  File Requirements
+                </h3>
+                <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                  <p>Excel (.xlsx, .xls) or CSV format</p>
+                  <p>Required columns: "Order Number" and "Tracking Number"</p>
+                  <p>Optional columns: "Carrier", "Ship Date", "Status"</p>
+                </div>
+              </div>
+
+              {/* Drag and Drop Zone */}
+              {!file ? (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all ${
+                    isDragging
+                      ? 'border-gray-400 dark:border-gray-500 bg-gray-50 dark:bg-gray-800/50'
+                      : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    onChange={handleFileSelect}
+                    disabled={uploading}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <div className="flex flex-col items-center gap-3">
+                    <div className={`p-3 rounded-full transition-colors ${
+                      isDragging
+                        ? 'bg-gray-200 dark:bg-gray-700'
+                        : 'bg-gray-100 dark:bg-gray-800'
+                    }`}>
+                      <UploadCloud className={`w-8 h-8 transition-colors ${
+                        isDragging
+                          ? 'text-gray-600 dark:text-gray-300'
+                          : 'text-gray-400 dark:text-gray-500'
+                      }`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {isDragging ? 'Drop your file here' : 'Drag and drop your file here'}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        or click to browse
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      Supports: .xlsx, .xls, .csv
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Duplicates */}
-            {result.duplicates.length > 0 && (
-              <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-yellow-900 dark:text-yellow-100 mb-1">
-                      Updated Existing ({result.duplicates.length})
-                    </h3>
-                    <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                      These orders already had tracking - updated with new data
-                    </p>
+              ) : (
+                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                        <FileSpreadsheet className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {file.name}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {fullData.length} tracking entries found
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={clearFile}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Failed */}
-            {result.failed.length > 0 && (
-              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-red-900 dark:text-red-100 mb-2">
-                      Failed to Import ({result.failed.length})
-                    </h3>
-                    <div className="text-xs text-red-800 dark:text-red-200 space-y-1 max-h-32 overflow-y-auto">
-                      {result.failed.slice(0, 5).map((fail, idx) => (
-                        <p key={idx}>• Order {fail.orderNumber}: {fail.reason}</p>
-                      ))}
-                      {result.failed.length > 5 && (
-                        <p className="font-medium">...and {result.failed.length - 5} more</p>
-                      )}
+              {/* Preview */}
+              {preview.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Preview (First 5 Rows)
+                  </h3>
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            Order #
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            Tracking Number
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                            Carrier
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+                        {preview.map((row, idx) => (
+                          <tr key={idx}>
+                            <td className="px-4 py-3 text-gray-900 dark:text-white font-medium">
+                              {row.orderNumber}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono text-xs">
+                              {row.trackingNumber}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                              {row.carrier}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Auto-sync Option */}
+              {file && fullData.length > 0 && (
+                <label className="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <CustomCheckbox
+                    checked={autoSync}
+                    onChange={(e) => setAutoSync(e.target.checked)}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      Auto-sync to Shopify
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Automatically update Shopify fulfillment status after import
+                    </p>
+                  </div>
+                </label>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleClose}
+                  disabled={uploading || importing}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back
+                </button>
+
+                <button
+                  onClick={handleImport}
+                  disabled={!file || uploading || importing || fullData.length === 0}
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {importing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white dark:border-gray-900 border-t-transparent dark:border-t-transparent rounded-full animate-spin" />
+                      Importing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      Import {fullData.length} Entries
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="px-6 py-4 space-y-4">
+              {/* Success */}
+              {result.success.length > 0 && (
+                <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded-full">
+                      <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-green-900 dark:text-green-100 mb-1">
+                        Successfully Imported
+                      </h3>
+                      <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                        {result.success.length}
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        tracking {result.success.length === 1 ? 'number' : 'numbers'} imported and {autoSync ? 'synced to Shopify' : 'ready to sync'}
+                      </p>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {/* Close Button */}
-          <Button
-            onClick={handleClose}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
-          >
-            Done
-          </Button>
-        </>
-      )}
+              {/* Duplicates */}
+              {result.duplicates.length > 0 && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-amber-100 dark:bg-amber-900/30 rounded-full">
+                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
+                        Updated Existing
+                      </h3>
+                      <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                        {result.duplicates.length}
+                      </p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        orders already had tracking - updated with new data
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Failed */}
+              {result.failed.length > 0 && (
+                <div className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="p-1 bg-red-100 dark:bg-red-900/30 rounded-full">
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-red-900 dark:text-red-100 mb-2">
+                        Failed to Import ({result.failed.length})
+                      </h3>
+                      <div className="text-xs text-red-700 dark:text-red-300 space-y-1 max-h-32 overflow-y-auto">
+                        {result.failed.slice(0, 5).map((fail, idx) => (
+                          <p key={idx}>Order {fail.orderNumber}: {fail.reason}</p>
+                        ))}
+                        {result.failed.length > 5 && (
+                          <p className="font-medium">...and {result.failed.length - 5} more</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 px-6 py-4">
+              <button
+                onClick={handleClose}
+                className="w-full px-5 py-2.5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </Modal>
   );
 }
