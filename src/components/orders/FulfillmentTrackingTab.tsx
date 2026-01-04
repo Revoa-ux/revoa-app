@@ -251,73 +251,7 @@ export default function FulfillmentTrackingTab({
   }
 
   return (
-    <>
-      {/* Mobile Card View */}
-      <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
-        {filteredFulfillments.map((fulfillment) => (
-          <div key={fulfillment.id} className="p-4 bg-white dark:bg-gray-800">
-            {/* Header Row: Order # + Sync Status */}
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                {fulfillment.order.order_number.startsWith('#') ? fulfillment.order.order_number : `#${fulfillment.order.order_number}`}
-              </span>
-              {getSyncStatusBadge(fulfillment)}
-            </div>
-
-            {/* Customer */}
-            <div className="text-sm text-gray-900 dark:text-white mb-1">
-              {fulfillment.order.customer_first_name} {fulfillment.order.customer_last_name}
-            </div>
-
-            {/* Merchant (if showing all) */}
-            {!filteredUserId && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                {fulfillment.order.merchant_name}
-              </div>
-            )}
-
-            {/* Tracking Info */}
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-              <div className="flex items-center gap-1">
-                <span className="font-medium">{fulfillment.tracking_company}</span>
-              </div>
-              <span>{fulfillment.shipped_at ? format(new Date(fulfillment.shipped_at), 'MMM d') : '-'}</span>
-            </div>
-
-            {/* Tracking Number Link */}
-            <a
-              href={getTrackingUrl(fulfillment.tracking_number, fulfillment.tracking_company)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors mb-2"
-            >
-              <span className="font-mono">{fulfillment.tracking_number}</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
-
-            {/* Sync Error */}
-            {fulfillment.sync_error && (
-              <p className="text-xs text-red-600 dark:text-red-400 mb-2" title={fulfillment.sync_error}>
-                {fulfillment.sync_error.substring(0, 40)}...
-              </p>
-            )}
-
-            {/* Actions */}
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex items-center gap-2">
-              <button
-                onClick={() => handleChatClick(fulfillment)}
-                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                title="Message"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden sm:block overflow-x-auto">
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
@@ -415,7 +349,6 @@ export default function FulfillmentTrackingTab({
             ))}
           </tbody>
         </table>
-      </div>
-    </>
+    </div>
   );
 }

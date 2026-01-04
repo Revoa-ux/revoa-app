@@ -271,122 +271,7 @@ export default function AllOrdersTab({
   }
 
   return (
-    <>
-      {/* Mobile Card View */}
-      <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
-        {filteredOrders.map((order) => (
-          <div key={order.id} className="p-4 bg-white dark:bg-gray-800">
-            {/* Header Row: Order # + Fulfillment Status */}
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleOrderExpansion(order.id);
-                  }}
-                  className="p-2 -m-1 text-gray-400 rounded-md"
-                >
-                  <ChevronRight className={`w-5 h-5 transition-transform ${expandedOrders.has(order.id) ? 'rotate-90' : ''}`} />
-                </button>
-                <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                  {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-                </span>
-              </div>
-              {getFulfillmentStatusBadge(order.fulfillment_status)}
-            </div>
-
-            {/* Customer + Date */}
-            <div className="flex items-center justify-between text-sm mb-1">
-              <span className="text-gray-900 dark:text-white font-medium truncate">
-                {order.customer_first_name} {order.customer_last_name}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 flex-shrink-0">
-                {format(new Date(order.created_at), 'MMM d')}
-              </span>
-            </div>
-
-            {/* Merchant (if showing all) */}
-            {!filteredUserId && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                {order.merchant_name}
-              </div>
-            )}
-
-            {/* Value + Payment Status */}
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                ${order.total_price?.toFixed(2) || '0.00'}
-              </span>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
-                order.financial_status === 'PAID'
-                  ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                  : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
-              }`}>
-                {order.financial_status}
-              </span>
-            </div>
-
-            {/* 3PL Status Row */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
-              {order.exported_to_3pl && (
-                <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">Exported</span>
-              )}
-              {order.tracking_imported && (
-                <span className="px-1.5 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded">Tracking</span>
-              )}
-              {!order.exported_to_3pl && !order.tracking_imported && (
-                <span className="text-gray-400">Not exported</span>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
-              <button
-                onClick={() => handleChatClick(order)}
-                className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                title="Message"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </button>
-              {getShopifyOrderUrl(order) && (
-                <a
-                  href={getShopifyOrderUrl(order)!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Shopify</span>
-                </a>
-              )}
-            </div>
-
-            {/* Expanded Items */}
-            {expandedOrders.has(order.id) && (
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 space-y-2">
-                <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase">Items</p>
-                {order.line_items && order.line_items.length > 0 ? (
-                  order.line_items.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs">
-                      <span className="text-gray-900 dark:text-white truncate flex-1">
-                        {item.product_name}
-                        {item.variant_name && <span className="text-gray-500 ml-1">({item.variant_name})</span>}
-                      </span>
-                      <span className="text-gray-500 dark:text-gray-400 ml-2">x{item.quantity}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">No line items found</p>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden sm:block overflow-x-auto">
+    <div className="overflow-x-auto -mx-4 sm:mx-0">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
@@ -553,7 +438,6 @@ export default function AllOrdersTab({
             ))}
           </tbody>
         </table>
-      </div>
-    </>
+    </div>
   );
 }

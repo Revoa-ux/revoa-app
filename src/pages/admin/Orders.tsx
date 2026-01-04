@@ -434,6 +434,7 @@ export default function Orders() {
                 isActive={!!filteredUserId}
                 activeCount={filteredUserId ? 1 : 0}
                 fullWidth
+                hideLabel="never"
                 isOpen={showMerchantDropdown}
               />
 
