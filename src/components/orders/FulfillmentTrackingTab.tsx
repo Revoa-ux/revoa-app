@@ -3,7 +3,6 @@ import { Search, ExternalLink, RefreshCw, CheckCircle2, Clock, AlertCircle } fro
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
-import Button from '../Button';
 import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
@@ -180,21 +179,21 @@ export default function FulfillmentTrackingTab({
   const getSyncStatusBadge = (fulfillment: Fulfillment) => {
     if (fulfillment.synced_to_shopify) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Synced
         </span>
       );
     } else if (fulfillment.sync_error) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
           <AlertCircle className="w-3 h-3 mr-1" />
           Failed
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
           <Clock className="w-3 h-3 mr-1" />
           Pending
         </span>
@@ -235,7 +234,7 @@ export default function FulfillmentTrackingTab({
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
         <p className="text-gray-600 dark:text-gray-400 mt-4">Loading fulfillments...</p>
       </div>
     );
@@ -251,7 +250,7 @@ export default function FulfillmentTrackingTab({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search orders, tracking numbers..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 
@@ -334,10 +333,10 @@ export default function FulfillmentTrackingTab({
                       href={getTrackingUrl(fulfillment.tracking_number, fulfillment.tracking_company)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                      className="text-sm text-gray-900 dark:text-white hover:underline flex items-center gap-1"
                     >
                       {fulfillment.tracking_number}
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-3 h-3 text-gray-400" />
                     </a>
                   </td>
                   <td className="px-4 py-4">
@@ -362,15 +361,14 @@ export default function FulfillmentTrackingTab({
                   </td>
                   <td className="px-4 py-4">
                     {permissions?.can_sync_to_shopify && !fulfillment.synced_to_shopify && (
-                      <Button
+                      <button
                         onClick={() => handleResync(fulfillment.id)}
                         disabled={syncing.has(fulfillment.id)}
-                        size="sm"
-                        className="text-xs"
+                        className="h-[30px] px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <RefreshCw className={`w-3 h-3 mr-1 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 ${syncing.has(fulfillment.id) ? 'animate-spin' : ''}`} />
                         {syncing.has(fulfillment.id) ? 'Syncing...' : 'Re-sync'}
-                      </Button>
+                      </button>
                     )}
                   </td>
                 </tr>

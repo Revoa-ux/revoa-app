@@ -115,12 +115,12 @@ export default function AllOrdersTab({
 
   const getFulfillmentStatusBadge = (status: string) => {
     const statusMap: Record<string, { bg: string; text: string; label: string }> = {
-      'UNFULFILLED': { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-200', label: 'Unfulfilled' },
-      'FULFILLED': { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-200', label: 'Fulfilled' },
-      'PARTIALLY_FULFILLED': { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-800 dark:text-blue-200', label: 'Partial' },
+      'UNFULFILLED': { bg: 'bg-yellow-50 dark:bg-yellow-900/20', text: 'text-yellow-700 dark:text-yellow-400', label: 'Unfulfilled' },
+      'FULFILLED': { bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400', label: 'Fulfilled' },
+      'PARTIALLY_FULFILLED': { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: 'Partial' },
     };
 
-    const config = statusMap[status] || { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-200', label: status };
+    const config = statusMap[status] || { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', label: status };
 
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
@@ -168,7 +168,7 @@ export default function AllOrdersTab({
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
         <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
       </div>
     );
@@ -184,7 +184,7 @@ export default function AllOrdersTab({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search orders, customers..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
 
@@ -283,8 +283,8 @@ export default function AllOrdersTab({
                   <td className="px-4 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       order.financial_status === 'PAID'
-                        ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200'
-                        : 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200'
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                        : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400'
                     }`}>
                       {order.financial_status}
                     </span>
@@ -295,7 +295,7 @@ export default function AllOrdersTab({
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-1">
                       {order.exported_to_3pl && (
-                        <span className="text-xs text-blue-600 dark:text-blue-400">Exported</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Exported</span>
                       )}
                       {order.tracking_imported && (
                         <span className="text-xs text-green-600 dark:text-green-400">Tracking</span>
@@ -309,7 +309,7 @@ export default function AllOrdersTab({
                     <div className="flex items-center gap-2">
                       <Link
                         to={`/admin/chat?orderId=${order.shopify_order_id}`}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         title="View in Chat"
                       >
                         <MessageSquare className="w-4 h-4" />
@@ -318,7 +318,7 @@ export default function AllOrdersTab({
                         href={`https://${order.shopify_order_id?.split('/')[0]}/admin/orders/${order.shopify_order_id?.split('/').pop()}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                         title="View in Shopify"
                       >
                         <ExternalLink className="w-4 h-4" />

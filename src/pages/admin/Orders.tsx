@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Package, Download, Upload, RefreshCw, Filter, X, TrendingUp, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import GlassCard from '../../components/GlassCard';
-import Button from '../../components/Button';
+import { useClickOutside } from '../../lib/useClickOutside';
 import { toast } from 'sonner';
 import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
 import ExportToMabangModal from '../../components/orders/ExportToMabangModal';
 import ImportTrackingModal from '../../components/orders/ImportTrackingModal';
-import MerchantFilterDropdown from '../../components/orders/MerchantFilterDropdown';
 
 interface OrderPermissions {
   can_export_orders: boolean;
@@ -25,6 +23,12 @@ interface OrderStats {
   exportedAwaitingTracking: number;
   trackingImportedToday: number;
   autoSyncedToday: number;
+}
+
+interface Merchant {
+  id: string;
+  name: string;
+  orderCount: number;
 }
 
 export default function Orders() {
@@ -44,16 +48,28 @@ export default function Orders() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showMerchantDropdown, setShowMerchantDropdown] = useState(false);
+  const [merchants, setMerchants] = useState<Merchant[]>([]);
+  const [merchantSearchTerm, setMerchantSearchTerm] = useState('');
+  const [loadingMerchants, setLoadingMerchants] = useState(false);
+
+  const merchantDropdownRef = useRef<HTMLDivElement>(null);
+  useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false));
 
   const filteredUserId = searchParams.get('userId');
 
   useEffect(() => {
     if (user?.id) {
       loadPermissions();
-      loadStats();
       checkSuperAdmin();
     }
-  }, [user?.id, filteredUserId]);
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadStats();
+    }
+  }, [user?.id, filteredUserId, isSuperAdmin]);
 
   useEffect(() => {
     if (filteredUserId) {
@@ -62,6 +78,12 @@ export default function Orders() {
       setFilteredMerchantName('');
     }
   }, [filteredUserId]);
+
+  useEffect(() => {
+    if ((isSuperAdmin || permissions?.can_view_all_merchants) && user?.id) {
+      loadMerchants();
+    }
+  }, [isSuperAdmin, permissions, user?.id]);
 
   const checkSuperAdmin = async () => {
     if (!user?.id) return;
@@ -119,13 +141,71 @@ export default function Orders() {
   const loadMerchantName = async (userId: string) => {
     const { data } = await supabase
       .from('user_profiles')
-      .select('first_name, last_name, business_name')
+      .select('first_name, last_name, company, name')
       .eq('id', userId)
       .maybeSingle();
 
     if (data) {
-      const name = data.business_name || `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Merchant';
+      const name = data.company || data.name || `${data.first_name || ''} ${data.last_name || ''}`.trim() || 'Unknown Merchant';
       setFilteredMerchantName(name);
+    }
+  };
+
+  const loadMerchants = async () => {
+    if (!user?.id) return;
+
+    try {
+      setLoadingMerchants(true);
+
+      let merchantQuery = supabase
+        .from('user_profiles')
+        .select('id, first_name, last_name, company, name')
+        .eq('is_admin', false)
+        .order('company');
+
+      if (!isSuperAdmin) {
+        const { data: assignments } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', user.id);
+
+        if (assignments && assignments.length > 0) {
+          const merchantIds = assignments.map(a => a.user_id);
+          merchantQuery = merchantQuery.in('id', merchantIds);
+        } else {
+          setMerchants([]);
+          setLoadingMerchants(false);
+          return;
+        }
+      }
+
+      const { data: merchantData } = await merchantQuery;
+
+      if (merchantData) {
+        const merchantsWithCounts = await Promise.all(
+          merchantData.map(async (m: any) => {
+            const { count } = await supabase
+              .from('shopify_orders')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', m.id)
+              .eq('fulfillment_status', 'UNFULFILLED')
+              .eq('exported_to_3pl', false);
+
+            return {
+              id: m.id,
+              name: m.company || m.name || `${m.first_name || ''} ${m.last_name || ''}`.trim() || 'Unknown',
+              orderCount: count || 0,
+            };
+          })
+        );
+
+        merchantsWithCounts.sort((a, b) => b.orderCount - a.orderCount);
+        setMerchants(merchantsWithCounts);
+      }
+    } catch (error) {
+      console.error('Error loading merchants:', error);
+    } finally {
+      setLoadingMerchants(false);
     }
   };
 
@@ -136,24 +216,19 @@ export default function Orders() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      // Build query based on permissions
-      let query = supabase.from('shopify_orders').select('*', { count: 'exact', head: false });
+      let merchantIds: string[] | null = null;
 
-      // Filter by merchant if specified
       if (filteredUserId) {
-        query = query.eq('user_id', filteredUserId);
+        merchantIds = [filteredUserId];
       } else if (!isSuperAdmin) {
-        // Regular admins see only assigned merchants
         const { data: assignments } = await supabase
           .from('user_assignments')
           .select('user_id')
           .eq('admin_id', user.id);
 
         if (assignments && assignments.length > 0) {
-          const merchantIds = assignments.map(a => a.user_id);
-          query = query.in('user_id', merchantIds);
+          merchantIds = assignments.map(a => a.user_id);
         } else {
-          // No assignments, show no orders
           setStats({
             readyToExport: 0,
             exportedAwaitingTracking: 0,
@@ -164,26 +239,54 @@ export default function Orders() {
         }
       }
 
-      // Ready to export: unfulfilled, not exported, paid, not cancelled
-      const { count: readyToExport } = await query
+      let readyQuery = supabase
+        .from('shopify_orders')
+        .select('*', { count: 'exact', head: true })
         .eq('fulfillment_status', 'UNFULFILLED')
         .eq('exported_to_3pl', false)
         .in('financial_status', ['PAID', 'AUTHORIZED'])
         .is('cancelled_at', null);
 
-      // Exported awaiting tracking
-      const { count: exportedAwaitingTracking } = await query
+      if (merchantIds) {
+        readyQuery = readyQuery.in('user_id', merchantIds);
+      }
+
+      const { count: readyToExport } = await readyQuery;
+
+      let awaitingQuery = supabase
+        .from('shopify_orders')
+        .select('*', { count: 'exact', head: true })
         .eq('exported_to_3pl', true)
         .eq('tracking_imported', false);
 
-      // Tracking imported today
-      const { count: trackingImportedToday } = await query
+      if (merchantIds) {
+        awaitingQuery = awaitingQuery.in('user_id', merchantIds);
+      }
+
+      const { count: exportedAwaitingTracking } = await awaitingQuery;
+
+      let importedQuery = supabase
+        .from('shopify_orders')
+        .select('*', { count: 'exact', head: true })
         .eq('tracking_imported', true)
         .gte('tracking_imported_at', today.toISOString());
 
-      // Auto-synced today
-      const { count: autoSyncedToday } = await query
+      if (merchantIds) {
+        importedQuery = importedQuery.in('user_id', merchantIds);
+      }
+
+      const { count: trackingImportedToday } = await importedQuery;
+
+      let syncedQuery = supabase
+        .from('shopify_orders')
+        .select('*', { count: 'exact', head: true })
         .gte('last_synced_to_shopify_at', today.toISOString());
+
+      if (merchantIds) {
+        syncedQuery = syncedQuery.in('user_id', merchantIds);
+      }
+
+      const { count: autoSyncedToday } = await syncedQuery;
 
       setStats({
         readyToExport: readyToExport || 0,
@@ -226,161 +329,247 @@ export default function Orders() {
     setSearchParams(searchParams);
   };
 
+  const handleSelectMerchant = (merchantId: string | null) => {
+    if (merchantId) {
+      searchParams.set('userId', merchantId);
+    } else {
+      searchParams.delete('userId');
+    }
+    setSearchParams(searchParams);
+    setShowMerchantDropdown(false);
+  };
+
+  const filteredMerchants = merchants.filter(m =>
+    m.name.toLowerCase().includes(merchantSearchTerm.toLowerCase())
+  );
+
+  const selectedMerchant = merchants.find(m => m.id === filteredUserId);
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            <Package className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-            Order Fulfillment Management
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-2xl font-normal text-gray-900 dark:text-gray-100">
+            Order Fulfillment
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Export to Mabang 3PL, import tracking, and sync to Shopify
+          {filteredMerchantName && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400 dark:text-gray-500">|</span>
+              <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm font-medium">
+                {filteredMerchantName}
+              </span>
+              <button
+                onClick={clearMerchantFilter}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                title="Clear filter"
+              >
+                <X className="w-4 h-4 text-gray-400" />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="flex items-start sm:items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 sm:mt-0 flex-shrink-0"></div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {filteredMerchantName
+              ? `Managing fulfillment for ${filteredMerchantName}`
+              : 'Export to Mabang 3PL, import tracking, and sync to Shopify'
+            }
           </p>
         </div>
+      </div>
 
-        <div className="flex items-center gap-3">
-          {/* Merchant Filter */}
+      {/* Merchant Filter and Actions Row */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
+          {/* Merchant Filter Dropdown */}
           {(isSuperAdmin || permissions?.can_view_all_merchants) && (
-            <MerchantFilterDropdown
-              currentUserId={filteredUserId}
-              onSelectMerchant={(userId) => {
-                if (userId) {
-                  searchParams.set('userId', userId);
-                } else {
-                  searchParams.delete('userId');
-                }
-                setSearchParams(searchParams);
-              }}
-            />
-          )}
+            <div className="relative" ref={merchantDropdownRef}>
+              <button
+                onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
+                className="w-full sm:w-auto h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start gap-2"
+              >
+                <Users className="w-4 h-4 text-gray-400" />
+                <span className="truncate max-w-[180px]">
+                  {selectedMerchant ? selectedMerchant.name : 'All Merchants'}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              </button>
 
-          {/* Action Buttons */}
+              {showMerchantDropdown && (
+                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={merchantSearchTerm}
+                        onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                        placeholder="Search merchants..."
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto py-1">
+                    <button
+                      onClick={() => handleSelectMerchant(null)}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
+                      {!filteredUserId && <Check className="w-4 h-4 text-gray-900 dark:text-white" />}
+                    </button>
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+                    {loadingMerchants ? (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        Loading merchants...
+                      </div>
+                    ) : filteredMerchants.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        No merchants found
+                      </div>
+                    ) : (
+                      filteredMerchants.map((merchant) => (
+                        <button
+                          key={merchant.id}
+                          onClick={() => handleSelectMerchant(merchant.id)}
+                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                              {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
+                            </p>
+                          </div>
+                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
           {permissions?.can_export_orders && (
-            <Button
+            <button
               onClick={() => setShowExportModal(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-2"
             >
-              <Download className="w-4 h-4 mr-2" />
-              Export to Mabang
-            </Button>
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Export to Mabang</span>
+              <span className="sm:hidden">Export</span>
+            </button>
           )}
 
           {permissions?.can_import_tracking && (
-            <Button
+            <button
               onClick={() => setShowImportModal(true)}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
             >
-              <Upload className="w-4 h-4 mr-2" />
-              Import Tracking
-            </Button>
+              <Upload className="w-4 h-4" />
+              <span className="hidden sm:inline">Import Tracking</span>
+              <span className="sm:hidden">Import</span>
+            </button>
           )}
 
           {permissions?.can_sync_to_shopify && (
-            <Button
+            <button
               onClick={handleManualSync}
               disabled={isSyncing}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Syncing...' : 'Sync to Shopify'}
-            </Button>
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync to Shopify'}</span>
+              <span className="sm:hidden">{isSyncing ? 'Sync...' : 'Sync'}</span>
+            </button>
           )}
         </div>
       </div>
 
-      {/* Merchant Filter Badge */}
-      {filteredUserId && filteredMerchantName && (
-        <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <Filter className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-              Filtering by: {filteredMerchantName}
-            </span>
-            <button
-              onClick={clearMerchantFilter}
-              className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <GlassCard className="p-6">
-          <div className="flex items-start justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${stats.readyToExport > 10 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+              <TrendingUp className={`w-5 h-5 ${stats.readyToExport > 10 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Ready to Export</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {stats.readyToExport}
               </p>
-            </div>
-            <div className={`p-3 rounded-xl ${stats.readyToExport > 10 ? 'bg-red-100 dark:bg-red-900/20' : 'bg-blue-100 dark:bg-blue-900/20'}`}>
-              <TrendingUp className={`w-6 h-6 ${stats.readyToExport > 10 ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`} />
             </div>
           </div>
           {stats.readyToExport > 10 && (
             <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
-              High volume - export soon!
+              High volume - export soon
             </p>
           )}
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-start justify-between">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${stats.exportedAwaitingTracking > 5 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+              <Clock className={`w-5 h-5 ${stats.exportedAwaitingTracking > 5 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Awaiting Tracking</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {stats.exportedAwaitingTracking}
               </p>
             </div>
-            <div className={`p-3 rounded-xl ${stats.exportedAwaitingTracking > 5 ? 'bg-orange-100 dark:bg-orange-900/20' : 'bg-gray-100 dark:bg-gray-800'}`}>
-              <Clock className={`w-6 h-6 ${stats.exportedAwaitingTracking > 5 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-600 dark:text-gray-400'}`} />
-            </div>
           </div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-start justify-between">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
+            </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Tracking Imported Today</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Imported Today</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {stats.trackingImportedToday}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-green-100 dark:bg-green-900/20">
-              <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
           </div>
-        </GlassCard>
+        </div>
 
-        <GlassCard className="p-6">
-          <div className="flex items-start justify-between">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </div>
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Auto-Synced Today</p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Synced Today</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
                 {stats.autoSyncedToday}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-purple-100 dark:bg-purple-900/20">
-              <RefreshCw className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
           </div>
-        </GlassCard>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <GlassCard>
+      {/* Tabs and Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('unfulfilled')}
               className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'unfulfilled'
-                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -396,7 +585,7 @@ export default function Orders() {
               onClick={() => setActiveTab('tracking')}
               className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'tracking'
-                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -407,7 +596,7 @@ export default function Orders() {
               onClick={() => setActiveTab('all')}
               className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === 'all'
-                  ? 'border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
@@ -443,7 +632,7 @@ export default function Orders() {
             />
           )}
         </div>
-      </GlassCard>
+      </div>
 
       {/* Modals */}
       {showExportModal && (

@@ -4,7 +4,6 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
-import Button from '../Button';
 import { CustomSelect } from '../CustomSelect';
 import { toast } from 'sonner';
 
@@ -195,7 +194,7 @@ export default function UnfulfilledOrdersTab({
   if (loading) {
     return (
       <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white mx-auto"></div>
         <p className="text-gray-600 dark:text-gray-400 mt-4">Loading orders...</p>
       </div>
     );
@@ -212,7 +211,7 @@ export default function UnfulfilledOrdersTab({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search orders, customers, merchants..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
             />
           </div>
 
@@ -225,13 +224,13 @@ export default function UnfulfilledOrdersTab({
         </div>
 
         {selectedOrders.size > 0 && permissions?.can_export_orders && (
-          <Button
+          <button
             onClick={onExport}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+            className="h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-2"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4" />
             Export Selected ({selectedOrders.size})
-          </Button>
+          </button>
         )}
       </div>
 
@@ -251,7 +250,7 @@ export default function UnfulfilledOrdersTab({
                     type="checkbox"
                     checked={selectedOrders.size === filteredOrders.length && filteredOrders.length > 0}
                     onChange={toggleAllOrders}
-                    className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-gray-500"
                   />
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
@@ -291,7 +290,7 @@ export default function UnfulfilledOrdersTab({
                         type="checkbox"
                         checked={selectedOrders.has(order.id)}
                         onChange={() => toggleOrderSelection(order.id)}
-                        className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-gray-500"
                       />
                     </td>
                     <td className="px-4 py-4">
@@ -346,11 +345,11 @@ export default function UnfulfilledOrdersTab({
                     </td>
                     <td className="px-4 py-4">
                       {order.exported_to_3pl ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                           Exported {order.exported_at && format(new Date(order.exported_at), 'MM/dd')}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
                           Ready to Export
                         </span>
                       )}
@@ -359,7 +358,7 @@ export default function UnfulfilledOrdersTab({
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/admin/chat?orderId=${order.shopify_order_id}`}
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                           title="View in Chat"
                         >
                           <MessageSquare className="w-4 h-4" />
@@ -368,7 +367,7 @@ export default function UnfulfilledOrdersTab({
                           href={`https://${order.shopify_order_id?.split('/')[0]}/admin/orders/${order.shopify_order_id?.split('/').pop()}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                           title="View in Shopify"
                         >
                           <ExternalLink className="w-4 h-4" />
