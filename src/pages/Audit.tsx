@@ -654,7 +654,13 @@ export default function Audit() {
             <FilterButton
               icon={Filter}
               label="Platform"
-              selectedLabel={selectedPlatforms.includes('all') ? 'All' : `${selectedPlatforms.length} selected`}
+              selectedLabel={
+                selectedPlatforms.includes('all')
+                  ? 'All'
+                  : selectedPlatforms.length === 1
+                    ? platforms.find(p => p.id === selectedPlatforms[0])?.name || selectedPlatforms[0]
+                    : `(${selectedPlatforms.length})`
+              }
               onClick={() => setShowPlatformFilter(!showPlatformFilter)}
               isActive={!selectedPlatforms.includes('all')}
               activeCount={!selectedPlatforms.includes('all') ? selectedPlatforms.length : 0}
