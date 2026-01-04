@@ -541,7 +541,141 @@ export default function AdminsManagement() {
 
       {/* Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="p-4 bg-white dark:bg-gray-800">
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : sortedRows.length === 0 ? (
+            <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              No {filterType === 'all' ? 'admins' : filterType.replace('_', ' ')} found
+            </div>
+          ) : (
+            sortedRows.map((row) => (
+              <div key={row.id} className="p-4 bg-white dark:bg-gray-800">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {row.name || row.email.split('@')[0]}
+                      </p>
+                      {getRoleBadge(row.role)}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-2">
+                      {row.email}
+                    </p>
+
+                    <div className="flex items-center flex-wrap gap-2 mb-2">
+                      {getStatusBadge(row)}
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {format(new Date(row.dateAdded), 'MMM dd, yyyy')}
+                      </span>
+                    </div>
+
+                    {row.type === 'invitation' && row.invitedBy && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Mail className="w-3 h-3" />
+                        <span>Invited by {row.invitedBy}</span>
+                      </div>
+                    )}
+                    {row.expiresAt && row.status === 'pending' && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <Clock className="w-3 h-3" />
+                        <span>Expires {formatDistanceToNow(new Date(row.expiresAt), { addSuffix: true })}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="relative" ref={actionMenuOpen === row.id ? actionMenuRef : null}>
+                    <button
+                      onClick={() => setActionMenuOpen(actionMenuOpen === row.id ? null : row.id)}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors touch-manipulation"
+                    >
+                      <MoreVertical className="w-4 h-4 text-gray-500" />
+                    </button>
+
+                    {actionMenuOpen === row.id && (
+                      (row.type === 'invitation' && (row.status === 'pending' || row.status === 'revoked')) || (row.type === 'admin' && row.userId)
+                    ) && (
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-[100]">
+                        {row.type === 'invitation' && row.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleResendInvite(row.id, row.email)}
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                            >
+                              <RotateCw className="w-4 h-4" />
+                              <span>Resend Invite</span>
+                            </button>
+                            <button
+                              onClick={() => handleCancelInvite(row.id, row.email)}
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                            >
+                              <XCircle className="w-4 h-4" />
+                              <span>Cancel Invite</span>
+                            </button>
+                          </>
+                        )}
+                        {row.type === 'invitation' && row.status === 'revoked' && (
+                          <button
+                            onClick={() => {
+                              setDeleteConfirmation({ id: row.id, email: row.email, type: 'invitation' });
+                              setActionMenuOpen(null);
+                            }}
+                            className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span>Delete Invitation</span>
+                          </button>
+                        )}
+                        {row.type === 'admin' && row.userId && (
+                          <>
+                            <button
+                              onClick={() => handleResetProfilePicture(row.userId!, row.email)}
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                            >
+                              <Image className="w-4 h-4" />
+                              <span>Reset Profile Picture</span>
+                            </button>
+                            <button
+                              onClick={() => handleResetUsername(row.userId!, row.email)}
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                            >
+                              <User className="w-4 h-4" />
+                              <span>Reset Username</span>
+                            </button>
+                            <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                            <button
+                              onClick={() => {
+                                setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
+                                setActionMenuOpen(null);
+                              }}
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              <span>Remove Admin</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">

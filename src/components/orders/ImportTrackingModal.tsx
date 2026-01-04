@@ -465,14 +465,17 @@ export default function ImportTrackingModal({ filteredUserId, merchants = [], is
                 <div className="px-6 py-4 space-y-4">
                   {/* Selected Merchant Tag or Search */}
                   {selectedMerchant ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <span className="text-sm text-gray-500 dark:text-gray-400">Merchant:</span>
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full text-sm font-medium">
+                      <div className="inline-flex items-center gap-2 pl-3 pr-1.5 py-1.5 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white">
+                        <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                         <span>{selectedMerchant.name}</span>
                         {!filteredUserId && (
                           <button
+                            type="button"
                             onClick={() => setSelectedMerchantId(null)}
-                            className="p-0.5 hover:bg-white/20 dark:hover:bg-gray-900/20 rounded-full transition-colors"
+                            className="p-1 ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
+                            title="Remove selection"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>

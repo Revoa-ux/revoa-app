@@ -396,7 +396,9 @@ export default function ExportToMabangModal({ filteredUserId, preSelectedOrderId
                 Export to Mabang 3PL
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {orders.length} orders ready for export
+                {selectedOrders.size > 0
+                  ? `${selectedOrders.size} of ${orders.length} orders selected`
+                  : `${orders.length} orders available`}
               </p>
             </div>
             <button

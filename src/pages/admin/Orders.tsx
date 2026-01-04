@@ -435,7 +435,7 @@ export default function Orders() {
               />
 
               {showMerchantDropdown && (
-                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="absolute left-0 z-50 w-[calc(100vw-2rem)] max-w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -444,15 +444,19 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                        className="w-full pl-9 pr-3 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                       />
                     </div>
                   </div>
 
-                  <div className="max-h-64 overflow-y-auto">
+                  <div className="max-h-64 overflow-y-auto overscroll-contain">
                     <button
-                      onClick={() => handleSelectMerchant(null)}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectMerchant(null);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-3 text-sm text-left active:bg-gray-100 dark:active:bg-gray-700 transition-colors touch-manipulation ${
                         !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                       }`}
                     >
@@ -473,9 +477,13 @@ export default function Orders() {
                     ) : (
                       filteredMerchants.map((merchant) => (
                         <button
+                          type="button"
                           key={merchant.id}
-                          onClick={() => handleSelectMerchant(merchant.id)}
-                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectMerchant(merchant.id);
+                          }}
+                          className={`flex items-center justify-between w-full px-4 py-3 text-sm text-left active:bg-gray-100 dark:active:bg-gray-700 transition-colors touch-manipulation ${
                             filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                           }`}
                         >

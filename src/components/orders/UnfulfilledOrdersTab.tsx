@@ -296,8 +296,12 @@ export default function UnfulfilledOrdersTab({
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => toggleOrderExpansion(order.id)}
-                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleOrderExpansion(order.id);
+                      }}
+                      className="p-1.5 -m-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 touch-manipulation"
                     >
                       {expandedOrders.has(order.id) ? (
                         <ChevronDown className="w-4 h-4" />
@@ -440,8 +444,12 @@ export default function UnfulfilledOrdersTab({
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => toggleOrderExpansion(order.id)}
-                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleOrderExpansion(order.id);
+                        }}
+                        className="p-1 -m-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                       >
                         {expandedOrders.has(order.id) ? (
                           <ChevronDown className="w-4 h-4" />

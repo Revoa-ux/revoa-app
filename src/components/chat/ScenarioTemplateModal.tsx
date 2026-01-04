@@ -939,7 +939,7 @@ export function ScenarioTemplateModal({
                     onClick={handleSyncToOrder}
                     className="group px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center gap-2 shadow-sm"
                   >
-                    <span>Populate &rarr;</span>
+                    Populate
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                   </button>
                 ) : (
@@ -955,7 +955,7 @@ export function ScenarioTemplateModal({
                       </>
                     ) : (
                       <>
-                        <span>Populate &rarr;</span>
+                        Populate
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}

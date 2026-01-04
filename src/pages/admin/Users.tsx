@@ -542,7 +542,136 @@ export default function Users() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="relative overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="sm:hidden divide-y divide-gray-200 dark:divide-gray-700">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 flex items-center gap-3">
+            <CustomCheckbox
+              checked={selectAll}
+              onChange={(e) => handleSelectAll(e)}
+            />
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+              {selectedUsers.length > 0 ? `${selectedUsers.length} selected` : 'Select all'}
+            </span>
+          </div>
+
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="p-4 bg-white dark:bg-gray-800">
+                <div className="flex items-start gap-3">
+                  <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : sortedUsers.length === 0 ? (
+            <div className="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              No users found
+            </div>
+          ) : (
+            sortedUsers.map((user) => (
+              <div key={user.id} className="p-4 bg-white dark:bg-gray-800">
+                <div className="flex items-start gap-3">
+                  <CustomCheckbox
+                    checked={selectedUsers.includes(user.id)}
+                    onChange={() => handleSelectUser(user.id)}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          {user.name || user.email.split('@')[0]}
+                        </p>
+                        {(user.company || user.storeUrl) && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {user.company || user.storeUrl}
+                          </p>
+                        )}
+                      </div>
+                      <UserActionsMenu
+                        userId={user.user_id}
+                        userEmail={user.email}
+                        isActive={true}
+                        isAssigned={user.isAssigned}
+                        currentUserEmail={currentUser?.email}
+                        onViewProfile={() => {
+                          setSelectedUserId(user.user_id);
+                          setShowUserProfile(true);
+                        }}
+                        onResetPassword={() => toast.success('Password reset email sent')}
+                        onToggleStatus={(_, active) => toast.success(`User ${active ? 'enabled' : 'disabled'} successfully`)}
+                        onReassign={() => {
+                          setSelectedUsers([user.user_id]);
+                          setShowAssignModal(true);
+                        }}
+                        onRemoveAssignment={async () => {
+                          try {
+                            const { error } = await supabase
+                              .from('user_assignments')
+                              .delete()
+                              .eq('user_id', user.user_id);
+                            if (error) throw error;
+                            toast.success('User assignment removed');
+                            await fetchUsers();
+                          } catch (error) {
+                            console.error('Error removing assignment:', error);
+                            toast.error('Failed to remove assignment');
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      <span>{user.registrationDate}</span>
+                      {isSuperAdmin && user.assignedTo && (
+                        <>
+                          <span>-</span>
+                          <span className="truncate">{user.assignedTo.name || user.assignedTo.email}</span>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                        Vol: ${user.volume.toLocaleString()}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                        Txn: ${user.transactions.toLocaleString()}
+                      </span>
+                      {user.invoices > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/admin/invoices?userId=${user.user_id}`);
+                          }}
+                          className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400"
+                        >
+                          Inv: {user.invoices}
+                        </button>
+                      )}
+                      {user.activeQuotes > 0 && (
+                        <button
+                          onClick={() => {
+                            setActiveQuotesUser({ id: user.user_id, name: user.name || user.email.split('@')[0] });
+                            setShowActiveQuotesModal(true);
+                          }}
+                          className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400"
+                        >
+                          Quotes: {user.activeQuotes}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden sm:block relative overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
