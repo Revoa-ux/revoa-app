@@ -55,7 +55,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center rounded-lg transition-colors',
+        'inline-flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-1 focus:ring-[#E85B81]',
         variantStyles[variant],
         sizeStyles[size],
         fullWidth && 'w-full',

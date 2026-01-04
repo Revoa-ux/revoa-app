@@ -393,7 +393,7 @@ export default function AcceptInvitation() {
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleChange('firstName', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
                         errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       placeholder="John"
@@ -414,7 +414,7 @@ export default function AcceptInvitation() {
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleChange('lastName', e.target.value)}
-                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                      className={`w-full pl-9 pr-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
                         errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                       }`}
                       placeholder="Doe"
@@ -451,7 +451,7 @@ export default function AcceptInvitation() {
                     type={showPassword.password ? 'text' : 'password'}
                     value={formData.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
                       errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter a strong password"
@@ -459,7 +459,7 @@ export default function AcceptInvitation() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, password: !prev.password }))}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#E85B81] rounded"
                   >
                     {showPassword.password ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -482,7 +482,7 @@ export default function AcceptInvitation() {
                     type={showPassword.confirm ? 'text' : 'password'}
                     value={formData.confirmPassword}
                     onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    className={`w-full pl-9 pr-10 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#E85B81] ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Confirm your password"
@@ -490,7 +490,7 @@ export default function AcceptInvitation() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#E85B81] rounded"
                   >
                     {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -504,7 +504,7 @@ export default function AcceptInvitation() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="group relative w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="group relative w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-800 dark:hover:bg-gray-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-[#E85B81]"
                 >
                   <span className="flex items-center gap-2">
                     {submitting ? 'Creating Account...' : 'Accept Invitation & Create Account'}
