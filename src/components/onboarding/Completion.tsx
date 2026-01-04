@@ -270,12 +270,26 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               {/* Yes option */}
               <div
                 onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: true })}
-                className={`p-4 rounded-lg cursor-pointer transition-all border ${
+                className={`rounded-lg cursor-pointer transition-all relative ${
                   formData.wants_growth_assistance === true
-                    ? 'border-gray-900 dark:border-gray-100 ring-2 ring-gray-900 dark:ring-gray-100 bg-gray-50 dark:bg-gray-900/50'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'p-[1px]'
+                    : ''
                 }`}
+                style={
+                  formData.wants_growth_assistance === true
+                    ? {
+                        background: 'linear-gradient(to right, rgb(244 63 94), rgb(236 72 153), rgb(251 146 60))',
+                      }
+                    : {}
+                }
               >
+                <div
+                  className={`p-4 rounded-lg ${
+                    formData.wants_growth_assistance === true
+                      ? 'bg-gray-50 dark:bg-gray-900/50'
+                      : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
                 <div className="flex items-start">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === true
@@ -312,6 +326,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                       </div>
                     )}
                   </div>
+                </div>
                 </div>
               </div>
 
