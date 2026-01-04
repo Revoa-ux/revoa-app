@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Shield, ShieldCheck, Lock, Mail, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { LoadingPage } from '@/components/LoadingPage';
 import Button from '@/components/Button';
 import { passwordSchema } from '@/lib/adminProfileValidation';
@@ -56,17 +57,33 @@ export default function AcceptInvitation() {
       return;
     }
 
-    validateInvitation();
+    // Clear any existing session to avoid conflicts
+    const clearSessionAndValidate = async () => {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.error('Error clearing session:', err);
+      }
+      validateInvitation();
+    };
+
+    clearSessionAndValidate();
   }, [token]);
 
   const validateInvitation = async () => {
     try {
+      // Use anon client to bypass RLS for invitation lookup
+      const anonClient = createClient(
+        import.meta.env.VITE_SUPABASE_URL,
+        import.meta.env.VITE_SUPABASE_ANON_KEY
+      );
+
       // Fetch invitation details - try both id and invitation_token for backwards compatibility
       let data: any = null;
       let inviteError: any = null;
 
       // First try with invitation_token (the token in the URL)
-      const { data: tokenData, error: tokenError } = await supabase
+      const { data: tokenData, error: tokenError } = await anonClient
         .from('admin_invitations')
         .select(`
           email,
@@ -85,7 +102,7 @@ export default function AcceptInvitation() {
         data = tokenData;
       } else {
         // Fallback: try with id (in case the token is actually the invitation id)
-        const { data: idData, error: idError } = await supabase
+        const { data: idData, error: idError } = await anonClient
           .from('admin_invitations')
           .select(`
             email,
@@ -105,6 +122,7 @@ export default function AcceptInvitation() {
       }
 
       if (inviteError || !data) {
+        console.error('Invitation lookup failed:', { tokenError, inviteError, token });
         setError('Invalid or expired invitation');
         setLoading(false);
         return;
@@ -307,11 +325,11 @@ export default function AcceptInvitation() {
             <Button
               variant="primary"
               size="lg"
-              onClick={() => navigate('/auth')}
+              onClick={() => window.location.href = 'https://revoa.app'}
               fullWidth
               className="!bg-gray-900 hover:!bg-gray-800 dark:!bg-gray-800 dark:hover:!bg-gray-700"
             >
-              Go to Login
+              Go to Revoa.app
             </Button>
           </div>
         </div>
