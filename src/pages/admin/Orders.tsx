@@ -428,7 +428,7 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                       />
                     </div>
                   </div>
@@ -437,14 +437,14 @@ export default function Orders() {
                     <button
                       onClick={() => handleSelectMerchant(null)}
                       className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        !filteredUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
+                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
                       {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                    <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
                     {loadingMerchants ? (
                       <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -460,7 +460,7 @@ export default function Orders() {
                           key={merchant.id}
                           onClick={() => handleSelectMerchant(merchant.id)}
                           className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                            filteredUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
+                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
@@ -504,7 +504,7 @@ export default function Orders() {
                         value={merchantSearchTerm}
                         onChange={(e) => setMerchantSearchTerm(e.target.value)}
                         placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
                       />
                     </div>
                   </div>
@@ -513,14 +513,14 @@ export default function Orders() {
                     <button
                       onClick={() => handleSelectMerchant(null)}
                       className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        !filteredUserId ? 'bg-rose-50 dark:bg-rose-900/20' : ''
+                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                       }`}
                     >
                       <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
                       {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
                     </button>
 
-                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                    <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
                     {loadingMerchants ? (
                       <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -536,7 +536,7 @@ export default function Orders() {
                           key={merchant.id}
                           onClick={() => handleSelectMerchant(merchant.id)}
                           className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                            filteredUserId === merchant.id ? 'bg-rose-50 dark:bg-rose-900/20' : ''
+                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
                           }`}
                         >
                           <div className="flex-1 min-w-0">
