@@ -1653,10 +1653,27 @@ const SettingsPage = () => {
         throw new Error(result.error || 'Failed to test order');
       }
 
+      const summary = result.summary;
       const extracted = result.extracted_data;
       const customer = extracted.customer;
       const shippingAddr = extracted.shipping_address;
       const billingAddr = extracted.billing_address;
+
+      console.log('=== Order Summary ===');
+      console.log(summary);
+      console.log('=== Full Order Data ===');
+      console.log('Customer object:', customer);
+      console.log('Shipping address:', shippingAddr);
+      console.log('Billing address:', billingAddr);
+      console.log('Order email:', extracted.email);
+      console.log('Contact email:', extracted.contact_email);
+      console.log('=== Raw Shopify Order ===');
+      console.log(result.raw_order);
+
+      if (!summary.customer_populated && !summary.shipping_populated && !summary.billing_populated && !summary.order_email) {
+        toast.error(`Order ${summary.order_name}: NO customer data anywhere. Empty draft order. Status: ${summary.financial_status}/${summary.fulfillment_status || 'unfulfilled'}`);
+        return;
+      }
 
       if (extracted.has_customer && customer) {
         const hasData = customer.first_name || customer.last_name || customer.email;
@@ -1674,7 +1691,7 @@ const SettingsPage = () => {
           } else if (extracted.email) {
             toast.warning(`Customer empty → Only email available: ${extracted.email}`);
           } else {
-            toast.error(`Customer object exists but all name/email fields are null. Check console.`);
+            toast.error(`Customer object exists but all fields null. Order: ${summary.order_name}. See console for details.`);
           }
         }
       } else if (extracted.email) {
@@ -1685,10 +1702,8 @@ const SettingsPage = () => {
         const name = `${shippingAddr.first_name || ''} ${shippingAddr.last_name || ''}`.trim();
         toast.info(`No customer, but shipping address: ${name || 'no name'}`);
       } else {
-        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. Check console.`);
+        toast.error(`No customer data. Source: ${extracted.source_name || 'unknown'}. See console.`);
       }
-      console.log('Full Shopify order data:', result.raw_order);
-      console.log('Extracted data:', extracted);
     } catch (error: any) {
       console.error('Error testing order:', error);
       toast.error(error.message || 'Failed to test order');

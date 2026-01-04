@@ -68,20 +68,38 @@ Deno.serve(async (req: Request) => {
 
     const data = await response.json();
 
+    const order = data.order;
+    const customer = order.customer || {};
+    const shipping = order.shipping_address || {};
+    const billing = order.billing_address || {};
+
     return new Response(
       JSON.stringify({
-        raw_order: data.order,
+        summary: {
+          order_name: order.name,
+          financial_status: order.financial_status,
+          fulfillment_status: order.fulfillment_status,
+          has_customer_object: !!order.customer,
+          customer_populated: !!(customer.first_name || customer.last_name || customer.email),
+          shipping_populated: !!(shipping.first_name || shipping.last_name),
+          billing_populated: !!(billing.first_name || billing.last_name),
+          order_email: order.email || null,
+          contact_email: order.contact_email || null
+        },
         extracted_data: {
-          has_customer: !!data.order.customer,
-          customer: data.order.customer,
-          email: data.order.email,
-          contact_email: data.order.contact_email,
-          shipping_address: data.order.shipping_address,
-          billing_address: data.order.billing_address,
-          source_name: data.order.source_name,
-          source_identifier: data.order.source_identifier,
-          source_url: data.order.source_url
-        }
+          has_customer: !!order.customer,
+          customer: order.customer,
+          email: order.email,
+          contact_email: order.contact_email,
+          shipping_address: order.shipping_address,
+          billing_address: order.billing_address,
+          source_name: order.source_name,
+          source_identifier: order.source_identifier,
+          source_url: order.source_url,
+          phone: order.phone,
+          customer_phone: customer.phone
+        },
+        raw_order: order
       }, null, 2),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
