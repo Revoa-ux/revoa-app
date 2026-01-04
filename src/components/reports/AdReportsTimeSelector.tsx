@@ -235,7 +235,7 @@ const AdReportsTimeSelector: React.FC<AdReportsTimeSelectorProps> = ({
       </button>
 
       {showDropdown && !showCustomPicker && (
-        <div className="absolute right-0 sm:left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
+        <div className="absolute left-0 mt-2 min-w-[160px] w-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-[100]">
           {timeOptions.map((time, index) => (
             <button
               key={time}
