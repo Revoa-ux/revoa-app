@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { FilterButton } from '@/components/FilterButton';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { InviteAdminModal } from '@/components/admin/InviteAdminModal';
 import Modal from '@/components/Modal';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -48,6 +49,7 @@ interface AdminRow {
 }
 
 export default function AdminsManagement() {
+  const { profile } = useAuth();
   const [rows, setRows] = useState<AdminRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -61,6 +63,9 @@ export default function AdminsManagement() {
   });
   const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string; email: string; type: 'invitation' | 'admin'; userId?: string } | null>(null);
+
+  const PROTECTED_ADMIN_EMAIL = 'tyler@revoa.app';
+  const currentUserEmail = profile?.email;
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -222,6 +227,12 @@ export default function AdminsManagement() {
 
   const handleRemoveAdmin = async () => {
     if (!deleteConfirmation || deleteConfirmation.type !== 'admin' || !deleteConfirmation.userId) return;
+
+    if (deleteConfirmation.email === PROTECTED_ADMIN_EMAIL && currentUserEmail !== PROTECTED_ADMIN_EMAIL) {
+      toast.error('This admin account cannot be removed');
+      setDeleteConfirmation(null);
+      return;
+    }
 
     try {
       console.log('Removing admin:', deleteConfirmation.email, deleteConfirmation.userId);
@@ -696,17 +707,21 @@ export default function AdminsManagement() {
                                   <User className="w-4 h-4" />
                                   <span>Reset Username</span>
                                 </button>
-                                <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                                <button
-                                  onClick={() => {
-                                    setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
-                                    setActionMenuOpen(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  <span>Remove Admin</span>
-                                </button>
+                                {(row.email !== PROTECTED_ADMIN_EMAIL || currentUserEmail === PROTECTED_ADMIN_EMAIL) && (
+                                  <>
+                                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                    <button
+                                      onClick={() => {
+                                        setDeleteConfirmation({ id: row.id, email: row.email, type: 'admin', userId: row.userId });
+                                        setActionMenuOpen(null);
+                                      }}
+                                      className="w-full px-4 py-2 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center space-x-2 text-red-600 dark:text-red-400"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                      <span>Remove Admin</span>
+                                    </button>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>

@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Modal from '@/components/Modal';
+import { CustomRadio } from '@/components/CustomRadio';
 import { z } from 'zod';
 
 interface InviteAdminModalProps {
@@ -187,14 +188,13 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
           </label>
           <div className="space-y-3">
             <label className="flex items-start p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <input
-                type="radio"
+              <CustomRadio
                 name="role"
                 value="admin"
                 checked={role === 'admin'}
                 onChange={(e) => setRole(e.target.value as 'admin')}
-                className="mt-1 text-[#E85B81] focus:ring-[#E85B81]"
                 disabled={isSubmitting}
+                className="mt-1"
               />
               <div className="ml-3 flex-1">
                 <div className="flex items-center gap-2">
@@ -208,18 +208,17 @@ export const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
             </label>
 
             <label className="flex items-start p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-              <input
-                type="radio"
+              <CustomRadio
                 name="role"
                 value="super_admin"
                 checked={role === 'super_admin'}
                 onChange={(e) => setRole(e.target.value as 'super_admin')}
-                className="mt-1 text-[#E85B81] focus:ring-[#E85B81]"
                 disabled={isSubmitting}
+                className="mt-1"
               />
               <div className="ml-3 flex-1">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#E85B81]" />
+                  <ShieldCheck className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   <span className="font-medium text-gray-900 dark:text-white">Super Admin</span>
                 </div>
                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
