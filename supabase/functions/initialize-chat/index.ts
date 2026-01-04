@@ -57,12 +57,12 @@ Deno.serve(async (req: Request) => {
     if (!adminId) {
       console.log('No existing assignment, performing round-robin assignment...');
 
-      // Get all admins with their assignment counts
+      // Get all admins with their assignment counts (excluding super admins)
       const { data: admins, error: adminsError } = await supabase
         .from('user_profiles')
         .select('id, name, first_name, last_name')
         .eq('is_admin', true)
-        .order('is_super_admin', { ascending: false });
+        .eq('is_super_admin', false);
 
       if (adminsError || !admins || admins.length === 0) {
         throw new Error('No admins available for assignment');

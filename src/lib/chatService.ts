@@ -144,12 +144,12 @@ export const chatService = {
     if (!assignment?.admin_id) {
       console.log('No admin assigned, attempting auto-assignment...');
 
-      // Get the first available admin (preferably super_admin)
+      // Get the first available admin (excluding super admins)
       const { data: adminProfile, error: adminError } = await supabase
         .from('user_profiles')
         .select('id')
         .eq('is_admin', true)
-        .order('is_super_admin', { ascending: false }) // super_admin before admin
+        .eq('is_super_admin', false)
         .limit(1)
         .maybeSingle();
 

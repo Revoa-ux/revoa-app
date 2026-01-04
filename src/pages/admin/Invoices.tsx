@@ -321,7 +321,8 @@ export default function Invoices() {
       const { data: adminProfiles, error } = await supabase
         .from('user_profiles')
         .select('user_id, name, first_name, last_name, email')
-        .eq('is_admin', true);
+        .eq('is_admin', true)
+        .eq('is_super_admin', false);
 
       if (error) throw error;
 

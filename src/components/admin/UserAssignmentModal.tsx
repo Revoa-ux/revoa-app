@@ -38,6 +38,7 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
         .from('user_profiles')
         .select('user_id, email, first_name, last_name, is_super_admin, admin_role')
         .eq('is_admin', true)
+        .eq('is_super_admin', false)
         .order('email');
 
       if (adminError) throw adminError;
@@ -56,18 +57,16 @@ export const UserAssignmentModal: React.FC<UserAssignmentModalProps> = ({
         countMap.set(assignment.admin_id, currentCount + 1);
       });
 
-      // Filter out super admins from assignment list
-      const adminList = adminProfiles
-        ?.filter(admin => !admin.is_super_admin)
-        .map(admin => ({
-          id: admin.user_id,
-          name: admin.first_name && admin.last_name
-            ? `${admin.first_name} ${admin.last_name}`
-            : admin.email.split('@')[0],
-          role: admin.is_super_admin ? 'super_admin' : 'admin',
-          assignedUsers: countMap.get(admin.user_id) || 0,
-          email: admin.email
-        })) || [];
+      // Map admin profiles to list format
+      const adminList = adminProfiles?.map(admin => ({
+        id: admin.user_id,
+        name: admin.first_name && admin.last_name
+          ? `${admin.first_name} ${admin.last_name}`
+          : admin.email.split('@')[0],
+        role: 'admin',
+        assignedUsers: countMap.get(admin.user_id) || 0,
+        email: admin.email
+      })) || [];
 
       setAdmins(adminList);
     } catch (error) {
