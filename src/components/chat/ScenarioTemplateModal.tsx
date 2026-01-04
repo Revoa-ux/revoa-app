@@ -197,8 +197,6 @@ export function ScenarioTemplateModal({
   const { user } = useAuth();
   const userId = propUserId || user?.id;
 
-  console.log('ScenarioTemplateModal render - userId:', userId, 'propUserId:', propUserId, 'user?.id:', user?.id, 'orderId:', orderId, 'isOpen:', isOpen);
-
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [isAssignedToOrder, setIsAssignedToOrder] = useState(false);
   const [populatedSubject, setPopulatedSubject] = useState('');
@@ -227,11 +225,11 @@ export function ScenarioTemplateModal({
   // Define loadOrders function before it's used in useEffect
   const loadOrders = useCallback(async () => {
     if (!userId) {
-      console.log('loadOrders: No userId available');
+      toast.error('No userId available - cannot load orders');
       return;
     }
 
-    console.log('loadOrders: Loading orders for userId:', userId);
+    toast.info(`Loading orders for user: ${userId.substring(0, 8)}...`);
     setIsLoadingOrders(true);
     try {
       const { data, error } = await supabase
@@ -242,18 +240,22 @@ export function ScenarioTemplateModal({
         .limit(50);
 
       if (error) {
-        console.error('loadOrders: Query error:', error);
+        toast.error(`Query error: ${error.message}`);
         throw error;
       }
 
-      console.log('loadOrders: Fetched', data?.length || 0, 'orders');
+      toast.success(`Fetched ${data?.length || 0} orders from database`);
 
       // Filter out orders without customer information for better UX
       const ordersWithCustomers = (data || []).filter(order =>
         order.customer_first_name || order.customer_last_name || order.customer_email
       );
 
-      console.log('loadOrders: After filtering,', ordersWithCustomers.length, 'orders with customer info');
+      if (ordersWithCustomers.length === 0) {
+        toast.warning('No orders found with customer information');
+      } else {
+        toast.success(`Found ${ordersWithCustomers.length} orders with customer info`);
+      }
 
       setAllOrders(ordersWithCustomers);
       setOrders(ordersWithCustomers);
@@ -290,19 +292,19 @@ export function ScenarioTemplateModal({
     if (isOpen) {
       loadTemplates();
       if (userId && !orderId) {
-        console.log('Modal opened, loading orders on mount');
         loadOrders();
       }
     }
   }, [isOpen, userId, orderId, loadOrders]);
 
   useEffect(() => {
-    console.log('showOrderSelector effect - showOrderSelector:', showOrderSelector, 'userId:', userId, 'orderId:', orderId, 'allOrders.length:', allOrders.length, 'isLoadingOrders:', isLoadingOrders);
-
     if (showOrderSelector && userId && !orderId) {
-      // Load orders when order selector is shown
-      console.log('showOrderSelector is true and userId exists, loading orders');
+      toast.info('Populate clicked - loading orders...');
       loadOrders();
+    } else if (showOrderSelector && !userId) {
+      toast.error('Cannot load orders - no user ID available');
+    } else if (showOrderSelector && orderId) {
+      toast.info('Order already attached to thread');
     }
   }, [showOrderSelector, loadOrders, userId, orderId]);
 
