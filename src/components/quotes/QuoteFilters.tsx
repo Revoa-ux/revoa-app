@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Search, Filter, ChevronDown, Check } from 'lucide-react';
+import { Search, Filter, Check } from 'lucide-react';
 import { Quote } from '@/types/quotes';
 import { getStatusText } from './QuoteStatus';
 import { useClickOutside } from '@/lib/useClickOutside';
+import { FilterButton } from '@/components/FilterButton';
 
 interface QuoteFiltersProps {
   searchTerm: string;
@@ -19,8 +20,11 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
 }) => {
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
   const statusDropdownRef = React.useRef<HTMLDivElement>(null);
-  
+
   useClickOutside(statusDropdownRef, () => setShowStatusDropdown(false));
+
+  const selectedStatusLabel = statusFilter === 'all' ? 'All' : getStatusText(statusFilter);
+  const isFiltered = statusFilter !== 'all';
 
   return (
     <div className="flex items-stretch gap-3 w-full sm:w-auto">
@@ -35,17 +39,16 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
         />
       </div>
 
-      <div className="relative w-[52px] sm:flex-initial sm:min-w-[180px]" ref={statusDropdownRef}>
-        <button
+      <div className="relative" ref={statusDropdownRef}>
+        <FilterButton
+          icon={Filter}
+          label="Status"
+          selectedLabel={selectedStatusLabel}
           onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-          className="filter-button w-full h-[38px] flex items-center justify-center sm:justify-between px-3 sm:px-4 rounded-lg"
-        >
-          <div className="flex items-center space-x-2 min-w-0">
-            <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span className="hidden sm:inline truncate">Status: {statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}</span>
-          </div>
-          <ChevronDown className="hidden sm:block w-4 h-4 text-gray-400 flex-shrink-0" />
-        </button>
+          isActive={isFiltered}
+          activeCount={isFiltered ? 1 : 0}
+          hideLabel="md"
+        />
 
         {showStatusDropdown && (
           <div className="absolute right-0 z-50 w-[200px] sm:w-auto sm:min-w-[200px] mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -57,7 +60,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
               className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <span>All Products</span>
-              {statusFilter === 'all' && <Check className="w-4 h-4 text-primary-500" />}
+              {statusFilter === 'all' && <Check className="w-4 h-4 text-blue-500" />}
             </button>
             {(['quote_pending', 'quoted', 'rejected', 'expired', 'accepted', 'pending_reacceptance', 'synced_with_shopify', 'cancelled'] as const).map((status, index, array) => (
               <button
@@ -71,7 +74,7 @@ export const QuoteFilters: React.FC<QuoteFiltersProps> = ({
                 }`}
               >
                 <span>{getStatusText(status)}</span>
-                {statusFilter === status && <Check className="w-4 h-4 text-primary-500" />}
+                {statusFilter === status && <Check className="w-4 h-4 text-blue-500" />}
               </button>
             ))}
           </div>

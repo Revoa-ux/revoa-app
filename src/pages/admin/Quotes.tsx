@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Search,
   Filter,
-  ChevronDown,
   Check,
   X,
   ExternalLink,
   Clock,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Users as UsersIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -16,6 +16,7 @@ import { supabase } from '@/lib/supabase';
 import { NewProcessQuoteModal } from '@/components/admin/NewProcessQuoteModal';
 import { QuoteVariant } from '@/types/quotes';
 import { getStatusText } from '@/components/quotes/QuoteStatus';
+import { FilterButton } from '@/components/FilterButton';
 import { useAdmin } from '@/contexts/AdminContext';
 
 interface Quote {
@@ -446,13 +447,15 @@ export default function AdminQuotes() {
           </div>
 
           <div className="relative" ref={statusDropdownRef}>
-            <button
+            <FilterButton
+              icon={Filter}
+              label="Status"
+              selectedLabel={statusFilter === 'all' ? 'All' : getStatusText(statusFilter)}
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-            >
-              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-            </button>
+              isActive={statusFilter !== 'all'}
+              activeCount={statusFilter !== 'all' ? 1 : 0}
+              hideLabel="md"
+            />
 
             {showStatusDropdown && (
               <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
@@ -475,14 +478,19 @@ export default function AdminQuotes() {
 
           {isSuperAdmin && (
             <div className="relative" ref={adminFilterDropdownRef}>
-              <button
+              <FilterButton
+                icon={UsersIcon}
+                label="Admin"
+                selectedLabel={
+                  selectedAdminFilter === 'all'
+                    ? 'All'
+                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Admin'
+                }
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-                title={`Admin: ${selectedAdminFilter === 'all' ? 'All Admins' : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
-              >
-                <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
-              </button>
+                isActive={selectedAdminFilter !== 'all'}
+                activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+              />
 
               {showAdminFilterDropdown && (
                 <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">

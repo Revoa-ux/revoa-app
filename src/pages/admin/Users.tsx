@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Filter,
-  ChevronDown,
   Check,
   X,
   UserPlus,
@@ -17,6 +16,7 @@ import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
 import { ActiveQuotesModal } from '@/components/admin/ActiveQuotesModal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import Modal from '@/components/Modal';
+import { FilterButton } from '@/components/FilterButton';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -412,14 +412,15 @@ export default function Users() {
           </div>
 
           <div className="relative" ref={filterDropdownRef}>
-            <button
+            <FilterButton
+              icon={Filter}
+              label="Filter"
+              selectedLabel={selectedFilter === 'all' ? 'All' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}
               onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-              title={`Filter: ${selectedFilter === 'all' ? 'All Users' : selectedFilter === 'assigned' ? 'Assigned' : 'Unassigned'}`}
-            >
-              <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
-            </button>
+              isActive={selectedFilter !== 'all'}
+              activeCount={selectedFilter !== 'all' ? 1 : 0}
+              hideLabel="md"
+            />
 
             {showFilterDropdown && (
               <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
@@ -443,18 +444,21 @@ export default function Users() {
 
           {isSuperAdmin && (
             <div className="relative" ref={adminFilterDropdownRef}>
-              <button
+              <FilterButton
+                icon={UsersIcon}
+                label="Admin"
+                selectedLabel={
+                  selectedAdminFilter === 'all'
+                    ? 'All'
+                    : selectedAdminFilter === 'unassigned'
+                    ? 'None'
+                    : admins.find(a => a.id === selectedAdminFilter)?.name || 'Admin'
+                }
                 onClick={() => setShowAdminFilterDropdown(!showAdminFilterDropdown)}
-                className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-                title={`Admin: ${selectedAdminFilter === 'all'
-                  ? 'All Admins'
-                  : selectedAdminFilter === 'unassigned'
-                  ? 'Unassigned'
-                  : admins.find(a => a.id === selectedAdminFilter)?.name || 'Select Admin'}`}
-              >
-                <UsersIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="hidden md:inline text-gray-700 dark:text-gray-300">Admin</span>
-              </button>
+                isActive={selectedAdminFilter !== 'all'}
+                activeCount={selectedAdminFilter !== 'all' ? 1 : 0}
+                hideLabel="md"
+              />
 
               {showAdminFilterDropdown && (
                 <div className="absolute z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 max-h-64 overflow-y-auto">
@@ -498,14 +502,13 @@ export default function Users() {
           )}
 
           <div className="relative" ref={sortDropdownRef}>
-            <button
+            <FilterButton
+              icon={ArrowUpDown}
+              label="Sort"
+              selectedLabel={sortOptions.find(opt => opt.value === sortBy.field)?.label || 'Sort'}
               onClick={() => setShowSortDropdown(!showSortDropdown)}
-              className="px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-2"
-              title={`Sort by: ${sortOptions.find(opt => opt.value === sortBy.field)?.label}`}
-            >
-              <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-              <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
-            </button>
+              hideLabel="md"
+            />
 
             {showSortDropdown && (
               <div className="absolute z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">

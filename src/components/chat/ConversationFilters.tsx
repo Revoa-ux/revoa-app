@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Search, Filter, ChevronDown, X, Check, Tag as TagIcon, Users, ArrowUpDown } from 'lucide-react';
+import { Search, Filter, X, Check, Tag as TagIcon, Users, ArrowUpDown } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { ChatFilters } from '@/lib/chatService';
 import { ConversationTag, conversationTagService } from '@/lib/conversationTagService';
+import { FilterButton } from '@/components/FilterButton';
 
 interface ConversationFiltersProps {
   filters: ChatFilters;
@@ -116,18 +117,13 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         </div>
 
         <div className="relative" ref={sortDropdownRef}>
-          <button
+          <FilterButton
+            icon={ArrowUpDown}
+            label="Sort"
+            selectedLabel={sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Sort'}
             onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap justify-between min-w-[100px]"
-          >
-            <div className="flex items-center gap-1.5">
-              <ArrowUpDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300 text-sm">
-                {sortOptions.find(opt => opt.value === filters.sortBy)?.label || 'Sort'}
-              </span>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-          </button>
+            hideLabel="md"
+          />
 
           {showSortDropdown && (
             <div className="absolute z-50 right-0 w-40 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -152,18 +148,16 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
       {/* Bottom Row: Filters */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1" ref={statusDropdownRef}>
-          <button
+          <FilterButton
+            icon={Filter}
+            label="Filter"
+            selectedLabel={statusOptions.find(opt => opt.value === filters.status)?.label.split(' ')[0] || 'All'}
             onClick={() => setShowStatusDropdown(!showStatusDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-full justify-between"
-          >
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Filter className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-                {statusOptions.find(opt => opt.value === filters.status)?.label.split(' ')[0] || 'All'}
-              </span>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-          </button>
+            isActive={filters.status !== 'all'}
+            activeCount={filters.status !== 'all' ? 1 : 0}
+            hideLabel="md"
+            fullWidth
+          />
 
           {showStatusDropdown && (
             <div className="absolute z-50 w-48 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -185,18 +179,16 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         </div>
 
         <div className="relative flex-1" ref={userTypeDropdownRef}>
-          <button
+          <FilterButton
+            icon={Users}
+            label="User"
+            selectedLabel={userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0] || 'All'}
             onClick={() => setShowUserTypeDropdown(!showUserTypeDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-full justify-between"
-          >
-            <div className="flex items-center gap-1.5 min-w-0">
-              <Users className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-                {userTypeOptions.find(opt => opt.value === filters.userType)?.label.split(' ')[0] || 'All'}
-              </span>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-          </button>
+            isActive={filters.userType !== 'all'}
+            activeCount={filters.userType !== 'all' ? 1 : 0}
+            hideLabel="md"
+            fullWidth
+          />
 
           {showUserTypeDropdown && (
             <div className="absolute z-50 w-52 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -218,18 +210,16 @@ export const ConversationFilters: React.FC<ConversationFiltersProps> = ({
         </div>
 
         <div className="relative flex-1" ref={tagDropdownRef}>
-          <button
+          <FilterButton
+            icon={TagIcon}
+            label="Tags"
+            selectedLabel={filters.tagIds && filters.tagIds.length > 0 ? `${filters.tagIds.length}` : 'All'}
             onClick={() => setShowTagDropdown(!showTagDropdown)}
-            className="px-3 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center gap-1.5 whitespace-nowrap w-full justify-between"
-          >
-            <div className="flex items-center gap-1.5 min-w-0">
-              <TagIcon className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300 truncate text-sm">
-                {filters.tagIds && filters.tagIds.length > 0 ? `${filters.tagIds.length} Tag${filters.tagIds.length > 1 ? 's' : ''}` : 'Tags'}
-              </span>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-          </button>
+            isActive={filters.tagIds && filters.tagIds.length > 0}
+            activeCount={filters.tagIds?.length || 0}
+            hideLabel="md"
+            fullWidth
+          />
 
           {showTagDropdown && (
             <div className="absolute z-[100] right-0 w-64 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-96 overflow-y-auto">
