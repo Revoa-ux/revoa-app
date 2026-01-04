@@ -224,6 +224,47 @@ export function ScenarioTemplateModal({
   // Maps combined tags to their primary category
   const normalizedThreadCategory = threadCategory === 'cancel_modify' ? 'cancel' : threadCategory;
 
+  // Define loadOrders function before it's used in useEffect
+  const loadOrders = useCallback(async () => {
+    if (!userId) {
+      console.log('loadOrders: No userId available');
+      return;
+    }
+
+    console.log('loadOrders: Loading orders for userId:', userId);
+    setIsLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from('shopify_orders')
+        .select('id, order_number, shopify_order_id, customer_first_name, customer_last_name, customer_email, total_price, currency, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('loadOrders: Query error:', error);
+        throw error;
+      }
+
+      console.log('loadOrders: Fetched', data?.length || 0, 'orders');
+
+      // Filter out orders without customer information for better UX
+      const ordersWithCustomers = (data || []).filter(order =>
+        order.customer_first_name || order.customer_last_name || order.customer_email
+      );
+
+      console.log('loadOrders: After filtering,', ordersWithCustomers.length, 'orders with customer info');
+
+      setAllOrders(ordersWithCustomers);
+      setOrders(ordersWithCustomers);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast.error('Failed to load orders');
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  }, [userId]);
+
   // Load templates from database
   useEffect(() => {
     async function loadTemplates() {
@@ -343,46 +384,6 @@ export function ScenarioTemplateModal({
     'Refunds',
     'Chargebacks'
   ];
-
-  const loadOrders = useCallback(async () => {
-    if (!userId) {
-      console.log('loadOrders: No userId available');
-      return;
-    }
-
-    console.log('loadOrders: Loading orders for userId:', userId);
-    setIsLoadingOrders(true);
-    try {
-      const { data, error } = await supabase
-        .from('shopify_orders')
-        .select('id, order_number, shopify_order_id, customer_first_name, customer_last_name, customer_email, total_price, currency, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        console.error('loadOrders: Query error:', error);
-        throw error;
-      }
-
-      console.log('loadOrders: Fetched', data?.length || 0, 'orders');
-
-      // Filter out orders without customer information for better UX
-      const ordersWithCustomers = (data || []).filter(order =>
-        order.customer_first_name || order.customer_last_name || order.customer_email
-      );
-
-      console.log('loadOrders: After filtering,', ordersWithCustomers.length, 'orders with customer info');
-
-      setAllOrders(ordersWithCustomers);
-      setOrders(ordersWithCustomers);
-    } catch (error) {
-      console.error('Error loading orders:', error);
-      toast.error('Failed to load orders');
-    } finally {
-      setIsLoadingOrders(false);
-    }
-  }, [userId]);
 
   const handleSelectTemplate = (template: Template) => {
     setSelectedTemplate(template);
