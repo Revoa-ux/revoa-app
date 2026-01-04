@@ -384,7 +384,12 @@ export default function Orders() {
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {filteredMerchantName
               ? `Managing fulfillment for ${filteredMerchantName}`
-              : 'Export to Mabang 3PL, import tracking, and sync to Shopify'
+              : (
+                <>
+                  <span className="sm:hidden">Export orders and import tracking with Mabang</span>
+                  <span className="hidden sm:inline">Export to Mabang 3PL, import tracking, and sync to Shopify</span>
+                </>
+              )
             }
           </p>
         </div>
@@ -392,13 +397,100 @@ export default function Orders() {
 
       {/* Merchant Filter and Actions Row */}
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-          {/* Merchant Filter Dropdown */}
+        {/* Mobile: Merchant Filter + Sync Button Row */}
+        <div className="flex items-center gap-2 sm:hidden">
+          {(isSuperAdmin || permissions?.can_view_all_merchants) && (
+            <div className="relative flex-1" ref={merchantDropdownRef}>
+              <button
+                onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
+                className="w-full h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between gap-2"
+              >
+                <Users className="w-4 h-4 text-gray-400" />
+                <span className="truncate flex-1 text-left">
+                  {selectedMerchant ? selectedMerchant.name : 'All Merchants'}
+                </span>
+                <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              </button>
+
+              {showMerchantDropdown && (
+                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={merchantSearchTerm}
+                        onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                        placeholder="Search merchants..."
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto py-1">
+                    <button
+                      onClick={() => handleSelectMerchant(null)}
+                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                      }`}
+                    >
+                      <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
+                      {!filteredUserId && <Check className="w-4 h-4 text-gray-900 dark:text-white" />}
+                    </button>
+
+                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+
+                    {loadingMerchants ? (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        Loading merchants...
+                      </div>
+                    ) : filteredMerchants.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                        No merchants found
+                      </div>
+                    ) : (
+                      filteredMerchants.map((merchant) => (
+                        <button
+                          key={merchant.id}
+                          onClick={() => handleSelectMerchant(merchant.id)}
+                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 ${
+                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                          }`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                              {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
+                            </p>
+                          </div>
+                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-gray-900 dark:text-white flex-shrink-0 ml-2" />}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          {permissions?.can_sync_to_shopify && (
+            <button
+              onClick={handleManualSync}
+              disabled={isSyncing}
+              className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>{isSyncing ? 'Sync...' : 'Sync'}</span>
+            </button>
+          )}
+        </div>
+
+        {/* Desktop: Merchant Filter Dropdown */}
+        <div className="hidden sm:flex flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
           {(isSuperAdmin || permissions?.can_view_all_merchants) && (
             <div className="relative" ref={merchantDropdownRef}>
               <button
                 onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
-                className="w-full sm:w-auto h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between sm:justify-start gap-2"
+                className="w-auto h-[38px] px-4 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-start gap-2"
               >
                 <Users className="w-4 h-4 text-gray-400" />
                 <span className="truncate max-w-[180px]">
@@ -469,16 +561,15 @@ export default function Orders() {
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        {/* Action Buttons - Desktop only (Export, Import, Sync) */}
+        <div className="hidden sm:flex items-center gap-2">
           {permissions?.can_export_orders && (
             <button
               onClick={() => setShowExportModal(true)}
               className="h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center gap-2"
             >
               <Download className="w-4 h-4" />
-              <span className="hidden sm:inline">Export to Mabang</span>
-              <span className="sm:hidden">Export</span>
+              <span>Export to Mabang</span>
             </button>
           )}
 
@@ -488,8 +579,7 @@ export default function Orders() {
               className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Import Tracking</span>
-              <span className="sm:hidden">Import</span>
+              <span>Import Tracking</span>
             </button>
           )}
 
@@ -500,15 +590,37 @@ export default function Orders() {
               className="h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync to Shopify'}</span>
-              <span className="sm:hidden">{isSyncing ? 'Sync...' : 'Sync'}</span>
+              <span>{isSyncing ? 'Syncing...' : 'Sync to Shopify'}</span>
+            </button>
+          )}
+        </div>
+
+        {/* Mobile: Export and Import buttons */}
+        <div className="flex items-center gap-2 sm:hidden">
+          {permissions?.can_export_orders && (
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="flex-1 h-[38px] px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export</span>
+            </button>
+          )}
+
+          {permissions?.can_import_tracking && (
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="flex-1 h-[38px] px-4 text-sm font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Import</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <div className={`p-1.5 sm:p-2 rounded-lg ${stats.readyToExport > 50 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
@@ -587,8 +699,9 @@ export default function Orders() {
       </div>
 
       {/* Search and Filters - Above Tabs */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3">
+        {/* Search - appears below filters on mobile, first on desktop */}
+        <div className="relative flex-1 sm:max-w-md order-last sm:order-first">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
@@ -599,6 +712,7 @@ export default function Orders() {
           />
         </div>
 
+        {/* Filters - appear first on mobile */}
         {activeTab === 'unfulfilled' && (
           <CustomSelect
             value={exportStatusFilter}
@@ -608,12 +722,12 @@ export default function Orders() {
               { value: 'ready', label: 'Ready to Export' },
               { value: 'exported', label: 'Already Exported' },
             ]}
-            className="w-44"
+            className="w-full sm:w-44"
           />
         )}
 
         {activeTab === 'tracking' && (
-          <>
+          <div className="flex flex-col sm:flex-row gap-3">
             <CustomSelect
               value={carrierFilter}
               onChange={(val) => setCarrierFilter(val as string)}
@@ -621,7 +735,7 @@ export default function Orders() {
                 { value: 'all', label: 'All Carriers' },
                 ...availableCarriers.map(c => ({ value: c, label: c }))
               ]}
-              className="w-40"
+              className="w-full sm:w-40"
             />
             <CustomSelect
               value={syncStatusFilter}
@@ -632,13 +746,13 @@ export default function Orders() {
                 { value: 'pending', label: 'Pending' },
                 { value: 'failed', label: 'Failed' },
               ]}
-              className="w-40"
+              className="w-full sm:w-40"
             />
-          </>
+          </div>
         )}
 
         {activeTab === 'all' && (
-          <>
+          <div className="flex flex-col sm:flex-row gap-3">
             <CustomSelect
               value={fulfillmentStatusFilter}
               onChange={(val) => setFulfillmentStatusFilter(val as string)}
@@ -648,7 +762,7 @@ export default function Orders() {
                 { value: 'FULFILLED', label: 'Fulfilled' },
                 { value: 'PARTIALLY_FULFILLED', label: 'Partially Fulfilled' },
               ]}
-              className="w-52"
+              className="w-full sm:w-52"
             />
             <CustomSelect
               value={allOrdersExportFilter}
@@ -660,9 +774,9 @@ export default function Orders() {
                 { value: 'has_tracking', label: 'Has Tracking' },
                 { value: 'no_tracking', label: 'No Tracking' },
               ]}
-              className="w-44"
+              className="w-full sm:w-44"
             />
-          </>
+          </div>
         )}
       </div>
 
@@ -672,15 +786,16 @@ export default function Orders() {
           <nav className="flex -mb-px">
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 ${
                 activeTab === 'unfulfilled'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              Unfulfilled Orders
+              <span className="sm:hidden">Unfulfilled</span>
+              <span className="hidden sm:inline">Unfulfilled Orders</span>
               {stats.readyToExport > 0 && (
-                <span className="ml-2 px-2 py-0.5 text-xs font-semibold bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-full">
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-full">
                   {stats.readyToExport}
                 </span>
               )}
@@ -688,24 +803,26 @@ export default function Orders() {
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center ${
                 activeTab === 'tracking'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              Fulfillment Tracking
+              <span className="sm:hidden">Tracking</span>
+              <span className="hidden sm:inline">Fulfillment Tracking</span>
             </button>
 
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center ${
                 activeTab === 'all'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              All Orders
+              <span className="sm:hidden">All</span>
+              <span className="hidden sm:inline">All Orders</span>
             </button>
           </nav>
         </div>
