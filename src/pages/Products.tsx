@@ -706,6 +706,7 @@ const Products: React.FC = () => {
             >
               <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <span className="hidden md:inline text-gray-700 dark:text-gray-300">Filter</span>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             {showCategoryDropdown && (
@@ -737,6 +738,7 @@ const Products: React.FC = () => {
             >
               <ArrowUpDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               <span className="hidden md:inline text-gray-700 dark:text-gray-300">Sort</span>
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showSortDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             {showSortDropdown && (
