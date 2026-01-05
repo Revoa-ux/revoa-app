@@ -162,12 +162,11 @@ const Onboarding = () => {
   const handleStoreConnected = useCallback((connected: boolean) => {
     console.log('[Onboarding] ===== STORE CONNECTION CALLBACK =====');
     console.log('[Onboarding] handleStoreConnected called with:', connected);
-    console.log('[Onboarding] Current storeConnected state:', storeConnected);
     console.log('[Onboarding] Setting storeConnected to:', connected);
     setStoreConnected(connected);
     console.log('[Onboarding] State update queued, React will re-render');
     console.log('[Onboarding] =======================================');
-  }, [storeConnected]);
+  }, []);
   
   const handleAdPlatformsConnected = useCallback((platforms: string[]) => {
     setAdPlatforms(platforms);

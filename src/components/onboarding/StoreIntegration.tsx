@@ -51,21 +51,28 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
   // Watch for Shopify connection changes from the store
   useEffect(() => {
     console.log('[StoreIntegration] Shopify connection state changed:', shopify.isConnected);
-    if (shopify.isConnected && !wasAlreadyConnected) {
+    if (shopify.isConnected) {
+      console.log('[StoreIntegration] Shopify is connected! Calling onStoreConnected(true)');
       setIsSuccess(true);
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
+
+      if (!wasAlreadyConnected) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+
       onStoreConnected(true);
       setIsLoading(false);
+
       if (checkInterval) {
         clearInterval(checkInterval);
         setCheckInterval(null);
       }
+
       if (shopify.installation) {
         setConnectedStoreUrl(shopify.installation.store_url);
       }
     }
-  }, [shopify.isConnected, onStoreConnected, wasAlreadyConnected]);
+  }, [shopify.isConnected, onStoreConnected, wasAlreadyConnected, checkInterval]);
 
   const handleShopChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShopUrl(e.target.value);
