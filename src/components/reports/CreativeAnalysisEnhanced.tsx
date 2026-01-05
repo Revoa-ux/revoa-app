@@ -1020,8 +1020,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           </div>
         </div>
       )}
-      {/* Only show controls if not embedded or if there are selected items */}
-      {(!embedded || selectedCreatives.size > 0) && (
+      {/* Only show controls if not embedded */}
+      {!embedded && (
         <div className="flex items-center justify-between flex-shrink-0 px-6 py-3 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center space-x-3">
             {selectedCreatives.size > 0 && (
@@ -1427,7 +1427,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {!isLoading && sortedCreatives.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-gray-500 dark:text-gray-400">No creatives found matching your filters.</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    {viewLevel === 'campaigns'
+                      ? 'No campaigns found.'
+                      : viewLevel === 'adsets'
+                      ? 'No ad sets found.'
+                      : 'No ads found matching your filters.'}
+                  </p>
                 </div>
               )}
 
