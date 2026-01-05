@@ -25,31 +25,41 @@ Deno.serve(async (req: Request) => {
       throw new Error('Unauthorized');
     }
 
-    const { ad_id, platform_ad_id } = await req.json();
+    const { platform_ad_id } = await req.json();
 
-    console.log(`[fetch-preview] Fetching preview for ad ${platform_ad_id || ad_id}`);
+    console.log(`[fetch-preview] Fetching preview for ad ${platform_ad_id}`);
 
-    // Get the ad and its account
+    if (!platform_ad_id) {
+      throw new Error('platform_ad_id is required');
+    }
+
+    // Get the ad
     const { data: ad, error: adError } = await supabaseClient
       .from('ads')
-      .select(`
-        *,
-        ad_account:ad_accounts!inner(
-          id,
-          platform_account_id,
-          user_id
-        )
-      `)
-      .or(`id.eq.${ad_id},platform_ad_id.eq.${platform_ad_id}`)
+      .select('*')
+      .eq('platform_ad_id', platform_ad_id)
       .eq('platform', 'facebook')
       .single();
 
     if (adError || !ad) {
-      throw new Error('Ad not found');
+      console.error('[fetch-preview] Ad not found:', adError);
+      throw new Error(`Ad not found: ${adError?.message || 'Unknown error'}`);
+    }
+
+    // Get the ad account
+    const { data: adAccount, error: accountError } = await supabaseClient
+      .from('ad_accounts')
+      .select('*')
+      .eq('id', ad.ad_account_id)
+      .single();
+
+    if (accountError || !adAccount) {
+      console.error('[fetch-preview] Ad account not found:', accountError);
+      throw new Error('Ad account not found');
     }
 
     // Verify user has access to this ad account
-    if (ad.ad_account.user_id !== user.id) {
+    if (adAccount.user_id !== user.id) {
       throw new Error('Unauthorized');
     }
 
@@ -58,10 +68,11 @@ Deno.serve(async (req: Request) => {
       .from('facebook_tokens')
       .select('access_token')
       .eq('user_id', user.id)
-      .eq('account_id', ad.ad_account.platform_account_id)
+      .eq('account_id', adAccount.platform_account_id)
       .single();
 
     if (tokenError || !fbToken) {
+      console.error('[fetch-preview] Token not found:', tokenError);
       throw new Error('Facebook account not connected');
     }
 
@@ -69,6 +80,13 @@ Deno.serve(async (req: Request) => {
     const previewUrl = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${fbToken.access_token}`;
     const response = await fetch(previewUrl);
     const data = await response.json();
+
+    console.log('[fetch-preview] Facebook API response:', JSON.stringify(data).substring(0, 500));
+
+    if (data.error) {
+      console.error('[fetch-preview] Facebook API error:', data.error);
+      throw new Error(`Facebook API error: ${data.error.message}`);
+    }
 
     let imageUrl = null;
 
@@ -80,8 +98,15 @@ Deno.serve(async (req: Request) => {
         const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);
         if (imgMatch) {
           imageUrl = imgMatch[1];
+          console.log('[fetch-preview] Extracted image URL:', imageUrl.substring(0, 100));
+        } else {
+          console.log('[fetch-preview] No image tag found in preview body');
         }
+      } else {
+        console.log('[fetch-preview] No preview body found');
       }
+    } else {
+      console.log('[fetch-preview] No preview data found');
     }
 
     // If we got an image URL, update the ad record

@@ -301,6 +301,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
       const result = await response.json();
 
+      console.log('[CreativeAnalysis] Preview fetch result:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to fetch preview');
+      }
+
       if (result.success && result.image_url) {
         // Update the creative with the new image URL
         const updatedCreatives = creatives.map(c =>
@@ -317,9 +323,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           next.delete(creative.id);
           return next;
         });
+
+        toast.success('Preview fetched successfully');
+      } else {
+        toast.error('No preview image available for this ad');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('[CreativeAnalysis] Failed to fetch preview:', error);
+      toast.error(`Failed to fetch preview: ${error.message}`);
     } finally {
       setFetchingPreviews(prev => {
         const next = new Set(prev);
@@ -576,14 +587,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
                   {isFetchingPreview ? (
-                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-4 h-4 border-2 border-gray-400 dark:border-gray-500 border-t-transparent rounded-full animate-spin"></div>
                   ) : canFetchPreview ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         fetchAdPreview(creative);
                       }}
-                      className="w-full h-full flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      className="w-full h-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                       title="Fetch ad preview"
                     >
                       <ImageIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />

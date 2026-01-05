@@ -242,6 +242,9 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       setSelectedAdSet(null);
     } else if (level === 'adsets') {
       setSelectedAdSet(null);
+    } else if (level === 'ads') {
+      // When switching to ads tab, clear ad set selection to show all ads in campaign
+      setSelectedAdSet(null);
     }
   };
 
@@ -257,15 +260,28 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         description: `ID: ${item.id.substring(0, 8)}... | ${matchingAdSets.length} ad sets | Sample: ${sampleAdSet?.campaignId?.substring(0, 8) || 'none'}`
       });
     } else if (viewLevel === 'adsets') {
-      setSelectedAdSet(item.id);
+      // If we're already in a campaign drill-down, don't set selectedAdSet
+      // This allows showing ALL ads in the campaign, not just one ad set
+      if (!selectedCampaign) {
+        setSelectedAdSet(item.id);
+        // Debug: Check what ads match this ad set
+        const matchingAds = creatives.filter(ad => ad.adSetId === item.id);
+        toast.info(`🔎 Ad Set: ${item.name || item.adName}`, {
+          duration: 2500,
+          description: `${matchingAds.length} ads in this ad set`
+        });
+      } else {
+        // We're in a campaign context, show all ads in the campaign
+        const campaignAdSetIds = adSets
+          .filter(adSet => adSet.campaignId === selectedCampaign)
+          .map(adSet => adSet.adSetId);
+        const campaignAds = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        toast.info(`🔎 All Ads in Campaign`, {
+          duration: 2500,
+          description: `Showing ${campaignAds.length} ads across ${campaignAdSetIds.length} ad sets`
+        });
+      }
       setViewLevel('ads');
-      // Debug: Check what ads match this ad set
-      const matchingAds = creatives.filter(ad => ad.adSetId === item.id);
-      const sampleAd = matchingAds[0];
-      toast.info(`🔎 Ad Set: ${item.name || item.adName}`, {
-        duration: 2500,
-        description: `ID: ${item.id.substring(0, 8)}... | ${matchingAds.length} ads | Sample: ${sampleAd?.adSetId?.substring(0, 8) || 'none'}`
-      });
     }
   };
 
