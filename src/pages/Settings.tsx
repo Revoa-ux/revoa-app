@@ -1171,10 +1171,16 @@ const SettingsPage = () => {
             const key = account.id;
 
             // Show "syncing started" toast for Phase 1
+            // BUT only if we haven't already shown the initial connection toast
             if (syncJob.sync_phase === 'recent_90_days' &&
                 syncJob.status === 'in_progress' &&
                 !syncToastShown[key]?.started) {
-              toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
+
+              // Check if we just showed the connection success toast
+              const justConnected = localStorage.getItem('facebook_sync_toast_shown');
+              if (!justConnected) {
+                toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
+              }
               setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: false } }));
             }
 
@@ -1245,18 +1251,30 @@ const SettingsPage = () => {
         localStorage.removeItem('shopify_oauth_error');
       } else if (event.data?.type === 'facebook-oauth-success') {
         console.log('[Settings] Facebook OAuth success:', event.data);
-        setFacebookConnecting(false);
 
         // Show success toast immediately
-        toast.success('Facebook Ads connected successfully!');
+        const accountCount = event.data.accountCount || 1;
+        const plural = accountCount === 1 ? 'account' : 'accounts';
+        toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
 
-        // Refresh accounts to update UI
+        // Mark that we've shown the initial success toast
+        localStorage.setItem('facebook_sync_toast_shown', 'true');
+
+        // Refresh accounts to update UI FIRST
         await refreshFacebookAccounts();
 
-        // Force a small delay to ensure store update propagates
+        // THEN set connecting to false after refresh completes
+        setFacebookConnecting(false);
+
+        // Force a second refresh after delay to ensure store update propagates
+        setTimeout(async () => {
+          await refreshFacebookAccounts();
+        }, 1000);
+
+        // Clear the flag after 10 seconds to allow future toasts
         setTimeout(() => {
-          refreshFacebookAccounts();
-        }, 500);
+          localStorage.removeItem('facebook_sync_toast_shown');
+        }, 10000);
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[Settings] Facebook OAuth error:', event.data.error);
         setFacebookConnecting(false);
@@ -1313,18 +1331,29 @@ const SettingsPage = () => {
           const data = JSON.parse(facebookSuccessFlag);
           console.log('[Settings] Detected Facebook OAuth success in localStorage:', data);
 
-          setFacebookConnecting(false);
-
           // Show success toast immediately
-          toast.success('Facebook Ads connected successfully!');
+          const accountCount = data.accountCount || 1;
+          const plural = accountCount === 1 ? 'account' : 'accounts';
+          toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
 
-          // Refresh accounts
+          // Mark that we've shown the initial success toast
+          localStorage.setItem('facebook_sync_toast_shown', 'true');
+
+          // Refresh accounts to update UI FIRST
           await refreshFacebookAccounts();
 
+          // THEN set connecting to false after refresh completes
+          setFacebookConnecting(false);
+
           // Force a second refresh after delay
+          setTimeout(async () => {
+            await refreshFacebookAccounts();
+          }, 1000);
+
+          // Clear the flag after 10 seconds to allow future toasts
           setTimeout(() => {
-            refreshFacebookAccounts();
-          }, 500);
+            localStorage.removeItem('facebook_sync_toast_shown');
+          }, 10000);
 
           localStorage.removeItem('facebook_oauth_success');
         } catch (error) {

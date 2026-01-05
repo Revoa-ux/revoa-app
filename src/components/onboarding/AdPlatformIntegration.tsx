@@ -273,7 +273,15 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     const plural = accountCount === 1 ? 'account' : 'accounts';
     toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
 
-    // Start Phase 1 sync (recent 90 days) - show toast instead of inline
+    // Mark that we've shown the connection success toast
+    localStorage.setItem('facebook_sync_toast_shown', 'true');
+
+    // Clear the flag after 10 seconds to allow future toasts
+    setTimeout(() => {
+      localStorage.removeItem('facebook_sync_toast_shown');
+    }, 10000);
+
+    // Start Phase 1 sync (recent 90 days)
     setTimeout(async () => {
       try {
         if (!user) {
