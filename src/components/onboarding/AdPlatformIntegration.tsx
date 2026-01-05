@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { FacebookSyncOrchestrator } from '@/lib/facebookSyncOrchestrator';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { useConnectionStore } from '@/lib/connectionStore';
 
 interface AdPlatformIntegrationProps {
   onPlatformsConnected: (platforms: string[]) => void;
@@ -17,6 +18,7 @@ interface AdPlatformIntegrationProps {
 
 const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatformsConnected }) => {
   const { user } = useAuth();
+  const { refreshFacebookAccounts } = useConnectionStore();
   const [syncProgress, setSyncProgress] = useState<{
     isActive: boolean;
     progress: number;
@@ -332,37 +334,57 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
         const checkPopupClosed = setInterval(() => {
           if (popup.closed) {
+            console.log('[AdPlatformIntegration] Facebook popup closed - checking connection');
             clearInterval(checkPopupClosed);
-            // Check localStorage for connection result
-            setTimeout(async () => {
-              const successData = localStorage.getItem('facebook_oauth_success');
-              if (successData) {
-                // Already handled by localStorage polling
-                return;
-              }
 
-              // Fallback: check database directly
-              const { connected } = await facebookAdsService.checkConnectionStatus();
-              if (connected) {
-                setPlatforms(prev =>
-                  prev.map(p =>
-                    p.id === platformId
-                      ? { ...p, status: 'connected' }
-                      : p
-                  )
-                );
-                toast.success('Facebook Ads connected successfully');
-              } else {
-                // Reset to idle if not connected
-                setPlatforms(prev =>
-                  prev.map(p =>
-                    p.id === platformId
-                      ? { ...p, status: 'idle' }
-                      : p
-                  )
-                );
+            // Check immediately and repeatedly
+            let checkCount = 0;
+            const maxChecks = 5;
+
+            const checkConnection = async () => {
+              checkCount++;
+              console.log(`[AdPlatformIntegration] Connection check ${checkCount}/${maxChecks}`);
+
+              try {
+                const result = await facebookAdsService.checkConnectionStatus();
+                console.log('[AdPlatformIntegration] Connection status:', result);
+
+                if (result.connected) {
+                  console.log('[AdPlatformIntegration] ✓ Facebook connected!');
+                  setPlatforms(prev =>
+                    prev.map(p =>
+                      p.id === platformId
+                        ? { ...p, status: 'connected' }
+                        : p
+                    )
+                  );
+                  toast.success('Facebook Ads connected successfully');
+
+                  // Also refresh the connection store
+                  await refreshFacebookAccounts();
+                } else if (checkCount < maxChecks) {
+                  console.log('[AdPlatformIntegration] Not connected yet, will retry...');
+                  setTimeout(checkConnection, 1000);
+                } else {
+                  console.log('[AdPlatformIntegration] Max checks reached, resetting to idle');
+                  setPlatforms(prev =>
+                    prev.map(p =>
+                      p.id === platformId
+                        ? { ...p, status: 'idle' }
+                        : p
+                    )
+                  );
+                }
+              } catch (err) {
+                console.error('[AdPlatformIntegration] Error checking connection:', err);
+                if (checkCount < maxChecks) {
+                  setTimeout(checkConnection, 1000);
+                }
               }
-            }, 1500);
+            };
+
+            // Start checking immediately
+            setTimeout(checkConnection, 500);
           }
         }, 500);
 

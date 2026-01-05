@@ -338,6 +338,34 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       }
       console.log('OAuth window opened successfully');
 
+      // Watch for popup window closing
+      const popupWatcher = setInterval(async () => {
+        if (authWindow.closed) {
+          console.log('[ShopifyConnectModal] Popup closed - checking connection immediately');
+          clearInterval(popupWatcher);
+
+          // Wait a moment for database to update
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          // Force check connection status
+          try {
+            const result = await refreshShopifyStatus();
+            console.log('[ShopifyConnectModal] Connection check after popup closed:', result);
+
+            if (result?.isConnected) {
+              console.log('[ShopifyConnectModal] ✓ Connection confirmed!');
+              setIsSuccess(true);
+              setIsLoading(false);
+              setHasError(false);
+            } else {
+              console.log('[ShopifyConnectModal] No connection found yet, continuing to poll...');
+            }
+          } catch (err) {
+            console.error('[ShopifyConnectModal] Error checking connection:', err);
+          }
+        }
+      }, 500);
+
       if (checkInterval) {
         clearInterval(checkInterval);
       }
