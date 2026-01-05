@@ -206,7 +206,7 @@ Deno.serve(async (req: Request) => {
         const dbCampaign = campaignMap.get(as.campaign_id);
         if (!dbCampaign) return null;
         return {
-          platform_ad_set_id: as.id,
+          platform_adset_id: as.id,
           name: as.name,
           status: as.status?.toUpperCase() || 'UNKNOWN',
           ad_campaign_id: dbCampaign.id,
@@ -218,8 +218,8 @@ Deno.serve(async (req: Request) => {
       })
       .filter(Boolean);
 
-    const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_ad_set_id');
-    const adSetMap = new Map(dbAdSets.map(as => [as.platform_ad_set_id, as]));
+    const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
+    const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
 
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
