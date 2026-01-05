@@ -200,12 +200,18 @@ const SettingsPage = () => {
 
   // Sync integration status from store - use direct values instead of state
   useEffect(() => {
+    console.log('[Settings] Connection store changed:');
+    console.log('[Settings] - Shopify connected:', integrationStatusShopify);
+    console.log('[Settings] - Facebook connected:', integrationStatusFacebook);
+
     setIntegrationStatus({
       shopify: integrationStatusShopify,
       facebook: integrationStatusFacebook,
       google: false,
       tiktok: false
     });
+
+    console.log('[Settings] Integration status updated - buttons should change now');
   }, [integrationStatusShopify, integrationStatusFacebook]);
 
   // Load user profile data and check admin status
@@ -1562,8 +1568,9 @@ const SettingsPage = () => {
     setShowShopifyModal(false);
     setShopifyConnecting(false);
 
-    // Multiple refreshes to ensure UI updates
+    // Refresh immediately
     await refreshShopifyStatus();
+    console.log('[Settings] First refresh completed - UI should update now');
 
     // Force a second refresh after a delay to catch any async DB updates
     setTimeout(async () => {
@@ -1577,8 +1584,8 @@ const SettingsPage = () => {
       console.log('[Settings] Final refresh completed');
     }, 1500);
 
-    toast.success('Shopify store connected successfully! Please refresh the page to see the latest data.', {
-      duration: 5000
+    toast.success('Shopify store connected successfully!', {
+      duration: 3000
     });
   };
 
@@ -1622,8 +1629,8 @@ const SettingsPage = () => {
 
       // Show detailed success message
       const message = result.pages > 1
-        ? `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes, ${result.pages} pages). Please refresh the page.`
-        : `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes). Please refresh the page.`;
+        ? `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes, ${result.pages} pages)`
+        : `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes)`;
 
       toast.success(message, { duration: 5000 });
     } catch (error: any) {
@@ -1691,13 +1698,14 @@ const SettingsPage = () => {
           setTimeout(async () => {
             console.log('[Settings] Facebook popup closed, refreshing accounts...');
             await refreshFacebookAccounts();
+            console.log('[Settings] First refresh completed - UI should update now');
 
             // Check if connection was successful
             const updatedAccounts = await facebookAdsService.getAdAccounts('facebook');
             if (updatedAccounts.length > 0) {
               console.log('[Settings] Facebook Ads connected successfully');
-              toast.success('Facebook Ads connected successfully! Please refresh the page to see the latest data.', {
-                duration: 5000
+              toast.success('Facebook Ads connected successfully!', {
+                duration: 3000
               });
 
               console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
@@ -1767,11 +1775,11 @@ const SettingsPage = () => {
       if (result.data) {
         const { campaigns, adSets, ads, metrics } = result.data;
         toast.success(
-          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics. Please refresh the page.`,
+          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
           { duration: 5000 }
         );
       } else {
-        toast.success('Data synced successfully! Please refresh the page.', { duration: 5000 });
+        toast.success('Data synced successfully!', { duration: 5000 });
       }
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
