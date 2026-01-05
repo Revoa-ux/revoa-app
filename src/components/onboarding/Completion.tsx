@@ -338,7 +338,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: false, phone_number: '' })}
                 className={`p-4 rounded-lg cursor-pointer transition-all border ${
                   formData.wants_growth_assistance === false
-                    ? 'border-rose-600 dark:border-rose-500 ring-1 ring-rose-600 dark:ring-rose-500 bg-gray-50 dark:bg-gray-900/50'
+                    ? 'border-gray-900 dark:border-white ring-1 ring-gray-900 dark:ring-white bg-gray-50 dark:bg-gray-900/50'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >

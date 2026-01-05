@@ -40,20 +40,14 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
           setWasAlreadyConnected(true);
           onStoreConnected(true);
         }
-      } catch (error) {
-        console.error('[StoreIntegration] Error checking existing connection:', error);
-      }
+      } catch (error) {      }
     };
 
     checkExistingConnection();
   }, [onStoreConnected]);
 
   // Watch for Shopify connection changes from the store
-  useEffect(() => {
-    console.log('[StoreIntegration] Shopify connection state changed:', shopify.isConnected);
-    if (shopify.isConnected) {
-      console.log('[StoreIntegration] Shopify is connected! Calling onStoreConnected(true)');
-      setIsSuccess(true);
+  useEffect(() => {    if (shopify.isConnected) {      setIsSuccess(true);
 
       if (!wasAlreadyConnected) {
         setShowConfetti(true);
@@ -80,12 +74,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
   // Set up message listener for the popup window
   useEffect(() => {
-    const messageHandler = async (event: MessageEvent) => {
-      console.log('[StoreIntegration] Received message:', event.data);
-      if (event.data.type === 'shopify:success') {
-        console.log('[StoreIntegration] ✓ OAuth Success message received!');
-        console.log('[StoreIntegration] Manually refreshing connection store...');
-
+    const messageHandler = async (event: MessageEvent) => {      if (event.data.type === 'shopify:success') {
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
@@ -102,16 +91,10 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
         // Force refresh the connection store to pick up the new installation
         await refreshShopifyStatus();
-        console.log('[StoreIntegration] Connection store refreshed');
-
         // Give the store a moment to update, then notify parent
-        setTimeout(() => {
-          console.log('[StoreIntegration] Calling onStoreConnected(true)');
-          onStoreConnected(true);
+        setTimeout(() => {          onStoreConnected(true);
         }, 500);
-      } else if (event.data.type === 'shopify:error') {
-        console.log('[StoreIntegration] ✗ OAuth Error received:', event.data.error);
-        setIsLoading(false);
+      } else if (event.data.type === 'shopify:error') {        setIsLoading(false);
         setHasError(true);
         if (checkInterval) {
           clearInterval(checkInterval);
@@ -188,11 +171,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               .delete()
               .eq("id", oauthSession.id)
               .then(({ error: deleteError }) => {
-                if (deleteError) {
-                  console.error("Failed to delete session:", deleteError);
-                } else {
-                  console.log("Session deleted successfully.");
-                }
+                if (deleteError) {                } else {                }
               });
           }
 
@@ -226,9 +205,6 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
             // Check if the OAuth session completed successfully
             if (oauthSession.completed_at) {
               // Success! Connection completed
-              console.log('[StoreIntegration] ✓ Polling detected completed session!');
-              console.log('[StoreIntegration] Manually refreshing connection store...');
-
               cleanOauthSession(oauthSession);
               setIsSuccess(true);
 
@@ -238,10 +214,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
               }
 
               // Force refresh the connection store to pick up the new installation
-              refreshShopifyStatus().then(() => {
-                console.log('[StoreIntegration] Connection store refreshed');
-                console.log('[StoreIntegration] Calling onStoreConnected(true)');
-                onStoreConnected(true);
+              refreshShopifyStatus().then(() => {                onStoreConnected(true);
               });
 
               if (authWindow && !authWindow.closed) {
@@ -262,9 +235,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
 
             // Still in progress, keep polling
           })
-          .catch((err) => {
-            console.error("Unexpected error fetching installation:", err);
-            clearInterval(intervalId);
+          .catch((err) => {            clearInterval(intervalId);
             setCheckInterval(null);
             setIsLoading(false);
             setHasError(true);
@@ -272,9 +243,7 @@ const StoreIntegration: React.FC<StoreIntegrationProps> = ({ onStoreConnected })
       }, 1000);
 
       setCheckInterval(intervalId);
-    } catch (error) {
-      console.error('Error connecting to Shopify:', error);
-      setIsLoading(false);
+    } catch (error) {      setIsLoading(false);
       setHasError(true);
     }
   };

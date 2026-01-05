@@ -55,15 +55,11 @@ const Onboarding = () => {
   }, [navigate]);
   
   // Watch connection store for Shopify status changes
-  useEffect(() => {
-    console.log('[Onboarding] Shopify connection state:', shopify.isConnected);
-    setStoreConnected(shopify.isConnected);
+  useEffect(() => {    setStoreConnected(shopify.isConnected);
   }, [shopify.isConnected]);
 
   // Watch connection store for Facebook status changes
-  useEffect(() => {
-    console.log('[Onboarding] Facebook connection state:', facebook.isConnected);
-    if (facebook.isConnected && !adPlatforms.includes('facebook')) {
+  useEffect(() => {    if (facebook.isConnected && !adPlatforms.includes('facebook')) {
       setAdPlatforms(prev => [...prev, 'facebook']);
     } else if (!facebook.isConnected && adPlatforms.includes('facebook')) {
       setAdPlatforms(prev => prev.filter(p => p !== 'facebook'));
@@ -90,9 +86,7 @@ const Onboarding = () => {
         ));
 
         setIsCheckingStatus(false);
-      } catch (error) {
-        console.error('[Onboarding] Error checking status:', error);
-        setIsCheckingStatus(false);
+      } catch (error) {        setIsCheckingStatus(false);
       }
     };
 
@@ -108,9 +102,7 @@ const Onboarding = () => {
   // Auto-skip store step if Shopify is already connected (e.g., from Shopify App Store)
   useEffect(() => {
     const currentPath = location.pathname.split('/').pop();
-    if (currentPath === 'store' && shopify.isConnected) {
-      console.log('[Onboarding] Shopify already connected, auto-skipping to ads step');
-      navigate('/onboarding/ads', { replace: true });
+    if (currentPath === 'store' && shopify.isConnected) {      navigate('/onboarding/ads', { replace: true });
     }
   }, [shopify.isConnected, location.pathname, navigate]);
   
@@ -119,9 +111,7 @@ const Onboarding = () => {
       setIsCompleting(true);
       await setHasCompletedOnboarding(true);
       navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-      setIsCompleting(false);
+    } catch (error) {      setIsCompleting(false);
     }
   };
   
@@ -159,14 +149,7 @@ const Onboarding = () => {
     }
   };
   
-  const handleStoreConnected = useCallback((connected: boolean) => {
-    console.log('[Onboarding] ===== STORE CONNECTION CALLBACK =====');
-    console.log('[Onboarding] handleStoreConnected called with:', connected);
-    console.log('[Onboarding] Setting storeConnected to:', connected);
-    setStoreConnected(connected);
-    console.log('[Onboarding] State update queued, React will re-render');
-    console.log('[Onboarding] =======================================');
-  }, []);
+  const handleStoreConnected = useCallback((connected: boolean) => {    setStoreConnected(connected);  }, []);
   
   const handleAdPlatformsConnected = useCallback((platforms: string[]) => {
     setAdPlatforms(platforms);
@@ -199,15 +182,6 @@ const Onboarding = () => {
     currentStep === 'ads' ||
     currentStep === 'products' ||
     (currentStep === 'complete' && completionFormValid);
-
-  console.log('[Onboarding] ===== RENDER =====');
-  console.log('[Onboarding] currentStep:', currentStep);
-  console.log('[Onboarding] storeConnected:', storeConnected);
-  console.log('[Onboarding] shopify.isConnected:', shopify.isConnected);
-  console.log('[Onboarding] canGoNext:', canGoNext);
-  console.log('[Onboarding] Next button should be:', canGoNext ? 'ENABLED (red gradient)' : 'DISABLED (gray)');
-  console.log('[Onboarding] ====================');
-
   return (
     <OnboardingLayout
       currentStep={currentStep}
