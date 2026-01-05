@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight, RefreshCw } from 'lucide-react';
+import { X, Package, AlertCircle, Loader2, Tag as TagIcon, ArrowLeft, ArrowRight, RefreshCw, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 import Modal from '@/components/Modal';
 import { supabase } from '@/lib/supabase';
@@ -715,14 +715,17 @@ Browse the scenario templates to find relevant responses for:
             {/* Smart Filter Notice - Absolutely positioned above search */}
             {selectedTag && (
               <div className="absolute bottom-full left-0 right-0 mb-1 p-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg z-40">
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
-                    ? `🎯 Showing only delivered orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                    : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
-                    ? `🎯 Showing only unfulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                    : selectedTag === 'wrong_item'
-                    ? `🎯 Showing only fulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
-                    : `🎯 Filtering orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'selected issue'}`}
+                <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span>
+                    {selectedTag === 'damaged' || selectedTag === 'defective' || selectedTag === 'return' || selectedTag === 'missing_items'
+                      ? `Showing only delivered orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                      : selectedTag === 'cancel_modify' || selectedTag === 'cancel' || selectedTag === 'modify'
+                      ? `Showing only unfulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                      : selectedTag === 'wrong_item'
+                      ? `Showing only fulfilled orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'issue'}`
+                      : `Filtering orders for ${TAG_OPTIONS.find(t => t.value === selectedTag)?.label || 'selected issue'}`}
+                  </span>
                 </p>
               </div>
             )}
