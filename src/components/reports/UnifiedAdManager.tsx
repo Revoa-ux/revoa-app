@@ -38,21 +38,90 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Calculate dynamic counts based on selections or drill-down
+  const getTabCounts = () => {
+    // When drilled down to a specific ad set
+    if (selectedAdSet) {
+      const adsInAdSet = creatives.filter(ad => ad.adSetId === selectedAdSet);
+      return {
+        campaigns: 1,
+        adsets: 1,
+        ads: adsInAdSet.length
+      };
+    }
+
+    // When drilled down to a specific campaign (but not ad set)
+    if (selectedCampaign) {
+      const adSetsInCampaign = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
+      const adSetIds = adSetsInCampaign.map(adSet => adSet.adSetId);
+      const adsInCampaign = creatives.filter(ad => adSetIds.includes(ad.adSetId));
+
+      return {
+        campaigns: 1,
+        adsets: adSetsInCampaign.length,
+        ads: adsInCampaign.length
+      };
+    }
+
+    // When campaigns are selected via checkbox
+    if (selectedCampaigns.size > 0) {
+      const selectedAdSetIds = adSets
+        .filter(adSet => selectedCampaigns.has(adSet.campaignId))
+        .map(adSet => adSet.adSetId);
+      const selectedAdCount = creatives.filter(ad => selectedAdSetIds.includes(ad.adSetId)).length;
+
+      return {
+        campaigns: selectedCampaigns.size,
+        adsets: selectedAdSetIds.length,
+        ads: selectedAdCount
+      };
+    }
+
+    // When ad sets are selected via checkbox
+    if (selectedAdSets.size > 0) {
+      const selectedAdCount = creatives.filter(ad => selectedAdSets.has(ad.adSetId)).length;
+
+      return {
+        campaigns: campaigns.length,
+        adsets: selectedAdSets.size,
+        ads: selectedAdCount
+      };
+    }
+
+    // When ads are selected via checkbox
+    if (selectedAds.size > 0) {
+      return {
+        campaigns: campaigns.length,
+        adsets: adSets.length,
+        ads: selectedAds.size
+      };
+    }
+
+    // Default: show totals
+    return {
+      campaigns: campaigns.length,
+      adsets: adSets.length,
+      ads: creatives.length
+    };
+  };
+
+  const tabCounts = getTabCounts();
+
   const tabs = [
     {
       id: 'campaigns' as ViewLevel,
       label: 'Campaigns',
-      count: campaigns.length
+      count: tabCounts.campaigns
     },
     {
       id: 'adsets' as ViewLevel,
       label: 'Ad Sets',
-      count: adSets.length
+      count: tabCounts.adsets
     },
     {
       id: 'ads' as ViewLevel,
       label: 'Ads',
-      count: creatives.length
+      count: tabCounts.ads
     }
   ];
 
