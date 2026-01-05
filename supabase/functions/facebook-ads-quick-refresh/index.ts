@@ -22,7 +22,6 @@ Deno.serve(async (req: Request) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Missing authorization header');
@@ -38,7 +37,6 @@ Deno.serve(async (req: Request) => {
 
     console.log('[quick-refresh] Starting quick refresh for account:', adAccountId);
 
-    // Get access token
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
       .select('access_token')
@@ -51,7 +49,6 @@ Deno.serve(async (req: Request) => {
 
     const accessToken = tokenData.access_token;
 
-    // Get the ad account record
     const { data: adAccount } = await supabase
       .from('ad_accounts')
       .select('id')
@@ -65,7 +62,6 @@ Deno.serve(async (req: Request) => {
 
     const dbAccountId = adAccount.id;
 
-    // Step 1: Get existing campaigns, ad sets, and ads from DB
     console.log('[quick-refresh] Fetching existing items from database...');
 
     const { data: existingCampaigns } = await supabase
@@ -85,10 +81,8 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[quick-refresh] Found ${existingCampaigns?.length || 0} campaigns, ${existingAdSets?.length || 0} ad sets, ${existingAds?.length || 0} ads`);
 
-    // Step 2: Check for new campaigns, ad sets, and ads (quick check)
     console.log('[quick-refresh] Checking for new items...');
 
-    // Check campaigns
     const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id&limit=1000&access_token=${accessToken}`;
     const campaignsResponse = await fetch(campaignsUrl);
     const campaignsData = await campaignsResponse.json();
@@ -109,7 +103,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check ad sets (get first 1000 for quick check)
     const adSetsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/adsets?fields=id&limit=1000&access_token=${accessToken}`;
     const adSetsResponse = await fetch(adSetsUrl);
     const adSetsData = await adSetsResponse.json();
@@ -130,7 +123,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Check ads (get first 1000 for quick check)
     const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id&limit=1000&access_token=${accessToken}`;
     const adsResponse = await fetch(adsUrl);
     const adsData = await adsResponse.json();
@@ -153,13 +145,11 @@ Deno.serve(async (req: Request) => {
 
     console.log('[quick-refresh] No new items detected, proceeding with metrics update...');
 
-    // Step 3: Fetch fresh metrics for existing items
     console.log('[quick-refresh] Fetching fresh metrics...');
 
     const metricsFields = 'impressions,clicks,spend,actions,action_values,cost_per_action_type';
-    const batchSize = 50; // Facebook allows up to 50 IDs per request
+    const batchSize = 50;
 
-    // Helper to fetch metrics in batches
     const fetchMetricsBatch = async (ids: string[], level: string) => {
       const results = [];
       for (let i = 0; i < ids.length; i += batchSize) {
@@ -170,7 +160,6 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(url);
         const data = await response.json();
 
-        // Process each ID's insights
         for (const [id, value] of Object.entries(data)) {
           const insights = (value as any)?.insights?.data?.[0];
           if (insights) {
@@ -181,24 +170,19 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    // Fetch metrics for all campaigns
     const campaignIds = existingCampaigns?.map(c => c.platform_campaign_id) || [];
     const campaignMetrics = await fetchMetricsBatch(campaignIds, 'campaign');
 
-    // Fetch metrics for all ad sets
     const adSetIds = existingAdSets?.map(as => as.platform_adset_id) || [];
     const adSetMetrics = await fetchMetricsBatch(adSetIds, 'adset');
 
-    // Fetch metrics for all ads
     const adIds = existingAds?.map(a => a.platform_ad_id) || [];
     const adMetrics = await fetchMetricsBatch(adIds, 'ad');
 
     console.log(`[quick-refresh] Fetched ${campaignMetrics.length} campaign metrics, ${adSetMetrics.length} ad set metrics, ${adMetrics.length} ad metrics`);
 
-    // Step 4: Update metrics in database
     console.log('[quick-refresh] Updating metrics...');
 
-    // Helper to extract metrics
     const extractMetrics = (insights: any) => {
       const purchases = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || '0';
       const purchaseValue = insights.action_values?.find((a: any) => a.action_type === 'purchase')?.value || '0';
@@ -218,12 +202,14 @@ Deno.serve(async (req: Request) => {
       };
     };
 
-    // Create a map for quick lookups
     const campaignIdMap = new Map(existingCampaigns?.map(c => [c.platform_campaign_id, c.id]));
     const adSetIdMap = new Map(existingAdSets?.map(as => [as.platform_adset_id, as.id]));
     const adIdMap = new Map(existingAds?.map(a => [a.platform_ad_id, a.id]));
 
-    // Update campaign metrics
+    const today = new Date().toISOString().split('T')[0];
+
+    const allMetricsRecords: any[] = [];
+
     for (const { id, insights } of campaignMetrics) {
       const dbId = campaignIdMap.get(id);
       if (dbId) {
@@ -232,10 +218,25 @@ Deno.serve(async (req: Request) => {
           .from('ad_campaigns')
           .update(metrics)
           .eq('id', dbId);
+
+        allMetricsRecords.push({
+          entity_id: dbId,
+          entity_type: 'campaign',
+          date: today,
+          impressions: metrics.impressions,
+          clicks: metrics.clicks,
+          spend: metrics.spend,
+          conversions: metrics.purchases,
+          conversion_value: metrics.revenue,
+          reach: 0,
+          cpc: metrics.cpc,
+          cpm: metrics.cpm,
+          ctr: metrics.ctr,
+          roas: metrics.roas,
+        });
       }
     }
 
-    // Update ad set metrics
     for (const { id, insights } of adSetMetrics) {
       const dbId = adSetIdMap.get(id);
       if (dbId) {
@@ -244,10 +245,25 @@ Deno.serve(async (req: Request) => {
           .from('ad_sets')
           .update(metrics)
           .eq('id', dbId);
+
+        allMetricsRecords.push({
+          entity_id: dbId,
+          entity_type: 'adset',
+          date: today,
+          impressions: metrics.impressions,
+          clicks: metrics.clicks,
+          spend: metrics.spend,
+          conversions: metrics.purchases,
+          conversion_value: metrics.revenue,
+          reach: 0,
+          cpc: metrics.cpc,
+          cpm: metrics.cpm,
+          ctr: metrics.ctr,
+          roas: metrics.roas,
+        });
       }
     }
 
-    // Update ad metrics
     for (const { id, insights } of adMetrics) {
       const dbId = adIdMap.get(id);
       if (dbId) {
@@ -256,10 +272,39 @@ Deno.serve(async (req: Request) => {
           .from('ads')
           .update(metrics)
           .eq('id', dbId);
+
+        allMetricsRecords.push({
+          entity_id: dbId,
+          entity_type: 'ad',
+          date: today,
+          impressions: metrics.impressions,
+          clicks: metrics.clicks,
+          spend: metrics.spend,
+          conversions: metrics.purchases,
+          conversion_value: metrics.revenue,
+          reach: 0,
+          cpc: metrics.cpc,
+          cpm: metrics.cpm,
+          ctr: metrics.ctr,
+          roas: metrics.roas,
+        });
       }
     }
 
-    // Update last_synced_at
+    if (allMetricsRecords.length > 0) {
+      console.log(`[quick-refresh] Upserting ${allMetricsRecords.length} records to ad_metrics table...`);
+      const upsertBatchSize = 200;
+      for (let i = 0; i < allMetricsRecords.length; i += upsertBatchSize) {
+        const batch = allMetricsRecords.slice(i, i + upsertBatchSize);
+        const { error: metricsError } = await supabase
+          .from('ad_metrics')
+          .upsert(batch, { onConflict: 'entity_type,entity_id,date' });
+        if (metricsError) {
+          console.error('[quick-refresh] Error upserting ad_metrics:', metricsError);
+        }
+      }
+    }
+
     await supabase
       .from('ad_accounts')
       .update({ last_synced_at: new Date().toISOString() })
