@@ -565,35 +565,18 @@ export async function getCreativePerformance(
       };
     });
 
-    // Filter out ads with no activity in the date range
-    // Only show ads that have impressions, clicks, or spend
-    const creativesWithData = creatives.filter(c =>
-      c.metrics.impressions > 0 ||
-      c.metrics.clicks > 0 ||
-      c.metrics.spend > 0
-    );
-
-    const adsWithRealData = creativesWithData.filter(c => c.hasRealConversionData).length;
-    console.log('[AdReportsService] ✓ Filtered to', creativesWithData.length, 'ads with activity (' + adsWithRealData + ' with real conversion data)');
-    console.log('[AdReportsService] ✓ Removed', creatives.length - creativesWithData.length, 'ads with no activity in date range');
-
-    // DEBUG: Log first 3 creatives to see actual data including thumbnails
-    console.log('[DEBUG AdReportsService] First 3 creatives sample:', creativesWithData.slice(0, 3).map(c => ({
-      id: c.id,
-      name: c.adName,
-      thumbnail: c.thumbnail,
-      url: c.url,
-      hasThumbnail: !!c.thumbnail,
-      hasUrl: !!c.url,
-      metrics: {
-        impressions: c.metrics.impressions,
-        clicks: c.metrics.clicks,
-        spend: c.metrics.spend,
-        conversions: c.metrics.conversions
+    // Sort by spend descending, then by name
+    const sortedCreatives = creatives.sort((a, b) => {
+      if (b.metrics.spend !== a.metrics.spend) {
+        return b.metrics.spend - a.metrics.spend;
       }
-    })));
+      return a.adName.localeCompare(b.adName);
+    });
 
-    return creativesWithData;
+    const adsWithRealData = sortedCreatives.filter(c => c.hasRealConversionData).length;
+    console.log('[AdReportsService] ✓ Returning', sortedCreatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
+
+    return sortedCreatives;
   } catch (error) {
     console.error('[AdReportsService] Error fetching creative performance:', error);
     return [];
@@ -820,17 +803,17 @@ export async function getCampaignPerformance(
       };
     });
 
-    // Filter out campaigns with no activity in the date range
-    const campaignsWithData = campaignsWithMetrics.filter(c =>
-      c.metrics.impressions > 0 ||
-      c.metrics.clicks > 0 ||
-      c.metrics.spend > 0
-    );
+    // Sort by spend descending, then by name
+    const sortedCampaigns = campaignsWithMetrics.sort((a, b) => {
+      if (b.metrics.spend !== a.metrics.spend) {
+        return b.metrics.spend - a.metrics.spend;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
-    console.log('[AdReportsService] ✓ Filtered to', campaignsWithData.length, 'campaigns with activity');
-    console.log('[AdReportsService] ✓ Removed', campaignsWithMetrics.length - campaignsWithData.length, 'campaigns with no activity in date range');
+    console.log('[AdReportsService] ✓ Returning', sortedCampaigns.length, 'campaigns');
 
-    return campaignsWithData;
+    return sortedCampaigns;
   } catch (error) {
     console.error('[adReportsService] Error fetching campaign performance:', error);
     return [];
@@ -1009,17 +992,17 @@ export async function getAdSetPerformance(
       };
     });
 
-    // Filter out ad sets with no activity in the date range
-    const adSetsWithData = adSetsWithMetrics.filter(a =>
-      a.metrics.impressions > 0 ||
-      a.metrics.clicks > 0 ||
-      a.metrics.spend > 0
-    );
+    // Sort by spend descending, then by name
+    const sortedAdSets = adSetsWithMetrics.sort((a, b) => {
+      if (b.metrics.spend !== a.metrics.spend) {
+        return b.metrics.spend - a.metrics.spend;
+      }
+      return a.name.localeCompare(b.name);
+    });
 
-    console.log('[AdReportsService] ✓ Filtered to', adSetsWithData.length, 'ad sets with activity');
-    console.log('[AdReportsService] ✓ Removed', adSetsWithMetrics.length - adSetsWithData.length, 'ad sets with no activity in date range');
+    console.log('[AdReportsService] ✓ Returning', sortedAdSets.length, 'ad sets');
 
-    return adSetsWithData;
+    return sortedAdSets;
   } catch (error) {
     console.error('[adReportsService] Error fetching ad set performance:', error);
     return [];
