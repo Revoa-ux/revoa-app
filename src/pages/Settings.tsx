@@ -1174,7 +1174,7 @@ const SettingsPage = () => {
             if (syncJob.sync_phase === 'recent_90_days' &&
                 syncJob.status === 'in_progress' &&
                 !syncToastShown[key]?.started) {
-              toast.info('Syncing your recent 90 days of data...', { duration: 5000 });
+              toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
               setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: false } }));
             }
 

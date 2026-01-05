@@ -30,6 +30,7 @@ export const CustomRadio: React.FC<CustomRadioProps> = ({
       />
       <div className={`
         w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center
+        peer-focus:ring-1 peer-focus:ring-gray-900 dark:peer-focus:ring-gray-100 peer-focus:ring-offset-2
         ${checked
           ? 'border-gray-700 dark:border-gray-400'
           : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'

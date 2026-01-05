@@ -282,8 +282,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
         const { accounts } = await facebookAdsService.checkConnectionStatus();
         if (accounts.length > 0) {
-          // Show toast that sync is starting
-          toast.info('Syncing your recent 90 days of data...', { duration: 5000 });
+          // Show toast that sync is starting - keep it visible until next update
+          toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
 
           // For now, sync the first account (we can add multi-account support later)
           const account = accounts[0];

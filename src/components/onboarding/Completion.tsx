@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { ChevronDown, Check, Phone } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -88,7 +88,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     return type ? type.label : 'Select store type';
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!formData.name.trim()) {
       return;
     }
@@ -175,7 +175,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
       console.error('Error saving profile:', error);
       setIsLoading(false);
     }
-  };
+  }, [formData, onComplete]);
 
   // Expose handleSubmit to parent via onSubmit prop
   React.useEffect(() => {
