@@ -239,11 +239,15 @@
           console.warn('[Shopify Callback] No parent window available to send message');
         }
 
-        // Close window after longer delay to ensure message delivery
+        // Close window immediately after messages sent (messages already sent 3 times)
         setTimeout(() => {
           console.log('[Shopify Callback] Closing popup window');
-          window.close();
-        }, 2500);
+          try {
+            window.close();
+          } catch (e) {
+            console.error('[Shopify Callback] Error closing window:', e);
+          }
+        }, 1000);
 
       } catch (error) {
         console.error('OAuth callback error:', error);

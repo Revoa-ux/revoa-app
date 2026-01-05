@@ -2403,7 +2403,7 @@ const SettingsPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {integrationStatus.shopify && (
+                    {shopify.isConnected && (
                       <>
                         <button
                           onClick={handleSyncShopifyOrders}
@@ -2416,18 +2416,18 @@ const SettingsPage = () => {
                       </>
                     )}
                     <button
-                      onClick={integrationStatus.shopify ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
+                      onClick={shopify.isConnected ? handleDisconnectShopify : () => handleConnectPlatform('shopify')}
                       disabled={shopifyConnecting}
                       className={`p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                        integrationStatus.shopify
+                        shopify.isConnected
                           ? 'text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
                           : 'flex items-center gap-1.5 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
                       }`}
-                      title={integrationStatus.shopify ? 'Disconnect' : 'Connect'}
+                      title={shopify.isConnected ? 'Disconnect' : 'Connect'}
                     >
                       {shopifyConnecting ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : integrationStatus.shopify ? (
+                      ) : shopify.isConnected ? (
                         <X className="w-4 h-4" />
                       ) : (
                         <>
@@ -2463,7 +2463,7 @@ const SettingsPage = () => {
                       )}
                     </div>
                   </div>
-                  {integrationStatus.facebook ? (
+                  {facebook.isConnected ? (
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         onClick={() => facebookAccounts[0] && handleSyncFacebook(facebookAccounts[0].platform_account_id)}
@@ -2490,17 +2490,17 @@ const SettingsPage = () => {
                     <button
                       onClick={() => handleConnectPlatform('facebook')}
                       disabled={facebookConnecting}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                     >
                       {facebookConnecting ? (
                         <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                           <span>Connecting...</span>
                         </>
                       ) : (
                         <>
                           <span>Connect</span>
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <ChevronRight className="w-4 h-4" />
                         </>
                       )}
                     </button>
