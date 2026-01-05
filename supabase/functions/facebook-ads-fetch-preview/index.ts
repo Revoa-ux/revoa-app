@@ -17,13 +17,29 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+
+    if (!authHeader) {
+      console.error('[fetch-preview] No Authorization header provided');
+      throw new Error('Unauthorized: No authorization header');
+    }
+
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user } } = await supabaseClient.auth.getUser(token);
+    console.log('[fetch-preview] Validating user token...');
+
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+
+    if (authError) {
+      console.error('[fetch-preview] Auth error:', authError);
+      throw new Error(`Unauthorized: ${authError.message}`);
+    }
 
     if (!user) {
-      throw new Error('Unauthorized');
+      console.error('[fetch-preview] No user found for token');
+      throw new Error('Unauthorized: Invalid token');
     }
+
+    console.log('[fetch-preview] Authenticated user:', user.id);
 
     const { platform_ad_id } = await req.json();
 
@@ -109,8 +125,7 @@ Deno.serve(async (req: Request) => {
 
       // Try to extract image URL from preview HTML
       if (preview.body) {
-        const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);
-        if (imgMatch) {
+        const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);        if (imgMatch) {
           imageUrl = imgMatch[1];
           console.log('[fetch-preview] Extracted image URL:', imageUrl.substring(0, 100));
         } else {
