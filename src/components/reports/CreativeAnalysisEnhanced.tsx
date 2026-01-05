@@ -683,6 +683,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
       const getValue = (item: any, field: string) => {
         switch (field) {
+          case 'status':
+            const status = item.status?.toUpperCase() || 'UNKNOWN';
+            return status === 'ACTIVE' ? 2 : status === 'PAUSED' ? 1 : 0;
           case 'adName':
             return item.adName || '';
           case 'platform':
