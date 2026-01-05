@@ -284,16 +284,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 }}
                 className={`rounded-lg cursor-pointer transition-all relative ${
                   formData.wants_growth_assistance === true
-                    ? 'p-[1px]'
-                    : ''
+                    ? 'border-2 border-gray-900 dark:border-white'
+                    : 'border-2 border-transparent'
                 }`}
-                style={
-                  formData.wants_growth_assistance === true
-                    ? {
-                        background: 'linear-gradient(to right, rgb(244 63 94), rgb(236 72 153), rgb(251 146 60))',
-                      }
-                    : {}
-                }
               >
                 <div
                   className={`p-4 rounded-lg ${
@@ -357,16 +350,9 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 }}
                 className={`rounded-lg cursor-pointer transition-all relative ${
                   formData.wants_growth_assistance === false
-                    ? 'p-[1px]'
-                    : ''
+                    ? 'border-2 border-gray-900 dark:border-white'
+                    : 'border-2 border-transparent'
                 }`}
-                style={
-                  formData.wants_growth_assistance === false
-                    ? {
-                        background: 'linear-gradient(to right, rgb(244 63 94), rgb(236 72 153), rgb(251 146 60))',
-                      }
-                    : {}
-                }
               >
                 <div
                   className={`p-4 rounded-lg ${

@@ -100,11 +100,13 @@ const Onboarding = () => {
   }, [location.pathname, updateStep]);
 
   // Auto-skip store step if Shopify is already connected (e.g., from Shopify App Store)
-  useEffect(() => {
-    const currentPath = location.pathname.split('/').pop();
-    if (currentPath === 'store' && shopify.isConnected) {      navigate('/onboarding/ads', { replace: true });
-    }
-  }, [shopify.isConnected, location.pathname, navigate]);
+  // DISABLED: This was causing the next button to not appear and auto-advancing
+  // useEffect(() => {
+  //   const currentPath = location.pathname.split('/').pop();
+  //   if (currentPath === 'store' && shopify.isConnected) {
+  //     navigate('/onboarding/ads', { replace: true });
+  //   }
+  // }, [shopify.isConnected, location.pathname, navigate]);
   
   const handleCompleteOnboarding = async () => {
     try {
