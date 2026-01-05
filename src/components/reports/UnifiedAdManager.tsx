@@ -81,8 +81,13 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     if (selectedAdSets.size > 0) {
       const selectedAdCount = creatives.filter(ad => selectedAdSets.has(ad.adSetId)).length;
 
+      // Get unique campaigns that contain the selected ad sets
+      const uniqueCampaignIds = new Set(
+        adSets.filter(adSet => selectedAdSets.has(adSet.adSetId)).map(adSet => adSet.campaignId)
+      );
+
       return {
-        campaigns: campaigns.length,
+        campaigns: uniqueCampaignIds.size,
         adsets: selectedAdSets.size,
         ads: selectedAdCount
       };

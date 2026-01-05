@@ -1459,14 +1459,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
-                          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
-                            {sortedCreatives.length} total
-                          </span>
-                        ) : column.id === 'creative' ? (
                           <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
-                            Totals
+                            TOTALS ({sortedCreatives.length})
                           </span>
-                        ) : column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                        ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
                           ''
                         ) : column.id === 'impressions' ? (
                           totals.impressions.toLocaleString()
