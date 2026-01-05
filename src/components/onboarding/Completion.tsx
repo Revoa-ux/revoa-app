@@ -315,7 +315,10 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                           <input
                             type="tel"
                             value={formData.phone_number}
-                            onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              setFormData({ ...formData, phone_number: e.target.value });
+                            }}
                             onClick={(e) => e.stopPropagation()}
                             placeholder="+1 (555) 123-4567"
                             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100 text-gray-900 dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
@@ -335,7 +338,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: false, phone_number: '' })}
                 className={`p-4 rounded-lg cursor-pointer transition-all border ${
                   formData.wants_growth_assistance === false
-                    ? 'border-gray-900 dark:border-gray-100 ring-2 ring-gray-900 dark:ring-gray-100 bg-gray-50 dark:bg-gray-900/50'
+                    ? 'border-rose-600 dark:border-rose-500 ring-1 ring-rose-600 dark:ring-rose-500 bg-gray-50 dark:bg-gray-900/50'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
