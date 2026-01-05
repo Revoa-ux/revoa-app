@@ -422,15 +422,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 50,
       flexGrow: 0,
       flexShrink: 0,
-      render: (_, creative) => (
-        <CustomCheckbox
-          checked={selectedCreatives.has(creative.id)}
-          onChange={(e) => {
-            e.stopPropagation();
-            toggleSelection(creative.id);
-          }}
-        />
-      )
+      render: (_, creative) => {
+        // For ad sets, use adSetId so it matches with ad.adSetId
+        // For campaigns and ads, use id
+        const itemId = viewLevel === 'adsets' ? (creative.adSetId || creative.id) : creative.id;
+
+        return (
+          <CustomCheckbox
+            checked={selectedCreatives.has(itemId)}
+            onChange={(e) => {
+              e.stopPropagation();
+              toggleSelection(itemId);
+            }}
+          />
+        );
+      }
     },
     {
       id: 'status',
@@ -577,13 +583,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     if (externalOnToggleSelect) {
       // When using external state management, toggle each item individually
       filteredCreatives.forEach(c => {
-        const isSelected = selectedCreatives.has(c.id);
+        // For ad sets, use adSetId so it matches with ad.adSetId
+        const itemId = viewLevel === 'adsets' ? (c.adSetId || c.id) : c.id;
+        const isSelected = selectedCreatives.has(itemId);
+
         if (allSelected && isSelected) {
           // Deselect all
-          externalOnToggleSelect(c.id);
+          externalOnToggleSelect(itemId);
         } else if (!allSelected && !isSelected) {
           // Select all
-          externalOnToggleSelect(c.id);
+          externalOnToggleSelect(itemId);
         }
       });
     } else {
@@ -591,7 +600,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       if (allSelected) {
         setInternalSelectedItems(new Set());
       } else {
-        setInternalSelectedItems(new Set(filteredCreatives.map(c => c.id)));
+        const itemIds = filteredCreatives.map(c =>
+          viewLevel === 'adsets' ? (c.adSetId || c.id) : c.id
+        );
+        setInternalSelectedItems(new Set(itemIds));
       }
     }
   };
