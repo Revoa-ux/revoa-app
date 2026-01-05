@@ -97,14 +97,45 @@
       color: #991b1b;
       font-size: 13px;
     }
+
+    .debug-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #111;
+      color: #0f0;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 11px;
+      max-height: 200px;
+      overflow-y: auto;
+      border-top: 2px solid #0f0;
+      z-index: 9999;
+    }
+
+    .debug-panel div {
+      margin-bottom: 4px;
+    }
+
+    .debug-error {
+      color: #f00;
+    }
+
+    .debug-success {
+      color: #0f0;
+    }
   </style>
 </head>
 <body>
+  <div id="debug-panel" class="debug-panel"></div>
+
   <div class="container">
     <div id="loading-state">
       <div class="spinner"></div>
       <h1>Connecting to Shopify</h1>
       <p>Please wait while we complete the setup...</p>
+      <p style="margin-top: 12px; font-size: 12px;">Check the debug panel at the bottom for details</p>
     </div>
 
     <div id="success-state" style="display: none;">
@@ -122,15 +153,28 @@
   </div>
 
   <script type="module">
+    function debugLog(message, isError = false) {
+      const panel = document.getElementById('debug-panel');
+      const div = document.createElement('div');
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      div.className = isError ? 'debug-error' : 'debug-success';
+      panel.appendChild(div);
+      panel.scrollTop = panel.scrollHeight;
+      console.log(message);
+    }
+
     async function handleCallback() {
       try {
+        debugLog('=== SHOPIFY CALLBACK STARTED ===');
+        debugLog('URL: ' + window.location.href);
+
         const params = new URLSearchParams(window.location.search);
         const shop = params.get('shop');
         const code = params.get('code');
         const state = params.get('state');
         const hmac = params.get('hmac');
 
-        console.log('OAuth callback received:', { shop, code: code ? 'present' : 'missing', state, hmac: hmac ? 'present' : 'missing' });
+        debugLog(`Params - shop:${shop}, code:${code?'YES':'NO'}, state:${state}, hmac:${hmac?'YES':'NO'}`);
 
         // Check if we have required parameters
         if (!shop || !code || !state || !hmac) {
@@ -145,12 +189,8 @@
           throw new Error('Supabase configuration missing');
         }
 
-        // Verify state and shop exist in database (don't use localStorage - popup can't access it)
-        // The edge function will verify these and get the user_id from the oauth_sessions table
-        console.log('Calling edge function to complete OAuth...');
+        debugLog('Calling Shopify proxy edge function...');
 
-        // Call our edge function to handle the OAuth completion
-        // The edge function will verify the state parameter and retrieve the user_id from the database
         const response = await fetch(`${supabaseUrl}/functions/v1/shopify-proxy`, {
           method: 'POST',
           headers: {
@@ -166,17 +206,19 @@
           })
         });
 
+        debugLog(`Edge function response: ${response.status} ${response.statusText}`);
+
         if (!response.ok) {
           let errorMessage = `OAuth completion failed: ${response.status} ${response.statusText}`;
           let errorDetails = '';
           try {
             const error = await response.json();
-            console.error('Edge function returned error:', error);
+            debugLog('Error response: ' + JSON.stringify(error), true);
             errorMessage = error.error || error.message || errorMessage;
             errorDetails = JSON.stringify(error, null, 2);
           } catch (e) {
             const errorText = await response.text();
-            console.error('Edge function returned text:', errorText);
+            debugLog('Error text: ' + errorText, true);
             if (errorText) {
               errorMessage = errorText;
               errorDetails = errorText;
@@ -188,7 +230,8 @@
         }
 
         const result = await response.json();
-        console.log('OAuth completed successfully:', result);
+        debugLog('✓ OAuth completed successfully!');
+        debugLog('Result: ' + JSON.stringify(result));
 
         // Show success state
         document.getElementById('loading-state').style.display = 'none';
@@ -198,9 +241,9 @@
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // Notify parent window - send multiple times to ensure delivery
+        // Notify parent window
         if (window.opener && !window.opener.closed) {
-          console.log('[Shopify Callback] Sending success message to parent window');
+          debugLog('✓ Parent window detected - sending messages...');
 
           const successMessage = {
             type: 'shopify:success',
@@ -211,46 +254,50 @@
 
           // Send immediately
           window.opener.postMessage(successMessage, '*');
-          console.log('[Shopify Callback] Success message sent #1');
+          debugLog('✓ postMessage #1 sent');
 
-          // Send again after 100ms to ensure delivery
+          // Send again after 100ms
           setTimeout(() => {
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(successMessage, '*');
-              console.log('[Shopify Callback] Success message sent #2');
+              debugLog('✓ postMessage #2 sent');
             }
           }, 100);
 
-          // Send again after 300ms as final backup
+          // Send again after 300ms
           setTimeout(() => {
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(successMessage, '*');
-              console.log('[Shopify Callback] Success message sent #3');
+              debugLog('✓ postMessage #3 sent');
             }
           }, 300);
 
-          // Also try to trigger a storage event as fallback
+          // Also set localStorage as fallback
           localStorage.setItem('shopify_oauth_success', JSON.stringify({
             shop: shop,
             timestamp: Date.now()
           }));
-          console.log('[Shopify Callback] Set localStorage success flag');
+          debugLog('✓ localStorage flag set');
         } else {
-          console.warn('[Shopify Callback] No parent window available to send message');
+          debugLog('✗ NO PARENT WINDOW FOUND!', true);
         }
 
-        // Close window immediately after messages sent (messages already sent 3 times)
+        // Close window after 1 second
+        debugLog('Closing window in 1 second...');
         setTimeout(() => {
-          console.log('[Shopify Callback] Closing popup window');
+          debugLog('Attempting to close window now...');
           try {
             window.close();
+            debugLog('✓ window.close() called');
           } catch (e) {
-            console.error('[Shopify Callback] Error closing window:', e);
+            debugLog('✗ Error closing window: ' + e.message, true);
           }
         }, 1000);
 
       } catch (error) {
-        console.error('OAuth callback error:', error);
+        debugLog('✗✗✗ ERROR OCCURRED ✗✗✗', true);
+        debugLog('Error: ' + error.message, true);
+        debugLog('Stack: ' + error.stack, true);
 
         // Show error state
         document.getElementById('loading-state').style.display = 'none';
