@@ -565,11 +565,20 @@ export async function getCreativePerformance(
       };
     });
 
-    const adsWithRealData = creatives.filter(c => c.hasRealConversionData).length;
-    console.log('[AdReportsService] ✓ Returned', creatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
+    // Filter out ads with no activity in the date range
+    // Only show ads that have impressions, clicks, or spend
+    const creativesWithData = creatives.filter(c =>
+      c.metrics.impressions > 0 ||
+      c.metrics.clicks > 0 ||
+      c.metrics.spend > 0
+    );
+
+    const adsWithRealData = creativesWithData.filter(c => c.hasRealConversionData).length;
+    console.log('[AdReportsService] ✓ Filtered to', creativesWithData.length, 'ads with activity (' + adsWithRealData + ' with real conversion data)');
+    console.log('[AdReportsService] ✓ Removed', creatives.length - creativesWithData.length, 'ads with no activity in date range');
 
     // DEBUG: Log first 3 creatives to see actual data including thumbnails
-    console.log('[DEBUG AdReportsService] First 3 creatives sample:', creatives.slice(0, 3).map(c => ({
+    console.log('[DEBUG AdReportsService] First 3 creatives sample:', creativesWithData.slice(0, 3).map(c => ({
       id: c.id,
       name: c.adName,
       thumbnail: c.thumbnail,
@@ -584,7 +593,7 @@ export async function getCreativePerformance(
       }
     })));
 
-    return creatives;
+    return creativesWithData;
   } catch (error) {
     console.error('[AdReportsService] Error fetching creative performance:', error);
     return [];
@@ -811,7 +820,17 @@ export async function getCampaignPerformance(
       };
     });
 
-    return campaignsWithMetrics;
+    // Filter out campaigns with no activity in the date range
+    const campaignsWithData = campaignsWithMetrics.filter(c =>
+      c.metrics.impressions > 0 ||
+      c.metrics.clicks > 0 ||
+      c.metrics.spend > 0
+    );
+
+    console.log('[AdReportsService] ✓ Filtered to', campaignsWithData.length, 'campaigns with activity');
+    console.log('[AdReportsService] ✓ Removed', campaignsWithMetrics.length - campaignsWithData.length, 'campaigns with no activity in date range');
+
+    return campaignsWithData;
   } catch (error) {
     console.error('[adReportsService] Error fetching campaign performance:', error);
     return [];
@@ -990,7 +1009,17 @@ export async function getAdSetPerformance(
       };
     });
 
-    return adSetsWithMetrics;
+    // Filter out ad sets with no activity in the date range
+    const adSetsWithData = adSetsWithMetrics.filter(a =>
+      a.metrics.impressions > 0 ||
+      a.metrics.clicks > 0 ||
+      a.metrics.spend > 0
+    );
+
+    console.log('[AdReportsService] ✓ Filtered to', adSetsWithData.length, 'ad sets with activity');
+    console.log('[AdReportsService] ✓ Removed', adSetsWithMetrics.length - adSetsWithData.length, 'ad sets with no activity in date range');
+
+    return adSetsWithData;
   } catch (error) {
     console.error('[adReportsService] Error fetching ad set performance:', error);
     return [];
