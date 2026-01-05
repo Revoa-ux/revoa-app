@@ -195,21 +195,27 @@ const Onboarding = () => {
       productSetupComplete={productSetupComplete}
     >
       <Routes>
-        <Route 
-          path="store" 
+        <Route
+          path="store"
           element={
-            <StoreIntegration 
-              onStoreConnected={handleStoreConnected} 
-            />
-          } 
+            <>
+              {console.log('[Onboarding] Rendering store route')}
+              <StoreIntegration
+                onStoreConnected={handleStoreConnected}
+              />
+            </>
+          }
         />
-        <Route 
-          path="ads" 
+        <Route
+          path="ads"
           element={
-            <AdPlatformIntegration 
-              onPlatformsConnected={handleAdPlatformsConnected} 
-            />
-          } 
+            <>
+              {console.log('[Onboarding] Rendering ads route')}
+              <AdPlatformIntegration
+                onPlatformsConnected={handleAdPlatformsConnected}
+              />
+            </>
+          }
         />
         <Route
           path="products"

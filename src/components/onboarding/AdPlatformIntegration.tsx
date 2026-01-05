@@ -18,6 +18,7 @@ interface AdPlatformIntegrationProps {
 }
 
 const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatformsConnected }) => {
+  console.log('[AdPlatformIntegration] Component mounted');
   const { user } = useAuth();
   const { refreshFacebookAccounts } = useConnectionStore();
   const [syncProgress, setSyncProgress] = useState<{
@@ -59,19 +60,14 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     }
   ]);
 
-  // Memoize the function that updates connected platforms
-  const updateConnectedPlatforms = useCallback(() => {
+  // Update parent component when platforms change
+  useEffect(() => {
     const connectedPlatforms = platforms
       .filter(p => p.status === 'connected')
       .map(p => p.id);
 
     onPlatformsConnected(connectedPlatforms);
   }, [platforms, onPlatformsConnected]);
-
-  // Update parent component when platforms change
-  useEffect(() => {
-    updateConnectedPlatforms();
-  }, [updateConnectedPlatforms]);
 
   // Check existing Facebook connection on mount and clear old OAuth data
   useEffect(() => {
@@ -445,6 +441,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       )
     );
   };
+
+  console.log('[AdPlatformIntegration] Rendering with platforms:', platforms);
 
   return (
     <>
