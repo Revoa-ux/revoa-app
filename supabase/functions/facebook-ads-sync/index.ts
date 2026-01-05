@@ -331,8 +331,75 @@ Deno.serve(async (req: Request) => {
     const adsWithImages = adRecords.filter(ad => ad.creative_thumbnail_url).length;
     const adsWithoutImages = adRecords.filter(ad => !ad.creative_thumbnail_url).length;
     console.log(`[sync] Image capture stats: ${adsWithImages} ads with images, ${adsWithoutImages} without images`);
+
+    // Fetch ad previews for ads without images using Facebook's Ad Previews API
     if (adsWithoutImages > 0) {
-      console.log('[sync] Sample ad without image:', adRecords.find(ad => !ad.creative_thumbnail_url));
+      console.log('[sync] Fetching ad previews for ads without images...');
+      const adsNeedingPreviews = allAds.filter(ad => {
+        const record = adRecords.find(r => r.platform_ad_id === ad.id);
+        return record && !record.creative_thumbnail_url;
+      });
+
+      const PREVIEW_BATCH_SIZE = 10;
+      let previewsFetched = 0;
+
+      for (let i = 0; i < adsNeedingPreviews.length; i += PREVIEW_BATCH_SIZE) {
+        const batch = adsNeedingPreviews.slice(i, i + PREVIEW_BATCH_SIZE);
+        const previewResults = await Promise.allSettled(
+          batch.map(async (ad) => {
+            try {
+              // Request ad preview - this returns actual preview HTML/images
+              const previewUrl = `https://graph.facebook.com/v21.0/${ad.id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${accessToken}`;
+              const response = await fetch(previewUrl);
+              const data = await response.json();
+
+              if (data.data && data.data[0]) {
+                const preview = data.data[0];
+                // Extract image from preview body if available
+                if (preview.body) {
+                  const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);
+                  if (imgMatch) {
+                    return { ad_id: ad.id, preview_url: imgMatch[1] };
+                  }
+                }
+              }
+              return null;
+            } catch (error) {
+              console.error(`[sync] Failed to fetch preview for ad ${ad.id}:`, error);
+              return null;
+            }
+          })
+        );
+
+        // Update ads with preview URLs
+        const successfulPreviews = previewResults
+          .filter(r => r.status === 'fulfilled' && r.value)
+          .map(r => r.status === 'fulfilled' ? r.value : null)
+          .filter(Boolean);
+
+        if (successfulPreviews.length > 0) {
+          for (const preview of successfulPreviews) {
+            if (preview) {
+              await supabaseClient
+                .from('ads')
+                .update({
+                  creative_thumbnail_url: preview.preview_url,
+                  creative_data: {
+                    ...adRecords.find(r => r.platform_ad_id === preview.ad_id)?.creative_data,
+                    preview_url: preview.preview_url
+                  }
+                })
+                .eq('platform_ad_id', preview.ad_id)
+                .eq('platform', 'facebook');
+              previewsFetched++;
+            }
+          }
+        }
+
+        console.log(`[sync] Preview progress: ${Math.min(i + PREVIEW_BATCH_SIZE, adsNeedingPreviews.length)}/${adsNeedingPreviews.length} processed, ${previewsFetched} previews captured`);
+      }
+
+      console.log(`[sync] Successfully fetched ${previewsFetched} ad previews`);
     }
 
     // Fetch insights (most time-consuming part - optimize by fetching only campaign-level)

@@ -137,6 +137,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const [isResizing, setIsResizing] = useState(false);
   const [resizingColumnId, setResizingColumnId] = useState<string | null>(null);
   const [togglingIds, setTogglingIds] = useState<Set<string>>(new Set());
+  const [fetchingPreviews, setFetchingPreviews] = useState<Set<string>>(new Set());
 
   // Rex AI state
   const [generatedInsights, setGeneratedInsights] = useState<Map<string, GeneratedInsight[]>>(new Map());
@@ -271,6 +272,62 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'tiktok', name: 'TikTok', icon: Play },
     { id: 'google', name: 'Google Ads', icon: ImageIcon }
   ];
+
+  // Fetch ad preview for missing images
+  const fetchAdPreview = async (creative: any) => {
+    if (creative.platform !== 'facebook' || fetchingPreviews.has(creative.id)) {
+      return;
+    }
+
+    setFetchingPreviews(prev => new Set([...prev, creative.id]));
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-fetch-preview`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          },
+          body: JSON.stringify({
+            platform_ad_id: creative.id
+          })
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success && result.image_url) {
+        // Update the creative with the new image URL
+        const updatedCreatives = creatives.map(c =>
+          c.id === creative.id ? { ...c, thumbnail: result.image_url, url: result.image_url } : c
+        );
+
+        if (onOptimisticUpdate) {
+          onOptimisticUpdate(updatedCreatives);
+        }
+
+        // Remove from error state
+        setImageErrors(prev => {
+          const next = new Set(prev);
+          next.delete(creative.id);
+          return next;
+        });
+      }
+    } catch (error) {
+      console.error('[CreativeAnalysis] Failed to fetch preview:', error);
+    } finally {
+      setFetchingPreviews(prev => {
+        const next = new Set(prev);
+        next.delete(creative.id);
+        return next;
+      });
+    }
+  };
 
   // Toggle status handler with optimistic updates
   const handleToggleStatus = async (creative: any, e?: React.MouseEvent) => {
@@ -477,6 +534,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
         const hasImageError = imageErrors.has(creative.id);
         const isImageLoading = imageLoading.has(creative.id);
+        const isFetchingPreview = fetchingPreviews.has(creative.id);
+        const hasNoImage = !creative.thumbnail && !creative.url;
+        const canFetchPreview = creative.platform === 'facebook' && (hasNoImage || hasImageError);
 
         return (
           <div className="flex items-center">
@@ -506,12 +566,31 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         next.delete(creative.id);
                         return next;
                       });
+                      // Auto-fetch preview for Facebook ads
+                      if (creative.platform === 'facebook') {
+                        fetchAdPreview(creative);
+                      }
                     }}
                   />
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
-                  <ImageIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  {isFetchingPreview ? (
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  ) : canFetchPreview ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetchAdPreview(creative);
+                      }}
+                      className="w-full h-full flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      title="Fetch ad preview"
+                    >
+                      <ImageIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    </button>
+                  ) : (
+                    <ImageIcon className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  )}
                 </div>
               )}
               {adsManagerUrl && !isImageLoading && (
