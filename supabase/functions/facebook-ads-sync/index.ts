@@ -34,7 +34,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { adAccountId, chunkType, entityOffset, entityLimit, startDate, endDate, jobId, chunkId } = await req.json();
+    const body = await req.json();
+    const { adAccountId, chunkType, entityOffset, entityLimit, jobId, chunkId } = body;
+    let { startDate, endDate } = body;
 
     console.log('[facebook-ads-sync] Starting sync:', {
       adAccountId,
@@ -91,35 +93,30 @@ Deno.serve(async (req: Request) => {
     const accessToken = tokenData.access_token;
 
     // Smart date range selection based on sync history
-    let startDate: string;
-    let endDate: string = yesterday.toISOString().split('T')[0];
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
     let isInitialSync = false;
 
-    if (account.last_synced_at) {
-      // Incremental sync: Only sync metrics since last sync
-      const lastSync = new Date(account.last_synced_at);
-      lastSync.setDate(lastSync.getDate() + 1); // Start from day after last sync
-      startDate = lastSync.toISOString().split('T')[0];
-      console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
-    } else {
-      // Initial sync: Get last 90 days of data (reasonable window)
-      const ninetyDaysAgo = new Date(today);
-      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      startDate = ninetyDaysAgo.toISOString().split('T')[0];
-      isInitialSync = true;
-      console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
+    if (!endDate) {
+      endDate = yesterday.toISOString().split('T')[0];
     }
 
-    // Allow manual override of date range via query params (for debugging/backfill)
-    const manualStartDate = url.searchParams.get('startDate');
-    const manualEndDate = url.searchParams.get('endDate');
-    if (manualStartDate) {
-      startDate = manualStartDate;
-      console.log(`[sync] Manual start date override: ${startDate}`);
-    }
-    if (manualEndDate) {
-      endDate = manualEndDate;
-      console.log(`[sync] Manual end date override: ${endDate}`);
+    if (!startDate) {
+      if (account.last_synced_at) {
+        // Incremental sync: Only sync metrics since last sync
+        const lastSync = new Date(account.last_synced_at);
+        lastSync.setDate(lastSync.getDate() + 1); // Start from day after last sync
+        startDate = lastSync.toISOString().split('T')[0];
+        console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
+      } else {
+        // Initial sync: Get last 90 days of data (reasonable window)
+        const ninetyDaysAgo = new Date(today);
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        startDate = ninetyDaysAgo.toISOString().split('T')[0];
+        isInitialSync = true;
+        console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
+      }
     }
 
     const batchUpsert = async (table: string, records: any[], conflictKeys?: string) => {

@@ -177,18 +177,24 @@ export class FacebookAdsService {
         }
       }
 
-      const params = new URLSearchParams({
-        accountId,
-      });
-
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-
-      const url = `${SUPABASE_URL}/functions/v1/facebook-ads-sync?${params.toString()}`;
+      const url = `${SUPABASE_URL}/functions/v1/facebook-ads-sync`;
       console.log('[FacebookAds] Calling sync function:', url);
       console.log('[FacebookAds] Headers:', { ...headers, Authorization: 'Bearer [REDACTED]' });
 
-      const response = await fetch(url, { headers });
+      const body: any = {
+        adAccountId: accountId,
+      };
+
+      if (startDate) body.startDate = startDate;
+      if (endDate) body.endDate = endDate;
+
+      console.log('[FacebookAds] Request body:', body);
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+      });
 
       console.log('[FacebookAds] Sync response status:', response.status);
       console.log('[FacebookAds] Sync response ok:', response.ok);
