@@ -2557,25 +2557,25 @@ const SettingsPage = () => {
                     </button>
                   )}
                 </div>
-              </div>
 
-              {/* Facebook Initial Sync Notification */}
-              {facebookInitialSync.isActive && (
-                <div className="px-4 sm:px-6 pb-4">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 pt-0.5">
-                        <RefreshCw className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
-                          We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
-                        </p>
+                {/* Facebook Initial Sync Notification */}
+                {facebookInitialSync.isActive && (
+                  <div className="px-4 sm:px-6 pb-4 pt-2">
+                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <div className="flex-shrink-0 pt-0.5">
+                          <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-spin" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-amber-900 dark:text-amber-100">
+                            We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">

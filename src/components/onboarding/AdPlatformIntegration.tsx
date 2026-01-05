@@ -4,6 +4,7 @@ import {
   Loader2,
   X,
   Info,
+  RefreshCw,
 } from 'lucide-react';
 import { facebookAdsService } from '@/lib/facebookAds';
 import { toast } from 'sonner';
@@ -251,6 +252,10 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
   // Helper function to handle Facebook connection success
   const handleFacebookSuccess = async (accountCount: number) => {
+    // CRITICAL: Clear ALL localStorage flags to prevent error state from being set
+    localStorage.removeItem('facebook_oauth_success');
+    localStorage.removeItem('facebook_oauth_error');
+
     setPlatforms(prev =>
       prev.map(p =>
         p.id === 'facebook'
@@ -562,6 +567,24 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                   )}
                 </div>
               </div>
+
+              {/* Sync notification for Facebook */}
+              {platform.id === 'facebook' && platform.status === 'connected' && syncProgress.isActive && (
+                <div className="px-4 pb-4 pt-2">
+                  <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 pt-0.5">
+                        <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-spin" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-amber-900 dark:text-amber-100">
+                          We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
