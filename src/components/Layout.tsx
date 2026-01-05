@@ -29,6 +29,7 @@ import BottomSheet from './BottomSheet';
 import { useConnectionStore, initializeConnections } from '../lib/connectionStore';
 import { supabase } from '../lib/supabase';
 import { startAutoSync } from '../lib/shopifyAutoSync';
+import { BackgroundSyncIndicator } from './analytics/BackgroundSyncIndicator';
 
 const navigation = [
   { name: 'Analytics', href: '/', icon: BarChart2 },
@@ -577,6 +578,9 @@ export default function Layout() {
           </div>
         </Modal>
       )}
+
+      {/* Background Sync Indicator */}
+      <BackgroundSyncIndicator />
     </div>
   );
 }

@@ -6,12 +6,18 @@ import {
 } from 'lucide-react';
 import { facebookAdsService } from '@/lib/facebookAds';
 import { toast } from 'sonner';
+import { FacebookSyncOrchestrator } from '@/lib/facebookSyncOrchestrator';
+import { SyncProgressModal } from '@/components/analytics/SyncProgressModal';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AdPlatformIntegrationProps {
   onPlatformsConnected: (platforms: string[]) => void;
 }
 
 const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatformsConnected }) => {
+  const { user } = useAuth();
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [currentSyncJobId, setCurrentSyncJobId] = useState<string | null>(null);
   const [platforms, setPlatforms] = useState([
     {
       id: 'facebook',
@@ -140,34 +146,38 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     );
 
     const plural = accountCount === 1 ? 'account' : 'accounts';
-    toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);;
+    toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
 
-    // Trigger initial data sync after a short delay
+    // Start Phase 1 sync (recent 90 days) with progress modal
     setTimeout(async () => {
       try {
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+
         const { accounts } = await facebookAdsService.checkConnectionStatus();
         if (accounts.length > 0) {
-          toast.info('Syncing your ad data...');
-          for (const account of accounts) {
-            const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id);
+          // For now, sync the first account (we can add multi-account support later)
+          const account = accounts[0];
 
-            // Show detailed sync results
-            if (syncResult.data) {
-              const { campaigns, adSets, ads, metrics } = syncResult.data;
-              toast.success(
-                `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
-                { duration: 5000 }
-              );
-            } else {
-              toast.success('Ad data synced successfully!');
-            }
-          }
+          toast.info('Starting data sync...');
+
+          // Start Phase 1 sync
+          const syncJobId = await FacebookSyncOrchestrator.startPhase1Sync({
+            userId: user.id,
+            adAccountId: account.id,
+            syncType: 'initial',
+          });
+
+          // Show sync progress modal
+          setCurrentSyncJobId(syncJobId);
+          setShowSyncModal(true);
         }
       } catch (error) {
-        console.error('Error syncing after connection:', error);
+        console.error('Error starting sync after connection:', error);
         toast.error('Connected but sync failed. You can manually sync in Settings.');
       }
-    }, 3000);
+    }, 2000);
   };
 
   const handleConnectPlatform = async (platformId: string) => {
@@ -287,8 +297,9 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   };
 
   return (
-    <div className="max-w-[540px] mx-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <>
+      <div className="max-w-[540px] mx-auto">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-24 w-24 mb-4">
             <img
@@ -384,7 +395,24 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* Sync Progress Modal */}
+      {showSyncModal && currentSyncJobId && (
+        <SyncProgressModal
+          isOpen={showSyncModal}
+          syncJobId={currentSyncJobId}
+          onComplete={() => {
+            setShowSyncModal(false);
+            toast.success('Your recent data is ready! Historical data is syncing in the background.');
+          }}
+          onError={(error) => {
+            setShowSyncModal(false);
+            toast.error(`Sync error: ${error}`);
+          }}
+        />
+      )}
+    </>
   );
 };
 

@@ -34,19 +34,21 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const url = new URL(req.url);
-    const accountId = url.searchParams.get('accountId');
+    const { adAccountId, chunkType, entityOffset, entityLimit, startDate, endDate, jobId, chunkId } = await req.json();
 
-    // Date validation and handling
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    console.log('[facebook-ads-sync] Starting sync:', {
+      adAccountId,
+      chunkType,
+      entityOffset,
+      entityLimit,
+      startDate,
+      endDate,
+      jobId
+    });
 
-    console.log('[facebook-ads-sync] Starting sync for account:', accountId);
-
-    if (!accountId) {
+    if (!adAccountId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing accountId parameter' }),
+        JSON.stringify({ success: false, error: 'Missing adAccountId parameter' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
