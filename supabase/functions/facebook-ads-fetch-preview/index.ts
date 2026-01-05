@@ -94,17 +94,29 @@ Deno.serve(async (req: Request) => {
     }
 
     // Get Facebook access token
+    console.log('[fetch-preview] Looking for token with:', {
+      user_id: user.id,
+      ad_account_id: adAccount.platform_account_id
+    });
+
     const { data: fbToken, error: tokenError } = await supabaseClient
       .from('facebook_tokens')
       .select('access_token')
       .eq('user_id', user.id)
-      .eq('account_id', adAccount.platform_account_id)
-      .single();
+      .eq('ad_account_id', adAccount.platform_account_id)
+      .maybeSingle();
 
-    if (tokenError || !fbToken) {
-      console.error('[fetch-preview] Token not found:', tokenError);
+    if (tokenError) {
+      console.error('[fetch-preview] Token query error:', tokenError);
+      throw new Error(`Facebook token error: ${tokenError.message}`);
+    }
+
+    if (!fbToken) {
+      console.error('[fetch-preview] No token found for ad account:', adAccount.platform_account_id);
       throw new Error('Facebook account not connected');
     }
+
+    console.log('[fetch-preview] Found Facebook token');
 
     // Fetch ad preview using Facebook's Ad Previews API
     const previewUrl = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${fbToken.access_token}`;
