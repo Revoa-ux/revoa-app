@@ -112,7 +112,12 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(url);
         const data = await response.json();
         if (!response.ok || data.error) {
-          console.error('[sync] API error:', data.error);
+          console.error('[sync] API error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: data.error,
+            url: url.substring(0, 100) + '...'
+          });
           return { data: [], paging: null };
         }
         return data;
@@ -153,6 +158,9 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log(`[sync] Found ${allCampaigns.length} campaigns`);
+    if (allCampaigns.length > 0) {
+      console.log('[sync] Sample campaigns:', allCampaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name, status: c.status })));
+    }
 
     if (allCampaigns.length === 0) {
       console.log('[sync] No campaigns found');
@@ -186,6 +194,8 @@ Deno.serve(async (req: Request) => {
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
     const CAMPAIGN_BATCH_SIZE = 10;
+    let campaignsWithAdSets = 0;
+    let campaignsWithoutAdSets = 0;
 
     for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
       const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
@@ -193,6 +203,21 @@ Deno.serve(async (req: Request) => {
         batch.map(async (campaign) => {
           const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
           const adSets = await fetchAllPagesForUrl(url);
+
+          // Track campaign stats
+          if (adSets.length > 0) {
+            campaignsWithAdSets++;
+          } else {
+            campaignsWithoutAdSets++;
+          }
+
+          // DEBUG: Log if a campaign has no ad sets (first 5 batches only)
+          if (adSets.length === 0 && i < 50) {
+            console.log(`[sync] Campaign "${campaign.name}" (${campaign.status}) has 0 ad sets`);
+          } else if (adSets.length > 0 && i < 50) {
+            console.log(`[sync] Campaign "${campaign.name}" (${campaign.status}) has ${adSets.length} ad sets`);
+          }
+
           return adSets.map((adSet: any) => ({
             ...adSet,
             campaign_id: campaign.id,
@@ -200,10 +225,36 @@ Deno.serve(async (req: Request) => {
         })
       );
       adSetResults.forEach(adSets => allAdSets.push(...adSets));
-      console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns processed, ${allAdSets.length} ad sets found`);
+
+      if ((i + CAMPAIGN_BATCH_SIZE) % 50 === 0 || i + CAMPAIGN_BATCH_SIZE >= allCampaigns.length) {
+        console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns | ${allAdSets.length} ad sets | ${campaignsWithAdSets} campaigns w/ ad sets, ${campaignsWithoutAdSets} empty`);
+      }
     }
 
     console.log(`[sync] Found ${allAdSets.length} total ad sets`);
+
+    // DEBUG: If we have 0 ad sets, check the first campaign manually
+    if (allAdSets.length === 0 && allCampaigns.length > 0) {
+      console.log('[sync] WARNING: 0 ad sets found! Checking first campaign manually...');
+      const testCampaign = allCampaigns[0];
+      const testUrl = `https://graph.facebook.com/v21.0/${testCampaign.id}/adsets?fields=id,name,status&limit=10&access_token=${accessToken}`;
+      const testResult = await fetchPage(testUrl);
+      console.log('[sync] Test campaign ad sets result:', {
+        campaignId: testCampaign.id,
+        campaignName: testCampaign.name,
+        adSetsFound: testResult.data?.length || 0,
+        hasError: !!testResult.error,
+        error: testResult.error
+      });
+
+      // Also test with effective_status filter to see active ad sets
+      const testUrl2 = `https://graph.facebook.com/v21.0/${testCampaign.id}/adsets?fields=id,name,status,effective_status&limit=10&access_token=${accessToken}`;
+      const testResult2 = await fetchPage(testUrl2);
+      console.log('[sync] Test with effective_status:', {
+        adSetsFound: testResult2.data?.length || 0,
+        sampleAdSet: testResult2.data?.[0]
+      });
+    }
 
     console.log('[sync] 4/5 Saving ad sets...');
     const adSetRecords = [];
@@ -413,6 +464,8 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] Complete!', {
       campaigns: dbCampaigns.length,
+      campaignsWithAdSets,
+      campaignsWithoutAdSets,
       adSets: dbAdSets.length,
       ads: dbAds.length,
       metrics: allMetrics.length,
@@ -421,9 +474,11 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${allMetrics.length} metrics`,
+        message: `Synced ${dbCampaigns.length} campaigns (${campaignsWithAdSets} with ad sets, ${campaignsWithoutAdSets} empty), ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${allMetrics.length} metrics`,
         data: {
           campaigns: dbCampaigns.length,
+          campaignsWithAdSets,
+          campaignsWithoutAdSets,
           adSets: dbAdSets.length,
           ads: dbAds.length,
           metrics: allMetrics.length,
