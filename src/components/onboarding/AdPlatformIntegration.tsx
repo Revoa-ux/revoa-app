@@ -149,9 +149,19 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         if (accounts.length > 0) {
           toast.info('Syncing your ad data...');
           for (const account of accounts) {
-            await facebookAdsService.syncAdAccount(account.platform_account_id);
+            const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id);
+
+            // Show detailed sync results
+            if (syncResult.data) {
+              const { campaigns, adSets, ads, metrics } = syncResult.data;
+              toast.success(
+                `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+                { duration: 5000 }
+              );
+            } else {
+              toast.success('Ad data synced successfully!');
+            }
           }
-          toast.success('Ad data synced successfully!');
         }
       } catch (error) {
         console.error('Error syncing after connection:', error);

@@ -1757,7 +1757,16 @@ const SettingsPage = () => {
       // Refresh accounts after sync completes
       await refreshFacebookAccounts();
 
-      toast.success('Data synced successfully');
+      // Show detailed success message with stats
+      if (result.data) {
+        const { campaigns, adSets, ads, metrics } = result.data;
+        toast.success(
+          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success('Data synced successfully');
+      }
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sync Facebook Ads data';

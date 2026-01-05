@@ -484,7 +484,16 @@ export default function Audit() {
                 needsFullSync = true;
                 toast.info('New campaigns detected. Running full sync...');
                 // Run full sync if new items detected
-                await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+                const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+
+                // Show detailed sync results
+                if (syncResult.data) {
+                  const { campaigns, adSets, ads, metrics } = syncResult.data;
+                  toast.success(
+                    `Full sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+                    { duration: 5000 }
+                  );
+                }
               }
             } catch (err) {
               console.error('[Audit] Quick refresh failed:', err);
