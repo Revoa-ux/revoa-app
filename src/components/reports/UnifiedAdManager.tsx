@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { CreativeAnalysisEnhanced } from './CreativeAnalysisEnhanced';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
+import { toast } from 'sonner';
 
 interface UnifiedAdManagerProps {
   creatives?: any[];
@@ -38,16 +39,13 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debug: Log data structure on mount and when data changes
+  // Debug: Show data structure on mount and when data changes
   React.useEffect(() => {
-    console.log('[UnifiedAdManager] Data received:', {
-      campaigns: campaigns.length,
-      adSets: adSets.length,
-      creatives: creatives.length,
-      sampleCampaign: campaigns[0],
-      sampleAdSet: adSets[0],
-      sampleCreative: creatives[0]
-    });
+    if (campaigns.length > 0 || adSets.length > 0 || creatives.length > 0) {
+      toast.info(`📊 Data: ${campaigns.length} campaigns, ${adSets.length} ad sets, ${creatives.length} ads`, {
+        duration: 3000
+      });
+    }
   }, [campaigns, adSets, creatives]);
 
   // Calculate dynamic counts based on selections or drill-down
@@ -150,13 +148,17 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       // If viewing after drill-down
       if (selectedCampaign) {
         const filtered = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
-        console.log('[UnifiedAdManager] Filtering ad sets by campaign:', selectedCampaign, 'Found:', filtered.length);
+        if (filtered.length === 0) {
+          toast.warning(`⚠️ No ad sets found for this campaign`, { duration: 2000 });
+        } else {
+          toast.success(`✓ Found ${filtered.length} ad sets`, { duration: 2000 });
+        }
         return filtered;
       }
       // If campaigns are selected via checkbox, filter ad sets by those campaigns
       if (selectedCampaigns.size > 0) {
         const filtered = adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
-        console.log('[UnifiedAdManager] Filtering ad sets by selected campaigns:', Array.from(selectedCampaigns), 'Found:', filtered.length);
+        toast.info(`🔍 ${filtered.length} ad sets in ${selectedCampaigns.size} campaigns`, { duration: 2000 });
         return filtered;
       }
       return adSets;
@@ -164,20 +166,28 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       // If viewing after drill-down
       if (selectedAdSet) {
         const filtered = creatives.filter(ad => ad.adSetId === selectedAdSet);
-        console.log('[UnifiedAdManager] Filtering ads by ad set:', selectedAdSet, 'Found:', filtered.length);
+        if (filtered.length === 0) {
+          toast.warning(`⚠️ No ads found for this ad set`, { duration: 2000 });
+        } else {
+          toast.success(`✓ Found ${filtered.length} ads`, { duration: 2000 });
+        }
         return filtered;
       } else if (selectedCampaign) {
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
         const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
-        console.log('[UnifiedAdManager] Filtering ads by campaign:', selectedCampaign, 'Ad set IDs:', campaignAdSetIds, 'Found:', filtered.length);
+        if (filtered.length === 0) {
+          toast.warning(`⚠️ No ads found (${campaignAdSetIds.length} ad sets checked)`, { duration: 2500 });
+        } else {
+          toast.success(`✓ Found ${filtered.length} ads in ${campaignAdSetIds.length} ad sets`, { duration: 2000 });
+        }
         return filtered;
       }
       // If ad sets are selected via checkbox, filter ads by those ad sets
       if (selectedAdSets.size > 0) {
         const filtered = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
-        console.log('[UnifiedAdManager] Filtering ads by selected ad sets:', Array.from(selectedAdSets), 'Found:', filtered.length);
+        toast.info(`🔍 ${filtered.length} ads in ${selectedAdSets.size} ad sets`, { duration: 2000 });
         return filtered;
       }
       // If campaigns are selected via checkbox (but no ad sets), show ads from those campaigns
@@ -186,7 +196,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
           .filter(adSet => selectedCampaigns.has(adSet.campaignId))
           .map(adSet => adSet.adSetId);
         const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
-        console.log('[UnifiedAdManager] Filtering ads by selected campaigns:', Array.from(selectedCampaigns), 'Ad set IDs:', campaignAdSetIds, 'Found:', filtered.length);
+        toast.info(`🔍 ${filtered.length} ads via ${selectedCampaigns.size} campaigns`, { duration: 2000 });
         return filtered;
       }
       return creatives;
@@ -208,9 +218,23 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     if (viewLevel === 'campaigns') {
       setSelectedCampaign(item.id);
       setViewLevel('adsets');
+      // Debug: Check what ad sets match this campaign
+      const matchingAdSets = adSets.filter(adSet => adSet.campaignId === item.id);
+      const sampleAdSet = matchingAdSets[0];
+      toast.info(`🔎 Campaign: ${item.name || item.adName}`, {
+        duration: 2500,
+        description: `ID: ${item.id.substring(0, 8)}... | ${matchingAdSets.length} ad sets | Sample: ${sampleAdSet?.campaignId?.substring(0, 8) || 'none'}`
+      });
     } else if (viewLevel === 'adsets') {
       setSelectedAdSet(item.id);
       setViewLevel('ads');
+      // Debug: Check what ads match this ad set
+      const matchingAds = creatives.filter(ad => ad.adSetId === item.id);
+      const sampleAd = matchingAds[0];
+      toast.info(`🔎 Ad Set: ${item.name || item.adName}`, {
+        duration: 2500,
+        description: `ID: ${item.id.substring(0, 8)}... | ${matchingAds.length} ads | Sample: ${sampleAd?.adSetId?.substring(0, 8) || 'none'}`
+      });
     }
   };
 
