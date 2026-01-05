@@ -344,49 +344,62 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
         );
 
+        // Only check if popup is completely null (blocked by browser)
+        // Don't check popup.closed immediately as it may not be set yet
         if (!popup) {
           throw new Error('Popup blocked. Please allow popups for this site.');
         }
 
         const checkPopupClosed = setInterval(() => {
-          if (popup.closed) {            clearInterval(checkPopupClosed);
+          try {
+            // Safely check if popup is closed
+            if (popup.closed) {
+              clearInterval(checkPopupClosed);
 
-            // Check immediately and repeatedly
-            let checkCount = 0;
-            const maxChecks = 5;
+              // Check immediately and repeatedly
+              let checkCount = 0;
+              const maxChecks = 5;
 
-            const checkConnection = async () => {
-              checkCount++;
-              try {
-                const result = await facebookAdsService.checkConnectionStatus();
-                if (result.connected) {                  setPlatforms(prev =>
-                    prev.map(p =>
-                      p.id === platformId
-                        ? { ...p, status: 'connected' }
-                        : p
-                    )
-                  );
-                  toast.success('Facebook Ads connected successfully');
+              const checkConnection = async () => {
+                checkCount++;
+                try {
+                  const result = await facebookAdsService.checkConnectionStatus();
+                  if (result.connected) {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'connected' }
+                          : p
+                      )
+                    );
+                    toast.success('Facebook Ads connected successfully');
 
-                  // Also refresh the connection store
-                  await refreshFacebookAccounts();
-                } else if (checkCount < maxChecks) {                  setTimeout(checkConnection, 1000);
-                } else {                  setPlatforms(prev =>
-                    prev.map(p =>
-                      p.id === platformId
-                        ? { ...p, status: 'idle' }
-                        : p
-                    )
-                  );
+                    // Also refresh the connection store
+                    await refreshFacebookAccounts();
+                  } else if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  } else {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'idle' }
+                          : p
+                      )
+                    );
+                  }
+                } catch (err) {
+                  if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  }
                 }
-              } catch (err) {                if (checkCount < maxChecks) {
-                  setTimeout(checkConnection, 1000);
-                }
-              }
-            };
+              };
 
-            // Start checking immediately
-            setTimeout(checkConnection, 500);
+              // Start checking immediately
+              setTimeout(checkConnection, 500);
+            }
+          } catch (e) {
+            // Popup reference might be invalid, clear interval
+            clearInterval(checkPopupClosed);
           }
         }, 500);
 

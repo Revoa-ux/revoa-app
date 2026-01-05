@@ -1784,41 +1784,49 @@ const SettingsPage = () => {
         `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
       );
 
+      // Only check if popup is completely null (blocked by browser)
+      // Don't check popup.closed immediately as it may not be set yet
       if (!popup) {
         throw new Error('Popup blocked. Please allow popups for this site.');
       }
 
       const checkPopupClosed = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkPopupClosed);
-          setTimeout(async () => {
-            console.log('[Settings] Facebook popup closed, refreshing accounts...');
-            await refreshFacebookAccounts();
-            console.log('[Settings] First refresh completed - UI should update now');
+        try {
+          // Safely check if popup is closed
+          if (popup.closed) {
+            clearInterval(checkPopupClosed);
+            setTimeout(async () => {
+              console.log('[Settings] Facebook popup closed, refreshing accounts...');
+              await refreshFacebookAccounts();
+              console.log('[Settings] First refresh completed - UI should update now');
 
-            // Check if connection was successful
-            const updatedAccounts = await facebookAdsService.getAdAccounts('facebook');
-            if (updatedAccounts.length > 0) {
-              console.log('[Settings] Facebook Ads connected successfully');
-              toast.success('Facebook Ads connected successfully!', {
-                duration: 3000
-              });
+              // Check if connection was successful
+              const updatedAccounts = await facebookAdsService.getAdAccounts('facebook');
+              if (updatedAccounts.length > 0) {
+                console.log('[Settings] Facebook Ads connected successfully');
+                toast.success('Facebook Ads connected successfully!', {
+                  duration: 3000
+                });
 
-              console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
+                console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
 
-              try {
-                console.log('[Settings] Starting automatic incremental sync');
-                // Start incremental sync from last_synced_at (fire and forget)
-                facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
-                  .then(() => console.log('[Settings] Background incremental sync completed'))
-                  .catch((err) => console.error('[Settings] Background sync failed:', err));
-              } catch (syncError) {
-                console.error('[Settings] Auto-sync failed:', syncError);
+                try {
+                  console.log('[Settings] Starting automatic incremental sync');
+                  // Start incremental sync from last_synced_at (fire and forget)
+                  facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
+                    .then(() => console.log('[Settings] Background incremental sync completed'))
+                    .catch((err) => console.error('[Settings] Background sync failed:', err));
+                } catch (syncError) {
+                  console.error('[Settings] Auto-sync failed:', syncError);
+                }
               }
-            }
 
-            setFacebookConnecting(false);
-          }, 1000);
+              setFacebookConnecting(false);
+            }, 1000);
+          }
+        } catch (e) {
+          // Popup reference might be invalid, clear interval
+          clearInterval(checkPopupClosed);
         }
       }, 500);
 
