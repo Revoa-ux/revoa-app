@@ -86,7 +86,8 @@ const Onboarding = () => {
         ));
 
         setIsCheckingStatus(false);
-      } catch (error) {        setIsCheckingStatus(false);
+      } catch (error) {
+        setIsCheckingStatus(false);
       }
     };
 
@@ -113,7 +114,8 @@ const Onboarding = () => {
       setIsCompleting(true);
       await setHasCompletedOnboarding(true);
       navigate('/', { replace: true });
-    } catch (error) {      setIsCompleting(false);
+    } catch (error) {
+      setIsCompleting(false);
     }
   };
   
@@ -198,23 +200,17 @@ const Onboarding = () => {
         <Route
           path="store"
           element={
-            <>
-              {console.log('[Onboarding] Rendering store route')}
-              <StoreIntegration
-                onStoreConnected={handleStoreConnected}
-              />
-            </>
+            <StoreIntegration
+              onStoreConnected={handleStoreConnected}
+            />
           }
         />
         <Route
           path="ads"
           element={
-            <>
-              {console.log('[Onboarding] Rendering ads route')}
-              <AdPlatformIntegration
-                onPlatformsConnected={handleAdPlatformsConnected}
-              />
-            </>
+            <AdPlatformIntegration
+              onPlatformsConnected={handleAdPlatformsConnected}
+            />
           }
         />
         <Route

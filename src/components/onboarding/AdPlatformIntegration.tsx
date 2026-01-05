@@ -18,7 +18,6 @@ interface AdPlatformIntegrationProps {
 }
 
 const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatformsConnected }) => {
-  console.log('[AdPlatformIntegration] Component mounted');
   const { user } = useAuth();
   const { refreshFacebookAccounts } = useConnectionStore();
   const [syncProgress, setSyncProgress] = useState<{
@@ -96,10 +95,10 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
   // Listen for OAuth callback messages from popup
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
-      if (event.data?.type === 'facebook-oauth-success') {        // Clear any old error messages
+      if (event.data?.type === 'facebook-oauth-success') {
         localStorage.removeItem('facebook_oauth_error');
         handleFacebookSuccess(event.data.accountCount || 0);
-      } else if (event.data?.type === 'facebook-oauth-error') {        // Only process recent errors (within last 10 seconds)
+      } else if (event.data?.type === 'facebook-oauth-error') {
         const timestamp = event.data.timestamp || Date.now();
         if (Date.now() - timestamp < 10000) {
           setPlatforms(prev =>
@@ -123,12 +122,14 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       if (successData) {
         try {
           const parsed = JSON.parse(successData);
-          // Only process if recent (within last 10 seconds)
-          if (Date.now() - parsed.timestamp < 10000) {            localStorage.removeItem('facebook_oauth_error'); // Clear any errors
+          if (Date.now() - parsed.timestamp < 10000) {
+            localStorage.removeItem('facebook_oauth_error');
             handleFacebookSuccess(parsed.accountCount || 0);
           }
           localStorage.removeItem('facebook_oauth_success');
-        } catch (e) {        }
+        } catch (e) {
+          // Silently fail
+        }
       }
 
       // Check for errors (but only recent ones)
@@ -136,8 +137,9 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       if (errorData) {
         try {
           const parsed = JSON.parse(errorData);
-          const age = Date.now() - parsed.timestamp;          // Only process if recent (within last 10 seconds)
-          if (age < 10000) {            setPlatforms(prev =>
+          const age = Date.now() - parsed.timestamp;
+          if (age < 10000) {
+            setPlatforms(prev =>
               prev.map(p =>
                 p.id === 'facebook'
                   ? { ...p, status: 'error' }
@@ -145,10 +147,9 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               )
             );
             toast.error(parsed.error || 'Failed to connect Facebook Ads');
-          } else {          }
-          // Always remove the error after checking
+          }
           localStorage.removeItem('facebook_oauth_error');
-        } catch (e) {          // If we can't parse it, just remove it
+        } catch (e) {
           localStorage.removeItem('facebook_oauth_error');
         }
       }
@@ -196,7 +197,9 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             toast.error('Sync failed. You can retry from Settings.');
           }
         }
-      } catch (err) {      }
+      } catch (err) {
+        // Silently fail
+      }
     }, 5000); // Poll every 5 seconds
 
     // Stop polling after 2 hours (very long running syncs)
@@ -238,7 +241,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             toast.error(`Sync failed: ${job.error || 'Unknown error'}`);
           }
         }
-      } catch (error) {        clearInterval(pollInterval);
+      } catch (error) {
+        clearInterval(pollInterval);
         setSyncProgress({ isActive: false, progress: 0, status: 'Error' });
         toast.error('Error monitoring sync progress');
       }
@@ -302,7 +306,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           // Monitor sync progress with toasts instead of inline
           monitorSyncProgressToasts(syncJobId);
         }
-      } catch (error) {        toast.error('Connected but sync failed. You can manually sync in Settings.');
+      } catch (error) {
+        toast.error('Connected but sync failed. You can manually sync in Settings.');
       }
     }, 2000);
   };
@@ -399,7 +404,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           }
         }, 500);
 
-      } catch (error) {        toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to connect Facebook Ads');
         setPlatforms(prev =>
           prev.map(p =>
             p.id === platformId
@@ -441,8 +447,6 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       )
     );
   };
-
-  console.log('[AdPlatformIntegration] Rendering with platforms:', platforms);
 
   return (
     <>

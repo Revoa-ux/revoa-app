@@ -14,39 +14,35 @@ export function useClickOutside<T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
-      
+
       // Do nothing if clicking ref's element or descendent elements
       if (!ref.current || ref.current.contains(target)) {
-        console.log("Click inside ref element, not triggering handler");
         return;
       }
-      
+
       // Do nothing if clicking any of the excluded elements
       for (const excludeRef of excludeRefs) {
         if (excludeRef.current && excludeRef.current.contains(target)) {
-          console.log("Click inside excluded element, not triggering handler");
           return;
         }
       }
-      
-      console.log("Click outside detected, triggering handler");
+
       handler(event);
     };
-    
+
     // Use capture phase to ensure this runs before other click handlers
     document.addEventListener('mousedown', listener, true);
     document.addEventListener('touchstart', listener, true);
-    
+
     // Add escape key handler
     const escapeListener = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        console.log("Escape key pressed, triggering handler");
         handler(event as unknown as MouseEvent);
       }
     };
-    
+
     document.addEventListener('keydown', escapeListener);
-    
+
     return () => {
       document.removeEventListener('mousedown', listener, true);
       document.removeEventListener('touchstart', listener, true);
