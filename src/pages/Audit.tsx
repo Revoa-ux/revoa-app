@@ -770,17 +770,17 @@ export default function Audit() {
       </div>
 
       {!facebook.loading && !facebook.isConnected && (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex-shrink-0 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500/10 via-pink-500/10 to-orange-500/10 dark:from-rose-500/20 dark:via-pink-500/20 dark:to-orange-500/20 flex items-center justify-center">
-                <Facebook className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 sm:px-6 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-3 min-w-0 flex-1">
+              <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0">
+                <svg className="w-6 h-6 text-gray-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-                  Connect Ad Platform
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">Connect Ad Platform</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                   Connect Facebook to start tracking performance
                 </p>
               </div>
@@ -788,18 +788,15 @@ export default function Audit() {
             <button
               onClick={handleConnectFacebook}
               disabled={isFacebookConnecting}
-              className="flex-shrink-0 px-4 py-2 bg-gradient-to-r from-rose-600 via-pink-600 to-orange-500 text-white text-sm font-medium rounded-lg hover:shadow-md hover:scale-[1.02] transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             >
               {isFacebookConnecting ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Connecting...</span>
                 </>
               ) : (
-                <>
-                  <Facebook className="w-4 h-4" />
-                  <span>Connect</span>
-                </>
+                <span>Connect</span>
               )}
             </button>
           </div>
