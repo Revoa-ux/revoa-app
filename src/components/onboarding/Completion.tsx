@@ -214,7 +214,10 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
               type="text"
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                setFormData(prev => ({ ...prev, name: newValue }));
+              }}
               placeholder="John Doe"
               className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               disabled={isLoading}
@@ -244,8 +247,10 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     <button
                       key={type.value}
                       type="button"
-                      onClick={() => {
-                        setFormData({ ...formData, store_type: type.value });
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setFormData(prev => ({ ...prev, store_type: type.value }));
                         setShowStoreTypeDropdown(false);
                       }}
                       className="flex items-center justify-between w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -269,7 +274,13 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
             <div className="space-y-3">
               {/* Yes option */}
               <div
-                onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: true })}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!isLoading) {
+                    setFormData(prev => ({ ...prev, wants_growth_assistance: true }));
+                  }
+                }}
                 className={`rounded-lg cursor-pointer transition-all relative ${
                   formData.wants_growth_assistance === true
                     ? 'p-[1px]'
@@ -317,7 +328,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                             value={formData.phone_number}
                             onChange={(e) => {
                               e.stopPropagation();
-                              setFormData({ ...formData, phone_number: e.target.value });
+                              const newValue = e.target.value;
+                              setFormData(prev => ({ ...prev, phone_number: newValue }));
                             }}
                             onClick={(e) => e.stopPropagation()}
                             placeholder="+1 (555) 123-4567"
@@ -335,13 +347,33 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
 
               {/* No option */}
               <div
-                onClick={() => !isLoading && setFormData({ ...formData, wants_growth_assistance: false, phone_number: '' })}
-                className={`p-4 rounded-lg cursor-pointer transition-all border ${
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!isLoading) {
+                    setFormData(prev => ({ ...prev, wants_growth_assistance: false, phone_number: '' }));
+                  }
+                }}
+                className={`rounded-lg cursor-pointer transition-all relative ${
                   formData.wants_growth_assistance === false
-                    ? 'border-gray-900 dark:border-white ring-1 ring-gray-900 dark:ring-white bg-gray-50 dark:bg-gray-900/50'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'p-[1px]'
+                    : ''
                 }`}
+                style={
+                  formData.wants_growth_assistance === false
+                    ? {
+                        background: 'linear-gradient(to right, rgb(244 63 94), rgb(236 72 153), rgb(251 146 60))',
+                      }
+                    : {}
+                }
               >
+                <div
+                  className={`p-4 rounded-lg ${
+                    formData.wants_growth_assistance === false
+                      ? 'bg-gray-50 dark:bg-gray-900/50'
+                      : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
                 <div className="flex items-start">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === false
@@ -356,6 +388,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     <div className="font-medium text-gray-900 dark:text-white">No, I don't want help from the 7-8 figure experts</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">I'll explore the platform on my own</div>
                   </div>
+                </div>
                 </div>
               </div>
             </div>
