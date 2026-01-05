@@ -42,6 +42,7 @@ interface CreativeAnalysisEnhancedProps {
   onDrillDown?: (item: any) => void;
   selectedItems?: Set<string>;
   onToggleSelect?: (id: string) => void;
+  onBulkSelect?: (ids: string[], selectAll: boolean) => void;
   rexSuggestions?: Map<string, RexSuggestionWithPerformance>;
   topDisplayedSuggestionIds?: Set<string>;
   onViewSuggestion?: (suggestion: RexSuggestionWithPerformance) => void;
@@ -75,6 +76,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   onDrillDown,
   selectedItems: externalSelectedItems,
   onToggleSelect: externalOnToggleSelect,
+  onBulkSelect: externalOnBulkSelect,
   rexSuggestions = new Map(),
   topDisplayedSuggestionIds = new Set(),
   onViewSuggestion,
@@ -580,8 +582,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
   const handleSelectAll = () => {
     const allSelected = selectedCreatives.size === filteredCreatives.length && filteredCreatives.length > 0;
 
-    if (externalOnToggleSelect) {
-      // When using external state management, toggle each item individually
+    if (externalOnBulkSelect) {
+      // Use bulk select handler for better performance
+      const itemIds = filteredCreatives.map(c =>
+        viewLevel === 'adsets' ? (c.adSetId || c.id) : c.id
+      );
+      externalOnBulkSelect(itemIds, !allSelected);
+    } else if (externalOnToggleSelect) {
+      // Fallback to individual toggles (legacy behavior)
       filteredCreatives.forEach(c => {
         // For ad sets, use adSetId so it matches with ad.adSetId
         const itemId = viewLevel === 'adsets' ? (c.adSetId || c.id) : c.id;

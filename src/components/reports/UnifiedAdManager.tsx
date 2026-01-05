@@ -91,16 +91,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     if (selectedAdSets.size > 0) {
       const matchingAds = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
 
-      // Debug: Show what IDs we're comparing
-      const selectedAdSetArray = Array.from(selectedAdSets);
-      const sampleCreative = creatives[0];
-      const sampleAdSet = adSets.find(as => selectedAdSets.has(as.adSetId));
-
-      toast.info(`🔍 Checkbox Filter Debug`, {
-        duration: 5000,
-        description: `Selected: ${selectedAdSetArray.length} ad sets | Found: ${matchingAds.length} ads | Sample ad.adSetId: ${sampleCreative?.adSetId?.substring(0, 10)}... | Sample adSet.adSetId: ${sampleAdSet?.adSetId?.substring(0, 10)}... | Match: ${sampleCreative && sampleAdSet ? (sampleCreative.adSetId === sampleAdSet.adSetId ? '✓' : '✗') : '?'}`
-      });
-
       // Get unique campaigns that contain the selected ad sets
       const uniqueCampaignIds = new Set(
         adSets.filter(adSet => selectedAdSets.has(adSet.adSetId)).map(adSet => adSet.campaignId)
@@ -383,23 +373,11 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   setSelectedCampaigns(newSet);
                 } else if (viewLevel === 'adsets') {
                   const newSet = new Set(selectedAdSets);
-                  const isRemoving = newSet.has(id);
-
-                  if (isRemoving) {
+                  if (newSet.has(id)) {
                     newSet.delete(id);
                   } else {
                     newSet.add(id);
                   }
-
-                  // Debug: Show what ID we're adding/removing
-                  const matchedAdSet = adSets.find(as => as.id === id || as.adSetId === id);
-                  const matchingAdsCount = creatives.filter(ad => ad.adSetId === id).length;
-
-                  toast.info(`${isRemoving ? '❌' : '✅'} Ad Set ${isRemoving ? 'Unselected' : 'Selected'}`, {
-                    duration: 4000,
-                    description: `ID: ${id.substring(0, 10)}... | adSet.id: ${matchedAdSet?.id?.substring(0, 10) || 'N/A'} | adSet.adSetId: ${matchedAdSet?.adSetId?.substring(0, 10) || 'N/A'} | Ads with this adSetId: ${matchingAdsCount}`
-                  });
-
                   setSelectedAdSets(newSet);
                 } else {
                   const newSet = new Set(selectedAds);
@@ -409,6 +387,15 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                     newSet.add(id);
                   }
                   setSelectedAds(newSet);
+                }
+              }}
+              onBulkSelect={(ids: string[], selectAll: boolean) => {
+                if (viewLevel === 'campaigns') {
+                  setSelectedCampaigns(selectAll ? new Set(ids) : new Set());
+                } else if (viewLevel === 'adsets') {
+                  setSelectedAdSets(selectAll ? new Set(ids) : new Set());
+                } else {
+                  setSelectedAds(selectAll ? new Set(ids) : new Set());
                 }
               }}
               rexSuggestions={rexSuggestions}
