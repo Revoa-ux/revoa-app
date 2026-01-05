@@ -39,7 +39,7 @@ Deno.serve(async (req: Request) => {
     const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
 
-    console.log('[facebook-ads-sync-optimized] Starting FAST sync for account:', accountId);
+    console.log('[facebook-ads-sync] Starting full sync for account:', accountId);
 
     if (!accountId) {
       return new Response(
@@ -85,7 +85,6 @@ Deno.serve(async (req: Request) => {
 
     const accessToken = tokenData.access_token;
 
-    // Helper: Batch upsert with conflict resolution
     const batchUpsert = async (table: string, records: any[], conflictKeys?: string) => {
       if (records.length === 0) return [];
       const batchSize = 200;
@@ -105,7 +104,6 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    // Helper: Fetch single page from API
     const fetchPage = async (url: string) => {
       try {
         const response = await fetch(url);
@@ -121,12 +119,11 @@ Deno.serve(async (req: Request) => {
       }
     };
 
-    // Helper: Fetch all pages for a single endpoint
     const fetchAllPagesForUrl = async (initialUrl: string): Promise<any[]> => {
       const allResults = [];
       let nextUrl: string | null = initialUrl;
       let pageCount = 0;
-      const maxPages = 1000; // Increased safety limit for large accounts (500 items/page × 1000 = 500k items max)
+      const maxPages = 1000;
 
       while (nextUrl && pageCount < maxPages) {
         const result = await fetchPage(nextUrl);
@@ -138,7 +135,6 @@ Deno.serve(async (req: Request) => {
       return allResults;
     };
 
-    // Step 1: Fetch all campaigns (parallel pagination)
     console.log('[sync] 1/5 Fetching campaigns...');
     const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
     const allCampaigns = [];
@@ -167,7 +163,6 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Step 2: Batch insert campaigns
     console.log('[sync] 2/5 Saving campaigns...');
     const campaignRecords = allCampaigns.map(c => ({
       platform_campaign_id: c.id,
@@ -183,7 +178,6 @@ Deno.serve(async (req: Request) => {
     const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
     const campaignMap = new Map(dbCampaigns.map(c => [c.platform_campaign_id, c]));
 
-    // Step 3: Fetch all ad sets in parallel (with full pagination)
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
     const CAMPAIGN_BATCH_SIZE = 10;
@@ -201,12 +195,11 @@ Deno.serve(async (req: Request) => {
         })
       );
       adSetResults.forEach(adSets => allAdSets.push(...adSets));
-      console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns processed, ${allAdSets.length} ad sets found so far`);
+      console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns processed, ${allAdSets.length} ad sets found`);
     }
 
     console.log(`[sync] Found ${allAdSets.length} total ad sets`);
 
-    // Step 4: Batch insert ad sets
     console.log('[sync] 4/5 Saving ad sets...');
     const adSetRecords = allAdSets
       .map(as => {
@@ -228,7 +221,6 @@ Deno.serve(async (req: Request) => {
     const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_ad_set_id');
     const adSetMap = new Map(dbAdSets.map(as => [as.platform_ad_set_id, as]));
 
-    // Step 5: Fetch all ads in parallel (with full pagination)
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
     const ADSET_BATCH_SIZE = 10;
@@ -237,20 +229,8 @@ Deno.serve(async (req: Request) => {
       const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
       const adResults = await Promise.all(
         batch.map(async (adSet) => {
-          // Request creative with proper image fields including effective_object_story_id
           const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
           const ads = await fetchAllPagesForUrl(url);
-
-          // Log first ad's creative data to debug image issues
-          if (ads.length > 0 && i === 0) {
-            console.log('[sync] Sample ad creative data:', {
-              ad_id: ads[0].id,
-              creative: ads[0].creative,
-              has_image_url: !!ads[0].creative?.image_url,
-              has_thumbnail: !!ads[0].creative?.thumbnail_url,
-              has_image_hash: !!ads[0].creative?.image_hash
-            });
-          }
 
           return ads.map((ad: any) => ({
             ...ad,
@@ -259,12 +239,11 @@ Deno.serve(async (req: Request) => {
         })
       );
       adResults.forEach(ads => allAds.push(...ads));
-      console.log(`[sync] Progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length} ad sets processed, ${allAds.length} ads found so far`);
+      console.log(`[sync] Progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length} ad sets processed, ${allAds.length} ads found`);
     }
 
     console.log(`[sync] Found ${allAds.length} total ads`);
 
-    // Batch insert ads
     const adRecords = allAds
       .map(ad => {
         const dbAdSet = adSetMap.get(ad.adset_id);
@@ -280,7 +259,6 @@ Deno.serve(async (req: Request) => {
           if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
           if (ad.creative.image_hash) creativeData.image_hash = ad.creative.image_hash;
 
-          // Extract image URLs from object_story_spec if available
           if (ad.creative.object_story_spec) {
             const spec = ad.creative.object_story_spec;
             if (spec.link_data?.picture) creativeData.image_url = creativeData.image_url || spec.link_data.picture;
@@ -291,17 +269,13 @@ Deno.serve(async (req: Request) => {
             if (spec.photo_data?.image_url) creativeData.image_url = creativeData.image_url || spec.photo_data.image_url;
           }
 
-          // If we have effective_object_story_id, we can construct a URL to fetch the image
           if (ad.creative.effective_object_story_id && !creativeData.image_url) {
-            // Store the story ID for later fetching if needed
             creativeData.effective_object_story_id = ad.creative.effective_object_story_id;
           }
         }
 
-        // Determine creative type
         const creativeType = ad.creative?.video_id || creativeData.video_id ? 'video' : 'image';
 
-        // Best available thumbnail URL - try multiple sources
         const thumbnailUrl =
           creativeData.image_url ||
           ad.creative?.image_url ||
@@ -327,85 +301,31 @@ Deno.serve(async (req: Request) => {
 
     const dbAds = await batchUpsert('ads', adRecords, 'ad_set_id,platform_ad_id');
 
-    // Log image URL statistics
-    const adsWithImages = adRecords.filter(ad => ad.creative_thumbnail_url).length;
-    const adsWithoutImages = adRecords.filter(ad => !ad.creative_thumbnail_url).length;
-    console.log(`[sync] Image capture stats: ${adsWithImages} ads with images, ${adsWithoutImages} without images`);
+    console.log('[sync] Fetching metrics for all levels...');
+    const allMetrics: any[] = [];
 
-    // Fetch ad previews for ads without images using Facebook's Ad Previews API
-    if (adsWithoutImages > 0) {
-      console.log('[sync] Fetching ad previews for ads without images...');
-      const adsNeedingPreviews = allAds.filter(ad => {
-        const record = adRecords.find(r => r.platform_ad_id === ad.id);
-        return record && !record.creative_thumbnail_url;
-      });
+    const parseInsight = (insight: any, entityId: string, entityType: string) => {
+      const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+      const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
 
-      const PREVIEW_BATCH_SIZE = 10;
-      let previewsFetched = 0;
+      return {
+        entity_id: entityId,
+        entity_type: entityType,
+        date: insight.date_start || endDate,
+        impressions: parseInt(insight.impressions || '0'),
+        clicks: parseInt(insight.clicks || '0'),
+        spend: parseFloat(insight.spend || '0'),
+        reach: parseInt(insight.reach || '0'),
+        conversions: parseInt(conversions),
+        conversion_value: parseFloat(conversionValue) * 10,
+        cpc: parseFloat(insight.cpc || '0'),
+        cpm: parseFloat(insight.cpm || '0'),
+        ctr: parseFloat(insight.ctr || '0'),
+        roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
+      };
+    };
 
-      for (let i = 0; i < adsNeedingPreviews.length; i += PREVIEW_BATCH_SIZE) {
-        const batch = adsNeedingPreviews.slice(i, i + PREVIEW_BATCH_SIZE);
-        const previewResults = await Promise.allSettled(
-          batch.map(async (ad) => {
-            try {
-              // Request ad preview - this returns actual preview HTML/images
-              const previewUrl = `https://graph.facebook.com/v21.0/${ad.id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${accessToken}`;
-              const response = await fetch(previewUrl);
-              const data = await response.json();
-
-              if (data.data && data.data[0]) {
-                const preview = data.data[0];
-                // Extract image from preview body if available
-                if (preview.body) {
-                  const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);
-                  if (imgMatch) {
-                    return { ad_id: ad.id, preview_url: imgMatch[1] };
-                  }
-                }
-              }
-              return null;
-            } catch (error) {
-              console.error(`[sync] Failed to fetch preview for ad ${ad.id}:`, error);
-              return null;
-            }
-          })
-        );
-
-        // Update ads with preview URLs
-        const successfulPreviews = previewResults
-          .filter(r => r.status === 'fulfilled' && r.value)
-          .map(r => r.status === 'fulfilled' ? r.value : null)
-          .filter(Boolean);
-
-        if (successfulPreviews.length > 0) {
-          for (const preview of successfulPreviews) {
-            if (preview) {
-              await supabaseClient
-                .from('ads')
-                .update({
-                  creative_thumbnail_url: preview.preview_url,
-                  creative_data: {
-                    ...adRecords.find(r => r.platform_ad_id === preview.ad_id)?.creative_data,
-                    preview_url: preview.preview_url
-                  }
-                })
-                .eq('platform_ad_id', preview.ad_id)
-                .eq('platform', 'facebook');
-              previewsFetched++;
-            }
-          }
-        }
-
-        console.log(`[sync] Preview progress: ${Math.min(i + PREVIEW_BATCH_SIZE, adsNeedingPreviews.length)}/${adsNeedingPreviews.length} processed, ${previewsFetched} previews captured`);
-      }
-
-      console.log(`[sync] Successfully fetched ${previewsFetched} ad previews`);
-    }
-
-    // Fetch insights (most time-consuming part - optimize by fetching only campaign-level)
-    console.log('[sync] Fetching metrics (campaign-level)...');
-    const campaignInsights = [];
-
+    console.log('[sync] Fetching campaign metrics...');
     for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
       const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
       const insightResults = await Promise.all(
@@ -416,35 +336,64 @@ Deno.serve(async (req: Request) => {
           const url = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
           const result = await fetchPage(url);
 
-          return result.data.map((insight: any) => {
-            const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-            const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-
-            return {
-              entity_id: dbCampaign.id,
-              entity_type: 'campaign',
-              date: insight.date_start || endDate,
-              impressions: parseInt(insight.impressions || '0'),
-              clicks: parseInt(insight.clicks || '0'),
-              spend: parseFloat(insight.spend || '0'),
-              reach: parseInt(insight.reach || '0'),
-              conversions: parseInt(conversions),
-              conversion_value: parseFloat(conversionValue) * 10,
-              cpc: parseFloat(insight.cpc || '0'),
-              cpm: parseFloat(insight.cpm || '0'),
-              ctr: parseFloat(insight.ctr || '0'),
-              roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
-            };
-          });
+          return result.data.map((insight: any) => parseInsight(insight, dbCampaign.id, 'campaign'));
         })
       );
-      insightResults.forEach(insights => campaignInsights.push(...insights));
+      insightResults.forEach(insights => allMetrics.push(...insights));
     }
+    console.log(`[sync] Campaign metrics: ${allMetrics.length}`);
 
-    // Batch insert metrics
-    await batchUpsert('ad_metrics', campaignInsights, 'entity_type,entity_id,date');
+    console.log('[sync] Fetching ad set metrics...');
+    const adSetMetricsStart = allMetrics.length;
+    for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
+      const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
+      const insightResults = await Promise.all(
+        batch.map(async (adSet) => {
+          const dbAdSet = adSetMap.get(adSet.id);
+          if (!dbAdSet) return [];
 
-    // Update last synced timestamp
+          const url = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const result = await fetchPage(url);
+
+          return result.data.map((insight: any) => parseInsight(insight, dbAdSet.id, 'adset'));
+        })
+      );
+      insightResults.forEach(insights => allMetrics.push(...insights));
+
+      if ((i + ADSET_BATCH_SIZE) % 50 === 0 || i + ADSET_BATCH_SIZE >= allAdSets.length) {
+        console.log(`[sync] Ad set metrics progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length}`);
+      }
+    }
+    console.log(`[sync] Ad set metrics: ${allMetrics.length - adSetMetricsStart}`);
+
+    console.log('[sync] Fetching ad metrics...');
+    const adMetricsStart = allMetrics.length;
+    const adMap = new Map(dbAds.map(ad => [ad.platform_ad_id, ad]));
+
+    for (let i = 0; i < allAds.length; i += ADSET_BATCH_SIZE) {
+      const batch = allAds.slice(i, i + ADSET_BATCH_SIZE);
+      const insightResults = await Promise.all(
+        batch.map(async (ad) => {
+          const dbAd = adMap.get(ad.id);
+          if (!dbAd) return [];
+
+          const url = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const result = await fetchPage(url);
+
+          return result.data.map((insight: any) => parseInsight(insight, dbAd.id, 'ad'));
+        })
+      );
+      insightResults.forEach(insights => allMetrics.push(...insights));
+
+      if ((i + ADSET_BATCH_SIZE) % 100 === 0 || i + ADSET_BATCH_SIZE >= allAds.length) {
+        console.log(`[sync] Ad metrics progress: ${Math.min(i + ADSET_BATCH_SIZE, allAds.length)}/${allAds.length}`);
+      }
+    }
+    console.log(`[sync] Ad metrics: ${allMetrics.length - adMetricsStart}`);
+    console.log(`[sync] Total metrics to save: ${allMetrics.length}`);
+
+    await batchUpsert('ad_metrics', allMetrics, 'entity_type,entity_id,date');
+
     await supabase
       .from('ad_accounts')
       .update({ last_synced_at: new Date().toISOString() })
@@ -454,18 +403,18 @@ Deno.serve(async (req: Request) => {
       campaigns: dbCampaigns.length,
       adSets: dbAdSets.length,
       ads: dbAds.length,
-      metrics: campaignInsights.length,
+      metrics: allMetrics.length,
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${campaignInsights.length} metrics`,
+        message: `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${allMetrics.length} metrics`,
         data: {
           campaigns: dbCampaigns.length,
           adSets: dbAdSets.length,
           ads: dbAds.length,
-          metrics: campaignInsights.length,
+          metrics: allMetrics.length,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
