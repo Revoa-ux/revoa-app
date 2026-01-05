@@ -56,9 +56,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     if (shopify.isConnected && isOpen && !isSuccess) {
       console.log('[ShopifyConnectModal] Connection detected, closing modal');
       console.log('[ShopifyConnectModal] Store URL:', shopify.installation?.store_url);
-      toast.success('🎉 Shopify connection detected by useEffect!', {
-        description: `Store: ${shopify.installation?.store_url}`
-      });
 
       if (checkInterval) {
         clearInterval(checkInterval);
@@ -70,7 +67,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       // Small delay to show success state before closing
       setTimeout(() => {
         console.log('[ShopifyConnectModal] Calling onSuccess and onClose');
-        toast.info('Closing modal from useEffect...');
         onSuccess(shopify.installation?.store_url || '');
         onClose();
         // Reset states for next time
@@ -113,12 +109,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         // Call onSuccess callback
         onSuccessRef.current(result.installation?.store_url || '');
 
-        // Close modal
+        // Close modal - NO PAGE RELOAD, let reactive store update the UI
         onCloseRef.current();
-
-        // Reload page immediately
-        console.log('[ShopifyConnectModal] Manual check - reloading page...');
-        window.location.reload();
       } else {
         console.log('[ShopifyConnectModal] Manual check - not connected yet');
         setIsCheckingConnection(false);
@@ -160,27 +152,20 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
         }
 
         // Set local loading and success states immediately (CRITICAL - don't wait for store)
-        toast.success('✓ postMessage received!', {
-          description: `Shop: ${event.data.shop}`
-        });
         setIsLoading(false);
         setIsSuccess(true);
         setHasError(false);
 
         // CRITICAL: Refresh connection store in background
         console.log('[ShopifyConnectModal] Manually refreshing connection store...');
-        toast.info('Refreshing connection store...');
         await refreshShopifyStatus();
         console.log('[ShopifyConnectModal] Connection store refreshed');
-        toast.success('Connection store refreshed!');
 
         // The useEffect watching shopify.isConnected should trigger and close modal
         // But as a backup, directly close after a delay
         setTimeout(() => {
           console.log('[ShopifyConnectModal] Backup close after postMessage success');
-          toast.info('Backup close triggered (postMessage)');
           onClose();
-          window.location.reload();
         }, 1000);
 
       } else if (event.data.type === 'shopify:error') {
@@ -232,9 +217,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
           // CRITICAL: Refresh connection store in background
           console.log('[ShopifyConnectModal] Manually refreshing connection store...');
-          toast.info('✓ localStorage event detected!', {
-            description: `Shop: ${data.shop}`
-          });
           await refreshShopifyStatus();
           console.log('[ShopifyConnectModal] Connection store refreshed');
 
@@ -242,9 +224,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           // But as a backup, directly close after a delay
           setTimeout(() => {
             console.log('[ShopifyConnectModal] Backup close after storage event');
-            toast.info('Backup close triggered (storage)');
             onClose();
-            window.location.reload();
           }, 1000);
         } catch (err) {
           console.error('[ShopifyConnectModal] Error parsing localStorage success:', err);
@@ -380,10 +360,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
           if (result && result.isConnected) {
             console.log('[ShopifyConnectModal Fallback] ✓✓✓ CONNECTION FOUND! Triggering success flow...');
-            toast.success('✓ Fallback polling detected connection!', {
-              description: `Store: ${result.installation?.store_url}`,
-              duration: 5000
-            });
             clearInterval(fallbackIntervalId);
 
             // Close popup if still open
@@ -406,11 +382,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
             // But as a backup, also directly close after a delay
             setTimeout(() => {
               console.log('[ShopifyConnectModal Fallback] Backup close triggered');
-              toast.warning('Backup close triggered (fallback)', {
-                description: 'Closing modal and reloading...'
-              });
               onClose();
-              window.location.reload();
             }, 1500);
           } else if (fallbackCheckCount >= maxFallbackChecks) {
             console.log('[ShopifyConnectModal Fallback] ✗ Max checks reached without success');
@@ -514,10 +486,6 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
 
               // CRITICAL: Refresh connection store in background
               console.log('[ShopifyConnectModal Polling] Manually refreshing connection store...');
-              toast.success('✓ OAuth session polling detected connection!', {
-                description: `Completed at check #${pollAttempts}`,
-                duration: 5000
-              });
               refreshShopifyStatus().then(() => {
                 console.log('[ShopifyConnectModal Polling] Connection store refreshed');
 
@@ -525,9 +493,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
                 // But as a backup, directly close after a delay
                 setTimeout(() => {
                   console.log('[ShopifyConnectModal Polling] Backup close after polling success');
-                  toast.info('Backup close triggered (polling)');
                   onClose();
-                  window.location.reload();
                 }, 1000);
               });
 
@@ -608,27 +574,15 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
               {/* Success Actions */}
               <div className="space-y-3">
                 <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 rounded-lg p-4 text-sm text-green-800 dark:text-green-300">
-                  <p className="font-medium mb-1">This dialog will close automatically.</p>
-                  <p className="text-green-700 dark:text-green-400">
-                    If your page doesn't update, use the button below to refresh.
-                  </p>
+                  <p className="font-medium">This dialog will close automatically and your connection will appear below.</p>
                 </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Refresh Page
-                  </button>
-                  <button
-                    onClick={onClose}
-                    className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
-                  >
-                    Close
-                  </button>
-                </div>
+                <button
+                  onClick={onClose}
+                  className="w-full px-4 py-2.5 bg-[linear-gradient(135deg,#E11D48_40%,#EC4899_80%,#E8795A_100%)] text-white rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  Close
+                </button>
               </div>
             </>
           ) : isLoading ? (
