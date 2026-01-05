@@ -75,6 +75,11 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
+  const [facebookInitialSync, setFacebookInitialSync] = useState<{isActive: boolean, progress: number, accountId: string | null}>({
+    isActive: false,
+    progress: 0,
+    accountId: null
+  });
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
@@ -1147,6 +1152,52 @@ const SettingsPage = () => {
       refreshFacebookAccounts();
     }
   }, [facebook.isConnected, facebook.accounts.length, refreshFacebookAccounts]);
+
+  // Monitor for active Phase 1 sync jobs
+  useEffect(() => {
+    if (!facebook.isConnected || facebook.accounts.length === 0) {
+      setFacebookInitialSync({ isActive: false, progress: 0, accountId: null });
+      return;
+    }
+
+    const checkActiveSyncJobs = async () => {
+      try {
+        for (const account of facebook.accounts) {
+          const { data: syncJob, error } = await supabase
+            .from('sync_jobs')
+            .select('id, status, sync_phase, progress_percentage, ad_account_id')
+            .eq('ad_account_id', account.id)
+            .eq('sync_phase', 'recent_90_days')
+            .in('status', ['pending', 'in_progress'])
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (!error && syncJob) {
+            setFacebookInitialSync({
+              isActive: true,
+              progress: syncJob.progress_percentage || 0,
+              accountId: account.id
+            });
+            return; // Found an active sync, no need to check other accounts
+          }
+        }
+
+        // No active syncs found
+        setFacebookInitialSync({ isActive: false, progress: 0, accountId: null });
+      } catch (error) {
+        console.error('[Settings] Error checking sync jobs:', error);
+      }
+    };
+
+    // Check immediately
+    checkActiveSyncJobs();
+
+    // Poll every 3 seconds
+    const interval = setInterval(checkActiveSyncJobs, 3000);
+
+    return () => clearInterval(interval);
+  }, [facebook.isConnected, facebook.accounts]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
@@ -2507,6 +2558,24 @@ const SettingsPage = () => {
                   )}
                 </div>
               </div>
+
+              {/* Facebook Initial Sync Notification */}
+              {facebookInitialSync.isActive && (
+                <div className="px-4 sm:px-6 pb-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 pt-0.5">
+                        <RefreshCw className="w-4 h-4 text-blue-600 dark:text-blue-400 animate-spin" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                          We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="px-4 sm:px-6 py-4 opacity-60">
                 <div className="flex items-center justify-between">
