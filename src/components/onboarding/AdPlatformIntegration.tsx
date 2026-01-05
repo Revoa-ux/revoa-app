@@ -95,24 +95,31 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
       if (event.data?.type === 'facebook-oauth-success') {
         console.log('[AdPlatformIntegration] Facebook OAuth success');
+        // Clear any old error messages
+        localStorage.removeItem('facebook_oauth_error');
         handleFacebookSuccess(event.data.accountCount || 0);
       } else if (event.data?.type === 'facebook-oauth-error') {
         console.log('[AdPlatformIntegration] Facebook OAuth error:', event.data.error);
-        setPlatforms(prev =>
-          prev.map(p =>
-            p.id === 'facebook'
-              ? { ...p, status: 'error' }
-              : p
-          )
-        );
-        toast.error(event.data.error || 'Failed to connect Facebook Ads');
+        // Only process recent errors (within last 10 seconds)
+        const timestamp = event.data.timestamp || Date.now();
+        if (Date.now() - timestamp < 10000) {
+          setPlatforms(prev =>
+            prev.map(p =>
+              p.id === 'facebook'
+                ? { ...p, status: 'error' }
+                : p
+            )
+          );
+          toast.error(event.data.error || 'Failed to connect Facebook Ads');
+        }
       }
     };
 
     window.addEventListener('message', handleMessage);
 
-    // Also check localStorage for success (in case postMessage fails)
+    // Also check localStorage for success/error (in case postMessage fails)
     const checkLocalStorage = setInterval(() => {
+      // Check for success
       const successData = localStorage.getItem('facebook_oauth_success');
       if (successData) {
         try {
@@ -120,11 +127,36 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           // Only process if recent (within last 10 seconds)
           if (Date.now() - parsed.timestamp < 10000) {
             console.log('[AdPlatformIntegration] Detected success in localStorage');
+            localStorage.removeItem('facebook_oauth_error'); // Clear any errors
             handleFacebookSuccess(parsed.accountCount || 0);
           }
           localStorage.removeItem('facebook_oauth_success');
         } catch (e) {
-          console.error('Error parsing localStorage:', e);
+          console.error('Error parsing localStorage success:', e);
+        }
+      }
+
+      // Check for errors (but only recent ones)
+      const errorData = localStorage.getItem('facebook_oauth_error');
+      if (errorData) {
+        try {
+          const parsed = JSON.parse(errorData);
+          // Only process if recent (within last 10 seconds)
+          if (Date.now() - parsed.timestamp < 10000) {
+            console.log('[AdPlatformIntegration] Detected error in localStorage');
+            setPlatforms(prev =>
+              prev.map(p =>
+                p.id === 'facebook'
+                  ? { ...p, status: 'error' }
+                  : p
+              )
+            );
+            toast.error(parsed.error || 'Failed to connect Facebook Ads');
+          }
+          // Always remove old errors
+          localStorage.removeItem('facebook_oauth_error');
+        } catch (e) {
+          console.error('Error parsing localStorage error:', e);
         }
       }
     }, 500);
@@ -198,6 +230,10 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
     if (platformId === 'facebook') {
       try {
+        // Clear any old OAuth results before starting new attempt
+        localStorage.removeItem('facebook_oauth_success');
+        localStorage.removeItem('facebook_oauth_error');
+
         const oauthUrl = await facebookAdsService.connectFacebookAds();
 
         const width = 800;
