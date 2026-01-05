@@ -28,6 +28,8 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
   const [isHelpExpanded, setIsHelpExpanded] = useState(false);
   const [isCheckingConnection, setIsCheckingConnection] = useState(false);
   const [autoCheckTimeout, setAutoCheckTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [popupWatcherInterval, setPopupWatcherInterval] = useState<NodeJS.Timeout | null>(null);
+  const [localStoragePollerInterval, setLocalStoragePollerInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Watch connection store for Shopify changes
   const { shopify, refreshShopifyStatus } = useConnectionStore();
@@ -263,7 +265,7 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
     console.log('[ShopifyConnectModal] Message and storage listeners active');
 
     return () => {
-      console.log('[ShopifyConnectModal] Removing message and storage listeners');
+      console.log('[ShopifyConnectModal] Cleaning up listeners and pollers');
       window.removeEventListener('message', messageHandler);
       window.removeEventListener('storage', storageHandler);
       if (checkInterval) {
@@ -271,6 +273,12 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       }
       if (autoCheckTimeout) {
         clearTimeout(autoCheckTimeout);
+      }
+      if (popupWatcherInterval) {
+        clearInterval(popupWatcherInterval);
+      }
+      if (localStoragePollerInterval) {
+        clearInterval(localStoragePollerInterval);
       }
     };
   }, []); // No dependencies - stable listener that uses refs for callbacks
@@ -338,11 +346,20 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
       }
       console.log('OAuth window opened successfully');
 
+      // Clean up any existing pollers
+      if (popupWatcherInterval) {
+        clearInterval(popupWatcherInterval);
+      }
+      if (localStoragePollerInterval) {
+        clearInterval(localStoragePollerInterval);
+      }
+
       // Watch for popup window closing
       const popupWatcher = setInterval(async () => {
         if (authWindow.closed) {
           console.log('[ShopifyConnectModal] Popup closed - checking connection immediately');
           clearInterval(popupWatcher);
+          setPopupWatcherInterval(null);
 
           // Wait a moment for database to update
           await new Promise(resolve => setTimeout(resolve, 1000));
@@ -365,6 +382,42 @@ const ShopifyConnectModal: React.FC<ShopifyConnectModalProps> = ({
           }
         }
       }, 500);
+      setPopupWatcherInterval(popupWatcher);
+
+      // ALSO poll localStorage directly every 500ms (faster than database polling)
+      const localStoragePoller = setInterval(() => {
+        const successData = localStorage.getItem('shopify_oauth_success');
+        if (successData) {
+          console.log('[ShopifyConnectModal] ✓ localStorage success flag detected!');
+          clearInterval(localStoragePoller);
+          setLocalStoragePollerInterval(null);
+          if (popupWatcher) {
+            clearInterval(popupWatcher);
+            setPopupWatcherInterval(null);
+          }
+
+          try {
+            const data = JSON.parse(successData);
+            console.log('[ShopifyConnectModal] Success data:', data);
+
+            // Clean up
+            localStorage.removeItem('shopify_oauth_success');
+
+            // Trigger success flow
+            setIsSuccess(true);
+            setIsLoading(false);
+            setHasError(false);
+
+            // Refresh connection store
+            refreshShopifyStatus().then(() => {
+              console.log('[ShopifyConnectModal] Connection store refreshed after localStorage detection');
+            });
+          } catch (err) {
+            console.error('[ShopifyConnectModal] Error parsing localStorage data:', err);
+          }
+        }
+      }, 500);
+      setLocalStoragePollerInterval(localStoragePoller);
 
       if (checkInterval) {
         clearInterval(checkInterval);

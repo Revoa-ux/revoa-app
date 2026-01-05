@@ -241,9 +241,19 @@
         localStorage.removeItem('shopify_state');
         localStorage.removeItem('shopify_shop');
 
-        // Notify parent window
+        // ALWAYS set localStorage flag - this is the primary communication method
+        const successData = {
+          shop: shop,
+          success: true,
+          timestamp: Date.now(),
+          data: result
+        };
+        localStorage.setItem('shopify_oauth_success', JSON.stringify(successData));
+        debugLog('✓ localStorage flag set (PRIMARY METHOD)');
+
+        // Try postMessage as secondary method (may not work due to opener being null)
         if (window.opener && !window.opener.closed) {
-          debugLog('✓ Parent window detected - sending messages...');
+          debugLog('✓ Parent window detected - sending postMessage...');
 
           const successMessage = {
             type: 'shopify:success',
@@ -254,32 +264,10 @@
 
           // Send immediately
           window.opener.postMessage(successMessage, '*');
-          debugLog('✓ postMessage #1 sent');
-
-          // Send again after 100ms
-          setTimeout(() => {
-            if (window.opener && !window.opener.closed) {
-              window.opener.postMessage(successMessage, '*');
-              debugLog('✓ postMessage #2 sent');
-            }
-          }, 100);
-
-          // Send again after 300ms
-          setTimeout(() => {
-            if (window.opener && !window.opener.closed) {
-              window.opener.postMessage(successMessage, '*');
-              debugLog('✓ postMessage #3 sent');
-            }
-          }, 300);
-
-          // Also set localStorage as fallback
-          localStorage.setItem('shopify_oauth_success', JSON.stringify({
-            shop: shop,
-            timestamp: Date.now()
-          }));
-          debugLog('✓ localStorage flag set');
+          debugLog('✓ postMessage sent');
         } else {
-          debugLog('✗ NO PARENT WINDOW FOUND!', true);
+          debugLog('⚠ No parent window (expected - OAuth redirects break opener)', false);
+          debugLog('✓ Using localStorage fallback method', false);
         }
 
         // Close window after 1 second
