@@ -589,7 +589,7 @@ const Chat = () => {
               <img
                 src={adminAvatar}
                 alt={adminName}
-                className="w-8 h-8 rounded-full flex-shrink-0"
+                className="w-8 h-8 rounded-full flex-shrink-0 border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm"
               />
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">

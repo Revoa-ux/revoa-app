@@ -155,7 +155,7 @@ Deno.serve(async (req: Request) => {
         .filter(Boolean)
         .join(' ') || adminProfile?.name || 'Resolution Team';
 
-      const welcomeMessage = `Welcome to the Revoa Resolution Center! 👋\n\nI'm ${adminName}, and I've been assigned as your dedicated agent to help you succeed.\n\n**How I Can Help:**\n• Answer questions about quotes\n• Answer questions about invoices\n• Handle damaged or defective items\n• Provide deeper order delivery details\n• Track returns going to our warehouse\n\n**Getting Started:**\nIf you need help with a specific order, you can create an issue thread by clicking the **#** button in the message box. This helps us organize conversations by order.\n\nFeel free to ask me anything - I'm here to help make your experience as smooth as possible! 😊`;
+      const welcomeMessage = `Welcome to the Revoa Resolution Center! 👋\n\nI'm ${adminName}, and I've been assigned as your dedicated agent to help you succeed.\n\n**How I Can Help:**\n• Answer questions about quotes\n• Answer questions about invoices\n• Handle damaged or defective items\n• Provide deeper order delivery details\n• Track returns going to our warehouse\n\n**Getting Started:**\nIf you need help with a specific order, you can create an issue thread by clicking the **#** button in the message box. This helps us organize conversations by order and allows our Revoa Resolution Bot to provide intelligent assistance.\n\nFeel free to ask me anything - I'm here to help make your experience as smooth as possible! 😊`;
 
       const { error: messageError } = await supabase
         .from('messages')
