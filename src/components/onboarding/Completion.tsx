@@ -1,3 +1,4 @@
+// Updated 2026-01-05: Fixed focus rings to black and removed console logs
 import React, { useState, useRef, useCallback } from 'react';
 import { ChevronDown, Check, Phone } from 'lucide-react';
 import { supabase } from '@/lib/supabase';

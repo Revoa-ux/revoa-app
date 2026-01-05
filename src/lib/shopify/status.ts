@@ -22,22 +22,6 @@ export async function getActiveShopifyInstallation(
   userId: string
 ): Promise<ShopifyInstallation | null> {
   try {
-    console.log('[ShopifyStatus] ===== QUERYING FOR ACTIVE INSTALLATION =====');
-    console.log('[ShopifyStatus] User ID:', userId);
-
-    // First, check ALL installations for this user (debug)
-    const { data: allInstallations, error: allError } = await supabase
-      .from('shopify_installations')
-      .select('id, store_url, status, uninstalled_at, last_auth_at, installed_at')
-      .eq('user_id', userId)
-      .order('last_auth_at', { ascending: false });
-
-    console.log('[ShopifyStatus] ALL installations for user:', allInstallations);
-    if (allError) {
-      console.error('[ShopifyStatus] Error fetching all installations:', allError);
-    }
-
-    // Now the actual filtered query
     const { data, error } = await supabase
       .from('shopify_installations')
       .select('id, store_url, status, uninstalled_at, last_synced_at, orders_synced_count')
@@ -47,25 +31,16 @@ export async function getActiveShopifyInstallation(
       .order('last_auth_at', { ascending: false })
       .limit(1);
 
-    console.log('[ShopifyStatus] Filtered query result:', data);
-    console.log('[ShopifyStatus] Query error:', error);
-
     if (error) {
-      console.error('[ShopifyStatus] Error checking installation:', error);
       return null;
     }
 
     if (!data || data.length === 0) {
-      console.log('[ShopifyStatus] ✗ No active installation found');
-      console.log('[ShopifyStatus] Criteria: status=installed AND uninstalled_at IS NULL');
       return null;
     }
 
-    console.log('[ShopifyStatus] ✓ Found active installation:', data[0].store_url);
-    console.log('[ShopifyStatus] ==========================================');
     return data[0];
   } catch (err) {
-    console.error('[ShopifyStatus] Unexpected error:', err);
     return null;
   }
 }
@@ -88,7 +63,6 @@ export function subscribeToShopifyStatus(
 ) {
   // Immediately check current status
   getActiveShopifyInstallation(userId).then((installation) => {
-    console.log('[ShopifyStatus] Initial subscription check:', installation);
     callback(installation !== null, installation);
   });
 
@@ -103,8 +77,7 @@ export function subscribeToShopifyStatus(
         table: 'shopify_installations',
         filter: `user_id=eq.${userId}`,
       },
-      async (payload) => {
-        console.log('[ShopifyStatus] Installation changed:', payload);
+      async () => {
         const installation = await getActiveShopifyInstallation(userId);
         callback(installation !== null, installation);
       }
