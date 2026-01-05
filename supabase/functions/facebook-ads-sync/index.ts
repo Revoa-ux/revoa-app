@@ -41,26 +41,8 @@ Deno.serve(async (req: Request) => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    const defaultStart = new Date(today);
-    defaultStart.setDate(defaultStart.getDate() - 7);
 
-    let startDate = url.searchParams.get('startDate') || defaultStart.toISOString().split('T')[0];
-    let endDate = url.searchParams.get('endDate') || yesterday.toISOString().split('T')[0];
-
-    // Ensure dates are not in the future
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
-    if (startDateObj > today) {
-      console.log(`[sync] Start date ${startDate} is in the future, adjusting to 7 days ago`);
-      startDate = defaultStart.toISOString().split('T')[0];
-    }
-    if (endDateObj > today) {
-      console.log(`[sync] End date ${endDate} is in the future, adjusting to yesterday`);
-      endDate = yesterday.toISOString().split('T')[0];
-    }
-
-    console.log('[facebook-ads-sync] Starting full sync for account:', accountId);
-    console.log('[sync] Date range:', { startDate, endDate });
+    console.log('[facebook-ads-sync] Starting sync for account:', accountId);
 
     if (!accountId) {
       return new Response(
@@ -105,6 +87,38 @@ Deno.serve(async (req: Request) => {
     }
 
     const accessToken = tokenData.access_token;
+
+    // Smart date range selection based on sync history
+    let startDate: string;
+    let endDate: string = yesterday.toISOString().split('T')[0];
+    let isInitialSync = false;
+
+    if (account.last_synced_at) {
+      // Incremental sync: Only sync metrics since last sync
+      const lastSync = new Date(account.last_synced_at);
+      lastSync.setDate(lastSync.getDate() + 1); // Start from day after last sync
+      startDate = lastSync.toISOString().split('T')[0];
+      console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
+    } else {
+      // Initial sync: Get last 90 days of data (reasonable window)
+      const ninetyDaysAgo = new Date(today);
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      startDate = ninetyDaysAgo.toISOString().split('T')[0];
+      isInitialSync = true;
+      console.log(`[sync] Initial sync - fetching last 90 days (${startDate} to ${endDate})`);
+    }
+
+    // Allow manual override of date range via query params (for debugging/backfill)
+    const manualStartDate = url.searchParams.get('startDate');
+    const manualEndDate = url.searchParams.get('endDate');
+    if (manualStartDate) {
+      startDate = manualStartDate;
+      console.log(`[sync] Manual start date override: ${startDate}`);
+    }
+    if (manualEndDate) {
+      endDate = manualEndDate;
+      console.log(`[sync] Manual end date override: ${endDate}`);
+    }
 
     const batchUpsert = async (table: string, records: any[], conflictKeys?: string) => {
       if (records.length === 0) return [];
@@ -477,10 +491,21 @@ Deno.serve(async (req: Request) => {
 
     let successfulInsightCalls = 0;
     let failedInsightCalls = 0;
+    let skippedInactiveCampaigns = 0;
+
+    // Filter campaigns for initial sync - only sync metrics for active or recently active campaigns
+    const campaignsToSync = isInitialSync
+      ? allCampaigns.filter(c => c.status === 'ACTIVE' || c.status === 'PAUSED')
+      : allCampaigns;
+
+    if (isInitialSync && campaignsToSync.length < allCampaigns.length) {
+      skippedInactiveCampaigns = allCampaigns.length - campaignsToSync.length;
+      console.log(`[sync] Initial sync: Syncing metrics for ${campaignsToSync.length} active/paused campaigns, skipping ${skippedInactiveCampaigns} archived`);
+    }
 
     // Sequential processing with delays
-    for (let i = 0; i < allCampaigns.length; i++) {
-      const campaign = allCampaigns[i];
+    for (let i = 0; i < campaignsToSync.length; i++) {
+      const campaign = campaignsToSync[i];
       const dbCampaign = campaignMap.get(campaign.id);
       if (!dbCampaign) continue;
 
@@ -496,23 +521,32 @@ Deno.serve(async (req: Request) => {
       }
 
       // Add delay between requests
-      if (i < allCampaigns.length - 1) {
+      if (i < campaignsToSync.length - 1) {
         await sleep(600);
       }
 
       // Log progress every 50 campaigns
-      if ((i + 1) % 50 === 0 || i === allCampaigns.length - 1) {
-        console.log(`[sync] Campaign metrics progress: ${i + 1}/${allCampaigns.length} (${allMetrics.length} metrics, ${failedInsightCalls} with no data)`);
+      if ((i + 1) % 50 === 0 || i === campaignsToSync.length - 1) {
+        console.log(`[sync] Campaign metrics progress: ${i + 1}/${campaignsToSync.length} (${allMetrics.length} metrics, ${failedInsightCalls} with no data)`);
       }
     }
-    console.log(`[sync] Campaign metrics: ${allMetrics.length} (${successfulInsightCalls} successful API calls, ${failedInsightCalls} returned 0 data)`);
+    console.log(`[sync] Campaign metrics: ${allMetrics.length} (${successfulInsightCalls} successful API calls, ${failedInsightCalls} returned 0 data, ${skippedInactiveCampaigns} inactive skipped)`);
 
     console.log('[sync] Fetching ad set metrics...');
     const adSetMetricsStart = allMetrics.length;
 
+    // Filter ad sets for initial sync - only sync metrics for active or recently active ad sets
+    const adSetsToSync = isInitialSync
+      ? allAdSets.filter(as => as.status === 'ACTIVE' || as.status === 'PAUSED')
+      : allAdSets;
+
+    if (isInitialSync && adSetsToSync.length < allAdSets.length) {
+      console.log(`[sync] Initial sync: Syncing metrics for ${adSetsToSync.length} active/paused ad sets, skipping ${allAdSets.length - adSetsToSync.length} inactive`);
+    }
+
     // Sequential processing with delays
-    for (let i = 0; i < allAdSets.length; i++) {
-      const adSet = allAdSets[i];
+    for (let i = 0; i < adSetsToSync.length; i++) {
+      const adSet = adSetsToSync[i];
       const dbAdSet = adSetMap.get(adSet.id);
       if (!dbAdSet) continue;
 
@@ -525,13 +559,13 @@ Deno.serve(async (req: Request) => {
       }
 
       // Add delay between requests
-      if (i < allAdSets.length - 1) {
+      if (i < adSetsToSync.length - 1) {
         await sleep(600);
       }
 
       // Log progress every 50 ad sets
-      if ((i + 1) % 50 === 0 || i === allAdSets.length - 1) {
-        console.log(`[sync] Ad set metrics progress: ${i + 1}/${allAdSets.length} (${allMetrics.length - adSetMetricsStart} new metrics)`);
+      if ((i + 1) % 50 === 0 || i === adSetsToSync.length - 1) {
+        console.log(`[sync] Ad set metrics progress: ${i + 1}/${adSetsToSync.length} (${allMetrics.length - adSetMetricsStart} new metrics)`);
       }
     }
     console.log(`[sync] Ad set metrics: ${allMetrics.length - adSetMetricsStart}`);
@@ -540,9 +574,18 @@ Deno.serve(async (req: Request) => {
     const adMetricsStart = allMetrics.length;
     const adMap = new Map(dbAds.map(ad => [ad.platform_ad_id, ad]));
 
+    // Filter ads for initial sync - only sync metrics for active or recently active ads
+    const adsToSync = isInitialSync
+      ? allAds.filter(a => a.status === 'ACTIVE' || a.status === 'PAUSED')
+      : allAds;
+
+    if (isInitialSync && adsToSync.length < allAds.length) {
+      console.log(`[sync] Initial sync: Syncing metrics for ${adsToSync.length} active/paused ads, skipping ${allAds.length - adsToSync.length} inactive`);
+    }
+
     // Sequential processing with delays
-    for (let i = 0; i < allAds.length; i++) {
-      const ad = allAds[i];
+    for (let i = 0; i < adsToSync.length; i++) {
+      const ad = adsToSync[i];
       const dbAd = adMap.get(ad.id);
       if (!dbAd) continue;
 
@@ -555,13 +598,13 @@ Deno.serve(async (req: Request) => {
       }
 
       // Add delay between requests
-      if (i < allAds.length - 1) {
+      if (i < adsToSync.length - 1) {
         await sleep(600);
       }
 
       // Log progress every 100 ads
-      if ((i + 1) % 100 === 0 || i === allAds.length - 1) {
-        console.log(`[sync] Ad metrics progress: ${i + 1}/${allAds.length} (${allMetrics.length - adMetricsStart} new metrics)`);
+      if ((i + 1) % 100 === 0 || i === adsToSync.length - 1) {
+        console.log(`[sync] Ad metrics progress: ${i + 1}/${adsToSync.length} (${allMetrics.length - adMetricsStart} new metrics)`);
       }
     }
     console.log(`[sync] Ad metrics: ${allMetrics.length - adMetricsStart}`);
