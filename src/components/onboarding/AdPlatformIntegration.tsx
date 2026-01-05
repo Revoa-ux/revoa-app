@@ -66,11 +66,29 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     updateConnectedPlatforms();
   }, [updateConnectedPlatforms]);
 
-  // Check existing Facebook connection on mount
+  // Check existing Facebook connection on mount and clear old OAuth data
   useEffect(() => {
+    // CRITICAL: Clear ALL old OAuth data on mount to prevent stale errors
+    console.log('[AdPlatformIntegration] Component mounted - clearing old OAuth data');
+    const oldSuccess = localStorage.getItem('facebook_oauth_success');
+    const oldError = localStorage.getItem('facebook_oauth_error');
+    if (oldSuccess || oldError) {
+      console.log('[AdPlatformIntegration] Found stale OAuth data:', {
+        hadSuccess: !!oldSuccess,
+        hadError: !!oldError
+      });
+      localStorage.removeItem('facebook_oauth_success');
+      localStorage.removeItem('facebook_oauth_error');
+      console.log('[AdPlatformIntegration] Cleared stale OAuth data');
+    }
+
     const checkExistingConnection = async () => {
       try {
-        const { connected } = await facebookAdsService.checkConnectionStatus();
+        const { connected, accounts } = await facebookAdsService.checkConnectionStatus();
+        console.log('[AdPlatformIntegration] Existing connection check:', {
+          connected,
+          accountCount: accounts.length
+        });
         if (connected) {
           setPlatforms(prev =>
             prev.map(p =>
@@ -81,7 +99,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           );
         }
       } catch (error) {
-        console.error('Error checking Facebook connection:', error);
+        console.error('[AdPlatformIntegration] Error checking Facebook connection:', error);
       }
     };
 
@@ -141,9 +159,15 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       if (errorData) {
         try {
           const parsed = JSON.parse(errorData);
+          const age = Date.now() - parsed.timestamp;
+          console.log('[AdPlatformIntegration] Found error in localStorage:', {
+            error: parsed.error,
+            ageMs: age,
+            willProcess: age < 10000
+          });
           // Only process if recent (within last 10 seconds)
-          if (Date.now() - parsed.timestamp < 10000) {
-            console.log('[AdPlatformIntegration] Detected error in localStorage');
+          if (age < 10000) {
+            console.log('[AdPlatformIntegration] Processing recent error');
             setPlatforms(prev =>
               prev.map(p =>
                 p.id === 'facebook'
@@ -152,11 +176,15 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
               )
             );
             toast.error(parsed.error || 'Failed to connect Facebook Ads');
+          } else {
+            console.log('[AdPlatformIntegration] Ignoring old error (age:', age, 'ms)');
           }
-          // Always remove old errors
+          // Always remove the error after checking
           localStorage.removeItem('facebook_oauth_error');
         } catch (e) {
-          console.error('Error parsing localStorage error:', e);
+          console.error('[AdPlatformIntegration] Error parsing localStorage error:', e);
+          // If we can't parse it, just remove it
+          localStorage.removeItem('facebook_oauth_error');
         }
       }
     }, 500);
@@ -230,11 +258,13 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
     if (platformId === 'facebook') {
       try {
-        // Clear any old OAuth results before starting new attempt
+        // CRITICAL: Clear any old OAuth results before starting new attempt
+        console.log('[AdPlatformIntegration] Starting new Facebook OAuth attempt - clearing old data');
         localStorage.removeItem('facebook_oauth_success');
         localStorage.removeItem('facebook_oauth_error');
 
         const oauthUrl = await facebookAdsService.connectFacebookAds();
+        console.log('[AdPlatformIntegration] Got OAuth URL, opening popup');
 
         const width = 800;
         const height = 700;
