@@ -160,7 +160,6 @@
       div.className = isError ? 'debug-error' : 'debug-success';
       panel.appendChild(div);
       panel.scrollTop = panel.scrollHeight;
-      console.log(message);
     }
 
     async function handleCallback() {
@@ -302,8 +301,6 @@
 
         // Notify parent window of error
         if (window.opener && !window.opener.closed) {
-          console.log('[Shopify Callback] Sending error message to parent window');
-
           const errorMessage = {
             type: 'shopify:error',
             error: error.message || 'Failed to connect to Shopify',
@@ -312,13 +309,11 @@
 
           // Send immediately
           window.opener.postMessage(errorMessage, '*');
-          console.log('[Shopify Callback] Error message sent #1');
 
           // Send again after 100ms to ensure delivery
           setTimeout(() => {
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(errorMessage, '*');
-              console.log('[Shopify Callback] Error message sent #2');
             }
           }, 100);
 
@@ -327,14 +322,10 @@
             error: error.message,
             timestamp: Date.now()
           }));
-          console.log('[Shopify Callback] Set localStorage error flag');
-        } else {
-          console.warn('[Shopify Callback] No parent window available to send error');
         }
 
         // Close window after delay
         setTimeout(() => {
-          console.log('[Shopify Callback] Closing popup window after error');
           window.close();
         }, 5000);
       }

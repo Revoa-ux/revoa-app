@@ -75,11 +75,8 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
-  const [facebookInitialSync, setFacebookInitialSync] = useState<{isActive: boolean, progress: number, accountId: string | null}>({
-    isActive: false,
-    progress: 0,
-    accountId: null
-  });
+  // Track which accounts have shown toast notifications
+  const [syncToastShown, setSyncToastShown] = useState<{[key: string]: {started: boolean, completed: boolean}}>({});
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
@@ -1153,10 +1150,9 @@ const SettingsPage = () => {
     }
   }, [facebook.isConnected, facebook.accounts.length, refreshFacebookAccounts]);
 
-  // Monitor for active Phase 1 sync jobs
+  // Monitor for active Phase 1 sync jobs and show toast notifications
   useEffect(() => {
     if (!facebook.isConnected || facebook.accounts.length === 0) {
-      setFacebookInitialSync({ isActive: false, progress: 0, accountId: null });
       return;
     }
 
@@ -1167,37 +1163,57 @@ const SettingsPage = () => {
             .from('sync_jobs')
             .select('id, status, sync_phase, progress_percentage, ad_account_id')
             .eq('ad_account_id', account.id)
-            .eq('sync_phase', 'recent_90_days')
-            .in('status', ['pending', 'in_progress'])
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle();
 
           if (!error && syncJob) {
-            setFacebookInitialSync({
-              isActive: true,
-              progress: syncJob.progress_percentage || 0,
-              accountId: account.id
-            });
-            return; // Found an active sync, no need to check other accounts
+            const key = account.id;
+
+            // Show "syncing started" toast for Phase 1
+            if (syncJob.sync_phase === 'recent_90_days' &&
+                syncJob.status === 'in_progress' &&
+                !syncToastShown[key]?.started) {
+              toast.info('Syncing your recent 90 days of data...', { duration: 5000 });
+              setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: false } }));
+            }
+
+            // Show "Phase 1 completed" toast
+            if (syncJob.status === 'completed' &&
+                syncJob.sync_phase === 'recent_90_days' &&
+                syncToastShown[key]?.started &&
+                !syncToastShown[key]?.completed) {
+              toast.success('Recent 90 days synced! Historical data sync continuing in background...');
+              setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: true } }));
+            }
+
+            // Show "All data completed" toast
+            if (syncJob.status === 'completed' &&
+                syncJob.sync_phase === 'historical' &&
+                syncJob.progress_percentage === 100) {
+              toast.success('All historical data synced successfully!');
+              // Reset for this account so future syncs can show toasts again
+              setSyncToastShown(prev => {
+                const newState = { ...prev };
+                delete newState[key];
+                return newState;
+              });
+            }
           }
         }
-
-        // No active syncs found
-        setFacebookInitialSync({ isActive: false, progress: 0, accountId: null });
       } catch (error) {
-        console.error('[Settings] Error checking sync jobs:', error);
+        // Silent fail
       }
     };
 
     // Check immediately
     checkActiveSyncJobs();
 
-    // Poll every 3 seconds
-    const interval = setInterval(checkActiveSyncJobs, 3000);
+    // Poll every 5 seconds
+    const interval = setInterval(checkActiveSyncJobs, 5000);
 
     return () => clearInterval(interval);
-  }, [facebook.isConnected, facebook.accounts]);
+  }, [facebook.isConnected, facebook.accounts, syncToastShown]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
@@ -2557,24 +2573,6 @@ const SettingsPage = () => {
                     </button>
                   )}
                 </div>
-
-                {/* Facebook Initial Sync Notification */}
-                {facebookInitialSync.isActive && (
-                  <div className="px-4 sm:px-6 pb-4 pt-2">
-                    <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
-                      <div className="flex items-start gap-2">
-                        <div className="flex-shrink-0 pt-0.5">
-                          <RefreshCw className="w-4 h-4 text-amber-600 dark:text-amber-400 animate-spin" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-amber-900 dark:text-amber-100">
-                            We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="px-4 sm:px-6 py-4 opacity-60">
