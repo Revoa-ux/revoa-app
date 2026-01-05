@@ -389,6 +389,27 @@ Deno.serve(async (req: Request) => {
     };
 
     console.log('[sync] Fetching campaign metrics...');
+
+    // DEBUG: Test a single insights call first
+    if (allCampaigns.length > 0) {
+      const testCampaign = allCampaigns[0];
+      const testUrl = `https://graph.facebook.com/v21.0/${testCampaign.id}/insights?fields=impressions,clicks,spend&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
+      console.log(`[sync] Testing insights API with campaign: ${testCampaign.name}`);
+      const testResponse = await fetch(testUrl);
+      const testData = await testResponse.json();
+      console.log(`[sync] Test insights response:`, {
+        ok: testResponse.ok,
+        status: testResponse.status,
+        hasError: !!testData.error,
+        error: testData.error,
+        dataLength: testData.data?.length || 0,
+        sampleData: testData.data?.[0]
+      });
+    }
+
+    let successfulInsightCalls = 0;
+    let failedInsightCalls = 0;
+
     for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
       const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
       const insightResults = await Promise.all(
@@ -399,12 +420,22 @@ Deno.serve(async (req: Request) => {
           const url = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
           const result = await fetchPage(url);
 
+          if (result.data.length > 0) {
+            successfulInsightCalls++;
+          } else {
+            failedInsightCalls++;
+            // Log first few failures for debugging
+            if (failedInsightCalls <= 3) {
+              console.log(`[sync] Campaign ${campaign.name} (${campaign.id}) returned 0 insights`);
+            }
+          }
+
           return result.data.map((insight: any) => parseInsight(insight, dbCampaign.id, 'campaign'));
         })
       );
       insightResults.forEach(insights => allMetrics.push(...insights));
     }
-    console.log(`[sync] Campaign metrics: ${allMetrics.length}`);
+    console.log(`[sync] Campaign metrics: ${allMetrics.length} (${successfulInsightCalls} successful API calls, ${failedInsightCalls} returned 0 data)`);
 
     console.log('[sync] Fetching ad set metrics...');
     const adSetMetricsStart = allMetrics.length;
