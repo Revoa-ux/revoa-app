@@ -1577,7 +1577,9 @@ const SettingsPage = () => {
       console.log('[Settings] Final refresh completed');
     }, 1500);
 
-    toast.success('Shopify store connected successfully!');
+    toast.success('Shopify store connected successfully! Please refresh the page to see the latest data.', {
+      duration: 5000
+    });
   };
 
 
@@ -1620,10 +1622,10 @@ const SettingsPage = () => {
 
       // Show detailed success message
       const message = result.pages > 1
-        ? `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes, ${result.pages} pages)`
-        : `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes)`;
+        ? `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes, ${result.pages} pages). Please refresh the page.`
+        : `Synced ${result.totalOrders} orders (${result.fulfillmentsCreated} matched to quotes). Please refresh the page.`;
 
-      toast.success(message);
+      toast.success(message, { duration: 5000 });
     } catch (error: any) {
       console.error('Error syncing orders:', error);
       toast.error(error.message || 'Failed to sync orders');
@@ -1690,11 +1692,15 @@ const SettingsPage = () => {
             console.log('[Settings] Facebook popup closed, refreshing accounts...');
             await refreshFacebookAccounts();
 
-            // Auto-sync data for newly connected accounts
+            // Check if connection was successful
             const updatedAccounts = await facebookAdsService.getAdAccounts('facebook');
             if (updatedAccounts.length > 0) {
+              console.log('[Settings] Facebook Ads connected successfully');
+              toast.success('Facebook Ads connected successfully! Please refresh the page to see the latest data.', {
+                duration: 5000
+              });
+
               console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
-              toast.info('Syncing Facebook Ads data...', { duration: 2000 });
 
               try {
                 console.log('[Settings] Starting automatic incremental sync');
@@ -1761,11 +1767,11 @@ const SettingsPage = () => {
       if (result.data) {
         const { campaigns, adSets, ads, metrics } = result.data;
         toast.success(
-          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics. Please refresh the page.`,
           { duration: 5000 }
         );
       } else {
-        toast.success('Data synced successfully');
+        toast.success('Data synced successfully! Please refresh the page.', { duration: 5000 });
       }
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
