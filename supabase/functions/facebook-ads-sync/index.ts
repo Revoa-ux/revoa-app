@@ -95,12 +95,15 @@ Deno.serve(async (req: Request) => {
         const opts = conflictKeys ? { onConflict: conflictKeys } : {};
         const { data, error } = await supabase.from(table).upsert(batch, opts).select();
         if (error) {
-          console.error(`[sync] Error upserting to ${table}:`, error);
+          console.error(`[sync] Error upserting batch ${i}-${i+batch.length} to ${table}:`, error);
+          console.error(`[sync] Failed records:`, JSON.stringify(batch.slice(0, 2))); // Log first 2 records
         } else {
+          console.log(`[sync] Successfully upserted ${data?.length || 0} records to ${table} (batch ${i}-${i+batch.length})`);
           results.push(...(data || []));
         }
       }
 
+      console.log(`[sync] Total ${table} records upserted: ${results.length} of ${records.length} attempted`);
       return results;
     };
 
@@ -176,7 +179,9 @@ Deno.serve(async (req: Request) => {
     }));
 
     const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
+    console.log(`[sync] Saved ${dbCampaigns.length} campaigns to DB`);
     const campaignMap = new Map(dbCampaigns.map(c => [c.platform_campaign_id, c]));
+    console.log(`[sync] Campaign map has ${campaignMap.size} entries`);
 
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
@@ -201,22 +206,29 @@ Deno.serve(async (req: Request) => {
     console.log(`[sync] Found ${allAdSets.length} total ad sets`);
 
     console.log('[sync] 4/5 Saving ad sets...');
-    const adSetRecords = allAdSets
-      .map(as => {
-        const dbCampaign = campaignMap.get(as.campaign_id);
-        if (!dbCampaign) return null;
-        return {
-          platform_adset_id: as.id,
-          name: as.name,
-          status: as.status?.toUpperCase() || 'UNKNOWN',
-          ad_campaign_id: dbCampaign.id,
-          campaign_id: dbCampaign.id,
-          platform: 'facebook',
-          daily_budget: as.daily_budget ? parseFloat(as.daily_budget) / 100 : null,
-          lifetime_budget: as.lifetime_budget ? parseFloat(as.lifetime_budget) / 100 : null,
-        };
-      })
-      .filter(Boolean);
+    const adSetRecords = [];
+    let filteredCount = 0;
+
+    for (const as of allAdSets) {
+      const dbCampaign = campaignMap.get(as.campaign_id);
+      if (!dbCampaign) {
+        filteredCount++;
+        console.error(`[sync] No DB campaign found for platform campaign ID: ${as.campaign_id}, ad set: ${as.name}`);
+        continue;
+      }
+      adSetRecords.push({
+        platform_adset_id: as.id,
+        name: as.name,
+        status: as.status?.toUpperCase() || 'UNKNOWN',
+        ad_campaign_id: dbCampaign.id,
+        campaign_id: dbCampaign.id,
+        platform: 'facebook',
+        daily_budget: as.daily_budget ? parseFloat(as.daily_budget) / 100 : null,
+        lifetime_budget: as.lifetime_budget ? parseFloat(as.lifetime_budget) / 100 : null,
+      });
+    }
+
+    console.log(`[sync] Ad sets: ${adSetRecords.length} valid, ${filteredCount} filtered (no matching campaign)`);
 
     const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
     const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
