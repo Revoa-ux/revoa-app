@@ -510,13 +510,18 @@ export async function getCreativePerformance(
         ? (creativeData.video_url || thumbnailUrl)
         : imageUrl;
 
-      // DEBUG: Log ad set relationship for first few ads
+      // DEBUG: Log ad set relationship and image data for first few ads
       if (index < 3) {
         console.log(`[AdReportsService] Ad #${index}:`, {
           ad_id: ad.id,
           platform_ad_id: ad.platform_ad_id,
           ad_set_id: ad.ad_set_id,
-          name: ad.name
+          name: ad.name,
+          creative_thumbnail_url: ad.creative_thumbnail_url,
+          creative_data_keys: ad.creative_data ? Object.keys(ad.creative_data) : [],
+          hasImage: !!thumbnailUrl,
+          thumbnailUrl: thumbnailUrl?.substring(0, 100),
+          imageUrl: imageUrl?.substring(0, 100)
         });
       }
 

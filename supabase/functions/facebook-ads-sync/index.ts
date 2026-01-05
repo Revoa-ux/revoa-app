@@ -237,8 +237,21 @@ Deno.serve(async (req: Request) => {
       const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
       const adResults = await Promise.all(
         batch.map(async (adSet) => {
-          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,video_id,call_to_action_type,object_story_spec}&limit=500&access_token=${accessToken}`;
+          // Request creative with proper image fields including effective_object_story_id
+          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
           const ads = await fetchAllPagesForUrl(url);
+
+          // Log first ad's creative data to debug image issues
+          if (ads.length > 0 && i === 0) {
+            console.log('[sync] Sample ad creative data:', {
+              ad_id: ads[0].id,
+              creative: ads[0].creative,
+              has_image_url: !!ads[0].creative?.image_url,
+              has_thumbnail: !!ads[0].creative?.thumbnail_url,
+              has_image_hash: !!ads[0].creative?.image_hash
+            });
+          }
+
           return ads.map((ad: any) => ({
             ...ad,
             adset_id: adSet.id,
@@ -265,21 +278,36 @@ Deno.serve(async (req: Request) => {
           if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
           if (ad.creative.video_id) creativeData.video_id = ad.creative.video_id;
           if (ad.creative.call_to_action_type) creativeData.call_to_action = ad.creative.call_to_action_type;
+          if (ad.creative.image_hash) creativeData.image_hash = ad.creative.image_hash;
 
           // Extract image URLs from object_story_spec if available
           if (ad.creative.object_story_spec) {
             const spec = ad.creative.object_story_spec;
             if (spec.link_data?.picture) creativeData.image_url = creativeData.image_url || spec.link_data.picture;
+            if (spec.link_data?.image_url) creativeData.image_url = creativeData.image_url || spec.link_data.image_url;
             if (spec.video_data?.image_url) creativeData.image_url = creativeData.image_url || spec.video_data.image_url;
             if (spec.video_data?.video_id) creativeData.video_id = creativeData.video_id || spec.video_data.video_id;
+            if (spec.photo_data?.url) creativeData.image_url = creativeData.image_url || spec.photo_data.url;
+            if (spec.photo_data?.image_url) creativeData.image_url = creativeData.image_url || spec.photo_data.image_url;
+          }
+
+          // If we have effective_object_story_id, we can construct a URL to fetch the image
+          if (ad.creative.effective_object_story_id && !creativeData.image_url) {
+            // Store the story ID for later fetching if needed
+            creativeData.effective_object_story_id = ad.creative.effective_object_story_id;
           }
         }
 
         // Determine creative type
         const creativeType = ad.creative?.video_id || creativeData.video_id ? 'video' : 'image';
 
-        // Best available thumbnail URL
-        const thumbnailUrl = creativeData.image_url || ad.creative?.thumbnail_url || ad.creative?.image_url || null;
+        // Best available thumbnail URL - try multiple sources
+        const thumbnailUrl =
+          creativeData.image_url ||
+          ad.creative?.image_url ||
+          ad.creative?.thumbnail_url ||
+          creativeData.thumbnail_url ||
+          null;
 
         return {
           platform_ad_id: ad.id,
@@ -298,6 +326,14 @@ Deno.serve(async (req: Request) => {
       .filter(Boolean);
 
     const dbAds = await batchUpsert('ads', adRecords, 'ad_set_id,platform_ad_id');
+
+    // Log image URL statistics
+    const adsWithImages = adRecords.filter(ad => ad.creative_thumbnail_url).length;
+    const adsWithoutImages = adRecords.filter(ad => !ad.creative_thumbnail_url).length;
+    console.log(`[sync] Image capture stats: ${adsWithImages} ads with images, ${adsWithoutImages} without images`);
+    if (adsWithoutImages > 0) {
+      console.log('[sync] Sample ad without image:', adRecords.find(ad => !ad.creative_thumbnail_url));
+    }
 
     // Fetch insights (most time-consuming part - optimize by fetching only campaign-level)
     console.log('[sync] Fetching metrics (campaign-level)...');
