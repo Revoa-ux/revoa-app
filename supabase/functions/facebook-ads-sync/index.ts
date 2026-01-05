@@ -128,26 +128,12 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    // Rate limiting helper - conservative to avoid hitting Facebook's limits
+    // Rate limiting helper - using manual delays between requests instead of proactive limiting
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    let apiCallCount = 0;
-    const API_CALLS_PER_MINUTE = 100; // Conservative limit to avoid rate limiting
-    const RATE_LIMIT_WINDOW = 60000; // 1 minute
-    let windowStart = Date.now();
     const syncStartTime = Date.now();
     const MAX_SYNC_TIME = 240000; // 4 minutes max (leave buffer for Edge Function 5min timeout)
 
     const fetchPage = async (url: string, retryCount = 0): Promise<any> => {
-      // Check rate limiting proactively
-      apiCallCount++;
-      const elapsed = Date.now() - windowStart;
-      if (apiCallCount >= API_CALLS_PER_MINUTE && elapsed < RATE_LIMIT_WINDOW) {
-        const waitTime = RATE_LIMIT_WINDOW - elapsed;
-        console.log(`[sync] Proactive rate limit, waiting ${Math.round(waitTime/1000)}s (${apiCallCount} calls in ${Math.round(elapsed/1000)}s)...`);
-        await sleep(waitTime);
-        apiCallCount = 0;
-        windowStart = Date.now();
-      }
 
       try {
         const response = await fetch(url);
@@ -248,41 +234,37 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
-    const CAMPAIGN_BATCH_SIZE = 5; // Reduced from 10 to avoid rate limits
     let campaignsWithAdSets = 0;
     let campaignsWithoutAdSets = 0;
 
-    for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
-      const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
-      const adSetResults = await Promise.all(
-        batch.map(async (campaign) => {
-          const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
-          const adSets = await fetchAllPagesForUrl(url);
+    // Sequential processing with delays to avoid rate limits
+    for (let i = 0; i < allCampaigns.length; i++) {
+      const campaign = allCampaigns[i];
+      const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
+      const adSets = await fetchAllPagesForUrl(url);
 
-          // Track campaign stats
-          if (adSets.length > 0) {
-            campaignsWithAdSets++;
-          } else {
-            campaignsWithoutAdSets++;
-          }
+      // Track campaign stats
+      if (adSets.length > 0) {
+        campaignsWithAdSets++;
+      } else {
+        campaignsWithoutAdSets++;
+      }
 
-          // DEBUG: Log if a campaign has no ad sets (first 5 batches only)
-          if (adSets.length === 0 && i < 50) {
-            console.log(`[sync] Campaign "${campaign.name}" (${campaign.status}) has 0 ad sets`);
-          } else if (adSets.length > 0 && i < 50) {
-            console.log(`[sync] Campaign "${campaign.name}" (${campaign.status}) has ${adSets.length} ad sets`);
-          }
+      // Map ad sets to campaign
+      const mappedAdSets = adSets.map((adSet: any) => ({
+        ...adSet,
+        campaign_id: campaign.id,
+      }));
+      allAdSets.push(...mappedAdSets);
 
-          return adSets.map((adSet: any) => ({
-            ...adSet,
-            campaign_id: campaign.id,
-          }));
-        })
-      );
-      adSetResults.forEach(adSets => allAdSets.push(...adSets));
+      // Add small delay between requests (600ms = max 100 requests/minute)
+      if (i < allCampaigns.length - 1) {
+        await sleep(600);
+      }
 
-      if ((i + CAMPAIGN_BATCH_SIZE) % 50 === 0 || i + CAMPAIGN_BATCH_SIZE >= allCampaigns.length) {
-        console.log(`[sync] Progress: ${Math.min(i + CAMPAIGN_BATCH_SIZE, allCampaigns.length)}/${allCampaigns.length} campaigns | ${allAdSets.length} ad sets | ${campaignsWithAdSets} campaigns w/ ad sets, ${campaignsWithoutAdSets} empty`);
+      // Log progress every 10 campaigns
+      if ((i + 1) % 10 === 0 || i === allCampaigns.length - 1) {
+        console.log(`[sync] Progress: ${i + 1}/${allCampaigns.length} campaigns | ${allAdSets.length} ad sets | ${campaignsWithAdSets} w/ ad sets, ${campaignsWithoutAdSets} empty`);
       }
     }
 
@@ -341,23 +323,28 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
-    const ADSET_BATCH_SIZE = 5; // Reduced from 10 to avoid rate limits
 
-    for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
-      const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
-      const adResults = await Promise.all(
-        batch.map(async (adSet) => {
-          const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
-          const ads = await fetchAllPagesForUrl(url);
+    // Sequential processing with delays
+    for (let i = 0; i < allAdSets.length; i++) {
+      const adSet = allAdSets[i];
+      const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
+      const ads = await fetchAllPagesForUrl(url);
 
-          return ads.map((ad: any) => ({
-            ...ad,
-            adset_id: adSet.id,
-          }));
-        })
-      );
-      adResults.forEach(ads => allAds.push(...ads));
-      console.log(`[sync] Progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length} ad sets processed, ${allAds.length} ads found`);
+      const mappedAds = ads.map((ad: any) => ({
+        ...ad,
+        adset_id: adSet.id,
+      }));
+      allAds.push(...mappedAds);
+
+      // Add delay between requests
+      if (i < allAdSets.length - 1) {
+        await sleep(600);
+      }
+
+      // Log progress every 20 ad sets
+      if ((i + 1) % 20 === 0 || i === allAdSets.length - 1) {
+        console.log(`[sync] Progress: ${i + 1}/${allAdSets.length} ad sets processed, ${allAds.length} ads found`);
+      }
     }
 
     console.log(`[sync] Found ${allAds.length} total ads`);
@@ -491,52 +478,60 @@ Deno.serve(async (req: Request) => {
     let successfulInsightCalls = 0;
     let failedInsightCalls = 0;
 
-    for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
-      const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
-      const insightResults = await Promise.all(
-        batch.map(async (campaign) => {
-          const dbCampaign = campaignMap.get(campaign.id);
-          if (!dbCampaign) return [];
+    // Sequential processing with delays
+    for (let i = 0; i < allCampaigns.length; i++) {
+      const campaign = allCampaigns[i];
+      const dbCampaign = campaignMap.get(campaign.id);
+      if (!dbCampaign) continue;
 
-          const url = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-          const result = await fetchPage(url);
+      const url = `https://graph.facebook.com/v21.0/${campaign.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+      const result = await fetchPage(url);
 
-          if (result.data.length > 0) {
-            successfulInsightCalls++;
-          } else {
-            failedInsightCalls++;
-            // Log first few failures for debugging
-            if (failedInsightCalls <= 3) {
-              console.log(`[sync] Campaign ${campaign.name} (${campaign.id}) returned 0 insights`);
-            }
-          }
+      if (result.data.length > 0) {
+        successfulInsightCalls++;
+        const insights = result.data.map((insight: any) => parseInsight(insight, dbCampaign.id, 'campaign'));
+        allMetrics.push(...insights);
+      } else {
+        failedInsightCalls++;
+      }
 
-          return result.data.map((insight: any) => parseInsight(insight, dbCampaign.id, 'campaign'));
-        })
-      );
-      insightResults.forEach(insights => allMetrics.push(...insights));
+      // Add delay between requests
+      if (i < allCampaigns.length - 1) {
+        await sleep(600);
+      }
+
+      // Log progress every 50 campaigns
+      if ((i + 1) % 50 === 0 || i === allCampaigns.length - 1) {
+        console.log(`[sync] Campaign metrics progress: ${i + 1}/${allCampaigns.length} (${allMetrics.length} metrics, ${failedInsightCalls} with no data)`);
+      }
     }
     console.log(`[sync] Campaign metrics: ${allMetrics.length} (${successfulInsightCalls} successful API calls, ${failedInsightCalls} returned 0 data)`);
 
     console.log('[sync] Fetching ad set metrics...');
     const adSetMetricsStart = allMetrics.length;
-    for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
-      const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
-      const insightResults = await Promise.all(
-        batch.map(async (adSet) => {
-          const dbAdSet = adSetMap.get(adSet.id);
-          if (!dbAdSet) return [];
 
-          const url = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-          const result = await fetchPage(url);
+    // Sequential processing with delays
+    for (let i = 0; i < allAdSets.length; i++) {
+      const adSet = allAdSets[i];
+      const dbAdSet = adSetMap.get(adSet.id);
+      if (!dbAdSet) continue;
 
-          return result.data.map((insight: any) => parseInsight(insight, dbAdSet.id, 'adset'));
-        })
-      );
-      insightResults.forEach(insights => allMetrics.push(...insights));
+      const url = `https://graph.facebook.com/v21.0/${adSet.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+      const result = await fetchPage(url);
 
-      if ((i + ADSET_BATCH_SIZE) % 50 === 0 || i + ADSET_BATCH_SIZE >= allAdSets.length) {
-        console.log(`[sync] Ad set metrics progress: ${Math.min(i + ADSET_BATCH_SIZE, allAdSets.length)}/${allAdSets.length}`);
+      if (result.data.length > 0) {
+        const insights = result.data.map((insight: any) => parseInsight(insight, dbAdSet.id, 'adset'));
+        allMetrics.push(...insights);
+      }
+
+      // Add delay between requests
+      if (i < allAdSets.length - 1) {
+        await sleep(600);
+      }
+
+      // Log progress every 50 ad sets
+      if ((i + 1) % 50 === 0 || i === allAdSets.length - 1) {
+        console.log(`[sync] Ad set metrics progress: ${i + 1}/${allAdSets.length} (${allMetrics.length - adSetMetricsStart} new metrics)`);
       }
     }
     console.log(`[sync] Ad set metrics: ${allMetrics.length - adSetMetricsStart}`);
@@ -545,23 +540,28 @@ Deno.serve(async (req: Request) => {
     const adMetricsStart = allMetrics.length;
     const adMap = new Map(dbAds.map(ad => [ad.platform_ad_id, ad]));
 
-    for (let i = 0; i < allAds.length; i += ADSET_BATCH_SIZE) {
-      const batch = allAds.slice(i, i + ADSET_BATCH_SIZE);
-      const insightResults = await Promise.all(
-        batch.map(async (ad) => {
-          const dbAd = adMap.get(ad.id);
-          if (!dbAd) return [];
+    // Sequential processing with delays
+    for (let i = 0; i < allAds.length; i++) {
+      const ad = allAds[i];
+      const dbAd = adMap.get(ad.id);
+      if (!dbAd) continue;
 
-          const url = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
-          const result = await fetchPage(url);
+      const url = `https://graph.facebook.com/v21.0/${ad.id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+      const result = await fetchPage(url);
 
-          return result.data.map((insight: any) => parseInsight(insight, dbAd.id, 'ad'));
-        })
-      );
-      insightResults.forEach(insights => allMetrics.push(...insights));
+      if (result.data.length > 0) {
+        const insights = result.data.map((insight: any) => parseInsight(insight, dbAd.id, 'ad'));
+        allMetrics.push(...insights);
+      }
 
-      if ((i + ADSET_BATCH_SIZE) % 100 === 0 || i + ADSET_BATCH_SIZE >= allAds.length) {
-        console.log(`[sync] Ad metrics progress: ${Math.min(i + ADSET_BATCH_SIZE, allAds.length)}/${allAds.length}`);
+      // Add delay between requests
+      if (i < allAds.length - 1) {
+        await sleep(600);
+      }
+
+      // Log progress every 100 ads
+      if ((i + 1) % 100 === 0 || i === allAds.length - 1) {
+        console.log(`[sync] Ad metrics progress: ${i + 1}/${allAds.length} (${allMetrics.length - adMetricsStart} new metrics)`);
       }
     }
     console.log(`[sync] Ad metrics: ${allMetrics.length - adMetricsStart}`);
