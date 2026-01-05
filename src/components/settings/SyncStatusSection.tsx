@@ -68,23 +68,19 @@ export function SyncStatusSection() {
     setIsSyncing(prev => ({ ...prev, [account.id]: true }));
 
     try {
-      toast.info('Starting sync...');
-
       const syncJobId = await FacebookSyncOrchestrator.runIncrementalSync(
         user.id,
         account.id
       );
 
-      toast.success('Sync started! This may take a few minutes.');
-
-      // Poll for completion
+      // Poll for completion and update UI
       const pollInterval = setInterval(async () => {
         const status = await FacebookSyncOrchestrator.getSyncJobStatus(syncJobId);
+        await loadSyncStatus(account.id);
 
         if (status?.status === 'completed') {
           clearInterval(pollInterval);
           setIsSyncing(prev => ({ ...prev, [account.id]: false }));
-          loadSyncStatus(account.id);
           toast.success('Sync completed successfully!');
         } else if (status?.status === 'failed') {
           clearInterval(pollInterval);
@@ -177,13 +173,66 @@ export function SyncStatusSection() {
 
               {/* Sync Status */}
               {syncJob && (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {/* Show inline progress if syncing */}
+                  {(syncJob.status === 'in_progress' || syncJob.status === 'pending') && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          <div className="relative w-8 h-8">
+                            <svg className="w-8 h-8 transform -rotate-90">
+                              <circle
+                                cx="16"
+                                cy="16"
+                                r="12"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                fill="none"
+                                className="text-blue-200 dark:text-blue-800"
+                              />
+                              <circle
+                                cx="16"
+                                cy="16"
+                                r="12"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                fill="none"
+                                strokeDasharray={`${2 * Math.PI * 12}`}
+                                strokeDashoffset={`${2 * Math.PI * 12 * (1 - (syncJob.progress_percentage || 0) / 100)}`}
+                                className="text-blue-600 dark:text-blue-400 transition-all duration-300"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-[9px] font-semibold text-blue-900 dark:text-blue-100">
+                                {Math.round(syncJob.progress_percentage || 0)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-0.5">
+                            {syncJob.sync_phase === 'recent_90_days' ? 'Syncing recent 90 days' : 'Syncing historical data'}
+                          </div>
+                          <p className="text-xs text-blue-800 dark:text-blue-200">
+                            We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-600 dark:text-gray-400">Phase 1 (Recent 90 Days)</span>
                     {syncJob.phase_1_completed_at ? (
                       <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         Complete
+                      </span>
+                    ) : syncJob.sync_phase === 'recent_90_days' && syncJob.status === 'in_progress' ? (
+                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        {syncJob.progress_percentage}%
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">

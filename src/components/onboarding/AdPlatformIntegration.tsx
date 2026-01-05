@@ -3,12 +3,13 @@ import {
   Facebook,
   Loader2,
   X,
+  Info,
 } from 'lucide-react';
 import { facebookAdsService } from '@/lib/facebookAds';
 import { toast } from 'sonner';
 import { FacebookSyncOrchestrator } from '@/lib/facebookSyncOrchestrator';
-import { SyncProgressModal } from '@/components/analytics/SyncProgressModal';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 interface AdPlatformIntegrationProps {
   onPlatformsConnected: (platforms: string[]) => void;
@@ -16,8 +17,11 @@ interface AdPlatformIntegrationProps {
 
 const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatformsConnected }) => {
   const { user } = useAuth();
-  const [showSyncModal, setShowSyncModal] = useState(false);
-  const [currentSyncJobId, setCurrentSyncJobId] = useState<string | null>(null);
+  const [syncProgress, setSyncProgress] = useState<{
+    isActive: boolean;
+    progress: number;
+    status: string;
+  }>({ isActive: false, progress: 0, status: '' });
   const [platforms, setPlatforms] = useState([
     {
       id: 'facebook',
@@ -31,7 +35,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       id: 'google',
       name: 'Google Ads',
       icon: <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.2z" fill="#4285F4"/>
+        <path d="M22.54 11.23c0-.8-.07-1.57-.19-2.31H12v4.51h5.92c-.26 1.57-1.04 2.91-2.21 3.82v3.18h3.57c2.08-1.92 3.28-4.74 3.28-8.20z" fill="#4285F4"/>
         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
@@ -57,10 +61,10 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     const connectedPlatforms = platforms
       .filter(p => p.status === 'connected')
       .map(p => p.id);
-    
+
     onPlatformsConnected(connectedPlatforms);
   }, [platforms, onPlatformsConnected]);
-  
+
   // Update parent component when platforms change
   useEffect(() => {
     updateConnectedPlatforms();
@@ -195,6 +199,54 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     };
   }, []);
 
+  // Helper function to monitor sync progress
+  const monitorSyncProgress = async (syncJobId: string) => {
+    setSyncProgress({ isActive: true, progress: 0, status: 'Starting sync...' });
+
+    // Poll for sync progress
+    const pollInterval = setInterval(async () => {
+      try {
+        const { data: job, error } = await supabase
+          .from('sync_jobs')
+          .select('status, progress, current_phase, error')
+          .eq('id', syncJobId)
+          .single();
+
+        if (error) throw error;
+
+        if (job) {
+          setSyncProgress({
+            isActive: true,
+            progress: job.progress || 0,
+            status: job.current_phase || 'Syncing...'
+          });
+
+          // Check if sync is complete or failed
+          if (job.status === 'completed') {
+            clearInterval(pollInterval);
+            setSyncProgress({ isActive: false, progress: 100, status: 'Completed' });
+            toast.success('Your recent data is ready! Historical data is syncing in the background.');
+          } else if (job.status === 'failed') {
+            clearInterval(pollInterval);
+            setSyncProgress({ isActive: false, progress: 0, status: 'Failed' });
+            toast.error(`Sync failed: ${job.error || 'Unknown error'}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error polling sync progress:', error);
+        clearInterval(pollInterval);
+        setSyncProgress({ isActive: false, progress: 0, status: 'Error' });
+        toast.error('Error monitoring sync progress');
+      }
+    }, 2000); // Poll every 2 seconds
+
+    // Cleanup after 30 minutes (failsafe)
+    setTimeout(() => {
+      clearInterval(pollInterval);
+      setSyncProgress({ isActive: false, progress: 0, status: '' });
+    }, 30 * 60 * 1000);
+  };
+
   // Helper function to handle Facebook connection success
   const handleFacebookSuccess = async (accountCount: number) => {
     setPlatforms(prev =>
@@ -208,7 +260,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     const plural = accountCount === 1 ? 'account' : 'accounts';
     toast.success(`Successfully connected ${accountCount} Facebook ad ${plural}`);
 
-    // Start Phase 1 sync (recent 90 days) with progress modal
+    // Start Phase 1 sync (recent 90 days) with inline progress
     setTimeout(async () => {
       try {
         if (!user) {
@@ -220,8 +272,6 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           // For now, sync the first account (we can add multi-account support later)
           const account = accounts[0];
 
-          toast.info('Starting data sync...');
-
           // Start Phase 1 sync
           const syncJobId = await FacebookSyncOrchestrator.startPhase1Sync({
             userId: user.id,
@@ -229,9 +279,8 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             syncType: 'initial',
           });
 
-          // Show sync progress modal
-          setCurrentSyncJobId(syncJobId);
-          setShowSyncModal(true);
+          // Monitor sync progress inline
+          monitorSyncProgress(syncJobId);
         }
       } catch (error) {
         console.error('Error starting sync after connection:', error);
@@ -351,12 +400,12 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       }, 2000);
     }
   };
-  
+
   const handleDisconnectPlatform = (platformId: string) => {
-    setPlatforms(prev => 
-      prev.map(p => 
-        p.id === platformId 
-          ? { ...p, status: 'idle' } 
+    setPlatforms(prev =>
+      prev.map(p =>
+        p.id === platformId
+          ? { ...p, status: 'idle' }
           : p
       )
     );
@@ -379,11 +428,59 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             Connect your advertising accounts to import your campaigns, ad sets, and performance data.
           </p>
         </div>
-        
+
+        {/* Sync Progress Info Box */}
+        {syncProgress.isActive && (
+          <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <div className="relative w-10 h-10">
+                  <svg className="w-10 h-10 transform -rotate-90">
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r="16"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      className="text-blue-200 dark:text-blue-800"
+                    />
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r="16"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 16}`}
+                      strokeDashoffset={`${2 * Math.PI * 16 * (1 - syncProgress.progress / 100)}`}
+                      className="text-blue-600 dark:text-blue-400 transition-all duration-300"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-[10px] font-semibold text-blue-900 dark:text-blue-100">
+                      {Math.round(syncProgress.progress)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  {syncProgress.status}
+                </div>
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  We're syncing your recent 90 days of data. Once complete, historical data will continue syncing in the background.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3 mt-6">
           {platforms.map((platform) => (
-            <div 
-              key={platform.id} 
+            <div
+              key={platform.id}
               className={`border rounded-lg overflow-hidden transition-all duration-200 ${
                 platform.status === 'connected'
                   ? 'border-gray-900 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-900/50'
@@ -405,7 +502,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center">
                   {platform.status === 'idle' && (
                     <button
@@ -419,11 +516,11 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       {platform.comingSoon ? 'Coming Soon' : 'Connect'}
                     </button>
                   )}
-                  
+
                   {platform.status === 'connecting' && (
                     <Loader2 className="w-5 h-5 text-gray-600 dark:text-gray-400 animate-spin" />
                   )}
-                  
+
                   {platform.status === 'connected' && (
                     <button
                       onClick={() => handleDisconnectPlatform(platform.id)}
@@ -432,7 +529,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
                       <X className="w-4 h-4" />
                     </button>
                   )}
-                  
+
                   {platform.status === 'error' && (
                     <button
                       onClick={() => handleConnectPlatform(platform.id)}
@@ -446,7 +543,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             </div>
           ))}
         </div>
-        
+
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
@@ -462,22 +559,6 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
         </div>
       </div>
       </div>
-
-      {/* Sync Progress Modal */}
-      {showSyncModal && currentSyncJobId && (
-        <SyncProgressModal
-          isOpen={showSyncModal}
-          syncJobId={currentSyncJobId}
-          onComplete={() => {
-            setShowSyncModal(false);
-            toast.success('Your recent data is ready! Historical data is syncing in the background.');
-          }}
-          onError={(error) => {
-            setShowSyncModal(false);
-            toast.error(`Sync error: ${error}`);
-          }}
-        />
-      )}
     </>
   );
 };
