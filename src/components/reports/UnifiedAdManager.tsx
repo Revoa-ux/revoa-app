@@ -38,6 +38,18 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Debug: Log data structure on mount and when data changes
+  React.useEffect(() => {
+    console.log('[UnifiedAdManager] Data received:', {
+      campaigns: campaigns.length,
+      adSets: adSets.length,
+      creatives: creatives.length,
+      sampleCampaign: campaigns[0],
+      sampleAdSet: adSets[0],
+      sampleCreative: creatives[0]
+    });
+  }, [campaigns, adSets, creatives]);
+
   // Calculate dynamic counts based on selections or drill-down
   const getTabCounts = () => {
     // When drilled down to a specific ad set
@@ -137,33 +149,45 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     } else if (viewLevel === 'adsets') {
       // If viewing after drill-down
       if (selectedCampaign) {
-        return adSets.filter(adSet => adSet.campaignId === selectedCampaign);
+        const filtered = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
+        console.log('[UnifiedAdManager] Filtering ad sets by campaign:', selectedCampaign, 'Found:', filtered.length);
+        return filtered;
       }
       // If campaigns are selected via checkbox, filter ad sets by those campaigns
       if (selectedCampaigns.size > 0) {
-        return adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
+        const filtered = adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
+        console.log('[UnifiedAdManager] Filtering ad sets by selected campaigns:', Array.from(selectedCampaigns), 'Found:', filtered.length);
+        return filtered;
       }
       return adSets;
     } else {
       // If viewing after drill-down
       if (selectedAdSet) {
-        return creatives.filter(ad => ad.adSetId === selectedAdSet);
+        const filtered = creatives.filter(ad => ad.adSetId === selectedAdSet);
+        console.log('[UnifiedAdManager] Filtering ads by ad set:', selectedAdSet, 'Found:', filtered.length);
+        return filtered;
       } else if (selectedCampaign) {
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
-        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        console.log('[UnifiedAdManager] Filtering ads by campaign:', selectedCampaign, 'Ad set IDs:', campaignAdSetIds, 'Found:', filtered.length);
+        return filtered;
       }
       // If ad sets are selected via checkbox, filter ads by those ad sets
       if (selectedAdSets.size > 0) {
-        return creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+        const filtered = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+        console.log('[UnifiedAdManager] Filtering ads by selected ad sets:', Array.from(selectedAdSets), 'Found:', filtered.length);
+        return filtered;
       }
       // If campaigns are selected via checkbox (but no ad sets), show ads from those campaigns
       if (selectedCampaigns.size > 0) {
         const campaignAdSetIds = adSets
           .filter(adSet => selectedCampaigns.has(adSet.campaignId))
           .map(adSet => adSet.adSetId);
-        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
+        console.log('[UnifiedAdManager] Filtering ads by selected campaigns:', Array.from(selectedCampaigns), 'Ad set IDs:', campaignAdSetIds, 'Found:', filtered.length);
+        return filtered;
       }
       return creatives;
     }
