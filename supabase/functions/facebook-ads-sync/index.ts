@@ -56,7 +56,7 @@ Deno.serve(async (req: Request) => {
     const { data: account, error: accountError } = await supabase
       .from('ad_accounts')
       .select('*')
-      .eq('platform_account_id', accountId)
+      .eq('platform_account_id', adAccountId)
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
       .select('*')
-      .eq('ad_account_id', accountId)
+      .eq('ad_account_id', adAccountId)
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -201,7 +201,7 @@ Deno.serve(async (req: Request) => {
     };
 
     console.log('[sync] 1/5 Fetching campaigns...');
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${accountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
     const allCampaigns = [];
     let campaignPages = [campaignsUrl];
 

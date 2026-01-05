@@ -615,30 +615,43 @@ export class FacebookSyncOrchestrator {
         const startTime = Date.now();
 
         // Call chunked Edge Function with chunk parameters
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-sync-chunk`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-            },
-            body: JSON.stringify({
-              adAccountId,
-              chunkType: chunk.chunk_type,
-              entityOffset: chunk.entity_offset,
-              entityLimit: chunk.entity_limit,
-              startDate: chunk.start_date,
-              endDate: chunk.end_date,
-              jobId: syncJobId,
-              chunkId: chunk.id,
-            }),
-          }
-        );
+        let response;
+        try {
+          response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/facebook-ads-sync-chunk`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              },
+              body: JSON.stringify({
+                adAccountId,
+                chunkType: chunk.chunk_type,
+                entityOffset: chunk.entity_offset,
+                entityLimit: chunk.entity_limit,
+                startDate: chunk.start_date,
+                endDate: chunk.end_date,
+                jobId: syncJobId,
+                chunkId: chunk.id,
+              }),
+            }
+          );
+        } catch (fetchError) {
+          console.error('[Orchestrator] Network error calling edge function:', fetchError);
+          throw new Error(
+            'Unable to connect to sync service. Please ensure the facebook-ads-sync-chunk Edge Function is deployed to your Supabase project.'
+          );
+        }
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Sync failed: ${errorText}`);
+          console.error('[Orchestrator] Edge function error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
+          throw new Error(`Sync chunk failed (${response.status}): ${errorText || response.statusText}`);
         }
 
         const result = await response.json();
