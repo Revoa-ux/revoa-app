@@ -282,19 +282,12 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     setFormData(prev => ({ ...prev, wants_growth_assistance: true }));
                   }
                 }}
-                className={`rounded-lg cursor-pointer transition-all relative ${
+                className={`p-4 rounded-lg cursor-pointer transition-all ${
                   formData.wants_growth_assistance === true
-                    ? 'border-2 border-gray-900 dark:border-white'
-                    : 'border-2 border-transparent'
+                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-900/50'
+                    : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                <div
-                  className={`p-4 rounded-lg ${
-                    formData.wants_growth_assistance === true
-                      ? 'bg-gray-50 dark:bg-gray-900/50'
-                      : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
                 <div className="flex items-start">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === true
@@ -336,7 +329,6 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     )}
                   </div>
                 </div>
-                </div>
               </div>
 
               {/* No option */}
@@ -348,19 +340,12 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     setFormData(prev => ({ ...prev, wants_growth_assistance: false, phone_number: '' }));
                   }
                 }}
-                className={`rounded-lg cursor-pointer transition-all relative ${
+                className={`p-4 rounded-lg cursor-pointer transition-all ${
                   formData.wants_growth_assistance === false
-                    ? 'border-2 border-gray-900 dark:border-white'
-                    : 'border-2 border-transparent'
+                    ? 'border border-gray-900 dark:border-white bg-gray-50 dark:bg-gray-900/50'
+                    : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                <div
-                  className={`p-4 rounded-lg ${
-                    formData.wants_growth_assistance === false
-                      ? 'bg-gray-50 dark:bg-gray-900/50'
-                      : 'border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
                 <div className="flex items-start">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${
                     formData.wants_growth_assistance === false
@@ -375,7 +360,6 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                     <div className="font-medium text-gray-900 dark:text-white">No, I don't want help from the 7-8 figure experts</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">I'll explore the platform on my own</div>
                   </div>
-                </div>
                 </div>
               </div>
             </div>
