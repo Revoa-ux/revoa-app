@@ -33,18 +33,32 @@ Deno.serve(async (req: Request) => {
       throw new Error('platform_ad_id is required');
     }
 
-    // Get the ad
-    const { data: ad, error: adError } = await supabaseClient
+    // Get the ad - use maybeSingle to handle no results gracefully
+    const { data: ads, error: adError } = await supabaseClient
       .from('ads')
       .select('*')
       .eq('platform_ad_id', platform_ad_id)
-      .eq('platform', 'facebook')
-      .single();
+      .eq('platform', 'facebook');
 
-    if (adError || !ad) {
-      console.error('[fetch-preview] Ad not found:', adError);
-      throw new Error(`Ad not found: ${adError?.message || 'Unknown error'}`);
+    if (adError) {
+      console.error('[fetch-preview] Error querying ads:', adError);
+      throw new Error(`Database error: ${adError.message}`);
     }
+
+    if (!ads || ads.length === 0) {
+      console.error('[fetch-preview] No ads found with platform_ad_id:', platform_ad_id);
+      throw new Error(`No ad found with ID: ${platform_ad_id}`);
+    }
+
+    // If multiple ads found (shouldn't happen but handle it), use the first one
+    if (ads.length > 1) {
+      console.warn('[fetch-preview] Multiple ads found with same platform_ad_id, using first one:', {
+        platform_ad_id,
+        count: ads.length
+      });
+    }
+
+    const ad = ads[0];
 
     // Get the ad account
     const { data: adAccount, error: accountError } = await supabaseClient

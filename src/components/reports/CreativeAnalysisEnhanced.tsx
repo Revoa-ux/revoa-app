@@ -281,6 +281,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     setFetchingPreviews(prev => new Set([...prev, creative.id]));
 
+    console.log('[CreativeAnalysis] Fetching preview for creative:', {
+      id: creative.id,
+      adName: creative.adName,
+      platform: creative.platform
+    });
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
