@@ -510,9 +510,19 @@ export async function getCreativePerformance(
         ? (creativeData.video_url || thumbnailUrl)
         : imageUrl;
 
+      // DEBUG: Log ad set relationship for first few ads
+      if (index < 3) {
+        console.log(`[AdReportsService] Ad #${index}:`, {
+          ad_id: ad.id,
+          platform_ad_id: ad.platform_ad_id,
+          ad_set_id: ad.ad_set_id,
+          name: ad.name
+        });
+      }
+
       return {
         id: ad.platform_ad_id,
-        adSetId: ad.ad_set_id, // Add for filtering in UnifiedAdManager
+        adSetId: ad.ad_set_id, // UUID reference to ad_sets table
         type: isVideo ? 'video' : 'image',
         url: mediaUrl,
         videoUrl: creativeData.video_url || undefined,
@@ -936,6 +946,17 @@ export async function getAdSetPerformance(
       let performance: 'high' | 'medium' | 'low' = 'medium';
       if (netROAS > 1) performance = 'high';
       else if (netROAS < 0) performance = 'low';
+
+      // DEBUG: Log first few ad sets
+      const adSetIndex = adSets.indexOf(adSet);
+      if (adSetIndex < 5) {
+        console.log(`[AdReportsService] Ad Set #${adSetIndex}:`, {
+          id: adSet.id,
+          platform_adset_id: adSet.platform_adset_id,
+          name: adSet.name,
+          campaign_id: adSet.ad_campaign_id
+        });
+      }
 
       return {
         id: adSet.id,

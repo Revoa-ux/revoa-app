@@ -42,8 +42,25 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   // Debug: Show data structure on mount and when data changes
   React.useEffect(() => {
     if (campaigns.length > 0 || adSets.length > 0 || creatives.length > 0) {
-      toast.info(`📊 Data: ${campaigns.length} campaigns, ${adSets.length} ad sets, ${creatives.length} ads`, {
-        duration: 3000
+      // Count ads per ad set
+      const adsPerAdSet = new Map<string, number>();
+      creatives.forEach(ad => {
+        const count = adsPerAdSet.get(ad.adSetId) || 0;
+        adsPerAdSet.set(ad.adSetId, count + 1);
+      });
+
+      console.log('[UnifiedAdManager] Data received:', {
+        campaigns: campaigns.length,
+        adSets: adSets.length,
+        creatives: creatives.length,
+        adsPerAdSet: Object.fromEntries(adsPerAdSet),
+        sampleAdSet: adSets[0] ? { id: adSets[0].id, adSetId: adSets[0].adSetId, name: adSets[0].name } : null,
+        sampleCreative: creatives[0] ? { id: creatives[0].id, adSetId: creatives[0].adSetId, name: creatives[0].adName } : null
+      });
+
+      toast.info(`📊 Data Loaded`, {
+        duration: 4000,
+        description: `${campaigns.length} campaigns, ${adSets.length} ad sets, ${creatives.length} ads | Ads spread across ${adsPerAdSet.size} ad sets`
       });
     }
   }, [campaigns, adSets, creatives]);
@@ -166,8 +183,13 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       // If viewing after drill-down
       if (selectedAdSet) {
         const filtered = creatives.filter(ad => ad.adSetId === selectedAdSet);
+
+        // DEBUG: Show what we're comparing
+        const uniqueAdSetIds = [...new Set(creatives.map(ad => ad.adSetId))];
+        const matches = creatives.filter(ad => ad.adSetId === selectedAdSet);
+
         if (filtered.length === 0) {
-          toast.warning(`⚠️ No ads found for this ad set`, { duration: 2000 });
+          toast.warning(`⚠️ No ads found`, { duration: 4000, description: `Selected: ${selectedAdSet.substring(0, 10)}... | Unique ad.adSetIds in data: ${uniqueAdSetIds.length} | Matches: ${matches.length}` });
         } else {
           toast.success(`✓ Found ${filtered.length} ads`, { duration: 2000 });
         }
@@ -176,9 +198,18 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
+
+        // DEBUG: Show what ad set IDs we're looking for
+        console.log('[UnifiedAdManager] Campaign drill-down:', {
+          selectedCampaign,
+          campaignAdSetIds,
+          totalCreatives: creatives.length,
+          sampleCreativeAdSetIds: creatives.slice(0, 5).map(c => c.adSetId)
+        });
+
         const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
         if (filtered.length === 0) {
-          toast.warning(`⚠️ No ads found (${campaignAdSetIds.length} ad sets checked)`, { duration: 2500 });
+          toast.warning(`⚠️ No ads found`, { duration: 3500, description: `${campaignAdSetIds.length} ad sets | Looking for adSetIds: ${campaignAdSetIds.map(id => id?.substring(0, 8)).join(', ')}` });
         } else {
           toast.success(`✓ Found ${filtered.length} ads in ${campaignAdSetIds.length} ad sets`, { duration: 2000 });
         }
