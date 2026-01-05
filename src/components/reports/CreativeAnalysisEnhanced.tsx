@@ -591,10 +591,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         next.delete(creative.id);
                         return next;
                       });
-                      // Auto-fetch preview for Facebook ads
-                      if (creative.platform === 'facebook') {
-                        fetchAdPreview(creative);
-                      }
+                      // Don't auto-fetch to prevent infinite loops
+                      // User can manually click the fetch button instead
                     }}
                   />
                 </>
