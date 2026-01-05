@@ -118,36 +118,63 @@ Deno.serve(async (req: Request) => {
 
     console.log('[fetch-preview] Found Facebook token');
 
-    // Fetch ad preview using Facebook's Ad Previews API
-    const previewUrl = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${fbToken.access_token}`;
-    const response = await fetch(previewUrl);
-    const data = await response.json();
+    // Fetch ad creative directly (better approach)
+    const creativeUrl = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}?fields=creative{thumbnail_url,image_url,image_hash,object_story_spec}&access_token=${fbToken.access_token}`;
+    console.log('[fetch-preview] Fetching ad creative...');
 
-    console.log('[fetch-preview] Facebook API response:', JSON.stringify(data).substring(0, 500));
+    const creativeResponse = await fetch(creativeUrl);
+    const creativeData = await creativeResponse.json();
 
-    if (data.error) {
-      console.error('[fetch-preview] Facebook API error:', data.error);
-      throw new Error(`Facebook API error: ${data.error.message}`);
+    console.log('[fetch-preview] Creative API response:', JSON.stringify(creativeData));
+
+    if (creativeData.error) {
+      console.error('[fetch-preview] Facebook API error:', creativeData.error);
+      throw new Error(`Facebook API error: ${creativeData.error.message}`);
     }
 
     let imageUrl = null;
 
-    if (data.data && data.data[0]) {
-      const preview = data.data[0];
+    // Try to get image from creative data
+    if (creativeData.creative) {
+      const creative = creativeData.creative;
+      console.log('[fetch-preview] Creative object:', JSON.stringify(creative));
 
-      // Try to extract image URL from preview HTML
-      if (preview.body) {
-        const imgMatch = preview.body.match(/<img[^>]+src="([^">]+)"/);        if (imgMatch) {
-          imageUrl = imgMatch[1];
-          console.log('[fetch-preview] Extracted image URL:', imageUrl.substring(0, 100));
-        } else {
-          console.log('[fetch-preview] No image tag found in preview body');
+      // Try different image sources
+      imageUrl = creative.thumbnail_url || creative.image_url;
+
+      if (imageUrl) {
+        console.log('[fetch-preview] Found image URL from creative:', imageUrl.substring(0, 100));
+      } else if (creative.object_story_spec) {
+        // Try to extract from object story spec
+        const spec = creative.object_story_spec;
+        if (spec.link_data?.picture) {
+          imageUrl = spec.link_data.picture;
+          console.log('[fetch-preview] Found image URL from object_story_spec:', imageUrl.substring(0, 100));
         }
-      } else {
-        console.log('[fetch-preview] No preview body found');
       }
-    } else {
-      console.log('[fetch-preview] No preview data found');
+    }
+
+    // Fallback: Try preview API if no image found
+    if (!imageUrl) {
+      console.log('[fetch-preview] Trying preview API as fallback...');
+      const previewUrl = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/previews?ad_format=DESKTOP_FEED_STANDARD&access_token=${fbToken.access_token}`;
+      const previewResponse = await fetch(previewUrl);
+      const previewData = await previewResponse.json();
+
+      console.log('[fetch-preview] Preview API response keys:', previewData.data?.[0] ? Object.keys(previewData.data[0]) : 'no data');
+
+      if (previewData.data && previewData.data[0]) {
+        const preview = previewData.data[0];
+
+        // Try to extract image URL from preview HTML
+        if (preview.body) {
+          const imgMatch = preview.body.match(/<img[^>]+src=["']([^"']+)["']/);
+          if (imgMatch) {
+            imageUrl = imgMatch[1];
+            console.log('[fetch-preview] Extracted image URL from HTML:', imageUrl.substring(0, 100));
+          }
+        }
+      }
     }
 
     // If we got an image URL, update the ad record
@@ -173,7 +200,7 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         image_url: imageUrl,
-        preview_data: data.data?.[0] || null
+        creative_data: creativeData.creative || null
       }),
       {
         status: 200,
