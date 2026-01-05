@@ -36,10 +36,31 @@ Deno.serve(async (req: Request) => {
 
     const url = new URL(req.url);
     const accountId = url.searchParams.get('accountId');
-    const startDate = url.searchParams.get('startDate') || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    const endDate = url.searchParams.get('endDate') || new Date().toISOString().split('T')[0];
+
+    // Date validation and handling
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const defaultStart = new Date(today);
+    defaultStart.setDate(defaultStart.getDate() - 7);
+
+    let startDate = url.searchParams.get('startDate') || defaultStart.toISOString().split('T')[0];
+    let endDate = url.searchParams.get('endDate') || yesterday.toISOString().split('T')[0];
+
+    // Ensure dates are not in the future
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    if (startDateObj > today) {
+      console.log(`[sync] Start date ${startDate} is in the future, adjusting to 7 days ago`);
+      startDate = defaultStart.toISOString().split('T')[0];
+    }
+    if (endDateObj > today) {
+      console.log(`[sync] End date ${endDate} is in the future, adjusting to yesterday`);
+      endDate = yesterday.toISOString().split('T')[0];
+    }
 
     console.log('[facebook-ads-sync] Starting full sync for account:', accountId);
+    console.log('[sync] Date range:', { startDate, endDate });
 
     if (!accountId) {
       return new Response(
@@ -107,10 +128,42 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    const fetchPage = async (url: string) => {
+    // Rate limiting helper
+    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    let apiCallCount = 0;
+    const API_CALLS_PER_MINUTE = 200; // Facebook allows ~200 calls/hour per user
+    const RATE_LIMIT_WINDOW = 60000; // 1 minute
+    let windowStart = Date.now();
+
+    const fetchPage = async (url: string, retryCount = 0): Promise<any> => {
+      // Check rate limiting
+      apiCallCount++;
+      const elapsed = Date.now() - windowStart;
+      if (apiCallCount >= API_CALLS_PER_MINUTE && elapsed < RATE_LIMIT_WINDOW) {
+        const waitTime = RATE_LIMIT_WINDOW - elapsed;
+        console.log(`[sync] Rate limit approaching, waiting ${Math.round(waitTime/1000)}s...`);
+        await sleep(waitTime);
+        apiCallCount = 0;
+        windowStart = Date.now();
+      }
+
       try {
         const response = await fetch(url);
         const data = await response.json();
+
+        // Handle rate limiting
+        if (response.status === 400 && data.error?.message?.includes('limit reached')) {
+          if (retryCount < 3) {
+            const backoffTime = Math.pow(2, retryCount) * 30000; // 30s, 60s, 120s
+            console.log(`[sync] Rate limited, waiting ${Math.round(backoffTime/1000)}s before retry ${retryCount + 1}/3...`);
+            await sleep(backoffTime);
+            return fetchPage(url, retryCount + 1);
+          } else {
+            console.error('[sync] Rate limit exceeded after 3 retries');
+            return { data: [], paging: null };
+          }
+        }
+
         if (!response.ok || data.error) {
           console.error('[sync] API error:', {
             status: response.status,
@@ -193,12 +246,14 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] 3/5 Fetching ad sets...');
     const allAdSets = [];
-    const CAMPAIGN_BATCH_SIZE = 10;
+    const CAMPAIGN_BATCH_SIZE = 5; // Reduced from 10 to avoid rate limits
     let campaignsWithAdSets = 0;
     let campaignsWithoutAdSets = 0;
 
     for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
       const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
+      // Add small delay between batches to avoid rate limiting
+      if (i > 0) await sleep(200);
       const adSetResults = await Promise.all(
         batch.map(async (campaign) => {
           const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
@@ -286,10 +341,12 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
-    const ADSET_BATCH_SIZE = 10;
+    const ADSET_BATCH_SIZE = 5; // Reduced from 10 to avoid rate limits
 
     for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
       const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
+      // Add small delay between batches
+      if (i > 0) await sleep(200);
       const adResults = await Promise.all(
         batch.map(async (adSet) => {
           const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
@@ -412,6 +469,8 @@ Deno.serve(async (req: Request) => {
 
     for (let i = 0; i < allCampaigns.length; i += CAMPAIGN_BATCH_SIZE) {
       const batch = allCampaigns.slice(i, i + CAMPAIGN_BATCH_SIZE);
+      // Add delay between batches to avoid rate limiting
+      if (i > 0) await sleep(300);
       const insightResults = await Promise.all(
         batch.map(async (campaign) => {
           const dbCampaign = campaignMap.get(campaign.id);
@@ -441,6 +500,8 @@ Deno.serve(async (req: Request) => {
     const adSetMetricsStart = allMetrics.length;
     for (let i = 0; i < allAdSets.length; i += ADSET_BATCH_SIZE) {
       const batch = allAdSets.slice(i, i + ADSET_BATCH_SIZE);
+      // Add delay between batches
+      if (i > 0) await sleep(300);
       const insightResults = await Promise.all(
         batch.map(async (adSet) => {
           const dbAdSet = adSetMap.get(adSet.id);
@@ -466,6 +527,8 @@ Deno.serve(async (req: Request) => {
 
     for (let i = 0; i < allAds.length; i += ADSET_BATCH_SIZE) {
       const batch = allAds.slice(i, i + ADSET_BATCH_SIZE);
+      // Add delay between batches
+      if (i > 0) await sleep(300);
       const insightResults = await Promise.all(
         batch.map(async (ad) => {
           const dbAd = adMap.get(ad.id);
