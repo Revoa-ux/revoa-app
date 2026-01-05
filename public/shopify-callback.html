@@ -98,44 +98,14 @@
       font-size: 13px;
     }
 
-    .debug-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #111;
-      color: #0f0;
-      padding: 12px;
-      font-family: monospace;
-      font-size: 11px;
-      max-height: 200px;
-      overflow-y: auto;
-      border-top: 2px solid #0f0;
-      z-index: 9999;
-    }
-
-    .debug-panel div {
-      margin-bottom: 4px;
-    }
-
-    .debug-error {
-      color: #f00;
-    }
-
-    .debug-success {
-      color: #0f0;
-    }
   </style>
 </head>
 <body>
-  <div id="debug-panel" class="debug-panel"></div>
-
   <div class="container">
     <div id="loading-state">
       <div class="spinner"></div>
       <h1>Connecting to Shopify</h1>
       <p>Please wait while we complete the setup...</p>
-      <p style="margin-top: 12px; font-size: 12px;">Check the debug panel at the bottom for details</p>
     </div>
 
     <div id="success-state" style="display: none;">
@@ -153,27 +123,13 @@
   </div>
 
   <script type="module">
-    function debugLog(message, isError = false) {
-      const panel = document.getElementById('debug-panel');
-      const div = document.createElement('div');
-      div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-      div.className = isError ? 'debug-error' : 'debug-success';
-      panel.appendChild(div);
-      panel.scrollTop = panel.scrollHeight;
-    }
-
     async function handleCallback() {
       try {
-        debugLog('=== SHOPIFY CALLBACK STARTED ===');
-        debugLog('URL: ' + window.location.href);
-
         const params = new URLSearchParams(window.location.search);
         const shop = params.get('shop');
         const code = params.get('code');
         const state = params.get('state');
         const hmac = params.get('hmac');
-
-        debugLog(`Params - shop:${shop}, code:${code?'YES':'NO'}, state:${state}, hmac:${hmac?'YES':'NO'}`);
 
         // Check if we have required parameters
         if (!shop || !code || !state || !hmac) {
@@ -187,8 +143,6 @@
         if (!supabaseUrl || !supabaseAnonKey) {
           throw new Error('Supabase configuration missing');
         }
-
-        debugLog('Calling Shopify proxy edge function...');
 
         const response = await fetch(`${supabaseUrl}/functions/v1/shopify-proxy`, {
           method: 'POST',
@@ -205,19 +159,15 @@
           })
         });
 
-        debugLog(`Edge function response: ${response.status} ${response.statusText}`);
-
         if (!response.ok) {
           let errorMessage = `OAuth completion failed: ${response.status} ${response.statusText}`;
           let errorDetails = '';
           try {
             const error = await response.json();
-            debugLog('Error response: ' + JSON.stringify(error), true);
             errorMessage = error.error || error.message || errorMessage;
             errorDetails = JSON.stringify(error, null, 2);
           } catch (e) {
             const errorText = await response.text();
-            debugLog('Error text: ' + errorText, true);
             if (errorText) {
               errorMessage = errorText;
               errorDetails = errorText;
@@ -229,8 +179,6 @@
         }
 
         const result = await response.json();
-        debugLog('✓ OAuth completed successfully!');
-        debugLog('Result: ' + JSON.stringify(result));
 
         // Show success state
         document.getElementById('loading-state').style.display = 'none';
@@ -248,12 +196,9 @@
           data: result
         };
         localStorage.setItem('shopify_oauth_success', JSON.stringify(successData));
-        debugLog('✓ localStorage flag set (PRIMARY METHOD)');
 
         // Try postMessage as secondary method (may not work due to opener being null)
         if (window.opener && !window.opener.closed) {
-          debugLog('✓ Parent window detected - sending postMessage...');
-
           const successMessage = {
             type: 'shopify:success',
             shop: shop,
@@ -263,29 +208,14 @@
 
           // Send immediately
           window.opener.postMessage(successMessage, '*');
-          debugLog('✓ postMessage sent');
-        } else {
-          debugLog('⚠ No parent window (expected - OAuth redirects break opener)', false);
-          debugLog('✓ Using localStorage fallback method', false);
         }
 
         // Close window after 1 second
-        debugLog('Closing window in 1 second...');
         setTimeout(() => {
-          debugLog('Attempting to close window now...');
-          try {
-            window.close();
-            debugLog('✓ window.close() called');
-          } catch (e) {
-            debugLog('✗ Error closing window: ' + e.message, true);
-          }
+          window.close();
         }, 1000);
 
       } catch (error) {
-        debugLog('✗✗✗ ERROR OCCURRED ✗✗✗', true);
-        debugLog('Error: ' + error.message, true);
-        debugLog('Stack: ' + error.stack, true);
-
         // Show error state
         document.getElementById('loading-state').style.display = 'none';
         document.getElementById('error-state').style.display = 'block';

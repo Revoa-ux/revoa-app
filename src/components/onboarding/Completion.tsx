@@ -219,7 +219,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 setFormData(prev => ({ ...prev, name: newValue }));
               }}
               placeholder="John Doe"
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-gray-900 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               disabled={isLoading}
             />
           </div>
@@ -233,7 +233,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                 type="button"
                 onClick={() => setShowStoreTypeDropdown(!showStoreTypeDropdown)}
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-left flex items-center justify-between bg-white dark:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-left flex items-center justify-between bg-white dark:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span className={formData.store_type ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}>
                   {getStoreTypeLabel()}
@@ -333,7 +333,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
                             }}
                             onClick={(e) => e.stopPropagation()}
                             placeholder="+1 (555) 123-4567"
-                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-100 focus:border-gray-900 dark:focus:border-gray-100 text-gray-900 dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-white focus:border-gray-900 dark:focus:border-white text-gray-900 dark:text-white bg-white dark:bg-gray-800 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                             disabled={isLoading}
                           />
                         </div>
