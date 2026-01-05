@@ -383,6 +383,12 @@ export async function getCreativePerformance(
     const BATCH_SIZE = 100;
     let allMetrics: any[] = [];
 
+    console.log('[AdReportsService] Querying ad metrics:', {
+      adCount: adUuids.length,
+      dateRange: { startDate, endDate },
+      sampleAdUuid: adUuids[0]
+    });
+
     for (let i = 0; i < adUuids.length; i += BATCH_SIZE) {
       const batch = adUuids.slice(i, i + BATCH_SIZE);
       const { data: metrics, error: metricsError } = await supabase
@@ -399,20 +405,32 @@ export async function getCreativePerformance(
       }
 
       if (metrics) {
+        console.log(`[AdReportsService] Ad Batch ${i / BATCH_SIZE + 1}: Found ${metrics.length} metrics`);
         allMetrics = allMetrics.concat(metrics);
       }
     }
 
     const metrics = allMetrics;
 
-    console.log('[AdReportsService] Fetched', metrics?.length || 0, 'ad_metrics rows');
+    console.log('[AdReportsService] Total ad metrics fetched:', metrics?.length || 0);
     if (metrics && metrics.length > 0) {
       console.log('[AdReportsService] First metric sample:', {
         entity_id: metrics[0].entity_id,
+        entity_type: metrics[0].entity_type,
+        date: metrics[0].date,
         spend: metrics[0].spend,
         impressions: metrics[0].impressions,
         clicks: metrics[0].clicks
       });
+    } else {
+      console.warn('[AdReportsService] NO AD METRICS FOUND! Checking why...');
+      // Query without filters to see if any metrics exist
+      const { data: anyMetrics } = await supabase
+        .from('ad_metrics')
+        .select('entity_type, entity_id, date')
+        .eq('entity_type', 'ad')
+        .limit(5);
+      console.log('[AdReportsService] Sample of ANY ad metrics in DB:', anyMetrics);
     }
 
     // IMPORTANT: Get REAL conversion data from our attribution system
@@ -574,7 +592,11 @@ export async function getCreativePerformance(
     });
 
     const adsWithRealData = sortedCreatives.filter(c => c.hasRealConversionData).length;
-    console.log('[AdReportsService] ✓ Returning', sortedCreatives.length, 'ads (' + adsWithRealData + ' with real conversion data)');
+    const adsWithMetrics = sortedCreatives.filter(c => c.metrics.spend > 0).length;
+    console.log('[AdReportsService] ✓ Returning', sortedCreatives.length, 'ads');
+    console.log('[AdReportsService]   - With metrics (spend > 0):', adsWithMetrics);
+    console.log('[AdReportsService]   - With real conversion data:', adsWithRealData);
+    console.log('[AdReportsService]   - Without metrics:', sortedCreatives.length - adsWithMetrics);
 
     return sortedCreatives;
   } catch (error) {
@@ -884,6 +906,12 @@ export async function getAdSetPerformance(
     const BATCH_SIZE = 100;
     let allMetrics: any[] = [];
 
+    console.log('[AdReportsService] Querying ad set metrics:', {
+      adSetCount: adSetUuids.length,
+      dateRange: { startDate, endDate },
+      sampleAdSetUuid: adSetUuids[0]
+    });
+
     for (let i = 0; i < adSetUuids.length; i += BATCH_SIZE) {
       const batch = adSetUuids.slice(i, i + BATCH_SIZE);
       const { data: batchMetrics, error: metricsError} = await supabase
@@ -900,11 +928,16 @@ export async function getAdSetPerformance(
       }
 
       if (batchMetrics) {
+        console.log(`[AdReportsService] Batch ${i / BATCH_SIZE + 1}: Found ${batchMetrics.length} metrics`);
+        if (batchMetrics.length > 0) {
+          console.log('[AdReportsService] Sample metric:', batchMetrics[0]);
+        }
         allMetrics = allMetrics.concat(batchMetrics);
       }
     }
 
     const metrics = allMetrics;
+    console.log(`[AdReportsService] Total ad set metrics found: ${metrics.length}`);
 
     // Group metrics by ad set
     const adSetMetrics = new Map<string, any>();
@@ -926,6 +959,8 @@ export async function getAdSetPerformance(
         conversion_value: existing.conversion_value + (m.conversion_value || 0)
       });
     });
+
+    console.log(`[AdReportsService] Metrics grouped for ${adSetMetrics.size} ad sets`);
 
     // Get profit data
     const profitMetrics = await calculateProfitMetrics(user.id, startDate, endDate);
@@ -954,14 +989,17 @@ export async function getAdSetPerformance(
       if (netROAS > 1) performance = 'high';
       else if (netROAS < 0) performance = 'low';
 
-      // DEBUG: Log first few ad sets
+      // DEBUG: Log first few ad sets with their metrics
       const adSetIndex = adSets.indexOf(adSet);
       if (adSetIndex < 5) {
         console.log(`[AdReportsService] Ad Set #${adSetIndex}:`, {
           id: adSet.id,
           platform_adset_id: adSet.platform_adset_id,
           name: adSet.name,
-          campaign_id: adSet.ad_campaign_id
+          campaign_id: adSet.ad_campaign_id,
+          hasMetrics: !!m && m.spend > 0,
+          metricsSpend: m.spend,
+          metricsImpressions: m.impressions
         });
       }
 
