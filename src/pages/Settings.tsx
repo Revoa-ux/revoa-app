@@ -33,6 +33,7 @@ import { facebookAdsService } from '@/lib/facebookAds';
 import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { StorePoliciesSettings } from '@/components/settings/StorePoliciesSettings';
+import { formatRelativeTime } from '@/lib/utils';
 
 interface UserProfile {
   first_name: string;
@@ -2502,10 +2503,7 @@ const SettingsPage = () => {
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {shopifyStore.replace('https://', '').replace('.myshopify.com', '')}
                           {shopify.installation?.last_synced_at && (
-                            <span className="text-gray-400 hidden sm:inline"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString()}</span>
-                          )}
-                          {shopify.installation?.last_synced_at && (
-                            <span className="text-gray-400 sm:hidden"> • {new Date(shopify.installation.last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
+                            <span className="text-gray-400"> • {formatRelativeTime(shopify.installation.last_synced_at)}</span>
                           )}
                         </p>
                       )}
@@ -2563,10 +2561,7 @@ const SettingsPage = () => {
                         <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {facebookAccounts[0].account_name}
                           {facebookAccounts[0].last_synced_at && (
-                            <span className="text-gray-400 hidden sm:inline"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString()}</span>
-                          )}
-                          {facebookAccounts[0].last_synced_at && (
-                            <span className="text-gray-400 sm:hidden"> • {new Date(facebookAccounts[0].last_synced_at).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>
+                            <span className="text-gray-400"> • {formatRelativeTime(facebookAccounts[0].last_synced_at)}</span>
                           )}
                         </p>
                       )}

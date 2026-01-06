@@ -31,3 +31,23 @@ export function formatCurrency(value: number, decimals: number = 2): string {
     maximumFractionDigits: decimals
   }).format(value);
 }
+
+export function formatRelativeTime(date: Date | string): string {
+  const now = new Date();
+  const target = typeof date === 'string' ? new Date(date) : date;
+  const diffMs = now.getTime() - target.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  const isToday = target.toDateString() === now.toDateString();
+
+  if (diffMins < 1) {
+    return 'Just now';
+  } else if (diffMins < 60 && isToday) {
+    return `${diffMins}m ago`;
+  } else if (diffHours < 24 && isToday) {
+    return `${diffHours}h ago`;
+  } else {
+    return target.toLocaleDateString();
+  }
+}
