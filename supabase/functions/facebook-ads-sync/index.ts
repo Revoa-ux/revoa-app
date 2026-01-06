@@ -96,18 +96,48 @@ Deno.serve(async (req: Request) => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
     let isInitialSync = false;
 
     if (!endDate) {
-      endDate = yesterday.toISOString().split('T')[0];
+      endDate = yesterdayStr;
     }
 
     if (!startDate) {
       if (account.last_synced_at) {
-        // Incremental sync: Only sync metrics since last sync
-        const lastSync = new Date(account.last_synced_at);
-        lastSync.setDate(lastSync.getDate() + 1); // Start from day after last sync
-        startDate = lastSync.toISOString().split('T')[0];
+        const lastSyncDate = new Date(account.last_synced_at);
+        const lastSyncDateStr = lastSyncDate.toISOString().split('T')[0];
+
+        // Check if we're already up to date (last sync was yesterday or today)
+        if (lastSyncDateStr >= yesterdayStr) {
+          console.log(`[sync] Already up to date - last synced: ${lastSyncDateStr}, yesterday: ${yesterdayStr}`);
+
+          // Still update last_synced_at to show we checked
+          await supabase
+            .from('ad_accounts')
+            .update({ last_synced_at: new Date().toISOString() })
+            .eq('id', account.id);
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: 'Data already up to date',
+              data: { campaigns: 0, adSets: 0, ads: 0, metrics: 0 }
+            }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Incremental sync: Start from day after last sync
+        const nextDay = new Date(lastSyncDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        startDate = nextDay.toISOString().split('T')[0];
+
+        // Ensure startDate doesn't exceed endDate
+        if (startDate > endDate) {
+          startDate = endDate;
+        }
+
         console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
       } else {
         // Initial sync: Get last 90 days of data (reasonable window)
@@ -130,7 +160,7 @@ Deno.serve(async (req: Request) => {
         const { data, error } = await supabase.from(table).upsert(batch, opts).select();
         if (error) {
           console.error(`[sync] Error upserting batch ${i}-${i+batch.length} to ${table}:`, error);
-          console.error(`[sync] Failed records:`, JSON.stringify(batch.slice(0, 2))); // Log first 2 records
+          console.error(`[sync] Failed records:`, JSON.stringify(batch.slice(0, 2)));
         } else {
           console.log(`[sync] Successfully upserted ${data?.length || 0} records to ${table} (batch ${i}-${i+batch.length})`);
           results.push(...(data || []));
@@ -141,10 +171,9 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    // Rate limiting helper - using manual delays between requests instead of proactive limiting
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const syncStartTime = Date.now();
-    const MAX_SYNC_TIME = 240000; // 4 minutes max (leave buffer for Edge Function 5min timeout)
+    const MAX_SYNC_TIME = 240000;
 
     const fetchPage = async (url: string, retryCount = 0): Promise<any> => {
 
@@ -152,10 +181,9 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(url);
         const data = await response.json();
 
-        // Handle rate limiting with shorter backoff to avoid function timeout
         if (response.status === 400 && data.error?.message?.includes('limit reached')) {
           if (retryCount < 2) {
-            const backoffTime = (retryCount + 1) * 3000; // 3s, 6s (faster retries)
+            const backoffTime = (retryCount + 1) * 3000;
             console.log(`[sync] Rate limited, waiting ${Math.round(backoffTime/1000)}s before retry ${retryCount + 1}/2...`);
             await sleep(backoffTime);
             return fetchPage(url, retryCount + 1);
@@ -250,32 +278,27 @@ Deno.serve(async (req: Request) => {
     let campaignsWithAdSets = 0;
     let campaignsWithoutAdSets = 0;
 
-    // Sequential processing with delays to avoid rate limits
     for (let i = 0; i < allCampaigns.length; i++) {
       const campaign = allCampaigns[i];
       const url = `https://graph.facebook.com/v21.0/${campaign.id}/adsets?fields=id,name,status,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
       const adSets = await fetchAllPagesForUrl(url);
 
-      // Track campaign stats
       if (adSets.length > 0) {
         campaignsWithAdSets++;
       } else {
         campaignsWithoutAdSets++;
       }
 
-      // Map ad sets to campaign
       const mappedAdSets = adSets.map((adSet: any) => ({
         ...adSet,
         campaign_id: campaign.id,
       }));
       allAdSets.push(...mappedAdSets);
 
-      // Add small delay between requests (600ms = max 100 requests/minute)
       if (i < allCampaigns.length - 1) {
         await sleep(600);
       }
 
-      // Log progress every 10 campaigns
       if ((i + 1) % 10 === 0 || i === allCampaigns.length - 1) {
         console.log(`[sync] Progress: ${i + 1}/${allCampaigns.length} campaigns | ${allAdSets.length} ad sets | ${campaignsWithAdSets} w/ ad sets, ${campaignsWithoutAdSets} empty`);
       }
@@ -283,7 +306,6 @@ Deno.serve(async (req: Request) => {
 
     console.log(`[sync] Found ${allAdSets.length} total ad sets`);
 
-    // DEBUG: If we have 0 ad sets, check the first campaign manually
     if (allAdSets.length === 0 && allCampaigns.length > 0) {
       console.log('[sync] WARNING: 0 ad sets found! Checking first campaign manually...');
       const testCampaign = allCampaigns[0];
@@ -297,7 +319,6 @@ Deno.serve(async (req: Request) => {
         error: testResult.error
       });
 
-      // Also test with effective_status filter to see active ad sets
       const testUrl2 = `https://graph.facebook.com/v21.0/${testCampaign.id}/adsets?fields=id,name,status,effective_status&limit=10&access_token=${accessToken}`;
       const testResult2 = await fetchPage(testUrl2);
       console.log('[sync] Test with effective_status:', {
@@ -337,7 +358,6 @@ Deno.serve(async (req: Request) => {
     console.log('[sync] 5/5 Fetching and saving ads...');
     const allAds = [];
 
-    // Sequential processing with delays
     for (let i = 0; i < allAdSets.length; i++) {
       const adSet = allAdSets[i];
       const url = `https://graph.facebook.com/v21.0/${adSet.id}/ads?fields=id,name,status,creative{id,name,title,body,image_url,thumbnail_url,image_hash,video_id,call_to_action_type,object_story_spec,effective_object_story_id}&limit=500&access_token=${accessToken}`;
@@ -349,12 +369,10 @@ Deno.serve(async (req: Request) => {
       }));
       allAds.push(...mappedAds);
 
-      // Add delay between requests
       if (i < allAdSets.length - 1) {
         await sleep(600);
       }
 
-      // Log progress every 20 ad sets
       if ((i + 1) % 20 === 0 || i === allAdSets.length - 1) {
         console.log(`[sync] Progress: ${i + 1}/${allAdSets.length} ad sets processed, ${allAds.length} ads found`);
       }
@@ -443,7 +461,6 @@ Deno.serve(async (req: Request) => {
       };
     };
 
-    // Check if we're running out of time
     const elapsedTime = Date.now() - syncStartTime;
     if (elapsedTime > MAX_SYNC_TIME) {
       console.log(`[sync] Approaching timeout (${Math.round(elapsedTime/1000)}s), skipping metrics fetch`);
@@ -471,7 +488,6 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] Fetching campaign metrics...');
 
-    // DEBUG: Test a single insights call first
     if (allCampaigns.length > 0) {
       const testCampaign = allCampaigns[0];
       const testUrl = `https://graph.facebook.com/v21.0/${testCampaign.id}/insights?fields=impressions,clicks,spend&time_range={"since":"${startDate}","until":"${endDate}"}&access_token=${accessToken}`;
@@ -492,7 +508,6 @@ Deno.serve(async (req: Request) => {
     let failedInsightCalls = 0;
     let skippedInactiveCampaigns = 0;
 
-    // Filter campaigns for initial sync - only sync metrics for active or recently active campaigns
     const campaignsToSync = isInitialSync
       ? allCampaigns.filter(c => c.status === 'ACTIVE' || c.status === 'PAUSED')
       : allCampaigns;
@@ -502,7 +517,6 @@ Deno.serve(async (req: Request) => {
       console.log(`[sync] Initial sync: Syncing metrics for ${campaignsToSync.length} active/paused campaigns, skipping ${skippedInactiveCampaigns} archived`);
     }
 
-    // Sequential processing with delays
     for (let i = 0; i < campaignsToSync.length; i++) {
       const campaign = campaignsToSync[i];
       const dbCampaign = campaignMap.get(campaign.id);
@@ -519,12 +533,10 @@ Deno.serve(async (req: Request) => {
         failedInsightCalls++;
       }
 
-      // Add delay between requests
       if (i < campaignsToSync.length - 1) {
         await sleep(600);
       }
 
-      // Log progress every 50 campaigns
       if ((i + 1) % 50 === 0 || i === campaignsToSync.length - 1) {
         console.log(`[sync] Campaign metrics progress: ${i + 1}/${campaignsToSync.length} (${allMetrics.length} metrics, ${failedInsightCalls} with no data)`);
       }
@@ -534,7 +546,6 @@ Deno.serve(async (req: Request) => {
     console.log('[sync] Fetching ad set metrics...');
     const adSetMetricsStart = allMetrics.length;
 
-    // Filter ad sets for initial sync - only sync metrics for active or recently active ad sets
     const adSetsToSync = isInitialSync
       ? allAdSets.filter(as => as.status === 'ACTIVE' || as.status === 'PAUSED')
       : allAdSets;
@@ -543,7 +554,6 @@ Deno.serve(async (req: Request) => {
       console.log(`[sync] Initial sync: Syncing metrics for ${adSetsToSync.length} active/paused ad sets, skipping ${allAdSets.length - adSetsToSync.length} inactive`);
     }
 
-    // Sequential processing with delays
     for (let i = 0; i < adSetsToSync.length; i++) {
       const adSet = adSetsToSync[i];
       const dbAdSet = adSetMap.get(adSet.id);
@@ -557,12 +567,10 @@ Deno.serve(async (req: Request) => {
         allMetrics.push(...insights);
       }
 
-      // Add delay between requests
       if (i < adSetsToSync.length - 1) {
         await sleep(600);
       }
 
-      // Log progress every 50 ad sets
       if ((i + 1) % 50 === 0 || i === adSetsToSync.length - 1) {
         console.log(`[sync] Ad set metrics progress: ${i + 1}/${adSetsToSync.length} (${allMetrics.length - adSetMetricsStart} new metrics)`);
       }
@@ -573,7 +581,6 @@ Deno.serve(async (req: Request) => {
     const adMetricsStart = allMetrics.length;
     const adMap = new Map(dbAds.map(ad => [ad.platform_ad_id, ad]));
 
-    // Filter ads for initial sync - only sync metrics for active or recently active ads
     const adsToSync = isInitialSync
       ? allAds.filter(a => a.status === 'ACTIVE' || a.status === 'PAUSED')
       : allAds;
@@ -582,7 +589,6 @@ Deno.serve(async (req: Request) => {
       console.log(`[sync] Initial sync: Syncing metrics for ${adsToSync.length} active/paused ads, skipping ${allAds.length - adsToSync.length} inactive`);
     }
 
-    // Sequential processing with delays
     for (let i = 0; i < adsToSync.length; i++) {
       const ad = adsToSync[i];
       const dbAd = adMap.get(ad.id);
@@ -596,12 +602,10 @@ Deno.serve(async (req: Request) => {
         allMetrics.push(...insights);
       }
 
-      // Add delay between requests
       if (i < adsToSync.length - 1) {
         await sleep(600);
       }
 
-      // Log progress every 100 ads
       if ((i + 1) % 100 === 0 || i === adsToSync.length - 1) {
         console.log(`[sync] Ad metrics progress: ${i + 1}/${adsToSync.length} (${allMetrics.length - adMetricsStart} new metrics)`);
       }

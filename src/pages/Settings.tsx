@@ -1169,6 +1169,7 @@ const SettingsPage = () => {
 
           if (!error && syncJob) {
             const key = account.id;
+            const syncToastId = `sync-${key}`;
 
             // Show "syncing started" toast for Phase 1
             // BUT only if we haven't already shown the initial connection toast
@@ -1179,7 +1180,7 @@ const SettingsPage = () => {
               // Check if we just showed the connection success toast
               const justConnected = localStorage.getItem('facebook_sync_toast_shown');
               if (!justConnected) {
-                toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
+                toast.info('Syncing your recent 90 days of data...', { id: syncToastId, duration: Infinity });
               }
               syncToastShownRef.current[key] = { started: true, completed: false };
             }
@@ -1189,6 +1190,7 @@ const SettingsPage = () => {
                 syncJob.sync_phase === 'recent_90_days' &&
                 syncToastShownRef.current[key]?.started &&
                 !syncToastShownRef.current[key]?.completed) {
+              toast.dismiss(syncToastId);
               toast.success('Recent 90 days synced! Historical data sync continuing in background...');
               syncToastShownRef.current[key] = { started: true, completed: true };
             }
@@ -1197,8 +1199,15 @@ const SettingsPage = () => {
             if (syncJob.status === 'completed' &&
                 syncJob.sync_phase === 'historical' &&
                 syncJob.progress_percentage === 100) {
+              toast.dismiss(syncToastId);
               toast.success('All historical data synced successfully!');
               // Reset for this account so future syncs can show toasts again
+              delete syncToastShownRef.current[key];
+            }
+
+            // Handle failed sync
+            if (syncJob.status === 'failed') {
+              toast.dismiss(syncToastId);
               delete syncToastShownRef.current[key];
             }
           }
