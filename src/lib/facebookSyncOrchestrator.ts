@@ -207,20 +207,20 @@ export class FacebookSyncOrchestrator {
    * Get entity counts for an ad account
    */
   private static async getEntityCounts(adAccountId: string) {
-    const [campaignsResult, adsetsResult, adsResult] = await Promise.all([
-      supabase
-        .from('ad_campaigns')
-        .select('id', { count: 'exact', head: true })
-        .eq('ad_account_id', adAccountId),
-      supabase
-        .from('ad_sets')
-        .select('id', { count: 'exact', head: true })
-        .eq('ad_account_id', adAccountId),
-      supabase
-        .from('ads')
-        .select('id', { count: 'exact', head: true })
-        .eq('ad_account_id', adAccountId),
-    ]);
+    const campaignsResult = await supabase
+      .from('ad_campaigns')
+      .select('id', { count: 'exact', head: true })
+      .eq('ad_account_id', adAccountId);
+
+    const adsetsResult = await supabase
+      .from('ad_sets')
+      .select('id, ad_campaigns!inner(ad_account_id)', { count: 'exact', head: true })
+      .eq('ad_campaigns.ad_account_id', adAccountId);
+
+    const adsResult = await supabase
+      .from('ads')
+      .select('id, ad_sets!inner(ad_campaigns!inner(ad_account_id))', { count: 'exact', head: true })
+      .eq('ad_sets.ad_campaigns.ad_account_id', adAccountId);
 
     return {
       campaigns: campaignsResult.count || 0,

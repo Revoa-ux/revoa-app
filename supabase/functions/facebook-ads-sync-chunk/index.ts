@@ -132,7 +132,7 @@ Deno.serve(async (req: Request) => {
         pageCount++;
 
         if (nextUrl) {
-          await sleep(600); // Rate limiting
+          await sleep(600);
         }
       }
 
@@ -369,11 +369,11 @@ Deno.serve(async (req: Request) => {
       case 'ad_metrics': {
         console.log('[chunk-sync] Fetching ad metrics...');
 
-        // Get ads with offset/limit
+        // Get ads with offset/limit - join through ad_sets and campaigns to find ads for this account
         const { data: ads } = await supabase
           .from('ads')
-          .select('id, platform_ad_id')
-          .eq('ad_account_id', account.id)
+          .select('id, platform_ad_id, ad_sets!inner(ad_campaigns!inner(ad_account_id))')
+          .eq('ad_sets.ad_campaigns.ad_account_id', account.id)
           .range(entityOffset || 0, (entityOffset || 0) + (entityLimit || 100) - 1);
 
         const metrics = [];
