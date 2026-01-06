@@ -93,14 +93,13 @@ Deno.serve(async (req: Request) => {
     const accessToken = tokenData.access_token;
 
     // Smart date range selection based on sync history
+    // Facebook API provides same-day data with ~15-30 min delay for real-time metrics
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split('T')[0];
     let isInitialSync = false;
 
     if (!endDate) {
-      endDate = yesterdayStr;
+      endDate = todayStr;
     }
 
     if (!startDate) {
@@ -108,37 +107,15 @@ Deno.serve(async (req: Request) => {
         const lastSyncDate = new Date(account.last_synced_at);
         const lastSyncDateStr = lastSyncDate.toISOString().split('T')[0];
 
-        // Check if we're already up to date (last sync was yesterday or today)
-        if (lastSyncDateStr >= yesterdayStr) {
-          console.log(`[sync] Already up to date - last synced: ${lastSyncDateStr}, yesterday: ${yesterdayStr}`);
-
-          // Still update last_synced_at to show we checked
-          await supabase
-            .from('ad_accounts')
-            .update({ last_synced_at: new Date().toISOString() })
-            .eq('id', account.id);
-
-          return new Response(
-            JSON.stringify({
-              success: true,
-              message: 'Data already up to date',
-              data: { campaigns: 0, adSets: 0, ads: 0, metrics: 0 }
-            }),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+        // For same-day syncs, always refresh today's data (real-time updates)
+        // For previous day syncs, start from that day to catch any delayed attribution
+        if (lastSyncDateStr === todayStr) {
+          startDate = todayStr;
+          console.log(`[sync] Same-day refresh for ${todayStr} (last synced: ${account.last_synced_at})`);
+        } else {
+          startDate = lastSyncDateStr;
+          console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
         }
-
-        // Incremental sync: Start from day after last sync
-        const nextDay = new Date(lastSyncDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        startDate = nextDay.toISOString().split('T')[0];
-
-        // Ensure startDate doesn't exceed endDate
-        if (startDate > endDate) {
-          startDate = endDate;
-        }
-
-        console.log(`[sync] Incremental sync from ${startDate} to ${endDate} (last synced: ${account.last_synced_at})`);
       } else {
         // Initial sync: Get last 90 days of data (reasonable window)
         const ninetyDaysAgo = new Date(today);
