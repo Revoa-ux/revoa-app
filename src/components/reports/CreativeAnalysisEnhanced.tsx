@@ -1517,7 +1517,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
