@@ -63,6 +63,7 @@ interface Column {
   flexGrow?: number;
   flexShrink?: number;
   sortable?: boolean;
+  sticky?: boolean;
   render?: (value: any, item: any) => React.ReactNode;
 }
 
@@ -124,7 +125,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     field: string;
     direction: SortDirection;
   }>({
-    field: 'profit',
+    field: 'status',
     direction: 'desc'
   });
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -417,6 +418,32 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     return glowMetrics;
   };
 
+  // Helper to get sticky column styles
+  const getStickyStyles = (columnId: string, columnWidth: number) => {
+    const isCreativeVisible = viewLevel === 'ads';
+
+    // Define sticky columns with their left offsets
+    const stickyColumns: Record<string, number> = {
+      'select': 0,
+      'status': 50,
+      'creative': 150, // status (100) + select (50)
+      'adName': isCreativeVisible ? 230 : 150 // + creative (80) if visible
+    };
+
+    const leftOffset = stickyColumns[columnId];
+
+    if (leftOffset !== undefined) {
+      return {
+        position: 'sticky' as const,
+        left: `${leftOffset}px`,
+        zIndex: 10,
+        backgroundColor: 'inherit'
+      };
+    }
+
+    return {};
+  };
+
   const columns: Column[] = [
     {
       id: 'select',
@@ -424,6 +451,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 50,
       flexGrow: 0,
       flexShrink: 0,
+      sticky: true,
       render: (_, creative) => {
         // For ad sets, use adSetId so it matches with ad.adSetId
         // For campaigns and ads, use id
@@ -447,6 +475,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       flexGrow: 0,
       flexShrink: 0,
       sortable: true,
+      sticky: true,
       render: (value: string, creative: any) => {
         const isToggling = togglingIds.has(creative.id);
         const normalizedValue = value?.toUpperCase() || 'UNKNOWN';
@@ -470,6 +499,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 80,
       flexGrow: 0,
       flexShrink: 0,
+      sticky: true,
       render: (_, creative) => {
         const adsManagerUrl = creative.platform === 'facebook' && creative.id && creative.adAccountId
           ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
@@ -536,7 +566,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 200,
       flexGrow: 2,
       flexShrink: 1,
-      sortable: true
+      sortable: true,
+      sticky: true
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
@@ -1148,13 +1179,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     minWidth: finalWidth,
                     maxWidth: finalWidth,
                     flexShrink: 0,
-                    flexGrow: 0
+                    flexGrow: 0,
+                    ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                   };
 
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-white dark:bg-gray-800 shadow-sm' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1212,11 +1244,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
                         flexShrink: 0,
-                        flexGrow: 0
+                        flexGrow: 0,
+                        ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                       };
 
                       return (
-                        <div key={column.id} className="px-4 py-3" style={columnStyle}>
+                        <div key={column.id} className={`px-4 py-3 ${column.sticky ? 'bg-white dark:bg-gray-800' : ''}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                           ) : column.id === 'creative' ? (
@@ -1349,7 +1382,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       minWidth: finalWidth,
                       maxWidth: finalWidth,
                       flexShrink: 0,
-                      flexGrow: 0
+                      flexGrow: 0,
+                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                     };
 
                     // No more individual metric glow - entire row glows now
@@ -1414,7 +1448,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         key={column.id}
                         className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        }`}
+                        } ${column.sticky ? 'bg-inherit' : ''}`}
                         style={columnStyle}
                       >
                         <span className={`${

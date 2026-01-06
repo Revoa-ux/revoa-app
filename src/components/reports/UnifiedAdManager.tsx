@@ -108,18 +108,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     if (selectedAdSets.size > 0) {
       const matchingAds = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
 
-      console.log('[UnifiedAdManager] Ad Set Selection Debug:', {
-        selectedAdSets: Array.from(selectedAdSets),
-        sampleAdSetIds: [...selectedAdSets].slice(0, 3).map(id => id?.substring(0, 10)),
-        totalAds: creatives.length,
-        matchingAds: matchingAds.length,
-        sampleCreativeAdSetIds: creatives.slice(0, 5).map(c => ({
-          id: c.id?.substring(0, 10),
-          adSetId: c.adSetId?.substring(0, 10)
-        })),
-        selectedAdSetsSize: selectedAdSets.size
-      });
-
       // Get unique campaigns that contain the selected ad sets
       const uniqueCampaignIds = new Set(
         adSets.filter(adSet => selectedAdSets.has(adSet.adSetId)).map(adSet => adSet.campaignId)
@@ -432,19 +420,11 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
                   setSelectedCampaigns(newSet);
                 } else if (viewLevel === 'adsets') {
                   const newSet = new Set(selectedAdSets);
-                  const isRemoving = newSet.has(id);
-                  if (isRemoving) {
+                  if (newSet.has(id)) {
                     newSet.delete(id);
                   } else {
                     newSet.add(id);
                   }
-                  console.log('[UnifiedAdManager] Ad Set Toggle:', {
-                    action: isRemoving ? 'removed' : 'added',
-                    id: id?.substring(0, 10),
-                    fullId: id,
-                    newSetSize: newSet.size,
-                    allIds: Array.from(newSet).map(i => i?.substring(0, 10))
-                  });
                   setSelectedAdSets(newSet);
                 } else {
                   const newSet = new Set(selectedAds);
