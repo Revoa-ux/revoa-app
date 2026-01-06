@@ -304,49 +304,72 @@ export async function getCreativePerformance(
 
     console.log('[AdReportsService] === FETCHING CREATIVE PERFORMANCE WITH ATTRIBUTION ===');
     console.log('[AdReportsService] Date range:', { startDate, endDate });
+    console.log('[AdReportsService] User ID:', user.id);
 
     // Get user's ad accounts
     const accounts = await facebookAdsService.getAdAccounts('facebook');
     if (accounts.length === 0) {
-      console.log('[AdReportsService] No ad accounts found');
+      console.log('[AdReportsService] ❌ No ad accounts found');
       return [];
     }
 
     const accountIds = accounts.map(acc => acc.id);
-    console.log('[AdReportsService] Found', accountIds.length, 'ad accounts');
+    console.log('[AdReportsService] ✓ Found', accountIds.length, 'ad accounts');
+    console.log('[AdReportsService] Account IDs:', accountIds);
 
     // Get campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
-      .select('id')
+      .select('id, name, platform')
       .in('ad_account_id', accountIds)
       .limit(100000);
 
-    if (campaignsError) throw campaignsError;
+    if (campaignsError) {
+      console.error('[AdReportsService] ❌ Error fetching campaigns:', campaignsError);
+      throw campaignsError;
+    }
 
     if (!campaigns || campaigns.length === 0) {
-      console.log('[AdReportsService] No campaigns found');
+      console.log('[AdReportsService] ❌ No campaigns found for account IDs:', accountIds);
+      // Check if campaigns exist at all
+      const { data: allCampaigns } = await supabase
+        .from('ad_campaigns')
+        .select('id, ad_account_id')
+        .limit(5);
+      console.log('[AdReportsService] Sample campaigns in DB:', allCampaigns);
       return [];
     }
 
-    console.log('[AdReportsService] Found', campaigns.length, 'campaigns');
+    console.log('[AdReportsService] ✓ Found', campaigns.length, 'campaigns');
+    console.log('[AdReportsService] Sample campaigns:', campaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name })));
     const campaignIds = campaigns.map(c => c.id);
 
     // Get ad sets for these campaigns (high limit to get all)
     const { data: adSets, error: adSetsError } = await supabase
       .from('ad_sets')
-      .select('id')
+      .select('id, name, ad_campaign_id')
       .in('ad_campaign_id', campaignIds)
       .limit(100000);
 
-    if (adSetsError) throw adSetsError;
+    if (adSetsError) {
+      console.error('[AdReportsService] ❌ Error fetching ad sets:', adSetsError);
+      throw adSetsError;
+    }
 
     if (!adSets || adSets.length === 0) {
-      console.log('[AdReportsService] No ad sets found');
+      console.log('[AdReportsService] ❌ No ad sets found for campaign IDs');
+      console.log('[AdReportsService] Sample campaign IDs:', campaignIds.slice(0, 5));
+      // Check if ad sets exist at all
+      const { data: allAdSets } = await supabase
+        .from('ad_sets')
+        .select('id, ad_campaign_id')
+        .limit(5);
+      console.log('[AdReportsService] Sample ad sets in DB:', allAdSets);
       return [];
     }
 
-    console.log('[AdReportsService] Found', adSets.length, 'ad sets');
+    console.log('[AdReportsService] ✓ Found', adSets.length, 'ad sets');
+    console.log('[AdReportsService] Sample ad sets:', adSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, campaign_id: s.ad_campaign_id })));
     const adSetIds = adSets.map(s => s.id);
 
     // Fetch ads for these ad sets (high limit to get all)
@@ -357,16 +380,32 @@ export async function getCreativePerformance(
       .limit(100000);
 
     if (error) {
-      console.error('[AdReportsService] Error fetching ads:', error);
+      console.error('[AdReportsService] ❌ Error fetching ads:', error);
       throw error;
     }
 
     if (!ads || ads.length === 0) {
-      console.log('[AdReportsService] No ads found');
+      console.log('[AdReportsService] ❌ No ads found for ad set IDs');
+      console.log('[AdReportsService] Ad set IDs sample:', adSetIds.slice(0, 5));
+      // Check if ads exist at all in database
+      const { data: allAds } = await supabase
+        .from('ads')
+        .select('id, ad_set_id, name')
+        .limit(10);
+      console.log('[AdReportsService] Sample ads in DB:', allAds);
+
+      // Check for foreign key mismatch
+      if (allAds && allAds.length > 0 && adSetIds.length > 0) {
+        console.log('[AdReportsService] ⚠️ FOREIGN KEY MISMATCH DETECTED!');
+        console.log('[AdReportsService] DB has ads but none match our ad_set_ids');
+        console.log('[AdReportsService] Expected ad_set_ids:', adSetIds.slice(0, 3));
+        console.log('[AdReportsService] Actual ad_set_ids in DB:', allAds.slice(0, 3).map(a => a.ad_set_id));
+      }
       return [];
     }
 
-    console.log('[AdReportsService] Found', ads.length, 'ads');
+    console.log('[AdReportsService] ✓ Found', ads.length, 'ads');
+    console.log('[AdReportsService] Sample ads:', ads.slice(0, 3).map(a => ({ id: a.id, name: a.name, ad_set_id: a.ad_set_id })));
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
     // IMPORTANT: entity_id in ad_metrics stores our internal UUID, not platform_ad_id
