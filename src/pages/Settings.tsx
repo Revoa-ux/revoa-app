@@ -1162,7 +1162,7 @@ const SettingsPage = () => {
         for (const account of facebook.accounts) {
           const { data: syncJob, error } = await supabase
             .from('sync_jobs')
-            .select('id, status, sync_phase, progress_percentage, ad_account_id')
+            .select('id, status, sync_phase, progress_percentage, ad_account_id, created_at')
             .eq('ad_account_id', account.id)
             .order('created_at', { ascending: false })
             .limit(1)
@@ -1172,13 +1172,19 @@ const SettingsPage = () => {
             const key = account.id;
             const syncToastId = `sync-${key}`;
 
-            // Show "syncing started" toast for Phase 1
-            // BUT only if we haven't already shown the initial connection toast
+            const jobAge = Date.now() - new Date(syncJob.created_at).getTime();
+            const ONE_HOUR = 60 * 60 * 1000;
+            const isRecentJob = jobAge < ONE_HOUR;
+
+            if (syncJob.status === 'in_progress' && !isRecentJob) {
+              continue;
+            }
+
             if (syncJob.sync_phase === 'recent_90_days' &&
                 syncJob.status === 'in_progress' &&
+                isRecentJob &&
                 !syncToastShownRef.current[key]?.started) {
 
-              // Check if we just showed the connection success toast
               const justConnected = localStorage.getItem('facebook_sync_toast_shown');
               if (!justConnected) {
                 toast.info('Syncing your recent 90 days of data...', { id: syncToastId, duration: Infinity });
