@@ -137,27 +137,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     };
   };
 
-  const tabCounts = getTabCounts();
-
-  const tabs = [
-    {
-      id: 'campaigns' as ViewLevel,
-      label: 'Campaigns',
-      count: tabCounts.campaigns
-    },
-    {
-      id: 'adsets' as ViewLevel,
-      label: 'Ad Sets',
-      count: tabCounts.adsets
-    },
-    {
-      id: 'ads' as ViewLevel,
-      label: 'Ads',
-      count: tabCounts.ads
-    }
-  ];
-
-  // Filter data based on drill-down or checkbox selection
+  // Filter data based on drill-down or checkbox selection - MOVED BEFORE tabCounts
   const getFilteredData = () => {
     if (viewLevel === 'campaigns') {
       return campaigns;
@@ -233,6 +213,41 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
       return creatives;
     }
   };
+
+  // Get the currently filtered data for display
+  const filteredData = getFilteredData();
+
+  // Calculate tab counts - use filtered data for the current view level
+  const tabCounts = (() => {
+    const baseCount = getTabCounts();
+
+    // Override the current view level's count with the actual filtered data length
+    if (viewLevel === 'campaigns') {
+      return { ...baseCount, campaigns: filteredData.length };
+    } else if (viewLevel === 'adsets') {
+      return { ...baseCount, adsets: filteredData.length };
+    } else {
+      return { ...baseCount, ads: filteredData.length };
+    }
+  })();
+
+  const tabs = [
+    {
+      id: 'campaigns' as ViewLevel,
+      label: 'Campaigns',
+      count: tabCounts.campaigns
+    },
+    {
+      id: 'adsets' as ViewLevel,
+      label: 'Ad Sets',
+      count: tabCounts.adsets
+    },
+    {
+      id: 'ads' as ViewLevel,
+      label: 'Ads',
+      count: tabCounts.ads
+    }
+  ];
 
   const handleTabChange = (level: ViewLevel) => {
     setViewLevel(level);
@@ -394,7 +409,7 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
           {/* Data Table */}
           <div className="flex-1 min-h-0">
             <CreativeAnalysisEnhanced
-              creatives={getFilteredData()}
+              creatives={filteredData}
               isLoading={isLoading}
               showAIInsights={false}
               viewLevel={viewLevel}
