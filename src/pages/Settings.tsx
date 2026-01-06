@@ -75,8 +75,8 @@ const SettingsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [facebookConnecting, setFacebookConnecting] = useState(false);
   const [facebookSyncing, setFacebookSyncing] = useState(false);
-  // Track which accounts have shown toast notifications
-  const [syncToastShown, setSyncToastShown] = useState<{[key: string]: {started: boolean, completed: boolean}}>({});
+  // Track which accounts have shown toast notifications (using ref to avoid re-render loops)
+  const syncToastShownRef = useRef<{[key: string]: {started: boolean, completed: boolean}}>({});
   const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
   const [profile, setProfile] = useState<UserProfile>({
     first_name: '',
@@ -1174,23 +1174,23 @@ const SettingsPage = () => {
             // BUT only if we haven't already shown the initial connection toast
             if (syncJob.sync_phase === 'recent_90_days' &&
                 syncJob.status === 'in_progress' &&
-                !syncToastShown[key]?.started) {
+                !syncToastShownRef.current[key]?.started) {
 
               // Check if we just showed the connection success toast
               const justConnected = localStorage.getItem('facebook_sync_toast_shown');
               if (!justConnected) {
                 toast.info('Syncing your recent 90 days of data...', { duration: Infinity });
               }
-              setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: false } }));
+              syncToastShownRef.current[key] = { started: true, completed: false };
             }
 
             // Show "Phase 1 completed" toast
             if (syncJob.status === 'completed' &&
                 syncJob.sync_phase === 'recent_90_days' &&
-                syncToastShown[key]?.started &&
-                !syncToastShown[key]?.completed) {
+                syncToastShownRef.current[key]?.started &&
+                !syncToastShownRef.current[key]?.completed) {
               toast.success('Recent 90 days synced! Historical data sync continuing in background...');
-              setSyncToastShown(prev => ({ ...prev, [key]: { started: true, completed: true } }));
+              syncToastShownRef.current[key] = { started: true, completed: true };
             }
 
             // Show "All data completed" toast
@@ -1199,11 +1199,7 @@ const SettingsPage = () => {
                 syncJob.progress_percentage === 100) {
               toast.success('All historical data synced successfully!');
               // Reset for this account so future syncs can show toasts again
-              setSyncToastShown(prev => {
-                const newState = { ...prev };
-                delete newState[key];
-                return newState;
-              });
+              delete syncToastShownRef.current[key];
             }
           }
         }
@@ -1219,7 +1215,7 @@ const SettingsPage = () => {
     const interval = setInterval(checkActiveSyncJobs, 5000);
 
     return () => clearInterval(interval);
-  }, [facebook.isConnected, facebook.accounts, syncToastShown]);
+  }, [facebook.isConnected, facebook.accounts]);
 
   // Listen for OAuth callback messages (both postMessage and localStorage polling)
   useEffect(() => {
