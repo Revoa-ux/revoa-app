@@ -60,8 +60,48 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   }, [campaigns, adSets, creatives]);
 
   // Calculate dynamic counts based on selections or drill-down
+  // Priority: checkbox selections > drill-down context > defaults
   const getTabCounts = () => {
-    // When drilled down to a specific ad set
+    // HIGHEST PRIORITY: When ads are selected via checkbox
+    if (selectedAds.size > 0) {
+      return {
+        campaigns: campaigns.length,
+        adsets: adSets.length,
+        ads: selectedAds.size
+      };
+    }
+
+    // When ad sets are selected via checkbox (takes precedence over campaign drill-down)
+    if (selectedAdSets.size > 0) {
+      const matchingAds = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
+
+      // Get unique campaigns that contain the selected ad sets
+      const uniqueCampaignIds = new Set(
+        adSets.filter(adSet => selectedAdSets.has(adSet.adSetId)).map(adSet => adSet.campaignId)
+      );
+
+      return {
+        campaigns: uniqueCampaignIds.size,
+        adsets: selectedAdSets.size,
+        ads: matchingAds.length
+      };
+    }
+
+    // When campaigns are selected via checkbox
+    if (selectedCampaigns.size > 0) {
+      const selectedAdSetIds = adSets
+        .filter(adSet => selectedCampaigns.has(adSet.campaignId))
+        .map(adSet => adSet.adSetId);
+      const selectedAdCount = creatives.filter(ad => selectedAdSetIds.includes(ad.adSetId)).length;
+
+      return {
+        campaigns: selectedCampaigns.size,
+        adsets: selectedAdSetIds.length,
+        ads: selectedAdCount
+      };
+    }
+
+    // When drilled down to a specific ad set (via clicking on it)
     if (selectedAdSet) {
       const adsInAdSet = creatives.filter(ad => ad.adSetId === selectedAdSet);
       return {
@@ -81,45 +121,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         campaigns: 1,
         adsets: adSetsInCampaign.length,
         ads: adsInCampaign.length
-      };
-    }
-
-    // When campaigns are selected via checkbox
-    if (selectedCampaigns.size > 0) {
-      const selectedAdSetIds = adSets
-        .filter(adSet => selectedCampaigns.has(adSet.campaignId))
-        .map(adSet => adSet.adSetId);
-      const selectedAdCount = creatives.filter(ad => selectedAdSetIds.includes(ad.adSetId)).length;
-
-      return {
-        campaigns: selectedCampaigns.size,
-        adsets: selectedAdSetIds.length,
-        ads: selectedAdCount
-      };
-    }
-
-    // When ad sets are selected via checkbox
-    if (selectedAdSets.size > 0) {
-      const matchingAds = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
-
-      // Get unique campaigns that contain the selected ad sets
-      const uniqueCampaignIds = new Set(
-        adSets.filter(adSet => selectedAdSets.has(adSet.adSetId)).map(adSet => adSet.campaignId)
-      );
-
-      return {
-        campaigns: uniqueCampaignIds.size,
-        adsets: selectedAdSets.size,
-        ads: matchingAds.length
-      };
-    }
-
-    // When ads are selected via checkbox
-    if (selectedAds.size > 0) {
-      return {
-        campaigns: campaigns.length,
-        adsets: adSets.length,
-        ads: selectedAds.size
       };
     }
 
