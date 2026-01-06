@@ -758,8 +758,8 @@ export default function Orders() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className={`p-1.5 sm:p-2 rounded-lg ${stats.pendingPayments > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-              <DollarSign className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.pendingPayments > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
@@ -770,8 +770,8 @@ export default function Orders() {
 
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className={`p-1.5 sm:p-2 rounded-lg ${stats.awaitingFactoryOrder > 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-              <Factory className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.awaitingFactoryOrder > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Factory className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
@@ -782,8 +782,8 @@ export default function Orders() {
 
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className={`p-1.5 sm:p-2 rounded-lg ${stats.readyToExport > 50 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
-              <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.readyToExport > 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
@@ -1070,7 +1070,7 @@ export default function Orders() {
               <span className="hidden sm:inline">Pending Payments</span>
               <span className="sm:hidden">Payments</span>
               {stats.pendingPayments > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-full">
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
                   {stats.pendingPayments}
                 </span>
               )}
@@ -1088,7 +1088,7 @@ export default function Orders() {
               <span className="hidden sm:inline">Order from Factory</span>
               <span className="sm:hidden">Factory</span>
               {stats.awaitingFactoryOrder > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-full">
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
                   {stats.awaitingFactoryOrder}
                 </span>
               )}
@@ -1106,7 +1106,7 @@ export default function Orders() {
               <span className="hidden sm:inline">Unfulfilled Orders</span>
               <span className="sm:hidden">Unfulfilled</span>
               {stats.readyToExport > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-full">
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
                   {stats.readyToExport}
                 </span>
               )}

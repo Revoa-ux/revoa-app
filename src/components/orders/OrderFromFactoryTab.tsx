@@ -210,11 +210,7 @@ export default function OrderFromFactoryTab({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-semibold ${
-                      orderedAmount > 0
-                        ? 'text-yellow-600 dark:text-yellow-400'
-                        : 'text-green-600 dark:text-green-400'
-                    }`}>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
                       ${availableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     {orderedAmount > 0 && (

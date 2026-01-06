@@ -320,11 +320,7 @@ export default function AllTransactionsTab({
                   className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                      transaction.type === 'invoice'
-                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
-                    }`}>
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                       {transaction.type === 'invoice' ? (
                         <FileText className="w-3 h-3" />
                       ) : (
