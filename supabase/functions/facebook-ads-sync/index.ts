@@ -112,19 +112,25 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(url);
         const data = await response.json();
 
-        if (response.status === 400 && data.error?.message?.includes('limit reached')) {
-          if (retryCount < 3) {
-            const backoffTime = Math.pow(2, retryCount) * 1000;
-            console.log(`[sync] Rate limited, waiting ${backoffTime}ms...`);
-            await sleep(backoffTime);
-            return fetchWithRetry(url, retryCount + 1);
+        if (data.error) {
+          const errorMsg = data.error.message || '';
+          if (errorMsg.includes('limit reached') || errorMsg.includes('reduce the amount')) {
+            if (retryCount < 3) {
+              const backoffTime = Math.pow(2, retryCount) * 2000;
+              console.log(`[sync] Rate limited or data too large, waiting ${backoffTime}ms... (attempt ${retryCount + 1})`);
+              await sleep(backoffTime);
+              const reducedUrl = url.replace(/limit=\d+/, `limit=${Math.max(25, 100 - retryCount * 25)}`);
+              return fetchWithRetry(reducedUrl, retryCount + 1);
+            }
+            console.error('[sync] Rate limit exceeded after retries');
+            return { data: [], paging: null };
           }
-          console.error('[sync] Rate limit exceeded after retries');
+          console.error('[sync] API error:', errorMsg);
           return { data: [], paging: null };
         }
 
-        if (!response.ok || data.error) {
-          console.error('[sync] API error:', data.error?.message || response.statusText);
+        if (!response.ok) {
+          console.error('[sync] HTTP error:', response.statusText);
           return { data: [], paging: null };
         }
         return data;
@@ -242,7 +248,7 @@ Deno.serve(async (req: Request) => {
     console.log(`[sync] Ad set map has ${adSetMap.size} entries, sample keys: ${Array.from(adSetMap.keys()).slice(0, 3).join(', ')}`);
 
     console.log('[sync] Step 3/4: Fetching ads...');
-    const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id,name,status,adset_id,creative{id,name,title,body,image_url,thumbnail_url,video_id,object_story_spec}&limit=500&access_token=${accessToken}`;
+    const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id,name,status,adset_id,creative.limit(1){id,thumbnail_url}&limit=100&access_token=${accessToken}`;
     const allAds = await fetchAllPages(adsUrl);
     console.log(`[sync] Found ${allAds.length} ads from API`);
     if (allAds.length > 0) {
@@ -271,20 +277,6 @@ Deno.serve(async (req: Request) => {
         }
         adsMatchedCount++;
 
-        const creativeData: any = {};
-        if (ad.creative) {
-          if (ad.creative.title) creativeData.title = ad.creative.title;
-          if (ad.creative.body) creativeData.body = ad.creative.body;
-          if (ad.creative.thumbnail_url) creativeData.thumbnail_url = ad.creative.thumbnail_url;
-          if (ad.creative.image_url) creativeData.image_url = ad.creative.image_url;
-          if (ad.creative.video_id) creativeData.video_id = ad.creative.video_id;
-          if (ad.creative.object_story_spec) {
-            const spec = ad.creative.object_story_spec;
-            creativeData.image_url = creativeData.image_url || spec.link_data?.picture || spec.link_data?.image_url || spec.video_data?.image_url || spec.photo_data?.url;
-            creativeData.video_id = creativeData.video_id || spec.video_data?.video_id;
-          }
-        }
-
         return {
           platform_ad_id: ad.id,
           name: ad.name,
@@ -293,10 +285,7 @@ Deno.serve(async (req: Request) => {
           ad_account_id: account.id,
           platform: 'facebook',
           creative_id: ad.creative?.id || null,
-          creative_name: ad.creative?.name || null,
-          creative_thumbnail_url: creativeData.image_url || ad.creative?.image_url || ad.creative?.thumbnail_url || null,
-          creative_type: ad.creative?.video_id || creativeData.video_id ? 'video' : 'image',
-          creative_data: creativeData,
+          creative_thumbnail_url: ad.creative?.thumbnail_url || null,
         };
       })
       .filter(Boolean);
