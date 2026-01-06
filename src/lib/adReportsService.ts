@@ -372,39 +372,54 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Sample ad sets:', adSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, campaign_id: s.ad_campaign_id })));
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets (high limit to get all)
-    const { data: ads, error } = await supabase
-      .from('ads')
-      .select('*')
-      .in('ad_set_id', adSetIds)
-      .limit(100000);
+    // Batch ads query to avoid URL length limit (700 ad sets = very long URL)
+    const ADS_BATCH_SIZE = 100;
+    let allAds: any[] = [];
 
-    if (error) {
-      console.error('[AdReportsService] ❌ Error fetching ads:', error);
-      throw error;
+    console.log('[AdReportsService] Fetching ads in batches of', ADS_BATCH_SIZE);
+
+    for (let i = 0; i < adSetIds.length; i += ADS_BATCH_SIZE) {
+      const batch = adSetIds.slice(i, i + ADS_BATCH_SIZE);
+      const { data: batchAds, error: adsError } = await supabase
+        .from('ads')
+        .select('*')
+        .in('ad_set_id', batch)
+        .limit(100000);
+
+      if (adsError) {
+        console.error(`[AdReportsService] ❌ Error fetching ads batch ${i / ADS_BATCH_SIZE + 1}:`, adsError);
+        throw adsError;
+      }
+
+      if (batchAds) {
+        console.log(`[AdReportsService] Ads Batch ${i / ADS_BATCH_SIZE + 1}: Found ${batchAds.length} ads`);
+        allAds = allAds.concat(batchAds);
+      }
     }
+
+    const ads = allAds;
 
     if (!ads || ads.length === 0) {
       console.log('[AdReportsService] ❌ No ads found for ad set IDs');
       console.log('[AdReportsService] Ad set IDs sample:', adSetIds.slice(0, 5));
       // Check if ads exist at all in database
-      const { data: allAds } = await supabase
+      const { data: allAdsCheck } = await supabase
         .from('ads')
         .select('id, ad_set_id, name')
         .limit(10);
-      console.log('[AdReportsService] Sample ads in DB:', allAds);
+      console.log('[AdReportsService] Sample ads in DB:', allAdsCheck);
 
       // Check for foreign key mismatch
-      if (allAds && allAds.length > 0 && adSetIds.length > 0) {
+      if (allAdsCheck && allAdsCheck.length > 0 && adSetIds.length > 0) {
         console.log('[AdReportsService] ⚠️ FOREIGN KEY MISMATCH DETECTED!');
         console.log('[AdReportsService] DB has ads but none match our ad_set_ids');
         console.log('[AdReportsService] Expected ad_set_ids:', adSetIds.slice(0, 3));
-        console.log('[AdReportsService] Actual ad_set_ids in DB:', allAds.slice(0, 3).map(a => a.ad_set_id));
+        console.log('[AdReportsService] Actual ad_set_ids in DB:', allAdsCheck.slice(0, 3).map(a => a.ad_set_id));
       }
       return [];
     }
 
-    console.log('[AdReportsService] ✓ Found', ads.length, 'ads');
+    console.log('[AdReportsService] ✓ Found', ads.length, 'total ads across all batches');
     console.log('[AdReportsService] Sample ads:', ads.slice(0, 3).map(a => ({ id: a.id, name: a.name, ad_set_id: a.ad_set_id })));
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
