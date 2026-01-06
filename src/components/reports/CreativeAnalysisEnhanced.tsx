@@ -1542,7 +1542,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
-                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
                             TOTALS ({sortedCreatives.length})
                           </span>
                         ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
