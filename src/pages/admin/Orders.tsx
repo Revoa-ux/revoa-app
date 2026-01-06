@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck, DollarSign, Factory, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
@@ -9,6 +9,9 @@ import { toast } from 'sonner';
 import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
+import PendingPaymentsTab from '../../components/orders/PendingPaymentsTab';
+import OrderFromFactoryTab from '../../components/orders/OrderFromFactoryTab';
+import AllTransactionsTab from '../../components/orders/AllTransactionsTab';
 import ExportToMabangModal from '../../components/orders/ExportToMabangModal';
 import ImportTrackingModal, { SyncFailureInfo } from '../../components/orders/ImportTrackingModal';
 
@@ -20,6 +23,8 @@ interface OrderPermissions {
 }
 
 interface OrderStats {
+  pendingPayments: number;
+  awaitingFactoryOrder: number;
   readyToExport: number;
   exportedAwaitingTracking: number;
   trackingImportedToday: number;
@@ -35,9 +40,11 @@ interface Merchant {
 export default function Orders() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'unfulfilled' | 'tracking' | 'all'>('unfulfilled');
+  const [activeTab, setActiveTab] = useState<'payments' | 'factory' | 'unfulfilled' | 'tracking' | 'transactions'>('payments');
   const [permissions, setPermissions] = useState<OrderPermissions | null>(null);
   const [stats, setStats] = useState<OrderStats>({
+    pendingPayments: 0,
+    awaitingFactoryOrder: 0,
     readyToExport: 0,
     exportedAwaitingTracking: 0,
     trackingImportedToday: 0,
@@ -260,6 +267,8 @@ export default function Orders() {
           merchantIds = assignments.map(a => a.user_id);
         } else {
           setStats({
+            pendingPayments: 0,
+            awaitingFactoryOrder: 0,
             readyToExport: 0,
             exportedAwaitingTracking: 0,
             trackingImportedToday: 0,
@@ -268,6 +277,29 @@ export default function Orders() {
           return;
         }
       }
+
+      let pendingPaymentsQuery = supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['pending', 'unpaid', 'overdue']);
+
+      if (merchantIds) {
+        pendingPaymentsQuery = pendingPaymentsQuery.in('user_id', merchantIds);
+      }
+
+      const { count: pendingPayments } = await pendingPaymentsQuery;
+
+      let factoryOrderQuery = supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'paid')
+        .or('factory_order_placed.is.null,factory_order_placed.eq.false');
+
+      if (merchantIds) {
+        factoryOrderQuery = factoryOrderQuery.in('user_id', merchantIds);
+      }
+
+      const { count: awaitingFactoryOrder } = await factoryOrderQuery;
 
       let readyQuery = supabase
         .from('shopify_orders')
@@ -319,6 +351,8 @@ export default function Orders() {
       const { count: autoSyncedToday } = await syncedQuery;
 
       setStats({
+        pendingPayments: pendingPayments || 0,
+        awaitingFactoryOrder: awaitingFactoryOrder || 0,
         readyToExport: readyToExport || 0,
         exportedAwaitingTracking: exportedAwaitingTracking || 0,
         trackingImportedToday: trackingImportedToday || 0,
@@ -721,80 +755,76 @@ export default function Orders() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className={`p-1.5 sm:p-2 rounded-lg ${stats.pendingPayments > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+              <DollarSign className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.pendingPayments > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            </div>
+          </div>
+          <div>
+            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Pending Payments</h3>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.pendingPayments}</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <div className={`p-1.5 sm:p-2 rounded-lg ${stats.awaitingFactoryOrder > 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
+              <Factory className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.awaitingFactoryOrder > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-400'}`} />
+            </div>
+          </div>
+          <div>
+            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Factory Orders</h3>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.awaitingFactoryOrder}</p>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className={`p-1.5 sm:p-2 rounded-lg ${stats.readyToExport > 50 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-100 dark:bg-gray-700'}`}>
               <TrendingUp className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${stats.readyToExport > 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}`} />
             </div>
           </div>
           <div>
             <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Ready to Export</h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.readyToExport}</p>
-          </div>
-          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Status</span>
-              <span className={`text-[10px] sm:text-xs font-medium ${stats.readyToExport > 50 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}>
-                {stats.readyToExport > 50 ? 'High' : 'Normal'}
-              </span>
-            </div>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.readyToExport}</p>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
             <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.exportedAwaitingTracking}</p>
-          </div>
-          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">Exported orders</span>
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 sm:hidden">Orders</span>
-              <span className="text-[10px] sm:text-xs font-medium text-gray-900 dark:text-gray-100">{stats.exportedAwaitingTracking}</span>
-            </div>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.exportedAwaitingTracking}</p>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
             <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Imported Today</h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.trackingImportedToday}</p>
-          </div>
-          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">Tracking numbers</span>
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 sm:hidden">Tracking</span>
-              <span className="text-[10px] sm:text-xs font-medium text-gray-900 dark:text-gray-100">{stats.trackingImportedToday}</span>
-            </div>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.trackingImportedToday}</p>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
             <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <div>
             <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Synced Today</h3>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.autoSyncedToday}</p>
-          </div>
-          <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">To Shopify</span>
-              <span className="text-[10px] sm:text-xs font-medium text-gray-900 dark:text-gray-100">{stats.autoSyncedToday}</span>
-            </div>
+            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.autoSyncedToday}</p>
           </div>
         </div>
       </div>
@@ -1026,18 +1056,55 @@ export default function Orders() {
 
       {/* Tabs and Table */}
       <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex -mb-px">
+        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+          <nav className="flex -mb-px min-w-max">
+            <button
+              onClick={() => setActiveTab('payments')}
+              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+                activeTab === 'payments'
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              <DollarSign className="w-3.5 h-3.5 sm:hidden" />
+              <span className="hidden sm:inline">Pending Payments</span>
+              <span className="sm:hidden">Payments</span>
+              {stats.pendingPayments > 0 && (
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 rounded-full">
+                  {stats.pendingPayments}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('factory')}
+              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+                activeTab === 'factory'
+                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
+                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              <Factory className="w-3.5 h-3.5 sm:hidden" />
+              <span className="hidden sm:inline">Order from Factory</span>
+              <span className="sm:hidden">Factory</span>
+              {stats.awaitingFactoryOrder > 0 && (
+                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 rounded-full">
+                  {stats.awaitingFactoryOrder}
+                </span>
+              )}
+            </button>
+
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 ${
+              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'unfulfilled'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <span className="sm:hidden">Unfulfilled</span>
+              <Package className="w-3.5 h-3.5 sm:hidden" />
               <span className="hidden sm:inline">Unfulfilled Orders</span>
+              <span className="sm:hidden">Unfulfilled</span>
               {stats.readyToExport > 0 && (
                 <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-full">
                   {stats.readyToExport}
@@ -1047,31 +1114,53 @@ export default function Orders() {
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center ${
+              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
                 activeTab === 'tracking'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
-              <span className="sm:hidden">Tracking</span>
+              <Truck className="w-3.5 h-3.5 sm:hidden" />
               <span className="hidden sm:inline">Fulfillment Tracking</span>
+              <span className="sm:hidden">Tracking</span>
             </button>
 
             <button
-              onClick={() => setActiveTab('all')}
-              className={`flex-1 sm:flex-none px-3 sm:px-6 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center ${
-                activeTab === 'all'
+              onClick={() => setActiveTab('transactions')}
+              className={`ml-auto px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+                activeTab === 'transactions'
                   ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
                   : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
+              <FileText className="w-3.5 h-3.5 sm:hidden" />
+              <span className="hidden sm:inline">All Transactions</span>
               <span className="sm:hidden">All</span>
-              <span className="hidden sm:inline">All Orders</span>
             </button>
           </nav>
         </div>
 
         <div>
+          {activeTab === 'payments' && (
+            <PendingPaymentsTab
+              filteredUserId={filteredUserId || undefined}
+              isSuperAdmin={isSuperAdmin}
+              permissions={permissions}
+              refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
+            />
+          )}
+          {activeTab === 'factory' && (
+            <OrderFromFactoryTab
+              filteredUserId={filteredUserId || undefined}
+              isSuperAdmin={isSuperAdmin}
+              permissions={permissions}
+              refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, awaitingFactoryOrder: count }))}
+            />
+          )}
           {activeTab === 'unfulfilled' && (
             <UnfulfilledOrdersTab
               filteredUserId={filteredUserId || undefined}
@@ -1097,15 +1186,13 @@ export default function Orders() {
               onCarriersLoaded={setAvailableCarriers}
             />
           )}
-          {activeTab === 'all' && (
-            <AllOrdersTab
+          {activeTab === 'transactions' && (
+            <AllTransactionsTab
               filteredUserId={filteredUserId || undefined}
               isSuperAdmin={isSuperAdmin}
               permissions={permissions}
               refreshKey={refreshKey}
               searchTerm={searchTerm}
-              fulfillmentStatusFilter={fulfillmentStatusFilter}
-              exportStatusFilter={allOrdersExportFilter}
             />
           )}
         </div>
