@@ -40,22 +40,19 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   },
   initialized: false,
 
-  initializeShopify: async (userId: string) => {    set(state => ({
+  initializeShopify: async (userId: string) => {
+    set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
     try {
-      // DEBUG: Check what installations exist
       const { data: allInstallations } = await supabase
         .from('shopify_installations')
         .select('id, store_url, status, uninstalled_at, created_at')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      // Try to get active installation
+
       const installation = await getActiveShopifyInstallation(userId);
-      // If no active but we have recent installations, log the problem
-      if (!installation && allInstallations && allInstallations.length > 0) {
-        const recent = allInstallations[0];      }
 
       set({
         shopify: {
@@ -63,7 +60,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           installation,
           loading: false,
         },
-      });    } catch (error) {      set({
+      });
+    } catch (error) {
+      set({
         shopify: {
           isConnected: false,
           installation: null,
@@ -73,7 +72,8 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     }
   },
 
-  initializeFacebook: async (userId: string) => {    set(state => ({
+  initializeFacebook: async (userId: string) => {
+    set(state => ({
       facebook: { ...state.facebook, loading: true }
     }));
 
@@ -83,15 +83,16 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         facebook: {
           isConnected: result.connected,
           accounts: result.accounts,
-          adAccounts: result.accounts, // Alias for backwards compatibility
+          adAccounts: result.accounts,
           loading: false,
         },
       });
-    } catch (error) {      set({
+    } catch (error) {
+      set({
         facebook: {
           isConnected: false,
           accounts: [],
-          adAccounts: [], // Alias for backwards compatibility
+          adAccounts: [],
           loading: false,
         },
       });
@@ -99,7 +100,8 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   },
 
   subscribeToShopifyChanges: (userId: string) => {
-    return subscribeToShopifyStatus(userId, (isConnected, installation) => {      set({
+    return subscribeToShopifyStatus(userId, (isConnected, installation) => {
+      set({
         shopify: {
           isConnected,
           installation,
@@ -111,16 +113,17 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 
   refreshShopifyStatus: async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {      return;
+    if (!user) {
+      return;
     }
     set(state => ({
       shopify: { ...state.shopify, loading: true }
     }));
 
-    try {      const installation = await getActiveShopifyInstallation(user.id);
+    try {
+      const installation = await getActiveShopifyInstallation(user.id);
       const isConnected = installation !== null;
 
-      // Update the store state - this will automatically notify all subscribers
       set({
         shopify: {
           isConnected,
@@ -128,17 +131,18 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           loading: false,
         },
       });
-      // Verify the state was actually set and log subscriber notification
-      const currentState = useConnectionStore.getState();
+
       return { success: true, isConnected, installation };
-    } catch (error) {      set(state => ({
+    } catch (error) {
+      set(state => ({
         shopify: { ...state.shopify, loading: false }
       }));
       throw error;
     }
   },
 
-  refreshFacebookAccounts: async () => {    set(state => ({
+  refreshFacebookAccounts: async () => {
+    set(state => ({
       facebook: { ...state.facebook, loading: true }
     }));
 
@@ -148,17 +152,19 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         facebook: {
           isConnected: result.connected,
           accounts: result.accounts,
-          adAccounts: result.accounts, // Alias for backwards compatibility
+          adAccounts: result.accounts,
           loading: false,
         },
       });
-    } catch (error) {      set(state => ({
+    } catch (error) {
+      set(state => ({
         facebook: { ...state.facebook, loading: false }
       }));
     }
   },
 
-  reset: () => {    set({
+  reset: () => {
+    set({
       shopify: {
         isConnected: false,
         installation: null,
@@ -167,7 +173,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       facebook: {
         isConnected: false,
         accounts: [],
-        adAccounts: [], // Alias for backwards compatibility
+        adAccounts: [],
         loading: true,
       },
       initialized: false,
@@ -178,8 +184,10 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
 export const initializeConnections = async (userId: string) => {
   const store = useConnectionStore.getState();
 
-  if (!userId) {    return;
+  if (!userId) {
+    return;
   }
+
   await Promise.all([
     store.initializeShopify(userId),
     store.initializeFacebook(userId),

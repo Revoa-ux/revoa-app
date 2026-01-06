@@ -45,7 +45,8 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
             setFormData({
               name: profile.display_name || '',
               store_type: profile.store_type || '',
-              wants_growth_assistance: profile.wants_growth_help
+              wants_growth_assistance: profile.wants_growth_help,
+              phone_number: ''
             });
           }
         }
@@ -65,7 +66,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
     formData.name.trim() !== '' &&
     formData.store_type !== '' &&
     formData.wants_growth_assistance !== null &&
-    (formData.wants_growth_assistance === false || formData.phone_number.trim() !== '')
+    (formData.wants_growth_assistance === false || (formData.phone_number || '').trim() !== '')
   ) || hasExistingData;
 
   // Notify parent of form validity changes
@@ -102,7 +103,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
       return;
     }
 
-    if (formData.wants_growth_assistance && !formData.phone_number.trim()) {
+    if (formData.wants_growth_assistance && !(formData.phone_number || '').trim()) {
       return;
     }
 
@@ -158,7 +159,7 @@ const Completion: React.FC<CompletionProps> = ({ onComplete, onFormValidityChang
           user_id: user.id,
           name: formData.name.trim(),
           email: user.email || '',
-          phone_number: formData.wants_growth_assistance ? formData.phone_number.trim() : null,
+          phone_number: formData.wants_growth_assistance ? (formData.phone_number || '').trim() : null,
           store_type: formData.store_type,
           wants_help: formData.wants_growth_assistance,
           shopify_store_domain: shopifyInstallation?.shop_domain || null,

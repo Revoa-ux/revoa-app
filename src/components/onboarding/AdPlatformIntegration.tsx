@@ -70,14 +70,17 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
 
   // Check existing Facebook connection on mount and clear old OAuth data
   useEffect(() => {
-    // CRITICAL: Clear ALL old OAuth data on mount to prevent stale errors    const oldSuccess = localStorage.getItem('facebook_oauth_success');
+    const oldSuccess = localStorage.getItem('facebook_oauth_success');
     const oldError = localStorage.getItem('facebook_oauth_error');
-    if (oldSuccess || oldError) {      localStorage.removeItem('facebook_oauth_success');
-      localStorage.removeItem('facebook_oauth_error');    }
+    if (oldSuccess || oldError) {
+      localStorage.removeItem('facebook_oauth_success');
+      localStorage.removeItem('facebook_oauth_error');
+    }
 
     const checkExistingConnection = async () => {
       try {
-        const { connected, accounts } = await facebookAdsService.checkConnectionStatus();        if (connected) {
+        const result = await facebookAdsService.checkConnectionStatus();
+        if (result && result.connected) {
           setPlatforms(prev =>
             prev.map(p =>
               p.id === 'facebook'
@@ -86,7 +89,9 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
             )
           );
         }
-      } catch (error) {      }
+      } catch (error) {
+        // Silently fail - connection check is not critical
+      }
     };
 
     checkExistingConnection();
