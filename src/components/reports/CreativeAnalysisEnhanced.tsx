@@ -1364,14 +1364,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`flex items-center min-h-[56px] border-b border-gray-100 dark:border-gray-700/50 transition-all duration-200 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'
+                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/90 via-pink-50/70 to-red-50/90 dark:from-red-900/25 dark:via-pink-900/20 dark:to-red-900/25 animate-pulse-slow'
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40 animate-pulse-slow'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50/50 dark:bg-green-900/15 shadow-sm'
+                      ? 'bg-green-50 dark:bg-green-900/25 shadow-sm'
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
