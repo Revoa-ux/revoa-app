@@ -191,17 +191,36 @@ Deno.serve(async (req: Request) => {
       objective: c.objective,
     }));
     const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
+    console.log(`[sync] Upserted ${dbCampaigns.length} campaigns to DB`);
+    if (dbCampaigns.length > 0) {
+      console.log('[sync] Sample DB campaign:', JSON.stringify(dbCampaigns[0]));
+    }
     const campaignMap = new Map(dbCampaigns.map(c => [c.platform_campaign_id, c]));
+    console.log(`[sync] Campaign map has ${campaignMap.size} entries`);
 
     console.log('[sync] Step 2/4: Fetching ad sets...');
     const adSetsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/adsets?fields=id,name,status,campaign_id,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
     const allAdSets = await fetchAllPages(adSetsUrl);
     console.log(`[sync] Found ${allAdSets.length} ad sets`);
+    if (allAdSets.length > 0) {
+      console.log('[sync] Sample ad set:', JSON.stringify(allAdSets[0]));
+    }
+
+    const getCampaignId = (as: any): string => {
+      if (typeof as.campaign_id === 'string') return as.campaign_id;
+      if (as.campaign_id?.id) return as.campaign_id.id;
+      if (as.campaign?.id) return as.campaign.id;
+      return '';
+    };
 
     const adSetRecords = allAdSets
       .map(as => {
-        const dbCampaign = campaignMap.get(as.campaign_id);
-        if (!dbCampaign) return null;
+        const campaignId = getCampaignId(as);
+        const dbCampaign = campaignMap.get(campaignId);
+        if (!dbCampaign) {
+          console.log(`[sync] No campaign found for ad set ${as.id}, campaign_id: ${campaignId}`);
+          return null;
+        }
         return {
           platform_adset_id: as.id,
           name: as.name,
@@ -215,17 +234,42 @@ Deno.serve(async (req: Request) => {
       })
       .filter(Boolean);
     const dbAdSets = await batchUpsert('ad_sets', adSetRecords, 'ad_campaign_id,platform_adset_id');
+    console.log(`[sync] Upserted ${dbAdSets.length} ad sets to DB`);
+    if (dbAdSets.length > 0) {
+      console.log('[sync] Sample DB ad set:', JSON.stringify(dbAdSets[0]));
+    }
     const adSetMap = new Map(dbAdSets.map(as => [as.platform_adset_id, as]));
+    console.log(`[sync] Ad set map has ${adSetMap.size} entries, sample keys: ${Array.from(adSetMap.keys()).slice(0, 3).join(', ')}`);
 
     console.log('[sync] Step 3/4: Fetching ads...');
     const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id,name,status,adset_id,creative{id,name,title,body,image_url,thumbnail_url,video_id,object_story_spec}&limit=500&access_token=${accessToken}`;
     const allAds = await fetchAllPages(adsUrl);
-    console.log(`[sync] Found ${allAds.length} ads`);
+    console.log(`[sync] Found ${allAds.length} ads from API`);
+    if (allAds.length > 0) {
+      console.log('[sync] Sample ad:', JSON.stringify(allAds[0]));
+    }
 
+    const getAdSetId = (ad: any): string => {
+      if (typeof ad.adset_id === 'string') return ad.adset_id;
+      if (ad.adset_id?.id) return ad.adset_id.id;
+      if (ad.adset?.id) return ad.adset.id;
+      return '';
+    };
+
+    let adsMatchedCount = 0;
+    let adsUnmatchedCount = 0;
     const adRecords = allAds
       .map(ad => {
-        const dbAdSet = adSetMap.get(ad.adset_id);
-        if (!dbAdSet) return null;
+        const adSetId = getAdSetId(ad);
+        const dbAdSet = adSetMap.get(adSetId);
+        if (!dbAdSet) {
+          adsUnmatchedCount++;
+          if (adsUnmatchedCount <= 3) {
+            console.log(`[sync] No ad set found for ad ${ad.id}, adset_id: ${adSetId}, available keys sample: ${Array.from(adSetMap.keys()).slice(0, 5).join(', ')}`);
+          }
+          return null;
+        }
+        adsMatchedCount++;
 
         const creativeData: any = {};
         if (ad.creative) {
@@ -256,8 +300,10 @@ Deno.serve(async (req: Request) => {
         };
       })
       .filter(Boolean);
+    console.log(`[sync] Ads matched: ${adsMatchedCount}, unmatched: ${adsUnmatchedCount}`);
     const dbAds = await batchUpsert('ads', adRecords, 'ad_set_id,platform_ad_id');
     const adMap = new Map(dbAds.map(a => [a.platform_ad_id, a]));
+    console.log(`[sync] Saved ${dbAds.length} ads, ad map has ${adMap.size} entries`);
 
     console.log('[sync] Step 4/4: Fetching metrics using account-level insights...');
     const allMetrics: any[] = [];
@@ -293,13 +339,19 @@ Deno.serve(async (req: Request) => {
     console.log('[sync] Fetching campaign-level insights...');
     const campaignInsights = await fetchAllPages(campaignInsightsUrl);
     console.log(`[sync] Got ${campaignInsights.length} campaign insight records`);
+    if (campaignInsights.length > 0) {
+      console.log('[sync] Sample campaign insight:', JSON.stringify(campaignInsights[0]));
+    }
 
+    let campaignMetricsMatched = 0;
     for (const insight of campaignInsights) {
       const dbCampaign = campaignMap.get(insight.campaign_id);
       if (dbCampaign && insight.date_start) {
         allMetrics.push(parseInsight(insight, dbCampaign.id, 'campaign'));
+        campaignMetricsMatched++;
       }
     }
+    console.log(`[sync] Campaign metrics matched: ${campaignMetricsMatched}`);
 
     await sleep(200);
 
@@ -308,12 +360,15 @@ Deno.serve(async (req: Request) => {
     const adSetInsights = await fetchAllPages(adSetInsightsUrl);
     console.log(`[sync] Got ${adSetInsights.length} adset insight records`);
 
+    let adSetMetricsMatched = 0;
     for (const insight of adSetInsights) {
       const dbAdSet = adSetMap.get(insight.adset_id);
       if (dbAdSet && insight.date_start) {
         allMetrics.push(parseInsight(insight, dbAdSet.id, 'adset'));
+        adSetMetricsMatched++;
       }
     }
+    console.log(`[sync] Ad set metrics matched: ${adSetMetricsMatched}`);
 
     await sleep(200);
 
@@ -322,12 +377,15 @@ Deno.serve(async (req: Request) => {
     const adInsights = await fetchAllPages(adInsightsUrl);
     console.log(`[sync] Got ${adInsights.length} ad insight records`);
 
+    let adMetricsMatched = 0;
     for (const insight of adInsights) {
       const dbAd = adMap.get(insight.ad_id);
       if (dbAd && insight.date_start) {
         allMetrics.push(parseInsight(insight, dbAd.id, 'ad'));
+        adMetricsMatched++;
       }
     }
+    console.log(`[sync] Ad metrics matched: ${adMetricsMatched}`);
 
     console.log(`[sync] Total metrics to save: ${allMetrics.length}`);
     await batchUpsert('ad_metrics', allMetrics, 'entity_type,entity_id,date');
