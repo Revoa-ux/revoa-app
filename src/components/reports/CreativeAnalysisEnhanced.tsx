@@ -1174,19 +1174,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
                   const finalWidth = customWidth || column.width;
+                  const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                   const columnStyle = {
                     width: finalWidth,
                     minWidth: finalWidth,
                     maxWidth: finalWidth,
                     flexShrink: 0,
                     flexGrow: 0,
-                    ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
+                    ...stickyStyles,
+                    ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for header sticky columns
                   };
 
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-white dark:bg-gray-800 shadow-sm' : ''}`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900 shadow-sm' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1522,18 +1524,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const finalWidth = customWidth || column.width;
+                      const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                       const columnStyle = {
                         width: finalWidth,
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
                         flexShrink: 0,
-                        flexGrow: 0
+                        flexGrow: 0,
+                        ...stickyStyles,
+                        ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for totals sticky columns
                       };
 
                       return (
                         <div
                           key={column.id}
-                          className="flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white"
+                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900 shadow-sm' : ''}`}
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
