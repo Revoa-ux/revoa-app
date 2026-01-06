@@ -1887,8 +1887,11 @@ const SettingsPage = () => {
       // Refresh accounts after sync completes
       await refreshFacebookAccounts();
 
-      // Show detailed success message with stats
-      if (result.data) {
+      if ((result as any).errors && (result as any).errors.length > 0) {
+        console.error('[Settings] Sync errors:', (result as any).errors);
+        const errorMessages = (result as any).errors.slice(0, 3).join('\n');
+        toast.error(`Sync failed:\n${errorMessages}`, { duration: 10000 });
+      } else if (result.data) {
         const { campaigns, adSets, ads, metrics } = result.data;
         toast.success(
           `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,

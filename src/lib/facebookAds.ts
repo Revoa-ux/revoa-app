@@ -205,10 +205,10 @@ export class FacebookAdsService {
         throw new Error(error || 'Sync failed');
       }
 
-      const data: SyncResponse = await response.json();
+      const data: SyncResponse & { errors?: string[] } = await response.json();
       console.log('[FacebookAds] Sync data received:', data);
 
-      if (!data.success) {
+      if (!data.success && !data.errors) {
         throw new Error(data.error || 'Sync failed');
       }
 

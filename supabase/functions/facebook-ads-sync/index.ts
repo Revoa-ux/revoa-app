@@ -106,47 +106,56 @@ Deno.serve(async (req: Request) => {
     }
 
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const apiErrors: string[] = [];
 
-    const fetchWithRetry = async (url: string, retryCount = 0): Promise<any> => {
+    const fetchWithRetry = async (url: string, retryCount = 0, context = 'unknown'): Promise<any> => {
       try {
         const response = await fetch(url);
         const data = await response.json();
 
         if (data.error) {
-          const errorMsg = data.error.message || '';
+          const errorMsg = data.error.message || JSON.stringify(data.error);
           if (errorMsg.includes('limit reached') || errorMsg.includes('reduce the amount')) {
             if (retryCount < 3) {
               const backoffTime = Math.pow(2, retryCount) * 2000;
               console.log(`[sync] Rate limited or data too large, waiting ${backoffTime}ms... (attempt ${retryCount + 1})`);
               await sleep(backoffTime);
               const reducedUrl = url.replace(/limit=\d+/, `limit=${Math.max(25, 100 - retryCount * 25)}`);
-              return fetchWithRetry(reducedUrl, retryCount + 1);
+              return fetchWithRetry(reducedUrl, retryCount + 1, context);
             }
-            console.error('[sync] Rate limit exceeded after retries');
+            const err = `[${context}] Rate limit exceeded after retries: ${errorMsg}`;
+            console.error('[sync]', err);
+            apiErrors.push(err);
             return { data: [], paging: null };
           }
-          console.error('[sync] API error:', errorMsg);
+          const err = `[${context}] API error: ${errorMsg}`;
+          console.error('[sync]', err);
+          apiErrors.push(err);
           return { data: [], paging: null };
         }
 
         if (!response.ok) {
-          console.error('[sync] HTTP error:', response.statusText);
+          const err = `[${context}] HTTP error: ${response.status} ${response.statusText}`;
+          console.error('[sync]', err);
+          apiErrors.push(err);
           return { data: [], paging: null };
         }
         return data;
       } catch (error) {
-        console.error('[sync] Fetch error:', error);
+        const err = `[${context}] Fetch error: ${error instanceof Error ? error.message : String(error)}`;
+        console.error('[sync]', err);
+        apiErrors.push(err);
         return { data: [], paging: null };
       }
     };
 
-    const fetchAllPages = async (initialUrl: string, maxPages = 100): Promise<any[]> => {
+    const fetchAllPages = async (initialUrl: string, context: string, maxPages = 100): Promise<any[]> => {
       const allResults: any[] = [];
       let nextUrl: string | null = initialUrl;
       let pageCount = 0;
 
       while (nextUrl && pageCount < maxPages) {
-        const result = await fetchWithRetry(nextUrl);
+        const result = await fetchWithRetry(nextUrl, 0, context);
         if (result.data) {
           allResults.push(...result.data);
         }
@@ -177,13 +186,18 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] Step 1/4: Fetching campaigns...');
     const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
-    const allCampaigns = await fetchAllPages(campaignsUrl);
+    const allCampaigns = await fetchAllPages(campaignsUrl, 'campaigns');
     console.log(`[sync] Found ${allCampaigns.length} campaigns`);
 
     if (allCampaigns.length === 0) {
       await supabase.from('ad_accounts').update({ last_synced_at: new Date().toISOString() }).eq('id', account.id);
       return new Response(
-        JSON.stringify({ success: true, message: 'No campaigns found', data: { campaigns: 0, adSets: 0, ads: 0, metrics: 0 } }),
+        JSON.stringify({
+          success: apiErrors.length === 0,
+          message: apiErrors.length > 0 ? 'Sync failed with errors' : 'No campaigns found',
+          data: { campaigns: 0, adSets: 0, ads: 0, metrics: 0 },
+          errors: apiErrors.length > 0 ? apiErrors : undefined
+        }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -206,7 +220,7 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] Step 2/4: Fetching ad sets...');
     const adSetsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/adsets?fields=id,name,status,campaign_id,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
-    const allAdSets = await fetchAllPages(adSetsUrl);
+    const allAdSets = await fetchAllPages(adSetsUrl, 'adsets');
     console.log(`[sync] Found ${allAdSets.length} ad sets`);
     if (allAdSets.length > 0) {
       console.log('[sync] Sample ad set:', JSON.stringify(allAdSets[0]));
@@ -249,7 +263,7 @@ Deno.serve(async (req: Request) => {
 
     console.log('[sync] Step 3/4: Fetching ads...');
     const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id,name,status,adset_id,creative.limit(1){id,thumbnail_url}&limit=100&access_token=${accessToken}`;
-    const allAds = await fetchAllPages(adsUrl);
+    const allAds = await fetchAllPages(adsUrl, 'ads');
     console.log(`[sync] Found ${allAds.length} ads from API`);
     if (allAds.length > 0) {
       console.log('[sync] Sample ad:', JSON.stringify(allAds[0]));
@@ -326,7 +340,7 @@ Deno.serve(async (req: Request) => {
 
     const campaignInsightsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/insights?fields=${insightsFields}&level=campaign&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
     console.log('[sync] Fetching campaign-level insights...');
-    const campaignInsights = await fetchAllPages(campaignInsightsUrl);
+    const campaignInsights = await fetchAllPages(campaignInsightsUrl, 'campaign_insights');
     console.log(`[sync] Got ${campaignInsights.length} campaign insight records`);
     if (campaignInsights.length > 0) {
       console.log('[sync] Sample campaign insight:', JSON.stringify(campaignInsights[0]));
@@ -346,7 +360,7 @@ Deno.serve(async (req: Request) => {
 
     const adSetInsightsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/insights?fields=${insightsFields}&level=adset&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
     console.log('[sync] Fetching adset-level insights...');
-    const adSetInsights = await fetchAllPages(adSetInsightsUrl);
+    const adSetInsights = await fetchAllPages(adSetInsightsUrl, 'adset_insights');
     console.log(`[sync] Got ${adSetInsights.length} adset insight records`);
 
     let adSetMetricsMatched = 0;
@@ -363,7 +377,7 @@ Deno.serve(async (req: Request) => {
 
     const adInsightsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/insights?fields=${insightsFields}&level=ad&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
     console.log('[sync] Fetching ad-level insights...');
-    const adInsights = await fetchAllPages(adInsightsUrl);
+    const adInsights = await fetchAllPages(adInsightsUrl, 'ad_insights');
     console.log(`[sync] Got ${adInsights.length} ad insight records`);
 
     let adMetricsMatched = 0;
@@ -390,14 +404,17 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        success: true,
-        message: `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${allMetrics.length} metrics`,
+        success: apiErrors.length === 0,
+        message: apiErrors.length > 0
+          ? `Sync completed with errors: ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads`
+          : `Synced ${dbCampaigns.length} campaigns, ${dbAdSets.length} ad sets, ${dbAds.length} ads, ${allMetrics.length} metrics`,
         data: {
           campaigns: dbCampaigns.length,
           adSets: dbAdSets.length,
           ads: dbAds.length,
           metrics: allMetrics.length,
         },
+        errors: apiErrors.length > 0 ? apiErrors : undefined,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
