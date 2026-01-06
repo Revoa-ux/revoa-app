@@ -1231,10 +1231,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             <div style={{ minWidth: '100%', width: 'max-content' }}>
               {isLoading ? (
                 // Skeleton loading rows - enough to fill viewport
-                Array.from({ length: 15 }).map((_, index) => (
+                Array.from({ length: 15 }).map((_, skeletonIndex) => (
                   <div
-                    key={`skeleton-${index}`}
-                    className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"
+                    key={`skeleton-${skeletonIndex}`}
+                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
+                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
+                    }`}
                   >
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
@@ -1248,8 +1250,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                       };
 
+                      // Match skeleton cell background to row
+                      const skeletonBg = column.sticky
+                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800')
+                        : '';
+
                       return (
-                        <div key={column.id} className={`px-4 py-3 ${column.sticky ? 'bg-white dark:bg-gray-800' : ''}`} style={columnStyle}>
+                        <div key={column.id} className={`px-4 py-3 ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                           ) : column.id === 'creative' ? (
@@ -1386,6 +1393,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                     };
 
+                    // Get the appropriate background for sticky columns (fully opaque)
+                    const getStickyBackground = () => {
+                      if (!column.sticky) return '';
+
+                      if (hasPendingSuggestion) {
+                        return 'bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40';
+                      }
+
+                      if (hasActiveRule && suggestion?.performance?.is_improving) {
+                        return 'bg-green-50 dark:bg-green-900/25';
+                      }
+
+                      return index % 2 === 0
+                        ? 'bg-white dark:bg-gray-800'
+                        : 'bg-gray-50 dark:bg-gray-800';
+                    };
+
                     // No more individual metric glow - entire row glows now
                     const metricContent = column.render ? (
                       column.render(creative[column.id as keyof typeof creative], creative)
@@ -1448,7 +1472,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         key={column.id}
                         className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${column.sticky ? 'bg-inherit' : ''}`}
+                        } ${getStickyBackground()}`}
                         style={columnStyle}
                       >
                         <span className={`${
