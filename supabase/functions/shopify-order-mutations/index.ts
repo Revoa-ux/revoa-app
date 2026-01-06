@@ -132,7 +132,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { shop_domain, access_token } = installation;
-    const apiVersion = '2024-01';
+    const apiVersion = '2025-01';
 
     // Execute operation
     let shopifyResponse;

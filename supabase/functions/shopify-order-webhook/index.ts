@@ -217,7 +217,7 @@ Deno.serve(async (req: Request) => {
 
         if (installationForToken?.access_token) {
           const customerResponse = await fetch(
-            `https://${shop}/admin/api/2024-01/customers/${orderData.customer.id}.json`,
+            `https://${shop}/admin/api/2025-01/customers/${orderData.customer.id}.json`,
             {
               headers: {
                 'X-Shopify-Access-Token': installationForToken.access_token,
