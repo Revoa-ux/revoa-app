@@ -349,17 +349,17 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Found', adSets.length, 'ad sets');
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets with ad account info (high limit to get all)
+    // Fetch ads for these ad sets (high limit to get all)
     const { data: ads, error } = await supabase
       .from('ads')
-      .select(`
-        *,
-        ad_account:ad_accounts!ad_account_id(platform_account_id)
-      `)
+      .select('*')
       .in('ad_set_id', adSetIds)
       .limit(100000);
 
-    if (error) throw error;
+    if (error) {
+      console.error('[AdReportsService] Error fetching ads:', error);
+      throw error;
+    }
 
     if (!ads || ads.length === 0) {
       console.log('[AdReportsService] No ads found');
@@ -574,7 +574,7 @@ export async function getCreativePerformance(
         status: ad.status || 'UNKNOWN', // Add status field
         adName: ad.name,
         platform: ad.platform || 'facebook',
-        adAccountId: ad.ad_account?.platform_account_id || undefined,
+        adAccountId: undefined, // We can add this back if needed
         hasRealConversionData: !!attribution, // Flag to show user which ads have real data
         pageProfile: {
           name: 'Facebook Page',
