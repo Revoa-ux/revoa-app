@@ -39,10 +39,9 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
   const [selectedAds, setSelectedAds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debug: Show data structure on mount and when data changes
+  // Debug: Log data structure on mount and when data changes
   React.useEffect(() => {
     if (campaigns.length > 0 || adSets.length > 0 || creatives.length > 0) {
-      // Count ads per ad set
       const adsPerAdSet = new Map<string, number>();
       creatives.forEach(ad => {
         const count = adsPerAdSet.get(ad.adSetId) || 0;
@@ -56,11 +55,6 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
         adsPerAdSet: Object.fromEntries(adsPerAdSet),
         sampleAdSet: adSets[0] ? { id: adSets[0].id, adSetId: adSets[0].adSetId, name: adSets[0].name } : null,
         sampleCreative: creatives[0] ? { id: creatives[0].id, adSetId: creatives[0].adSetId, name: creatives[0].adName } : null
-      });
-
-      toast.info(`📊 Data Loaded`, {
-        duration: 4000,
-        description: `${campaigns.length} campaigns, ${adSets.length} ad sets, ${creatives.length} ads | Ads spread across ${adsPerAdSet.size} ad sets`
       });
     }
   }, [campaigns, adSets, creatives]);
@@ -144,71 +138,35 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     } else if (viewLevel === 'adsets') {
       // If viewing after drill-down
       if (selectedCampaign) {
-        const filtered = adSets.filter(adSet => adSet.campaignId === selectedCampaign);
-        if (filtered.length === 0) {
-          toast.warning(`⚠️ No ad sets found for this campaign`, { duration: 2000 });
-        } else {
-          toast.success(`✓ Found ${filtered.length} ad sets`, { duration: 2000 });
-        }
-        return filtered;
+        return adSets.filter(adSet => adSet.campaignId === selectedCampaign);
       }
       // If campaigns are selected via checkbox, filter ad sets by those campaigns
       if (selectedCampaigns.size > 0) {
-        const filtered = adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
-        toast.info(`🔍 ${filtered.length} ad sets in ${selectedCampaigns.size} campaigns`, { duration: 2000 });
-        return filtered;
+        return adSets.filter(adSet => selectedCampaigns.has(adSet.campaignId));
       }
       return adSets;
     } else {
-      // If viewing after drill-down
+      // If viewing after drill-down to specific ad set
       if (selectedAdSet) {
-        const filtered = creatives.filter(ad => ad.adSetId === selectedAdSet);
-
-        // DEBUG: Show what we're comparing
-        const uniqueAdSetIds = [...new Set(creatives.map(ad => ad.adSetId))];
-        const matches = creatives.filter(ad => ad.adSetId === selectedAdSet);
-
-        if (filtered.length === 0) {
-          toast.warning(`⚠️ No ads found`, { duration: 4000, description: `Selected: ${selectedAdSet.substring(0, 10)}... | Unique ad.adSetIds in data: ${uniqueAdSetIds.length} | Matches: ${matches.length}` });
-        } else {
-          toast.success(`✓ Found ${filtered.length} ads`, { duration: 2000 });
-        }
-        return filtered;
-      } else if (selectedCampaign) {
+        return creatives.filter(ad => ad.adSetId === selectedAdSet);
+      }
+      // If viewing after drill-down to campaign (but not specific ad set)
+      if (selectedCampaign) {
         const campaignAdSetIds = adSets
           .filter(adSet => adSet.campaignId === selectedCampaign)
           .map(adSet => adSet.adSetId);
-
-        // DEBUG: Show what ad set IDs we're looking for
-        console.log('[UnifiedAdManager] Campaign drill-down:', {
-          selectedCampaign,
-          campaignAdSetIds,
-          totalCreatives: creatives.length,
-          sampleCreativeAdSetIds: creatives.slice(0, 5).map(c => c.adSetId)
-        });
-
-        const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
-        if (filtered.length === 0) {
-          toast.warning(`⚠️ No ads found`, { duration: 3500, description: `${campaignAdSetIds.length} ad sets | Looking for adSetIds: ${campaignAdSetIds.map(id => id?.substring(0, 8)).join(', ')}` });
-        } else {
-          toast.success(`✓ Found ${filtered.length} ads in ${campaignAdSetIds.length} ad sets`, { duration: 2000 });
-        }
-        return filtered;
+        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
-      // If ad sets are selected via checkbox, filter ads by those ad sets
+      // If ad sets are selected via checkbox
       if (selectedAdSets.size > 0) {
-        const filtered = creatives.filter(ad => selectedAdSets.has(ad.adSetId));
-        toast.info(`🔍 ${filtered.length} ads in ${selectedAdSets.size} ad sets`, { duration: 2000 });
-        return filtered;
+        return creatives.filter(ad => selectedAdSets.has(ad.adSetId));
       }
-      // If campaigns are selected via checkbox (but no ad sets), show ads from those campaigns
+      // If campaigns are selected via checkbox (but no ad sets)
       if (selectedCampaigns.size > 0) {
         const campaignAdSetIds = adSets
           .filter(adSet => selectedCampaigns.has(adSet.campaignId))
           .map(adSet => adSet.adSetId);
-        const filtered = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
-        toast.info(`🔍 ${filtered.length} ads via ${selectedCampaigns.size} campaigns`, { duration: 2000 });
-        return filtered;
+        return creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
       }
       return creatives;
     }
@@ -267,35 +225,10 @@ export const UnifiedAdManager: React.FC<UnifiedAdManagerProps> = ({
     if (viewLevel === 'campaigns') {
       setSelectedCampaign(item.id);
       setViewLevel('adsets');
-      // Debug: Check what ad sets match this campaign
-      const matchingAdSets = adSets.filter(adSet => adSet.campaignId === item.id);
-      const sampleAdSet = matchingAdSets[0];
-      toast.info(`🔎 Campaign: ${item.name || item.adName}`, {
-        duration: 2500,
-        description: `ID: ${item.id.substring(0, 8)}... | ${matchingAdSets.length} ad sets | Sample: ${sampleAdSet?.campaignId?.substring(0, 8) || 'none'}`
-      });
     } else if (viewLevel === 'adsets') {
-      // If we're already in a campaign drill-down, don't set selectedAdSet
-      // This allows showing ALL ads in the campaign, not just one ad set
-      if (!selectedCampaign) {
-        setSelectedAdSet(item.id);
-        // Debug: Check what ads match this ad set
-        const matchingAds = creatives.filter(ad => ad.adSetId === item.id);
-        toast.info(`🔎 Ad Set: ${item.name || item.adName}`, {
-          duration: 2500,
-          description: `${matchingAds.length} ads in this ad set`
-        });
-      } else {
-        // We're in a campaign context, show all ads in the campaign
-        const campaignAdSetIds = adSets
-          .filter(adSet => adSet.campaignId === selectedCampaign)
-          .map(adSet => adSet.adSetId);
-        const campaignAds = creatives.filter(ad => campaignAdSetIds.includes(ad.adSetId));
-        toast.info(`🔎 All Ads in Campaign`, {
-          duration: 2500,
-          description: `Showing ${campaignAds.length} ads across ${campaignAdSetIds.length} ad sets`
-        });
-      }
+      // Always set selectedAdSet when drilling down from an ad set
+      // This ensures the ads tab badge updates to show only ads in that specific ad set
+      setSelectedAdSet(item.id);
       setViewLevel('ads');
     }
   };
