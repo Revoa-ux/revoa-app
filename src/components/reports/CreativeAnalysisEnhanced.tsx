@@ -1174,21 +1174,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
                   const finalWidth = customWidth || column.width;
-                  const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                   const columnStyle = {
                     width: finalWidth,
                     minWidth: finalWidth,
                     maxWidth: finalWidth,
                     flexShrink: 0,
                     flexGrow: 0,
-                    ...stickyStyles,
-                    ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for header sticky columns
+                    ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                   };
 
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900 shadow-sm' : ''}`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-white dark:bg-gray-800 shadow-sm' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1519,30 +1517,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const finalWidth = customWidth || column.width;
-                      const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                       const columnStyle = {
                         width: finalWidth,
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
                         flexShrink: 0,
-                        flexGrow: 0,
-                        ...stickyStyles,
-                        ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for totals sticky columns
+                        flexGrow: 0
                       };
 
                       return (
                         <div
                           key={column.id}
-                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                          className="flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white"
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
-                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
                             TOTALS ({sortedCreatives.length})
                           </span>
                         ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
