@@ -7,6 +7,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { facebookAdsService } from '@/lib/facebookAds';
+import { googleAdsService } from '@/lib/googleAds';
+import { tiktokAdsService } from '@/lib/tiktokAds';
 import { toast } from 'sonner';
 import { FacebookSyncOrchestrator } from '@/lib/facebookSyncOrchestrator';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,7 +47,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       </svg>,
       color: 'bg-white',
       status: 'idle',
-      comingSoon: true
+      comingSoon: false
     },
     {
       id: 'tiktok',
@@ -55,7 +57,7 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
       </svg>,
       color: 'bg-black',
       status: 'idle',
-      comingSoon: true
+      comingSoon: false
     }
   ]);
 
@@ -68,96 +70,120 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
     onPlatformsConnected(connectedPlatforms);
   }, [platforms, onPlatformsConnected]);
 
-  // Check existing Facebook connection on mount and clear old OAuth data
   useEffect(() => {
-    const oldSuccess = localStorage.getItem('facebook_oauth_success');
-    const oldError = localStorage.getItem('facebook_oauth_error');
-    if (oldSuccess || oldError) {
-      localStorage.removeItem('facebook_oauth_success');
-      localStorage.removeItem('facebook_oauth_error');
-    }
+    localStorage.removeItem('facebook_oauth_success');
+    localStorage.removeItem('facebook_oauth_error');
+    localStorage.removeItem('google_oauth_success');
+    localStorage.removeItem('google_oauth_error');
+    localStorage.removeItem('tiktok_oauth_success');
+    localStorage.removeItem('tiktok_oauth_error');
 
-    const checkExistingConnection = async () => {
+    const checkExistingConnections = async () => {
       try {
-        const result = await facebookAdsService.checkConnectionStatus();
-        if (result && result.connected) {
-          setPlatforms(prev =>
-            prev.map(p =>
-              p.id === 'facebook'
-                ? { ...p, status: 'connected' }
-                : p
-            )
-          );
-        }
+        const [facebookResult, googleResult, tiktokResult] = await Promise.allSettled([
+          facebookAdsService.checkConnectionStatus(),
+          googleAdsService.checkConnectionStatus(),
+          tiktokAdsService.checkConnectionStatus(),
+        ]);
+
+        setPlatforms(prev => prev.map(p => {
+          if (p.id === 'facebook' && facebookResult.status === 'fulfilled' && facebookResult.value.connected) {
+            return { ...p, status: 'connected' };
+          }
+          if (p.id === 'google' && googleResult.status === 'fulfilled' && googleResult.value.connected) {
+            return { ...p, status: 'connected' };
+          }
+          if (p.id === 'tiktok' && tiktokResult.status === 'fulfilled' && tiktokResult.value.connected) {
+            return { ...p, status: 'connected' };
+          }
+          return p;
+        }));
       } catch (error) {
         // Silently fail - connection check is not critical
       }
     };
 
-    checkExistingConnection();
+    checkExistingConnections();
   }, []);
 
-  // Listen for OAuth callback messages from popup
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       if (event.data?.type === 'facebook-oauth-success') {
         localStorage.removeItem('facebook_oauth_error');
         handleFacebookSuccess(event.data.accountCount || 0);
       } else if (event.data?.type === 'facebook-oauth-error') {
-        const timestamp = event.data.timestamp || Date.now();
-        if (Date.now() - timestamp < 10000) {
-          setPlatforms(prev =>
-            prev.map(p =>
-              p.id === 'facebook'
-                ? { ...p, status: 'error' }
-                : p
-            )
-          );
-          toast.error(event.data.error || 'Failed to connect Facebook Ads');
-        }
+        handlePlatformError('facebook', event.data.error);
+      } else if (event.data?.type === 'google-oauth-success') {
+        handlePlatformSuccess('google', event.data.accountCount || 0);
+      } else if (event.data?.type === 'google-oauth-error') {
+        handlePlatformError('google', event.data.error);
+      } else if (event.data?.type === 'tiktok-oauth-success') {
+        handlePlatformSuccess('tiktok', event.data.accountCount || 0);
+      } else if (event.data?.type === 'tiktok-oauth-error') {
+        handlePlatformError('tiktok', event.data.error);
       }
+    };
+
+    const handlePlatformSuccess = (platformId: string, accountCount: number) => {
+      localStorage.removeItem(`${platformId}_oauth_error`);
+      localStorage.removeItem(`${platformId}_oauth_success`);
+      setPlatforms(prev =>
+        prev.map(p =>
+          p.id === platformId
+            ? { ...p, status: 'connected' }
+            : p
+        )
+      );
+      const platformName = platformId === 'google' ? 'Google Ads' : 'TikTok Ads';
+      toast.success(`Successfully connected ${accountCount} ${platformName} account${accountCount === 1 ? '' : 's'}`);
+    };
+
+    const handlePlatformError = (platformId: string, error?: string) => {
+      setPlatforms(prev =>
+        prev.map(p =>
+          p.id === platformId
+            ? { ...p, status: 'error' }
+            : p
+        )
+      );
+      const platformName = platformId === 'facebook' ? 'Facebook Ads' : platformId === 'google' ? 'Google Ads' : 'TikTok Ads';
+      toast.error(error || `Failed to connect ${platformName}`);
     };
 
     window.addEventListener('message', handleMessage);
 
-    // Also check localStorage for success/error (in case postMessage fails)
     const checkLocalStorage = setInterval(() => {
-      // Check for success
-      const successData = localStorage.getItem('facebook_oauth_success');
-      if (successData) {
-        try {
-          const parsed = JSON.parse(successData);
-          if (Date.now() - parsed.timestamp < 10000) {
-            localStorage.removeItem('facebook_oauth_error');
-            handleFacebookSuccess(parsed.accountCount || 0);
+      ['facebook', 'google', 'tiktok'].forEach(platform => {
+        const successData = localStorage.getItem(`${platform}_oauth_success`);
+        if (successData) {
+          try {
+            const parsed = JSON.parse(successData);
+            if (Date.now() - parsed.timestamp < 10000) {
+              if (platform === 'facebook') {
+                handleFacebookSuccess(parsed.accountCount || 0);
+              } else {
+                handlePlatformSuccess(platform, parsed.accountCount || 0);
+              }
+            }
+            localStorage.removeItem(`${platform}_oauth_success`);
+          } catch (e) {
+            localStorage.removeItem(`${platform}_oauth_success`);
           }
-          localStorage.removeItem('facebook_oauth_success');
-        } catch (e) {
-          // Silently fail
         }
-      }
 
-      // Check for errors (but only recent ones)
-      const errorData = localStorage.getItem('facebook_oauth_error');
-      if (errorData) {
-        try {
-          const parsed = JSON.parse(errorData);
-          const age = Date.now() - parsed.timestamp;
-          if (age < 10000) {
-            setPlatforms(prev =>
-              prev.map(p =>
-                p.id === 'facebook'
-                  ? { ...p, status: 'error' }
-                  : p
-              )
-            );
-            toast.error(parsed.error || 'Failed to connect Facebook Ads');
+        const errorData = localStorage.getItem(`${platform}_oauth_error`);
+        if (errorData) {
+          try {
+            const parsed = JSON.parse(errorData);
+            if (Date.now() - parsed.timestamp < 10000) {
+              handlePlatformError(platform, parsed.error);
+            }
+            localStorage.removeItem(`${platform}_oauth_error`);
+          } catch (e) {
+            localStorage.removeItem(`${platform}_oauth_error`);
           }
-          localStorage.removeItem('facebook_oauth_error');
-        } catch (e) {
-          localStorage.removeItem('facebook_oauth_error');
         }
-      }
+      });
     }, 500);
 
     return () => {
@@ -419,27 +445,158 @@ const AdPlatformIntegration: React.FC<AdPlatformIntegrationProps> = ({ onPlatfor
           )
         );
       }
-    } else {
-      const width = 800;
-      const height = 600;
-      const left = window.screen.width / 2 - width / 2;
-      const top = window.screen.height / 2 - height / 2;
+    } else if (platformId === 'google') {
+      try {
+        localStorage.removeItem('google_oauth_success');
+        localStorage.removeItem('google_oauth_error');
 
-      window.open(
-        'about:blank',
-        `${platformId}-oauth`,
-        `width=${width},height=${height},left=${left},top=${top}`
-      );
+        const oauthUrl = await googleAdsService.connectGoogleAds();
+        const width = 800;
+        const height = 700;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
 
-      setTimeout(() => {
+        const popup = window.open(
+          oauthUrl,
+          'google-oauth',
+          `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
+
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups for this site.');
+        }
+
+        const checkPopupClosed = setInterval(() => {
+          try {
+            if (popup.closed) {
+              clearInterval(checkPopupClosed);
+              let checkCount = 0;
+              const maxChecks = 5;
+
+              const checkConnection = async () => {
+                checkCount++;
+                try {
+                  const result = await googleAdsService.checkConnectionStatus();
+                  if (result.connected) {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'connected' }
+                          : p
+                      )
+                    );
+                    toast.success('Google Ads connected successfully');
+                  } else if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  } else {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'idle' }
+                          : p
+                      )
+                    );
+                  }
+                } catch (err) {
+                  if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  }
+                }
+              };
+
+              setTimeout(checkConnection, 500);
+            }
+          } catch (e) {
+            clearInterval(checkPopupClosed);
+          }
+        }, 500);
+
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to connect Google Ads');
         setPlatforms(prev =>
           prev.map(p =>
             p.id === platformId
-              ? { ...p, status: 'connected' }
+              ? { ...p, status: 'error' }
               : p
           )
         );
-      }, 2000);
+      }
+    } else if (platformId === 'tiktok') {
+      try {
+        localStorage.removeItem('tiktok_oauth_success');
+        localStorage.removeItem('tiktok_oauth_error');
+
+        const oauthUrl = await tiktokAdsService.connectTikTokAds();
+        const width = 800;
+        const height = 700;
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        const popup = window.open(
+          oauthUrl,
+          'tiktok-oauth',
+          `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+        );
+
+        if (!popup) {
+          throw new Error('Popup blocked. Please allow popups for this site.');
+        }
+
+        const checkPopupClosed = setInterval(() => {
+          try {
+            if (popup.closed) {
+              clearInterval(checkPopupClosed);
+              let checkCount = 0;
+              const maxChecks = 5;
+
+              const checkConnection = async () => {
+                checkCount++;
+                try {
+                  const result = await tiktokAdsService.checkConnectionStatus();
+                  if (result.connected) {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'connected' }
+                          : p
+                      )
+                    );
+                    toast.success('TikTok Ads connected successfully');
+                  } else if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  } else {
+                    setPlatforms(prev =>
+                      prev.map(p =>
+                        p.id === platformId
+                          ? { ...p, status: 'idle' }
+                          : p
+                      )
+                    );
+                  }
+                } catch (err) {
+                  if (checkCount < maxChecks) {
+                    setTimeout(checkConnection, 1000);
+                  }
+                }
+              };
+
+              setTimeout(checkConnection, 500);
+            }
+          } catch (e) {
+            clearInterval(checkPopupClosed);
+          }
+        }, 500);
+
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : 'Failed to connect TikTok Ads');
+        setPlatforms(prev =>
+          prev.map(p =>
+            p.id === platformId
+              ? { ...p, status: 'error' }
+              : p
+          )
+        );
+      }
     }
   };
 

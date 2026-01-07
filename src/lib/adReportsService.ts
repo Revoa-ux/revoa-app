@@ -1,7 +1,10 @@
 import { supabase } from './supabase';
 import { facebookAdsService } from './facebookAds';
+import { googleAdsService } from './googleAds';
+import { tiktokAdsService } from './tiktokAds';
 import { getAdConversionMetrics, syncShopifyOrders } from './attributionService';
 import { calculateProfitMetrics } from './profitCalculationService';
+import type { AdPlatform } from '../types/ads';
 
 // Function to return Facebook thumbnail URLs without modification
 // Facebook CDN URLs are signed and must be used exactly as provided
@@ -105,6 +108,28 @@ export interface CreativePerformance {
 /**
  * Fetch ad performance metrics for reports
  */
+export async function getAllPlatformAccounts(): Promise<{ platform: AdPlatform; accounts: any[] }[]> {
+  const [facebookAccounts, googleAccounts, tiktokAccounts] = await Promise.allSettled([
+    facebookAdsService.getAdAccounts('facebook'),
+    googleAdsService.getAdAccounts(),
+    tiktokAdsService.getAdAccounts(),
+  ]);
+
+  const results: { platform: AdPlatform; accounts: any[] }[] = [];
+
+  if (facebookAccounts.status === 'fulfilled' && facebookAccounts.value.length > 0) {
+    results.push({ platform: 'facebook', accounts: facebookAccounts.value });
+  }
+  if (googleAccounts.status === 'fulfilled' && googleAccounts.value.length > 0) {
+    results.push({ platform: 'google', accounts: googleAccounts.value });
+  }
+  if (tiktokAccounts.status === 'fulfilled' && tiktokAccounts.value.length > 0) {
+    results.push({ platform: 'tiktok', accounts: tiktokAccounts.value });
+  }
+
+  return results;
+}
+
 export async function getAdReportsMetrics(
   startDate: string,
   endDate: string
@@ -115,19 +140,21 @@ export async function getAdReportsMetrics(
       throw new Error('User not authenticated');
     }
 
-    // Get user's ad accounts
-    const accounts = await facebookAdsService.getAdAccounts('facebook');
-    if (accounts.length === 0) {
+    const platformAccounts = await getAllPlatformAccounts();
+    const allAccountIds: string[] = [];
+
+    for (const { accounts } of platformAccounts) {
+      allAccountIds.push(...accounts.map(acc => acc.id));
+    }
+
+    if (allAccountIds.length === 0) {
       return getEmptyMetrics();
     }
 
-    const accountIds = accounts.map(acc => acc.id);
-
-    // Get all campaigns for these accounts
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
       .select('id')
-      .in('ad_account_id', accountIds);
+      .in('ad_account_id', allAccountIds);
 
     if (campaignsError) throw campaignsError;
 

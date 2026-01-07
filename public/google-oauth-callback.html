@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connecting to Google Ads...</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #fafafa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 48px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #4285F4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, #4285F4, #34A853, #FBBC04, #EA4335);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+    }
+
+    .error-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 24px;
+      background: #ef4444;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+
+    p {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      color: #991b1b;
+      font-size: 13px;
+    }
+
+    .account-item {
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .account-item:hover {
+      border-color: #4285F4;
+      background: #eff6ff;
+    }
+
+    .account-item input[type="checkbox"] {
+      margin-right: 12px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #4285F4;
+    }
+
+    .account-info {
+      flex: 1;
+    }
+
+    .account-name {
+      font-weight: 500;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .account-details {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #account-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading-state">
+      <div class="spinner"></div>
+      <h1>Connecting to Google Ads</h1>
+      <p>Please wait while we complete the setup...</p>
+    </div>
+
+    <div id="account-selection-state" style="display: none;">
+      <div style="margin-bottom: 24px;">
+        <h1>Select Ad Accounts</h1>
+        <p>Choose which Google Ads accounts you want to connect:</p>
+      </div>
+
+      <div id="account-list"></div>
+
+      <button id="confirm-selection" class="btn">
+        Connect Selected Accounts
+      </button>
+    </div>
+
+    <div id="success-state" style="display: none;">
+      <div class="success-icon">&#10003;</div>
+      <h1>Connection Complete!</h1>
+      <p id="success-message">Your Google Ads account has been connected successfully.</p>
+    </div>
+
+    <div id="error-state" style="display: none;">
+      <div class="error-icon">&#10005;</div>
+      <h1>Connection Failed</h1>
+      <p id="error-text">Something went wrong. Please try again.</p>
+      <div id="error-details" class="error-message" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    let availableAccounts = [];
+    let selectedAccounts = [];
+    let accessToken = '';
+    let refreshToken = '';
+    let userId = '';
+    let expiresAt = '';
+
+    function showAccountSelection(accounts, token, refresh, user, expires) {
+      availableAccounts = accounts;
+      accessToken = token;
+      refreshToken = refresh;
+      userId = user;
+      expiresAt = expires;
+      selectedAccounts = [];
+
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'block';
+
+      const accountList = document.getElementById('account-list');
+      accountList.innerHTML = accounts.map(account => `
+        <div class="account-item" data-account-id="${account.id}">
+          <input type="checkbox" id="account-${account.id}">
+          <div class="account-info">
+            <div class="account-name">${account.name}</div>
+            <div class="account-details">ID: ${account.id}</div>
+          </div>
+        </div>
+      `).join('');
+
+      accountList.querySelectorAll('.account-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const checkbox = el.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked;
+            updateSelection();
+          }
+        });
+      });
+
+      accountList.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelection);
+      });
+
+      document.getElementById('confirm-selection').addEventListener('click', confirmSelection);
+      updateSelection();
+    }
+
+    function updateSelection() {
+      selectedAccounts = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+        .map(cb => cb.id.replace('account-', ''));
+
+      const button = document.getElementById('confirm-selection');
+      button.disabled = selectedAccounts.length === 0;
+      button.textContent = selectedAccounts.length === 0
+        ? 'Select at least one account'
+        : `Connect ${selectedAccounts.length} Account${selectedAccounts.length > 1 ? 's' : ''}`;
+    }
+
+    async function confirmSelection() {
+      const button = document.getElementById('confirm-selection');
+
+      button.disabled = true;
+      button.textContent = 'Connecting...';
+
+      try {
+        const selected = availableAccounts.filter(a => selectedAccounts.includes(a.id));
+
+        const response = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/google-ads-oauth?action=save-accounts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+          },
+          body: JSON.stringify({
+            accounts: selected,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            userId: userId,
+            expiresAt: expiresAt
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to save accounts');
+        }
+
+        button.textContent = 'Syncing data...';
+        console.log('[Google OAuth] Triggering auto-sync for', selected.length, 'accounts');
+
+        const sessionKey = Object.keys(localStorage).find(key => key.startsWith('sb-iipaykvimkbbnoobtpzz-auth-token'));
+        let authToken = null;
+        if (sessionKey) {
+          try {
+            const session = JSON.parse(localStorage.getItem(sessionKey));
+            authToken = session?.access_token;
+          } catch (e) {
+            console.error('[Google OAuth] Failed to get auth token:', e);
+          }
+        }
+
+        if (!authToken) {
+          console.error('[Google OAuth] No auth token found, skipping auto-sync');
+          showSuccess(selected.length);
+          return;
+        }
+
+        for (const account of selected) {
+          try {
+            console.log('[Google OAuth] Syncing account:', account.id);
+            const syncResponse = await fetch('https://iipaykvimkbbnoobtpzz.supabase.co/functions/v1/google-ads-sync', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA'
+              },
+              body: JSON.stringify({ adAccountId: account.id })
+            });
+
+            const syncResult = await syncResponse.json();
+            console.log('[Google OAuth] Sync result for', account.id, ':', syncResult);
+          } catch (syncError) {
+            console.error('[Google OAuth] Sync failed for', account.id, ':', syncError);
+          }
+        }
+
+        showSuccess(selected.length);
+      } catch (error) {
+        console.error('Error saving accounts:', error);
+        showError(error.message || 'Failed to connect accounts. Please try again.');
+      }
+    }
+
+    function showSuccess(accountCount) {
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+
+      const plural = accountCount === 1 ? 'account' : 'accounts';
+      document.getElementById('success-message').textContent =
+        `Successfully connected ${accountCount} Google Ads ${plural}.`;
+
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({
+          type: 'google-oauth-success',
+          accountCount: accountCount
+        }, '*');
+
+        localStorage.setItem('google_oauth_success', JSON.stringify({
+          accountCount: accountCount,
+          timestamp: Date.now()
+        }));
+      }
+
+      setTimeout(() => {
+        window.close();
+      }, 1500);
+    }
+
+    function showError(message) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('account-selection-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      document.getElementById('error-text').textContent = message || 'Something went wrong. Please try again.';
+
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({
+          type: 'google-oauth-error',
+          error: message
+        }, '*');
+
+        localStorage.setItem('google_oauth_error', JSON.stringify({
+          error: message,
+          timestamp: Date.now()
+        }));
+      }
+
+      setTimeout(() => {
+        window.close();
+      }, 5000);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session');
+    const error = urlParams.get('error');
+
+    console.log('Callback received:', {
+      hasSession: !!sessionId,
+      error: error,
+      url: window.location.href
+    });
+
+    async function loadSessionData() {
+      if (!sessionId) {
+        showError('Invalid callback. Please try connecting again.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://iipaykvimkbbnoobtpzz.supabase.co/rest/v1/oauth_sessions?state=eq.${sessionId}&select=user_id,metadata`, {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGF5a3ZpbWtiYm5vb2J0cHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxNjU4MTgsImV4cCI6MjA1Nzc0MTgxOH0.qjJd6vbFZMHiTR7IA8IGtVxAzFuPbR5YHcAtLTSlUlA',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to load session');
+        }
+
+        const sessions = await response.json();
+        if (!sessions || sessions.length === 0) {
+          throw new Error('Session not found');
+        }
+
+        const session = sessions[0];
+        const { accounts, accessToken, refreshToken, expiresAt } = session.metadata;
+
+        if (!accounts || !accessToken || !expiresAt) {
+          throw new Error('Invalid session data');
+        }
+
+        console.log('Loaded session data:', { accountCount: accounts.length });
+        showAccountSelection(accounts, accessToken, refreshToken || '', session.user_id, expiresAt);
+      } catch (e) {
+        console.error('Failed to load session:', e);
+        showError('Failed to load session data. Please try again.');
+      }
+    }
+
+    if (sessionId) {
+      loadSessionData();
+    } else if (error) {
+      const errorMessages = {
+        'invalid_session': 'Session expired. Please try again.',
+        'session_expired': 'Session expired. Please try again.',
+        'token_exchange_failed': 'Failed to exchange authorization code.',
+        'oauth_error': 'An error occurred during authorization.'
+      };
+
+      showError(errorMessages[error] || decodeURIComponent(error));
+    } else if (window.location.search) {
+      showError('Invalid callback parameters. Please try connecting again.');
+    }
+  </script>
+</body>
+</html>
