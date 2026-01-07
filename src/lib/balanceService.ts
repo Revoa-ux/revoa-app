@@ -47,7 +47,7 @@ export interface Invoice {
   supplier_id?: string;
   total_amount?: number;
   amount?: number;
-  status: 'unpaid' | 'pending' | 'paid' | 'overdue';
+  status: 'unpaid' | 'pending' | 'paid' | 'overdue' | 'partially_paid' | 'cancelled';
   due_date?: string;
   paid_at?: string;
   payment_method?: 'stripe' | 'wire';
@@ -56,6 +56,10 @@ export interface Invoice {
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+  amount_received?: number;
+  remaining_amount?: number;
+  payment_reference?: string;
+  balance_credit_applied?: number;
 }
 
 export interface InvoiceLineItem {
@@ -123,6 +127,29 @@ export const balanceService = {
   },
 
   /**
+   * Get balance account for a specific user (admin use)
+   */
+  async getBalanceAccountByUserId(userId: string): Promise<BalanceAccount | null> {
+    try {
+      const { data, error } = await supabase
+        .from('balance_accounts')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching balance account:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error in getBalanceAccountByUserId:', error);
+      return null;
+    }
+  },
+
+  /**
    * Get balance transactions for the current user
    */
   async getTransactions(limit = 50): Promise<BalanceTransaction[]> {
@@ -150,6 +177,30 @@ export const balanceService = {
   },
 
   /**
+   * Get balance transactions for a specific user (admin use)
+   */
+  async getTransactionsByUserId(userId: string, limit = 50): Promise<BalanceTransaction[]> {
+    try {
+      const { data, error } = await supabase
+        .from('balance_transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getTransactionsByUserId:', error);
+      return [];
+    }
+  },
+
+  /**
    * Get invoices for the current user
    */
   async getInvoices(): Promise<Invoice[]> {
@@ -172,6 +223,111 @@ export const balanceService = {
     } catch (error) {
       console.error('Error in getInvoices:', error);
       return [];
+    }
+  },
+
+  /**
+   * Get invoices for a specific user (admin use)
+   */
+  async getInvoicesByUserId(userId: string): Promise<Invoice[]> {
+    try {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getInvoicesByUserId:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Get comprehensive merchant financial data (admin use)
+   */
+  async getMerchantFinancials(userId: string): Promise<{
+    balanceAccount: BalanceAccount | null;
+    transactions: BalanceTransaction[];
+    invoices: Invoice[];
+    stats: {
+      totalOutstanding: number;
+      paidThisMonth: number;
+      totalCredits: number;
+      totalDebits: number;
+    };
+  }> {
+    try {
+      const [balanceAccount, transactions, invoices] = await Promise.all([
+        this.getBalanceAccountByUserId(userId),
+        this.getTransactionsByUserId(userId, 100),
+        this.getInvoicesByUserId(userId)
+      ]);
+
+      const now = new Date();
+      const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      let totalOutstanding = 0;
+      let paidThisMonth = 0;
+
+      invoices.forEach(inv => {
+        const amount = inv.total_amount || inv.amount || 0;
+        if (['pending', 'unpaid', 'overdue', 'partially_paid'].includes(inv.status)) {
+          if (inv.status === 'partially_paid') {
+            totalOutstanding += (inv.remaining_amount || 0);
+          } else {
+            totalOutstanding += amount;
+          }
+        }
+        if (inv.status === 'paid' && inv.paid_at) {
+          const paidDate = new Date(inv.paid_at);
+          if (paidDate >= firstDayOfMonth) {
+            paidThisMonth += amount;
+          }
+        }
+      });
+
+      let totalCredits = 0;
+      let totalDebits = 0;
+
+      transactions.forEach(tx => {
+        if (tx.amount > 0) {
+          totalCredits += tx.amount;
+        } else {
+          totalDebits += Math.abs(tx.amount);
+        }
+      });
+
+      return {
+        balanceAccount,
+        transactions,
+        invoices,
+        stats: {
+          totalOutstanding,
+          paidThisMonth,
+          totalCredits,
+          totalDebits
+        }
+      };
+    } catch (error) {
+      console.error('Error in getMerchantFinancials:', error);
+      return {
+        balanceAccount: null,
+        transactions: [],
+        invoices: [],
+        stats: {
+          totalOutstanding: 0,
+          paidThisMonth: 0,
+          totalCredits: 0,
+          totalDebits: 0
+        }
+      };
     }
   },
 

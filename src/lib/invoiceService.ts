@@ -7,7 +7,7 @@ export interface Invoice {
   amount: number;
   total_amount: number | null;
   due_date: string;
-  status: 'pending' | 'paid' | 'unpaid' | 'overdue' | 'cancelled';
+  status: 'pending' | 'paid' | 'unpaid' | 'overdue' | 'cancelled' | 'partially_paid';
   file_url: string | null;
   payment_link: string | null;
   payment_method: 'stripe' | 'wire' | null;
@@ -30,6 +30,11 @@ export interface Invoice {
   metadata: any;
   created_at: string;
   updated_at: string;
+  amount_received: number;
+  remaining_amount: number;
+  payment_reference: string | null;
+  balance_credit_applied: number;
+  factory_order_amount?: number;
   user_profile?: {
     email: string;
     first_name: string | null;
@@ -39,7 +44,7 @@ export interface Invoice {
 }
 
 export interface InvoiceFilters {
-  status?: 'all' | 'pending' | 'paid' | 'unpaid' | 'overdue' | 'cancelled';
+  status?: 'all' | 'pending' | 'paid' | 'unpaid' | 'overdue' | 'cancelled' | 'partially_paid';
   userId?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -320,6 +325,7 @@ export const invoiceService = {
         status: 'paid',
         paid_at: new Date().toISOString(),
         payment_method: paymentMethod,
+        payment_reference: referenceNumber || null,
         notes: referenceNumber ? `Payment reference: ${referenceNumber}` : null
       })
       .eq('id', invoiceId);
@@ -332,6 +338,265 @@ export const invoiceService = {
       adminId,
       `Payment method: ${paymentMethod}, Reference: ${referenceNumber}`
     );
+  },
+
+  async applyPaymentWithReconciliation(
+    invoiceId: string,
+    amountReceived: number,
+    paymentMethod: 'stripe' | 'wire',
+    referenceNumber: string,
+    adminId: string
+  ): Promise<{
+    success: boolean;
+    overpayment?: number;
+    underpayment?: number;
+    newBalanceCredit?: number;
+  }> {
+    const invoice = await this.getInvoiceById(invoiceId);
+    if (!invoice) throw new Error('Invoice not found');
+
+    const totalAmount = invoice.total_amount || invoice.amount;
+    const difference = amountReceived - totalAmount;
+
+    if (difference >= 0) {
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({
+          status: 'paid',
+          paid_at: new Date().toISOString(),
+          payment_method: paymentMethod,
+          payment_reference: referenceNumber || null,
+          amount_received: amountReceived,
+          remaining_amount: 0,
+          notes: referenceNumber ? `Payment reference: ${referenceNumber}` : null
+        })
+        .eq('id', invoiceId);
+
+      if (updateError) throw updateError;
+
+      if (difference > 0) {
+        const { data: balanceAccount, error: balanceError } = await supabase
+          .from('balance_accounts')
+          .select('id, current_balance')
+          .eq('user_id', invoice.user_id)
+          .maybeSingle();
+
+        if (balanceError) throw balanceError;
+
+        const currentBalance = balanceAccount?.current_balance || 0;
+        const newBalance = currentBalance + difference;
+
+        if (balanceAccount) {
+          await supabase
+            .from('balance_accounts')
+            .update({
+              current_balance: newBalance,
+              last_transaction_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', balanceAccount.id);
+        } else {
+          await supabase
+            .from('balance_accounts')
+            .insert({
+              user_id: invoice.user_id,
+              current_balance: difference,
+              currency: 'USD'
+            });
+        }
+
+        await supabase
+          .from('balance_transactions')
+          .insert({
+            user_id: invoice.user_id,
+            type: 'payment',
+            amount: difference,
+            balance_after: newBalance,
+            description: `Overpayment credit from invoice ${invoice.invoice_number || invoiceId.slice(0, 8)}`,
+            reference_type: 'invoice',
+            reference_id: invoiceId,
+            metadata: {
+              payment_method: paymentMethod,
+              payment_reference: referenceNumber,
+              original_invoice_amount: totalAmount,
+              amount_received: amountReceived
+            }
+          });
+      }
+
+      await this.logAction(
+        invoiceId,
+        'payment_received',
+        adminId,
+        `Full payment received: $${amountReceived.toFixed(2)}. ${difference > 0 ? `Overpayment of $${difference.toFixed(2)} credited to balance.` : ''}`
+      );
+
+      return {
+        success: true,
+        overpayment: difference > 0 ? difference : undefined,
+        newBalanceCredit: difference > 0 ? difference : undefined
+      };
+    } else {
+      const remainingAmount = Math.abs(difference);
+
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({
+          status: 'partially_paid',
+          payment_method: paymentMethod,
+          payment_reference: referenceNumber || null,
+          amount_received: amountReceived,
+          remaining_amount: remainingAmount,
+          notes: `Partial payment received: $${amountReceived.toFixed(2)}. Remaining: $${remainingAmount.toFixed(2)}`
+        })
+        .eq('id', invoiceId);
+
+      if (updateError) throw updateError;
+
+      await this.logAction(
+        invoiceId,
+        'partial_payment_received',
+        adminId,
+        `Partial payment of $${amountReceived.toFixed(2)} received. Remaining balance: $${remainingAmount.toFixed(2)}`
+      );
+
+      return {
+        success: true,
+        underpayment: remainingAmount
+      };
+    }
+  },
+
+  async getUnpaidInvoices(userId?: string, adminFilter?: string): Promise<Invoice[]> {
+    let merchantIds: string[] | null = null;
+
+    if (userId) {
+      merchantIds = [userId];
+    } else if (adminFilter && adminFilter !== 'all') {
+      const { data: assignments } = await supabase
+        .from('user_assignments')
+        .select('user_id')
+        .eq('admin_id', adminFilter);
+
+      if (assignments && assignments.length > 0) {
+        merchantIds = assignments.map(a => a.user_id);
+      } else {
+        return [];
+      }
+    }
+
+    let query = supabase
+      .from('invoices')
+      .select('*')
+      .in('status', ['unpaid', 'pending', 'overdue', 'partially_paid'])
+      .order('due_date', { ascending: true });
+
+    if (merchantIds) {
+      query = query.in('user_id', merchantIds);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) return [];
+
+    const userIds = [...new Set(data.map(inv => inv.user_id).filter(Boolean))];
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, email, first_name, last_name, company')
+      .in('id', userIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]));
+
+    return data.map(inv => {
+      const profile = profileMap.get(inv.user_id);
+      return {
+        ...inv,
+        user_profile: profile ? {
+          email: profile.email,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          company: profile.company
+        } : undefined
+      };
+    });
+  },
+
+  async getPaidInvoicesForFactory(userId?: string, adminFilter?: string): Promise<Invoice[]> {
+    let merchantIds: string[] | null = null;
+
+    if (userId) {
+      merchantIds = [userId];
+    } else if (adminFilter && adminFilter !== 'all') {
+      const { data: assignments } = await supabase
+        .from('user_assignments')
+        .select('user_id')
+        .eq('admin_id', adminFilter);
+
+      if (assignments && assignments.length > 0) {
+        merchantIds = assignments.map(a => a.user_id);
+      } else {
+        return [];
+      }
+    }
+
+    let query = supabase
+      .from('invoices')
+      .select('*')
+      .eq('status', 'paid')
+      .or('factory_order_placed.is.null,factory_order_placed.eq.false')
+      .order('paid_at', { ascending: true });
+
+    if (merchantIds) {
+      query = query.in('user_id', merchantIds);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) return [];
+
+    const userIds = [...new Set(data.map(inv => inv.user_id).filter(Boolean))];
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('id, email, first_name, last_name, company')
+      .in('id', userIds);
+
+    const profileMap = new Map(profiles?.map(p => [p.id, p]));
+
+    const { data: allocations } = await supabase
+      .from('invoice_factory_allocations')
+      .select('invoice_id, amount_allocated')
+      .in('invoice_id', data.map(inv => inv.id));
+
+    const allocationMap = new Map<string, number>();
+    allocations?.forEach(alloc => {
+      const current = allocationMap.get(alloc.invoice_id) || 0;
+      allocationMap.set(alloc.invoice_id, current + alloc.amount_allocated);
+    });
+
+    return data.map(inv => {
+      const profile = profileMap.get(inv.user_id);
+      const factoryOrderAmount = allocationMap.get(inv.id) || 0;
+      const totalAmount = inv.total_amount || inv.amount;
+
+      return {
+        ...inv,
+        factory_order_amount: factoryOrderAmount,
+        user_profile: profile ? {
+          email: profile.email,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          company: profile.company
+        } : undefined
+      };
+    }).filter(inv => {
+      const totalAmount = inv.total_amount || inv.amount;
+      const orderedAmount = inv.factory_order_amount || 0;
+      return orderedAmount < totalAmount;
+    });
   },
 
   async getInvoiceActions(invoiceId: string): Promise<InvoiceAction[]> {

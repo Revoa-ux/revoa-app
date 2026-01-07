@@ -14,6 +14,7 @@ import { UserAssignmentModal } from '@/components/admin/UserAssignmentModal';
 import { UserActionsMenu } from '@/components/admin/UserActionsMenu';
 import { UserProfileSidebar } from '@/components/admin/UserProfileSidebar';
 import { ActiveQuotesModal } from '@/components/admin/ActiveQuotesModal';
+import MerchantTransactionsModal from '@/components/admin/MerchantTransactionsModal';
 import { CustomCheckbox } from '@/components/CustomCheckbox';
 import Modal from '@/components/Modal';
 import { FilterButton } from '@/components/FilterButton';
@@ -94,6 +95,8 @@ export default function Users() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showActiveQuotesModal, setShowActiveQuotesModal] = useState(false);
   const [activeQuotesUser, setActiveQuotesUser] = useState<{ id: string; name: string } | null>(null);
+  const [showTransactionsModal, setShowTransactionsModal] = useState(false);
+  const [transactionsUser, setTransactionsUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const filterDropdownRef = useRef<HTMLDivElement>(null);
   const adminFilterDropdownRef = useRef<HTMLDivElement>(null);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -661,6 +664,14 @@ export default function Users() {
                             setSelectedUserId(user.user_id);
                             setShowUserProfile(true);
                           }}
+                          onViewTransactions={() => {
+                            setTransactionsUser({
+                              id: user.user_id,
+                              name: user.name || user.email.split('@')[0],
+                              email: user.email
+                            });
+                            setShowTransactionsModal(true);
+                          }}
                          onResetPassword={() => {
                             toast.success('Password reset email sent');
                           }}
@@ -744,6 +755,19 @@ export default function Users() {
           onClose={() => {
             setShowActiveQuotesModal(false);
             setActiveQuotesUser(null);
+          }}
+        />
+      )}
+
+      {/* Merchant Transactions Modal */}
+      {showTransactionsModal && transactionsUser && (
+        <MerchantTransactionsModal
+          userId={transactionsUser.id}
+          merchantName={transactionsUser.name}
+          merchantEmail={transactionsUser.email}
+          onClose={() => {
+            setShowTransactionsModal(false);
+            setTransactionsUser(null);
           }}
         />
       )}

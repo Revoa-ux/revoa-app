@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Factory, Package } from 'lucide-react';
+import { Factory, ChevronRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format } from 'date-fns';
@@ -13,6 +13,7 @@ interface OrderFromFactoryTabProps {
   permissions: any;
   refreshKey: number;
   searchTerm: string;
+  adminFilter?: string;
   onInvoiceCountChange?: (count: number) => void;
 }
 
@@ -22,6 +23,7 @@ export default function OrderFromFactoryTab({
   permissions,
   refreshKey,
   searchTerm,
+  adminFilter = 'all',
   onInvoiceCountChange
 }: OrderFromFactoryTabProps) {
   const { user } = useAuth();
@@ -29,10 +31,11 @@ export default function OrderFromFactoryTab({
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showFactoryOrderModal, setShowFactoryOrderModal] = useState(false);
+  const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadInvoices();
-  }, [user?.id, filteredUserId, refreshKey]);
+  }, [user?.id, filteredUserId, refreshKey, adminFilter]);
 
   const loadInvoices = async () => {
     if (!user?.id) return;
@@ -44,6 +47,20 @@ export default function OrderFromFactoryTab({
 
       if (filteredUserId) {
         merchantIds = [filteredUserId];
+      } else if (adminFilter !== 'all') {
+        const { data: assignments } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', adminFilter);
+
+        if (assignments && assignments.length > 0) {
+          merchantIds = assignments.map(a => a.user_id);
+        } else {
+          setInvoices([]);
+          setLoading(false);
+          onInvoiceCountChange?.(0);
+          return;
+        }
       } else if (!isSuperAdmin) {
         const { data: assignments } = await supabase
           .from('user_assignments')
@@ -55,6 +72,7 @@ export default function OrderFromFactoryTab({
         } else {
           setInvoices([]);
           setLoading(false);
+          onInvoiceCountChange?.(0);
           return;
         }
       }
@@ -125,7 +143,8 @@ export default function OrderFromFactoryTab({
     }
   };
 
-  const handleOrderFromFactory = (invoice: Invoice) => {
+  const handleOrderFromFactory = (e: React.MouseEvent, invoice: Invoice) => {
+    e.stopPropagation();
     setSelectedInvoice(invoice);
     setShowFactoryOrderModal(true);
   };
@@ -134,6 +153,16 @@ export default function OrderFromFactoryTab({
     setShowFactoryOrderModal(false);
     setSelectedInvoice(null);
     loadInvoices();
+  };
+
+  const toggleExpansion = (invoiceId: string) => {
+    const newExpanded = new Set(expandedInvoices);
+    if (newExpanded.has(invoiceId)) {
+      newExpanded.delete(invoiceId);
+    } else {
+      newExpanded.add(invoiceId);
+    }
+    setExpandedInvoices(newExpanded);
   };
 
   const filteredInvoices = invoices.filter(inv => {
@@ -148,16 +177,29 @@ export default function OrderFromFactoryTab({
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-        Loading paid invoices...
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="px-4 py-4 flex items-center gap-4">
+            <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-24 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-32 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="flex-1">
+              <div className="w-40 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1" />
+              <div className="w-32 h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+            <div className="w-20 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="w-28 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+          </div>
+        ))}
       </div>
     );
   }
 
   if (filteredInvoices.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-gray-500 dark:text-gray-400">
+      <div className="text-center py-12">
+        <p className="text-gray-600 dark:text-gray-400">
           {searchTerm ? 'No invoices match your search' : 'All paid invoices have factory orders placed'}
         </p>
       </div>
@@ -168,18 +210,34 @@ export default function OrderFromFactoryTab({
     <>
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Invoice #</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Merchant</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Paid Amount</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Available</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Paid Date</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Items</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400">Action</th>
+          <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Invoice
+              </th>
+              {!filteredUserId && (
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Merchant
+                </th>
+              )}
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Paid Amount
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Available
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Paid Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Items
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                Action
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
             {filteredInvoices.map((invoice) => {
               const totalAmount = invoice.total_amount || invoice.amount;
               const orderedAmount = invoice.factory_order_amount || 0;
@@ -187,56 +245,100 @@ export default function OrderFromFactoryTab({
               const lineItemCount = invoice.line_items?.length || 0;
 
               return (
-                <tr
-                  key={invoice.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                >
-                  <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-medium text-gray-900 dark:text-white">
-                      ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                      ${availableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                    {orderedAmount > 0 && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        (${orderedAmount.toFixed(2)} ordered)
-                      </p>
+                <React.Fragment key={invoice.id}>
+                  <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleExpansion(invoice.id)}
+                          className="p-1.5 -m-1 text-gray-400 rounded"
+                        >
+                          <ChevronRight className={`w-4 h-4 transition-transform ${expandedInvoices.has(invoice.id) ? 'rotate-90' : ''}`} />
+                        </button>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+                        </span>
+                      </div>
+                    </td>
+                    {!filteredUserId && (
+                      <td className="px-4 py-4">
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
+                        </span>
+                      </td>
                     )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM dd, yyyy') : 'N/A'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs text-gray-600 dark:text-gray-400">
-                      <Package className="w-3 h-3" />
-                      {lineItemCount}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => handleOrderFromFactory(invoice)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95"
-                    >
-                      <Factory className="w-4 h-4" />
-                      Order
-                    </button>
-                  </td>
-                </tr>
+                    <td className="px-4 py-4 text-right">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                          ${availableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                        {orderedAmount > 0 && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            ${orderedAmount.toFixed(2)} ordered
+                          </p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM dd, yyyy') : 'N/A'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {lineItemCount} {lineItemCount === 1 ? 'product' : 'products'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <button
+                        onClick={(e) => handleOrderFromFactory(e, invoice)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-all active:scale-95"
+                      >
+                        <Factory className="w-4 h-4" />
+                        Order from Factory
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedInvoices.has(invoice.id) && (
+                    <tr>
+                      <td colSpan={filteredUserId ? 6 : 7} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
+                        <div className="space-y-2">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
+                            Line Items
+                          </p>
+                          {invoice.line_items && invoice.line_items.length > 0 ? (
+                            invoice.line_items.map((item: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between text-sm">
+                                <div className="flex-1">
+                                  <span className="text-gray-900 dark:text-white font-medium">
+                                    {item.product_name || item.description}
+                                  </span>
+                                  {item.variant_name && (
+                                    <span className="text-gray-500 dark:text-gray-400 ml-2">
+                                      ({item.variant_name})
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                                  <span>Qty: {item.quantity}</span>
+                                  <span>${(item.total_cost || item.total_price || 0).toFixed(2)}</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">No line items found</p>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               );
             })}
           </tbody>

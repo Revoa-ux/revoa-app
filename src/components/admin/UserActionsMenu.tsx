@@ -5,7 +5,8 @@ import {
   Key,
   Power,
   UserMinus,
-  UserPlus
+  UserPlus,
+  Receipt
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -17,6 +18,7 @@ interface UserActionsMenuProps {
   isAssigned?: boolean;
   currentUserEmail?: string;
   onViewProfile: (userId: string) => void;
+  onViewTransactions?: (userId: string) => void;
   onResetPassword: (userId: string) => void;
   onToggleStatus: (userId: string, active: boolean) => void;
   onReassign: (userId: string) => void;
@@ -30,6 +32,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   isAssigned = false,
   currentUserEmail,
   onViewProfile,
+  onViewTransactions,
   onResetPassword,
   onToggleStatus,
   onReassign,
@@ -95,6 +98,16 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
             <User className="w-4 h-4 mr-3" />
             View Profile
           </button>
+
+          {onViewTransactions && (
+            <button
+              onClick={handleAction(() => onViewTransactions(userId))}
+              className="flex items-center w-full px-4 py-2.5 text-sm text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative group"
+            >
+              <Receipt className="w-4 h-4 mr-3" />
+              View Transactions
+            </button>
+          )}
 
           <button
             onClick={handleAction(() => onResetPassword(userId))}
