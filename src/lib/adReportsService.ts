@@ -566,8 +566,8 @@ export async function getCreativePerformance(
       const roas = totalSpend > 0 ? totalValue / totalSpend : 0;
 
       // Calculate profit metrics using ACTUAL COGS from our system (not estimated!)
-      // If COGS not available, estimate at 40% but prefer real data
-      const actualCOGS = totalCOGS > 0 ? totalCOGS : (totalValue * 0.4);
+      // If COGS not available, profit will be calculated without costs (showing higher values than reality, but not estimated)
+      const actualCOGS = totalCOGS;
       const profit = totalValue - actualCOGS - totalSpend;
       const profitMargin = totalValue > 0 ? (profit / totalValue) * 100 : 0;
       const netROAS = totalSpend > 0 ? profit / totalSpend : 0;

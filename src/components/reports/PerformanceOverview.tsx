@@ -99,6 +99,7 @@ const ALL_METRICS: MetricDefinition[] = [
     iconBgColor: 'bg-gray-100 dark:bg-gray-700',
     format: 'currency',
     getValue: (m) => m?.profit?.value || 0,
+    showInfoIcon: true,
   },
   {
     id: 'net_roas',
@@ -107,6 +108,7 @@ const ALL_METRICS: MetricDefinition[] = [
     iconColor: 'text-gray-600 dark:text-gray-400',
     iconBgColor: 'bg-gray-100 dark:bg-gray-700',
     getValue: (m) => m?.netROAS?.value || 0,
+    showInfoIcon: true,
   },
 ];
 
@@ -554,6 +556,7 @@ export const PerformanceOverview: React.FC<PerformanceOverviewProps> = ({ metric
                     hasRexInsight={insight?.hasInsight}
                     rexMessage={insight?.message}
                     isDragging={draggedMetricId === metricDef.id}
+                    showInfoIcon={(metricDef as any).showInfoIcon}
                     onDragStart={isEditMode ? handleDragStart(metricDef.id) : undefined}
                     onDragEnd={isEditMode ? handleDragEnd : undefined}
                     onDragOver={isEditMode ? handleDragOver : undefined}

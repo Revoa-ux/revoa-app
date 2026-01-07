@@ -11,6 +11,7 @@ export interface MetricDefinition {
   getValue: (metrics: any) => string | number;
   getSubtext?: (metrics: any) => string;
   format?: 'number' | 'currency' | 'percentage';
+  showInfoIcon?: boolean;
 }
 
 interface MetricCardProps {

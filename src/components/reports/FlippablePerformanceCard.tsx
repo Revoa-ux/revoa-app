@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, Sparkles, LucideIcon } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Sparkles, Info, LucideIcon } from 'lucide-react';
 import { PLATFORM_COLORS, PLATFORM_LABELS, type AdPlatform } from '@/types/crossPlatform';
 
 interface ChartDataPoint {
@@ -26,6 +26,7 @@ interface FlippablePerformanceCardProps {
   hasRexInsight?: boolean;
   rexMessage?: string;
   isDragging?: boolean;
+  showInfoIcon?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
   onDragOver?: (e: React.DragEvent) => void;
@@ -47,6 +48,7 @@ export default function FlippablePerformanceCard({
   hasRexInsight,
   rexMessage,
   isDragging = false,
+  showInfoIcon = false,
   onDragStart,
   onDragEnd,
   onDragOver,
@@ -130,7 +132,18 @@ export default function FlippablePerformanceCard({
               <div className={`p-2 ${hasRexInsight ? 'bg-red-50 dark:bg-red-900/30' : iconBgColor} rounded-lg ${hasRexInsight ? 'text-red-500 dark:text-red-400' : iconColor}`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</h3>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</h3>
+                {showInfoIcon && (
+                  <div className="relative group/info" data-no-flip>
+                    <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 cursor-help" />
+                    <div className="absolute left-0 top-full mt-2 w-56 p-2.5 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 z-50">
+                      <p className="leading-relaxed">Sync your products in the Quotes page to see accurate profit metrics based on real COGS data from Revoa</p>
+                      <div className="absolute -top-1.5 left-4 w-3 h-3 bg-gray-900 dark:bg-gray-800 rotate-45" />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             {change !== 0 && (
               <div className={`flex items-center text-sm ${change > 0 ? 'text-green-500' : 'text-red-500'}`}>

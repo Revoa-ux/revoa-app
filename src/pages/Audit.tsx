@@ -83,7 +83,12 @@ export default function Audit() {
   };
 
   // Load existing Rex suggestions from database
-  const loadRexSuggestions = async (currentCreatives?: any[], currentCampaigns?: any[], currentAdSets?: any[]) => {
+  const loadRexSuggestions = async (
+    currentCreatives?: any[],
+    currentCampaigns?: any[],
+    currentAdSets?: any[],
+    shouldExpireOld: boolean = false
+  ) => {
     if (!user) return;
 
     // Use provided data or fall back to state
@@ -94,15 +99,20 @@ export default function Audit() {
     console.log('[Rex] loadRexSuggestions called with data:', {
       creatives: creativesToAnalyze.length,
       campaigns: campaignsToAnalyze.length,
-      adSets: adSetsToAnalyze.length
+      adSets: adSetsToAnalyze.length,
+      shouldExpireOld
     });
 
     try {
-      // STEP 1: Expire all pending/viewed suggestions before regenerating
-      // This ensures suggestions always match the current data
-      console.log('[Rex] Expiring old pending/viewed suggestions before regeneration...');
-      const expiredCount = await rexSuggestionService.expireUserPendingSuggestions(user.id);
-      console.log(`[Rex] Expired ${expiredCount} suggestions to make way for fresh analysis`);
+      // STEP 1: Only expire pending/viewed suggestions when manually refreshing
+      // When using cached data, preserve existing suggestions to avoid rate limit issues
+      if (shouldExpireOld) {
+        console.log('[Rex] Expiring old pending/viewed suggestions before regeneration...');
+        const expiredCount = await rexSuggestionService.expireUserPendingSuggestions(user.id);
+        console.log(`[Rex] Expired ${expiredCount} suggestions to make way for fresh analysis`);
+      } else {
+        console.log('[Rex] Using cached data - preserving existing suggestions');
+      }
 
       // STEP 2: Load remaining suggestions (dismissed and applied suggestions persist)
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
@@ -629,7 +639,8 @@ export default function Audit() {
 
       // Load existing suggestions and generate new ones from REAL data
       // CRITICAL: Pass data directly to avoid React state timing issues
-      await loadRexSuggestions(creativesData, campaignsData, adSetsData);
+      // When manually refreshing, expire old suggestions to regenerate from fresh data
+      await loadRexSuggestions(creativesData, campaignsData, adSetsData, true);
 
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
@@ -659,8 +670,8 @@ export default function Audit() {
       setCampaigns(cachedResult.data.campaigns);
       setAdSets(cachedResult.data.adSets);
 
-      // Load Rex suggestions in background
-      loadRexSuggestions();
+      // Load Rex suggestions in background - preserve existing suggestions (don't expire)
+      loadRexSuggestions(undefined, undefined, undefined, false);
       return;
     }
 
@@ -674,8 +685,8 @@ export default function Audit() {
       setCampaigns(cachedResult.data.campaigns);
       setAdSets(cachedResult.data.adSets);
 
-      // Load Rex suggestions from existing data
-      loadRexSuggestions();
+      // Load Rex suggestions from existing data - preserve existing suggestions (don't expire)
+      loadRexSuggestions(undefined, undefined, undefined, false);
       return;
     }
 
@@ -687,7 +698,8 @@ export default function Audit() {
       setCreatives(cachedResult.data.creatives);
       setCampaigns(cachedResult.data.campaigns);
       setAdSets(cachedResult.data.adSets);
-      loadRexSuggestions();
+      // Load Rex suggestions from existing data - preserve existing suggestions (don't expire)
+      loadRexSuggestions(undefined, undefined, undefined, false);
     } else {
       // No cached data at all - show empty state, user must click refresh
       console.log('[Audit] No cache available. User must manually refresh to load data.');
