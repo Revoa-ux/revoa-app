@@ -80,6 +80,7 @@ export default function UnfulfilledOrdersTab({
         .select('*')
         .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
         .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
+        .eq('factory_order_confirmed', true)
         .is('cancelled_at', null)
         .order('created_at', { ascending: false });
 

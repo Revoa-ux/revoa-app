@@ -88,6 +88,20 @@ export default function FactoryOrderModal({
 
       if (updateError) throw updateError;
 
+      if (invoice.shopify_order_ids && invoice.shopify_order_ids.length > 0) {
+        const { error: ordersUpdateError } = await supabase
+          .from('shopify_orders')
+          .update({
+            factory_order_confirmed: true,
+            factory_order_confirmed_at: new Date().toISOString()
+          })
+          .in('shopify_order_id', invoice.shopify_order_ids);
+
+        if (ordersUpdateError) {
+          console.error('Error updating shopify orders:', ordersUpdateError);
+        }
+      }
+
       toast.success('Factory order confirmed');
       onSuccess();
     } catch (error) {

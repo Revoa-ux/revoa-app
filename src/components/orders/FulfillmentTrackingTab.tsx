@@ -327,21 +327,15 @@ export default function FulfillmentTrackingTab({
       setLoading(true);
 
       let query = supabase
-        .from('shopify_order_fulfillments')
-        .select(`
-          *,
-          shopify_orders!inner(
-            order_number,
-            shopify_order_id,
-            user_id,
-            customer_first_name,
-            customer_last_name
-          )
-        `)
-        .order('shipped_at', { ascending: false });
+        .from('shopify_orders')
+        .select('*')
+        .eq('exported_to_3pl', true)
+        .or('tracking_imported.is.null,tracking_imported.eq.false')
+        .is('cancelled_at', null)
+        .order('exported_at', { ascending: false });
 
       if (filteredUserId) {
-        query = query.eq('shopify_orders.user_id', filteredUserId);
+        query = query.eq('user_id', filteredUserId);
       } else if (!isSuperAdmin) {
         const { data: assignments } = await supabase
           .from('user_assignments')
@@ -350,7 +344,7 @@ export default function FulfillmentTrackingTab({
 
         if (assignments && assignments.length > 0) {
           const merchantIds = assignments.map(a => a.user_id);
-          query = query.in('shopify_orders.user_id', merchantIds);
+          query = query.in('user_id', merchantIds);
         } else {
           setFulfillments([]);
           setLoading(false);
@@ -363,7 +357,7 @@ export default function FulfillmentTrackingTab({
       if (error) throw error;
 
       if (data && data.length > 0) {
-        const userIds = [...new Set(data.map((f: any) => f.shopify_orders.user_id))];
+        const userIds = [...new Set(data.map((order: any) => order.user_id))];
         const { data: profiles } = await supabase
           .from('user_profiles')
           .select('id, first_name, last_name, company, name')
@@ -376,18 +370,31 @@ export default function FulfillmentTrackingTab({
           ])
         );
 
-        const fulfillmentsWithMerchants = data.map((f: any) => ({
-          ...f,
+        const ordersWithMerchants = data.map((order: any) => ({
+          id: order.id,
+          order_id: order.id,
+          tracking_number: null,
+          tracking_company: null,
+          tracking_url: null,
+          shipment_status: 'pending_tracking',
+          shipped_at: order.exported_at,
+          delivered_at: null,
+          estimated_delivery: null,
+          synced_to_shopify: false,
+          synced_to_shopify_at: null,
+          sync_error: null,
           order: {
-            ...f.shopify_orders,
-            merchant_name: profileMap.get(f.shopify_orders.user_id) || 'Unknown'
+            order_number: order.order_number,
+            shopify_order_id: order.shopify_order_id,
+            user_id: order.user_id,
+            customer_first_name: order.customer_first_name,
+            customer_last_name: order.customer_last_name,
+            merchant_name: profileMap.get(order.user_id) || 'Unknown'
           }
         }));
 
-        setFulfillments(fulfillmentsWithMerchants);
-
-        const uniqueCarriers = [...new Set(data.map((f: any) => f.tracking_company).filter(Boolean))];
-        onCarriersLoaded(uniqueCarriers as string[]);
+        setFulfillments(ordersWithMerchants);
+        onCarriersLoaded([]);
       } else if (SHOW_MOCK_DATA) {
         setFulfillments(MOCK_FULFILLMENTS);
         const mockCarriers = [...new Set(MOCK_FULFILLMENTS.map(f => f.tracking_company))];
