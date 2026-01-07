@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Search, Filter, Check, TrendingUp, TrendingDown, DollarSign, Clock, AlertCircle } from 'lucide-react';
+import { X, Search, Filter, Check, TrendingUp, TrendingDown, DollarSign, Clock, AlertCircle, ArrowLeft } from 'lucide-react';
 import { balanceService, BalanceAccount, BalanceTransaction, Invoice } from '../../lib/balanceService';
 import { FilterButton } from '../FilterButton';
 import { useClickOutside } from '@/lib/useClickOutside';
@@ -137,29 +137,45 @@ export default function MerchantTransactionsModal({
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Balance</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-cyan-50/30 dark:from-emerald-900/20 dark:via-teal-900/10 dark:to-cyan-900/5" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-200/30 to-transparent dark:from-emerald-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Balance</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Outstanding</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    ${stats.totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50/50 to-yellow-50/30 dark:from-amber-900/20 dark:via-orange-900/10 dark:to-yellow-900/5" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-200/30 to-transparent dark:from-amber-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Outstanding</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      ${stats.totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Invoices</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    {invoices.length}
-                  </p>
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50/50 to-violet-50/30 dark:from-blue-900/20 dark:via-indigo-900/10 dark:to-violet-900/5" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/30 to-transparent dark:from-blue-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Invoices</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      {invoices.length}
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Paid</p>
-                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    ${stats.totalDebits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
+                <div className="relative overflow-hidden p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-emerald-50/50 to-teal-50/30 dark:from-green-900/20 dark:via-emerald-900/10 dark:to-teal-900/5" />
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-200/30 to-transparent dark:from-green-700/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                  <div className="relative">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Paid</p>
+                    <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                      ${stats.totalDebits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -353,12 +369,13 @@ export default function MerchantTransactionsModal({
           )}
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-          <div className="px-6 py-4 flex items-center justify-center">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
+          <div className="flex justify-center">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
+              <ArrowLeft className="w-4 h-4" />
               Close
             </button>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, ChevronDown, Check, Search, Users, AlertTriangle, AlertCircle, Package, Truck, DollarSign, Factory, FileText, Filter, Receipt, Clock } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, ChevronDown, Check, Search, Users, AlertTriangle, AlertCircle, Package, Truck, DollarSign, Factory, FileText, Filter, Receipt, Clock, ChevronRight } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
@@ -1235,54 +1235,88 @@ export default function Orders() {
       {/* Tabs and Table */}
       <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <div className="flex">
+          <div className="flex items-stretch">
             <button
               onClick={() => setActiveTab('payments')}
-              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
                 activeTab === 'payments'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
-              <span className="font-medium text-sm">Waiting Payment</span>
+              <span className="font-medium text-sm whitespace-nowrap">Waiting Payment</span>
+              {stats.pendingPayments > 0 && (
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  activeTab === 'payments'
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                }`}>
+                  {stats.pendingPayments}
+                </span>
+              )}
+              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
 
             <button
               onClick={() => setActiveTab('factory')}
-              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
                 activeTab === 'factory'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
-              <span className="font-medium text-sm">Ready To Order</span>
+              <span className="font-medium text-sm whitespace-nowrap">Ready To Order</span>
+              {stats.awaitingFactoryOrder > 0 && (
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  activeTab === 'factory'
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                }`}>
+                  {stats.awaitingFactoryOrder}
+                </span>
+              )}
+              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
 
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
                 activeTab === 'unfulfilled'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
-              <span className="font-medium text-sm">Ready To Export</span>
+              <span className="font-medium text-sm whitespace-nowrap">Ready To Export</span>
               {stats.readyToExport > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full">
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  activeTab === 'unfulfilled'
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                }`}>
                   {stats.readyToExport}
                 </span>
               )}
+              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
                 activeTab === 'tracking'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
-              <span className="font-medium text-sm">Needs Tracking</span>
+              <span className="font-medium text-sm whitespace-nowrap">Needs Tracking</span>
+              {stats.needsTrackingNotSynced > 0 && (
+                <span className={`px-2 py-0.5 text-xs rounded-full ${
+                  activeTab === 'tracking'
+                    ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+                }`}>
+                  {stats.needsTrackingNotSynced}
+                </span>
+              )}
             </button>
           </div>
         </div>
