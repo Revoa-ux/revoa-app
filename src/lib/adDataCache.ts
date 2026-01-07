@@ -29,7 +29,7 @@ interface AdDataCache {
       adSets: any[];
     } | null;
     age: number | null; // Age in minutes
-    isStale: boolean; // > 10 minutes
+    isStale: boolean; // > 15 minutes
     isVeryStale: boolean; // > 30 minutes
     dateRangeMatches: boolean;
   };
@@ -37,7 +37,7 @@ interface AdDataCache {
   clearCache: () => void;
 }
 
-const CACHE_FRESH_THRESHOLD = 10 * 60 * 1000; // 10 minutes
+const CACHE_FRESH_THRESHOLD = 15 * 60 * 1000; // 15 minutes
 const CACHE_STALE_THRESHOLD = 30 * 60 * 1000; // 30 minutes
 
 export const useAdDataCache = create<AdDataCache>()(

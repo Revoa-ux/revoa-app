@@ -651,7 +651,7 @@ export default function Audit() {
     // Check cache first
     const cachedResult = getCachedData({ startDate, endDate });
 
-    // SCENARIO 1: Cache is fresh (< 10 min) - use immediately, no loading
+    // SCENARIO 1: Cache is fresh (< 15 min) - use immediately, no loading, NO refresh
     if (cachedResult.data && !cachedResult.isStale && cachedResult.dateRangeMatches) {
       console.log(`[Audit] Using fresh cache (${cachedResult.age} min old)`);
       setPerformanceData(cachedResult.data.performanceData);
@@ -664,91 +664,37 @@ export default function Audit() {
       return;
     }
 
-    // SCENARIO 2: Cache is stale (10-30 min) - use it immediately but refresh in background
+    // SCENARIO 2: Cache exists but is stale (15-30 min) - use it, DON'T auto-refresh
+    // User must manually click refresh button to update
     if (cachedResult.data && !cachedResult.isVeryStale && cachedResult.dateRangeMatches) {
-      console.log(`[Audit] Using stale cache (${cachedResult.age} min), refreshing in background`);
+      console.log(`[Audit] Using stale cache (${cachedResult.age} min old). User must manually refresh.`);
 
-      // Use cached data immediately (no loading state!)
       setPerformanceData(cachedResult.data.performanceData);
       setCreatives(cachedResult.data.creatives);
       setCampaigns(cachedResult.data.campaigns);
       setAdSets(cachedResult.data.adSets);
 
-      // Refresh in background without blocking UI
-      (async () => {
-        try {
-          const [metrics, creativesData, campaignsData, adSetsData] = await Promise.all([
-            getAdReportsMetrics(startDate, endDate),
-            getCreativePerformance(startDate, endDate),
-            getCampaignPerformance(startDate, endDate),
-            getAdSetPerformance(startDate, endDate)
-          ]);
-
-          // Update state and cache
-          setPerformanceData(metrics);
-          setCreatives(creativesData);
-          setCampaigns(campaignsData);
-          setAdSets(adSetsData);
-
-          setCachedData({
-            performanceData: metrics,
-            creatives: creativesData,
-            campaigns: campaignsData,
-            adSets: adSetsData,
-            dateRange: { startDate, endDate }
-          });
-
-          await loadRexSuggestions(creativesData, campaignsData, adSetsData);
-          toast.success('Data updated in background', { duration: 2000 });
-        } catch (error) {
-          console.error('[Audit] Background refresh failed:', error);
-        }
-      })();
-
+      // Load Rex suggestions from existing data
+      loadRexSuggestions();
       return;
     }
 
-    // SCENARIO 3: No cache or very stale (> 30 min) - fetch fresh data with loading state
-    console.log('[Audit] No cache or very stale, fetching fresh data');
-
-    // Check if we should trigger a full sync
-    const isDataFresh = facebook.accounts?.some(account => {
-      if (!account.last_synced_at) return false;
-      const lastSync = new Date(account.last_synced_at);
-      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      return lastSync > thirtyMinutesAgo;
-    });
-
-    if (isDataFresh) {
-      // Just fetch data from DB
-      setIsLoading(true);
-      Promise.all([
-        getAdReportsMetrics(startDate, endDate),
-        getCreativePerformance(startDate, endDate),
-        getCampaignPerformance(startDate, endDate),
-        getAdSetPerformance(startDate, endDate)
-      ]).then(async ([metrics, creativesData, campaignsData, adSetsData]) => {
-        setPerformanceData(metrics);
-        setCreatives(creativesData);
-        setCampaigns(campaignsData);
-        setAdSets(adSetsData);
-
-        // Cache the fetched data
-        setCachedData({
-          performanceData: metrics,
-          creatives: creativesData,
-          campaigns: campaignsData,
-          adSets: adSetsData,
-          dateRange: { startDate, endDate }
-        });
-
-        await loadRexSuggestions(creativesData, campaignsData, adSetsData);
-      }).finally(() => {
-        setIsLoading(false);
-      });
+    // SCENARIO 3: No cache or very stale (> 30 min) - DON'T auto-refresh
+    // User must manually click refresh button to load/update data
+    if (cachedResult.data) {
+      console.log(`[Audit] Using very stale cache (${cachedResult.age} min old). User must manually refresh.`);
+      setPerformanceData(cachedResult.data.performanceData);
+      setCreatives(cachedResult.data.creatives);
+      setCampaigns(cachedResult.data.campaigns);
+      setAdSets(cachedResult.data.adSets);
+      loadRexSuggestions();
     } else {
-      // Trigger full refresh with sync
-      refreshData();
+      // No cached data at all - show empty state, user must click refresh
+      console.log('[Audit] No cache available. User must manually refresh to load data.');
+      setPerformanceData(null);
+      setCreatives([]);
+      setCampaigns([]);
+      setAdSets([]);
     }
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 

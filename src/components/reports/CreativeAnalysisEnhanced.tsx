@@ -577,6 +577,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     { id: 'spend', label: 'Spend', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'conversions', label: 'Conv.', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'cpa', label: 'CPA', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
+    { id: 'conversionValue', label: 'Conv. Value', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'roas', label: 'ROAS', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'profit', label: 'Profit', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'profitMargin', label: 'Margin %', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
@@ -665,6 +666,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         'Spend',
         'Conversions',
         'CPA',
+        'Conversion Value',
         'ROAS',
         'Profit',
         'Profit Margin (%)',
@@ -682,6 +684,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         c.metrics.spend.toFixed(2),
         c.metrics.conversions,
         c.metrics.cpa.toFixed(2),
+        c.metrics.conversion_value?.toFixed(2) || '0.00',
         c.metrics.roas?.toFixed(2) || '0.00',
         c.metrics.profit?.toFixed(2) || '0.00',
         c.metrics.profitMargin?.toFixed(2) || '0.00',
@@ -757,6 +760,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             return item.metrics.conversions || 0;
           case 'cpa':
             return item.metrics.cpa || 0;
+          case 'conversionValue':
+            return item.metrics.conversion_value || 0;
           case 'roas':
             return item.metrics.roas || 0;
           case 'profit':

@@ -52,6 +52,7 @@ export interface AdConversionMetrics {
   platform_ad_id: string;
   total_conversions: number;
   conversion_value: number;
+  total_cogs: number;
   average_order_value: number;
   conversion_rate: number;
   total_clicks: number;
@@ -408,7 +409,10 @@ export async function getAdConversionMetrics(
         ad_conversions (
           id,
           conversion_value,
-          converted_at
+          converted_at,
+          shopify_orders!inner (
+            shopify_order_id
+          )
         ),
         ad_sets!inner (
           campaign_id,
@@ -456,43 +460,67 @@ export async function getAdConversionMetrics(
       });
     });
 
-    // Calculate conversion metrics for each ad
-    const results: AdConversionMetrics[] = adsWithConversions.map((ad) => {
-      // Filter conversions to date range
-      const allConversions = ad.ad_conversions || [];
-      const conversions = allConversions.filter((c: any) => {
-        const convertedAt = new Date(c.converted_at);
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        return convertedAt >= start && convertedAt <= end;
-      });
+    // Calculate conversion metrics for each ad (with COGS from line items)
+    const results: AdConversionMetrics[] = await Promise.all(
+      adsWithConversions.map(async (ad) => {
+        // Filter conversions to date range
+        const allConversions = ad.ad_conversions || [];
+        const conversions = allConversions.filter((c: any) => {
+          const convertedAt = new Date(c.converted_at);
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          return convertedAt >= start && convertedAt <= end;
+        });
 
-      const adMetrics = metricsMap.get(ad.id) || { clicks: 0, spend: 0 };
+        const adMetrics = metricsMap.get(ad.id) || { clicks: 0, spend: 0 };
 
-      const totalConversions = conversions.length;
-      const conversionValue = conversions.reduce(
-        (sum: number, c: any) => sum + parseFloat(c.conversion_value || 0),
-        0
-      );
-      const averageOrderValue = totalConversions > 0 ? conversionValue / totalConversions : 0;
-      const conversionRate = adMetrics.clicks > 0 ? (totalConversions / adMetrics.clicks) * 100 : 0;
-      const costPerAcquisition = totalConversions > 0 ? adMetrics.spend / totalConversions : 0;
-      const returnOnAdSpend = adMetrics.spend > 0 ? conversionValue / adMetrics.spend : 0;
+        const totalConversions = conversions.length;
+        const conversionValue = conversions.reduce(
+          (sum: number, c: any) => sum + parseFloat(c.conversion_value || 0),
+          0
+        );
 
-      return {
-        ad_id: ad.id,
-        ad_name: ad.name,
-        platform_ad_id: ad.platform_ad_id,
-        total_conversions: totalConversions,
-        conversion_value: conversionValue,
-        average_order_value: averageOrderValue,
-        conversion_rate: conversionRate,
-        total_clicks: adMetrics.clicks,
-        total_spend: adMetrics.spend,
-        cost_per_acquisition: costPerAcquisition,
-        return_on_ad_spend: returnOnAdSpend,
-      };
-    });
+        // Calculate COGS from attributed orders
+        let totalCOGS = 0;
+        const shopifyOrderIds = conversions
+          .map((c: any) => c.shopify_orders?.shopify_order_id)
+          .filter(Boolean);
+
+        if (shopifyOrderIds.length > 0) {
+          const { data: lineItems } = await supabase
+            .from('order_line_items')
+            .select('unit_cost, quantity')
+            .in('shopify_order_id', shopifyOrderIds);
+
+          if (lineItems) {
+            totalCOGS = lineItems.reduce(
+              (sum, item) => sum + (item.unit_cost || 0) * (item.quantity || 1),
+              0
+            );
+          }
+        }
+
+        const averageOrderValue = totalConversions > 0 ? conversionValue / totalConversions : 0;
+        const conversionRate = adMetrics.clicks > 0 ? (totalConversions / adMetrics.clicks) * 100 : 0;
+        const costPerAcquisition = totalConversions > 0 ? adMetrics.spend / totalConversions : 0;
+        const returnOnAdSpend = adMetrics.spend > 0 ? conversionValue / adMetrics.spend : 0;
+
+        return {
+          ad_id: ad.id,
+          ad_name: ad.name,
+          platform_ad_id: ad.platform_ad_id,
+          total_conversions: totalConversions,
+          conversion_value: conversionValue,
+          total_cogs: totalCOGS,
+          average_order_value: averageOrderValue,
+          conversion_rate: conversionRate,
+          total_clicks: adMetrics.clicks,
+          total_spend: adMetrics.spend,
+          cost_per_acquisition: costPerAcquisition,
+          return_on_ad_spend: returnOnAdSpend,
+        };
+      })
+    );
 
     console.log('[Attribution] Calculated metrics for', results.length, 'ads');
     return results;

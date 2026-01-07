@@ -82,6 +82,7 @@ export interface CreativePerformance {
     cpa: number;
     spend: number;
     conversions: number;
+    conversion_value?: number;
     cvr?: number;
     roas: number;
     cpc: number;
@@ -557,16 +558,17 @@ export async function getCreativePerformance(
       const totalConversions = attribution?.total_conversions || 0;
       const totalValue = attribution?.conversion_value || 0;
       const conversionRate = attribution?.conversion_rate || 0;
+      const totalCOGS = attribution?.total_cogs || 0; // Get actual COGS from attribution
 
       const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const cpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
       const cpc = totalClicks > 0 ? totalSpend / totalClicks : 0;
       const roas = totalSpend > 0 ? totalValue / totalSpend : 0;
 
-      // Calculate profit metrics (revenue - COGS - ad spend)
-      // Estimate COGS at 40% of revenue if not available
-      const estimatedCOGS = totalValue * 0.4;
-      const profit = totalValue - estimatedCOGS - totalSpend;
+      // Calculate profit metrics using ACTUAL COGS from our system (not estimated!)
+      // If COGS not available, estimate at 40% but prefer real data
+      const actualCOGS = totalCOGS > 0 ? totalCOGS : (totalValue * 0.4);
+      const profit = totalValue - actualCOGS - totalSpend;
       const profitMargin = totalValue > 0 ? (profit / totalValue) * 100 : 0;
       const netROAS = totalSpend > 0 ? profit / totalSpend : 0;
 
@@ -632,12 +634,13 @@ export async function getCreativePerformance(
           cpa,
           spend: totalSpend,
           conversions: totalConversions, // REAL DATA from Shopify!
+          conversion_value: totalValue, // Total revenue from conversions
           cvr: conversionRate, // REAL CVR from Shopify!
-          roas,  // REAL ROAS based on actual order values!
+          roas,  // Platform ROAS (revenue / ad spend)
           cpc,
-          profit, // Net profit after COGS and ad spend
-          profitMargin, // Profit margin percentage
-          netROAS // Profit / Ad Spend ratio
+          profit, // Net profit using ACTUAL COGS from system!
+          profitMargin, // Profit margin percentage using real COGS
+          netROAS // Net ROAS (profit / ad spend) using real COGS
         },
         performance,
         fatigueScore,
