@@ -715,83 +715,6 @@ export default function Orders() {
           )}
         </div>
 
-        {/* Desktop: Merchant Filter Dropdown */}
-        <div className="hidden sm:flex flex-row flex-wrap items-center gap-3 w-full lg:w-auto">
-          {(isSuperAdmin || permissions?.can_view_all_merchants) && (
-            <div className="relative" ref={merchantDropdownRef}>
-              <FilterButton
-                icon={Users}
-                label="Merchant"
-                selectedLabel={selectedMerchant ? selectedMerchant.name : 'All'}
-                onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
-                isActive={!!filteredUserId}
-                activeCount={filteredUserId ? 1 : 0}
-                hideLabel="sm"
-                isOpen={showMerchantDropdown}
-              />
-
-              {showMerchantDropdown && (
-                <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        value={merchantSearchTerm}
-                        onChange={(e) => setMerchantSearchTerm(e.target.value)}
-                        placeholder="Search merchants..."
-                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="max-h-64 overflow-y-auto">
-                    <button
-                      onClick={() => handleSelectMerchant(null)}
-                      className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                        !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
-                      }`}
-                    >
-                      <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
-                      {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
-                    </button>
-
-                    <div className="border-t border-gray-200 dark:border-gray-700"></div>
-
-                    {loadingMerchants ? (
-                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Loading merchants...
-                      </div>
-                    ) : filteredMerchants.length === 0 ? (
-                      <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                        No merchants found
-                      </div>
-                    ) : (
-                      filteredMerchants.map((merchant) => (
-                        <button
-                          key={merchant.id}
-                          onClick={() => handleSelectMerchant(merchant.id)}
-                          className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                            filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
-                          }`}
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                              {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
-                            </p>
-                          </div>
-                          {filteredUserId === merchant.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
       </div>
 
       {/* Sync Failure Banner */}
@@ -915,6 +838,81 @@ export default function Orders() {
 
       {/* Search and Filters - Above Tabs */}
       <div className="flex flex-row items-center gap-3">
+        {/* Merchant Filter - Desktop (left of search) */}
+        {(isSuperAdmin || permissions?.can_view_all_merchants) && (
+          <div className="hidden sm:block relative" ref={merchantDropdownRef}>
+            <FilterButton
+              icon={Users}
+              label="Merchant"
+              selectedLabel={selectedMerchant ? selectedMerchant.name : 'All Merchants'}
+              onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
+              isActive={!!filteredUserId}
+              activeCount={filteredUserId ? 1 : 0}
+              hideLabel="lg"
+              isOpen={showMerchantDropdown}
+            />
+
+            {showMerchantDropdown && (
+              <div className="absolute left-0 z-50 w-80 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={merchantSearchTerm}
+                      onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                      placeholder="Search merchants..."
+                      className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto">
+                  <button
+                    onClick={() => handleSelectMerchant(null)}
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      !filteredUserId ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    }`}
+                  >
+                    <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
+                    {!filteredUserId && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+
+                  <div className="border-t border-gray-200 dark:border-gray-700"></div>
+
+                  {loadingMerchants ? (
+                    <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                      Loading merchants...
+                    </div>
+                  ) : filteredMerchants.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                      No merchants found
+                    </div>
+                  ) : (
+                    filteredMerchants.map((merchant) => (
+                      <button
+                        key={merchant.id}
+                        onClick={() => handleSelectMerchant(merchant.id)}
+                        className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                          filteredUserId === merchant.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
+                          </p>
+                        </div>
+                        {filteredUserId === merchant.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 ml-2" />}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Search */}
         <div className="relative flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -922,7 +920,7 @@ export default function Orders() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search orders..."
+            placeholder="Search invoices and orders..."
             className="w-full h-[38px] pl-10 pr-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
           />
         </div>
@@ -1374,23 +1372,46 @@ export default function Orders() {
         </div>
 
         <div>
-          {activeTab === 'payments' && isSuperAdminLoaded && (
-            <PendingPaymentsTab
-              filteredUserId={filteredUserId || undefined}
-              isSuperAdmin={isSuperAdmin}
-              permissions={permissions}
-              refreshKey={refreshKey}
-              searchTerm={searchTerm}
-              statusFilter={invoiceStatusFilter}
-              adminFilter={adminFilter}
-              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
-            />
-          )}
-          {activeTab === 'payments' && !isSuperAdminLoaded && (
-            <div className="p-8 text-center">
-              <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto" />
+          {(isSuperAdmin || permissions?.can_view_all_merchants) && !filteredUserId ? (
+            <div className="py-16 px-6 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Select a Merchant
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                  Please select a merchant from the dropdown above to view their orders and invoices.
+                </p>
+                <button
+                  onClick={() => setShowMerchantDropdown(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+                >
+                  <Users className="w-4 h-4" />
+                  Choose Merchant
+                </button>
+              </div>
             </div>
-          )}
+          ) : (
+            <>
+              {activeTab === 'payments' && isSuperAdminLoaded && (
+                <PendingPaymentsTab
+                  filteredUserId={filteredUserId || undefined}
+                  isSuperAdmin={isSuperAdmin}
+                  permissions={permissions}
+                  refreshKey={refreshKey}
+                  searchTerm={searchTerm}
+                  statusFilter={invoiceStatusFilter}
+                  adminFilter={adminFilter}
+                  onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
+                />
+              )}
+              {activeTab === 'payments' && !isSuperAdminLoaded && (
+                <div className="p-8 text-center">
+                  <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto" />
+                </div>
+              )}
           {activeTab === 'factory' && (
             <OrderFromFactoryTab
               filteredUserId={filteredUserId || undefined}
@@ -1427,6 +1448,8 @@ export default function Orders() {
               onCarriersLoaded={setAvailableCarriers}
               onImport={() => setShowImportModal(true)}
             />
+          )}
+            </>
           )}
         </div>
       </div>
