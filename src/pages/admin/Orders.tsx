@@ -10,6 +10,7 @@ import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
 import PendingPaymentsTab from '../../components/orders/PendingPaymentsTab';
+import OrderFromFactoryTab from '../../components/orders/OrderFromFactoryTab';
 import ExportToMabangModal from '../../components/orders/ExportToMabangModal';
 import ImportTrackingModal, { SyncFailureInfo } from '../../components/orders/ImportTrackingModal';
 
@@ -42,7 +43,7 @@ interface Merchant {
 export default function Orders() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'payments' | 'unfulfilled' | 'tracking'>('unfulfilled');
+  const [activeTab, setActiveTab] = useState<'payments' | 'factory' | 'unfulfilled' | 'tracking'>('payments');
   const [permissions, setPermissions] = useState<OrderPermissions | null>(null);
   const [stats, setStats] = useState<OrderStats>({
     pendingPayments: 0,
@@ -850,66 +851,68 @@ export default function Orders() {
 
       {/* Stats Cards - Horizontally Scrollable */}
       <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
-            <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Outstanding</p>
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
             ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
           </p>
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Unpaid invoices</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Unpaid invoices</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.pendingPayments}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
-            <Check className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Paid in Period</p>
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
-            ${stats.paidInPeriod.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-          </p>
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Factory Orders</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.awaitingFactoryOrder}</p>
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500 dark:text-gray-400">This period</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                ${stats.paidInPeriod.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">In production</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
-            <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{stats.pendingCount}</p>
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.readyToExport}</p>
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Awaiting payment</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.pendingCount}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Exported orders</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.trackingImportedToday}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
-          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
-            <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
-          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{stats.overdueCount}</p>
-          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.exportedAwaitingTracking}</p>
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500 dark:text-gray-400">Past due date</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.overdueCount}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Synced today</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.autoSyncedToday}</span>
             </div>
           </div>
         </div>
@@ -1240,6 +1243,28 @@ export default function Orders() {
         <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
           <div className="flex">
             <button
+              onClick={() => setActiveTab('payments')}
+              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+                activeTab === 'payments'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <span className="font-medium text-sm">Invoices</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('factory')}
+              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+                activeTab === 'factory'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <span className="font-medium text-sm">Order from Factory</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('unfulfilled')}
               className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
                 activeTab === 'unfulfilled'
@@ -1265,17 +1290,6 @@ export default function Orders() {
             >
               <span className="font-medium text-sm">Fulfillment Tracking</span>
             </button>
-
-            <button
-              onClick={() => setActiveTab('payments')}
-              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
-                activeTab === 'payments'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              <span className="font-medium text-sm">All Orders</span>
-            </button>
           </div>
         </div>
 
@@ -1290,6 +1304,16 @@ export default function Orders() {
               statusFilter={invoiceStatusFilter}
               adminFilter={adminFilter}
               onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
+            />
+          )}
+          {activeTab === 'factory' && (
+            <OrderFromFactoryTab
+              filteredUserId={filteredUserId || undefined}
+              isSuperAdmin={isSuperAdmin}
+              permissions={permissions}
+              refreshKey={refreshKey}
+              searchTerm={searchTerm}
+              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, awaitingFactoryOrder: count }))}
             />
           )}
           {activeTab === 'unfulfilled' && (
