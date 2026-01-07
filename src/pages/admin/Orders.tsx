@@ -78,7 +78,7 @@ export default function Orders() {
   const [hasSelectedMerchant, setHasSelectedMerchant] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [exportStatusFilter, setExportStatusFilter] = useState<string>('all');
+  const [exportStatusFilter, setExportStatusFilter] = useState<string>('ready');
   const [carrierFilter, setCarrierFilter] = useState<string>('all');
   const [syncStatusFilter, setSyncStatusFilter] = useState<string>('all');
   const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<string>('all');
@@ -91,7 +91,7 @@ export default function Orders() {
   const [showSyncStatusDropdown, setShowSyncStatusDropdown] = useState(false);
   const [showFulfillmentStatusDropdown, setShowFulfillmentStatusDropdown] = useState(false);
   const [showAllOrdersExportDropdown, setShowAllOrdersExportDropdown] = useState(false);
-  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState<string>('all');
+  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState<string>('unpaid');
   const [showInvoiceStatusDropdown, setShowInvoiceStatusDropdown] = useState(false);
   const [adminFilter, setAdminFilter] = useState<string>('all');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
@@ -953,7 +953,6 @@ export default function Orders() {
                 <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
                   {[
                     { value: 'all', label: 'All Status' },
-                    { value: 'pending', label: 'Pending' },
                     { value: 'unpaid', label: 'Unpaid' },
                     { value: 'overdue', label: 'Overdue' },
                     { value: 'partially_paid', label: 'Partially Paid' },

@@ -281,6 +281,8 @@ export default function PendingPaymentsTab({
 
       if (statusFilter === 'all') {
         query = query.in('status', ['pending', 'unpaid', 'overdue', 'partially_paid']);
+      } else if (statusFilter === 'unpaid') {
+        query = query.in('status', ['pending', 'unpaid']);
       } else {
         query = query.eq('status', statusFilter);
       }
@@ -452,11 +454,11 @@ export default function PendingPaymentsTab({
 
               return (
                 <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-4 py-4 text-left">
-                    <div>
+                  <td className="px-4 py-4">
+                    <div className="text-left">
                       <button
                         onClick={(e) => handleViewDetails(e, invoice)}
-                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
+                        className="text-left text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
                       >
                         {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
                       </button>
