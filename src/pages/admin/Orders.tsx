@@ -75,6 +75,7 @@ export default function Orders() {
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [merchantSearchTerm, setMerchantSearchTerm] = useState('');
   const [loadingMerchants, setLoadingMerchants] = useState(false);
+  const [hasSelectedMerchant, setHasSelectedMerchant] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [exportStatusFilter, setExportStatusFilter] = useState<string>('all');
@@ -134,6 +135,7 @@ export default function Orders() {
   useEffect(() => {
     if (filteredUserId) {
       loadMerchantName(filteredUserId);
+      setHasSelectedMerchant(true);
     } else {
       setFilteredMerchantName('');
     }
@@ -557,6 +559,7 @@ export default function Orders() {
     }
     setSearchParams(newParams);
     setShowMerchantDropdown(false);
+    setHasSelectedMerchant(true);
   };
 
   const filteredMerchants = merchants.filter(m =>
@@ -1372,7 +1375,7 @@ export default function Orders() {
         </div>
 
         <div>
-          {(isSuperAdmin || permissions?.can_view_all_merchants) && !filteredUserId ? (
+          {(isSuperAdmin || permissions?.can_view_all_merchants) && !hasSelectedMerchant && !filteredUserId ? (
             <div className="p-6">
               <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-6">
@@ -1394,7 +1397,23 @@ export default function Orders() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {merchants.slice(0, 12).map((merchant) => (
+                    <button
+                      onClick={() => handleSelectMerchant(null)}
+                      className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
+                        <Users className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          All Merchants
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          View combined data
+                        </p>
+                      </div>
+                    </button>
+                    {merchants.slice(0, 11).map((merchant) => (
                       <button
                         key={merchant.id}
                         onClick={() => handleSelectMerchant(merchant.id)}
@@ -1418,13 +1437,13 @@ export default function Orders() {
                   </div>
                 )}
 
-                {merchants.length > 12 && (
+                {merchants.length > 11 && (
                   <div className="mt-4 text-center">
                     <button
                       onClick={() => setShowMerchantDropdown(true)}
                       className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
                     >
-                      + {merchants.length - 12} more merchants
+                      + {merchants.length - 11} more merchants
                     </button>
                   </div>
                 )}
