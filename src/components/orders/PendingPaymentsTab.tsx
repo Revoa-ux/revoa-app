@@ -159,37 +159,37 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
           </div>
         )}
 
-        <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-          {invoice.status !== 'paid' && (
-            <>
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6 rounded-b-xl">
+          <div className="flex gap-3">
+            {invoice.file_url && (
               <button
-                onClick={() => onMarkAsPaid(invoice)}
-                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95"
+                onClick={() => window.open(invoice.file_url!, '_blank')}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
               >
-                <CheckCircle className="w-4 h-4" />
-                <span>Mark as Paid</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                <Download className="w-4 h-4" />
+                Download PDF
               </button>
-              <button
-                onClick={handleSendReminder}
-                disabled={isSendingReminder}
-                className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send className="w-4 h-4" />
-                <span>{isSendingReminder ? 'Sending...' : 'Send Reminder'}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </>
-          )}
-          {invoice.file_url && (
-            <button
-              onClick={() => window.open(invoice.file_url!, '_blank')}
-              className="group flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
-            >
-              <Download className="w-4 h-4" />
-              Download PDF
-            </button>
-          )}
+            )}
+            {invoice.status !== 'paid' && (
+              <>
+                <button
+                  onClick={handleSendReminder}
+                  disabled={isSendingReminder}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSendingReminder ? 'Sending...' : 'Send Reminder'}</span>
+                </button>
+                <button
+                  onClick={() => onMarkAsPaid(invoice)}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Mark as Paid</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

@@ -726,7 +726,7 @@ export default function Orders() {
                 onClick={() => setShowMerchantDropdown(!showMerchantDropdown)}
                 isActive={!!filteredUserId}
                 activeCount={filteredUserId ? 1 : 0}
-                hideLabel="md"
+                hideLabel="sm"
                 isOpen={showMerchantDropdown}
               />
 
@@ -1017,6 +1017,55 @@ export default function Orders() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'factory' && isSuperAdmin && (
+          <div className="relative" ref={adminDropdownRef}>
+            <FilterButton
+              icon={Users}
+              label="Admin"
+              selectedLabel={
+                adminFilter === 'all' ? 'All Admins' :
+                admins.find(a => a.id === adminFilter)?.name || 'Admin'
+              }
+              onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+              isActive={adminFilter !== 'all'}
+              activeCount={adminFilter !== 'all' ? 1 : 0}
+              hideLabel="sm"
+              isOpen={showAdminDropdown}
+            />
+            {showAdminDropdown && (
+              <div className="absolute right-0 sm:left-0 z-50 w-56 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden max-h-64 overflow-y-auto">
+                <button
+                  onClick={() => {
+                    setAdminFilter('all');
+                    setShowAdminDropdown(false);
+                  }}
+                  className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                    adminFilter === 'all' ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                  }`}
+                >
+                  <span className="text-gray-900 dark:text-white">All Admins</span>
+                  {adminFilter === 'all' && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                </button>
+                {admins.map((admin) => (
+                  <button
+                    key={admin.id}
+                    onClick={() => {
+                      setAdminFilter(admin.id);
+                      setShowAdminDropdown(false);
+                    }}
+                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                      adminFilter === admin.id ? 'bg-gray-50 dark:bg-gray-700/50' : ''
+                    }`}
+                  >
+                    <span className="text-gray-900 dark:text-white">{admin.name}</span>
+                    {adminFilter === admin.id && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -1349,6 +1398,7 @@ export default function Orders() {
               permissions={permissions}
               refreshKey={refreshKey}
               searchTerm={searchTerm}
+              adminFilter={adminFilter}
               onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, awaitingFactoryOrder: count }))}
             />
           )}

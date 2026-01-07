@@ -390,7 +390,7 @@ export default function OrderFromFactoryTab({
                 Total Units
               </th>
               <th className="px-4 py-3 text-center text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Action
+                Actions
               </th>
             </tr>
           </thead>

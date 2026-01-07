@@ -421,86 +421,147 @@ export default function UnfulfilledOrdersTab({
             setShowDetailsModal(false);
             setSelectedOrder(null);
           }}
-          maxWidth="max-w-lg"
+          maxWidth="max-w-2xl"
         >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {!filteredUserId && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Merchant</p>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {selectedOrder.merchant_name || 'Unknown'}
-                  </p>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Customer Information</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Name</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                      <a href={`mailto:${selectedOrder.customer_email}`} className="text-sm font-medium text-rose-600 dark:text-rose-400 hover:underline">
+                        {selectedOrder.customer_email}
+                      </a>
+                    </div>
+                    {selectedOrder.customer_phone && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                        <a href={`tel:${selectedOrder.customer_phone}`} className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400">
+                          {selectedOrder.customer_phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {format(new Date(selectedOrder.created_at), 'MMM d, yyyy')}
-                </p>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Shipping Address</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                      {selectedOrder.shipping_address_line1}
+                    </p>
+                    {selectedOrder.shipping_address_line2 && (
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {selectedOrder.shipping_address_line2}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {selectedOrder.shipping_city}, {selectedOrder.shipping_state} {selectedOrder.shipping_zip}
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      {selectedOrder.shipping_country}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Customer</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {selectedOrder.customer_email}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Value</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  ${selectedOrder.total_price?.toFixed(2) || '0.00'}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400">Shipping Address</p>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {selectedOrder.shipping_address_line1}
-                  {selectedOrder.shipping_address_line2 && `, ${selectedOrder.shipping_address_line2}`}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {selectedOrder.shipping_city}, {selectedOrder.shipping_state} {selectedOrder.shipping_country}
-                </p>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Details</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3">
+                    {!filteredUserId && (
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Merchant</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {selectedOrder.merchant_name || 'Unknown'}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Order Date</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {format(new Date(selectedOrder.created_at), 'MMM d, yyyy h:mm a')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Order Value</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                        ${selectedOrder.total_price?.toFixed(2) || '0.00'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                        selectedOrder.export_status === 'exported'
+                          ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                          : 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
+                      }`}>
+                        {selectedOrder.export_status === 'exported' ? 'Exported' : 'Ready to Export'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedOrder.line_items && selectedOrder.line_items.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Items ({selectedOrder.line_items.length})</h4>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
+                      {selectedOrder.line_items.map((item, idx) => (
+                        <div key={idx} className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {item.product_name}
+                            </p>
+                            {item.variant_name && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {item.variant_name}
+                              </p>
+                            )}
+                            {item.sku && (
+                              <p className="text-xs font-mono text-gray-400 dark:text-gray-500">
+                                SKU: {item.sku}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              x{item.quantity}
+                            </p>
+                            {item.price && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {selectedOrder.line_items && selectedOrder.line_items.length > 0 && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Order Items</p>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
-                  {selectedOrder.line_items.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-sm">
-                      <div className="flex-1">
-                        <span className="text-gray-900 dark:text-white font-medium">
-                          {item.product_name}
-                        </span>
-                        {item.variant_name && (
-                          <span className="text-gray-500 dark:text-gray-400 ml-2">
-                            ({item.variant_name})
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-gray-600 dark:text-gray-400">
-                        Qty: {item.quantity}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {getShopifyOrderUrl(selectedOrder) && (
-              <div className="pt-2">
+              <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                 <a
                   href={getShopifyOrderUrl(selectedOrder)!}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 flex items-center gap-1"
+                  className="inline-flex items-center gap-2 text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 font-medium"
                 >
+                  <ExternalLink className="w-4 h-4" />
                   View in Shopify
-                  <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
             )}
