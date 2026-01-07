@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Eye, AlertCircle, Clock, CheckCircle } from 'lucide-react';
+import { Send, Eye, AlertCircle, Clock, CheckCircle, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format, differenceInDays } from 'date-fns';
@@ -13,6 +13,8 @@ interface PendingPaymentsTabProps {
   permissions: any;
   refreshKey: number;
   searchTerm: string;
+  statusFilter?: string;
+  adminFilter?: string;
   onInvoiceCountChange?: (count: number) => void;
 }
 
@@ -142,12 +144,21 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
             <button
               onClick={handleMarkAsPaid}
               disabled={isUpdating}
-              className="group flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-100 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <CheckCircle className="w-4 h-4" />
               <span>Mark as Paid</span>
             </button>
           )}
+          <button
+            onClick={() => {
+              toast.info('Invoice download feature coming soon');
+            }}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-all active:scale-95"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download Invoice</span>
+          </button>
         </div>
       </div>
     </Modal>
@@ -160,6 +171,8 @@ export default function PendingPaymentsTab({
   permissions,
   refreshKey,
   searchTerm,
+  statusFilter = 'all',
+  adminFilter = 'all',
   onInvoiceCountChange
 }: PendingPaymentsTabProps) {
   const { user } = useAuth();
@@ -171,7 +184,7 @@ export default function PendingPaymentsTab({
 
   useEffect(() => {
     loadInvoices();
-  }, [user?.id, filteredUserId, refreshKey]);
+  }, [user?.id, filteredUserId, refreshKey, statusFilter, adminFilter]);
 
   const loadInvoices = async () => {
     if (!user?.id) return;
@@ -183,6 +196,20 @@ export default function PendingPaymentsTab({
 
       if (filteredUserId) {
         merchantIds = [filteredUserId];
+      } else if (adminFilter !== 'all') {
+        const { data: assignments } = await supabase
+          .from('user_assignments')
+          .select('user_id')
+          .eq('admin_id', adminFilter);
+
+        if (assignments && assignments.length > 0) {
+          merchantIds = assignments.map(a => a.user_id);
+        } else {
+          setInvoices([]);
+          setLoading(false);
+          onInvoiceCountChange?.(0);
+          return;
+        }
       } else if (!isSuperAdmin) {
         const { data: assignments } = await supabase
           .from('user_assignments')
@@ -194,6 +221,7 @@ export default function PendingPaymentsTab({
         } else {
           setInvoices([]);
           setLoading(false);
+          onInvoiceCountChange?.(0);
           return;
         }
       }
@@ -201,8 +229,13 @@ export default function PendingPaymentsTab({
       let query = supabase
         .from('invoices')
         .select('*')
-        .in('status', ['pending', 'unpaid', 'overdue'])
         .order('due_date', { ascending: true });
+
+      if (statusFilter === 'all') {
+        query = query.in('status', ['pending', 'unpaid', 'overdue', 'paid', 'cancelled']);
+      } else {
+        query = query.eq('status', statusFilter);
+      }
 
       if (merchantIds) {
         query = query.in('user_id', merchantIds);
@@ -275,6 +308,10 @@ export default function PendingPaymentsTab({
       case 'pending':
       case 'unpaid':
         return 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'paid':
+        return 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400';
+      case 'cancelled':
+        return 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
       default:
         return 'bg-gray-50 text-gray-700 dark:bg-gray-900/20 dark:text-gray-400';
     }

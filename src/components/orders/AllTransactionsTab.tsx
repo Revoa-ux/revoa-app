@@ -207,7 +207,7 @@ export default function AllTransactionsTab({
 
   return (
     <>
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative" ref={typeDropdownRef}>
             <FilterButton
@@ -217,6 +217,7 @@ export default function AllTransactionsTab({
               onClick={() => setShowTypeDropdown(!showTypeDropdown)}
               isActive={typeFilter !== 'all'}
               activeCount={typeFilter !== 'all' ? 1 : 0}
+              hideLabel="md"
               isOpen={showTypeDropdown}
             />
             {showTypeDropdown && (
@@ -252,6 +253,7 @@ export default function AllTransactionsTab({
               onClick={() => setShowStatusDropdown(!showStatusDropdown)}
               isActive={statusFilter !== 'all'}
               activeCount={statusFilter !== 'all' ? 1 : 0}
+              hideLabel="md"
               isOpen={showStatusDropdown}
             />
             {showStatusDropdown && (
