@@ -356,6 +356,7 @@ export default function Orders() {
         .select('*', { count: 'exact', head: true })
         .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
         .eq('exported_to_3pl', false)
+        .eq('factory_order_confirmed', true)
         .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
         .is('cancelled_at', null);
 
@@ -369,7 +370,8 @@ export default function Orders() {
         .from('shopify_orders')
         .select('*', { count: 'exact', head: true })
         .eq('exported_to_3pl', true)
-        .eq('tracking_imported', false);
+        .or('tracking_imported.is.null,tracking_imported.eq.false')
+        .is('cancelled_at', null);
 
       if (merchantIds) {
         awaitingQuery = awaitingQuery.in('user_id', merchantIds);
@@ -472,6 +474,7 @@ export default function Orders() {
         .select('total_price')
         .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
         .eq('exported_to_3pl', false)
+        .eq('factory_order_confirmed', true)
         .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
         .is('cancelled_at', null);
 
@@ -482,17 +485,7 @@ export default function Orders() {
       const { data: readyToExportOrders } = await readyToExportValueQuery;
       const readyToExportValue = readyToExportOrders?.reduce((sum, order) => sum + (parseFloat(order.total_price) || 0), 0) || 0;
 
-      let needsTrackingQuery = supabase
-        .from('shopify_order_fulfillments')
-        .select('*', { count: 'exact', head: true })
-        .not('tracking_number', 'is', null)
-        .eq('synced_to_shopify', false);
-
-      if (merchantIds) {
-        needsTrackingQuery = needsTrackingQuery.in('user_id', merchantIds);
-      }
-
-      const { count: needsTrackingNotSynced } = await needsTrackingQuery;
+      const { count: needsTrackingNotSynced } = await awaitingQuery;
 
       setStats({
         pendingPayments: pendingPayments || 0,
