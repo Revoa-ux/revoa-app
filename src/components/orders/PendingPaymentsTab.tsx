@@ -337,6 +337,7 @@ export default function PendingPaymentsTab({
 
       {showDetailsModal && detailsInvoice && (
         <Modal
+          isOpen={showDetailsModal}
           title={`Invoice ${detailsInvoice.invoice_number || `INV-${detailsInvoice.id.slice(0, 8)}`}`}
           onClose={() => {
             setShowDetailsModal(false);

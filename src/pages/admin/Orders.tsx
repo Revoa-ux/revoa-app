@@ -1234,13 +1234,13 @@ export default function Orders() {
 
       {/* Tabs and Table */}
       <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <div className="flex items-stretch">
+        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 sm:px-4">
+          <div className="flex items-center gap-1 sm:gap-2 py-2">
             <button
               onClick={() => setActiveTab('payments')}
-              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
+              className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'payments'
-                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
@@ -1254,14 +1254,15 @@ export default function Orders() {
                   {stats.pendingPayments}
                 </span>
               )}
-              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
+
+            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0 hidden sm:block" />
 
             <button
               onClick={() => setActiveTab('factory')}
-              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
+              className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'factory'
-                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
@@ -1275,14 +1276,15 @@ export default function Orders() {
                   {stats.awaitingFactoryOrder}
                 </span>
               )}
-              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
+
+            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0 hidden sm:block" />
 
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
+              className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'unfulfilled'
-                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >
@@ -1296,14 +1298,15 @@ export default function Orders() {
                   {stats.readyToExport}
                 </span>
               )}
-              <ChevronRight className="absolute right-0 w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block" />
             </button>
+
+            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0 hidden sm:block" />
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`relative flex items-center justify-center gap-2 flex-1 py-3.5 px-2 sm:px-4 transition-all ${
+              className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
                 activeTab === 'tracking'
-                  ? 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-white'
+                  ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/30'
               }`}
             >

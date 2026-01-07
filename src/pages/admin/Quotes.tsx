@@ -369,56 +369,56 @@ export default function AdminQuotes() {
       </div>
 
       {isSuperAdmin && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-row gap-4 md:gap-6 overflow-x-auto pb-1">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Response Time</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgResponseTime}h</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Avg Response Time</h3>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgResponseTime}h</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Time to first quote</span>
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Time to first quote</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgResponseTime}h</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <CheckCircle2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Avg Process Time</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgProcessTime}h</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Avg Process Time</h3>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.avgProcessTime}h</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Time to acceptance</span>
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Time to acceptance</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.avgProcessTime}h</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 min-w-[180px] bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-6 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                 <AlertCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
             <div>
-              <h3 className="text-xs text-gray-500 dark:text-gray-400">Pending Quotes</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.pendingCount}</p>
+              <h3 className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Pending Quotes</h3>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{quoteStats.pendingCount}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Awaiting response</span>
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Awaiting response</span>
                 <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{quoteStats.pendingCount}</span>
               </div>
             </div>

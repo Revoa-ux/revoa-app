@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ExternalLink, MessageSquare, Upload } from 'lucide-react';
+import { ExternalLink, MessageSquare, Upload } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { CustomCheckbox } from '../CustomCheckbox';
 import { toast } from 'sonner';
+import Modal from '../../components/Modal';
 
 interface UnfulfilledOrdersTabProps {
   filteredUserId?: string;
@@ -61,7 +62,8 @@ export default function UnfulfilledOrdersTab({
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -180,19 +182,9 @@ export default function UnfulfilledOrdersTab({
     }
   };
 
-  const toggleOrderExpansion = (orderId: string) => {
-    console.log('Toggle expansion for order:', orderId);
-    console.log('Current expanded orders:', expandedOrders);
-    const newExpanded = new Set(expandedOrders);
-    if (newExpanded.has(orderId)) {
-      newExpanded.delete(orderId);
-      console.log('Collapsing order:', orderId);
-    } else {
-      newExpanded.add(orderId);
-      console.log('Expanding order:', orderId);
-    }
-    console.log('New expanded orders:', newExpanded);
-    setExpandedOrders(newExpanded);
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setShowDetailsModal(true);
   };
 
   const handleChatClick = async (order: Order) => {
@@ -279,7 +271,8 @@ export default function UnfulfilledOrdersTab({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
             <tr>
@@ -328,21 +321,12 @@ export default function UnfulfilledOrdersTab({
                     />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleOrderExpansion(order.id);
-                        }}
-                        className="p-1.5 -m-1 text-gray-400 rounded"
-                      >
-                        <ChevronRight className={`w-4 h-4 transition-transform ${expandedOrders.has(order.id) ? 'rotate-90' : ''}`} />
-                      </button>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
-                      </span>
-                    </div>
+                    <button
+                      onClick={() => handleViewDetails(order)}
+                      className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
+                    >
+                      {order.order_number.startsWith('#') ? order.order_number : `#${order.order_number}`}
+                    </button>
                   </td>
                   {!filteredUserId && (
                     <td className="px-4 py-4">
@@ -423,42 +407,106 @@ export default function UnfulfilledOrdersTab({
                     </div>
                   </td>
                 </tr>
-                {expandedOrders.has(order.id) && (
-                  <tr>
-                    <td colSpan={filteredUserId ? 8 : 9} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
-                          Order Items
-                        </p>
-                        {order.line_items && order.line_items.length > 0 ? (
-                          order.line_items.map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-sm">
-                              <div className="flex-1">
-                                <span className="text-gray-900 dark:text-white font-medium">
-                                  {item.product_name}
-                                </span>
-                                {item.variant_name && (
-                                  <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                    ({item.variant_name})
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                                <span>Qty: {item.quantity}</span>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="text-sm text-gray-500 dark:text-gray-400">No line items found</p>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </React.Fragment>
             ))}
           </tbody>
         </table>
-    </div>
+      </div>
+
+      {showDetailsModal && selectedOrder && (
+        <Modal
+          isOpen={showDetailsModal}
+          title={`Order ${selectedOrder.order_number.startsWith('#') ? selectedOrder.order_number : `#${selectedOrder.order_number}`}`}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedOrder(null);
+          }}
+          maxWidth="max-w-lg"
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              {!filteredUserId && (
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Merchant</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">
+                    {selectedOrder.merchant_name || 'Unknown'}
+                  </p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {format(new Date(selectedOrder.created_at), 'MMM d, yyyy')}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Customer</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {selectedOrder.customer_email}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Value</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  ${selectedOrder.total_price?.toFixed(2) || '0.00'}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Shipping Address</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {selectedOrder.shipping_address_line1}
+                  {selectedOrder.shipping_address_line2 && `, ${selectedOrder.shipping_address_line2}`}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedOrder.shipping_city}, {selectedOrder.shipping_state} {selectedOrder.shipping_country}
+                </p>
+              </div>
+            </div>
+
+            {selectedOrder.line_items && selectedOrder.line_items.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Order Items</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+                  {selectedOrder.line_items.map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <div className="flex-1">
+                        <span className="text-gray-900 dark:text-white font-medium">
+                          {item.product_name}
+                        </span>
+                        {item.variant_name && (
+                          <span className="text-gray-500 dark:text-gray-400 ml-2">
+                            ({item.variant_name})
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-gray-600 dark:text-gray-400">
+                        Qty: {item.quantity}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {getShopifyOrderUrl(selectedOrder) && (
+              <div className="pt-2">
+                <a
+                  href={getShopifyOrderUrl(selectedOrder)!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 flex items-center gap-1"
+                >
+                  View in Shopify
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }

@@ -171,9 +171,11 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
       onClose={onClose}
       title="Process Quote Request"
       maxWidth="max-w-7xl"
+      noPadding
     >
-      <div className="space-y-6">
-        <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
           <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">
             {quote.productName}
           </p>
@@ -365,7 +367,9 @@ export const NewProcessQuoteModal: React.FC<NewProcessQuoteModalProps> = ({
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4 -mx-6 -mb-6 rounded-b-xl">
+        </div>
+
+        <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4">
           <div className="flex space-x-3">
             <button
               onClick={onClose}

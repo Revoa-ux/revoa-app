@@ -8,6 +8,7 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   maxWidth?: string;
+  noPadding?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -15,7 +16,8 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   title,
   children,
-  maxWidth = 'max-w-md'
+  maxWidth = 'max-w-md',
+  noPadding = false
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -47,12 +49,12 @@ const Modal: React.FC<ModalProps> = ({
           <div
             ref={modalRef}
             onClick={(e) => e.stopPropagation()}
-            className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden`}
+            className={`relative bg-white dark:bg-gray-800 rounded-xl shadow-xl ${maxWidth} w-full overflow-hidden flex flex-col max-h-[calc(100vh-4rem)]`}
             role="dialog"
             aria-modal="true"
           >
             {title && (
-              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white">{title}</h3>
                   <button
@@ -65,7 +67,7 @@ const Modal: React.FC<ModalProps> = ({
               </div>
             )}
 
-            <div className="p-6 overflow-y-auto max-h-[calc(100vh-8rem)]">
+            <div className={`overflow-y-auto flex-1 min-h-0 ${noPadding ? '' : 'p-6'}`}>
               {children}
             </div>
           </div>
