@@ -1376,9 +1376,9 @@ export default function Orders() {
 
         <div>
           {(isSuperAdmin || permissions?.can_view_all_merchants) && !hasSelectedMerchant && !filteredUserId ? (
-            <div className="p-6">
-              <div className="max-w-2xl mx-auto">
-                <div className="text-center mb-6">
+            <div className="py-8">
+              <div className="max-w-md mx-auto">
+                <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                     Select a Merchant
                   </h3>
@@ -1387,66 +1387,60 @@ export default function Orders() {
                   </p>
                 </div>
 
-                {loadingMerchants ? (
-                  <div className="flex justify-center py-8">
-                    <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                  <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={merchantSearchTerm}
+                        onChange={(e) => setMerchantSearchTerm(e.target.value)}
+                        placeholder="Search merchants..."
+                        className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-300"
+                      />
+                    </div>
                   </div>
-                ) : merchants.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No merchants available
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <button
-                      onClick={() => handleSelectMerchant(null)}
-                      className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group"
-                    >
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
-                        <Users className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                          All Merchants
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          View combined data
-                        </p>
-                      </div>
-                    </button>
-                    {merchants.slice(0, 11).map((merchant) => (
-                      <button
-                        key={merchant.id}
-                        onClick={() => handleSelectMerchant(merchant.id)}
-                        className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all text-left group"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 dark:group-hover:bg-gray-600 transition-colors">
-                          <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
-                            {merchant.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {merchant.name}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
 
-                {merchants.length > 11 && (
-                  <div className="mt-4 text-center">
-                    <button
-                      onClick={() => setShowMerchantDropdown(true)}
-                      className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-                    >
-                      + {merchants.length - 11} more merchants
-                    </button>
+                  <div className="max-h-80 overflow-y-auto">
+                    {loadingMerchants ? (
+                      <div className="flex justify-center py-8">
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleSelectMerchant(null)}
+                          className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        >
+                          <span className="text-gray-900 dark:text-white font-medium">All Merchants</span>
+                        </button>
+
+                        <div className="border-t border-gray-200 dark:border-gray-700" />
+
+                        {filteredMerchants.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                            No merchants found
+                          </div>
+                        ) : (
+                          filteredMerchants.map((merchant) => (
+                            <button
+                              key={merchant.id}
+                              onClick={() => handleSelectMerchant(merchant.id)}
+                              className="flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <p className="text-gray-900 dark:text-white truncate">{merchant.name}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                  {merchant.orderCount} {merchant.orderCount === 1 ? 'order' : 'orders'} ready
+                                </p>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           ) : (

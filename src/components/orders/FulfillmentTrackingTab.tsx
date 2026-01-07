@@ -260,7 +260,7 @@ export default function FulfillmentTrackingTab({
           note,
           shopify_order_id
         `)
-        .eq('id', fulfillment.order_id)
+        .eq('shopify_order_id', fulfillment.order.shopify_order_id)
         .maybeSingle();
 
       if (error) throw error;
@@ -276,6 +276,9 @@ export default function FulfillmentTrackingTab({
           merchant_name: fulfillment.order.merchant_name,
           line_items: lineItems || []
         });
+      } else {
+        toast.error('Order not found');
+        setShowDetailsModal(false);
       }
     } catch (error) {
       console.error('Error loading order details:', error);
