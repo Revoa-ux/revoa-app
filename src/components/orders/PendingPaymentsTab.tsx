@@ -47,127 +47,129 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
     : 0;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Invoice Details" maxWidth="max-w-3xl">
-      <div className="space-y-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {invoice.user_profile?.company || invoice.user_profile?.email}
-            </p>
-          </div>
-          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-            invoice.status === 'paid'
-              ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-              : invoice.status === 'overdue'
-              ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-              : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-          }`}>
-            {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1).replace('_', ' ')}
-          </span>
-        </div>
-
-        {invoice.status === 'overdue' && (
-          <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            <span className="text-sm text-red-600 dark:text-red-400">
-              This invoice is {daysOverdue} days overdue
+    <Modal isOpen={isOpen} onClose={onClose} title="Invoice Details" maxWidth="max-w-3xl" noPadding>
+      <div className="flex flex-col h-full">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {invoice.user_profile?.company || invoice.user_profile?.email}
+              </p>
+            </div>
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
+              invoice.status === 'paid'
+                ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                : invoice.status === 'overdue'
+                ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+            }`}>
+              {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1).replace('_', ' ')}
             </span>
           </div>
-        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Invoice Date</p>
-            <p className="text-base font-medium text-gray-900 dark:text-white">
-              {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Due Date</p>
-            <p className="text-base font-medium text-gray-900 dark:text-white">
-              {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Amount</p>
-            <p className="text-base font-semibold text-gray-900 dark:text-white">
-              ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-          </div>
-          {invoice.paid_at && (
+          {invoice.status === 'overdue' && (
+            <div className="flex items-center gap-2 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <span className="text-sm text-red-600 dark:text-red-400">
+                This invoice is {daysOverdue} days overdue
+              </span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Paid On</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Invoice Date</p>
               <p className="text-base font-medium text-gray-900 dark:text-white">
-                {format(new Date(invoice.paid_at), 'MMM dd, yyyy')}
+                {format(new Date(invoice.created_at), 'MMM dd, yyyy')}
               </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Due Date</p>
+              <p className="text-base font-medium text-gray-900 dark:text-white">
+                {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Amount</p>
+              <p className="text-base font-semibold text-gray-900 dark:text-white">
+                ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            </div>
+            {invoice.paid_at && (
+              <div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Paid On</p>
+                <p className="text-base font-medium text-gray-900 dark:text-white">
+                  {format(new Date(invoice.paid_at), 'MMM dd, yyyy')}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {invoice.line_items && invoice.line_items.length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                    {invoice.line_items.map((item: any, index: number) => (
+                      <tr key={index}>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">{item.quantity}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">${(item.cost_per_item || item.unit_price || 0).toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">${(item.total_cost || item.total_price || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {invoice.breakdown && Object.keys(invoice.breakdown).length > 0 && (
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Cost Breakdown</h4>
+              <div className="space-y-2">
+                {invoice.breakdown.product_cost && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Product Cost</span>
+                    <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.product_cost.toFixed(2)}</span>
+                  </div>
+                )}
+                {invoice.breakdown.shipping_cost && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Shipping Cost</span>
+                    <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-gray-900 dark:text-white">Total</span>
+                  <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        {invoice.line_items && invoice.line_items.length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Line Items</h4>
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-800">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Description</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Qty</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                  {invoice.line_items.map((item: any, index: number) => (
-                    <tr key={index}>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{item.product_name || item.description}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">{item.quantity}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900 dark:text-white text-right">${(item.cost_per_item || item.unit_price || 0).toFixed(2)}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white text-right">${(item.total_cost || item.total_price || 0).toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {invoice.breakdown && Object.keys(invoice.breakdown).length > 0 && (
-          <div>
-            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Cost Breakdown</h4>
-            <div className="space-y-2">
-              {invoice.breakdown.product_cost && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Product Cost</span>
-                  <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.product_cost.toFixed(2)}</span>
-                </div>
-              )}
-              {invoice.breakdown.shipping_cost && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Shipping Cost</span>
-                  <span className="font-medium text-gray-900 dark:text-white">${invoice.breakdown.shipping_cost.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-base font-semibold pt-2 border-t border-gray-200 dark:border-gray-700">
-                <span className="text-gray-900 dark:text-white">Total</span>
-                <span className="text-gray-900 dark:text-white">${totalAmount.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-6 py-4 -mx-6 -mb-6 rounded-b-xl">
-          <div className="flex gap-3">
+        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4 flex-shrink-0">
+          <div className="flex space-x-3">
             {invoice.file_url && (
               <button
                 onClick={() => window.open(invoice.file_url!, '_blank')}
                 className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
               >
                 <Download className="w-4 h-4" />
-                Download PDF
+                PDF
               </button>
             )}
             {invoice.status !== 'paid' && (
@@ -175,17 +177,18 @@ const InvoiceDetailModal: React.FC<InvoiceDetailModalProps> = ({
                 <button
                   onClick={handleSendReminder}
                   disabled={isSendingReminder}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 px-5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4" />
                   <span>{isSendingReminder ? 'Sending...' : 'Send Reminder'}</span>
                 </button>
                 <button
                   onClick={() => onMarkAsPaid(invoice)}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95"
+                  className="group flex-1 px-5 py-2 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   <CheckCircle className="w-4 h-4" />
                   <span>Mark as Paid</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </button>
               </>
             )}
