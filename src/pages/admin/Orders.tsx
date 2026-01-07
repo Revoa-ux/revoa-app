@@ -127,10 +127,10 @@ export default function Orders() {
   }, [user?.id]);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && isSuperAdminLoaded) {
       loadStats();
     }
-  }, [user?.id, filteredUserId, isSuperAdmin, refreshKey]);
+  }, [user?.id, filteredUserId, isSuperAdmin, isSuperAdminLoaded, refreshKey]);
 
   useEffect(() => {
     if (filteredUserId) {
@@ -491,6 +491,10 @@ export default function Orders() {
         .select('*', { count: 'exact', head: true })
         .not('tracking_number', 'is', null)
         .eq('synced_to_shopify', false);
+
+      if (merchantIds) {
+        needsTrackingQuery = needsTrackingQuery.in('user_id', merchantIds);
+      }
 
       const { count: needsTrackingNotSynced } = await needsTrackingQuery;
 
