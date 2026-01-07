@@ -76,6 +76,7 @@ export default function Orders() {
   const [merchantSearchTerm, setMerchantSearchTerm] = useState('');
   const [loadingMerchants, setLoadingMerchants] = useState(false);
   const [hasSelectedMerchant, setHasSelectedMerchant] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [carrierFilter, setCarrierFilter] = useState<string>('all');
@@ -293,6 +294,7 @@ export default function Orders() {
     if (!user?.id) return;
 
     try {
+      setIsLoadingStats(true);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -502,8 +504,10 @@ export default function Orders() {
         readyToExportValue,
         needsTrackingNotSynced: needsTrackingNotSynced || 0,
       });
+      setIsLoadingStats(false);
     } catch (error) {
       console.error('Error loading stats:', error);
+      setIsLoadingStats(false);
     }
   };
 
@@ -766,7 +770,15 @@ export default function Orders() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+          {isLoadingStats && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+                 style={{
+                   backgroundSize: '200% 100%',
+                   animation: 'shimmer 2s infinite'
+                 }}
+            />
+          )}
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -774,17 +786,25 @@ export default function Orders() {
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Waiting Payment</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {isLoadingStats ? '...' : `$${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Invoices</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.pendingPayments}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.pendingPayments}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+          {isLoadingStats && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+                 style={{
+                   backgroundSize: '200% 100%',
+                   animation: 'shimmer 2s infinite'
+                 }}
+            />
+          )}
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -792,17 +812,25 @@ export default function Orders() {
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Ready To Order</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            ${stats.paidNotOrderedAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {isLoadingStats ? '...' : `$${stats.paidNotOrderedAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Paid invoices</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.awaitingFactoryOrder}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.awaitingFactoryOrder}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+          {isLoadingStats && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+                 style={{
+                   backgroundSize: '200% 100%',
+                   animation: 'shimmer 2s infinite'
+                 }}
+            />
+          )}
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -810,28 +838,38 @@ export default function Orders() {
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Ready To Export</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            ${stats.readyToExportValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+            {isLoadingStats ? '...' : `$${stats.readyToExportValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
           </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Orders</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.readyToExport}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.readyToExport}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className={`relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm transition-all ${isLoadingStats ? 'animate-pulse' : ''}`}>
+          {isLoadingStats && (
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent animate-shimmer"
+                 style={{
+                   backgroundSize: '200% 100%',
+                   animation: 'shimmer 2s infinite'
+                 }}
+            />
+          )}
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">Needs Tracking</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.needsTrackingNotSynced}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            {isLoadingStats ? '...' : stats.needsTrackingNotSynced}
+          </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Synced today</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.autoSyncedToday}</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{isLoadingStats ? '...' : stats.autoSyncedToday}</span>
             </div>
           </div>
         </div>
@@ -1255,7 +1293,7 @@ export default function Orders() {
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Waiting Payment</span>
-              {stats.pendingPayments > 0 && (
+              {(hasSelectedMerchant || filteredUserId) && stats.pendingPayments > 0 && (
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'payments'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
@@ -1277,7 +1315,7 @@ export default function Orders() {
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Ready To Order</span>
-              {stats.awaitingFactoryOrder > 0 && (
+              {(hasSelectedMerchant || filteredUserId) && stats.awaitingFactoryOrder > 0 && (
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'factory'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
@@ -1299,7 +1337,7 @@ export default function Orders() {
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Ready To Export</span>
-              {stats.readyToExport > 0 && (
+              {(hasSelectedMerchant || filteredUserId) && stats.readyToExport > 0 && (
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'unfulfilled'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
@@ -1321,7 +1359,7 @@ export default function Orders() {
               }`}
             >
               <span className="font-medium text-sm whitespace-nowrap">Needs Tracking</span>
-              {stats.needsTrackingNotSynced > 0 && (
+              {(hasSelectedMerchant || filteredUserId) && stats.needsTrackingNotSynced > 0 && (
                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                   activeTab === 'tracking'
                     ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white'
