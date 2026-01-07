@@ -32,6 +32,9 @@ interface OrderStats {
   paidInPeriod: number;
   pendingCount: number;
   overdueCount: number;
+  paidNotOrderedAmount: number;
+  readyToExportValue: number;
+  needsTrackingNotSynced: number;
 }
 
 interface Merchant {
@@ -56,6 +59,9 @@ export default function Orders() {
     paidInPeriod: 0,
     pendingCount: 0,
     overdueCount: 0,
+    paidNotOrderedAmount: 0,
+    readyToExportValue: 0,
+    needsTrackingNotSynced: 0,
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [filteredMerchantName, setFilteredMerchantName] = useState<string>('');
@@ -314,6 +320,9 @@ export default function Orders() {
             paidInPeriod: 0,
             pendingCount: 0,
             overdueCount: 0,
+            paidNotOrderedAmount: 0,
+            readyToExportValue: 0,
+            needsTrackingNotSynced: 0,
           });
           return;
         }
@@ -441,6 +450,46 @@ export default function Orders() {
 
       const { count: overdueCount } = await overdueCountQuery;
 
+      let paidNotOrderedQuery = supabase
+        .from('invoices')
+        .select('total_amount, factory_order_amount')
+        .eq('status', 'paid')
+        .or('factory_order_placed.is.null,factory_order_placed.eq.false');
+
+      if (merchantIds) {
+        paidNotOrderedQuery = paidNotOrderedQuery.in('user_id', merchantIds);
+      }
+
+      const { data: paidNotOrderedInvoices } = await paidNotOrderedQuery;
+      const paidNotOrderedAmount = paidNotOrderedInvoices?.reduce((sum, inv) => {
+        const total = inv.total_amount || 0;
+        const ordered = inv.factory_order_amount || 0;
+        return sum + (total - ordered);
+      }, 0) || 0;
+
+      let readyToExportValueQuery = supabase
+        .from('shopify_orders')
+        .select('total_price')
+        .or('fulfillment_status.is.null,fulfillment_status.eq.unfulfilled,fulfillment_status.eq.UNFULFILLED')
+        .eq('exported_to_3pl', false)
+        .or('financial_status.eq.paid,financial_status.eq.PAID,financial_status.eq.authorized,financial_status.eq.AUTHORIZED')
+        .is('cancelled_at', null);
+
+      if (merchantIds) {
+        readyToExportValueQuery = readyToExportValueQuery.in('user_id', merchantIds);
+      }
+
+      const { data: readyToExportOrders } = await readyToExportValueQuery;
+      const readyToExportValue = readyToExportOrders?.reduce((sum, order) => sum + (parseFloat(order.total_price) || 0), 0) || 0;
+
+      let needsTrackingQuery = supabase
+        .from('shopify_order_fulfillments')
+        .select('*', { count: 'exact', head: true })
+        .not('tracking_number', 'is', null)
+        .eq('synced_to_shopify', false);
+
+      const { count: needsTrackingNotSynced } = await needsTrackingQuery;
+
       setStats({
         pendingPayments: pendingPayments || 0,
         awaitingFactoryOrder: awaitingFactoryOrder || 0,
@@ -452,6 +501,9 @@ export default function Orders() {
         paidInPeriod,
         pendingCount: pendingCount || 0,
         overdueCount: overdueCount || 0,
+        paidNotOrderedAmount,
+        readyToExportValue,
+        needsTrackingNotSynced: needsTrackingNotSynced || 0,
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -854,16 +906,16 @@ export default function Orders() {
         <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+              <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Outstanding</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Waiting Payment</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-            ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+            ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Unpaid invoices</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Invoices</span>
               <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.pendingPayments}</span>
             </div>
           </div>
@@ -875,12 +927,14 @@ export default function Orders() {
               <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Factory Orders</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.awaitingFactoryOrder}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Ready To Order</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            ${stats.paidNotOrderedAmount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">In production</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Paid invoices</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.awaitingFactoryOrder}</span>
             </div>
           </div>
         </div>
@@ -891,12 +945,14 @@ export default function Orders() {
               <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.readyToExport}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Ready To Export</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+            ${stats.readyToExportValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Exported orders</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.trackingImportedToday}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Orders</span>
+              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.readyToExport}</span>
             </div>
           </div>
         </div>
@@ -907,8 +963,8 @@ export default function Orders() {
               <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.exportedAwaitingTracking}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Needs Tracking</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.needsTrackingNotSynced}</p>
           <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-500 dark:text-gray-400">Synced today</span>

@@ -295,14 +295,16 @@ export default function OrderFromFactoryTab({
                         {lineItemCount} {lineItemCount === 1 ? 'product' : 'products'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <button
-                        onClick={(e) => handleOrderFromFactory(e, invoice)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-all active:scale-95"
-                      >
-                        <Factory className="w-4 h-4" />
-                        Order from Factory
-                      </button>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={(e) => handleOrderFromFactory(e, invoice)}
+                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          title="Order from factory"
+                        >
+                          <Factory className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   {expandedInvoices.has(invoice.id) && (
