@@ -63,7 +63,6 @@ interface Column {
   flexGrow?: number;
   flexShrink?: number;
   sortable?: boolean;
-  sticky?: boolean;
   render?: (value: any, item: any) => React.ReactNode;
 }
 
@@ -125,7 +124,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     field: string;
     direction: SortDirection;
   }>({
-    field: 'status',
+    field: 'profit',
     direction: 'desc'
   });
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -418,32 +417,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     return glowMetrics;
   };
 
-  // Helper to get sticky column styles
-  const getStickyStyles = (columnId: string, columnWidth: number) => {
-    const isCreativeVisible = viewLevel === 'ads';
-
-    // Define sticky columns with their left offsets
-    const stickyColumns: Record<string, number> = {
-      'select': 0,
-      'status': 50,
-      'creative': 150, // status (100) + select (50)
-      'adName': isCreativeVisible ? 230 : 150 // + creative (80) if visible
-    };
-
-    const leftOffset = stickyColumns[columnId];
-
-    if (leftOffset !== undefined) {
-      return {
-        position: 'sticky' as const,
-        left: `${leftOffset}px`,
-        zIndex: 10,
-        backgroundColor: 'inherit'
-      };
-    }
-
-    return {};
-  };
-
   const columns: Column[] = [
     {
       id: 'select',
@@ -451,7 +424,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 50,
       flexGrow: 0,
       flexShrink: 0,
-      sticky: true,
       render: (_, creative) => {
         // For ad sets, use adSetId so it matches with ad.adSetId
         // For campaigns and ads, use id
@@ -475,7 +447,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       flexGrow: 0,
       flexShrink: 0,
       sortable: true,
-      sticky: true,
       render: (value: string, creative: any) => {
         const isToggling = togglingIds.has(creative.id);
         const normalizedValue = value?.toUpperCase() || 'UNKNOWN';
@@ -499,7 +470,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 80,
       flexGrow: 0,
       flexShrink: 0,
-      sticky: true,
       render: (_, creative) => {
         const adsManagerUrl = creative.platform === 'facebook' && creative.id && creative.adAccountId
           ? `https://business.facebook.com/adsmanager/manage/ads?act=${creative.adAccountId.replace('act_', '')}&selected_ad_ids=${creative.id}`
@@ -566,8 +536,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       width: 200,
       flexGrow: 2,
       flexShrink: 1,
-      sortable: true,
-      sticky: true
+      sortable: true
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
@@ -1174,21 +1143,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 {columns.map((column, index) => {
                   const customWidth = columnWidths[column.id];
                   const finalWidth = customWidth || column.width;
-                  const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                   const columnStyle = {
                     width: finalWidth,
                     minWidth: finalWidth,
                     maxWidth: finalWidth,
                     flexShrink: 0,
-                    flexGrow: 0,
-                    ...stickyStyles,
-                    ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for header sticky columns
+                    flexGrow: 0
                   };
 
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900 shadow-sm' : ''}`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1233,12 +1199,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             <div style={{ minWidth: '100%', width: 'max-content' }}>
               {isLoading ? (
                 // Skeleton loading rows - enough to fill viewport
-                Array.from({ length: 15 }).map((_, skeletonIndex) => (
+                Array.from({ length: 15 }).map((_, index) => (
                   <div
-                    key={`skeleton-${skeletonIndex}`}
-                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse ${
-                      skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
-                    }`}
+                    key={`skeleton-${index}`}
+                    className="flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 animate-pulse"
                   >
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
@@ -1248,17 +1212,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
                         flexShrink: 0,
-                        flexGrow: 0,
-                        ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
+                        flexGrow: 0
                       };
 
-                      // Match skeleton cell background to row
-                      const skeletonBg = column.sticky
-                        ? (skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800')
-                        : '';
-
                       return (
-                        <div key={column.id} className={`px-4 py-3 ${skeletonBg}`} style={columnStyle}>
+                        <div key={column.id} className="px-4 py-3" style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                           ) : column.id === 'creative' ? (
@@ -1366,14 +1324,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`flex items-center min-h-[56px] border-b border-gray-100 dark:border-gray-700/50 transition-all duration-200 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
+                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/50 dark:bg-gray-800/50'
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40 animate-pulse-slow'
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50/90 via-pink-50/70 to-red-50/90 dark:from-red-900/25 dark:via-pink-900/20 dark:to-red-900/25 animate-pulse-slow'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-900/25 shadow-sm'
+                      ? 'bg-green-50/50 dark:bg-green-900/15 shadow-sm'
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
@@ -1391,25 +1349,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       minWidth: finalWidth,
                       maxWidth: finalWidth,
                       flexShrink: 0,
-                      flexGrow: 0,
-                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
-                    };
-
-                    // Get the appropriate background for sticky columns (fully opaque)
-                    const getStickyBackground = () => {
-                      if (!column.sticky) return '';
-
-                      if (hasPendingSuggestion) {
-                        return 'bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40';
-                      }
-
-                      if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-900/25';
-                      }
-
-                      return index % 2 === 0
-                        ? 'bg-white dark:bg-gray-800'
-                        : 'bg-gray-50 dark:bg-gray-800';
+                      flexGrow: 0
                     };
 
                     // No more individual metric glow - entire row glows now
@@ -1474,7 +1414,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         key={column.id}
                         className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackground()}`}
+                        }`}
                         style={columnStyle}
                       >
                         <span className={`${
@@ -1519,30 +1459,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
-                <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
+                <div className="sticky bottom-0 left-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
                   <div className="flex items-center min-h-[52px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const finalWidth = customWidth || column.width;
-                      const stickyStyles = column.sticky ? getStickyStyles(column.id, finalWidth) : {};
                       const columnStyle = {
                         width: finalWidth,
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
                         flexShrink: 0,
-                        flexGrow: 0,
-                        ...stickyStyles,
-                        ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for totals sticky columns
+                        flexGrow: 0
                       };
 
                       return (
                         <div
                           key={column.id}
-                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                          className="flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white"
                           style={columnStyle}
                         >
                         {column.id === 'select' ? (
-                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
+                          <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
                             TOTALS ({sortedCreatives.length})
                           </span>
                         ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
