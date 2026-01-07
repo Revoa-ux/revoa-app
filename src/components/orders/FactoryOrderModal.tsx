@@ -70,68 +70,29 @@ export default function FactoryOrderModal({
 
   const orderTotal = lineItems.reduce((sum, item) => sum + item.total_cost, 0);
   const isOverBudget = orderTotal > availableFunds;
-  const hasItems = lineItems.some(item => item.quantity > 0);
-  const canSubmit = hasItems && !isOverBudget && !isSubmitting;
+  const canSubmit = !isSubmitting;
 
   const handleSubmit = async () => {
-    if (!user?.id || !canSubmit) return;
+    if (!user?.id || isSubmitting) return;
 
     try {
       setIsSubmitting(true);
 
-      const itemsToOrder = lineItems.filter(item => item.quantity > 0);
-
-      const { data: factoryOrder, error: orderError } = await supabase
-        .from('factory_orders')
-        .insert({
-          user_id: invoice.user_id,
-          invoice_id: invoice.id,
-          status: 'ordered',
-          line_items: itemsToOrder.map(item => ({
-            sku: item.sku,
-            product_name: item.product_name,
-            quantity: item.quantity,
-            unit_cost: item.unit_cost,
-            total_cost: item.total_cost
-          })),
-          total_amount: orderTotal,
-          ordered_at: new Date().toISOString(),
-          created_by: user.id,
-          notes: notes || null
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      const { error: allocationError } = await supabase
-        .from('invoice_factory_allocations')
-        .insert({
-          invoice_id: invoice.id,
-          factory_order_id: factoryOrder.id,
-          amount_allocated: orderTotal
-        });
-
-      if (allocationError) throw allocationError;
-
-      const newOrderedAmount = alreadyOrdered + orderTotal;
-      const isFullyOrdered = newOrderedAmount >= totalAmount;
-
       const { error: updateError } = await supabase
         .from('invoices')
         .update({
-          factory_order_amount: newOrderedAmount,
-          factory_order_placed: isFullyOrdered
+          factory_order_amount: totalAmount,
+          factory_order_placed: true
         })
         .eq('id', invoice.id);
 
       if (updateError) throw updateError;
 
-      toast.success('Factory order placed successfully');
+      toast.success('Factory order confirmed');
       onSuccess();
     } catch (error) {
-      console.error('Error placing factory order:', error);
-      toast.error('Failed to place factory order');
+      console.error('Error confirming factory order:', error);
+      toast.error('Failed to confirm factory order');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +104,7 @@ export default function FactoryOrderModal({
     <Modal
       isOpen={true}
       onClose={onClose}
-      title="Order from Factory"
+      title="Confirm Factory Order"
       maxWidth="max-w-7xl"
       noPadding
     >
@@ -320,11 +281,11 @@ export default function FactoryOrderModal({
               {isSubmitting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Placing Order...</span>
+                  <span>Confirming...</span>
                 </>
               ) : (
                 <>
-                  <span>Place Factory Order</span>
+                  <span>Confirm Factory Order Placed</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </>
               )}

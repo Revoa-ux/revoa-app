@@ -400,17 +400,23 @@ export default function OrderFromFactoryTab({
               const orderedAmount = invoice.factory_order_amount || 0;
               const availableAmount = totalAmount - orderedAmount;
               const totalUnits = invoice.line_items?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) || 0;
+              const lineItemCount = invoice.line_items?.length || 0;
 
               return (
                 <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-4 py-4">
-                    <div className="text-left">
+                  <td className="px-4 py-4 text-left">
+                    <div>
                       <button
                         onClick={(e) => handleViewDetails(e, invoice)}
-                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors text-left"
+                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
                       >
                         {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
                       </button>
+                      {lineItemCount > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {lineItemCount} {lineItemCount === 1 ? 'item' : 'items'}
+                        </p>
+                      )}
                     </div>
                   </td>
                   {!filteredUserId && (
