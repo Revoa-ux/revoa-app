@@ -92,6 +92,11 @@ export default function Audit() {
 
       await Promise.all(
         suggestions.map(async (suggestion) => {
+          // Skip expired or dismissed suggestions - they shouldn't be highlighted
+          if (suggestion.status === 'expired' || suggestion.status === 'dismissed') {
+            return;
+          }
+
           const performance = await rexSuggestionService.getPerformance(suggestion.id);
           const suggestionWithPerf = {
             ...suggestion,
@@ -180,9 +185,12 @@ export default function Audit() {
           continue;
         }
 
-        // Generate if forcing regeneration OR if no existing suggestion
-        if (forceRegenerate || !existingSuggestions.has(creative.id)) {
-          if (forceRegenerate && existingSuggestions.has(creative.id)) {
+        // Generate if forcing regeneration OR if no existing suggestion OR if existing is expired/dismissed
+        const existing = existingSuggestions.get(creative.id);
+        const shouldGenerate = forceRegenerate || !existing || existing.status === 'expired' || existing.status === 'dismissed';
+
+        if (shouldGenerate) {
+          if (existing && forceRegenerate) {
             regeneratedCount++;
           }
 
@@ -219,8 +227,11 @@ export default function Audit() {
           continue;
         }
 
-        if (forceRegenerate || !existingSuggestions.has(campaign.id)) {
-          if (forceRegenerate && existingSuggestions.has(campaign.id)) {
+        const existingCampaign = existingSuggestions.get(campaign.id);
+        const shouldGenerateCampaign = forceRegenerate || !existingCampaign || existingCampaign.status === 'expired' || existingCampaign.status === 'dismissed';
+
+        if (shouldGenerateCampaign) {
+          if (existingCampaign && forceRegenerate) {
             regeneratedCount++;
           }
           const entityData = {
@@ -265,8 +276,11 @@ export default function Audit() {
           continue;
         }
 
-        if (forceRegenerate || !existingSuggestions.has(adSet.id)) {
-          if (forceRegenerate && existingSuggestions.has(adSet.id)) {
+        const existingAdSet = existingSuggestions.get(adSet.id);
+        const shouldGenerateAdSet = forceRegenerate || !existingAdSet || existingAdSet.status === 'expired' || existingAdSet.status === 'dismissed';
+
+        if (shouldGenerateAdSet) {
+          if (existingAdSet && forceRegenerate) {
             regeneratedCount++;
           }
           const entityData = {
