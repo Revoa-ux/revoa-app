@@ -459,6 +459,27 @@ export class RexSuggestionService {
     }
   }
 
+  /**
+   * Expire all pending and viewed suggestions for a user
+   * Called before regenerating suggestions to ensure they match current data
+   */
+  async expireUserPendingSuggestions(userId: string): Promise<number> {
+    try {
+      const { data, error } = await supabase.rpc('expire_user_pending_suggestions', {
+        p_user_id: userId
+      });
+
+      if (error) throw error;
+
+      const count = data || 0;
+      console.log(`[RexSuggestion] Expired ${count} pending/viewed suggestions for user ${userId}`);
+      return count;
+    } catch (error) {
+      console.error('[RexSuggestion] Error expiring user pending suggestions:', error);
+      throw error;
+    }
+  }
+
   async dismissSuggestion(suggestionId: string, userId: string, reason?: string): Promise<void> {
     try {
       await this.updateStatus(suggestionId, 'dismissed');

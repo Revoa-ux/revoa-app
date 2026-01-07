@@ -46,6 +46,8 @@ export default function Audit() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['all']);
   const [showPlatformFilter, setShowPlatformFilter] = useState(false);
   const platformFilterRef = useRef<HTMLDivElement>(null);
+  const lastRegenerationTime = useRef<number>(0);
+  const REGENERATION_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
 
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
 
@@ -85,6 +87,13 @@ export default function Audit() {
     if (!user) return;
 
     try {
+      // STEP 1: Expire all pending/viewed suggestions before regenerating
+      // This ensures suggestions always match the current data
+      console.log('[Rex] Expiring old pending/viewed suggestions before regeneration...');
+      const expiredCount = await rexSuggestionService.expireUserPendingSuggestions(user.id);
+      console.log(`[Rex] Expired ${expiredCount} suggestions to make way for fresh analysis`);
+
+      // STEP 2: Load remaining suggestions (dismissed and applied suggestions persist)
       const suggestions = await rexSuggestionService.getSuggestions(user.id);
       console.log('[DEBUG Rex] Loaded suggestions from DB:', suggestions.length);
 
@@ -128,7 +137,8 @@ export default function Audit() {
       const topIds = getTopPendingSuggestions(suggestionsMap);
       setTopDisplayedSuggestionIds(topIds);
 
-      await generateRexSuggestions(suggestionsMap, false);
+      // STEP 3: Generate fresh suggestions based on current data
+      await generateRexSuggestions(suggestionsMap, true); // Force regeneration since we expired all pending ones
     } catch (error) {
       console.error('[Audit] Error loading Rex suggestions:', error);
     }
@@ -160,10 +170,25 @@ export default function Audit() {
       return;
     }
 
+    // DEBOUNCING: Skip regeneration if last refresh was less than 5 minutes ago (unless forced)
+    const now = Date.now();
+    const timeSinceLastRegeneration = now - lastRegenerationTime.current;
+    if (!forceRegenerate && timeSinceLastRegeneration < REGENERATION_COOLDOWN_MS) {
+      const minutesRemaining = Math.ceil((REGENERATION_COOLDOWN_MS - timeSinceLastRegeneration) / 60000);
+      console.log(`[Rex] Skipping regeneration - last refresh was ${Math.floor(timeSinceLastRegeneration / 1000)}s ago (cooldown: ${minutesRemaining} min)`);
+      toast.info(`Rex suggestions were recently updated. Next refresh available in ${minutesRemaining} minute${minutesRemaining > 1 ? 's' : ''}.`, {
+        duration: 3000
+      });
+      return;
+    }
+
     console.log(`[Rex] Starting suggestion generation...`);
     console.log(`[Rex] - Creatives: ${creatives.length}, Campaigns: ${campaigns.length}, Ad Sets: ${adSets.length}`);
     console.log(`[Rex] - Existing suggestions: ${existingSuggestions.size}`);
     console.log(`[Rex] - Force regenerate: ${forceRegenerate}`);
+
+    // Show progress message
+    toast.info('Revoa AI is analyzing your ads...', { duration: 2000 });
 
     setIsGeneratingSuggestions(true);
     try {
@@ -338,8 +363,15 @@ export default function Audit() {
           ? `Rex found 1 optimization opportunity!`
           : `Rex found ${sortedSuggestions.length} optimization opportunities!`;
         toast.success(message);
+
+        // Update last regeneration timestamp
+        lastRegenerationTime.current = Date.now();
       } else {
         console.log(`[Rex] No new suggestions generated. Skipped ${skippedCount} entities without valid data`);
+        toast.info('Rex analyzed your ads but found no new optimization opportunities');
+
+        // Still update timestamp even if no suggestions were found
+        lastRegenerationTime.current = Date.now();
       }
     } catch (error) {
       console.error('[Rex] Error generating suggestions:', error);
