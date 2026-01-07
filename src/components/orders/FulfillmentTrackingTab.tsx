@@ -18,6 +18,7 @@ interface FulfillmentTrackingTabProps {
   syncStatusFilter: string;
   onCarriersLoaded: (carriers: string[]) => void;
   onImport: () => void;
+  onRefresh?: () => void;
 }
 
 interface Fulfillment {
@@ -205,7 +206,8 @@ export default function FulfillmentTrackingTab({
   carrierFilter,
   syncStatusFilter,
   onCarriersLoaded,
-  onImport
+  onImport,
+  onRefresh
 }: FulfillmentTrackingTabProps) {
   const { user } = useAuth();
   const navigate = useNavigate();

@@ -18,6 +18,7 @@ interface UnfulfilledOrdersTabProps {
   exportStatusFilter: string;
   selectedOrders: Set<string>;
   onSelectedOrdersChange: (orders: Set<string>) => void;
+  onRefresh?: () => void;
 }
 
 interface Order {
@@ -56,7 +57,8 @@ export default function UnfulfilledOrdersTab({
   searchTerm,
   exportStatusFilter,
   selectedOrders,
-  onSelectedOrdersChange
+  onSelectedOrdersChange,
+  onRefresh
 }: UnfulfilledOrdersTabProps) {
   const { user } = useAuth();
   const navigate = useNavigate();

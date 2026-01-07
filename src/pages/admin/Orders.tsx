@@ -518,6 +518,11 @@ export default function Orders() {
     }
   };
 
+  const handleRefreshAll = () => {
+    loadStats();
+    setRefreshKey(prev => prev + 1);
+  };
+
   const handleRetrySync = async (merchantId?: string) => {
     setIsSyncing(true);
     try {
@@ -1457,7 +1462,7 @@ export default function Orders() {
                   searchTerm={searchTerm}
                   statusFilter={invoiceStatusFilter}
                   adminFilter={adminFilter}
-                  onRefresh={loadStats}
+                  onRefresh={handleRefreshAll}
                 />
               )}
               {activeTab === 'payments' && !isSuperAdminLoaded && (
@@ -1473,7 +1478,7 @@ export default function Orders() {
               refreshKey={refreshKey}
               searchTerm={searchTerm}
               adminFilter={adminFilter}
-              onRefresh={loadStats}
+              onRefresh={handleRefreshAll}
             />
           )}
           {activeTab === 'unfulfilled' && (
@@ -1487,6 +1492,7 @@ export default function Orders() {
               exportStatusFilter={exportStatusFilter}
               selectedOrders={selectedOrders}
               onSelectedOrdersChange={setSelectedOrders}
+              onRefresh={handleRefreshAll}
             />
           )}
           {activeTab === 'tracking' && (
@@ -1500,6 +1506,7 @@ export default function Orders() {
               syncStatusFilter={syncStatusFilter}
               onCarriersLoaded={setAvailableCarriers}
               onImport={() => setShowImportModal(true)}
+              onRefresh={handleRefreshAll}
             />
           )}
             </>
