@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Invoice } from '../../lib/invoiceService';
 import FactoryOrderModal from './FactoryOrderModal';
+import Modal from '../../components/Modal';
 
 interface OrderFromFactoryTabProps {
   filteredUserId?: string;
@@ -32,6 +33,8 @@ export default function OrderFromFactoryTab({
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showFactoryOrderModal, setShowFactoryOrderModal] = useState(false);
   const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsInvoice, setDetailsInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -155,6 +158,12 @@ export default function OrderFromFactoryTab({
     loadInvoices();
   };
 
+  const handleViewDetails = (e: React.MouseEvent, invoice: Invoice) => {
+    e.stopPropagation();
+    setDetailsInvoice(invoice);
+    setShowDetailsModal(true);
+  };
+
   const toggleExpansion = (invoiceId: string) => {
     const newExpanded = new Set(expandedInvoices);
     if (newExpanded.has(invoiceId)) {
@@ -256,9 +265,12 @@ export default function OrderFromFactoryTab({
                         >
                           <ChevronRight className={`w-4 h-4 transition-transform ${expandedInvoices.has(invoice.id) ? 'rotate-90' : ''}`} />
                         </button>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        <button
+                          onClick={(e) => handleViewDetails(e, invoice)}
+                          className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
+                        >
                           {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-                        </span>
+                        </button>
                       </div>
                     </td>
                     {!filteredUserId && (
@@ -356,6 +368,72 @@ export default function OrderFromFactoryTab({
           }}
           onSuccess={handleFactoryOrderSuccess}
         />
+      )}
+
+      {showDetailsModal && detailsInvoice && (
+        <Modal
+          isOpen={showDetailsModal}
+          title={`Invoice ${detailsInvoice.invoice_number || `INV-${detailsInvoice.id.slice(0, 8)}`}`}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setDetailsInvoice(null);
+          }}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Merchant</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {detailsInvoice.user_profile?.company || detailsInvoice.user_profile?.email || 'Unknown'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Amount</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  ${(detailsInvoice.total_amount || detailsInvoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Paid Date</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {detailsInvoice.paid_at ? format(new Date(detailsInvoice.paid_at), 'MMM dd, yyyy') : 'N/A'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  {detailsInvoice.status.replace('_', ' ')}
+                </p>
+              </div>
+            </div>
+
+            {detailsInvoice.line_items && detailsInvoice.line_items.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Line Items</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+                  {detailsInvoice.line_items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <div className="flex-1">
+                        <span className="text-gray-900 dark:text-white font-medium">
+                          {item.product_name || item.description}
+                        </span>
+                        {item.variant_name && (
+                          <span className="text-gray-500 dark:text-gray-400 ml-2">
+                            ({item.variant_name})
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                        <span>Qty: {item.quantity}</span>
+                        <span>${(item.total_cost || item.total_price || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
       )}
     </>
   );

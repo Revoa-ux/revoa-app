@@ -64,6 +64,7 @@ export default function Orders() {
     needsTrackingNotSynced: 0,
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isSuperAdminLoaded, setIsSuperAdminLoaded] = useState(false);
   const [filteredMerchantName, setFilteredMerchantName] = useState<string>('');
   const [showExportModal, setShowExportModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -174,6 +175,7 @@ export default function Orders() {
       .maybeSingle();
 
     setIsSuperAdmin(data?.is_super_admin || false);
+    setIsSuperAdminLoaded(true);
   };
 
   const loadPermissions = async () => {
@@ -790,69 +792,6 @@ export default function Orders() {
           )}
         </div>
 
-        {/* Action Buttons - Desktop only (Export, Import) */}
-        <div className="hidden sm:flex items-center gap-2">
-          {permissions?.can_export_orders && selectedOrders.size > 0 && (
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export {selectedOrders.size} Orders</span>
-            </button>
-          )}
-
-          {permissions?.can_import_tracking && (
-            <div className="relative group">
-              <button
-                onClick={() => setShowImportModal(true)}
-                disabled={!filteredUserId}
-                className={`h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center gap-2 ${
-                  !filteredUserId
-                    ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
-                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
-                }`}
-              >
-                <Upload className="w-4 h-4" />
-                <span>Import Tracking</span>
-              </button>
-              {!filteredUserId && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                  Select a merchant first
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700" />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Mobile: Export and Import buttons */}
-        <div className="flex items-center gap-2 sm:hidden">
-          {permissions?.can_export_orders && selectedOrders.size > 0 && (
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export ({selectedOrders.size})</span>
-            </button>
-          )}
-
-          {permissions?.can_import_tracking && (
-            <button
-              onClick={() => setShowImportModal(true)}
-              disabled={!filteredUserId}
-              className={`flex-1 h-[38px] px-4 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                !filteredUserId
-                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border border-gray-200/60 dark:border-gray-700/60 cursor-not-allowed'
-                  : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200/60 dark:border-gray-700/60 hover:bg-gray-50 dark:hover:bg-gray-700'
-              }`}
-            >
-              <Upload className="w-4 h-4" />
-              <span>Import</span>
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Sync Failure Banner */}
@@ -1349,7 +1288,7 @@ export default function Orders() {
         </div>
 
         <div>
-          {activeTab === 'payments' && (
+          {activeTab === 'payments' && isSuperAdminLoaded && (
             <PendingPaymentsTab
               filteredUserId={filteredUserId || undefined}
               isSuperAdmin={isSuperAdmin}
@@ -1360,6 +1299,11 @@ export default function Orders() {
               adminFilter={adminFilter}
               onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
             />
+          )}
+          {activeTab === 'payments' && !isSuperAdminLoaded && (
+            <div className="p-8 text-center">
+              <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto" />
+            </div>
           )}
           {activeTab === 'factory' && (
             <OrderFromFactoryTab
@@ -1394,6 +1338,7 @@ export default function Orders() {
               carrierFilter={carrierFilter}
               syncStatusFilter={syncStatusFilter}
               onCarriersLoaded={setAvailableCarriers}
+              onImport={() => setShowImportModal(true)}
             />
           )}
         </div>

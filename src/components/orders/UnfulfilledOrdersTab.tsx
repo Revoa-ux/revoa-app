@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ExternalLink, MessageSquare } from 'lucide-react';
+import { ChevronRight, ExternalLink, MessageSquare, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -390,6 +390,18 @@ export default function UnfulfilledOrdersTab({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
+                      {!order.exported_to_3pl && (
+                        <button
+                          onClick={() => {
+                            onSelectedOrdersChange(new Set([order.id]));
+                            onExport();
+                          }}
+                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                          title="Export to 3PL"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      )}
                       <button
                         onClick={() => handleChatClick(order)}
                         className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
@@ -402,7 +414,7 @@ export default function UnfulfilledOrdersTab({
                           href={getShopifyOrderUrl(order)!}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                           title="View in Shopify"
                         >
                           <ExternalLink className="w-4 h-4" />
