@@ -175,6 +175,7 @@ interface OrderFromFactoryTabProps {
   searchTerm: string;
   adminFilter?: string;
   onInvoiceCountChange?: (count: number) => void;
+  onRefresh?: () => void;
 }
 
 export default function OrderFromFactoryTab({
@@ -184,7 +185,8 @@ export default function OrderFromFactoryTab({
   refreshKey,
   searchTerm,
   adminFilter = 'all',
-  onInvoiceCountChange
+  onInvoiceCountChange,
+  onRefresh
 }: OrderFromFactoryTabProps) {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -314,6 +316,7 @@ export default function OrderFromFactoryTab({
     setShowFactoryOrderModal(false);
     setSelectedInvoice(null);
     loadInvoices();
+    onRefresh?.();
   };
 
   const handleViewDetails = (e: React.MouseEvent, invoice: Invoice) => {

@@ -1458,6 +1458,7 @@ export default function Orders() {
                   searchTerm={searchTerm}
                   statusFilter={invoiceStatusFilter}
                   adminFilter={adminFilter}
+                  onRefresh={loadStats}
                 />
               )}
               {activeTab === 'payments' && !isSuperAdminLoaded && (
@@ -1473,6 +1474,7 @@ export default function Orders() {
               refreshKey={refreshKey}
               searchTerm={searchTerm}
               adminFilter={adminFilter}
+              onRefresh={loadStats}
             />
           )}
           {activeTab === 'unfulfilled' && (

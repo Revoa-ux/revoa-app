@@ -208,6 +208,7 @@ interface PendingPaymentsTabProps {
   statusFilter?: string;
   adminFilter?: string;
   onInvoiceCountChange?: (count: number) => void;
+  onRefresh?: () => void;
 }
 
 export default function PendingPaymentsTab({
@@ -218,7 +219,8 @@ export default function PendingPaymentsTab({
   searchTerm,
   statusFilter = 'all',
   adminFilter = 'all',
-  onInvoiceCountChange
+  onInvoiceCountChange,
+  onRefresh
 }: PendingPaymentsTabProps) {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -522,6 +524,7 @@ export default function PendingPaymentsTab({
             setShowPaymentModal(false);
             setSelectedInvoice(null);
             loadInvoices();
+            onRefresh?.();
           }}
         />
       )}
