@@ -1,4 +1,8 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import {
+  processAllPendingFinalSyncs,
+  MetricData,
+} from '../_shared/atomic-status-handler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -108,6 +112,47 @@ Deno.serve(async (req: Request) => {
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const apiErrors: string[] = [];
 
+    // Helper function to parse insights for atomic status handler
+    const parseInsightForMetrics = (insight: any, entityId: string, entityType: string): MetricData => {
+      const purchaseAction = insight.actions?.find((a: any) => a.action_type === 'purchase');
+      const conversions = parseInt(purchaseAction?.value || '0');
+      const purchaseValue = insight.action_values?.find((a: any) => a.action_type === 'purchase');
+      const conversionValue = parseFloat(purchaseValue?.value || '0');
+      const spend = parseFloat(insight.spend || '0');
+
+      return {
+        entity_id: entityId,
+        entity_type: entityType,
+        date: insight.date_start,
+        impressions: parseInt(insight.impressions || '0'),
+        clicks: parseInt(insight.clicks || '0'),
+        spend,
+        reach: parseInt(insight.reach || '0'),
+        conversions,
+        conversion_value: conversionValue,
+        cpc: parseFloat(insight.cpc || '0'),
+        cpm: parseFloat(insight.cpm || '0'),
+        ctr: parseFloat(insight.ctr || '0'),
+        roas: spend > 0 ? conversionValue / spend : 0,
+      };
+    };
+
+    // Fetch metrics function for atomic status handler
+    const fetchMetricsForEntity = async (
+      platformEntityId: string,
+      startDate: string,
+      endDate: string
+    ): Promise<MetricData[]> => {
+      const insightsFields = 'impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start';
+      const timeRange = `{"since":"${startDate}","until":"${endDate}"}`;
+      const insightsUrl = `https://graph.facebook.com/v21.0/${platformEntityId}/insights?fields=${insightsFields}&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
+
+      const insights = await fetchAllPages(insightsUrl, `final-sync-${platformEntityId}`);
+
+      // Note: We'll map to internal entity_id after fetching
+      return insights.map(insight => parseInsightForMetrics(insight, platformEntityId, 'unknown'));
+    };
+
     const fetchWithRetry = async (url: string, retryCount = 0, context = 'unknown'): Promise<any> => {
       try {
         const response = await fetch(url);
@@ -183,6 +228,32 @@ Deno.serve(async (req: Request) => {
       }
       return results;
     };
+
+    // Step 0: Process any pending final syncs for status changes
+    console.log('[sync] Step 0/4: Checking for entities needing final sync...');
+    try {
+      const finalSyncResult = await processAllPendingFinalSyncs(
+        supabase,
+        account.id,
+        fetchMetricsForEntity,
+        { start: startDate, end: endDate }
+      );
+
+      if (finalSyncResult.entitiesProcessed > 0) {
+        console.log(
+          `[sync] Final sync complete: ${finalSyncResult.entitiesProcessed} entities, ` +
+          `${finalSyncResult.metricsCollected} metrics collected`
+        );
+
+        if (finalSyncResult.errors.length > 0) {
+          console.log('[sync] Final sync had errors:', finalSyncResult.errors);
+          apiErrors.push(...finalSyncResult.errors.map(e => `Final sync error: ${e}`));
+        }
+      }
+    } catch (error) {
+      console.error('[sync] Error during final sync processing:', error);
+      apiErrors.push(`Final sync failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
 
     console.log('[sync] Step 1/4: Fetching campaigns...');
     const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
