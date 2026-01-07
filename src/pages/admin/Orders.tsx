@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck, DollarSign, Factory, FileText, Filter, Receipt } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, ChevronDown, Check, Search, Users, AlertTriangle, AlertCircle, Package, Truck, DollarSign, Factory, FileText, Filter, Receipt, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
@@ -29,6 +29,10 @@ interface OrderStats {
   exportedAwaitingTracking: number;
   trackingImportedToday: number;
   autoSyncedToday: number;
+  outstandingAmount: number;
+  paidInPeriod: number;
+  pendingCount: number;
+  overdueCount: number;
 }
 
 interface Merchant {
@@ -49,6 +53,10 @@ export default function Orders() {
     exportedAwaitingTracking: 0,
     trackingImportedToday: 0,
     autoSyncedToday: 0,
+    outstandingAmount: 0,
+    paidInPeriod: 0,
+    pendingCount: 0,
+    overdueCount: 0,
   });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [filteredMerchantName, setFilteredMerchantName] = useState<string>('');
@@ -303,6 +311,10 @@ export default function Orders() {
             exportedAwaitingTracking: 0,
             trackingImportedToday: 0,
             autoSyncedToday: 0,
+            outstandingAmount: 0,
+            paidInPeriod: 0,
+            pendingCount: 0,
+            overdueCount: 0,
           });
           return;
         }
@@ -380,6 +392,56 @@ export default function Orders() {
 
       const { count: autoSyncedToday } = await syncedQuery;
 
+      let outstandingQuery = supabase
+        .from('invoices')
+        .select('total_amount')
+        .in('status', ['pending', 'unpaid', 'overdue']);
+
+      if (merchantIds) {
+        outstandingQuery = outstandingQuery.in('user_id', merchantIds);
+      }
+
+      const { data: outstandingInvoices } = await outstandingQuery;
+      const outstandingAmount = outstandingInvoices?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      let paidQuery = supabase
+        .from('invoices')
+        .select('total_amount')
+        .eq('status', 'paid')
+        .gte('paid_at', thirtyDaysAgo.toISOString());
+
+      if (merchantIds) {
+        paidQuery = paidQuery.in('user_id', merchantIds);
+      }
+
+      const { data: paidInvoices } = await paidQuery;
+      const paidInPeriod = paidInvoices?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+
+      let pendingCountQuery = supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['pending', 'unpaid']);
+
+      if (merchantIds) {
+        pendingCountQuery = pendingCountQuery.in('user_id', merchantIds);
+      }
+
+      const { count: pendingCount } = await pendingCountQuery;
+
+      let overdueCountQuery = supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'overdue');
+
+      if (merchantIds) {
+        overdueCountQuery = overdueCountQuery.in('user_id', merchantIds);
+      }
+
+      const { count: overdueCount } = await overdueCountQuery;
+
       setStats({
         pendingPayments: pendingPayments || 0,
         awaitingFactoryOrder: awaitingFactoryOrder || 0,
@@ -387,6 +449,10 @@ export default function Orders() {
         exportedAwaitingTracking: exportedAwaitingTracking || 0,
         trackingImportedToday: trackingImportedToday || 0,
         autoSyncedToday: autoSyncedToday || 0,
+        outstandingAmount,
+        paidInPeriod,
+        pendingCount: pendingCount || 0,
+        overdueCount: overdueCount || 0,
       });
     } catch (error) {
       console.error('Error loading stats:', error);
@@ -786,66 +852,66 @@ export default function Orders() {
 
       {/* Stats Cards - Horizontally Scrollable */}
       <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Receipt className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            </div>
+        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
+            <DollarSign className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Unpaid Invoices</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.pendingPayments}</p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Outstanding</p>
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+            ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+          </p>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">Awaiting payment</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Unpaid invoices</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                ${stats.outstandingAmount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            </div>
+        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
+            <Check className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Factory Orders</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.awaitingFactoryOrder}</p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Paid in Period</p>
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
+            ${stats.paidInPeriod.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+          </p>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Status</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">In production</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">This period</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                ${stats.paidInPeriod.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            </div>
+        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
+            <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Ready to Export</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.readyToExport}</p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{stats.pendingCount}</p>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Exported orders</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.trackingImportedToday}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Awaiting payment</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.pendingCount}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            </div>
+        <div className="flex-shrink-0 w-64 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700">
+          <div className="p-2.5 bg-gray-100 dark:bg-gray-700 rounded-xl w-fit mb-4">
+            <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.exportedAwaitingTracking}</p>
-          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Overdue</p>
+          <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">{stats.overdueCount}</p>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Synced today</span>
-              <span className="text-xs font-medium text-gray-900 dark:text-gray-100">{stats.autoSyncedToday}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Past due date</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{stats.overdueCount}</span>
             </div>
           </div>
         </div>
