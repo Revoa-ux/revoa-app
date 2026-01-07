@@ -26,6 +26,7 @@ import { CustomCheckbox } from '@/components/CustomCheckbox';
 import ToggleSwitch from '@/components/ToggleSwitch';
 import { ComprehensiveRexInsightsModal } from './ComprehensiveRexInsightsModal';
 import { RexIntroductionModal } from './RexIntroductionModal';
+import { ExpandedSuggestionRow } from './ExpandedSuggestionRow';
 import { RexOrchestrationService } from '@/lib/rexOrchestrationService';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
@@ -436,8 +437,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       return {
         position: 'sticky' as const,
         left: `${leftOffset}px`,
-        zIndex: 10,
-        backgroundColor: 'inherit'
+        zIndex: 10
       };
     }
 
@@ -1188,7 +1188,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900 shadow-sm' : ''}`}
+                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1490,6 +1490,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {/* Modal is rendered outside the table */}
 
                   {/* Loading state while analyzing */}
+                  {expandedRowId === creative.id && suggestion && !isAnalyzing && (
+                    <ExpandedSuggestionRow
+                      suggestion={suggestion}
+                      onAccept={onAcceptSuggestion ? () => onAcceptSuggestion(suggestion) : undefined}
+                      onDismiss={onDismissSuggestion ? (reason?: string) => onDismissSuggestion(suggestion, reason) : undefined}
+                      onClose={() => setExpandedRowId(null)}
+                    />
+                  )}
                   {expandedRowId === creative.id && isAnalyzing && (
                     <div className="bg-white dark:bg-gray-800 border-x border-b border-gray-200 dark:border-gray-700 px-6 py-12">
                       <div className="flex flex-col items-center justify-center gap-3">
