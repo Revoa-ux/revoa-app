@@ -403,60 +403,62 @@ export default function OrderFromFactoryTab({
 
               return (
                 <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                  <td className="px-4 py-4 text-left">
-                    <button
-                      onClick={(e) => handleViewDetails(e, invoice)}
-                      className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
-                    >
-                      {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-                    </button>
+                  <td className="px-4 py-4">
+                    <div className="text-left">
+                      <button
+                        onClick={(e) => handleViewDetails(e, invoice)}
+                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors text-left"
+                      >
+                        {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+                      </button>
+                    </div>
                   </td>
-                    {!filteredUserId && (
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
-                        </span>
-                      </td>
-                    )}
-                    <td className="px-4 py-4 text-right">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <div>
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                          ${availableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                        {orderedAmount > 0 && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            ${orderedAmount.toFixed(2)} ordered
-                          </p>
-                        )}
-                      </div>
-                    </td>
+                  {!filteredUserId && (
                     <td className="px-4 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM dd, yyyy') : 'N/A'}
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
-                        {totalUnits}
+                  )}
+                  <td className="px-4 py-4 text-right">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                        ${availableAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-center">
-                        <button
-                          onClick={(e) => handleOrderFromFactory(e, invoice)}
-                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                          title="Order from factory"
-                        >
-                          <Truck className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      {orderedAmount > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          ${orderedAmount.toFixed(2)} ordered
+                        </p>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {invoice.paid_at ? format(new Date(invoice.paid_at), 'MMM dd, yyyy') : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {totalUnits}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={(e) => handleOrderFromFactory(e, invoice)}
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        title="Order from factory"
+                      >
+                        <Truck className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               );
             })}
           </tbody>
