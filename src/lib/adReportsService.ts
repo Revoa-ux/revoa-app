@@ -304,69 +304,138 @@ export async function getCreativePerformance(
 
     console.log('[AdReportsService] === FETCHING CREATIVE PERFORMANCE WITH ATTRIBUTION ===');
     console.log('[AdReportsService] Date range:', { startDate, endDate });
+    console.log('[AdReportsService] User ID:', user.id);
 
     // Get user's ad accounts
     const accounts = await facebookAdsService.getAdAccounts('facebook');
     if (accounts.length === 0) {
-      console.log('[AdReportsService] No ad accounts found');
+      console.log('[AdReportsService] ❌ No ad accounts found');
       return [];
     }
 
     const accountIds = accounts.map(acc => acc.id);
-    console.log('[AdReportsService] Found', accountIds.length, 'ad accounts');
+    console.log('[AdReportsService] ✓ Found', accountIds.length, 'ad accounts');
+    console.log('[AdReportsService] Account IDs:', accountIds);
 
     // Get campaigns for these accounts (high limit to get all)
     const { data: campaigns, error: campaignsError } = await supabase
       .from('ad_campaigns')
-      .select('id')
+      .select('id, name, platform')
       .in('ad_account_id', accountIds)
       .limit(100000);
 
-    if (campaignsError) throw campaignsError;
+    if (campaignsError) {
+      console.error('[AdReportsService] ❌ Error fetching campaigns:', campaignsError);
+      throw campaignsError;
+    }
 
     if (!campaigns || campaigns.length === 0) {
-      console.log('[AdReportsService] No campaigns found');
+      console.log('[AdReportsService] ❌ No campaigns found for account IDs:', accountIds);
+      // Check if campaigns exist at all
+      const { data: allCampaigns } = await supabase
+        .from('ad_campaigns')
+        .select('id, ad_account_id')
+        .limit(5);
+      console.log('[AdReportsService] Sample campaigns in DB:', allCampaigns);
       return [];
     }
 
-    console.log('[AdReportsService] Found', campaigns.length, 'campaigns');
+    console.log('[AdReportsService] ✓ Found', campaigns.length, 'campaigns');
+    console.log('[AdReportsService] Sample campaigns:', campaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name })));
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get ad sets for these campaigns (high limit to get all)
-    const { data: adSets, error: adSetsError } = await supabase
-      .from('ad_sets')
-      .select('id')
-      .in('ad_campaign_id', campaignIds)
-      .limit(100000);
+    // Batch ad sets query to avoid URL length limit with many campaigns (351 campaigns = very long URL)
+    const ADSETS_BATCH_SIZE = 100;
+    let allAdSets: any[] = [];
 
-    if (adSetsError) throw adSetsError;
+    console.log('[AdReportsService] Fetching ad sets in batches of', ADSETS_BATCH_SIZE);
+
+    for (let i = 0; i < campaignIds.length; i += ADSETS_BATCH_SIZE) {
+      const batch = campaignIds.slice(i, i + ADSETS_BATCH_SIZE);
+      const { data: batchAdSets, error: adSetsError } = await supabase
+        .from('ad_sets')
+        .select('id, name, ad_campaign_id')
+        .in('ad_campaign_id', batch)
+        .limit(100000);
+
+      if (adSetsError) {
+        console.error(`[AdReportsService] ❌ Error fetching ad sets batch ${i / ADSETS_BATCH_SIZE + 1}:`, adSetsError);
+        throw adSetsError;
+      }
+
+      if (batchAdSets) {
+        console.log(`[AdReportsService] Ad Sets Batch ${i / ADSETS_BATCH_SIZE + 1}: Found ${batchAdSets.length} ad sets`);
+        allAdSets = allAdSets.concat(batchAdSets);
+      }
+    }
+
+    const adSets = allAdSets;
 
     if (!adSets || adSets.length === 0) {
-      console.log('[AdReportsService] No ad sets found');
+      console.log('[AdReportsService] ❌ No ad sets found for campaign IDs');
+      console.log('[AdReportsService] Sample campaign IDs:', campaignIds.slice(0, 5));
+      // Check if ad sets exist at all
+      const { data: allAdSetsCheck } = await supabase
+        .from('ad_sets')
+        .select('id, ad_campaign_id')
+        .limit(5);
+      console.log('[AdReportsService] Sample ad sets in DB:', allAdSetsCheck);
       return [];
     }
 
-    console.log('[AdReportsService] Found', adSets.length, 'ad sets');
+    console.log('[AdReportsService] ✓ Found', adSets.length, 'total ad sets across all batches');
+    console.log('[AdReportsService] Sample ad sets:', adSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, campaign_id: s.ad_campaign_id })));
     const adSetIds = adSets.map(s => s.id);
 
-    // Fetch ads for these ad sets (high limit to get all)
-    const { data: ads, error } = await supabase
-      .from('ads')
-      .select('*')
-      .in('ad_set_id', adSetIds)
-      .limit(100000);
+    // Batch ads query to avoid URL length limit (700 ad sets = very long URL)
+    const ADS_BATCH_SIZE = 100;
+    let allAds: any[] = [];
 
-    if (error) {
-      console.error('[AdReportsService] Error fetching ads:', error);
-      throw error;
+    console.log('[AdReportsService] Fetching ads in batches of', ADS_BATCH_SIZE);
+
+    for (let i = 0; i < adSetIds.length; i += ADS_BATCH_SIZE) {
+      const batch = adSetIds.slice(i, i + ADS_BATCH_SIZE);
+      const { data: batchAds, error: adsError } = await supabase
+        .from('ads')
+        .select('*')
+        .in('ad_set_id', batch)
+        .limit(100000);
+
+      if (adsError) {
+        console.error(`[AdReportsService] ❌ Error fetching ads batch ${i / ADS_BATCH_SIZE + 1}:`, adsError);
+        throw adsError;
+      }
+
+      if (batchAds) {
+        console.log(`[AdReportsService] Ads Batch ${i / ADS_BATCH_SIZE + 1}: Found ${batchAds.length} ads`);
+        allAds = allAds.concat(batchAds);
+      }
     }
 
+    const ads = allAds;
+
     if (!ads || ads.length === 0) {
-      console.log('[AdReportsService] No ads found');
+      console.log('[AdReportsService] ❌ No ads found for ad set IDs');
+      console.log('[AdReportsService] Ad set IDs sample:', adSetIds.slice(0, 5));
+      // Check if ads exist at all in database
+      const { data: allAdsCheck } = await supabase
+        .from('ads')
+        .select('id, ad_set_id, name')
+        .limit(10);
+      console.log('[AdReportsService] Sample ads in DB:', allAdsCheck);
+
+      // Check for foreign key mismatch
+      if (allAdsCheck && allAdsCheck.length > 0 && adSetIds.length > 0) {
+        console.log('[AdReportsService] ⚠️ FOREIGN KEY MISMATCH DETECTED!');
+        console.log('[AdReportsService] DB has ads but none match our ad_set_ids');
+        console.log('[AdReportsService] Expected ad_set_ids:', adSetIds.slice(0, 3));
+        console.log('[AdReportsService] Actual ad_set_ids in DB:', allAdsCheck.slice(0, 3).map(a => a.ad_set_id));
+      }
       return [];
     }
 
-    console.log('[AdReportsService] Found', ads.length, 'ads');
+    console.log('[AdReportsService] ✓ Found', ads.length, 'total ads across all batches');
+    console.log('[AdReportsService] Sample ads:', ads.slice(0, 3).map(a => ({ id: a.id, name: a.name, ad_set_id: a.ad_set_id })));
 
     // Fetch metrics for these ads (clicks, impressions, spend from Facebook)
     // IMPORTANT: entity_id in ad_metrics stores our internal UUID, not platform_ad_id
@@ -879,20 +948,38 @@ export async function getAdSetPerformance(
     console.log('[AdReportsService] getAdSetPerformance: Found', campaigns.length, 'campaigns');
     const campaignIds = campaigns.map(c => c.id);
 
-    // Get all ad sets for these campaigns (high limit to get all)
-    const { data: adSets, error: adSetsError } = await supabase
-      .from('ad_sets')
-      .select('*')
-      .in('ad_campaign_id', campaignIds)
-      .limit(100000);
+    // Batch ad sets query to avoid URL length limit with many campaigns
+    const ADSETS_BATCH_SIZE = 100;
+    let allAdSets: any[] = [];
 
-    if (adSetsError) throw adSetsError;
+    console.log('[AdReportsService] Fetching ad sets in batches of', ADSETS_BATCH_SIZE);
+
+    for (let i = 0; i < campaignIds.length; i += ADSETS_BATCH_SIZE) {
+      const batch = campaignIds.slice(i, i + ADSETS_BATCH_SIZE);
+      const { data: batchAdSets, error: adSetsError } = await supabase
+        .from('ad_sets')
+        .select('*')
+        .in('ad_campaign_id', batch)
+        .limit(100000);
+
+      if (adSetsError) {
+        console.error(`[AdReportsService] ❌ Error fetching ad sets batch ${i / ADSETS_BATCH_SIZE + 1}:`, adSetsError);
+        throw adSetsError;
+      }
+
+      if (batchAdSets) {
+        console.log(`[AdReportsService] Ad Sets Batch ${i / ADSETS_BATCH_SIZE + 1}: Found ${batchAdSets.length} ad sets`);
+        allAdSets = allAdSets.concat(batchAdSets);
+      }
+    }
+
+    const adSets = allAdSets;
 
     if (!adSets || adSets.length === 0) {
       return [];
     }
 
-    console.log('[AdReportsService] getAdSetPerformance: Found', adSets.length, 'ad sets');
+    console.log('[AdReportsService] getAdSetPerformance: Found', adSets.length, 'total ad sets across all batches');
 
     // Use internal UUID for metrics lookup (entity_id is UUID type)
     const adSetUuids = adSets.map(a => a.id);

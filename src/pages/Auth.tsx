@@ -51,6 +51,22 @@ const Auth = () => {
     }
   }, [searchParams]);
 
+  // Set initial mode based on URL (do this immediately, not waiting for auth)
+  useEffect(() => {
+    if (location.pathname.includes('sign-up')) {
+      setMode('signup');
+    } else if (location.pathname.includes('sign-in')) {
+      setMode('signin');
+    }
+
+    // Handle password reset mode
+    const params = new URLSearchParams(location.search);
+    if (params.get('mode') === 'reset-password') {
+      setMode('forgot-password');
+    }
+  }, [location.pathname, location.search]);
+
+  // Handle redirects (separate effect)
   useEffect(() => {
     // If this is an admin route, do not handle redirects
     if (location.pathname.startsWith('/admin')) {
@@ -88,19 +104,6 @@ const Auth = () => {
         navigate('/', { replace: true });
       }
       return;
-    }
-
-    // Set initial mode based on URL
-    if (location.pathname.includes('sign-up')) {
-      setMode('signup');
-    } else if (location.pathname.includes('sign-in')) {
-      setMode('signin');
-    }
-
-    // Handle password reset mode
-    const params = new URLSearchParams(location.search);
-    if (params.get('mode') === 'reset-password') {
-      setMode('forgot-password');
     }
   }, [isAuthenticated, hasCompletedOnboarding, isAdmin, adminLoading, authLoading, navigate, location, emailConfirmed, profileLoaded, user]);
   
@@ -226,6 +229,48 @@ const Auth = () => {
     }
   };
   
+  // Show loading state while auth is initializing
+  if (authLoading || adminLoading) {
+    return (
+      <>
+        <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
+        <div
+          className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+          style={{
+            backgroundColor: 'var(--auth-bg-color, #fafafa)',
+            backgroundImage: 'var(--auth-bg-pattern)',
+          }}
+        >
+          <style>{`
+            :root {
+              --auth-bg-color: #fafafa;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(0, 0, 0, 0.03) 4px,
+                rgba(0, 0, 0, 0.03) 5px
+              );
+            }
+            .dark {
+              --auth-bg-color: #171717;
+              --auth-bg-pattern: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 4px,
+                rgba(255, 255, 255, 0.06) 4px,
+                rgba(255, 255, 255, 0.06) 5px
+              );
+            }
+          `}</style>
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-gray-400 dark:text-gray-600" />
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <PageTitle title={mode === 'signup' ? 'Sign Up' : 'Sign In'} />
