@@ -954,10 +954,9 @@ export default function Orders() {
                   {[
                     { value: 'all', label: 'All Status' },
                     { value: 'pending', label: 'Pending' },
-                    { value: 'paid', label: 'Paid' },
                     { value: 'unpaid', label: 'Unpaid' },
                     { value: 'overdue', label: 'Overdue' },
-                    { value: 'cancelled', label: 'Cancelled' },
+                    { value: 'partially_paid', label: 'Partially Paid' },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -1250,7 +1249,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Invoices</span>
+              <span className="font-medium text-sm">Unpaid Invoices</span>
             </button>
 
             <button
@@ -1261,7 +1260,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Order from Factory</span>
+              <span className="font-medium text-sm">Paid Invoices</span>
             </button>
 
             <button
@@ -1288,7 +1287,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Fulfillment Tracking</span>
+              <span className="font-medium text-sm">Fulfilled Orders</span>
             </button>
           </div>
         </div>

@@ -138,7 +138,7 @@ export default function MerchantTransactionsModal({
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Balance</p>
-                  <p className={`text-2xl font-semibold ${currentBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
                     ${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -149,15 +149,15 @@ export default function MerchantTransactionsModal({
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Paid This Month</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Invoices</p>
                   <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                    ${stats.paidThisMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {invoices.length}
                   </p>
                 </div>
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Credits</p>
-                  <p className="text-2xl font-semibold text-green-600 dark:text-green-400">
-                    ${stats.totalCredits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Paid</p>
+                  <p className="text-2xl font-semibold text-gray-900 dark:text-white">
+                    ${stats.totalDebits.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>

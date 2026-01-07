@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Eye, DollarSign, ChevronRight, Clock, AlertCircle } from 'lucide-react';
+import { Eye, DollarSign } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';
-import { invoiceService, Invoice } from '../../lib/invoiceService';
+import { Invoice } from '../../lib/invoiceService';
 import PaymentReconciliationModal from './PaymentReconciliationModal';
+import Modal from '../../components/Modal';
 
 interface PendingPaymentsTabProps {
   filteredUserId?: string;
@@ -31,10 +32,10 @@ export default function PendingPaymentsTab({
   const { user } = useAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [expandedInvoices, setExpandedInvoices] = useState<Set<string>>(new Set());
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsInvoice, setDetailsInvoice] = useState<Invoice | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -134,36 +135,16 @@ export default function PendingPaymentsTab({
     }
   };
 
-  const handleSendReminder = async (e: React.MouseEvent, invoiceId: string) => {
-    e.stopPropagation();
-
-    try {
-      setSendingReminder(invoiceId);
-      await invoiceService.sendPaymentReminder(invoiceId);
-      toast.success('Payment reminder sent');
-      loadInvoices();
-    } catch (error) {
-      console.error('Error sending reminder:', error);
-      toast.error('Failed to send reminder');
-    } finally {
-      setSendingReminder(null);
-    }
-  };
-
   const handleMarkAsPaid = (e: React.MouseEvent, invoice: Invoice) => {
     e.stopPropagation();
     setSelectedInvoice(invoice);
     setShowPaymentModal(true);
   };
 
-  const toggleExpansion = (invoiceId: string) => {
-    const newExpanded = new Set(expandedInvoices);
-    if (newExpanded.has(invoiceId)) {
-      newExpanded.delete(invoiceId);
-    } else {
-      newExpanded.add(invoiceId);
-    }
-    setExpandedInvoices(newExpanded);
+  const handleViewDetails = (e: React.MouseEvent, invoice: Invoice) => {
+    e.stopPropagation();
+    setDetailsInvoice(invoice);
+    setShowDetailsModal(true);
   };
 
   const getStatusBadge = (status: string, daysOverdue?: number) => {
@@ -277,110 +258,65 @@ export default function PendingPaymentsTab({
               const lineItemCount = invoice.line_items?.length || 0;
 
               return (
-                <React.Fragment key={invoice.id}>
-                  <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                  <td className="px-4 py-4">
+                    <div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
+                      </span>
+                      {lineItemCount > 0 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {lineItemCount} {lineItemCount === 1 ? 'item' : 'items'}
+                        </p>
+                      )}
+                    </div>
+                  </td>
+                  {!filteredUserId && (
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleExpansion(invoice.id)}
-                          className="p-1.5 -m-1 text-gray-400 rounded"
-                        >
-                          <ChevronRight className={`w-4 h-4 transition-transform ${expandedInvoices.has(invoice.id) ? 'rotate-90' : ''}`} />
-                        </button>
-                        <div>
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">
-                            {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-                          </span>
-                          {lineItemCount > 0 && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {lineItemCount} {lineItemCount === 1 ? 'item' : 'items'}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    {!filteredUserId && (
-                      <td className="px-4 py-4">
-                        <span className="text-sm text-gray-900 dark:text-white">
-                          {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
-                        </span>
-                      </td>
-                    )}
-                    <td className="px-4 py-4 text-right">
-                      <div>
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                          ${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                        {invoice.status === 'partially_paid' && invoice.amount_received && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            ${invoice.amount_received.toFixed(2)} received
-                          </p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {invoice.user_profile?.company || invoice.user_profile?.email || 'Unknown'}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      {getStatusBadge(invoice.status, daysOverdue)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={(e) => handleSendReminder(e, invoice.id)}
-                          disabled={sendingReminder === invoice.id}
-                          className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                          title="Send reminder"
-                        >
-                          <Send className={`w-4 h-4 ${sendingReminder === invoice.id ? 'animate-pulse' : ''}`} />
-                        </button>
-                        <button
-                          onClick={(e) => handleMarkAsPaid(e, invoice)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 transition-all active:scale-95"
-                        >
-                          <DollarSign className="w-4 h-4" />
-                          Mark Paid
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {expandedInvoices.has(invoice.id) && (
-                    <tr>
-                      <td colSpan={filteredUserId ? 5 : 6} className="px-4 py-3 bg-gray-50 dark:bg-gray-800/50">
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">
-                            Line Items
-                          </p>
-                          {invoice.line_items && invoice.line_items.length > 0 ? (
-                            invoice.line_items.map((item: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between text-sm">
-                                <div className="flex-1">
-                                  <span className="text-gray-900 dark:text-white font-medium">
-                                    {item.product_name || item.description}
-                                  </span>
-                                  {item.variant_name && (
-                                    <span className="text-gray-500 dark:text-gray-400 ml-2">
-                                      ({item.variant_name})
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
-                                  <span>Qty: {item.quantity}</span>
-                                  <span>${(item.total_cost || item.total_price || 0).toFixed(2)}</span>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-sm text-gray-500 dark:text-gray-400">No line items found</p>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
                   )}
-                </React.Fragment>
+                  <td className="px-4 py-4 text-right">
+                    <div>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                        ${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                      {invoice.status === 'partially_paid' && invoice.amount_received && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          ${invoice.amount_received.toFixed(2)} received
+                        </p>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {invoice.due_date ? format(new Date(invoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    {getStatusBadge(invoice.status, daysOverdue)}
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={(e) => handleViewDetails(e, invoice)}
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        title="View details"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleMarkAsPaid(e, invoice)}
+                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                        title="Mark as paid"
+                      >
+                        <DollarSign className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               );
             })}
           </tbody>
@@ -401,6 +337,71 @@ export default function PendingPaymentsTab({
             loadInvoices();
           }}
         />
+      )}
+
+      {showDetailsModal && detailsInvoice && (
+        <Modal
+          title={`Invoice ${detailsInvoice.invoice_number || `INV-${detailsInvoice.id.slice(0, 8)}`}`}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setDetailsInvoice(null);
+          }}
+        >
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Merchant</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {detailsInvoice.user_profile?.company || detailsInvoice.user_profile?.email || 'Unknown'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Amount</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  ${(detailsInvoice.total_amount || detailsInvoice.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Due Date</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {detailsInvoice.due_date ? format(new Date(detailsInvoice.due_date), 'MMM dd, yyyy') : 'N/A'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                  {detailsInvoice.status.replace('_', ' ')}
+                </p>
+              </div>
+            </div>
+
+            {detailsInvoice.line_items && detailsInvoice.line_items.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Line Items</p>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+                  {detailsInvoice.line_items.map((item: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between text-sm">
+                      <div className="flex-1">
+                        <span className="text-gray-900 dark:text-white font-medium">
+                          {item.product_name || item.description}
+                        </span>
+                        {item.variant_name && (
+                          <span className="text-gray-500 dark:text-gray-400 ml-2">
+                            ({item.variant_name})
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                        <span>Qty: {item.quantity}</span>
+                        <span>${(item.total_cost || item.total_price || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
       )}
     </>
   );
