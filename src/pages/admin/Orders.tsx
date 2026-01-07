@@ -10,8 +10,6 @@ import UnfulfilledOrdersTab from '../../components/orders/UnfulfilledOrdersTab';
 import FulfillmentTrackingTab from '../../components/orders/FulfillmentTrackingTab';
 import AllOrdersTab from '../../components/orders/AllOrdersTab';
 import PendingPaymentsTab from '../../components/orders/PendingPaymentsTab';
-import OrderFromFactoryTab from '../../components/orders/OrderFromFactoryTab';
-import AllTransactionsTab from '../../components/orders/AllTransactionsTab';
 import ExportToMabangModal from '../../components/orders/ExportToMabangModal';
 import ImportTrackingModal, { SyncFailureInfo } from '../../components/orders/ImportTrackingModal';
 
@@ -44,7 +42,7 @@ interface Merchant {
 export default function Orders() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'payments' | 'factory' | 'unfulfilled' | 'tracking' | 'transactions'>('payments');
+  const [activeTab, setActiveTab] = useState<'payments' | 'unfulfilled' | 'tracking'>('unfulfilled');
   const [permissions, setPermissions] = useState<OrderPermissions | null>(null);
   const [stats, setStats] = useState<OrderStats>({
     pendingPayments: 0,
@@ -1238,34 +1236,12 @@ export default function Orders() {
       </div>
 
       {/* Tabs and Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700">
-          <div className="flex space-x-6 px-6 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab('payments')}
-              className={`px-1 py-4 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'payments'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              <span className="font-medium text-sm">Invoices</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('factory')}
-              className={`px-1 py-4 border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'factory'
-                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              <span className="font-medium text-sm">Order from Factory</span>
-            </button>
-
+      <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex">
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`px-1 py-4 border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
                 activeTab === 'unfulfilled'
                   ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -1273,7 +1249,7 @@ export default function Orders() {
             >
               <span className="font-medium text-sm">Unfulfilled Orders</span>
               {stats.readyToExport > 0 && (
-                <span className="ml-2 px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
+                <span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full">
                   {stats.readyToExport}
                 </span>
               )}
@@ -1281,7 +1257,7 @@ export default function Orders() {
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`px-1 py-4 border-b-2 transition-colors whitespace-nowrap ${
+              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
                 activeTab === 'tracking'
                   ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -1291,14 +1267,14 @@ export default function Orders() {
             </button>
 
             <button
-              onClick={() => setActiveTab('transactions')}
-              className={`px-1 py-4 border-b-2 transition-colors whitespace-nowrap ml-auto ${
-                activeTab === 'transactions'
+              onClick={() => setActiveTab('payments')}
+              className={`flex-1 py-4 border-b-2 transition-colors whitespace-nowrap text-center ${
+                activeTab === 'payments'
                   ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">All Transactions</span>
+              <span className="font-medium text-sm">All Orders</span>
             </button>
           </div>
         </div>
@@ -1314,16 +1290,6 @@ export default function Orders() {
               statusFilter={invoiceStatusFilter}
               adminFilter={adminFilter}
               onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
-            />
-          )}
-          {activeTab === 'factory' && (
-            <OrderFromFactoryTab
-              filteredUserId={filteredUserId || undefined}
-              isSuperAdmin={isSuperAdmin}
-              permissions={permissions}
-              refreshKey={refreshKey}
-              searchTerm={searchTerm}
-              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, awaitingFactoryOrder: count }))}
             />
           )}
           {activeTab === 'unfulfilled' && (
@@ -1349,15 +1315,6 @@ export default function Orders() {
               carrierFilter={carrierFilter}
               syncStatusFilter={syncStatusFilter}
               onCarriersLoaded={setAvailableCarriers}
-            />
-          )}
-          {activeTab === 'transactions' && (
-            <AllTransactionsTab
-              filteredUserId={filteredUserId || undefined}
-              isSuperAdmin={isSuperAdmin}
-              permissions={permissions}
-              refreshKey={refreshKey}
-              searchTerm={searchTerm}
             />
           )}
         </div>
