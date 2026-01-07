@@ -15,7 +15,6 @@ interface UnfulfilledOrdersTabProps {
   onExport: () => void;
   refreshKey: number;
   searchTerm: string;
-  exportStatusFilter: string;
   selectedOrders: Set<string>;
   onSelectedOrdersChange: (orders: Set<string>) => void;
   onRefresh?: () => void;
@@ -55,7 +54,6 @@ export default function UnfulfilledOrdersTab({
   onExport,
   refreshKey,
   searchTerm,
-  exportStatusFilter,
   selectedOrders,
   onSelectedOrdersChange,
   onRefresh
@@ -227,18 +225,15 @@ export default function UnfulfilledOrdersTab({
   };
 
   const filteredOrders = orders.filter(order => {
+    if (order.exported_to_3pl) return false;
+
     const searchMatch =
       order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.merchant_name?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    if (!searchMatch) return false;
-
-    if (exportStatusFilter === 'ready' && order.exported_to_3pl) return false;
-    if (exportStatusFilter === 'exported' && !order.exported_to_3pl) return false;
-
-    return true;
+    return searchMatch;
   });
 
   if (loading) {

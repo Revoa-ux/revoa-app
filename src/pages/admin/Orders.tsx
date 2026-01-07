@@ -78,7 +78,6 @@ export default function Orders() {
   const [hasSelectedMerchant, setHasSelectedMerchant] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [exportStatusFilter, setExportStatusFilter] = useState<string>('ready');
   const [carrierFilter, setCarrierFilter] = useState<string>('all');
   const [syncStatusFilter, setSyncStatusFilter] = useState<string>('all');
   const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<string>('all');
@@ -86,12 +85,11 @@ export default function Orders() {
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [availableCarriers, setAvailableCarriers] = useState<string[]>([]);
 
-  const [showExportStatusDropdown, setShowExportStatusDropdown] = useState(false);
   const [showCarrierDropdown, setShowCarrierDropdown] = useState(false);
   const [showSyncStatusDropdown, setShowSyncStatusDropdown] = useState(false);
   const [showFulfillmentStatusDropdown, setShowFulfillmentStatusDropdown] = useState(false);
   const [showAllOrdersExportDropdown, setShowAllOrdersExportDropdown] = useState(false);
-  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState<string>('unpaid');
+  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState<string>('all');
   const [showInvoiceStatusDropdown, setShowInvoiceStatusDropdown] = useState(false);
   const [adminFilter, setAdminFilter] = useState<string>('all');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
@@ -100,7 +98,6 @@ export default function Orders() {
   const merchantDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMerchantDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMerchantDropdownMenuRef = useRef<HTMLDivElement>(null);
-  const exportStatusDropdownRef = useRef<HTMLDivElement>(null);
   const carrierDropdownRef = useRef<HTMLDivElement>(null);
   const syncStatusDropdownRef = useRef<HTMLDivElement>(null);
   const fulfillmentStatusDropdownRef = useRef<HTMLDivElement>(null);
@@ -109,7 +106,6 @@ export default function Orders() {
   const adminDropdownRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(merchantDropdownRef, () => setShowMerchantDropdown(false), [mobileMerchantDropdownMenuRef]);
-  useClickOutside(exportStatusDropdownRef, () => setShowExportStatusDropdown(false));
   useClickOutside(carrierDropdownRef, () => setShowCarrierDropdown(false));
   useClickOutside(syncStatusDropdownRef, () => setShowSyncStatusDropdown(false));
   useClickOutside(fulfillmentStatusDropdownRef, () => setShowFulfillmentStatusDropdown(false));
@@ -1080,43 +1076,6 @@ export default function Orders() {
           </div>
         )}
 
-        {activeTab === 'unfulfilled' && (
-          <div className="relative" ref={exportStatusDropdownRef}>
-            <FilterButton
-              icon={Package}
-              label="Export"
-              selectedLabel={exportStatusFilter === 'all' ? 'All' : exportStatusFilter === 'ready' ? 'Ready' : 'Exported'}
-              onClick={() => setShowExportStatusDropdown(!showExportStatusDropdown)}
-              isActive={exportStatusFilter !== 'all'}
-              activeCount={exportStatusFilter !== 'all' ? 1 : 0}
-              hideLabel="md"
-              isOpen={showExportStatusDropdown}
-            />
-            {showExportStatusDropdown && (
-              <div className="absolute right-0 sm:left-0 z-50 w-48 mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                {[
-                  { value: 'all', label: 'All Export Status' },
-                  { value: 'ready', label: 'Ready to Export' },
-                  { value: 'exported', label: 'Already Exported' },
-                ].map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      setExportStatusFilter(option.value);
-                      setShowExportStatusDropdown(false);
-                    }}
-                    className={`flex items-center justify-between w-full px-4 py-2.5 text-sm text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                      exportStatusFilter === option.value ? 'bg-gray-50 dark:bg-gray-700/50' : ''
-                    }`}
-                  >
-                    <span className="text-gray-900 dark:text-white">{option.label}</span>
-                    {exportStatusFilter === option.value && <Check className="w-4 h-4 text-rose-500 dark:text-rose-400" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {activeTab === 'tracking' && (
           <div className="flex flex-row gap-2 sm:gap-3">
@@ -1489,7 +1448,6 @@ export default function Orders() {
               onExport={() => setShowExportModal(true)}
               refreshKey={refreshKey}
               searchTerm={searchTerm}
-              exportStatusFilter={exportStatusFilter}
               selectedOrders={selectedOrders}
               onSelectedOrdersChange={setSelectedOrders}
               onRefresh={handleRefreshAll}
