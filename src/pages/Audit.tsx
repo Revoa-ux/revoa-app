@@ -83,8 +83,19 @@ export default function Audit() {
   };
 
   // Load existing Rex suggestions from database
-  const loadRexSuggestions = async () => {
+  const loadRexSuggestions = async (currentCreatives?: any[], currentCampaigns?: any[], currentAdSets?: any[]) => {
     if (!user) return;
+
+    // Use provided data or fall back to state
+    const creativesToAnalyze = currentCreatives || creatives;
+    const campaignsToAnalyze = currentCampaigns || campaigns;
+    const adSetsToAnalyze = currentAdSets || adSets;
+
+    console.log('[Rex] loadRexSuggestions called with data:', {
+      creatives: creativesToAnalyze.length,
+      campaigns: campaignsToAnalyze.length,
+      adSets: adSetsToAnalyze.length
+    });
 
     try {
       // STEP 1: Expire all pending/viewed suggestions before regenerating
@@ -138,7 +149,7 @@ export default function Audit() {
       setTopDisplayedSuggestionIds(topIds);
 
       // STEP 3: Generate fresh suggestions based on current data
-      await generateRexSuggestions(suggestionsMap, true); // Force regeneration since we expired all pending ones
+      await generateRexSuggestions(suggestionsMap, true, creativesToAnalyze, campaignsToAnalyze, adSetsToAnalyze);
     } catch (error) {
       console.error('[Audit] Error loading Rex suggestions:', error);
     }
@@ -154,7 +165,13 @@ export default function Audit() {
   };
 
   // Generate new Rex suggestions for ads/campaigns/ad sets using ADVANCED AI
-  const generateRexSuggestions = async (existingSuggestions: Map<string, RexSuggestionWithPerformance>, forceRegenerate: boolean = false) => {
+  const generateRexSuggestions = async (
+    existingSuggestions: Map<string, RexSuggestionWithPerformance>,
+    forceRegenerate: boolean = false,
+    creativesToAnalyze?: any[],
+    campaignsToAnalyze?: any[],
+    adSetsToAnalyze?: any[]
+  ) => {
     if (!user || isGeneratingSuggestions) return;
 
     // Check if we have valid ad account
@@ -163,8 +180,13 @@ export default function Audit() {
       return;
     }
 
+    // Use provided data or fall back to state
+    const dataCreatives = creativesToAnalyze || creatives;
+    const dataCampaigns = campaignsToAnalyze || campaigns;
+    const dataAdSets = adSetsToAnalyze || adSets;
+
     // If we have creatives/campaigns/adSets data, we can analyze it regardless of sync status
-    const hasData = creatives.length > 0 || campaigns.length > 0 || adSets.length > 0;
+    const hasData = dataCreatives.length > 0 || dataCampaigns.length > 0 || dataAdSets.length > 0;
     if (!hasData) {
       console.log('[Audit] Skipping Rex suggestions - no ad data available yet');
       return;
@@ -183,7 +205,7 @@ export default function Audit() {
     }
 
     console.log(`[Rex] Starting suggestion generation...`);
-    console.log(`[Rex] - Creatives: ${creatives.length}, Campaigns: ${campaigns.length}, Ad Sets: ${adSets.length}`);
+    console.log(`[Rex] - Creatives: ${dataCreatives.length}, Campaigns: ${dataCampaigns.length}, Ad Sets: ${dataAdSets.length}`);
     console.log(`[Rex] - Existing suggestions: ${existingSuggestions.size}`);
     console.log(`[Rex] - Force regenerate: ${forceRegenerate}`);
 
@@ -203,7 +225,7 @@ export default function Audit() {
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 
       // Generate suggestions for ads using ADVANCED AI
-      for (const creative of creatives) {
+      for (const creative of dataCreatives) {
         // Skip if no valid data
         if (!hasValidData(creative.metrics)) {
           skippedCount++;
@@ -245,7 +267,7 @@ export default function Audit() {
       }
 
       // Generate suggestions for campaigns using ADVANCED AI
-      for (const campaign of campaigns) {
+      for (const campaign of dataCampaigns) {
         // Skip if no valid data
         if (!hasValidData(campaign.metrics || {})) {
           skippedCount++;
@@ -294,7 +316,7 @@ export default function Audit() {
       }
 
       // Generate suggestions for ad sets using ADVANCED AI
-      for (const adSet of adSets) {
+      for (const adSet of dataAdSets) {
         // Skip if no valid data
         if (!hasValidData(adSet.metrics || {})) {
           skippedCount++;
@@ -606,7 +628,8 @@ export default function Audit() {
       });
 
       // Load existing suggestions and generate new ones from REAL data
-      await loadRexSuggestions();
+      // CRITICAL: Pass data directly to avoid React state timing issues
+      await loadRexSuggestions(creativesData, campaignsData, adSetsData);
 
       if (showSuccessToast) {
         toast.success('Data refreshed successfully');
@@ -675,7 +698,7 @@ export default function Audit() {
             dateRange: { startDate, endDate }
           });
 
-          await loadRexSuggestions();
+          await loadRexSuggestions(creativesData, campaignsData, adSetsData);
           toast.success('Data updated in background', { duration: 2000 });
         } catch (error) {
           console.error('[Audit] Background refresh failed:', error);
@@ -719,7 +742,7 @@ export default function Audit() {
           dateRange: { startDate, endDate }
         });
 
-        await loadRexSuggestions();
+        await loadRexSuggestions(creativesData, campaignsData, adSetsData);
       }).finally(() => {
         setIsLoading(false);
       });
