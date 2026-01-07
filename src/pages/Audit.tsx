@@ -108,8 +108,14 @@ export default function Audit() {
 
       console.log('[DEBUG Rex] Suggestions map created:', {
         size: suggestionsMap.size,
-        entityIds: Array.from(suggestionsMap.keys()).slice(0, 5),
-        statuses: Array.from(suggestionsMap.values()).map(s => ({ id: s.entity_id, status: s.status })).slice(0, 5)
+        mapKeys: Array.from(suggestionsMap.keys()).slice(0, 5),
+        sampleSuggestions: Array.from(suggestionsMap.values()).slice(0, 3).map(s => ({
+          entity_type: s.entity_type,
+          entity_id: s.entity_id,
+          platform_entity_id: s.platform_entity_id,
+          status: s.status,
+          bothKeysInMap: suggestionsMap.has(s.entity_id) && suggestionsMap.has(s.platform_entity_id || '')
+        }))
       });
 
       setRexSuggestions(suggestionsMap);
@@ -235,6 +241,15 @@ export default function Audit() {
             },
             performance: campaign.performance
           };
+
+          // Debug: Log campaign IDs for first suggestion
+          if (newSuggestions.length === 0) {
+            console.log('[Rex] Sample campaign IDs:', {
+              id: campaign.id,
+              platformId: campaign.platformId,
+              hasPlatformId: !!campaign.platformId
+            });
+          }
 
           // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
           const suggestions = await advancedRex.analyzeEntity('campaign', entityData, startDate, endDate);

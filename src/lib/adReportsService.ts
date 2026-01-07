@@ -614,6 +614,7 @@ export async function getCreativePerformance(
 
       return {
         id: ad.platform_ad_id,
+        platformId: ad.platform_ad_id, // Explicitly include for Rex suggestions matching
         adSetId: ad.ad_set_id, // UUID reference to ad_sets table
         type: isVideo ? 'video' : 'image',
         url: mediaUrl,
@@ -874,6 +875,7 @@ export async function getCampaignPerformance(
         adName: campaign.name, // Add for table compatibility
         status: campaign.status,
         platform: campaign.platform || 'facebook',
+        platformId: campaign.platform_campaign_id, // Add for Rex suggestions matching
         objective: campaign.objective,
         budget: campaign.daily_budget || campaign.lifetime_budget,
         campaignId: campaign.id,
@@ -1096,6 +1098,7 @@ export async function getAdSetPerformance(
         adName: adSet.name, // Add for table compatibility
         status: adSet.status,
         platform: adSet.platform || 'facebook',
+        platformId: adSet.platform_ad_set_id, // Add for Rex suggestions matching
         campaignId: adSet.ad_campaign_id,
         targeting: adSet.targeting,
         budget: adSet.daily_budget || adSet.lifetime_budget,
