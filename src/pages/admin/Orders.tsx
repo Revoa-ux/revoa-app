@@ -1235,7 +1235,7 @@ export default function Orders() {
       {/* Tabs and Table */}
       <div className="bg-gray-50/50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 sm:px-4">
-          <div className="flex items-center gap-1 sm:gap-2 py-2">
+          <div className="flex items-center gap-1 sm:gap-2 py-2 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             <button
               onClick={() => setActiveTab('payments')}
               className={`relative flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg transition-all ${
