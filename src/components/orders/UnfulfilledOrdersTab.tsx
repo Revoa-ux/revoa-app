@@ -421,7 +421,7 @@ export default function UnfulfilledOrdersTab({
             setShowDetailsModal(false);
             setSelectedOrder(null);
           }}
-          maxWidth="max-w-2xl"
+          maxWidth="max-w-3xl"
         >
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -434,46 +434,94 @@ export default function UnfulfilledOrdersTab({
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
                       </p>
+                      {selectedOrder.is_repeat_customer && (
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 mt-1">
+                          Repeat Customer {selectedOrder.order_count ? `(${selectedOrder.order_count})` : ''}
+                        </span>
+                      )}
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
-                      <a href={`mailto:${selectedOrder.customer_email}`} className="text-sm font-medium text-rose-600 dark:text-rose-400 hover:underline">
-                        {selectedOrder.customer_email}
+                      <a href={`mailto:${selectedOrder.customer_email}`} className="text-sm font-medium text-rose-600 dark:text-rose-400 hover:underline break-all">
+                        {selectedOrder.customer_email || 'Not provided'}
                       </a>
                     </div>
-                    {selectedOrder.customer_phone && (
-                      <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                    <div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                      {selectedOrder.customer_phone ? (
                         <a href={`tel:${selectedOrder.customer_phone}`} className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400">
                           {selectedOrder.customer_phone}
                         </a>
-                      </div>
-                    )}
+                      ) : (
+                        <p className="text-sm text-gray-400 dark:text-gray-500 italic">Not provided</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Shipping Address</h4>
                   <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
-                      {selectedOrder.shipping_address_line1}
-                    </p>
-                    {selectedOrder.shipping_address_line2 && (
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {selectedOrder.shipping_address_line2}
-                      </p>
+                    {selectedOrder.shipping_address_line1 ? (
+                      <>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {selectedOrder.customer_first_name} {selectedOrder.customer_last_name}
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                          {selectedOrder.shipping_address_line1}
+                        </p>
+                        {selectedOrder.shipping_address_line2 && (
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {selectedOrder.shipping_address_line2}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {[selectedOrder.shipping_city, selectedOrder.shipping_state, selectedOrder.shipping_zip].filter(Boolean).join(', ')}
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {selectedOrder.shipping_country}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">No shipping address provided</p>
                     )}
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      {selectedOrder.shipping_city}, {selectedOrder.shipping_state} {selectedOrder.shipping_zip}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                      {selectedOrder.shipping_country}
-                    </p>
                   </div>
                 </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Billing Address</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                    {selectedOrder.billing_address_line1 ? (
+                      <>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {selectedOrder.billing_address_line1}
+                        </p>
+                        {selectedOrder.billing_address_line2 && (
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {selectedOrder.billing_address_line2}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {[selectedOrder.billing_city, selectedOrder.billing_state, selectedOrder.billing_zip].filter(Boolean).join(', ')}
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {selectedOrder.billing_country}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-gray-400 dark:text-gray-500 italic">Same as shipping address</p>
+                    )}
+                  </div>
+                </div>
+
+                {selectedOrder.note && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Customer Note</h4>
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 italic">"{selectedOrder.note}"</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -491,17 +539,33 @@ export default function UnfulfilledOrdersTab({
                     <div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">Order Date</p>
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {format(new Date(selectedOrder.created_at), 'MMM d, yyyy h:mm a')}
+                        {format(new Date(selectedOrder.ordered_at || selectedOrder.created_at), 'MMM d, yyyy h:mm a')}
                       </p>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Order Value</p>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                        ${selectedOrder.total_price?.toFixed(2) || '0.00'}
-                      </p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Fulfillment Status</p>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                          selectedOrder.fulfillment_status === 'fulfilled'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                        }`}>
+                          {selectedOrder.fulfillment_status || 'Unfulfilled'}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Payment Status</p>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                          selectedOrder.financial_status === 'paid'
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+                        }`}>
+                          {selectedOrder.financial_status || 'Pending'}
+                        </span>
+                      </div>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">Status</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Export Status</p>
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
                         selectedOrder.export_status === 'exported'
                           ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
@@ -510,6 +574,50 @@ export default function UnfulfilledOrdersTab({
                         {selectedOrder.export_status === 'exported' ? 'Exported' : 'Ready to Export'}
                       </span>
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Order Summary</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500 dark:text-gray-400">Subtotal</span>
+                      <span className="text-gray-900 dark:text-white">${(selectedOrder.subtotal_price || 0).toFixed(2)}</span>
+                    </div>
+                    {(selectedOrder.total_shipping || 0) > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">Shipping</span>
+                        <span className="text-gray-900 dark:text-white">${selectedOrder.total_shipping.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {(selectedOrder.total_tax || 0) > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">Tax</span>
+                        <span className="text-gray-900 dark:text-white">${selectedOrder.total_tax.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {(selectedOrder.total_discounts || 0) > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-red-500 dark:text-red-400">Discount</span>
+                        <span className="text-red-600 dark:text-red-400">-${selectedOrder.total_discounts.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-sm pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <span className="font-semibold text-gray-700 dark:text-gray-300">Total</span>
+                      <span className="font-semibold text-gray-900 dark:text-white">${(selectedOrder.total_price || 0).toFixed(2)}</span>
+                    </div>
+                    {selectedOrder.discount_codes && selectedOrder.discount_codes.length > 0 && (
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Discount Codes</p>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedOrder.discount_codes.map((code: string, idx: number) => (
+                            <span key={idx} className="text-xs px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                              {code}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
