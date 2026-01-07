@@ -301,9 +301,6 @@ export default function PendingPaymentsTab({
   if (filteredInvoices.length === 0) {
     return (
       <div className="p-8 text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/20 mb-4">
-          <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
-        </div>
         <p className="text-gray-500 dark:text-gray-400">
           {searchTerm ? 'No invoices match your search' : 'No pending payments'}
         </p>

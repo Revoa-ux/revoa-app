@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Download, Upload, RefreshCw, X, Clock, CheckCircle2, TrendingUp, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck, DollarSign, Factory, FileText } from 'lucide-react';
+import { Download, Upload, RefreshCw, X, ChevronDown, Check, Search, Users, AlertTriangle, Package, Truck, DollarSign, Factory, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useClickOutside } from '../../lib/useClickOutside';
@@ -754,78 +754,36 @@ export default function Orders() {
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Pending Payments</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.pendingPayments}</p>
-          </div>
+      {/* Stats Cards - Horizontally Scrollable */}
+      <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Pending Payments</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.pendingPayments}</p>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Factory className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Factory Orders</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.awaitingFactoryOrder}</p>
-          </div>
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Factory Orders</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.awaitingFactoryOrder}</p>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Ready to Export</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.readyToExport}</p>
-          </div>
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Ready to Export</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.readyToExport}</p>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Awaiting Tracking</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.exportedAwaitingTracking}</p>
-          </div>
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Awaiting Tracking</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.exportedAwaitingTracking}</p>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Imported Today</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.trackingImportedToday}</p>
-          </div>
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Imported Today</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.trackingImportedToday}</p>
         </div>
 
-        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 sm:p-5 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
-          <div className="flex items-center justify-between mb-2 sm:mb-3">
-            <div className="p-1.5 sm:p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600 dark:text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">Synced Today</h3>
-            <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">{stats.autoSyncedToday}</p>
-          </div>
+        <div className="flex-shrink-0 w-40 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Synced Today</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.autoSyncedToday}</p>
         </div>
       </div>
 
@@ -1055,89 +1013,69 @@ export default function Orders() {
       </div>
 
       {/* Tabs and Table */}
-      <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
-          <nav className="flex -mb-px min-w-max">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="flex space-x-8 px-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab('payments')}
-              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'payments'
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <DollarSign className="w-3.5 h-3.5 sm:hidden" />
-              <span className="hidden sm:inline">Pending Payments</span>
-              <span className="sm:hidden">Payments</span>
-              {stats.pendingPayments > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                  {stats.pendingPayments}
-                </span>
-              )}
+              <DollarSign className="w-4 h-4" />
+              <span className="font-medium text-sm">Pending Payments</span>
             </button>
 
             <button
               onClick={() => setActiveTab('factory')}
-              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'factory'
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Factory className="w-3.5 h-3.5 sm:hidden" />
-              <span className="hidden sm:inline">Order from Factory</span>
-              <span className="sm:hidden">Factory</span>
-              {stats.awaitingFactoryOrder > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                  {stats.awaitingFactoryOrder}
-                </span>
-              )}
+              <Factory className="w-4 h-4" />
+              <span className="font-medium text-sm">Order from Factory</span>
             </button>
 
             <button
               onClick={() => setActiveTab('unfulfilled')}
-              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'unfulfilled'
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Package className="w-3.5 h-3.5 sm:hidden" />
-              <span className="hidden sm:inline">Unfulfilled Orders</span>
-              <span className="sm:hidden">Unfulfilled</span>
-              {stats.readyToExport > 0 && (
-                <span className="px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                  {stats.readyToExport}
-                </span>
-              )}
+              <Package className="w-4 h-4" />
+              <span className="font-medium text-sm">Unfulfilled Orders</span>
             </button>
 
             <button
               onClick={() => setActiveTab('tracking')}
-              className={`px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'tracking'
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Truck className="w-3.5 h-3.5 sm:hidden" />
-              <span className="hidden sm:inline">Fulfillment Tracking</span>
-              <span className="sm:hidden">Tracking</span>
+              <Truck className="w-4 h-4" />
+              <span className="font-medium text-sm">Fulfillment Tracking</span>
             </button>
 
             <button
               onClick={() => setActiveTab('transactions')}
-              className={`ml-auto px-3 sm:px-5 py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap ${
+              className={`flex items-center space-x-2 px-4 py-4 border-b-2 transition-colors whitespace-nowrap ml-auto ${
                 activeTab === 'transactions'
-                  ? 'border-gray-900 dark:border-white text-gray-900 dark:text-white'
-                  : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600'
+                  ? 'border-gray-900 text-gray-900 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <FileText className="w-3.5 h-3.5 sm:hidden" />
-              <span className="hidden sm:inline">All Transactions</span>
-              <span className="sm:hidden">All</span>
+              <FileText className="w-4 h-4" />
+              <span className="font-medium text-sm">All Transactions</span>
             </button>
-          </nav>
+          </div>
         </div>
 
         <div>
