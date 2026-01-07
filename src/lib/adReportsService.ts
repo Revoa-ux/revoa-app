@@ -344,46 +344,31 @@ export async function getCreativePerformance(
     console.log('[AdReportsService] Sample campaigns:', campaigns.slice(0, 3).map(c => ({ id: c.id, name: c.name })));
     const campaignIds = campaigns.map(c => c.id);
 
-    // Batch ad sets query to avoid URL length limit with many campaigns (351 campaigns = very long URL)
-    const ADSETS_BATCH_SIZE = 100;
-    let allAdSets: any[] = [];
+    // Get ad sets for these campaigns (high limit to get all)
+    const { data: adSets, error: adSetsError } = await supabase
+      .from('ad_sets')
+      .select('id, name, ad_campaign_id')
+      .in('ad_campaign_id', campaignIds)
+      .limit(100000);
 
-    console.log('[AdReportsService] Fetching ad sets in batches of', ADSETS_BATCH_SIZE);
-
-    for (let i = 0; i < campaignIds.length; i += ADSETS_BATCH_SIZE) {
-      const batch = campaignIds.slice(i, i + ADSETS_BATCH_SIZE);
-      const { data: batchAdSets, error: adSetsError } = await supabase
-        .from('ad_sets')
-        .select('id, name, ad_campaign_id')
-        .in('ad_campaign_id', batch)
-        .limit(100000);
-
-      if (adSetsError) {
-        console.error(`[AdReportsService] ❌ Error fetching ad sets batch ${i / ADSETS_BATCH_SIZE + 1}:`, adSetsError);
-        throw adSetsError;
-      }
-
-      if (batchAdSets) {
-        console.log(`[AdReportsService] Ad Sets Batch ${i / ADSETS_BATCH_SIZE + 1}: Found ${batchAdSets.length} ad sets`);
-        allAdSets = allAdSets.concat(batchAdSets);
-      }
+    if (adSetsError) {
+      console.error('[AdReportsService] ❌ Error fetching ad sets:', adSetsError);
+      throw adSetsError;
     }
-
-    const adSets = allAdSets;
 
     if (!adSets || adSets.length === 0) {
       console.log('[AdReportsService] ❌ No ad sets found for campaign IDs');
       console.log('[AdReportsService] Sample campaign IDs:', campaignIds.slice(0, 5));
       // Check if ad sets exist at all
-      const { data: allAdSetsCheck } = await supabase
+      const { data: allAdSets } = await supabase
         .from('ad_sets')
         .select('id, ad_campaign_id')
         .limit(5);
-      console.log('[AdReportsService] Sample ad sets in DB:', allAdSetsCheck);
+      console.log('[AdReportsService] Sample ad sets in DB:', allAdSets);
       return [];
     }
 
-    console.log('[AdReportsService] ✓ Found', adSets.length, 'total ad sets across all batches');
+    console.log('[AdReportsService] ✓ Found', adSets.length, 'ad sets');
     console.log('[AdReportsService] Sample ad sets:', adSets.slice(0, 3).map(s => ({ id: s.id, name: s.name, campaign_id: s.ad_campaign_id })));
     const adSetIds = adSets.map(s => s.id);
 
@@ -948,38 +933,20 @@ export async function getAdSetPerformance(
     console.log('[AdReportsService] getAdSetPerformance: Found', campaigns.length, 'campaigns');
     const campaignIds = campaigns.map(c => c.id);
 
-    // Batch ad sets query to avoid URL length limit with many campaigns
-    const ADSETS_BATCH_SIZE = 100;
-    let allAdSets: any[] = [];
+    // Get all ad sets for these campaigns (high limit to get all)
+    const { data: adSets, error: adSetsError } = await supabase
+      .from('ad_sets')
+      .select('*')
+      .in('ad_campaign_id', campaignIds)
+      .limit(100000);
 
-    console.log('[AdReportsService] Fetching ad sets in batches of', ADSETS_BATCH_SIZE);
-
-    for (let i = 0; i < campaignIds.length; i += ADSETS_BATCH_SIZE) {
-      const batch = campaignIds.slice(i, i + ADSETS_BATCH_SIZE);
-      const { data: batchAdSets, error: adSetsError } = await supabase
-        .from('ad_sets')
-        .select('*')
-        .in('ad_campaign_id', batch)
-        .limit(100000);
-
-      if (adSetsError) {
-        console.error(`[AdReportsService] ❌ Error fetching ad sets batch ${i / ADSETS_BATCH_SIZE + 1}:`, adSetsError);
-        throw adSetsError;
-      }
-
-      if (batchAdSets) {
-        console.log(`[AdReportsService] Ad Sets Batch ${i / ADSETS_BATCH_SIZE + 1}: Found ${batchAdSets.length} ad sets`);
-        allAdSets = allAdSets.concat(batchAdSets);
-      }
-    }
-
-    const adSets = allAdSets;
+    if (adSetsError) throw adSetsError;
 
     if (!adSets || adSets.length === 0) {
       return [];
     }
 
-    console.log('[AdReportsService] getAdSetPerformance: Found', adSets.length, 'total ad sets across all batches');
+    console.log('[AdReportsService] getAdSetPerformance: Found', adSets.length, 'ad sets');
 
     // Use internal UUID for metrics lookup (entity_id is UUID type)
     const adSetUuids = adSets.map(a => a.id);

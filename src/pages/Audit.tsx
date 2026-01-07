@@ -12,7 +12,6 @@ import { rexSuggestionService } from '@/lib/rexSuggestionService';
 import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAdDataCache } from '@/lib/adDataCache';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -22,7 +21,6 @@ interface DateRange {
 
 export default function Audit() {
   const { user } = useAuth();
-  const { getCachedData, setCachedData } = useAdDataCache();
   const [selectedTime, setSelectedTime] = useState<TimeOption>('28d');
   const [isFacebookConnecting, setIsFacebookConnecting] = useState(false);
   const initialEndDate = new Date();
@@ -523,15 +521,6 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
-      // Cache the fetched data
-      setCachedData({
-        performanceData: metrics,
-        creatives: creativesData,
-        campaigns: campaignsData,
-        adSets: adSetsData,
-        dateRange: { startDate, endDate }
-      });
-
       // DEBUG: Log what Audit receives and passes down
       console.log('[DEBUG Audit] Fetched data:', {
         creativesCount: creativesData.length,
@@ -559,112 +548,42 @@ export default function Audit() {
   };
 
   useEffect(() => {
-    if (!facebook.isConnected) return;
+    if (facebook.isConnected) {
+      // Check if data is fresh (synced within last 30 minutes)
+      const isDataFresh = facebook.accounts?.some(account => {
+        if (!account.last_synced_at) return false;
+        const lastSync = new Date(account.last_synced_at);
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+        return lastSync > thirtyMinutesAgo;
+      });
 
-    const startDate = dateRange.startDate.toISOString().split('T')[0];
-    const endDate = dateRange.endDate.toISOString().split('T')[0];
+      if (isDataFresh) {
+        console.log('[Audit] Data is fresh (< 30 min), skipping auto-refresh');
+        // Just load the data without syncing
+        setIsLoading(true);
+        const startDate = dateRange.startDate.toISOString().split('T')[0];
+        const endDate = dateRange.endDate.toISOString().split('T')[0];
 
-    // Check cache first
-    const cachedResult = getCachedData({ startDate, endDate });
-
-    // SCENARIO 1: Cache is fresh (< 10 min) - use immediately, no loading
-    if (cachedResult.data && !cachedResult.isStale && cachedResult.dateRangeMatches) {
-      console.log(`[Audit] Using fresh cache (${cachedResult.age} min old)`);
-      setPerformanceData(cachedResult.data.performanceData);
-      setCreatives(cachedResult.data.creatives);
-      setCampaigns(cachedResult.data.campaigns);
-      setAdSets(cachedResult.data.adSets);
-
-      // Load Rex suggestions in background
-      loadRexSuggestions();
-      return;
-    }
-
-    // SCENARIO 2: Cache is stale (10-30 min) - use it immediately but refresh in background
-    if (cachedResult.data && !cachedResult.isVeryStale && cachedResult.dateRangeMatches) {
-      console.log(`[Audit] Using stale cache (${cachedResult.age} min), refreshing in background`);
-
-      // Use cached data immediately (no loading state!)
-      setPerformanceData(cachedResult.data.performanceData);
-      setCreatives(cachedResult.data.creatives);
-      setCampaigns(cachedResult.data.campaigns);
-      setAdSets(cachedResult.data.adSets);
-
-      // Refresh in background without blocking UI
-      (async () => {
-        try {
-          const [metrics, creativesData, campaignsData, adSetsData] = await Promise.all([
-            getAdReportsMetrics(startDate, endDate),
-            getCreativePerformance(startDate, endDate),
-            getCampaignPerformance(startDate, endDate),
-            getAdSetPerformance(startDate, endDate)
-          ]);
-
-          // Update state and cache
+        Promise.all([
+          getAdReportsMetrics(startDate, endDate),
+          getCreativePerformance(startDate, endDate),
+          getCampaignPerformance(startDate, endDate),
+          getAdSetPerformance(startDate, endDate)
+        ]).then(async ([metrics, creativesData, campaignsData, adSetsData]) => {
           setPerformanceData(metrics);
           setCreatives(creativesData);
           setCampaigns(campaignsData);
           setAdSets(adSetsData);
 
-          setCachedData({
-            performanceData: metrics,
-            creatives: creativesData,
-            campaigns: campaignsData,
-            adSets: adSetsData,
-            dateRange: { startDate, endDate }
-          });
-
+          // ALWAYS load and generate Rex suggestions (even when data is fresh)
           await loadRexSuggestions();
-          toast.success('Data updated in background', { duration: 2000 });
-        } catch (error) {
-          console.error('[Audit] Background refresh failed:', error);
-        }
-      })();
-
-      return;
-    }
-
-    // SCENARIO 3: No cache or very stale (> 30 min) - fetch fresh data with loading state
-    console.log('[Audit] No cache or very stale, fetching fresh data');
-
-    // Check if we should trigger a full sync
-    const isDataFresh = facebook.accounts?.some(account => {
-      if (!account.last_synced_at) return false;
-      const lastSync = new Date(account.last_synced_at);
-      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      return lastSync > thirtyMinutesAgo;
-    });
-
-    if (isDataFresh) {
-      // Just fetch data from DB
-      setIsLoading(true);
-      Promise.all([
-        getAdReportsMetrics(startDate, endDate),
-        getCreativePerformance(startDate, endDate),
-        getCampaignPerformance(startDate, endDate),
-        getAdSetPerformance(startDate, endDate)
-      ]).then(async ([metrics, creativesData, campaignsData, adSetsData]) => {
-        setPerformanceData(metrics);
-        setCreatives(creativesData);
-        setCampaigns(campaignsData);
-        setAdSets(adSetsData);
-
-        // Cache the fetched data
-        setCachedData({
-          performanceData: metrics,
-          creatives: creativesData,
-          campaigns: campaignsData,
-          adSets: adSetsData,
-          dateRange: { startDate, endDate }
+        }).finally(() => {
+          setIsLoading(false);
         });
-
-        await loadRexSuggestions();
-      }).finally(() => {
-        setIsLoading(false);
-      });
-    } else {
-      // Trigger full refresh with sync
-      refreshData();
+      } else {
+        console.log('[Audit] Data is stale (> 30 min), triggering refresh');
+        refreshData();
+      }
     }
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 

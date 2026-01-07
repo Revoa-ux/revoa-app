@@ -129,7 +129,7 @@ async function fetchShopifyOrders(
   limit = 250,
   isInitialSync = false
 ): Promise<{ orders: ShopifyOrder[]; nextPageInfo: string | null }> {
-  let url = `https://${storeUrl}/admin/api/2025-01/orders.json?status=any&limit=${limit}`;
+  let url = `https://${storeUrl}/admin/api/2024-01/orders.json?status=any&limit=${limit}`;
   if (!isInitialSync) {
     url += '&financial_status=paid';
   }
@@ -166,7 +166,7 @@ async function fetchFulfillments(
   accessToken: string,
   orderId: number
 ): Promise<ShopifyFulfillment[]> {
-  const url = `https://${storeUrl}/admin/api/2025-01/orders/${orderId}/fulfillments.json`;
+  const url = `https://${storeUrl}/admin/api/2024-01/orders/${orderId}/fulfillments.json`;
   const response = await fetch(url, {
     headers: {
       'X-Shopify-Access-Token': accessToken,
