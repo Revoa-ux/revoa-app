@@ -59,14 +59,50 @@ export const useAdDataCache = create<AdDataCache>()(
           timestamp: new Date().toISOString()
         });
 
-        set({
-          performanceData: data.performanceData,
-          creatives: data.creatives,
-          campaigns: data.campaigns,
-          adSets: data.adSets,
-          lastFetchedAt: Date.now(),
-          dateRange: data.dateRange
-        });
+        try {
+          // For large datasets (>1000 items), only cache summary data
+          const isLargeDataset = data.creatives.length > 1000 ||
+                                 data.campaigns.length > 200 ||
+                                 data.adSets.length > 500;
+
+          if (isLargeDataset) {
+            console.warn('[AdDataCache] Large dataset detected - caching disabled to avoid quota errors');
+            // Store minimal metadata only
+            set({
+              performanceData: data.performanceData,
+              creatives: [],
+              campaigns: [],
+              adSets: [],
+              lastFetchedAt: Date.now(),
+              dateRange: data.dateRange
+            });
+            return;
+          }
+
+          set({
+            performanceData: data.performanceData,
+            creatives: data.creatives,
+            campaigns: data.campaigns,
+            adSets: data.adSets,
+            lastFetchedAt: Date.now(),
+            dateRange: data.dateRange
+          });
+        } catch (error) {
+          if (error instanceof Error && error.name === 'QuotaExceededError') {
+            console.error('[AdDataCache] Storage quota exceeded - clearing cache and storing minimal data');
+            // Clear existing cache and store only metadata
+            set({
+              performanceData: data.performanceData,
+              creatives: [],
+              campaigns: [],
+              adSets: [],
+              lastFetchedAt: Date.now(),
+              dateRange: data.dateRange
+            });
+          } else {
+            console.error('[AdDataCache] Error caching data:', error);
+          }
+        }
       },
 
       getCachedData: (currentDateRange) => {

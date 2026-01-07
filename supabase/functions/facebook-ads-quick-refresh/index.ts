@@ -69,17 +69,55 @@ Deno.serve(async (req: Request) => {
       .select('id, platform_campaign_id')
       .eq('ad_account_id', dbAccountId);
 
+    if (!existingCampaigns || existingCampaigns.length === 0) {
+      console.log('[quick-refresh] No campaigns found - needs full sync');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: 'No campaigns found in database'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { data: existingAdSets } = await supabase
       .from('ad_sets')
       .select('id, platform_adset_id, ad_campaign_id')
-      .in('ad_campaign_id', existingCampaigns?.map(c => c.id) || []);
+      .in('ad_campaign_id', existingCampaigns.map(c => c.id));
+
+    if (!existingAdSets || existingAdSets.length === 0) {
+      console.log('[quick-refresh] No ad sets found - needs full sync');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: 'No ad sets found in database'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { data: existingAds } = await supabase
       .from('ads')
       .select('id, platform_ad_id, ad_set_id')
-      .in('ad_set_id', existingAdSets?.map(as => as.id) || []);
+      .in('ad_set_id', existingAdSets.map(as => as.id));
 
-    console.log(`[quick-refresh] Found ${existingCampaigns?.length || 0} campaigns, ${existingAdSets?.length || 0} ad sets, ${existingAds?.length || 0} ads`);
+    console.log(`[quick-refresh] Found ${existingCampaigns.length} campaigns, ${existingAdSets.length} ad sets, ${existingAds?.length || 0} ads`);
+
+    // For very large datasets (>1000 ads), quick refresh is too slow - use full sync instead
+    const totalAds = existingAds?.length || 0;
+    if (totalAds > 1000) {
+      console.log(`[quick-refresh] Dataset too large (${totalAds} ads) - recommending full sync`);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsFullSync: true,
+          message: `Dataset too large for quick refresh (${totalAds} ads). Please use full sync.`
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     console.log('[quick-refresh] Checking for new items...');
 
