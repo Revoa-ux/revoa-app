@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, DollarSign } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { format, differenceInDays } from 'date-fns';
@@ -39,7 +39,7 @@ export default function PendingPaymentsTab({
 
   useEffect(() => {
     loadInvoices();
-  }, [user?.id, filteredUserId, refreshKey, statusFilter, adminFilter]);
+  }, [user?.id, filteredUserId, refreshKey, statusFilter, adminFilter, isSuperAdmin]);
 
   const loadInvoices = async () => {
     if (!user?.id) return;
@@ -261,9 +261,12 @@ export default function PendingPaymentsTab({
                 <tr key={invoice.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-4 py-4">
                     <div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      <button
+                        onClick={(e) => handleViewDetails(e, invoice)}
+                        className="text-sm font-medium text-gray-900 dark:text-white hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 decoration-gray-300 dark:decoration-gray-600 hover:decoration-rose-400 transition-colors"
+                      >
                         {invoice.invoice_number || `INV-${invoice.id.slice(0, 8)}`}
-                      </span>
+                      </button>
                       {lineItemCount > 0 && (
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {lineItemCount} {lineItemCount === 1 ? 'item' : 'items'}
@@ -299,20 +302,13 @@ export default function PendingPaymentsTab({
                     {getStatusBadge(invoice.status, daysOverdue)}
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={(e) => handleViewDetails(e, invoice)}
-                        className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
-                        title="View details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                    <div className="flex items-center justify-center">
                       <button
                         onClick={(e) => handleMarkAsPaid(e, invoice)}
                         className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                         title="Mark as paid"
                       >
-                        <DollarSign className="w-4 h-4" />
+                        <CheckCircle className="w-4 h-4" />
                       </button>
                     </div>
                   </td>

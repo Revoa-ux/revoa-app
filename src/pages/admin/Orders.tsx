@@ -849,9 +849,9 @@ export default function Orders() {
         </div>
       )}
 
-      {/* Stats Cards - Horizontally Scrollable */}
-      <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <DollarSign className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -869,7 +869,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Factory className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -885,7 +885,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Download className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -901,7 +901,7 @@ export default function Orders() {
           </div>
         </div>
 
-        <div className="flex-shrink-0 w-52 bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+        <div className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 p-4 rounded-xl border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <Truck className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -1249,7 +1249,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Unpaid Invoices</span>
+              <span className="font-medium text-sm">Waiting Payment</span>
             </button>
 
             <button
@@ -1260,7 +1260,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Paid Invoices</span>
+              <span className="font-medium text-sm">Ready To Order</span>
             </button>
 
             <button
@@ -1271,7 +1271,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Unfulfilled Orders</span>
+              <span className="font-medium text-sm">Ready To Export</span>
               {stats.readyToExport > 0 && (
                 <span className="ml-2 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-full">
                   {stats.readyToExport}
@@ -1287,7 +1287,7 @@ export default function Orders() {
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <span className="font-medium text-sm">Fulfilled Orders</span>
+              <span className="font-medium text-sm">Needs Tracking</span>
             </button>
           </div>
         </div>
