@@ -432,22 +432,22 @@ export default function FulfillmentTrackingTab({
   const getSyncStatusBadge = (fulfillment: Fulfillment) => {
     if (fulfillment.synced_to_shopify) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 w-fit">
+          <CheckCircle2 className="w-3 h-3" />
           Synced
         </span>
       );
     } else if (fulfillment.sync_error) {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400">
-          <AlertCircle className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 w-fit">
+          <AlertCircle className="w-3 h-3" />
           Failed
         </span>
       );
     } else {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400">
-          <Clock className="w-3 h-3 mr-1" />
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 w-fit">
+          <Clock className="w-3 h-3" />
           Pending
         </span>
       );
