@@ -208,7 +208,7 @@ export default function Audit() {
     if (!forceRegenerate && timeSinceLastRegeneration < REGENERATION_COOLDOWN_MS) {
       const minutesRemaining = Math.ceil((REGENERATION_COOLDOWN_MS - timeSinceLastRegeneration) / 60000);
       console.log(`[Rex] Skipping regeneration - last refresh was ${Math.floor(timeSinceLastRegeneration / 1000)}s ago (cooldown: ${minutesRemaining} min)`);
-      toast.info(`Rex suggestions were recently updated. Next refresh available in ${minutesRemaining} minute${minutesRemaining > 1 ? 's' : ''}.`, {
+      toast.info(`Revoa AI suggestions were recently updated. Next refresh available in ${minutesRemaining} minute${minutesRemaining > 1 ? 's' : ''}.`, {
         duration: 3000
       });
       return;
@@ -392,15 +392,15 @@ export default function Audit() {
         console.log(`[Rex] All ${updatedMap.size} entities will show row highlight`);
 
         const message = sortedSuggestions.length === 1
-          ? `Rex found 1 optimization opportunity!`
-          : `Rex found ${sortedSuggestions.length} optimization opportunities!`;
+          ? `Revoa AI found 1 optimization opportunity!`
+          : `Revoa AI found ${sortedSuggestions.length} optimization opportunities!`;
         toast.success(message);
 
         // Update last regeneration timestamp
         lastRegenerationTime.current = Date.now();
       } else {
         console.log(`[Rex] No new suggestions generated. Skipped ${skippedCount} entities without valid data`);
-        toast.info('Rex analyzed your ads but found no new optimization opportunities');
+        toast.info('Revoa AI analyzed your ads but found no new optimization opportunities');
 
         // Still update timestamp even if no suggestions were found
         lastRegenerationTime.current = Date.now();
@@ -451,7 +451,7 @@ export default function Audit() {
       // Reload suggestions
       await loadRexSuggestions();
 
-      toast.success(`Rex's automation rule "${rule.name}" is now active!`);
+      toast.success(`Revoa AI automation rule "${rule.name}" is now active!`);
     } catch (error) {
       console.error('[Audit] Error accepting suggestion:', error);
       toast.error('Failed to create automation rule');
