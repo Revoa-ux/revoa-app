@@ -129,7 +129,7 @@ export default function Orders() {
     if (user?.id) {
       loadStats();
     }
-  }, [user?.id, filteredUserId, isSuperAdmin]);
+  }, [user?.id, filteredUserId, isSuperAdmin, refreshKey]);
 
   useEffect(() => {
     if (filteredUserId) {
@@ -1404,7 +1404,6 @@ export default function Orders() {
                   searchTerm={searchTerm}
                   statusFilter={invoiceStatusFilter}
                   adminFilter={adminFilter}
-                  onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, pendingPayments: count }))}
                 />
               )}
               {activeTab === 'payments' && !isSuperAdminLoaded && (
@@ -1420,7 +1419,6 @@ export default function Orders() {
               refreshKey={refreshKey}
               searchTerm={searchTerm}
               adminFilter={adminFilter}
-              onInvoiceCountChange={(count) => setStats(prev => ({ ...prev, awaitingFactoryOrder: count }))}
             />
           )}
           {activeTab === 'unfulfilled' && (
