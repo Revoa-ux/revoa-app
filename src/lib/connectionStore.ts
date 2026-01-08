@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { supabase } from './supabase';
 import { getActiveShopifyInstallation, subscribeToShopifyStatus, type ShopifyInstallation } from './shopify/status';
 import { facebookAdsService } from './facebookAds';
+import { tiktokAdsService } from './tiktokAds';
+import { googleAdsService } from './googleAds';
 import type { AdAccount } from '../types/ads';
 
 interface ConnectionState {
@@ -16,13 +18,27 @@ interface ConnectionState {
     adAccounts: AdAccount[]; // Alias for backwards compatibility
     loading: boolean;
   };
+  tiktok: {
+    isConnected: boolean;
+    accounts: AdAccount[];
+    loading: boolean;
+  };
+  google: {
+    isConnected: boolean;
+    accounts: AdAccount[];
+    loading: boolean;
+  };
   initialized: boolean;
 
   initializeShopify: (userId: string) => Promise<void>;
   initializeFacebook: (userId: string) => Promise<void>;
+  initializeTikTok: (userId: string) => Promise<void>;
+  initializeGoogle: (userId: string) => Promise<void>;
   subscribeToShopifyChanges: (userId: string) => () => void;
   refreshShopifyStatus: () => Promise<void>;
   refreshFacebookAccounts: () => Promise<void>;
+  refreshTikTokAccounts: () => Promise<void>;
+  refreshGoogleAccounts: () => Promise<void>;
   reset: () => void;
 }
 
@@ -36,6 +52,16 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     isConnected: false,
     accounts: [],
     adAccounts: [], // Alias for backwards compatibility
+    loading: true,
+  },
+  tiktok: {
+    isConnected: false,
+    accounts: [],
+    loading: true,
+  },
+  google: {
+    isConnected: false,
+    accounts: [],
     loading: true,
   },
   initialized: false,
@@ -93,6 +119,56 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
           isConnected: false,
           accounts: [],
           adAccounts: [],
+          loading: false,
+        },
+      });
+    }
+  },
+
+  initializeTikTok: async (userId: string) => {
+    set(state => ({
+      tiktok: { ...state.tiktok, loading: true }
+    }));
+
+    try {
+      const accounts = await tiktokAdsService.getAdAccounts();
+      set({
+        tiktok: {
+          isConnected: accounts.length > 0,
+          accounts,
+          loading: false,
+        },
+      });
+    } catch (error) {
+      set({
+        tiktok: {
+          isConnected: false,
+          accounts: [],
+          loading: false,
+        },
+      });
+    }
+  },
+
+  initializeGoogle: async (userId: string) => {
+    set(state => ({
+      google: { ...state.google, loading: true }
+    }));
+
+    try {
+      const accounts = await googleAdsService.getAdAccounts();
+      set({
+        google: {
+          isConnected: accounts.length > 0,
+          accounts,
+          loading: false,
+        },
+      });
+    } catch (error) {
+      set({
+        google: {
+          isConnected: false,
+          accounts: [],
           loading: false,
         },
       });
@@ -163,6 +239,48 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     }
   },
 
+  refreshTikTokAccounts: async () => {
+    set(state => ({
+      tiktok: { ...state.tiktok, loading: true }
+    }));
+
+    try {
+      const accounts = await tiktokAdsService.getAdAccounts();
+      set({
+        tiktok: {
+          isConnected: accounts.length > 0,
+          accounts,
+          loading: false,
+        },
+      });
+    } catch (error) {
+      set(state => ({
+        tiktok: { ...state.tiktok, loading: false }
+      }));
+    }
+  },
+
+  refreshGoogleAccounts: async () => {
+    set(state => ({
+      google: { ...state.google, loading: true }
+    }));
+
+    try {
+      const accounts = await googleAdsService.getAdAccounts();
+      set({
+        google: {
+          isConnected: accounts.length > 0,
+          accounts,
+          loading: false,
+        },
+      });
+    } catch (error) {
+      set(state => ({
+        google: { ...state.google, loading: false }
+      }));
+    }
+  },
+
   reset: () => {
     set({
       shopify: {
@@ -174,6 +292,16 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         isConnected: false,
         accounts: [],
         adAccounts: [],
+        loading: true,
+      },
+      tiktok: {
+        isConnected: false,
+        accounts: [],
+        loading: true,
+      },
+      google: {
+        isConnected: false,
+        accounts: [],
         loading: true,
       },
       initialized: false,
@@ -191,6 +319,8 @@ export const initializeConnections = async (userId: string) => {
   await Promise.all([
     store.initializeShopify(userId),
     store.initializeFacebook(userId),
+    store.initializeTikTok(userId),
+    store.initializeGoogle(userId),
   ]);
 
   const unsubscribe = store.subscribeToShopifyChanges(userId);

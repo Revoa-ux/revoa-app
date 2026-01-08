@@ -53,7 +53,7 @@ export default function Audit() {
 
   useClickOutside(platformFilterRef, () => setShowPlatformFilter(false));
 
-  const { facebook } = useConnectionStore();
+  const { facebook, shopify, tiktok, google } = useConnectionStore();
 
   const platforms = [
     { id: 'all', name: 'All Platforms', icon: Filter },
@@ -556,7 +556,9 @@ export default function Audit() {
   };
 
   const refreshData = async (showSuccessToast = false) => {
-    if (!facebook.isConnected) {
+    // Check if any platform is connected
+    const anyPlatformConnected = facebook.isConnected || shopify.isConnected || tiktok.isConnected || google.isConnected;
+    if (!anyPlatformConnected) {
       return;
     }
 
@@ -567,14 +569,19 @@ export default function Audit() {
     let syncStarted = false;
 
     try {
-      if (facebook.accounts && facebook.accounts.length > 0) {
-        syncStarted = syncStore.startSync('audit');
+      // Start sync for all connected platforms
+      const syncPromises: Promise<any>[] = [];
 
-        if (syncStarted) {
+      syncStarted = syncStore.startSync('audit');
+
+      if (syncStarted) {
+        const datePreset = getDatePreset(selectedTime);
+
+        // Facebook Ads sync
+        if (facebook.accounts && facebook.accounts.length > 0) {
           const { facebookAdsService } = await import('@/lib/facebookAds');
-          const datePreset = getDatePreset(selectedTime);
 
-          await Promise.all(
+          const facebookSync = Promise.all(
             facebook.accounts.map(async account => {
               try {
                 const result = await facebookAdsService.quickRefresh(
@@ -583,27 +590,64 @@ export default function Audit() {
                 );
 
                 if (result.needsFullSync) {
-                  toast.info('New campaigns detected. Running full sync...');
-                  const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
-
-                  if (syncResult.data) {
-                    const { campaigns, adSets, ads, metrics } = syncResult.data;
-                    toast.success(
-                      `Full sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
-                      { duration: 5000 }
-                    );
-                  }
+                  toast.info('New Facebook campaigns detected. Running full sync...');
+                  await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
                 }
               } catch (err) {
-                console.error('[Audit] Quick refresh failed:', err);
+                console.error('[Audit] Facebook quick refresh failed:', err);
               }
             })
           );
-
-          await facebookAdsService.getAdAccounts('facebook');
-          adDataCache.markStale();
-          syncStore.completeSync();
+          syncPromises.push(facebookSync);
         }
+
+        // TikTok Ads sync
+        if (tiktok.accounts && tiktok.accounts.length > 0) {
+          const { tiktokAdsService } = await import('@/lib/tiktokAds');
+
+          const tiktokSync = Promise.all(
+            tiktok.accounts.map(async account => {
+              try {
+                await tiktokAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+              } catch (err) {
+                console.error('[Audit] TikTok sync failed:', err);
+              }
+            })
+          );
+          syncPromises.push(tiktokSync);
+        }
+
+        // Google Ads sync
+        if (google.accounts && google.accounts.length > 0) {
+          const { googleAdsService } = await import('@/lib/googleAds');
+
+          const googleSync = Promise.all(
+            google.accounts.map(async account => {
+              try {
+                await googleAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+              } catch (err) {
+                console.error('[Audit] Google sync failed:', err);
+              }
+            })
+          );
+          syncPromises.push(googleSync);
+        }
+
+        // Shopify orders sync
+        if (shopify.isConnected && user) {
+          const { manualSync } = await import('@/lib/shopifyAutoSync');
+
+          const shopifySync = manualSync(user.id).catch(err => {
+            console.error('[Audit] Shopify sync failed:', err);
+          });
+          syncPromises.push(shopifySync);
+        }
+
+        // Wait for all syncs to complete
+        await Promise.all(syncPromises);
+
+        adDataCache.markStale();
+        syncStore.completeSync();
       }
 
       const startDate = dateRange.startDate.toISOString().split('T')[0];
