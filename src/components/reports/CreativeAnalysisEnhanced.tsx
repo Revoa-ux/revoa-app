@@ -1551,13 +1551,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       return (
                         <div
                           key={column.id}
-                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''} ${column.id === 'select' ? 'overflow-visible' : ''}`}
-                          style={{
-                            ...columnStyle,
-                            ...(column.id === 'select' ? { minWidth: 120, width: 120, maxWidth: 120 } : {})
-                          }}
+                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                          style={columnStyle}
                         >
                         {column.id === 'select' ? (
+                          ''
+                        ) : column.id === 'status' ? (
                           <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
                             TOTALS ({sortedCreatives.length})
                           </span>
