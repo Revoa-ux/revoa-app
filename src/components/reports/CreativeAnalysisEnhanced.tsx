@@ -176,27 +176,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     if (!tableElement || !headerElement) return;
 
-    let isScrolling = false;
+    let isSyncing = false;
 
-    // Sync header scroll when table scrolls
+    // Sync header scroll when table scrolls - immediate, no RAF delay
     const handleTableScroll = () => {
-      if (!isScrolling && headerElement) {
-        isScrolling = true;
-        requestAnimationFrame(() => {
-          headerElement.scrollLeft = tableElement.scrollLeft;
-          isScrolling = false;
-        });
+      if (!isSyncing) {
+        isSyncing = true;
+        headerElement.scrollLeft = tableElement.scrollLeft;
+        isSyncing = false;
       }
     };
 
-    // Sync table scroll when header scrolls
+    // Sync table scroll when header scrolls - immediate, no RAF delay
     const handleHeaderScroll = () => {
-      if (!isScrolling && tableElement) {
-        isScrolling = true;
-        requestAnimationFrame(() => {
-          tableElement.scrollLeft = headerElement.scrollLeft;
-          isScrolling = false;
-        });
+      if (!isSyncing) {
+        isSyncing = true;
+        tableElement.scrollLeft = headerElement.scrollLeft;
+        isSyncing = false;
       }
     };
 
