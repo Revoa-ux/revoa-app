@@ -221,9 +221,6 @@ export default function Audit() {
     console.log(`[Rex] - Existing suggestions: ${existingSuggestions.size}`);
     console.log(`[Rex] - Force regenerate: ${forceRegenerate}`);
 
-    // Show progress message
-    toast.info('Revoa AI is analyzing your ads...', { duration: 2000 });
-
     setIsGeneratingSuggestions(true);
     try {
       // Initialize Advanced Rex Intelligence with ALL AI engines
@@ -601,13 +598,14 @@ export default function Audit() {
           syncPromises.push(facebookSync);
         }
 
-        // TikTok Ads sync
+        // TikTok Ads sync (incremental from last sync)
         if (tiktok.accounts && tiktok.accounts.length > 0) {
           const { tiktokAdsService } = await import('@/lib/tiktokAds');
 
           const tiktokSync = Promise.all(
             tiktok.accounts.map(async account => {
               try {
+                // Use incremental sync - only pulls data since last_synced_at
                 await tiktokAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
                 console.error('[Audit] TikTok sync failed:', err);
@@ -617,13 +615,14 @@ export default function Audit() {
           syncPromises.push(tiktokSync);
         }
 
-        // Google Ads sync
+        // Google Ads sync (incremental from last sync)
         if (google.accounts && google.accounts.length > 0) {
           const { googleAdsService } = await import('@/lib/googleAds');
 
           const googleSync = Promise.all(
             google.accounts.map(async account => {
               try {
+                // Use incremental sync - only pulls data since last_synced_at
                 await googleAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
               } catch (err) {
                 console.error('[Audit] Google sync failed:', err);
@@ -683,6 +682,11 @@ export default function Audit() {
           metrics: creativesData[0].metrics
         } : null
       });
+
+      // Show AI analysis message only after metrics are loaded and visible
+      if (creativesData.length > 0 || campaignsData.length > 0 || adSetsData.length > 0) {
+        toast.info('Revoa AI is analyzing your ads...', { duration: 2000 });
+      }
 
       // Load existing suggestions and generate new ones from REAL data
       // CRITICAL: Pass data directly to avoid React state timing issues
