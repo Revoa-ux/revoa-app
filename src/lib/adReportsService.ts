@@ -642,8 +642,8 @@ export async function getCreativePerformance(
       }
 
       return {
-        id: ad.platform_ad_id,
-        platformId: ad.platform_ad_id, // Explicitly include for Rex suggestions matching
+        id: ad.id, // Internal UUID for database queries (Rex AI)
+        platformId: ad.platform_ad_id, // External platform ID for Facebook API calls
         adSetId: ad.ad_set_id, // UUID reference to ad_sets table
         type: isVideo ? 'video' : 'image',
         url: mediaUrl,

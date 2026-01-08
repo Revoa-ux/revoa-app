@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Facebook, AlertTriangle, RefreshCw, Filter, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { FilterButton } from '@/components/FilterButton';
 import { UnifiedAdManager } from '@/components/reports/UnifiedAdManager';
@@ -811,18 +812,7 @@ export default function Audit() {
 
             let timeText = '';
             if (lastSyncedAccount?.last_synced_at) {
-              const syncDate = new Date(lastSyncedAccount.last_synced_at);
-              const now = new Date();
-              const diffMs = now.getTime() - syncDate.getTime();
-              const diffMins = Math.floor(diffMs / 60000);
-
-              if (diffMins < 1) {
-                timeText = ' - Updated just now';
-              } else if (diffMins < 60) {
-                timeText = ` - Updated ${diffMins} minute${diffMins === 1 ? '' : 's'} ago`;
-              } else {
-                timeText = ` - Updated ${syncDate.toLocaleTimeString()}`;
-              }
+              timeText = ` - Updated ${formatDistanceToNow(new Date(lastSyncedAccount.last_synced_at), { addSuffix: true })}`;
             }
 
             return platformText + timeText;

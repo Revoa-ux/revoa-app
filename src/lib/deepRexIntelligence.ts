@@ -103,18 +103,23 @@ export class DeepRexIntelligence {
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
-    // Fetch demographic breakdown data
-    const { data: demographics } = await supabase
-      .from('ad_insights_demographics')
-      .select('*')
-      .eq('user_id', this.userId)
-      .eq('platform_ad_id', entity.platformId)
-      .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-      .order('date', { ascending: false });
+    try {
+      const { data: demographics, error } = await supabase
+        .from('ad_insights_demographics')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('platform_ad_id', entity.platformId)
+        .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .order('date', { ascending: false });
 
-    if (!demographics || demographics.length < 5) {
-      return suggestions; // Not enough data
-    }
+      if (error) {
+        console.log('[DeepRex] Demographics table not available:', error.message);
+        return suggestions;
+      }
+
+      if (!demographics || demographics.length < 5) {
+        return suggestions;
+      }
 
     // Aggregate by demographic segment
     const segmentPerformance = this.aggregateDemographicData(demographics);
@@ -212,6 +217,10 @@ export class DeepRexIntelligence {
     }
 
     return suggestions;
+    } catch (error) {
+      console.error('[DeepRex] Error in demographics analysis:', error);
+      return [];
+    }
   }
 
   /**
@@ -223,14 +232,20 @@ export class DeepRexIntelligence {
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
-    const { data: placements } = await supabase
-      .from('ad_insights_placements')
-      .select('*')
-      .eq('user_id', this.userId)
-      .eq('platform_ad_id', entity.platformId)
-      .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    try {
+      const { data: placements, error } = await supabase
+        .from('ad_insights_placements')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('platform_ad_id', entity.platformId)
+        .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
 
-    if (!placements || placements.length < 5) return suggestions;
+      if (error) {
+        console.log('[DeepRex] Placements table not available:', error.message);
+        return suggestions;
+      }
+
+      if (!placements || placements.length < 5) return suggestions;
 
     const placementPerformance = this.aggregatePlacementData(placements);
     const topPlacements = placementPerformance.filter(p => p.roas >= entity.metrics.roas * 1.5 && p.conversions >= 3);
@@ -299,6 +314,10 @@ export class DeepRexIntelligence {
     }
 
     return suggestions;
+    } catch (error) {
+      console.error('[DeepRex] Error in placements analysis:', error);
+      return [];
+    }
   }
 
   /**
@@ -310,14 +329,20 @@ export class DeepRexIntelligence {
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
-    const { data: geoData } = await supabase
-      .from('ad_insights_geographic')
-      .select('*')
-      .eq('user_id', this.userId)
-      .eq('platform_ad_id', entity.platformId)
-      .gte('date', new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    try {
+      const { data: geoData, error } = await supabase
+        .from('ad_insights_geographic')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('platform_ad_id', entity.platformId)
+        .gte('date', new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
 
-    if (!geoData || geoData.length < 5) return suggestions;
+      if (error) {
+        console.log('[DeepRex] Geographic table not available:', error.message);
+        return suggestions;
+      }
+
+      if (!geoData || geoData.length < 5) return suggestions;
 
     const geoPerformance = this.aggregateGeographicData(geoData);
     const topRegions = geoPerformance.filter(g => g.roas >= entity.metrics.roas * 1.8 && g.conversions >= 5);
@@ -372,6 +397,10 @@ export class DeepRexIntelligence {
     }
 
     return suggestions;
+    } catch (error) {
+      console.error('[DeepRex] Error in geographic analysis:', error);
+      return [];
+    }
   }
 
   /**
@@ -383,14 +412,20 @@ export class DeepRexIntelligence {
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
-    const { data: temporalData } = await supabase
-      .from('ad_insights_temporal')
-      .select('*')
-      .eq('user_id', this.userId)
-      .eq('platform_ad_id', entity.platformId)
-      .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+    try {
+      const { data: temporalData, error } = await supabase
+        .from('ad_insights_temporal')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('platform_ad_id', entity.platformId)
+        .gte('date', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
 
-    if (!temporalData || temporalData.length < 20) return suggestions;
+      if (error) {
+        console.log('[DeepRex] Temporal table not available:', error.message);
+        return suggestions;
+      }
+
+      if (!temporalData || temporalData.length < 20) return suggestions;
 
     // Aggregate by day of week and hour ranges
     const timeSlots = this.aggregateTemporalData(temporalData);
@@ -429,6 +464,10 @@ export class DeepRexIntelligence {
     }
 
     return suggestions;
+    } catch (error) {
+      console.error('[DeepRex] Error in temporal analysis:', error);
+      return [];
+    }
   }
 
   /**
@@ -440,14 +479,20 @@ export class DeepRexIntelligence {
   ): Promise<CreateRexSuggestionParams[]> {
     const suggestions: CreateRexSuggestionParams[] = [];
 
-    const { data: conversions } = await supabase
-      .from('enriched_conversions')
-      .select('*')
-      .eq('user_id', this.userId)
-      .eq('platform_ad_id', entity.platformId)
-      .gte('ordered_at', new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString());
+    try {
+      const { data: conversions, error } = await supabase
+        .from('enriched_conversions')
+        .select('*')
+        .eq('user_id', this.userId)
+        .eq('platform_ad_id', entity.platformId)
+        .gte('ordered_at', new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString());
 
-    if (!conversions || conversions.length < 10) return suggestions;
+      if (error) {
+        console.log('[DeepRex] Enriched conversions table not available:', error.message);
+        return suggestions;
+      }
+
+      if (!conversions || conversions.length < 10) return suggestions;
 
     const newCustomers = conversions.filter(c => c.is_first_purchase);
     const returningCustomers = conversions.filter(c => !c.is_first_purchase);
@@ -489,6 +534,10 @@ export class DeepRexIntelligence {
     }
 
     return suggestions;
+    } catch (error) {
+      console.error('[DeepRex] Error in customer behavior analysis:', error);
+      return [];
+    }
   }
 
   /**
