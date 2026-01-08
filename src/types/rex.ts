@@ -45,7 +45,7 @@ export type RexSuggestionType =
   | 'switch_to_abo'
   | 'optimize_product_mix'
   | 'product_margin_optimization'
-  | 'creative_refresh'
+  | 'refresh_creative'
   | 'landing_page_optimization'
   | 'product_page_optimization'
   | 'checkout_optimization'

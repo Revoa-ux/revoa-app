@@ -402,25 +402,24 @@ export class AdvancedRexIntelligence {
       if (funnelAnalysis && funnelAnalysis.biggestDropOff.dropOffRate > 50) {
         const dropOffStage = funnelAnalysis.biggestDropOff.stage;
         let recommendation = '';
-        let suggestionType = 'optimize_funnel';
+        let suggestionType = 'adjust_targeting';
         let triggeredBy: string[] = ['funnel_analysis', 'high_drop_off'];
 
-        // Provide specific recommendations based on drop-off point
         if (dropOffStage.includes('click')) {
           recommendation = `High drop-off between impression and click (${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}%). This suggests ad creative isn't compelling enough or targeting is off. Consider testing new creative angles or refining audience.`;
-          suggestionType = 'creative_refresh';
+          suggestionType = 'refresh_creative';
           triggeredBy.push('low_ctr');
         } else if (dropOffStage.includes('page_view')) {
           recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% of clicks don't result in page views. This typically means landing page load issues, broken links, or ad-to-page mismatch. Check landing page speed and relevance.`;
-          suggestionType = 'landing_page_optimization';
+          suggestionType = 'adjust_targeting';
           triggeredBy.push('landing_page_issue');
         } else if (dropOffStage.includes('add_to_cart')) {
           recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% of page views don't add to cart. This suggests product page friction, unclear value prop, or price concerns. Consider product page optimization or promotional offers.`;
-          suggestionType = 'product_page_optimization';
+          suggestionType = 'adjust_targeting';
           triggeredBy.push('low_atc_rate');
         } else if (dropOffStage.includes('checkout')) {
           recommendation = `${funnelAnalysis.biggestDropOff.dropOffRate.toFixed(1)}% cart abandonment. Checkout friction is your biggest issue. Consider simplifying checkout process, adding trust badges, or cart abandonment emails.`;
-          suggestionType = 'checkout_optimization';
+          suggestionType = 'adjust_targeting';
           triggeredBy.push('high_cart_abandonment');
         }
 

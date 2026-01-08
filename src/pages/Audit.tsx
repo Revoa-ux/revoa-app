@@ -660,50 +660,34 @@ export default function Audit() {
     const startDate = dateRange.startDate.toISOString().split('T')[0];
     const endDate = dateRange.endDate.toISOString().split('T')[0];
 
-    // Check cache first
     const cachedResult = getCachedData({ startDate, endDate });
 
-    // SCENARIO 1: Cache is fresh (< 15 min) - use immediately, no loading, NO refresh
-    if (cachedResult.data && !cachedResult.isStale && cachedResult.dateRangeMatches) {
-      console.log(`[Audit] Using fresh cache (${cachedResult.age} min old)`);
-      setPerformanceData(cachedResult.data.performanceData);
-      setCreatives(cachedResult.data.creatives);
-      setCampaigns(cachedResult.data.campaigns);
-      setAdSets(cachedResult.data.adSets);
-
-      // Load Rex suggestions in background - preserve existing suggestions (don't expire)
-      loadRexSuggestions(undefined, undefined, undefined, false);
-      return;
-    }
-
-    // SCENARIO 2: Cache exists but is stale (15-30 min) - use it, DON'T auto-refresh
-    // User must manually click refresh button to update
-    if (cachedResult.data && !cachedResult.isVeryStale && cachedResult.dateRangeMatches) {
-      console.log(`[Audit] Using stale cache (${cachedResult.age} min old). User must manually refresh.`);
+    if (cachedResult.data && cachedResult.dateRangeMatches) {
+      const cacheAge = cachedResult.age || 0;
+      const cacheStatus = cachedResult.isVeryStale ? 'very stale' : cachedResult.isStale ? 'stale' : 'fresh';
+      console.log(`[Audit] Using ${cacheStatus} cache (${cacheAge} min old)`);
 
       setPerformanceData(cachedResult.data.performanceData);
       setCreatives(cachedResult.data.creatives);
       setCampaigns(cachedResult.data.campaigns);
       setAdSets(cachedResult.data.adSets);
 
-      // Load Rex suggestions from existing data - preserve existing suggestions (don't expire)
-      loadRexSuggestions(undefined, undefined, undefined, false);
-      return;
-    }
+      const hasData = cachedResult.data.creatives.length > 0 ||
+                      cachedResult.data.campaigns.length > 0 ||
+                      cachedResult.data.adSets.length > 0;
 
-    // SCENARIO 3: No cache or very stale (> 30 min) - DON'T auto-refresh
-    // User must manually click refresh button to load/update data
-    if (cachedResult.data) {
-      console.log(`[Audit] Using very stale cache (${cachedResult.age} min old). User must manually refresh.`);
-      setPerformanceData(cachedResult.data.performanceData);
-      setCreatives(cachedResult.data.creatives);
-      setCampaigns(cachedResult.data.campaigns);
-      setAdSets(cachedResult.data.adSets);
-      // Load Rex suggestions from existing data - preserve existing suggestions (don't expire)
-      loadRexSuggestions(undefined, undefined, undefined, false);
+      if (hasData) {
+        loadRexSuggestions(
+          cachedResult.data.creatives,
+          cachedResult.data.campaigns,
+          cachedResult.data.adSets,
+          false
+        );
+      } else {
+        console.log('[Audit] Cache has no ad data - skipping Rex suggestions');
+      }
     } else {
-      // No cached data at all - show empty state, user must click refresh
-      console.log('[Audit] No cache available. User must manually refresh to load data.');
+      console.log('[Audit] No matching cache. User must manually refresh to load data.');
       setPerformanceData(null);
       setCreatives([]);
       setCampaigns([]);
