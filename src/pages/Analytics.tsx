@@ -758,7 +758,6 @@ setCurrentTemplate(template);
             onTimeChange={handleTimeChange}
             dateRange={dateRange}
             onDateRangeChange={handleDateRangeChange}
-            onApply={handleApplyDateRange}
           />
         </div>
       </div>

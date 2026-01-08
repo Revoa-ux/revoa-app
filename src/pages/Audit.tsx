@@ -866,7 +866,6 @@ export default function Audit() {
             onTimeChange={handleTimeChange}
             dateRange={dateRange}
             onDateRangeChange={setDateRange}
-            onApply={refreshData}
           />
         </div>
       </div>
