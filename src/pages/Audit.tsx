@@ -737,14 +737,16 @@ export default function Audit() {
           false
         );
       } else {
-        console.log('[Audit] Cache has no ad data - skipping Rex suggestions');
+        console.log('[Audit] Cache exists but has no ad data - auto-refreshing to fetch data');
+        refreshData();
       }
     } else {
-      console.log('[Audit] No matching cache. User must manually refresh to load data.');
+      console.log('[Audit] No matching cache - auto-refreshing to fetch data');
       setPerformanceData(null);
       setCreatives([]);
       setCampaigns([]);
       setAdSets([]);
+      refreshData();
     }
   }, [facebook.isConnected, dateRange.startDate.getTime(), dateRange.endDate.getTime()]);
 
