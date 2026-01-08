@@ -10,7 +10,14 @@ interface RequestBody {
   adAccountId: string;
   datePreset?: string;
   storeId?: string;
+  forceFullCheck?: boolean;
 }
+
+const QUICK_REFRESH_COOLDOWN_MS = 30 * 1000;
+const EXISTENCE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
+const API_DELAY_MS = 200;
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -33,9 +40,9 @@ Deno.serve(async (req: Request) => {
       throw new Error('Unauthorized');
     }
 
-    const { adAccountId, datePreset = 'last_28d', storeId }: RequestBody = await req.json();
+    const { adAccountId, datePreset = 'last_28d', forceFullCheck = false }: RequestBody = await req.json();
 
-    console.log('[quick-refresh] Starting quick refresh for account:', adAccountId);
+    console.log('[quick-refresh] Request for account:', adAccountId);
 
     const { data: tokenData, error: tokenError } = await supabase
       .from('facebook_tokens')
@@ -51,7 +58,7 @@ Deno.serve(async (req: Request) => {
 
     const { data: adAccount } = await supabase
       .from('ad_accounts')
-      .select('id')
+      .select('id, last_synced_at, last_quick_refresh_at, last_existence_check_at')
       .eq('platform_account_id', adAccountId)
       .eq('platform', 'facebook')
       .maybeSingle();
@@ -61,8 +68,28 @@ Deno.serve(async (req: Request) => {
     }
 
     const dbAccountId = adAccount.id;
+    const now = Date.now();
 
-    console.log('[quick-refresh] Fetching existing items from database...');
+    const lastQuickRefresh = adAccount.last_quick_refresh_at
+      ? new Date(adAccount.last_quick_refresh_at).getTime()
+      : 0;
+    const lastExistenceCheck = adAccount.last_existence_check_at
+      ? new Date(adAccount.last_existence_check_at).getTime()
+      : 0;
+
+    if (!forceFullCheck && (now - lastQuickRefresh) < QUICK_REFRESH_COOLDOWN_MS) {
+      const waitTime = Math.ceil((QUICK_REFRESH_COOLDOWN_MS - (now - lastQuickRefresh)) / 1000);
+      console.log(`[quick-refresh] Rate limited - refreshed ${Math.ceil((now - lastQuickRefresh)/1000)}s ago`);
+      return new Response(
+        JSON.stringify({
+          success: true,
+          rateLimited: true,
+          message: `Recently refreshed. Please wait ${waitTime}s.`,
+          stats: { campaigns: 0, adSets: 0, ads: 0 }
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { data: existingCampaigns } = await supabase
       .from('ad_campaigns')
@@ -86,117 +113,111 @@ Deno.serve(async (req: Request) => {
       .select('id, platform_adset_id, ad_campaign_id')
       .in('ad_campaign_id', existingCampaigns.map(c => c.id));
 
-    if (!existingAdSets || existingAdSets.length === 0) {
-      console.log('[quick-refresh] No ad sets found - needs full sync');
-      return new Response(
-        JSON.stringify({
-          success: false,
-          needsFullSync: true,
-          message: 'No ad sets found in database'
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { data: existingAds } = await supabase
       .from('ads')
       .select('id, platform_ad_id, ad_set_id')
-      .in('ad_set_id', existingAdSets.map(as => as.id));
+      .in('ad_set_id', existingAdSets?.map(as => as.id) || []);
 
-    console.log(`[quick-refresh] Found ${existingCampaigns.length} campaigns, ${existingAdSets.length} ad sets, ${existingAds?.length || 0} ads`);
+    console.log(`[quick-refresh] DB has ${existingCampaigns.length} campaigns, ${existingAdSets?.length || 0} ad sets, ${existingAds?.length || 0} ads`);
 
-    // For very large datasets (>1000 ads), quick refresh is too slow - use full sync instead
+    const shouldCheckExistence = forceFullCheck || (now - lastExistenceCheck) > EXISTENCE_CHECK_INTERVAL_MS;
+
+    if (shouldCheckExistence) {
+      console.log('[quick-refresh] Checking for new items (hourly check)...');
+
+      await sleep(API_DELAY_MS);
+      const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id&limit=500&access_token=${accessToken}`;
+      const campaignsResponse = await fetch(campaignsUrl);
+      const campaignsData = await campaignsResponse.json();
+
+      if (campaignsData.error) {
+        console.error('[quick-refresh] Facebook API error:', campaignsData.error);
+        throw new Error(campaignsData.error.message || 'Facebook API error');
+      }
+
+      const apiCampaignCount = campaignsData.data?.length || 0;
+      const dbCampaignCount = existingCampaigns?.length || 0;
+
+      if (apiCampaignCount > dbCampaignCount) {
+        console.log(`[quick-refresh] Found new campaigns (API: ${apiCampaignCount}, DB: ${dbCampaignCount})`);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            needsFullSync: true,
+            message: `Found ${apiCampaignCount - dbCampaignCount} new campaigns`
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      await supabase
+        .from('ad_accounts')
+        .update({ last_existence_check_at: new Date().toISOString() })
+        .eq('id', dbAccountId);
+
+      console.log('[quick-refresh] No new items detected');
+    } else {
+      console.log('[quick-refresh] Skipping existence check (checked recently)');
+    }
+
     const totalAds = existingAds?.length || 0;
-    if (totalAds > 1000) {
-      console.log(`[quick-refresh] Dataset too large (${totalAds} ads) - recommending full sync`);
+    if (totalAds > 500) {
+      console.log(`[quick-refresh] Dataset large (${totalAds} ads) - updating summary only`);
+
+      await sleep(API_DELAY_MS);
+      const accountInsightsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/insights?fields=impressions,clicks,spend,actions,action_values&date_preset=${datePreset}&access_token=${accessToken}`;
+      const accountResponse = await fetch(accountInsightsUrl);
+      const accountData = await accountResponse.json();
+
+      if (accountData.data?.[0]) {
+        const insights = accountData.data[0];
+        const purchases = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || '0';
+        const purchaseValue = insights.action_values?.find((a: any) => a.action_type === 'purchase')?.value || '0';
+
+        await supabase
+          .from('ad_accounts')
+          .update({
+            impressions: parseInt(insights.impressions || '0'),
+            clicks: parseInt(insights.clicks || '0'),
+            spend: parseFloat(insights.spend || '0'),
+            purchases: parseInt(purchases),
+            revenue: parseFloat(purchaseValue),
+            last_synced_at: new Date().toISOString(),
+            last_quick_refresh_at: new Date().toISOString()
+          })
+          .eq('id', dbAccountId);
+      }
+
       return new Response(
         JSON.stringify({
-          success: false,
-          needsFullSync: true,
-          message: `Dataset too large for quick refresh (${totalAds} ads). Please use full sync.`
+          success: true,
+          stats: { campaigns: 0, adSets: 0, ads: 0, accountOnly: true }
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('[quick-refresh] Checking for new items...');
-
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id&limit=1000&access_token=${accessToken}`;
-    const campaignsResponse = await fetch(campaignsUrl);
-    const campaignsData = await campaignsResponse.json();
-
-    const apiCampaignIds = new Set(campaignsData.data?.map((c: any) => c.id) || []);
-    const dbCampaignIds = new Set(existingCampaigns?.map(c => c.platform_campaign_id) || []);
-    const newCampaignIds = [...apiCampaignIds].filter(id => !dbCampaignIds.has(id));
-
-    if (newCampaignIds.length > 0) {
-      console.log(`[quick-refresh] Found ${newCampaignIds.length} new campaigns`);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          needsFullSync: true,
-          message: `Found ${newCampaignIds.length} new campaigns`
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const adSetsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/adsets?fields=id&limit=1000&access_token=${accessToken}`;
-    const adSetsResponse = await fetch(adSetsUrl);
-    const adSetsData = await adSetsResponse.json();
-
-    const apiAdSetIds = new Set(adSetsData.data?.map((as: any) => as.id) || []);
-    const dbAdSetIds = new Set(existingAdSets?.map(as => as.platform_adset_id) || []);
-    const newAdSetIds = [...apiAdSetIds].filter(id => !dbAdSetIds.has(id));
-
-    if (newAdSetIds.length > 0) {
-      console.log(`[quick-refresh] Found ${newAdSetIds.length} new ad sets`);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          needsFullSync: true,
-          message: `Found ${newAdSetIds.length} new ad sets`
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const adsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/ads?fields=id&limit=1000&access_token=${accessToken}`;
-    const adsResponse = await fetch(adsUrl);
-    const adsData = await adsResponse.json();
-
-    const apiAdIds = new Set(adsData.data?.map((a: any) => a.id) || []);
-    const dbAdIds = new Set(existingAds?.map(a => a.platform_ad_id) || []);
-    const newAdIds = [...apiAdIds].filter(id => !dbAdIds.has(id));
-
-    if (newAdIds.length > 0) {
-      console.log(`[quick-refresh] Found ${newAdIds.length} new ads`);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          needsFullSync: true,
-          message: `Found ${newAdIds.length} new ads`
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('[quick-refresh] No new items detected, proceeding with metrics update...');
-
-    console.log('[quick-refresh] Fetching fresh metrics...');
+    console.log('[quick-refresh] Fetching metrics in batches...');
 
     const metricsFields = 'impressions,clicks,spend,actions,action_values,cost_per_action_type';
     const batchSize = 50;
 
-    const fetchMetricsBatch = async (ids: string[], level: string) => {
+    const fetchMetricsBatch = async (ids: string[]) => {
       const results = [];
       for (let i = 0; i < ids.length; i += batchSize) {
         const batch = ids.slice(i, i + batchSize);
         const idsParam = batch.join(',');
+
+        await sleep(API_DELAY_MS);
         const url = `https://graph.facebook.com/v21.0/?ids=${idsParam}&fields=insights.date_preset(${datePreset}){${metricsFields}}&access_token=${accessToken}`;
 
         const response = await fetch(url);
         const data = await response.json();
+
+        if (data.error) {
+          console.error('[quick-refresh] Batch error:', data.error);
+          continue;
+        }
 
         for (const [id, value] of Object.entries(data)) {
           const insights = (value as any)?.insights?.data?.[0];
@@ -208,69 +229,54 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    const campaignIds = existingCampaigns?.map(c => c.platform_campaign_id) || [];
-    const campaignMetrics = await fetchMetricsBatch(campaignIds, 'campaign');
-
-    const adSetIds = existingAdSets?.map(as => as.platform_adset_id) || [];
-    const adSetMetrics = await fetchMetricsBatch(adSetIds, 'adset');
-
-    const adIds = existingAds?.map(a => a.platform_ad_id) || [];
-    const adMetrics = await fetchMetricsBatch(adIds, 'ad');
-
-    console.log(`[quick-refresh] Fetched ${campaignMetrics.length} campaign metrics, ${adSetMetrics.length} ad set metrics, ${adMetrics.length} ad metrics`);
-
-    console.log('[quick-refresh] Updating metrics...');
-
     const extractMetrics = (insights: any) => {
       const purchases = insights.actions?.find((a: any) => a.action_type === 'purchase')?.value || '0';
       const purchaseValue = insights.action_values?.find((a: any) => a.action_type === 'purchase')?.value || '0';
       const costPerPurchase = insights.cost_per_action_type?.find((a: any) => a.action_type === 'purchase')?.value || '0';
+      const impressions = parseInt(insights.impressions || '0');
+      const clicks = parseInt(insights.clicks || '0');
+      const spend = parseFloat(insights.spend || '0');
 
       return {
-        impressions: parseInt(insights.impressions || '0'),
-        clicks: parseInt(insights.clicks || '0'),
-        spend: parseFloat(insights.spend || '0'),
+        impressions,
+        clicks,
+        spend,
         purchases: parseInt(purchases),
         revenue: parseFloat(purchaseValue),
-        cpc: insights.clicks ? parseFloat(insights.spend) / parseInt(insights.clicks) : 0,
-        cpm: insights.impressions ? (parseFloat(insights.spend) / parseInt(insights.impressions)) * 1000 : 0,
-        ctr: insights.impressions ? (parseInt(insights.clicks) / parseInt(insights.impressions)) * 100 : 0,
-        roas: parseFloat(insights.spend) > 0 ? parseFloat(purchaseValue) / parseFloat(insights.spend) : 0,
+        cpc: clicks > 0 ? spend / clicks : 0,
+        cpm: impressions > 0 ? (spend / impressions) * 1000 : 0,
+        ctr: impressions > 0 ? (clicks / impressions) * 100 : 0,
+        roas: spend > 0 ? parseFloat(purchaseValue) / spend : 0,
         cpa: parseFloat(costPerPurchase),
       };
     };
+
+    const campaignIds = existingCampaigns?.map(c => c.platform_campaign_id) || [];
+    const campaignMetrics = await fetchMetricsBatch(campaignIds);
+
+    const adSetIds = existingAdSets?.map(as => as.platform_adset_id) || [];
+    const adSetMetrics = await fetchMetricsBatch(adSetIds);
+
+    const adIds = existingAds?.map(a => a.platform_ad_id) || [];
+    const adMetrics = await fetchMetricsBatch(adIds);
+
+    console.log(`[quick-refresh] Fetched ${campaignMetrics.length} campaign, ${adSetMetrics.length} ad set, ${adMetrics.length} ad metrics`);
 
     const campaignIdMap = new Map(existingCampaigns?.map(c => [c.platform_campaign_id, c.id]));
     const adSetIdMap = new Map(existingAdSets?.map(as => [as.platform_adset_id, as.id]));
     const adIdMap = new Map(existingAds?.map(a => [a.platform_ad_id, a.id]));
 
     const today = new Date().toISOString().split('T')[0];
-
     const allMetricsRecords: any[] = [];
 
     for (const { id, insights } of campaignMetrics) {
       const dbId = campaignIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase
-          .from('ad_campaigns')
-          .update(metrics)
-          .eq('id', dbId);
-
+        await supabase.from('ad_campaigns').update(metrics).eq('id', dbId);
         allMetricsRecords.push({
-          entity_id: dbId,
-          entity_type: 'campaign',
-          date: today,
-          impressions: metrics.impressions,
-          clicks: metrics.clicks,
-          spend: metrics.spend,
-          conversions: metrics.purchases,
-          conversion_value: metrics.revenue,
-          reach: 0,
-          cpc: metrics.cpc,
-          cpm: metrics.cpm,
-          ctr: metrics.ctr,
-          roas: metrics.roas,
+          entity_id: dbId, entity_type: 'campaign', date: today,
+          ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
       }
     }
@@ -279,25 +285,10 @@ Deno.serve(async (req: Request) => {
       const dbId = adSetIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase
-          .from('ad_sets')
-          .update(metrics)
-          .eq('id', dbId);
-
+        await supabase.from('ad_sets').update(metrics).eq('id', dbId);
         allMetricsRecords.push({
-          entity_id: dbId,
-          entity_type: 'adset',
-          date: today,
-          impressions: metrics.impressions,
-          clicks: metrics.clicks,
-          spend: metrics.spend,
-          conversions: metrics.purchases,
-          conversion_value: metrics.revenue,
-          reach: 0,
-          cpc: metrics.cpc,
-          cpm: metrics.cpm,
-          ctr: metrics.ctr,
-          roas: metrics.roas,
+          entity_id: dbId, entity_type: 'adset', date: today,
+          ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
       }
     }
@@ -306,49 +297,31 @@ Deno.serve(async (req: Request) => {
       const dbId = adIdMap.get(id);
       if (dbId) {
         const metrics = extractMetrics(insights);
-        await supabase
-          .from('ads')
-          .update(metrics)
-          .eq('id', dbId);
-
+        await supabase.from('ads').update(metrics).eq('id', dbId);
         allMetricsRecords.push({
-          entity_id: dbId,
-          entity_type: 'ad',
-          date: today,
-          impressions: metrics.impressions,
-          clicks: metrics.clicks,
-          spend: metrics.spend,
-          conversions: metrics.purchases,
-          conversion_value: metrics.revenue,
-          reach: 0,
-          cpc: metrics.cpc,
-          cpm: metrics.cpm,
-          ctr: metrics.ctr,
-          roas: metrics.roas,
+          entity_id: dbId, entity_type: 'ad', date: today,
+          ...metrics, conversions: metrics.purchases, conversion_value: metrics.revenue, reach: 0
         });
       }
     }
 
     if (allMetricsRecords.length > 0) {
-      console.log(`[quick-refresh] Upserting ${allMetricsRecords.length} records to ad_metrics table...`);
       const upsertBatchSize = 200;
       for (let i = 0; i < allMetricsRecords.length; i += upsertBatchSize) {
         const batch = allMetricsRecords.slice(i, i + upsertBatchSize);
-        const { error: metricsError } = await supabase
-          .from('ad_metrics')
-          .upsert(batch, { onConflict: 'entity_type,entity_id,date' });
-        if (metricsError) {
-          console.error('[quick-refresh] Error upserting ad_metrics:', metricsError);
-        }
+        await supabase.from('ad_metrics').upsert(batch, { onConflict: 'entity_type,entity_id,date' });
       }
     }
 
     await supabase
       .from('ad_accounts')
-      .update({ last_synced_at: new Date().toISOString() })
+      .update({
+        last_synced_at: new Date().toISOString(),
+        last_quick_refresh_at: new Date().toISOString()
+      })
       .eq('id', dbAccountId);
 
-    console.log('[quick-refresh] Quick refresh completed successfully');
+    console.log('[quick-refresh] Completed successfully');
 
     return new Response(
       JSON.stringify({
