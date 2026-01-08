@@ -14,6 +14,7 @@ import { AdvancedRexIntelligence } from '@/lib/advancedRexIntelligence';
 import { automationRulesService } from '@/lib/automationRulesService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdDataCache } from '@/lib/adDataCache';
+import { useSyncStore } from '@/lib/syncStore';
 import type { RexSuggestionWithPerformance } from '@/types/rex';
 
 interface DateRange {
@@ -559,47 +560,50 @@ export default function Audit() {
       return;
     }
 
+    const syncStore = useSyncStore.getState();
+    const adDataCache = useAdDataCache.getState();
+
     setIsLoading(true);
+    let syncStarted = false;
+
     try {
-      // Use quick refresh for fast stats updates
       if (facebook.accounts && facebook.accounts.length > 0) {
-        const { facebookAdsService } = await import('@/lib/facebookAds');
-        const datePreset = getDatePreset(selectedTime);
+        syncStarted = syncStore.startSync('audit');
 
-        let needsFullSync = false;
+        if (syncStarted) {
+          const { facebookAdsService } = await import('@/lib/facebookAds');
+          const datePreset = getDatePreset(selectedTime);
 
-        // Try quick refresh for all accounts
-        await Promise.all(
-          facebook.accounts.map(async account => {
-            try {
-              const result = await facebookAdsService.quickRefresh(
-                account.platform_account_id,
-                datePreset
-              );
+          await Promise.all(
+            facebook.accounts.map(async account => {
+              try {
+                const result = await facebookAdsService.quickRefresh(
+                  account.platform_account_id,
+                  datePreset
+                );
 
-              if (result.needsFullSync) {
-                needsFullSync = true;
-                toast.info('New campaigns detected. Running full sync...');
-                // Run full sync if new items detected
-                const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
+                if (result.needsFullSync) {
+                  toast.info('New campaigns detected. Running full sync...');
+                  const syncResult = await facebookAdsService.syncAdAccount(account.platform_account_id, undefined, undefined, true);
 
-                // Show detailed sync results
-                if (syncResult.data) {
-                  const { campaigns, adSets, ads, metrics } = syncResult.data;
-                  toast.success(
-                    `Full sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
-                    { duration: 5000 }
-                  );
+                  if (syncResult.data) {
+                    const { campaigns, adSets, ads, metrics } = syncResult.data;
+                    toast.success(
+                      `Full sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+                      { duration: 5000 }
+                    );
+                  }
                 }
+              } catch (err) {
+                console.error('[Audit] Quick refresh failed:', err);
               }
-            } catch (err) {
-              console.error('[Audit] Quick refresh failed:', err);
-            }
-          })
-        );
+            })
+          );
 
-        // Refresh account data to update last_synced_at in UI
-        await facebookAdsService.getAdAccounts('facebook');
+          await facebookAdsService.getAdAccounts('facebook');
+          adDataCache.markStale();
+          syncStore.completeSync();
+        }
       }
 
       const startDate = dateRange.startDate.toISOString().split('T')[0];
@@ -617,7 +621,6 @@ export default function Audit() {
       setCampaigns(campaignsData);
       setAdSets(adSetsData);
 
-      // Cache the fetched data
       setCachedData({
         performanceData: metrics,
         creatives: creativesData,
@@ -626,7 +629,6 @@ export default function Audit() {
         dateRange: { startDate, endDate }
       });
 
-      // DEBUG: Log what Audit receives and passes down
       console.log('[DEBUG Audit] Fetched data:', {
         creativesCount: creativesData.length,
         campaignsCount: campaignsData.length,
@@ -649,6 +651,9 @@ export default function Audit() {
     } catch (error) {
       console.error('[Audit] Error refreshing data:', error);
       toast.error('Failed to refresh ad data');
+      if (syncStarted) {
+        useSyncStore.getState().completeSync(error instanceof Error ? error.message : 'Refresh failed');
+      }
     } finally {
       setIsLoading(false);
     }

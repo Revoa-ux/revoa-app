@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useConnectionStore } from '../lib/connectionStore';
+import { useSyncStore } from '../lib/syncStore';
+import { useAdDataCache } from '../lib/adDataCache';
 import {
   TemplateType,
   getUserAnalyticsPreferences,
@@ -244,61 +246,18 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
       if (visibleCards.length === 0) return;
 
       setIsLoading(true);
-
-      // Clear existing card data to show skeletons
       setCardData({});
 
       try {
-        // Get last sync timestamp from localStorage for incremental sync
-        const lastSyncKey = 'analytics_last_sync';
-        const lastSyncStr = localStorage.getItem(lastSyncKey);
-        const lastSyncTime = lastSyncStr ? new Date(lastSyncStr) : null;
-
-        // Determine if we should do incremental sync (less than 1 hour since last sync)
-        const now = new Date();
-        const shouldIncrementalSync = lastSyncTime && (now.getTime() - lastSyncTime.getTime()) < 3600000;
-
-        // Trigger incremental sync and WAIT for it to complete
-        const { facebook } = useConnectionStore.getState();
-        if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
-          const { facebookAdsService } = await import('@/lib/facebookAds');
-
-          // Use incremental sync if recent, otherwise full sync
-          const syncFrom = shouldIncrementalSync && lastSyncTime
-            ? lastSyncTime.toISOString().split('T')[0]
-            : undefined;
-
-          await Promise.all(
-            facebook.accounts.map(account =>
-              facebookAdsService.syncAdAccount(
-                account.platform_account_id,
-                syncFrom,
-                undefined,
-                true
-              ).catch(err => console.error('[Analytics] Auto-sync failed:', err))
-            )
-          );
-
-          // Update last sync timestamp
-          localStorage.setItem(lastSyncKey, now.toISOString());
-
-          // Refresh account data to update last_synced_at in UI
-          await facebookAdsService.getAdAccounts('facebook');
-        }
-
         const startDateStr = dateRange.startDate.toISOString();
         const endDateStr = dateRange.endDate.toISOString();
 
-        // Compute cards progressively and update as each completes
         const data = await computeMetricCardData(visibleCards, startDateStr, endDateStr, (cardId, cardData) => {
-          // Update card data progressively as each card is computed
           setCardData(prev => ({ ...prev, [cardId]: cardData }));
         });
 
-        // Final update with all data (in case progressive updates were skipped)
         setCardData(data);
 
-        // Fetch chart data for each visible card
         const chartPromises = visibleCards.map(async cardId => {
           try {
             const chartData = await fetchChartDataForCard(cardId, startDateStr, endDateStr);
@@ -417,8 +376,32 @@ setVisibleCards(Array.isArray(cards) ? cards : []);
     setDateRange(range);
   };
 
-  const handleApplyDateRange = () => {
-    // Trigger refetch by incrementing the refresh counter
+  const handleApplyDateRange = async () => {
+    const syncStore = useSyncStore.getState();
+    const adDataCache = useAdDataCache.getState();
+    const { facebook } = useConnectionStore.getState();
+
+    if (facebook.isConnected && facebook.accounts && facebook.accounts.length > 0) {
+      if (syncStore.startSync('analytics')) {
+        try {
+          const { facebookAdsService } = await import('@/lib/facebookAds');
+
+          await Promise.all(
+            facebook.accounts.map(account =>
+              facebookAdsService.quickRefresh(account.platform_account_id, 'last_7d')
+                .catch(err => console.error('[Analytics] Quick refresh failed:', err))
+            )
+          );
+
+          adDataCache.markStale();
+          syncStore.completeSync();
+        } catch (error) {
+          console.error('[Analytics] Manual refresh failed:', error);
+          syncStore.completeSync(error instanceof Error ? error.message : 'Refresh failed');
+        }
+      }
+    }
+
     setRefreshCounter(prev => prev + 1);
   };
 

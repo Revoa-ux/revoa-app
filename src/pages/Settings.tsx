@@ -34,6 +34,8 @@ import type { AdAccount } from '@/types/ads';
 import { useConnectionStore } from '@/lib/connectionStore';
 import { StorePoliciesSettings } from '@/components/settings/StorePoliciesSettings';
 import { formatRelativeTime } from '@/lib/utils';
+import { useSyncStore } from '@/lib/syncStore';
+import { useAdDataCache } from '@/lib/adDataCache';
 
 interface UserProfile {
   first_name: string;
@@ -1823,11 +1825,22 @@ const SettingsPage = () => {
                 console.log('[Settings] Auto-syncing Facebook Ads data for', updatedAccounts.length, 'accounts...');
 
                 try {
-                  console.log('[Settings] Starting automatic incremental sync');
-                  // Start incremental sync from last_synced_at (fire and forget)
-                  facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
-                    .then(() => console.log('[Settings] Background incremental sync completed'))
-                    .catch((err) => console.error('[Settings] Background sync failed:', err));
+                  const syncStoreState = useSyncStore.getState();
+                  const adCacheState = useAdDataCache.getState();
+
+                  if (syncStoreState.startSync('settings')) {
+                    console.log('[Settings] Starting automatic incremental sync');
+                    facebookAdsService.syncAdAccount(updatedAccounts[0].platform_account_id, undefined, undefined, true)
+                      .then(() => {
+                        console.log('[Settings] Background incremental sync completed');
+                        adCacheState.markStale();
+                        useSyncStore.getState().completeSync();
+                      })
+                      .catch((err) => {
+                        console.error('[Settings] Background sync failed:', err);
+                        useSyncStore.getState().completeSync(err.message || 'Sync failed');
+                      });
+                  }
                 } catch (syncError) {
                   console.error('[Settings] Auto-sync failed:', syncError);
                 }
@@ -1872,39 +1885,50 @@ const SettingsPage = () => {
   };
 
   const handleSyncFacebook = async (platformAccountId: string) => {
+    const syncStore = useSyncStore.getState();
+    const adDataCache = useAdDataCache.getState();
+
+    if (!syncStore.startSync('settings')) {
+      toast.info('Sync already in progress...');
+      return;
+    }
+
     try {
       setFacebookSyncing(true);
 
       console.log('[Settings] Starting manual incremental sync');
-
-      // Show immediate feedback
       toast.info('Syncing Facebook Ads data...');
 
-      // Wait for incremental sync to complete
       const result = await facebookAdsService.syncAdAccount(platformAccountId, undefined, undefined, true);
       console.log('[Settings] Sync result:', result);
 
-      // Refresh accounts after sync completes
       await refreshFacebookAccounts();
 
       if ((result as any).errors && (result as any).errors.length > 0) {
         console.error('[Settings] Sync errors:', (result as any).errors);
         const errorMessages = (result as any).errors.slice(0, 3).join('\n');
         toast.error(`Sync failed:\n${errorMessages}`, { duration: 10000 });
-      } else if (result.data) {
-        const { campaigns, adSets, ads, metrics } = result.data;
-        toast.success(
-          `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
-          { duration: 5000 }
-        );
+        syncStore.completeSync('Sync failed');
       } else {
-        toast.success('Data synced successfully!', { duration: 5000 });
+        adDataCache.markStale();
+        syncStore.completeSync();
+
+        if (result.data) {
+          const { campaigns, adSets, ads, metrics } = result.data;
+          toast.success(
+            `Sync complete! ${campaigns} campaigns, ${adSets} ad sets, ${ads} ads, ${metrics} metrics`,
+            { duration: 5000 }
+          );
+        } else {
+          toast.success('Data synced successfully!', { duration: 5000 });
+        }
       }
     } catch (error) {
       console.error('[Settings] Error syncing Facebook:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sync Facebook Ads data';
       console.error('[Settings] Error message:', errorMessage);
       toast.error(errorMessage);
+      syncStore.completeSync(errorMessage);
     } finally {
       setFacebookSyncing(false);
     }

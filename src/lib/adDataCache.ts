@@ -2,17 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface AdDataCache {
-  // Cached data
   performanceData: any | null;
   creatives: any[];
   campaigns: any[];
   adSets: any[];
 
-  // Metadata
   lastFetchedAt: number | null;
   dateRange: { startDate: string; endDate: string } | null;
+  isMarkedStale: boolean;
 
-  // Actions
   setCachedData: (data: {
     performanceData: any;
     creatives: any[];
@@ -28,12 +26,13 @@ interface AdDataCache {
       campaigns: any[];
       adSets: any[];
     } | null;
-    age: number | null; // Age in minutes
-    isStale: boolean; // > 15 minutes
-    isVeryStale: boolean; // > 30 minutes
+    age: number | null;
+    isStale: boolean;
+    isVeryStale: boolean;
     dateRangeMatches: boolean;
   };
 
+  markStale: () => void;
   clearCache: () => void;
 }
 
@@ -49,6 +48,7 @@ export const useAdDataCache = create<AdDataCache>()(
       adSets: [],
       lastFetchedAt: null,
       dateRange: null,
+      isMarkedStale: false,
 
       setCachedData: (data) => {
         console.log('[AdDataCache] Caching data:', {
@@ -85,7 +85,8 @@ export const useAdDataCache = create<AdDataCache>()(
             campaigns: data.campaigns,
             adSets: data.adSets,
             lastFetchedAt: Date.now(),
-            dateRange: data.dateRange
+            dateRange: data.dateRange,
+            isMarkedStale: false
           });
         } catch (error) {
           if (error instanceof Error && error.name === 'QuotaExceededError') {
@@ -125,10 +126,9 @@ export const useAdDataCache = create<AdDataCache>()(
           state.dateRange.startDate === currentDateRange.startDate &&
           state.dateRange.endDate === currentDateRange.endDate;
 
-        // Calculate age
         const ageMs = Date.now() - state.lastFetchedAt;
         const ageMinutes = Math.floor(ageMs / 60000);
-        const isStale = ageMs > CACHE_FRESH_THRESHOLD;
+        const isStale = state.isMarkedStale || ageMs > CACHE_FRESH_THRESHOLD;
         const isVeryStale = ageMs > CACHE_STALE_THRESHOLD;
 
         console.log('[AdDataCache] Cache check:', {
@@ -167,6 +167,11 @@ export const useAdDataCache = create<AdDataCache>()(
         };
       },
 
+      markStale: () => {
+        console.log('[AdDataCache] Marking cache as stale');
+        set({ isMarkedStale: true });
+      },
+
       clearCache: () => {
         console.log('[AdDataCache] Clearing cache');
         set({
@@ -175,20 +180,21 @@ export const useAdDataCache = create<AdDataCache>()(
           campaigns: [],
           adSets: [],
           lastFetchedAt: null,
-          dateRange: null
+          dateRange: null,
+          isMarkedStale: false
         });
       }
     }),
     {
       name: 'ad-data-cache',
-      // Only persist for current session (cleared on browser close)
       partialize: (state) => ({
         performanceData: state.performanceData,
         creatives: state.creatives,
         campaigns: state.campaigns,
         adSets: state.adSets,
         lastFetchedAt: state.lastFetchedAt,
-        dateRange: state.dateRange
+        dateRange: state.dateRange,
+        isMarkedStale: state.isMarkedStale
       })
     }
   )
