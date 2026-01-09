@@ -1550,7 +1550,18 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                           style={columnStyle}
                         >
-                        {column.id === 'select' ? (
+                        {isLoading ? (
+                          // Show skeleton loader for all columns during loading
+                          column.id === 'select' ? (
+                            ''
+                          ) : column.id === 'status' ? (
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24" />
+                          ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                            ''
+                          ) : (
+                            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
+                          )
+                        ) : column.id === 'select' ? (
                           ''
                         ) : column.id === 'status' ? (
                           <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
