@@ -17,7 +17,8 @@ import {
   TrendingUp,
   AlertTriangle,
   Target,
-  GripVertical
+  GripVertical,
+  Info
 } from 'lucide-react';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
@@ -1397,7 +1398,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-950'
+                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 border-red-500 dark:border-red-500 hover:bg-red-50 dark:hover:bg-red-950 hover:translate-x-[2px]'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
@@ -1442,12 +1443,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.platform || 'facebook'}
                       </span>
                     ) : column.id === 'performance' ? (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                        creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                        'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                      }`}>
+                      <span
+                        onClick={hasPendingSuggestion ? (e) => { e.stopPropagation(); handleMetricClick(); } : undefined}
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                          creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                          'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                        } ${hasPendingSuggestion ? 'cursor-pointer hover:scale-105 transition-transform border border-transparent' : ''}`}
+                        style={hasPendingSuggestion ? {
+                          borderImage: 'linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%) 1',
+                          borderWidth: '1px',
+                          borderStyle: 'solid'
+                        } : undefined}
+                      >
                         {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
+                        {hasPendingSuggestion && <Info className="w-3 h-3" />}
                       </span>
                     ) : column.id === 'fatigueScore' ? (
                       <div className="flex items-center space-x-2">
