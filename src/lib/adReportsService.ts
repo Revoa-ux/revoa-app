@@ -907,7 +907,10 @@ export async function getCampaignPerformance(
         platform: campaign.platform || 'facebook',
         platformId: campaign.platform_campaign_id, // Add for Rex suggestions matching
         objective: campaign.objective,
-        budget: campaign.daily_budget || campaign.lifetime_budget,
+        budget: campaign.daily_budget || campaign.lifetime_budget || 0,
+        dailyBudget: campaign.daily_budget || null,
+        lifetimeBudget: campaign.lifetime_budget || null,
+        budgetType: campaign.budget_type || (campaign.daily_budget ? 'daily' : campaign.lifetime_budget ? 'lifetime' : null),
         campaignId: campaign.id,
         metrics: {
           impressions: Math.round(m.impressions),
@@ -1131,7 +1134,10 @@ export async function getAdSetPerformance(
         platformId: adSet.platform_ad_set_id, // Add for Rex suggestions matching
         campaignId: adSet.ad_campaign_id,
         targeting: adSet.targeting,
-        budget: adSet.daily_budget || adSet.lifetime_budget,
+        budget: adSet.daily_budget || adSet.lifetime_budget || 0,
+        dailyBudget: adSet.daily_budget || null,
+        lifetimeBudget: adSet.lifetime_budget || null,
+        budgetType: adSet.budget_type || (adSet.daily_budget ? 'daily' : adSet.lifetime_budget ? 'lifetime' : null),
         adSetId: adSet.id,
         metrics: {
           impressions: Math.round(m.impressions),

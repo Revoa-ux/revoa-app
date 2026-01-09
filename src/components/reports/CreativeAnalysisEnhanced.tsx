@@ -547,6 +547,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     },
     { id: 'platform', label: 'Platform', width: 100, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'performance', label: 'Performance', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
+    { id: 'budget', label: 'Budget', width: 120, flexGrow: 0, flexShrink: 0, sortable: true },
     { id: 'impressions', label: 'Impressions', width: 120, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'clicks', label: 'Clicks', width: 100, flexGrow: 1, flexShrink: 1, sortable: true },
     { id: 'ctr', label: 'CTR', width: 80, flexGrow: 1, flexShrink: 1, sortable: true },
@@ -636,6 +637,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         'Ad Name',
         'Platform',
         'Performance',
+        'Budget',
+        'Budget Type',
         'Impressions',
         'Clicks',
         'CTR (%)',
@@ -654,6 +657,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         c.adName || '-',
         c.platform || 'facebook',
         c.performance,
+        (c.budget || c.dailyBudget || c.lifetimeBudget)?.toFixed(2) || '-',
+        c.budgetType || (c.dailyBudget ? 'daily' : c.lifetimeBudget ? 'lifetime' : '-'),
         c.metrics.impressions,
         c.metrics.clicks,
         c.metrics.ctr.toFixed(2),
@@ -722,6 +727,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             return item.platform || 'facebook';
           case 'performance':
             return item.performance === 'high' ? 3 : item.performance === 'medium' ? 2 : 1;
+          case 'budget':
+            return item.budget || item.dailyBudget || item.lifetimeBudget || 0;
           case 'fatigueScore':
             return item.fatigueScore || 0;
           case 'impressions':
@@ -1420,6 +1427,19 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
                         {hasPendingSuggestion && <Info className="w-3 h-3" />}
                       </span>
+                    ) : column.id === 'budget' ? (
+                      <div className="flex flex-col">
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {(creative.budget || creative.dailyBudget || creative.lifetimeBudget)
+                            ? `$${(creative.budget || creative.dailyBudget || creative.lifetimeBudget).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : '-'}
+                        </span>
+                        {(creative.budgetType || creative.dailyBudget || creative.lifetimeBudget) && (
+                          <span className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            {creative.budgetType === 'lifetime' || (!creative.budgetType && creative.lifetimeBudget) ? 'Lifetime' : 'Daily'}
+                          </span>
+                        )}
+                      </div>
                     ) : column.id === 'fatigueScore' ? (
                       <div className="flex items-center space-x-2">
                         <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
@@ -1557,7 +1577,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                             ''
                           ) : column.id === 'status' ? (
                             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24" />
-                          ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                          ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'budget' || column.id === 'fatigueScore' ? (
                             ''
                           ) : (
                             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-16" />
@@ -1568,7 +1588,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap">
                             TOTALS ({sortedCreatives.length})
                           </span>
-                        ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'fatigueScore' ? (
+                        ) : column.id === 'creative' || column.id === 'adName' || column.id === 'platform' || column.id === 'performance' || column.id === 'budget' || column.id === 'fatigueScore' ? (
                           ''
                         ) : column.id === 'impressions' ? (
                           totals.impressions.toLocaleString()
