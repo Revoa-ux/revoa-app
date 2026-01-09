@@ -443,7 +443,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       return {
         position: 'sticky' as const,
         left: `${leftOffset}px`,
-        zIndex: 11
+        zIndex: 10
       };
     }
 
@@ -1373,7 +1373,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div key={creative.id} className="relative">
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`group flex items-center min-h-[56px] transition-all duration-200 relative ${
+                    className={`group flex items-center min-h-[56px] transition-all duration-200 ${
                     hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
                       ? 'mx-2 my-1 rounded-md border-y border-r'
                       : 'border-b border-gray-100 dark:border-gray-700/50'
@@ -1383,26 +1383,15 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 animate-pulse-slow border-red-200 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-950'
+                      ? 'cursor-pointer hover:border-l-[5px] bg-red-50 dark:bg-red-950 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500 hover:bg-red-100 dark:hover:bg-red-950'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-950'
+                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px] hover:bg-green-100 dark:hover:bg-green-950'
                       : ''
                   }`}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
-                  {/* Left border overlay - doesn't affect layout */}
-                  {(hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)) && (
-                    <div
-                      className={`absolute left-0 top-0 bottom-0 rounded-l-md transition-all z-[1] ${
-                        hasPendingSuggestion
-                          ? 'w-[3px] group-hover:w-[5px] bg-red-500 dark:bg-red-500'
-                          : 'w-[3px] group-hover:w-[5px] bg-green-500 dark:bg-green-500'
-                      }`}
-                      style={{ pointerEvents: 'none' }}
-                    />
-                  )}
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
