@@ -1371,7 +1371,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div key={creative.id} className="relative">
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`flex items-center min-h-[56px] transition-all duration-200 ${
+                    className={`group flex items-center min-h-[56px] transition-all duration-200 ${
                     hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
                       ? 'mx-2 my-1 rounded-md border-y border-r'
                       : 'border-b border-gray-100 dark:border-gray-700/50'
@@ -1481,7 +1481,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         key={column.id}
                         className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackground()}`}
+                        } ${getStickyBackground()} ${
+                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:bg-gray-100 group-hover:dark:bg-gray-700' : ''
+                        }`}
                         style={columnStyle}
                         onClick={(e) => {
                           // Prevent modal from opening when clicking checkbox or status toggle
