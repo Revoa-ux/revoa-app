@@ -1421,11 +1421,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     const getPerformanceClasses = (performance: string, hasSuggestion: boolean) => {
                       const baseClasses = hasSuggestion ? 'cursor-pointer transition-colors' : '';
                       if (performance === 'high') {
-                        return `bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700 ${hasSuggestion ? 'hover:bg-green-100 dark:hover:bg-green-900/40' : ''} ${baseClasses}`;
+                        return `bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700 ${hasSuggestion ? 'hover:bg-green-100 dark:hover:bg-green-800/70' : ''} ${baseClasses}`;
                       } else if (performance === 'medium') {
-                        return `bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-700 ${hasSuggestion ? 'hover:bg-yellow-100 dark:hover:bg-yellow-900/40' : ''} ${baseClasses}`;
+                        return `bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-700 ${hasSuggestion ? 'hover:bg-yellow-100 dark:hover:bg-yellow-800/70' : ''} ${baseClasses}`;
                       }
-                      return `bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700 ${hasSuggestion ? 'hover:bg-red-100 dark:hover:bg-red-900/40' : ''} ${baseClasses}`;
+                      return `bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-700 ${hasSuggestion ? 'hover:bg-red-100 dark:hover:bg-red-800/70' : ''} ${baseClasses}`;
                     };
 
                     const metricContent = column.render ? (
