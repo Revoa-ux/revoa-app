@@ -432,9 +432,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     // Define sticky columns with their left offsets
     const stickyColumns: Record<string, number> = {
       'select': -5, // Negative offset to cover left border
-      'status': 45, // Adjusted to account for select column
-      'creative': 145, // status (100) + select (45)
-      'adName': isCreativeVisible ? 225 : 145 // + creative (80) if visible
+      'status': 65, // Adjusted to account for select column (70 - 5)
+      'creative': 165, // status (100) + select (65)
+      'adName': isCreativeVisible ? 245 : 165 // + creative (80) if visible
     };
 
     const leftOffset = stickyColumns[columnId];
@@ -1190,8 +1190,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     width: finalWidth,
                     minWidth: finalWidth,
                     maxWidth: finalWidth,
-                    flexShrink: 0,
-                    flexGrow: 0,
+                    flex: '0 0 auto',
                     ...stickyStyles,
                     ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for header sticky columns
                   };
@@ -1260,8 +1259,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         width: finalWidth,
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
-                        flexShrink: 0,
-                        flexGrow: 0,
+                        flex: '0 0 auto',
                         ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                       };
 
@@ -1401,8 +1399,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       width: finalWidth,
                       minWidth: finalWidth,
                       maxWidth: finalWidth,
-                      flexShrink: 0,
-                      flexGrow: 0,
+                      flex: '0 0 auto',
                       ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                     };
 
@@ -1562,8 +1559,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         width: finalWidth,
                         minWidth: finalWidth,
                         maxWidth: finalWidth,
-                        flexShrink: 0,
-                        flexGrow: 0,
+                        flex: '0 0 auto',
                         ...stickyStyles,
                         ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for totals sticky columns
                       };
