@@ -159,40 +159,45 @@ export class AdvancedRexIntelligence {
     try {
       if (entityType === 'campaign') {
         // Analyze if this campaign should switch from ABO to CBO or vice versa
-        const cboAnalysis = await this.campaignStructureIntel.analyzeCBOvsABO();
+        try {
+          const cboAnalysis = await this.campaignStructureIntel.analyzeCBOvsABO();
 
-        if (cboAnalysis && entity.metrics.spend > 100) {
-          const isCurrentlyCBO = entity.name.toLowerCase().includes('cbo');
-          const shouldBeCBO = cboAnalysis.recommendation === 'cbo';
+          if (cboAnalysis && entity.metrics.spend > 100) {
+            const isCurrentlyCBO = entity.name.toLowerCase().includes('cbo');
+            const shouldBeCBO = cboAnalysis.recommendation === 'cbo';
 
-          if (isCurrentlyCBO !== shouldBeCBO) {
-            suggestions.push({
-              user_id: this.userId,
-              entity_type: entityType,
-              entity_id: entity.id,
-              entity_name: entity.name,
-              platform: entity.platform,
-              platform_entity_id: entity.platformId || entity.id,
-              suggestion_type: shouldBeCBO ? 'switch_to_cbo' : 'switch_to_abo',
-              priority_score: 75,
-              confidence_score: cboAnalysis.confidenceScore,
-              title: shouldBeCBO ? 'Switch to Campaign Budget Optimization' : 'Switch to Ad Set Budget Optimization',
-              message: cboAnalysis.reasoning,
-              reasoning: {
-                triggeredBy: ['campaign_structure_analysis', 'cbo_vs_abo_comparison'],
-                metrics: {
-                  current_roas: entity.metrics.roas,
-                  cbo_avg_roas: cboAnalysis.cboAverageRoas,
-                  abo_avg_roas: cboAnalysis.aboAverageRoas,
-                  potential_improvement: shouldBeCBO
-                    ? ((cboAnalysis.cboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
-                    : ((cboAnalysis.aboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
-                },
-                analysis: cboAnalysis.reasoning,
-                riskLevel: 'low'
-              }
-            });
+            if (isCurrentlyCBO !== shouldBeCBO) {
+              suggestions.push({
+                user_id: this.userId,
+                entity_type: entityType,
+                entity_id: entity.id,
+                entity_name: entity.name,
+                platform: entity.platform,
+                platform_entity_id: entity.platformId || entity.id,
+                suggestion_type: shouldBeCBO ? 'switch_to_cbo' : 'switch_to_abo',
+                priority_score: 75,
+                confidence_score: cboAnalysis.confidenceScore,
+                title: shouldBeCBO ? 'Switch to Campaign Budget Optimization' : 'Switch to Ad Set Budget Optimization',
+                message: cboAnalysis.reasoning,
+                reasoning: {
+                  triggeredBy: ['campaign_structure_analysis', 'cbo_vs_abo_comparison'],
+                  metrics: {
+                    current_roas: entity.metrics.roas,
+                    cbo_avg_roas: cboAnalysis.cboAverageRoas,
+                    abo_avg_roas: cboAnalysis.aboAverageRoas,
+                    potential_improvement: shouldBeCBO
+                      ? ((cboAnalysis.cboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
+                      : ((cboAnalysis.aboAverageRoas - entity.metrics.roas) / entity.metrics.roas) * 100
+                  },
+                  analysis: cboAnalysis.reasoning,
+                  riskLevel: 'low'
+                }
+              });
+            }
           }
+        } catch (error) {
+          console.error('[CampaignStructure] CBO analysis failed:', error);
+          // Continue with other analyses
         }
 
         // Use platform knowledge to INTERPRET learning phase data
@@ -204,48 +209,54 @@ export class AdvancedRexIntelligence {
           }
         );
 
-        const learningPhaseAnalysis = await this.campaignStructureIntel.analyzeLearningPhase(startDate, endDate);
+        try {
+          const learningPhaseAnalysis = await this.campaignStructureIntel.analyzeLearningPhase(startDate, endDate);
 
-        if (learningPhaseAnalysis && learningPhaseAnalysis.performanceImpact.improvement > 30) {
-          // YOUR LOGIC: Campaign might be in learning phase limbo
-          // Platform interpreter tells us what the numbers mean
-          if (learningPhaseInterpretation.status === 'LEARNING_LIMITED' ||
-              (learningPhaseInterpretation.status === 'LEARNING' && learningPhaseInterpretation.risk === 'high')) {
-            suggestions.push({
-              user_id: this.userId,
-              entity_type: entityType,
-              entity_id: entity.id,
-              entity_name: entity.name,
-              platform: entity.platform,
-              platform_entity_id: entity.platformId || entity.id,
-              suggestion_type: 'learning_phase_optimization',
-              priority_score: 80,
-              confidence_score: 85,
-              title: 'Learning Phase Bottleneck Detected',
-              message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but only has ${entity.metrics.conversions} conversions. ${learningPhaseInterpretation.interpretation}. Current ROAS of ${entity.metrics.roas.toFixed(2)}x could improve to ${learningPhaseAnalysis.performanceImpact.roasPostLearning.toFixed(2)}x once learning phase completes.`,
-              reasoning: {
-                triggeredBy: ['learning_phase_stuck', 'insufficient_conversions'],
-                metrics: {
-                  current_conversions: entity.metrics.conversions,
-                  required_conversions: learningPhaseInterpretation.conversionsNeeded,
-                  conversions_remaining: learningPhaseInterpretation.conversionsRemaining,
-                  current_roas: entity.metrics.roas,
-                  expected_post_learning_roas: learningPhaseAnalysis.performanceImpact.roasPostLearning,
-                  improvement_potential: learningPhaseAnalysis.performanceImpact.improvement
-                },
-                analysis: `Based on YOUR historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase. Platform data shows: ${learningPhaseInterpretation.interpretation}`,
-                riskLevel: 'medium'
-              }
-            });
+          if (learningPhaseAnalysis && learningPhaseAnalysis.performanceImpact.improvement > 30) {
+            // YOUR LOGIC: Campaign might be in learning phase limbo
+            // Platform interpreter tells us what the numbers mean
+            if (learningPhaseInterpretation.status === 'LEARNING_LIMITED' ||
+                (learningPhaseInterpretation.status === 'LEARNING' && learningPhaseInterpretation.risk === 'high')) {
+              suggestions.push({
+                user_id: this.userId,
+                entity_type: entityType,
+                entity_id: entity.id,
+                entity_name: entity.name,
+                platform: entity.platform,
+                platform_entity_id: entity.platformId || entity.id,
+                suggestion_type: 'learning_phase_optimization',
+                priority_score: 80,
+                confidence_score: 85,
+                title: 'Learning Phase Bottleneck Detected',
+                message: `This campaign has spent $${entity.metrics.spend.toFixed(2)} but only has ${entity.metrics.conversions} conversions. ${learningPhaseInterpretation.interpretation}. Current ROAS of ${entity.metrics.roas.toFixed(2)}x could improve to ${learningPhaseAnalysis.performanceImpact.roasPostLearning.toFixed(2)}x once learning phase completes.`,
+                reasoning: {
+                  triggeredBy: ['learning_phase_stuck', 'insufficient_conversions'],
+                  metrics: {
+                    current_conversions: entity.metrics.conversions,
+                    required_conversions: learningPhaseInterpretation.conversionsNeeded,
+                    conversions_remaining: learningPhaseInterpretation.conversionsRemaining,
+                    current_roas: entity.metrics.roas,
+                    expected_post_learning_roas: learningPhaseAnalysis.performanceImpact.roasPostLearning,
+                    improvement_potential: learningPhaseAnalysis.performanceImpact.improvement
+                  },
+                  analysis: `Based on YOUR historical data, campaigns typically see ${learningPhaseAnalysis.performanceImpact.improvement.toFixed(1)}% improvement in ROAS after exiting learning phase. Platform data shows: ${learningPhaseInterpretation.interpretation}`,
+                  riskLevel: 'medium'
+                }
+              });
+            }
           }
+        } catch (error) {
+          console.error('[CampaignStructure] Learning phase analysis failed:', error);
+          // Continue with other analyses
         }
       }
 
       // Check for budget scaling opportunities with platform constraints
       if (entity.metrics.roas > 2.5 && entity.metrics.profit > 0 && entity.metrics.spend > 50) {
-        const budgetScalingAnalysis = await this.campaignStructureIntel.analyzeBudgetScaling(startDate, endDate);
+        try {
+          const budgetScalingAnalysis = await this.campaignStructureIntel.analyzeBudgetScaling(startDate, endDate);
 
-        if (budgetScalingAnalysis) {
+          if (budgetScalingAnalysis) {
           // Find optimal scaling percentage based on historical breakpoints
           const safeScalePercentage = budgetScalingAnalysis.optimalScalePercentage || 15;
           const projectedRevenue = entity.metrics.revenue * (1 + safeScalePercentage / 100);
@@ -281,6 +292,10 @@ export class AdvancedRexIntelligence {
               timeframe: '7-14 days'
             }
           });
+          }
+        } catch (error) {
+          console.error('[CampaignStructure] Budget scaling analysis failed:', error);
+          // Continue with other analyses
         }
       }
 

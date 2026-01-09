@@ -157,10 +157,10 @@ export interface CampaignStructureInsights {
 
 export class CampaignStructureIntelligenceEngine {
   private userId: string;
-  private adAccountId: string;
+  private adAccountId?: string;
   private platform: AdPlatform;
 
-  constructor(userId: string, adAccountId: string, platform: AdPlatform = 'facebook') {
+  constructor(userId: string, adAccountId?: string, platform: AdPlatform = 'facebook') {
     this.userId = userId;
     this.adAccountId = adAccountId;
     this.platform = platform;
@@ -170,6 +170,11 @@ export class CampaignStructureIntelligenceEngine {
    * Analyze CBO vs ABO performance for this account
    */
   async analyzeCBOvsABO(): Promise<CBOAnalysis> {
+    // Validate adAccountId exists
+    if (!this.adAccountId) {
+      throw new Error('Ad account ID is required for CBO/ABO analysis');
+    }
+
     // Get all campaigns with performance data from last 60 days
     const { data: campaigns, error } = await supabase
       .from('ad_campaigns')

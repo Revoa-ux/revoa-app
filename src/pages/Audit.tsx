@@ -317,136 +317,171 @@ export default function Audit() {
       const startDate = dateRange.startDate.toISOString().split('T')[0];
       const endDate = dateRange.endDate.toISOString().split('T')[0];
 
-      // Generate suggestions for ads using ADVANCED AI
-      for (const creative of dataCreatives) {
-        // Skip if no valid data
-        if (!hasValidData(creative.metrics)) {
-          skippedCount++;
-          continue;
-        }
+      // ===== INTELLIGENT SAMPLING: Only analyze top performers to prevent system overload =====
+      const MAX_ENTITIES_TO_ANALYZE = 30; // Limit to prevent database/API overload
+      const BATCH_SIZE = 5; // Process in small batches
+      const BATCH_DELAY_MS = 500; // Delay between batches to prevent rate limiting
 
-        // Generate if forcing regeneration OR if no existing suggestion OR if existing is expired/dismissed
-        const existing = existingSuggestions.get(creative.id);
-        const shouldGenerate = forceRegenerate || !existing || existing.status === 'expired' || existing.status === 'dismissed';
+      // Helper to process entities in batches
+      const processBatch = async (items: any[], processor: (item: any) => Promise<void>) => {
+        for (let i = 0; i < items.length; i += BATCH_SIZE) {
+          const batch = items.slice(i, i + BATCH_SIZE);
+          await Promise.all(batch.map(processor));
 
-        if (shouldGenerate) {
-          if (existing && forceRegenerate) {
-            regeneratedCount++;
+          // Delay between batches (except for last batch)
+          if (i + BATCH_SIZE < items.length) {
+            await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
           }
-
-          const entityData = {
-            id: creative.id,
-            name: creative.adName || creative.name,
-            platform: creative.platform || 'facebook',
-            platformId: creative.platformId || creative.id,
-            metrics: {
-              spend: creative.metrics.spend,
-              revenue: creative.metrics.revenue || creative.metrics.conversions * creative.metrics.cpa,
-              profit: creative.metrics.profit || 0,
-              roas: creative.metrics.roas || 0,
-              conversions: creative.metrics.conversions,
-              cpa: creative.metrics.cpa,
-              impressions: creative.metrics.impressions,
-              clicks: creative.metrics.clicks,
-              ctr: creative.metrics.ctr
-            },
-            performance: creative.performance
-          };
-
-          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-          const suggestions = await advancedRex.analyzeEntity('ad', entityData, startDate, endDate);
-          newSuggestions.push(...suggestions);
         }
-      }
+      };
 
-      // Generate suggestions for campaigns using ADVANCED AI
-      for (const campaign of dataCampaigns) {
-        // Skip if no valid data
-        if (!hasValidData(campaign.metrics || {})) {
-          skippedCount++;
-          continue;
-        }
+      // Sort and limit entities by spend (only analyze top performers)
+      const topCreatives = dataCreatives
+        .filter(c => hasValidData(c.metrics))
+        .sort((a, b) => (b.metrics?.spend || 0) - (a.metrics?.spend || 0))
+        .slice(0, MAX_ENTITIES_TO_ANALYZE);
 
-        const existingCampaign = existingSuggestions.get(campaign.id);
-        const shouldGenerateCampaign = forceRegenerate || !existingCampaign || existingCampaign.status === 'expired' || existingCampaign.status === 'dismissed';
+      const topCampaigns = dataCampaigns
+        .filter(c => hasValidData(c.metrics))
+        .sort((a, b) => (b.metrics?.spend || 0) - (a.metrics?.spend || 0))
+        .slice(0, MAX_ENTITIES_TO_ANALYZE);
 
-        if (shouldGenerateCampaign) {
-          if (existingCampaign && forceRegenerate) {
-            regeneratedCount++;
+      const topAdSets = dataAdSets
+        .filter(a => hasValidData(a.metrics))
+        .sort((a, b) => (b.metrics?.spend || 0) - (a.metrics?.spend || 0))
+        .slice(0, MAX_ENTITIES_TO_ANALYZE);
+
+      console.log(`[Rex] Analyzing top ${topCreatives.length} ads, ${topCampaigns.length} campaigns, ${topAdSets.length} ad sets (out of ${dataCreatives.length}/${dataCampaigns.length}/${dataAdSets.length} total)`);
+
+      // Generate suggestions for ads using ADVANCED AI (in batches)
+      await processBatch(topCreatives, async (creative) => {
+        try {
+          // Generate if forcing regeneration OR if no existing suggestion OR if existing is expired/dismissed
+          const existing = existingSuggestions.get(creative.id);
+          const shouldGenerate = forceRegenerate || !existing || existing.status === 'expired' || existing.status === 'dismissed';
+
+          if (shouldGenerate) {
+            if (existing && forceRegenerate) {
+              regeneratedCount++;
+            }
+
+            const entityData = {
+              id: creative.id,
+              name: creative.adName || creative.name,
+              platform: creative.platform || 'facebook',
+              platformId: creative.platformId || creative.id,
+              metrics: {
+                spend: creative.metrics.spend,
+                revenue: creative.metrics.revenue || creative.metrics.conversions * creative.metrics.cpa,
+                profit: creative.metrics.profit || 0,
+                roas: creative.metrics.roas || 0,
+                conversions: creative.metrics.conversions,
+                cpa: creative.metrics.cpa,
+                impressions: creative.metrics.impressions,
+                clicks: creative.metrics.clicks,
+                ctr: creative.metrics.ctr
+              },
+              performance: creative.performance
+            };
+
+            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+            const suggestions = await advancedRex.analyzeEntity('ad', entityData, startDate, endDate);
+            newSuggestions.push(...suggestions);
+          } else {
+            skippedCount++;
           }
-          const entityData = {
-            id: campaign.id,
-            name: campaign.name,
-            platform: campaign.platform || 'facebook',
-            platformId: campaign.platformId || campaign.id,
-            metrics: {
-              spend: campaign.metrics?.spend || 0,
-              revenue: campaign.metrics?.revenue || 0,
-              profit: campaign.metrics?.profit || 0,
-              roas: campaign.metrics?.roas || 0,
-              conversions: campaign.metrics?.conversions || 0,
-              cpa: campaign.metrics?.cpa || 0,
-              impressions: campaign.metrics?.impressions || 0,
-              clicks: campaign.metrics?.clicks || 0,
-              ctr: campaign.metrics?.ctr || 0
-            },
-            performance: campaign.performance
-          };
+        } catch (error) {
+          console.error(`[Rex] Error analyzing ad ${creative.id}:`, error);
+          skippedCount++;
+          // Continue with next ad - don't let one failure stop the entire process
+        }
+      });
 
-          // Debug: Log campaign IDs for first suggestion
-          if (newSuggestions.length === 0) {
-            console.log('[Rex] Sample campaign IDs:', {
+      // Generate suggestions for campaigns using ADVANCED AI (in batches)
+      await processBatch(topCampaigns, async (campaign) => {
+        try {
+          const existingCampaign = existingSuggestions.get(campaign.id);
+          const shouldGenerateCampaign = forceRegenerate || !existingCampaign || existingCampaign.status === 'expired' || existingCampaign.status === 'dismissed';
+
+          if (shouldGenerateCampaign) {
+            if (existingCampaign && forceRegenerate) {
+              regeneratedCount++;
+            }
+
+            const entityData = {
               id: campaign.id,
-              platformId: campaign.platformId,
-              hasPlatformId: !!campaign.platformId
-            });
+              name: campaign.name,
+              platform: campaign.platform || 'facebook',
+              platformId: campaign.platformId || campaign.id,
+              metrics: {
+                spend: campaign.metrics?.spend || 0,
+                revenue: campaign.metrics?.revenue || 0,
+                profit: campaign.metrics?.profit || 0,
+                roas: campaign.metrics?.roas || 0,
+                conversions: campaign.metrics?.conversions || 0,
+                cpa: campaign.metrics?.cpa || 0,
+                impressions: campaign.metrics?.impressions || 0,
+                clicks: campaign.metrics?.clicks || 0,
+                ctr: campaign.metrics?.ctr || 0
+              },
+              performance: campaign.performance
+            };
+
+            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+            const suggestions = await advancedRex.analyzeEntity('campaign', entityData, startDate, endDate);
+            newSuggestions.push(...suggestions);
+          } else {
+            skippedCount++;
           }
-
-          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-          const suggestions = await advancedRex.analyzeEntity('campaign', entityData, startDate, endDate);
-          newSuggestions.push(...suggestions);
-        }
-      }
-
-      // Generate suggestions for ad sets using ADVANCED AI
-      for (const adSet of dataAdSets) {
-        // Skip if no valid data
-        if (!hasValidData(adSet.metrics || {})) {
+        } catch (error) {
+          console.error(`[Rex] Error analyzing campaign ${campaign.id}:`, error);
           skippedCount++;
-          continue;
+          // Continue with next campaign - don't let one failure stop the entire process
         }
+      });
 
-        const existingAdSet = existingSuggestions.get(adSet.id);
-        const shouldGenerateAdSet = forceRegenerate || !existingAdSet || existingAdSet.status === 'expired' || existingAdSet.status === 'dismissed';
+      // Generate suggestions for ad sets using ADVANCED AI (in batches)
+      await processBatch(topAdSets, async (adSet) => {
+        try {
+          const existingAdSet = existingSuggestions.get(adSet.id);
+          const shouldGenerateAdSet = forceRegenerate || !existingAdSet || existingAdSet.status === 'expired' || existingAdSet.status === 'dismissed';
 
-        if (shouldGenerateAdSet) {
-          if (existingAdSet && forceRegenerate) {
-            regeneratedCount++;
+          if (shouldGenerateAdSet) {
+            if (existingAdSet && forceRegenerate) {
+              regeneratedCount++;
+            }
+
+            const entityData = {
+              id: adSet.id,
+              name: adSet.name,
+              platform: adSet.platform || 'facebook',
+              platformId: adSet.platformId || adSet.id,
+              metrics: {
+                spend: adSet.metrics?.spend || 0,
+                revenue: adSet.metrics?.revenue || 0,
+                profit: adSet.metrics?.profit || 0,
+                roas: adSet.metrics?.roas || 0,
+                conversions: adSet.metrics?.conversions || 0,
+                cpa: adSet.metrics?.cpa || 0,
+                impressions: adSet.metrics?.impressions || 0,
+                clicks: adSet.metrics?.clicks || 0,
+                ctr: adSet.metrics?.ctr || 0
+              },
+              performance: adSet.performance
+            };
+
+            // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
+            const suggestions = await advancedRex.analyzeEntity('ad_set', entityData, startDate, endDate);
+            newSuggestions.push(...suggestions);
+          } else {
+            skippedCount++;
           }
-          const entityData = {
-            id: adSet.id,
-            name: adSet.name,
-            platform: adSet.platform || 'facebook',
-            platformId: adSet.platformId || adSet.id,
-            metrics: {
-              spend: adSet.metrics?.spend || 0,
-              revenue: adSet.metrics?.revenue || 0,
-              profit: adSet.metrics?.profit || 0,
-              roas: adSet.metrics?.roas || 0,
-              conversions: adSet.metrics?.conversions || 0,
-              cpa: adSet.metrics?.cpa || 0,
-              impressions: adSet.metrics?.impressions || 0,
-              clicks: adSet.metrics?.clicks || 0,
-              ctr: adSet.metrics?.ctr || 0
-            },
-            performance: adSet.performance
-          };
-
-          // Use Advanced AI with Campaign Structure, Profit, Funnel, and Pattern Intelligence
-          const suggestions = await advancedRex.analyzeEntity('ad_set', entityData, startDate, endDate);
-          newSuggestions.push(...suggestions);
+        } catch (error) {
+          console.error(`[Rex] Error analyzing ad set ${adSet.id}:`, error);
+          skippedCount++;
+          // Continue with next ad set - don't let one failure stop the entire process
         }
-      }
+      });
 
       // Create suggestions in database
       if (newSuggestions.length > 0) {
