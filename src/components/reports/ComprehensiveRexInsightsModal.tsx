@@ -21,7 +21,8 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
-  Target
+  Target,
+  Cpu
 } from 'lucide-react';
 import Modal from '@/components/Modal';
 import type { GeneratedInsight } from '@/lib/rexInsightGenerator';
@@ -148,7 +149,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     highlight?: boolean;
     onAddRule?: () => void;
   }) => (
-    <div className={`relative bg-white dark:bg-gray-800 border rounded-xl p-4 transition-all duration-200 group ${
+    <div className={`relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border rounded-xl p-4 transition-all duration-200 group ${
       highlight
         ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg shadow-rose-500/20 hover:shadow-xl hover:shadow-rose-500/30'
         : 'border-gray-200 dark:border-gray-700 hover:shadow-lg'
@@ -498,7 +499,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* RECOMMENDED ACTIONS - in Expert View */}
                     <div>
                       <div className="flex items-center gap-2 mb-3">
-                        <Zap className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                        <Target className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                           Recommended Actions
                         </h3>
@@ -522,7 +523,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               className={`
                                 group relative w-full
                                 flex items-start gap-3 p-4 text-left
-                                bg-white dark:bg-gray-800
+                                bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                                 border-2 ${isPrimary
                                   ? 'border-rose-400 dark:border-rose-500 shadow-md shadow-rose-500/10'
                                   : isDestructive
@@ -579,7 +580,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {insight.recommendedRule && (
                       <div>
                         <div className="flex items-center gap-2 mb-3">
-                          <Zap className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                          <Cpu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Smart Automation
                           </h3>
@@ -587,7 +588,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         <button
                           onClick={onCreateRule}
                           disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
                         >
                           <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                             {isPrimaryActionProtective ? (
@@ -622,7 +623,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* AI SUGGESTIONS SECTION - TOP */}
                     <div>
                       <div className="flex items-center gap-2 mb-4">
-                        <Sparkles className="w-5 h-5 text-rose-500" />
+                        <Target className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                           AI Recommendations
                         </h3>
@@ -656,14 +657,15 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               disabled={isProcessing}
                               className={`
                                 w-full text-left p-5 rounded-xl transition-all
+                                bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                                 ${
                                   isSelected
-                                    ? 'bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                    ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
                                     : isPrimary
-                                    ? 'bg-white dark:bg-gray-800 border-2 border-rose-300 dark:border-rose-600 hover:border-rose-400 dark:hover:border-rose-500'
+                                    ? 'border-2 border-rose-300 dark:border-rose-600 hover:border-rose-400 dark:hover:border-rose-500'
                                     : isDestructive
-                                    ? 'bg-white dark:bg-gray-800 border-2 border-red-200 dark:border-red-800 hover:border-red-300'
-                                    : 'bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                                    ? 'border-2 border-red-200 dark:border-red-800 hover:border-red-300'
+                                    : 'border-2 border-gray-200 dark:border-gray-700 hover:border-gray-300'
                                 }
                               `}
                             >
@@ -690,7 +692,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                       {action.label}
                                     </h4>
                                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                                      {isSelected ? '✓ Viewing data below' : 'Click to view →'}
+                                      {isSelected ? 'Viewing data below' : 'Click to view'}
                                     </span>
                                   </div>
 
@@ -738,7 +740,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {insight.recommendedRule && (
                       <div>
                         <div className="flex items-center gap-2 mb-4">
-                          <Zap className="w-5 h-5 text-rose-500" />
+                          <Cpu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Automation Rule
                           </h3>
@@ -754,10 +756,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           }}
                           className={`
                             w-full text-left p-5 rounded-xl transition-all
+                            bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                             ${
                               showAutomationRule
-                                ? 'bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-400 dark:border-rose-500 shadow-lg'
-                                : 'bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600'
+                                ? 'border-2 border-rose-400 dark:border-rose-500 shadow-lg'
+                                : 'border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600'
                             }
                           `}
                         >
@@ -773,11 +776,10 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between mb-2">
                                 <h4 className="text-base font-bold text-rose-600 dark:text-rose-400">
-                                  {isPrimaryActionProtective ? '🛡️ ' : '📈 '}
                                   {insight.recommendedRule.name}
                                 </h4>
                                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {showAutomationRule ? '✓ Viewing conditions' : 'Click to view →'}
+                                  {showAutomationRule ? 'Viewing conditions' : 'Click to view'}
                                 </span>
                               </div>
 
@@ -1084,7 +1086,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         className={`
                           group relative w-full
                           flex flex-col items-start gap-3 p-5 text-left
-                          bg-white dark:bg-gray-800
+                          bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
                           border-2 ${isPrimary
                             ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10'
                             : isDestructive
@@ -1316,11 +1318,11 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Smart Automation Rules - Simple View (matches Expert style) */}
             {viewMode === 'simple' && insight.recommendedRule && (
               <div>
-                <SectionHeader title="Smart Automation" icon={Zap} />
+                <SectionHeader title="Smart Automation" icon={Cpu} />
                 <button
                   onClick={onCreateRule}
                   disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-white dark:bg-gray-800 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:border-rose-300 dark:hover:border-rose-600 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:-translate-y-0.5"
                 >
                   <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
                     {isPrimaryActionProtective ? (
