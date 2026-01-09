@@ -1374,18 +1374,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                 return (
                 <div key={creative.id} className="relative">
-                  {/* Fixed left border indicator */}
-                  <div
-                    className={`absolute left-0 top-0 bottom-0 transition-all duration-200 ${
-                      hasPendingSuggestion
-                        ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px]'
-                        : hasActiveRule && suggestion?.performance?.is_improving
-                        ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px]'
-                        : 'w-[3px] bg-transparent'
-                    }`}
-                    style={{ zIndex: 40 }}
-                  ></div>
-
                   {/* Outer container for row background */}
                   <div
                     className={`${
@@ -1401,7 +1389,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     {/* Inner container with border and padding */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                      className={`group flex items-center min-h-[56px] transition-all duration-200 ${
+                      className={`group relative flex items-center min-h-[56px] transition-all duration-200 ${
                         hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
                           ? 'mx-1 my-0.5 border-y border-r rounded-r'
                           : 'border-b border-gray-100 dark:border-gray-700/50'
@@ -1416,6 +1404,17 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       }`}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
+                      {/* Left border indicator - now inside the inner container to align with borders */}
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 transition-all duration-200 ${
+                          hasPendingSuggestion
+                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:left-[2px]'
+                            : hasActiveRule && suggestion?.performance?.is_improving
+                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:left-[2px]'
+                            : 'w-[3px] bg-transparent'
+                        }`}
+                        style={{ zIndex: 40 }}
+                      ></div>
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1509,13 +1508,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackground()} ${
-                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:!bg-gray-100 group-hover:dark:!bg-gray-700 transition-colors duration-200' : ''
-                        } ${
-                          column.sticky && hasPendingSuggestion ? 'group-hover:!bg-red-100 group-hover:dark:!bg-red-950 transition-colors duration-200' : ''
-                        } ${
-                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:!bg-green-100 group-hover:dark:!bg-green-950 transition-colors duration-200' : ''
-                        }`}
+                        } ${getStickyBackground()}`}
                         style={columnStyle}
                         onClick={(e) => {
                           // Prevent modal from opening when clicking checkbox or status toggle
