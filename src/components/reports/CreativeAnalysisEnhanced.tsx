@@ -395,37 +395,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     }
   };
 
-  // Helper function to determine which metrics should glow based on trigger conditions
-  const getGlowingMetrics = (suggestion: RexSuggestionWithPerformance): Set<string> => {
-    const glowMetrics = new Set<string>();
-    const triggers = suggestion.reasoning.triggeredBy || [];
-
-    triggers.forEach(trigger => {
-      const lowerTrigger = trigger.toLowerCase();
-
-      // Map trigger conditions to metric column IDs
-      if (lowerTrigger.includes('roas')) glowMetrics.add('roas');
-      if (lowerTrigger.includes('net roas')) glowMetrics.add('netROAS');
-      if (lowerTrigger.includes('cpa') || lowerTrigger.includes('cost per')) glowMetrics.add('cpa');
-      if (lowerTrigger.includes('ctr') || lowerTrigger.includes('click')) glowMetrics.add('ctr');
-      if (lowerTrigger.includes('profit') || lowerTrigger.includes('margin')) {
-        glowMetrics.add('profit');
-        glowMetrics.add('profitMargin');
-      }
-      if (lowerTrigger.includes('spend')) glowMetrics.add('spend');
-      if (lowerTrigger.includes('conversion')) glowMetrics.add('conversions');
-      if (lowerTrigger.includes('impression')) glowMetrics.add('impressions');
-    });
-
-    // If no specific metrics identified, default to profit and ROAS as primary indicators
-    if (glowMetrics.size === 0) {
-      glowMetrics.add('profit');
-      glowMetrics.add('roas');
-    }
-
-    return glowMetrics;
-  };
-
   // Helper to get sticky column styles
   const getStickyStyles = (columnId: string, columnWidth: number) => {
     const isCreativeVisible = viewLevel === 'ads';
@@ -1297,8 +1266,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 sortedCreatives.map((creative, index) => {
                 const suggestion = rexSuggestions.get(creative.id);
                 const hasPendingSuggestion = suggestion && (suggestion.status === 'pending' || suggestion.status === 'viewed');
-                const hasActiveRule = suggestion && (suggestion.status === 'applied' || suggestion.status === 'monitoring');
-                const glowingMetrics = suggestion ? getGlowingMetrics(suggestion) : new Set<string>();
 
                 const handleMetricClick = async (e: React.MouseEvent) => {
                   if (suggestion) {
@@ -1377,47 +1344,25 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {/* Outer container for row background with hover - group class here for sticky column hover */}
                   <div
                     className={`group ${
-                      index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
+                      index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
                       hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
-                    } ${
-                      hasActiveRule && suggestion?.performance?.is_improving ? 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container with border and padding */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                          ? 'mx-[3px] my-0.5 border-y border-r rounded-r'
-                          : ''
-                      } ${
                         hasPendingSuggestion
-                          ? 'cursor-pointer border-red-500 dark:border-red-500 hover:translate-x-[2px]'
-                          : ''
-                      } ${
-                        hasActiveRule && suggestion?.performance?.is_improving
-                          ? 'border-green-200 dark:border-green-700'
+                          ? 'border-y border-r border-red-500 dark:border-red-500 rounded-r cursor-pointer hover:translate-x-[2px]'
                           : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
-                      data-has-rule={hasActiveRule && suggestion?.performance?.is_improving ? 'true' : 'false'}
-                      title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
+                      title={hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Left border indicator - positioned to extend to the edge and connect with top/bottom borders */}
-                      <div
-                        className={`absolute -left-[3px] -top-px -bottom-px rounded-l transition-all duration-200 ${
-                          hasPendingSuggestion
-                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[5px]'
-                            : hasActiveRule && suggestion?.performance?.is_improving
-                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[5px]'
-                            : 'w-[3px] bg-transparent'
-                        }`}
-                        style={{ zIndex: 40 }}
-                      ></div>
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1436,10 +1381,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       if (hasPendingSuggestion) {
                         return 'bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900';
-                      }
-
-                      if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-950 group-hover:bg-green-100 dark:group-hover:bg-green-900';
                       }
 
                       return index % 2 === 0
@@ -1509,18 +1450,23 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <div
                         key={column.id}
                         className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
-                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
+                          column.id === 'select' ? 'pl-9 pr-6 relative' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackgroundClasses()}`}
                         style={columnStyle}
                         onClick={(e) => {
-                          // Prevent modal from opening when clicking checkbox or status toggle
                           if (column.id === 'select' || column.id === 'status') {
                             e.stopPropagation();
                           }
                         }}
                       >
+                        {column.id === 'select' && hasPendingSuggestion && (
+                          <div
+                            className="absolute top-0 bottom-0 w-[3px] bg-red-500 dark:bg-red-500 rounded-l transition-all duration-200 group-hover:w-[5px]"
+                            style={{ left: '3px', zIndex: 50 }}
+                          />
+                        )}
                         <span className={`${
                           column.id === 'adName' ? 'truncate block w-full' : ''
                         }`}>
