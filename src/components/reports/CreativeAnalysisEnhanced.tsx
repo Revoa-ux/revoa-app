@@ -1382,7 +1382,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   } ${
                     hasPendingSuggestion
                       ? 'cursor-pointer hover:border-l-[5px] bg-red-50 dark:bg-red-900/30 animate-pulse-slow border-red-200 dark:border-red-700 border-l-[3px] border-l-red-500 dark:border-l-red-500'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-750'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
                       ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700 border-l-[3px] border-l-green-500 dark:border-l-green-500 hover:border-l-[5px]'
