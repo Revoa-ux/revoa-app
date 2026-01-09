@@ -1404,13 +1404,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       }`}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Left border indicator - now inside the inner container to align with borders */}
+                      {/* Left border indicator - positioned to extend to the edge */}
                       <div
-                        className={`absolute left-0 top-0 bottom-0 transition-all duration-200 ${
+                        className={`absolute -left-[3px] top-0 bottom-0 rounded-l transition-all duration-200 ${
                           hasPendingSuggestion
-                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[2px]'
+                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[5px]'
                             : hasActiveRule && suggestion?.performance?.is_improving
-                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[2px]'
+                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[5px]'
                             : 'w-[3px] bg-transparent'
                         }`}
                         style={{ zIndex: 40 }}
@@ -1431,16 +1431,16 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       if (!column.sticky) return '';
 
                       if (hasPendingSuggestion) {
-                        return '!bg-red-50 dark:!bg-red-950';
+                        return '!bg-red-50 dark:!bg-red-950 group-hover:!bg-red-50 group-hover:dark:!bg-red-950';
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return '!bg-green-50 dark:!bg-green-950';
+                        return '!bg-green-50 dark:!bg-green-950 group-hover:!bg-green-50 group-hover:dark:!bg-green-950';
                       }
 
                       return index % 2 === 0
-                        ? '!bg-white dark:!bg-gray-800'
-                        : '!bg-gray-50 dark:!bg-gray-900';
+                        ? '!bg-white dark:!bg-gray-800 group-hover:!bg-white group-hover:dark:!bg-gray-800'
+                        : '!bg-gray-50 dark:!bg-gray-900 group-hover:!bg-gray-50 group-hover:dark:!bg-gray-900';
                     };
 
                     // No more individual metric glow - entire row glows now
