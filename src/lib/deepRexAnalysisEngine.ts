@@ -110,11 +110,11 @@ export class DeepRexAnalysisEngine {
           conversionValue: 0,
         };
       }
-      bySegment[key].impressions += row.impressions;
-      bySegment[key].clicks += row.clicks;
-      bySegment[key].spend += row.spend;
-      bySegment[key].conversions += row.conversions;
-      bySegment[key].conversionValue += row.conversion_value;
+      bySegment[key].impressions += row.impressions || 0;
+      bySegment[key].clicks += row.clicks || 0;
+      bySegment[key].spend += parseFloat(row.spend) || 0;
+      bySegment[key].conversions += row.conversions || 0;
+      bySegment[key].conversionValue += parseFloat(row.revenue) || 0;
     });
 
     const totalSpend = Object.values(bySegment).reduce((sum, s) => sum + s.spend, 0);
@@ -162,7 +162,7 @@ export class DeepRexAnalysisEngine {
     }> = {};
 
     data.forEach(row => {
-      const key = `${row.publisher_platform}-${row.platform_position}`;
+      const key = `${row.publisher_platform}-${row.placement_type}-${row.device_type}`;
       if (!byPlacement[key]) {
         byPlacement[key] = {
           impressions: 0,
@@ -172,11 +172,11 @@ export class DeepRexAnalysisEngine {
           conversionValue: 0,
         };
       }
-      byPlacement[key].impressions += row.impressions;
-      byPlacement[key].clicks += row.clicks;
-      byPlacement[key].spend += row.spend;
-      byPlacement[key].conversions += row.conversions;
-      byPlacement[key].conversionValue += row.conversion_value;
+      byPlacement[key].impressions += row.impressions || 0;
+      byPlacement[key].clicks += row.clicks || 0;
+      byPlacement[key].spend += parseFloat(row.spend) || 0;
+      byPlacement[key].conversions += row.conversions || 0;
+      byPlacement[key].conversionValue += parseFloat(row.revenue) || 0;
     });
 
     const totalSpend = Object.values(byPlacement).reduce((sum, s) => sum + s.spend, 0);
@@ -224,7 +224,7 @@ export class DeepRexAnalysisEngine {
     }> = {};
 
     data.forEach(row => {
-      const key = `${row.country}-${row.region || 'Unknown'}`;
+      const key = `${row.country_name || row.country_code}-${row.region || 'Unknown'}`;
       if (!byLocation[key]) {
         byLocation[key] = {
           impressions: 0,
@@ -234,11 +234,11 @@ export class DeepRexAnalysisEngine {
           conversionValue: 0,
         };
       }
-      byLocation[key].impressions += row.impressions;
-      byLocation[key].clicks += row.clicks;
-      byLocation[key].spend += row.spend;
-      byLocation[key].conversions += row.conversions;
-      byLocation[key].conversionValue += row.conversion_value;
+      byLocation[key].impressions += row.impressions || 0;
+      byLocation[key].clicks += row.clicks || 0;
+      byLocation[key].spend += parseFloat(row.spend) || 0;
+      byLocation[key].conversions += row.conversions || 0;
+      byLocation[key].conversionValue += parseFloat(row.revenue) || 0;
     });
 
     const totalSpend = Object.values(byLocation).reduce((sum, s) => sum + s.spend, 0);
@@ -286,9 +286,8 @@ export class DeepRexAnalysisEngine {
     }> = {};
 
     data.forEach(row => {
-      const date = new Date(row.date);
-      const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
-      const key = `${dayOfWeek}-${row.hour}`;
+      const dayOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][row.day_of_week || 0];
+      const key = `${dayOfWeek}-${row.hour_of_day}`;
 
       if (!byTimeSlot[key]) {
         byTimeSlot[key] = {
@@ -298,9 +297,9 @@ export class DeepRexAnalysisEngine {
           occurrences: 0,
         };
       }
-      byTimeSlot[key].conversions += row.conversions;
-      byTimeSlot[key].spend += row.spend;
-      byTimeSlot[key].conversionValue += row.conversion_value;
+      byTimeSlot[key].conversions += row.conversions || 0;
+      byTimeSlot[key].spend += parseFloat(row.spend) || 0;
+      byTimeSlot[key].conversionValue += parseFloat(row.revenue) || 0;
       byTimeSlot[key].occurrences++;
     });
 

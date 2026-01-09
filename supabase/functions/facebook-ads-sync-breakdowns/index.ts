@@ -154,23 +154,36 @@ Deno.serve(async (req: Request) => {
             const conversions = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
             const conversionValue = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
 
-            const { error } = await supabase.from('ad_demographic_insights').upsert({
+            const impressions = parseInt(insight.impressions || '0');
+            const clicks = parseInt(insight.clicks || '0');
+            const spend = parseFloat(insight.spend || '0');
+            const conversionsNum = parseInt(conversions);
+            const revenue = parseFloat(conversionValue) * 10;
+
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const cpc = clicks > 0 ? spend / clicks : 0;
+            const cpa = conversionsNum > 0 ? spend / conversionsNum : 0;
+            const roas = spend > 0 ? revenue / spend : 0;
+
+            const { error } = await supabase.from('ad_insights_demographics').upsert({
+              user_id: user.id,
               ad_id: ad.id,
+              platform_ad_id: ad.platform_ad_id,
+              platform: 'facebook',
               date: insight.date_start,
               age_range: insight.age,
               gender: insight.gender,
-              impressions: parseInt(insight.impressions || '0'),
-              clicks: parseInt(insight.clicks || '0'),
-              spend: parseFloat(insight.spend || '0'),
-              reach: parseInt(insight.reach || '0'),
-              conversions: parseInt(conversions),
-              conversion_value: parseFloat(conversionValue) * 10,
-              cpc: parseFloat(insight.cpc || '0'),
-              cpm: parseFloat(insight.cpm || '0'),
-              ctr: parseFloat(insight.ctr || '0'),
-              roas: parseFloat(insight.spend || '0') > 0
-                ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1')
-                : 0,
+              impressions,
+              clicks,
+              spend,
+              conversions: conversionsNum,
+              revenue,
+              profit: 0,
+              ctr: parseFloat(ctr.toFixed(4)),
+              cpc: parseFloat(cpc.toFixed(2)),
+              cpa: parseFloat(cpa.toFixed(2)),
+              roas: parseFloat(roas.toFixed(2)),
+              updated_at: new Date().toISOString()
             }, { onConflict: 'ad_id,date,age_range,gender' });
 
             if (!error) demographicsCount++;
@@ -194,25 +207,40 @@ Deno.serve(async (req: Request) => {
             const conversions = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
             const conversionValue = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
 
-            const { error } = await supabase.from('ad_placement_insights').upsert({
+            const impressions = parseInt(insight.impressions || '0');
+            const clicks = parseInt(insight.clicks || '0');
+            const spend = parseFloat(insight.spend || '0');
+            const conversionsNum = parseInt(conversions);
+            const revenue = parseFloat(conversionValue) * 10;
+
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const cpc = clicks > 0 ? spend / clicks : 0;
+            const cpa = conversionsNum > 0 ? spend / conversionsNum : 0;
+            const roas = spend > 0 ? revenue / spend : 0;
+
+            const { error } = await supabase.from('ad_insights_placements').upsert({
+              user_id: user.id,
               ad_id: ad.id,
+              platform_ad_id: ad.platform_ad_id,
+              platform: 'facebook',
               date: insight.date_start,
-              publisher_platform: insight.publisher_platform,
-              platform_position: insight.platform_position,
-              device_platform: insight.device_platform,
-              impressions: parseInt(insight.impressions || '0'),
-              clicks: parseInt(insight.clicks || '0'),
-              spend: parseFloat(insight.spend || '0'),
-              reach: parseInt(insight.reach || '0'),
-              conversions: parseInt(conversions),
-              conversion_value: parseFloat(conversionValue) * 10,
-              cpc: parseFloat(insight.cpc || '0'),
-              cpm: parseFloat(insight.cpm || '0'),
-              ctr: parseFloat(insight.ctr || '0'),
-              roas: parseFloat(insight.spend || '0') > 0
-                ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1')
-                : 0,
-            }, { onConflict: 'ad_id,date,publisher_platform,platform_position,device_platform' });
+              placement_type: insight.platform_position || 'unknown',
+              device_type: insight.device_platform || 'unknown',
+              publisher_platform: insight.publisher_platform || 'unknown',
+              impressions,
+              clicks,
+              spend,
+              conversions: conversionsNum,
+              revenue,
+              profit: 0,
+              ctr: parseFloat(ctr.toFixed(4)),
+              cpc: parseFloat(cpc.toFixed(2)),
+              cpa: parseFloat(cpa.toFixed(2)),
+              roas: parseFloat(roas.toFixed(2)),
+              engagement_rate: 0,
+              video_views: 0,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'ad_id,date,placement_type,device_type,publisher_platform' });
 
             if (!error) placementsCount++;
           }
@@ -235,25 +263,39 @@ Deno.serve(async (req: Request) => {
             const conversions = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
             const conversionValue = insight.actions?.find((a) => a.action_type === 'purchase')?.value || '0';
 
-            const { error } = await supabase.from('ad_geographic_insights').upsert({
+            const impressions = parseInt(insight.impressions || '0');
+            const clicks = parseInt(insight.clicks || '0');
+            const spend = parseFloat(insight.spend || '0');
+            const conversionsNum = parseInt(conversions);
+            const revenue = parseFloat(conversionValue) * 10;
+
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const cpc = clicks > 0 ? spend / clicks : 0;
+            const cpa = conversionsNum > 0 ? spend / conversionsNum : 0;
+            const roas = spend > 0 ? revenue / spend : 0;
+
+            const { error } = await supabase.from('ad_insights_geographic').upsert({
+              user_id: user.id,
               ad_id: ad.id,
+              platform_ad_id: ad.platform_ad_id,
+              platform: 'facebook',
               date: insight.date_start,
-              country: insight.country || 'Unknown',
+              country_code: insight.country || 'XX',
+              country_name: insight.country || 'Unknown',
               region: insight.region || null,
-              dma: insight.dma || null,
-              impressions: parseInt(insight.impressions || '0'),
-              clicks: parseInt(insight.clicks || '0'),
-              spend: parseFloat(insight.spend || '0'),
-              reach: parseInt(insight.reach || '0'),
-              conversions: parseInt(conversions),
-              conversion_value: parseFloat(conversionValue) * 10,
-              cpc: parseFloat(insight.cpc || '0'),
-              cpm: parseFloat(insight.cpm || '0'),
-              ctr: parseFloat(insight.ctr || '0'),
-              roas: parseFloat(insight.spend || '0') > 0
-                ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1')
-                : 0,
-            }, { onConflict: 'ad_id,date,country,region,dma' });
+              city: insight.dma || null,
+              impressions,
+              clicks,
+              spend,
+              conversions: conversionsNum,
+              revenue,
+              profit: 0,
+              ctr: parseFloat(ctr.toFixed(4)),
+              cpc: parseFloat(cpc.toFixed(2)),
+              cpa: parseFloat(cpa.toFixed(2)),
+              roas: parseFloat(roas.toFixed(2)),
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'ad_id,date,country_code,region,city' });
 
             if (!error) geographicCount++;
           }
@@ -282,23 +324,40 @@ Deno.serve(async (req: Request) => {
               if (match) {
                 const [, date, hour] = match;
 
-                const { error } = await supabase.from('ad_hourly_insights').upsert({
+                const impressions = parseInt(insight.impressions || '0');
+                const clicks = parseInt(insight.clicks || '0');
+                const spend = parseFloat(insight.spend || '0');
+                const conversionsNum = parseInt(conversions);
+                const revenue = parseFloat(conversionValue) * 10;
+
+                const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+                const cpc = clicks > 0 ? spend / clicks : 0;
+                const cpa = conversionsNum > 0 ? spend / conversionsNum : 0;
+                const roas = spend > 0 ? revenue / spend : 0;
+
+                const dateObj = new Date(date);
+                const dayOfWeek = dateObj.getDay(); // 0-6 (Sunday-Saturday)
+
+                const { error } = await supabase.from('ad_insights_temporal').upsert({
+                  user_id: user.id,
                   ad_id: ad.id,
+                  platform_ad_id: ad.platform_ad_id,
+                  platform: 'facebook',
                   date,
-                  hour: parseInt(hour),
-                  impressions: parseInt(insight.impressions || '0'),
-                  clicks: parseInt(insight.clicks || '0'),
-                  spend: parseFloat(insight.spend || '0'),
-                  reach: parseInt(insight.reach || '0'),
-                  conversions: parseInt(conversions),
-                  conversion_value: parseFloat(conversionValue) * 10,
-                  cpc: parseFloat(insight.cpc || '0'),
-                  cpm: parseFloat(insight.cpm || '0'),
-                  ctr: parseFloat(insight.ctr || '0'),
-                  roas: parseFloat(insight.spend || '0') > 0
-                    ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1')
-                    : 0,
-                }, { onConflict: 'ad_id,date,hour' });
+                  hour_of_day: parseInt(hour),
+                  day_of_week: dayOfWeek,
+                  impressions,
+                  clicks,
+                  spend,
+                  conversions: conversionsNum,
+                  revenue,
+                  profit: 0,
+                  ctr: parseFloat(ctr.toFixed(4)),
+                  cpc: parseFloat(cpc.toFixed(2)),
+                  cpa: parseFloat(cpa.toFixed(2)),
+                  roas: parseFloat(roas.toFixed(2)),
+                  updated_at: new Date().toISOString()
+                }, { onConflict: 'ad_id,date,hour_of_day' });
 
                 if (!error) hourlyCount++;
               }
