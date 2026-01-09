@@ -1200,7 +1200,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     <div
                       key={column.id}
                       className={`relative flex items-center h-11 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${
-                        column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
+                        column.id === 'select' ? 'pl-6 pr-6' : 'px-4'
                       } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                       style={columnStyle}
                     >
@@ -1273,7 +1273,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                       return (
                         <div key={column.id} className={`flex items-center py-4 ${
-                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
+                          column.id === 'select' ? 'pl-6 pr-6' : 'px-4'
                         } ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -1386,20 +1386,12 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       hasActiveRule && suggestion?.performance?.is_improving ? 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900' : ''
                     } transition-colors duration-200`}
                   >
-                    {/* Inner container with border and padding */}
+                    {/* Inner container */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                          ? 'mx-[3px] my-0.5 border-y border-r rounded-r'
-                          : ''
-                      } ${
                         hasPendingSuggestion
-                          ? 'cursor-pointer border-red-500 dark:border-red-500 hover:translate-x-[2px]'
-                          : ''
-                      } ${
-                        hasActiveRule && suggestion?.performance?.is_improving
-                          ? 'border-green-200 dark:border-green-700'
+                          ? 'cursor-pointer'
                           : ''
                       }`}
                       data-row-index={index}
@@ -1407,17 +1399,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       data-has-rule={hasActiveRule && suggestion?.performance?.is_improving ? 'true' : 'false'}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Left border indicator - positioned to extend to the edge and connect with top/bottom borders */}
-                      <div
-                        className={`absolute -left-[3px] -top-px -bottom-px rounded-l transition-all duration-200 ${
-                          hasPendingSuggestion
-                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[5px]'
-                            : hasActiveRule && suggestion?.performance?.is_improving
-                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[5px]'
-                            : 'w-[3px] bg-transparent'
-                        }`}
-                        style={{ zIndex: 40 }}
-                      ></div>
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1431,15 +1412,25 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     };
 
                     // Get the appropriate background classes for sticky columns with hover support
+                    // First sticky column (select) also gets the left border indicator
                     const getStickyBackgroundClasses = () => {
                       if (!column.sticky) return '';
 
+                      const isFirstColumn = column.id === 'select';
+                      const leftBorderClass = isFirstColumn
+                        ? hasPendingSuggestion
+                          ? 'border-l-[3px] border-l-red-500 group-hover:border-l-[4px]'
+                          : hasActiveRule && suggestion?.performance?.is_improving
+                          ? 'border-l-[3px] border-l-green-500 group-hover:border-l-[4px]'
+                          : ''
+                        : '';
+
                       if (hasPendingSuggestion) {
-                        return 'bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900';
+                        return `bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900 ${leftBorderClass}`;
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-950 group-hover:bg-green-100 dark:group-hover:bg-green-900';
+                        return `bg-green-50 dark:bg-green-950 group-hover:bg-green-100 dark:group-hover:bg-green-900 ${leftBorderClass}`;
                       }
 
                       return index % 2 === 0
@@ -1508,8 +1499,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
-                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
+                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-all duration-200 ${
+                          column.id === 'select' ? 'pl-6 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackgroundClasses()}`}
@@ -1591,7 +1582,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         <div
                           key={column.id}
                           className={`flex items-center py-4 text-sm font-bold text-gray-900 dark:text-white ${
-                            column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
+                            column.id === 'select' ? 'pl-6 pr-6' : 'px-4'
                           } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                           style={columnStyle}
                         >
