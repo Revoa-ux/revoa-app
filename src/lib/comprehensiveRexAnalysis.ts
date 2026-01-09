@@ -133,6 +133,7 @@ export class ComprehensiveRexAnalysis {
     };
 
     // Fetch ALL data in parallel
+    // Note: Breakdown tables use platform_ad_id, while enriched_conversions also uses it
     const [
       demographics,
       placements,
@@ -141,12 +142,12 @@ export class ComprehensiveRexAnalysis {
       conversions,
       customerLifetime
     ] = await Promise.all([
-      this.fetchDemographics(entityId, dateRange),
-      this.fetchPlacements(entityId, dateRange),
-      this.fetchGeographic(entityId, dateRange),
-      this.fetchTemporal(entityId, dateRange),
-      this.fetchEnrichedConversions(entityId, dateRange),
-      this.fetchCustomerLifetimeData(entityId, dateRange)
+      this.fetchDemographics(platformId, dateRange),
+      this.fetchPlacements(platformId, dateRange),
+      this.fetchGeographic(platformId, dateRange),
+      this.fetchTemporal(platformId, dateRange),
+      this.fetchEnrichedConversions(platformId, dateRange),
+      this.fetchCustomerLifetimeData(platformId, dateRange)
     ]);
 
     // Calculate total data points
@@ -219,11 +220,12 @@ export class ComprehensiveRexAnalysis {
     };
   }
 
-  private async fetchDemographics(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchDemographics(platformAdId: string, dateRange: { start: string; end: string }) {
     const { data, error } = await supabase
       .from('ad_insights_demographics')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
+      .eq('user_id', this.userId)
       .gte('date', dateRange.start)
       .lte('date', dateRange.end);
 
@@ -235,11 +237,12 @@ export class ComprehensiveRexAnalysis {
     return data || [];
   }
 
-  private async fetchPlacements(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchPlacements(platformAdId: string, dateRange: { start: string; end: string }) {
     const { data, error } = await supabase
       .from('ad_insights_placements')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
+      .eq('user_id', this.userId)
       .gte('date', dateRange.start)
       .lte('date', dateRange.end);
 
@@ -251,11 +254,12 @@ export class ComprehensiveRexAnalysis {
     return data || [];
   }
 
-  private async fetchGeographic(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchGeographic(platformAdId: string, dateRange: { start: string; end: string }) {
     const { data, error } = await supabase
       .from('ad_insights_geographic')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
+      .eq('user_id', this.userId)
       .gte('date', dateRange.start)
       .lte('date', dateRange.end);
 
@@ -267,11 +271,12 @@ export class ComprehensiveRexAnalysis {
     return data || [];
   }
 
-  private async fetchTemporal(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchTemporal(platformAdId: string, dateRange: { start: string; end: string }) {
     const { data, error } = await supabase
       .from('ad_insights_temporal')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
+      .eq('user_id', this.userId)
       .gte('date', dateRange.start)
       .lte('date', dateRange.end);
 
@@ -283,11 +288,11 @@ export class ComprehensiveRexAnalysis {
     return data || [];
   }
 
-  private async fetchEnrichedConversions(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchEnrichedConversions(platformAdId: string, dateRange: { start: string; end: string }) {
     const { data, error } = await supabase
       .from('enriched_conversions')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
       .eq('user_id', this.userId)
       .gte('ordered_at', dateRange.start)
       .lte('ordered_at', dateRange.end);
@@ -300,11 +305,12 @@ export class ComprehensiveRexAnalysis {
     return data || [];
   }
 
-  private async fetchCustomerLifetimeData(adId: string, dateRange: { start: string; end: string }) {
+  private async fetchCustomerLifetimeData(platformAdId: string, dateRange: { start: string; end: string }) {
+    // Fetch customer lifetime data for customers who first converted through this ad
+    // Note: We need to join with enriched_conversions to get customers from this ad
     const { data, error } = await supabase
       .from('customer_lifetime_tracking')
       .select('*')
-      .eq('first_order_ad_id', adId)
       .eq('user_id', this.userId);
 
     if (error) {
@@ -312,7 +318,20 @@ export class ComprehensiveRexAnalysis {
       return [];
     }
 
-    return data || [];
+    // Filter customers who came from this ad via enriched_conversions
+    if (!data || data.length === 0) return [];
+
+    const { data: conversions } = await supabase
+      .from('enriched_conversions')
+      .select('customer_email')
+      .eq('platform_ad_id', platformAdId)
+      .eq('user_id', this.userId)
+      .eq('is_first_purchase', true);
+
+    if (!conversions || conversions.length === 0) return [];
+
+    const customerEmails = new Set(conversions.map(c => c.customer_email).filter(Boolean));
+    return data.filter(customer => customerEmails.has(customer.customer_email));
   }
 
   private processDemographics(data: any[]): SegmentPerformance[] {

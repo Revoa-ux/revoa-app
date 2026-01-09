@@ -79,11 +79,11 @@ export interface DeepPatternAnalysis {
 }
 
 export class DeepRexAnalysisEngine {
-  async analyzeDemographics(adId: string, startDate: string, endDate: string): Promise<DemographicInsight[]> {
+  async analyzeDemographics(platformAdId: string, startDate: string, endDate: string): Promise<DemographicInsight[]> {
     const { data, error } = await supabase
-      .from('ad_demographic_insights')
+      .from('ad_insights_demographics')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -141,11 +141,11 @@ export class DeepRexAnalysisEngine {
     return insights.sort((a, b) => b.roas - a.roas);
   }
 
-  async analyzePlacements(adId: string, startDate: string, endDate: string): Promise<PlacementInsight[]> {
+  async analyzePlacements(platformAdId: string, startDate: string, endDate: string): Promise<PlacementInsight[]> {
     const { data, error } = await supabase
-      .from('ad_placement_insights')
+      .from('ad_insights_placements')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -203,11 +203,11 @@ export class DeepRexAnalysisEngine {
     return insights.sort((a, b) => b.roas - a.roas);
   }
 
-  async analyzeGeography(adId: string, startDate: string, endDate: string): Promise<GeographicInsight[]> {
+  async analyzeGeography(platformAdId: string, startDate: string, endDate: string): Promise<GeographicInsight[]> {
     const { data, error } = await supabase
-      .from('ad_geographic_insights')
+      .from('ad_insights_geographic')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -266,11 +266,11 @@ export class DeepRexAnalysisEngine {
     return insights.sort((a, b) => b.roas - a.roas);
   }
 
-  async analyzeTemporal(adId: string, startDate: string, endDate: string): Promise<TemporalInsight[]> {
-    const { data, error } = await supabase
-      .from('ad_hourly_insights')
+  async analyzeTemporal(platformAdId: string, startDate: string, endDate: string): Promise<TemporalInsight[]> {
+    const { data, error} = await supabase
+      .from('ad_insights_temporal')
       .select('*')
-      .eq('ad_id', adId)
+      .eq('platform_ad_id', platformAdId)
       .gte('date', startDate)
       .lte('date', endDate);
 
@@ -328,27 +328,22 @@ export class DeepRexAnalysisEngine {
     return insights.sort((a, b) => b.roas - a.roas);
   }
 
-  async generateDeepAnalysis(adId: string, startDate: string, endDate: string): Promise<DeepPatternAnalysis | null> {
-    // DISABLED: Deep analysis tables (ad_demographic_insights, ad_placement_insights, etc.) don't exist yet
-    // This prevents hundreds of 404 errors and excessive console logging
-    return null;
+  async generateDeepAnalysis(platformAdId: string, startDate: string, endDate: string): Promise<DeepPatternAnalysis | null> {
+    // Re-enabled: Deep analysis tables now exist and are populated by facebook-ads-sync-breakdowns function
 
-    // Uncomment when breakdown insight tables are created:
-    // console.log('[DeepRex] Starting deep analysis for ad:', adId);
-    //
-    // const [demographics, placements, geography, temporal] = await Promise.all([
-    //   this.analyzeDemographics(adId, startDate, endDate),
-    //   this.analyzePlacements(adId, startDate, endDate),
-    //   this.analyzeGeography(adId, startDate, endDate),
-    //   this.analyzeTemporal(adId, startDate, endDate),
-    // ]);
-    //
-    // const dataPointsAnalyzed = demographics.length + placements.length + geography.length + temporal.length;
-    //
-    // if (dataPointsAnalyzed === 0) {
-    //   console.log('[DeepRex] No breakdown data available');
-    //   return null;
-    // }
+    const [demographics, placements, geography, temporal] = await Promise.all([
+      this.analyzeDemographics(platformAdId, startDate, endDate),
+      this.analyzePlacements(platformAdId, startDate, endDate),
+      this.analyzeGeography(platformAdId, startDate, endDate),
+      this.analyzeTemporal(platformAdId, startDate, endDate),
+    ]);
+
+    const dataPointsAnalyzed = demographics.length + placements.length + geography.length + temporal.length;
+
+    if (dataPointsAnalyzed === 0) {
+      // No breakdown data available yet - this is normal if breakdowns haven't been synced
+      return null;
+    }
 
     const topDemo = demographics[0];
     const topPlacement = placements[0];

@@ -101,7 +101,7 @@ export class AdvancedRexIntelligence {
         this.analyzeFunnel(entity.id, startDate, endDate),
 
         // Deep Pattern Recognition (multi-dimensional insights)
-        entity.platformId ? deepRexEngine.generateDeepAnalysis(entity.id, startDate, endDate) : null,
+        entity.platformId ? deepRexEngine.generateDeepAnalysis(entity.platformId, startDate, endDate) : null,
 
         // Comprehensive Analysis (demographics, placements, geo, temporal)
         entity.platformId ? this.comprehensiveAnalysis.analyzeEntity(
