@@ -112,7 +112,6 @@ Deno.serve(async (req: Request) => {
     const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const apiErrors: string[] = [];
 
-    // Helper function to parse insights for atomic status handler
     const parseInsightForMetrics = (insight: any, entityId: string, entityType: string): MetricData => {
       const purchaseAction = insight.actions?.find((a: any) => a.action_type === 'purchase');
       const conversions = parseInt(purchaseAction?.value || '0');
@@ -135,22 +134,6 @@ Deno.serve(async (req: Request) => {
         ctr: parseFloat(insight.ctr || '0'),
         roas: spend > 0 ? conversionValue / spend : 0,
       };
-    };
-
-    // Fetch metrics function for atomic status handler
-    const fetchMetricsForEntity = async (
-      platformEntityId: string,
-      startDate: string,
-      endDate: string
-    ): Promise<MetricData[]> => {
-      const insightsFields = 'impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start';
-      const timeRange = `{"since":"${startDate}","until":"${endDate}"}`;
-      const insightsUrl = `https://graph.facebook.com/v21.0/${platformEntityId}/insights?fields=${insightsFields}&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
-
-      const insights = await fetchAllPages(insightsUrl, `final-sync-${platformEntityId}`);
-
-      // Note: We'll map to internal entity_id after fetching
-      return insights.map(insight => parseInsightForMetrics(insight, platformEntityId, 'unknown'));
     };
 
     const fetchWithRetry = async (url: string, retryCount = 0, context = 'unknown'): Promise<any> => {
@@ -212,6 +195,20 @@ Deno.serve(async (req: Request) => {
       return allResults;
     };
 
+    const fetchMetricsForEntity = async (
+      platformEntityId: string,
+      startDate: string,
+      endDate: string
+    ): Promise<MetricData[]> => {
+      const insightsFields = 'impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start';
+      const timeRange = `{"since":"${startDate}","until":"${endDate}"}`;
+      const insightsUrl = `https://graph.facebook.com/v21.0/${platformEntityId}/insights?fields=${insightsFields}&time_range=${timeRange}&time_increment=1&limit=500&access_token=${accessToken}`;
+
+      const insights = await fetchAllPages(insightsUrl, `final-sync-${platformEntityId}`);
+
+      return insights.map(insight => parseInsightForMetrics(insight, platformEntityId, 'unknown'));
+    };
+
     const batchUpsert = async (table: string, records: any[], conflictKeys: string) => {
       if (records.length === 0) return [];
       const batchSize = 500;
@@ -229,7 +226,6 @@ Deno.serve(async (req: Request) => {
       return results;
     };
 
-    // Step 0: Process any pending final syncs for status changes
     console.log('[sync] Step 0/4: Checking for entities needing final sync...');
     try {
       const finalSyncResult = await processAllPendingFinalSyncs(
@@ -256,7 +252,7 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log('[sync] Step 1/4: Fetching campaigns...');
-    const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective&limit=500&access_token=${accessToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v21.0/${adAccountId}/campaigns?fields=id,name,status,objective,daily_budget,lifetime_budget&limit=500&access_token=${accessToken}`;
     const allCampaigns = await fetchAllPages(campaignsUrl, 'campaigns');
     console.log(`[sync] Found ${allCampaigns.length} campaigns`);
 
@@ -280,6 +276,8 @@ Deno.serve(async (req: Request) => {
       ad_account_id: account.id,
       platform: 'facebook',
       objective: c.objective,
+      daily_budget: c.daily_budget ? parseFloat(c.daily_budget) / 100 : null,
+      lifetime_budget: c.lifetime_budget ? parseFloat(c.lifetime_budget) / 100 : null,
     }));
     const dbCampaigns = await batchUpsert('ad_campaigns', campaignRecords, 'ad_account_id,platform_campaign_id');
     console.log(`[sync] Upserted ${dbCampaigns.length} campaigns to DB`);
