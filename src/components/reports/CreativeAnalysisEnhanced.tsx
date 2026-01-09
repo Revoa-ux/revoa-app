@@ -1391,7 +1391,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
                         hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                          ? 'mx-[3px] my-0.5 border-y border-r rounded-r'
+                          ? 'mr-[3px] my-0.5 border-y border-r rounded-r'
                           : ''
                       } ${
                         hasPendingSuggestion
@@ -1407,14 +1407,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       data-has-rule={hasActiveRule && suggestion?.performance?.is_improving ? 'true' : 'false'}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Left border indicator - positioned to extend to the edge and connect with top/bottom borders */}
+                      {/* Left border indicator - sticky positioned to stay fixed on horizontal scroll */}
                       <div
-                        className={`absolute -left-[3px] -top-px -bottom-px rounded-l transition-all duration-200 ${
+                        className={`sticky left-0 top-0 bottom-0 self-stretch flex-shrink-0 rounded-l transition-all duration-200 ${
                           hasPendingSuggestion
-                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[5px]'
+                            ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px]'
                             : hasActiveRule && suggestion?.performance?.is_improving
-                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px] group-hover:-left-[5px]'
-                            : 'w-[3px] bg-transparent'
+                            ? 'w-[3px] bg-green-500 dark:bg-green-500 group-hover:w-[5px]'
+                            : 'w-0'
                         }`}
                         style={{ zIndex: 40 }}
                       ></div>
