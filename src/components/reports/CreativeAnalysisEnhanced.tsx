@@ -1404,9 +1404,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       }`}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Left border indicator - positioned to extend to the edge */}
+                      {/* Left border indicator - positioned to extend to the edge and connect with top/bottom borders */}
                       <div
-                        className={`absolute -left-[3px] top-0 bottom-0 rounded-l transition-all duration-200 ${
+                        className={`absolute -left-[3px] -top-px -bottom-px rounded-l transition-all duration-200 ${
                           hasPendingSuggestion
                             ? 'w-[3px] bg-red-500 dark:bg-red-500 group-hover:w-[5px] group-hover:-left-[5px]'
                             : hasActiveRule && suggestion?.performance?.is_improving
@@ -1418,29 +1418,42 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
+
+                    // Get inline background color for sticky columns (highest specificity)
+                    const getStickyInlineBackground = () => {
+                      if (!column.sticky) return undefined;
+
+                      // Check theme from document
+                      const isDark = document.documentElement.classList.contains('dark');
+
+                      if (hasPendingSuggestion) {
+                        return isDark ? 'rgb(69, 10, 10)' : 'rgb(254, 242, 242)'; // red-950 / red-50
+                      }
+
+                      if (hasActiveRule && suggestion?.performance?.is_improving) {
+                        return isDark ? 'rgb(5, 46, 22)' : 'rgb(240, 253, 244)'; // green-950 / green-50
+                      }
+
+                      return index % 2 === 0
+                        ? (isDark ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)') // gray-800 / white
+                        : (isDark ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'); // gray-900 / gray-50
+                    };
+
                     const columnStyle = {
                       width: finalWidth,
                       minWidth: finalWidth,
                       maxWidth: finalWidth,
                       flex: '0 0 auto',
-                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
+                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {}),
+                      ...(column.sticky ? { backgroundColor: getStickyInlineBackground() } : {})
                     };
 
-                    // Get the appropriate background for sticky columns (fully opaque with !important to override)
+                    // Get the appropriate background for sticky columns (fully opaque with !important to override all parent hover states)
                     const getStickyBackground = () => {
                       if (!column.sticky) return '';
 
-                      if (hasPendingSuggestion) {
-                        return '!bg-red-50 dark:!bg-red-950 group-hover:!bg-red-50 group-hover:dark:!bg-red-950';
-                      }
-
-                      if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return '!bg-green-50 dark:!bg-green-950 group-hover:!bg-green-50 group-hover:dark:!bg-green-950';
-                      }
-
-                      return index % 2 === 0
-                        ? '!bg-white dark:!bg-gray-800 group-hover:!bg-white group-hover:dark:!bg-gray-800'
-                        : '!bg-gray-50 dark:!bg-gray-900 group-hover:!bg-gray-50 group-hover:dark:!bg-gray-900';
+                      // Base classes that prevent any parent hover effects and borders
+                      return 'border-0 !border-0';
                     };
 
                     // No more individual metric glow - entire row glows now
