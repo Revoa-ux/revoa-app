@@ -18,8 +18,12 @@ import {
   AlertTriangle,
   Target,
   GripVertical,
-  Info
+  Info,
+  Zap,
+  Link2,
+  Radio
 } from 'lucide-react';
+import { getSourceLabel, getSourceDescription, type ConversionSource } from '@/lib/conversionValueResolver';
 import { useClickOutside } from '@/lib/useClickOutside';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -1496,6 +1500,30 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       creative.metrics.conversions
                     ) : column.id === 'cpa' ? (
                       `$${creative.metrics.cpa.toFixed(2)}`
+                    ) : column.id === 'conversionValue' ? (
+                      <div className="flex items-center gap-1.5">
+                        <span>${creative.metrics.conversion_value?.toFixed(2) || '0.00'}</span>
+                        {creative.conversionSource && creative.conversionSource !== 'none' && (
+                          <span
+                            title={getSourceDescription(creative.conversionSource)}
+                            className={`inline-flex items-center justify-center w-4 h-4 rounded-full ${
+                              creative.conversionSource === 'revoa_pixel'
+                                ? 'bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400'
+                                : creative.conversionSource === 'utm_attribution'
+                                ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                            }`}
+                          >
+                            {creative.conversionSource === 'revoa_pixel' ? (
+                              <Zap className="w-2.5 h-2.5" />
+                            ) : creative.conversionSource === 'utm_attribution' ? (
+                              <Link2 className="w-2.5 h-2.5" />
+                            ) : (
+                              <Radio className="w-2.5 h-2.5" />
+                            )}
+                          </span>
+                        )}
+                      </div>
                     ) : column.id === 'roas' ? (
                       `${creative.metrics.roas?.toFixed(2) || '0.00'}x`
                     ) : column.id === 'profit' ? (
@@ -1626,6 +1654,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           totals.conversions.toLocaleString()
                         ) : column.id === 'cpa' ? (
                           `$${totals.cpa.toFixed(2)}`
+                        ) : column.id === 'conversionValue' ? (
+                          `$${totals.revenue.toFixed(2)}`
                         ) : column.id === 'roas' ? (
                           `${totals.roas.toFixed(2)}x`
                         ) : column.id === 'profit' ? (

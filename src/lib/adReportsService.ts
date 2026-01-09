@@ -4,6 +4,7 @@ import { googleAdsService } from './googleAds';
 import { tiktokAdsService } from './tiktokAds';
 import { getAdConversionMetrics, syncShopifyOrders } from './attributionService';
 import { calculateProfitMetrics } from './profitCalculationService';
+import { resolveConversionValues, type ConversionSource } from './conversionValueResolver';
 import type { AdPlatform } from '../types/ads';
 
 // Function to return Facebook thumbnail URLs without modification
@@ -99,6 +100,7 @@ export interface CreativePerformance {
   platform: string;
   adAccountId?: string;
   hasRealConversionData?: boolean;
+  conversionSource?: ConversionSource;
   pageProfile: {
     name: string;
     imageUrl: string;
@@ -530,21 +532,19 @@ export async function getCreativePerformance(
       console.log('[AdReportsService] Sample of ANY ad metrics in DB:', anyMetrics);
     }
 
-    // IMPORTANT: Get REAL conversion data from our attribution system
-    console.log('[AdReportsService] Fetching real conversion data from attribution system...');
-    const attributionMetrics = await getAdConversionMetrics(
+    // IMPORTANT: Get conversion data using priority-based resolver
+    // Priority: 1. Revoa Pixel, 2. UTM Attribution, 3. Platform Pixel
+    console.log('[AdReportsService] Fetching conversion data with priority resolver...');
+    const adUuidsForResolver = ads.map(ad => ad.id);
+    const conversionData = await resolveConversionValues(
       user.id,
       accountIds,
+      adUuidsForResolver,
       startDate,
       endDate
     );
 
-    console.log('[AdReportsService] Attribution system returned', attributionMetrics.length, 'ads with conversions');
-
-    // Create a map of attribution metrics by ad_id
-    const attributionMap = new Map(
-      attributionMetrics.map(m => [m.ad_id, m])
-    );
+    console.log('[AdReportsService] Conversion resolver returned data for', conversionData.size, 'ads');
 
     // Aggregate metrics by ad (using platform_ad_id as key)
     const adMetricsMap = new Map<string, typeof metrics[0][]>();
@@ -555,7 +555,7 @@ export async function getCreativePerformance(
     });
 
     console.log('[AdReportsService] Aggregated metrics for', adMetricsMap.size, 'unique ads');
-    console.log('[AdReportsService] Attribution data for', attributionMap.size, 'unique ads');
+    console.log('[AdReportsService] Conversion data for', conversionData.size, 'unique ads');
 
     // Transform to creative performance format
     const creatives: CreativePerformance[] = ads.map((ad, index) => {
@@ -580,12 +580,14 @@ export async function getCreativePerformance(
         });
       }
 
-      // Use REAL conversion data from attribution system if available
-      const attribution = attributionMap.get(ad.id);
-      const totalConversions = attribution?.total_conversions || 0;
-      const totalValue = attribution?.conversion_value || 0;
-      const conversionRate = attribution?.conversion_rate || 0;
-      const totalCOGS = attribution?.total_cogs || 0; // Get actual COGS from attribution
+      // Use conversion data from priority-based resolver
+      // Priority: Revoa Pixel > UTM Attribution > Platform Pixel
+      const resolvedData = conversionData.get(ad.id);
+      const totalConversions = resolvedData?.conversions || 0;
+      const totalValue = resolvedData?.conversionValue || 0;
+      const conversionRate = resolvedData?.conversionRate || 0;
+      const totalCOGS = resolvedData?.totalCogs || 0;
+      const conversionSource = resolvedData?.source || 'none';
 
       const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
       const cpa = totalConversions > 0 ? totalSpend / totalConversions : 0;
@@ -671,11 +673,12 @@ export async function getCreativePerformance(
         },
         performance,
         fatigueScore,
-        status: ad.status || 'UNKNOWN', // Add status field
+        status: ad.status || 'UNKNOWN',
         adName: ad.name,
         platform: ad.platform || 'facebook',
-        adAccountId: undefined, // We can add this back if needed
-        hasRealConversionData: !!attribution, // Flag to show user which ads have real data
+        adAccountId: undefined,
+        hasRealConversionData: resolvedData?.hasData || false,
+        conversionSource: conversionSource,
         pageProfile: {
           name: 'Facebook Page',
           imageUrl: ''
@@ -693,10 +696,16 @@ export async function getCreativePerformance(
 
     const adsWithRealData = sortedCreatives.filter(c => c.hasRealConversionData).length;
     const adsWithMetrics = sortedCreatives.filter(c => c.metrics.spend > 0).length;
-    console.log('[AdReportsService] ✓ Returning', sortedCreatives.length, 'ads');
+    const sourceBreakdown = {
+      revoa_pixel: sortedCreatives.filter(c => c.conversionSource === 'revoa_pixel').length,
+      utm_attribution: sortedCreatives.filter(c => c.conversionSource === 'utm_attribution').length,
+      platform_pixel: sortedCreatives.filter(c => c.conversionSource === 'platform_pixel').length,
+      none: sortedCreatives.filter(c => c.conversionSource === 'none').length,
+    };
+    console.log('[AdReportsService] Returning', sortedCreatives.length, 'ads');
     console.log('[AdReportsService]   - With metrics (spend > 0):', adsWithMetrics);
-    console.log('[AdReportsService]   - With real conversion data:', adsWithRealData);
-    console.log('[AdReportsService]   - Without metrics:', sortedCreatives.length - adsWithMetrics);
+    console.log('[AdReportsService]   - With conversion data:', adsWithRealData);
+    console.log('[AdReportsService]   - Conversion sources:', sourceBreakdown);
 
     return sortedCreatives;
   } catch (error) {

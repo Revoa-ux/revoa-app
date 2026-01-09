@@ -277,13 +277,13 @@ Deno.serve(async (req: Request) => {
         const metrics = [];
 
         for (const campaign of campaigns || []) {
-          const url = `https://graph.facebook.com/v21.0/${campaign.platform_campaign_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const url = `https://graph.facebook.com/v21.0/${campaign.platform_campaign_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
           const result = await fetchPage(url);
 
           if (result.data.length > 0) {
             for (const insight of result.data) {
               const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-              const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+              const conversionValue = insight.action_values?.find((a: any) => a.action_type === 'purchase')?.value || 0;
 
               metrics.push({
                 entity_id: campaign.id,
@@ -294,11 +294,11 @@ Deno.serve(async (req: Request) => {
                 spend: parseFloat(insight.spend || '0'),
                 reach: parseInt(insight.reach || '0'),
                 conversions: parseInt(conversions),
-                conversion_value: parseFloat(conversionValue) * 10,
+                conversion_value: parseFloat(conversionValue),
                 cpc: parseFloat(insight.cpc || '0'),
                 cpm: parseFloat(insight.cpm || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
-                roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
+                roas: parseFloat(insight.spend || '0') > 0 ? parseFloat(conversionValue) / parseFloat(insight.spend || '1') : 0,
               });
             }
           }
@@ -328,13 +328,13 @@ Deno.serve(async (req: Request) => {
         const metrics = [];
 
         for (const adSet of adSets || []) {
-          const url = `https://graph.facebook.com/v21.0/${adSet.platform_adset_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const url = `https://graph.facebook.com/v21.0/${adSet.platform_adset_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
           const result = await fetchPage(url);
 
           if (result.data.length > 0) {
             for (const insight of result.data) {
               const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-              const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+              const conversionValue = insight.action_values?.find((a: any) => a.action_type === 'purchase')?.value || 0;
 
               metrics.push({
                 entity_id: adSet.id,
@@ -345,11 +345,11 @@ Deno.serve(async (req: Request) => {
                 spend: parseFloat(insight.spend || '0'),
                 reach: parseInt(insight.reach || '0'),
                 conversions: parseInt(conversions),
-                conversion_value: parseFloat(conversionValue) * 10,
+                conversion_value: parseFloat(conversionValue),
                 cpc: parseFloat(insight.cpc || '0'),
                 cpm: parseFloat(insight.cpm || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
-                roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
+                roas: parseFloat(insight.spend || '0') > 0 ? parseFloat(conversionValue) / parseFloat(insight.spend || '1') : 0,
               });
             }
           }
@@ -379,13 +379,13 @@ Deno.serve(async (req: Request) => {
         const metrics = [];
 
         for (const ad of ads || []) {
-          const url = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
+          const url = `https://graph.facebook.com/v21.0/${ad.platform_ad_id}/insights?fields=impressions,clicks,spend,reach,cpc,cpm,ctr,actions,action_values,date_start&time_range={"since":"${startDate}","until":"${endDate}"}&time_increment=1&access_token=${accessToken}`;
           const result = await fetchPage(url);
 
           if (result.data.length > 0) {
             for (const insight of result.data) {
               const conversions = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
-              const conversionValue = insight.actions?.find((a: any) => a.action_type === 'purchase')?.value || 0;
+              const conversionValue = insight.action_values?.find((a: any) => a.action_type === 'purchase')?.value || 0;
 
               metrics.push({
                 entity_id: ad.id,
@@ -396,11 +396,11 @@ Deno.serve(async (req: Request) => {
                 spend: parseFloat(insight.spend || '0'),
                 reach: parseInt(insight.reach || '0'),
                 conversions: parseInt(conversions),
-                conversion_value: parseFloat(conversionValue) * 10,
+                conversion_value: parseFloat(conversionValue),
                 cpc: parseFloat(insight.cpc || '0'),
                 cpm: parseFloat(insight.cpm || '0'),
                 ctr: parseFloat(insight.ctr || '0'),
-                roas: parseFloat(insight.spend || '0') > 0 ? (parseFloat(conversionValue) * 10) / parseFloat(insight.spend || '1') : 0,
+                roas: parseFloat(insight.spend || '0') > 0 ? parseFloat(conversionValue) / parseFloat(insight.spend || '1') : 0,
               });
             }
           }
