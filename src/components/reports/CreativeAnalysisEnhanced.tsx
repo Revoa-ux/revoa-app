@@ -1484,7 +1484,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       <div
                         key={column.id}
                         className={`flex items-center py-4 text-sm text-gray-900 dark:text-white ${
-                          column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
