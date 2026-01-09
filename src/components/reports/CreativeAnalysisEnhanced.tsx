@@ -563,6 +563,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
     if (col.id === 'creative' && (viewLevel === 'campaigns' || viewLevel === 'adsets')) {
       return false;
     }
+    if (col.id === 'budget' && viewLevel === 'ads') {
+      return false;
+    }
     return true;
   });
 
@@ -632,13 +635,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         return;
       }
 
-      const headers = [
+      const baseHeaders = [
         'Status',
         'Ad Name',
         'Platform',
-        'Performance',
-        'Budget',
-        'Budget Type',
+        'Performance'
+      ];
+      const budgetHeaders = viewLevel !== 'ads' ? ['Budget', 'Budget Type'] : [];
+      const metricHeaders = [
         'Impressions',
         'Clicks',
         'CTR (%)',
@@ -651,26 +655,34 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
         'Profit Margin (%)',
         'Net ROAS'
       ];
+      const headers = [...baseHeaders, ...budgetHeaders, ...metricHeaders];
 
-      const rows = filteredCreatives.map(c => [
-        c.status || 'Unknown',
-        c.adName || '-',
-        c.platform || 'facebook',
-        c.performance,
-        (c.budget || c.dailyBudget || c.lifetimeBudget)?.toFixed(2) || '-',
-        c.budgetType || (c.dailyBudget ? 'daily' : c.lifetimeBudget ? 'lifetime' : '-'),
-        c.metrics.impressions,
-        c.metrics.clicks,
-        c.metrics.ctr.toFixed(2),
-        c.metrics.spend.toFixed(2),
-        c.metrics.conversions,
-        c.metrics.cpa.toFixed(2),
-        c.metrics.conversion_value?.toFixed(2) || '0.00',
-        c.metrics.roas?.toFixed(2) || '0.00',
-        c.metrics.profit?.toFixed(2) || '0.00',
-        c.metrics.profitMargin?.toFixed(2) || '0.00',
-        c.metrics.netROAS?.toFixed(2) || '0.00'
-      ]);
+      const rows = filteredCreatives.map(c => {
+        const baseData = [
+          c.status || 'Unknown',
+          c.adName || '-',
+          c.platform || 'facebook',
+          c.performance
+        ];
+        const budgetData = viewLevel !== 'ads' ? [
+          (c.budget || c.dailyBudget || c.lifetimeBudget)?.toFixed(2) || '-',
+          c.budgetType || (c.dailyBudget ? 'daily' : c.lifetimeBudget ? 'lifetime' : '-')
+        ] : [];
+        const metricData = [
+          c.metrics.impressions,
+          c.metrics.clicks,
+          c.metrics.ctr.toFixed(2),
+          c.metrics.spend.toFixed(2),
+          c.metrics.conversions,
+          c.metrics.cpa.toFixed(2),
+          c.metrics.conversion_value?.toFixed(2) || '0.00',
+          c.metrics.roas?.toFixed(2) || '0.00',
+          c.metrics.profit?.toFixed(2) || '0.00',
+          c.metrics.profitMargin?.toFixed(2) || '0.00',
+          c.metrics.netROAS?.toFixed(2) || '0.00'
+        ];
+        return [...baseData, ...budgetData, ...metricData];
+      });
 
       const csvContent = [
         headers.join(','),
