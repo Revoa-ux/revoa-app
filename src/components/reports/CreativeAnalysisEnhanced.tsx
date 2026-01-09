@@ -1341,14 +1341,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                 return (
                 <div key={creative.id} className="relative">
-                  {/* Outer container for row background with hover - group class here for sticky column hover */}
+                  {/* Outer container for row background with hover */}
                   <div
                     className={`group ${
                       index % 2 === 0 && !hasPendingSuggestion ? 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
                       index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      hasPendingSuggestion ? 'hover:bg-red-100 dark:hover:bg-red-900' : ''
+                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 border-l-4 border-l-red-500' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container */}
@@ -1361,19 +1361,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
                       title={hasPendingSuggestion ? 'Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
-                      {/* Border overlay for suggestion rows - creates connected border rectangle with contained background */}
-                      {hasPendingSuggestion && (
-                        <div
-                          className="absolute pointer-events-none border border-red-500 dark:border-red-500 rounded bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900 transition-colors duration-200"
-                          style={{
-                            left: '3px',
-                            right: '3px',
-                            top: '2px',
-                            bottom: '2px',
-                            zIndex: 0
-                          }}
-                        />
-                      )}
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
