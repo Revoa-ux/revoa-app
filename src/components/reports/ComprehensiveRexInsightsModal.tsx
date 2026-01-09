@@ -191,9 +191,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
   const SectionHeader = ({ title, icon: Icon, analysis, onAddAction }: { title: string; icon: any; analysis?: string; onAddAction?: () => void }) => (
     <div className="mb-4">
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <Icon className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-        <h4 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h4>
+      <div className="mb-4">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+          <div className="flex items-center gap-2">
+            <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+              {title}
+            </span>
+          </div>
+          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+        </div>
       </div>
       {analysis && (
         <div className="relative group">
@@ -499,11 +507,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
 
                     {/* RECOMMENDED ACTIONS - in Expert View */}
                     <div>
-                      <div className="flex items-center gap-2 mb-3">
-                        <Play className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          Recommended Actions
-                        </h3>
+                      <div className="mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+                          <div className="flex items-center gap-2">
+                            <Play className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                              Recommended Actions
+                            </span>
+                          </div>
+                          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+                        </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {insight.directActions.slice(0, 4).map((action, idx) => {
@@ -521,38 +535,13 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               key={idx}
                               onClick={() => handleAction(action.type, action.parameters)}
                               disabled={isProcessing}
-                              className={`
-                                group relative w-full
-                                flex items-start gap-3 p-4 text-left
-                                bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                                border-2 ${isPrimary
-                                  ? 'border-rose-400 dark:border-rose-500 shadow-md shadow-rose-500/10 hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
-                                  : isDestructive
-                                  ? 'border-red-200 dark:border-red-800 hover:bg-red-50/50 dark:hover:bg-red-900/10'
-                                  : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                                }
-                                rounded-lg
-                                transition-all duration-200
-                                disabled:opacity-50 disabled:cursor-not-allowed
-                              `}
+                              className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <div className={`p-2 rounded-lg shrink-0 ${
-                                isPrimary
-                                  ? 'bg-gradient-to-br from-rose-500 to-pink-500'
-                                  : isDestructive
-                                  ? 'bg-red-50 dark:bg-red-900/20'
-                                  : 'bg-gray-100 dark:bg-gray-700'
-                              }`}>
-                                <Icon className={`w-4 h-4 ${
-                                  isPrimary ? 'text-white' :
-                                  isDestructive ? 'text-red-600 dark:text-red-400' :
-                                  'text-gray-600 dark:text-gray-300'
-                                }`} />
+                              <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
+                                <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`text-sm font-bold mb-1 ${
-                                  isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                                }`}>
+                                <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
                                   {action.label}
                                 </div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
@@ -567,9 +556,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                                   </span>
                                 </div>
                               </div>
-                              <ChevronRight className={`w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 ${
-                                isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                              }`} />
+                              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
                             </button>
                           );
                         })}
@@ -579,26 +566,32 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                     {/* AUTOMATION RULE - in Expert View */}
                     {insight.recommendedRule && (
                       <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <Cpu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Smart Automation
-                          </h3>
+                        <div className="mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+                            <div className="flex items-center gap-2">
+                              <Cpu className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                Smart Automation
+                              </span>
+                            </div>
+                            <div className="h-px flex-1 bg-gradient-to-l from-transparent via-gray-300 to-gray-300 dark:from-transparent dark:via-gray-600 dark:to-gray-600"></div>
+                          </div>
                         </div>
                         <button
                           onClick={onCreateRule}
                           disabled={isProcessing}
-                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:bg-rose-50/50 dark:hover:bg-rose-900/10 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
+                          <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                             {isPrimaryActionProtective ? (
-                              <Pause className="w-4 h-4 text-white" />
+                              <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                             ) : (
-                              <TrendingUp className="w-4 h-4 text-white" />
+                              <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
+                            <div className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                               {insight.recommendedRule.name}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
@@ -610,7 +603,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
                             </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
                         </button>
                       </div>
                     )}
@@ -1085,48 +1078,21 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         key={idx}
                         onClick={() => handleAction(action.type, action.parameters)}
                         disabled={isProcessing}
-                        className={`
-                          group relative w-full
-                          flex flex-col items-start gap-3 p-5 text-left
-                          bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50
-                          border-2 ${isPrimary
-                            ? 'border-rose-400 dark:border-rose-600 shadow-lg shadow-rose-500/10 hover:bg-rose-50/50 dark:hover:bg-rose-900/10'
-                            : isDestructive
-                            ? 'border-red-300 dark:border-red-800 hover:bg-red-50/50 dark:hover:bg-red-900/10'
-                            : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30'
-                          }
-                          rounded-xl
-                          transition-all duration-200
-                          disabled:opacity-50 disabled:cursor-not-allowed
-                        `}
+                        className="group relative w-full flex flex-col items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="flex items-center gap-3 w-full">
-                          <div className={`p-2.5 rounded-lg ${
-                            isPrimary
-                              ? 'bg-gradient-to-br from-rose-500 to-pink-500'
-                              : isDestructive
-                              ? 'bg-red-50 dark:bg-red-900/20'
-                              : 'bg-gray-100 dark:bg-gray-700'
-                          }`}>
-                            <Icon className={`w-5 h-5 ${
-                              isPrimary ? 'text-white' :
-                              isDestructive ? 'text-red-600 dark:text-red-400' :
-                              'text-gray-600 dark:text-gray-300'
-                            }`} />
+                          <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                            <Icon className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className={`text-base font-bold mb-1 ${
-                              isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-900 dark:text-white'
-                            }`}>
+                            <div className="text-sm font-bold mb-1 text-gray-900 dark:text-white">
                               {action.label}
                             </div>
-                            <div className="text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                            <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                               {action.description}
                             </div>
                           </div>
-                          <ChevronRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${
-                            isPrimary ? 'text-rose-600 dark:text-rose-400' : 'text-gray-400'
-                          }`} />
+                          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-gray-400" />
                         </div>
 
                         {/* Impact metrics */}
@@ -1323,17 +1289,17 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                 <button
                   onClick={onCreateRule}
                   disabled={isProcessing}
-                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-rose-200 dark:border-rose-700 hover:bg-rose-50/50 dark:hover:bg-rose-900/10 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="p-2 rounded-lg shrink-0 bg-gradient-to-br from-rose-500 to-pink-500">
+                  <div className="p-2 rounded-lg shrink-0 bg-gray-100 dark:bg-gray-700">
                     {isPrimaryActionProtective ? (
-                      <Pause className="w-4 h-4 text-white" />
+                      <Pause className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     ) : (
-                      <TrendingUp className="w-4 h-4 text-white" />
+                      <TrendingUp className="w-4 h-4 text-gray-600 dark:text-gray-300" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-rose-600 dark:text-rose-400 mb-1">
+                    <div className="text-sm font-bold text-gray-900 dark:text-white mb-1">
                       {insight.recommendedRule.name}
                     </div>
                     <div className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
@@ -1345,7 +1311,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       <span>Checks every {insight.recommendedRule.check_frequency_minutes / 60}h</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-rose-600 dark:text-rose-400" />
+                  <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1 shrink-0 text-gray-400" />
                 </button>
               </div>
             )}
