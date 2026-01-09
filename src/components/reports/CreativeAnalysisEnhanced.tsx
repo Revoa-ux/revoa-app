@@ -431,10 +431,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     // Define sticky columns with their left offsets
     const stickyColumns: Record<string, number> = {
-      'select': -8, // Negative offset to cover left border (3px) + padding
-      'status': 65, // Adjusted to account for select column (70 - 5)
-      'creative': 165, // status (100) + select (65)
-      'adName': isCreativeVisible ? 245 : 165 // + creative (80) if visible
+      'select': 0, // Start from the very left
+      'status': 70, // After select column
+      'creative': 170, // After status column (70 + 100)
+      'adName': isCreativeVisible ? 250 : 170 // After creative if visible
     };
 
     const leftOffset = stickyColumns[columnId];
@@ -443,7 +443,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       return {
         position: 'sticky' as const,
         left: `${leftOffset}px`,
-        zIndex: 10
+        zIndex: 20
       };
     }
 
@@ -1192,14 +1192,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     maxWidth: finalWidth,
                     flex: '0 0 auto',
                     ...stickyStyles,
-                    ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for header sticky columns
+                    ...(column.sticky ? { zIndex: 30 } : {}) // Boost z-index for header sticky columns
                   };
 
                   return (
                     <div
                       key={column.id}
                       className={`relative flex items-center h-11 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${
-                        column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                        column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                       } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                       style={columnStyle}
                     >
@@ -1375,7 +1375,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`group flex items-center min-h-[56px] transition-all duration-200 border-l-[3px] ${
                     hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                      ? 'mx-2 rounded-md border-y border-r'
+                      ? 'border-y border-r'
                       : 'border-b border-gray-100 dark:border-gray-700/50'
                   } ${
                     index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
@@ -1561,7 +1561,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         maxWidth: finalWidth,
                         flex: '0 0 auto',
                         ...stickyStyles,
-                        ...(column.sticky ? { zIndex: 15 } : {}) // Boost z-index for totals sticky columns
+                        ...(column.sticky ? { zIndex: 25 } : {}) // Boost z-index for totals sticky columns
                       };
 
                       return (
