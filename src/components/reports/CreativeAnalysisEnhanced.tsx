@@ -443,9 +443,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
       return {
         position: 'sticky' as const,
         left: `${leftOffset}px`,
-        zIndex: 10,
-        transform: 'translateZ(0)',
-        backfaceVisibility: 'hidden' as const
+        zIndex: 10
       };
     }
 
@@ -1181,7 +1179,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
             <div
               ref={headerRef}
               className="overflow-x-scroll [&::-webkit-scrollbar]:hidden"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', transform: 'translateZ(0)' }}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               <div className="flex" style={{ minWidth: '100%', width: 'max-content' }}>
                 {columns.map((column, index) => {
@@ -1243,7 +1241,6 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
           <div
             ref={tableRef}
             className="overflow-x-auto overflow-y-auto scrollbar-thin flex-1"
-            style={{ transform: 'translateZ(0)' }}
           >
             <div style={{ minWidth: '100%', width: 'max-content' }}>
               {isLoading ? (
