@@ -431,10 +431,10 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
     // Define sticky columns with their left offsets
     const stickyColumns: Record<string, number> = {
-      'select': 0,
-      'status': 50,
-      'creative': 150, // status (100) + select (50)
-      'adName': isCreativeVisible ? 230 : 150 // + creative (80) if visible
+      'select': -5, // Negative offset to cover left border
+      'status': 45, // Adjusted to account for select column
+      'creative': 145, // status (100) + select (45)
+      'adName': isCreativeVisible ? 225 : 145 // + creative (80) if visible
     };
 
     const leftOffset = stickyColumns[columnId];
@@ -1199,7 +1199,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                   return (
                     <div
                       key={column.id}
-                      className={`relative flex items-center h-11 px-4 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                      className={`relative flex items-center h-11 text-left text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide whitespace-nowrap ${
+                        column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                      } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                       style={columnStyle}
                     >
                       {column.id === 'select' ? (
@@ -1269,7 +1271,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         : '';
 
                       return (
-                        <div key={column.id} className={`px-4 py-3 ${skeletonBg}`} style={columnStyle}>
+                        <div key={column.id} className={`py-3 ${
+                          column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                        } ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
                           ) : column.id === 'creative' ? (
@@ -1479,7 +1483,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className={`flex items-center px-4 py-4 text-sm text-gray-900 dark:text-white ${
+                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white ${
+                          column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                        } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
                           column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:bg-gray-100 group-hover:dark:bg-gray-700' : ''
@@ -1561,7 +1567,9 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       return (
                         <div
                           key={column.id}
-                          className={`flex items-center px-4 py-3 text-sm font-bold text-gray-900 dark:text-white ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
+                          className={`flex items-center py-3 text-sm font-bold text-gray-900 dark:text-white ${
+                            column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                          } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                           style={columnStyle}
                         >
                         {isLoading ? (
