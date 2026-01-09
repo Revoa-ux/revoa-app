@@ -1374,7 +1374,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion ? 'cursor-pointer' : ''
+                        hasPendingSuggestion ? 'cursor-pointer before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-red-500 before:z-50' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
@@ -1513,9 +1513,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                           column.id === 'select' ? 'pl-9 pr-6 relative' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackgroundClasses()} ${
-                          column.id === 'select' && hasPendingSuggestion ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-red-500' : ''
-                        }`}
+                        } ${getStickyBackgroundClasses()}`}
                         style={columnStyle}
                         onClick={(e) => {
                           if (column.id === 'select' || column.id === 'status') {
