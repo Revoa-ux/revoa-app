@@ -16,6 +16,13 @@ interface ConversionEvent {
   user_data: {
     em?: string[];
     ph?: string[];
+    fn?: string[];
+    ln?: string[];
+    ct?: string[];
+    st?: string[];
+    zp?: string[];
+    country?: string[];
+    external_id?: string[];
     client_ip_address?: string;
     client_user_agent?: string;
     fbc?: string;
@@ -27,7 +34,18 @@ interface ConversionEvent {
     content_ids?: string[];
     content_type?: string;
     order_id?: string;
+    num_items?: number;
   };
+}
+
+interface CAPISettings {
+  id: string;
+  user_id: string;
+  platform: string;
+  pixel_id: string;
+  access_token: string;
+  test_event_code: string | null;
+  is_active: boolean;
 }
 
 function hashData(data: string): string {
@@ -50,23 +68,32 @@ function normalizeEmail(email: string): string {
   return `${localPart}@${domain}`;
 }
 
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, '');
+}
+
 async function sendToFacebookCAPI(
   pixelId: string,
   accessToken: string,
-  events: ConversionEvent[]
+  events: ConversionEvent[],
+  testEventCode?: string | null
 ): Promise<{ success: boolean; events_received?: number; error?: string }> {
   try {
     const url = `https://graph.facebook.com/v18.0/${pixelId}/events`;
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       data: events,
-      test_event_code: Deno.env.get('FB_TEST_EVENT_CODE'),
     };
+
+    if (testEventCode) {
+      payload.test_event_code = testEventCode;
+    }
 
     console.log('[CAPI] Sending events to Facebook:', {
       pixel_id: pixelId,
       event_count: events.length,
-      event_names: events.map(e => e.event_name)
+      event_names: events.map(e => e.event_name),
+      test_mode: !!testEventCode
     });
 
     const response = await fetch(url, {
@@ -154,6 +181,40 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const { data: capiSettings, error: settingsError } = await supabase
+      .from('platform_capi_settings')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('platform', 'facebook')
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (settingsError) {
+      console.error('[CAPI] Error fetching settings:', settingsError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch CAPI settings' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    if (!capiSettings) {
+      return new Response(
+        JSON.stringify({
+          error: 'Facebook CAPI not configured or not active',
+          help: 'Go to Settings > Conversions API to configure your Facebook Pixel ID and Access Token'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const settings = capiSettings as CAPISettings;
+
     const { data: orders, error: ordersError } = await supabase
       .from('shopify_orders')
       .select('*')
@@ -170,54 +231,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { data: fbToken, error: tokenError } = await supabase
-      .from('facebook_tokens')
-      .select('access_token, ad_account_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (tokenError || !fbToken) {
-      return new Response(
-        JSON.stringify({ error: 'Facebook account not connected' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const { data: adAccount, error: accountError } = await supabase
-      .from('ad_accounts')
-      .select('platform_account_id, platform_metadata')
-      .eq('user_id', user.id)
-      .eq('platform', 'facebook')
-      .eq('platform_account_id', fbToken.ad_account_id)
-      .maybeSingle();
-
-    if (accountError || !adAccount) {
-      return new Response(
-        JSON.stringify({ error: 'Facebook ad account not found' }),
-        {
-          status: 404,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const pixelId = adAccount.platform_metadata?.pixel_id;
-    if (!pixelId) {
-      return new Response(
-        JSON.stringify({ error: 'Facebook Pixel not configured' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
     const events: ConversionEvent[] = orders.map(order => {
       const userData: ConversionEvent['user_data'] = {
-        client_user_agent: 'Revoa Server-Side',
+        client_user_agent: 'Revoa Server-Side CAPI',
       };
 
       if (order.customer_email) {
@@ -225,28 +241,62 @@ Deno.serve(async (req: Request) => {
         userData.em = [hashData(normalized)];
       }
 
+      if (order.customer_phone) {
+        userData.ph = [hashData(normalizePhone(order.customer_phone))];
+      }
+
+      if (order.customer_first_name) {
+        userData.fn = [hashData(order.customer_first_name)];
+      }
+
+      if (order.customer_last_name) {
+        userData.ln = [hashData(order.customer_last_name)];
+      }
+
+      if (order.shipping_city) {
+        userData.ct = [hashData(order.shipping_city)];
+      }
+
+      if (order.shipping_province) {
+        userData.st = [hashData(order.shipping_province)];
+      }
+
+      if (order.shipping_zip) {
+        userData.zp = [hashData(order.shipping_zip)];
+      }
+
+      if (order.shipping_country) {
+        userData.country = [hashData(order.shipping_country)];
+      }
+
+      userData.external_id = [hashData(order.shopify_order_id)];
+
       if (order.fbclid) {
-        userData.fbc = `fb.1.${Date.now()}.${order.fbclid}`;
+        const orderTime = new Date(order.ordered_at).getTime();
+        userData.fbc = `fb.1.${orderTime}.${order.fbclid}`;
       }
 
       return {
         event_name: 'Purchase',
         event_time: Math.floor(new Date(order.ordered_at).getTime() / 1000),
-        event_source_url: order.landing_site || 'https://store.com',
-        action_source: 'website',
+        event_source_url: order.landing_site || order.referring_site || 'https://store.com',
+        action_source: 'website' as const,
         user_data: userData,
         custom_data: {
           currency: order.currency || 'USD',
           value: parseFloat(order.total_price),
           order_id: order.shopify_order_id,
+          content_type: 'product',
+          num_items: order.line_items?.length || 1,
         },
       };
     });
 
     const result = await sendToFacebookCAPI(
-      pixelId,
-      fbToken.access_token,
-      events
+      settings.pixel_id,
+      settings.access_token,
+      events,
+      settings.test_event_code
     );
 
     if (!result.success) {
@@ -272,6 +322,8 @@ Deno.serve(async (req: Request) => {
             order_number: order.order_number,
             total_price: order.total_price,
             currency: order.currency,
+            pixel_id: settings.pixel_id,
+            test_mode: !!settings.test_event_code,
           },
           status: 'sent',
           sent_at: new Date().toISOString(),
@@ -283,11 +335,17 @@ Deno.serve(async (req: Request) => {
       console.error('[CAPI] Failed to log events:', eventError);
     }
 
+    await supabase
+      .from('platform_capi_settings')
+      .update({ last_verified_at: new Date().toISOString() })
+      .eq('id', settings.id);
+
     return new Response(
       JSON.stringify({
         success: true,
         events_sent: events.length,
-        events_received: result.events_received
+        events_received: result.events_received,
+        test_mode: !!settings.test_event_code
       }),
       {
         status: 200,

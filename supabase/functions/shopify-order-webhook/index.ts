@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.39.7';
 import { verifyShopifyWebhook, getWebhookSecret } from './_shared/shopify-hmac.ts';
+import { sendPurchaseEvent } from './_shared/capi-helper.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -153,7 +154,7 @@ Deno.serve(async (req: Request) => {
     console.log('[Order Webhook] Using webhook secret for HMAC verification');
     const isValid = await verifyShopifyWebhook(body, hmac, secret);
     if (!isValid) {
-      console.error('[Order Webhook] ❌ Invalid HMAC signature');
+      console.error('[Order Webhook] Invalid HMAC signature');
       return new Response(
         JSON.stringify({
           error: 'Unauthorized',
@@ -166,7 +167,7 @@ Deno.serve(async (req: Request) => {
         }
       );
     }
-    console.log('[Order Webhook] ✅ HMAC verified successfully');
+    console.log('[Order Webhook] HMAC verified successfully');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!supabaseUrl || !supabaseKey) {
@@ -323,6 +324,37 @@ Deno.serve(async (req: Request) => {
     const backgroundProcessing = (async () => {
       try {
         await processOrderCOGS(supabase, userId, orderData, storedOrder.id);
+
+        console.log('[Order Webhook] Attempting to send CAPI purchase event...');
+        const capiOrderData = {
+          id: storedOrder.id,
+          shopify_order_id: orderData.id.toString(),
+          order_number: orderData.name || orderData.order_number,
+          total_price: parseFloat(orderData.total_price || orderData.current_total_price || '0'),
+          currency: orderData.currency || 'USD',
+          customer_email: customerEmail,
+          customer_phone: customerData?.phone || shippingAddress.phone || billingAddress.phone || orderData.phone,
+          customer_first_name: customerData?.first_name || shippingAddress.first_name || billingAddress.first_name,
+          customer_last_name: customerData?.last_name || shippingAddress.last_name || billingAddress.last_name,
+          shipping_city: shippingAddress.city,
+          shipping_province: shippingAddress.province || shippingAddress.province_code,
+          shipping_zip: shippingAddress.zip,
+          shipping_country: shippingAddress.country || shippingAddress.country_code,
+          landing_site: landingSite,
+          referring_site: referringSite,
+          ordered_at: orderData.created_at || new Date().toISOString(),
+          fbclid: clickIDs.fbclid,
+          line_items: orderData.line_items,
+        };
+
+        const capiResult = await sendPurchaseEvent(supabase, userId, capiOrderData, storedOrder.id);
+        if (capiResult.sent) {
+          console.log('[Order Webhook] CAPI purchase event sent successfully');
+        } else if (capiResult.error === 'CAPI not configured') {
+          console.log('[Order Webhook] CAPI not configured for user, skipping');
+        } else {
+          console.warn('[Order Webhook] CAPI event failed:', capiResult.error);
+        }
 
         if (orderData.fulfillments?.[0]?.created_at) {
           console.log('[Order Webhook] Calculating expected delivery date...');

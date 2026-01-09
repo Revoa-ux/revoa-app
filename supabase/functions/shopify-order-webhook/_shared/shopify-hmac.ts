@@ -82,9 +82,9 @@ export async function verifyShopifyWebhook(
     });
     const isValid = await cryptoTimingSafeEqual(calculatedHmac, hmacHeader);
     if (isValid) {
-      console.log('[HMAC] ✅ Verification PASSED');
+      console.log('[HMAC] Verification PASSED');
     } else {
-      console.log('[HMAC] ❌ Verification FAILED');
+      console.log('[HMAC] Verification FAILED');
       const trimmedHeader = hmacHeader.trim();
       const trimmedCalc = calculatedHmac.trim();
       if (trimmedHeader === trimmedCalc) {
