@@ -1248,7 +1248,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 Array.from({ length: 15 }).map((_, skeletonIndex) => (
                   <div
                     key={`skeleton-${skeletonIndex}`}
-                    className={`flex items-center min-h-[60px] border-b border-gray-200 dark:border-gray-700 border-l-[3px] border-l-transparent animate-pulse ${
+                    className={`flex items-center min-h-[56px] border-b border-gray-200 dark:border-gray-700 border-l-[3px] border-l-transparent animate-pulse ${
                       skeletonIndex % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'
                     }`}
                   >
@@ -1269,8 +1269,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         : '';
 
                       return (
-                        <div key={column.id} className={`py-3 ${
-                          column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                        <div key={column.id} className={`flex items-center py-4 ${
+                          column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${skeletonBg}`} style={columnStyle}>
                           {column.id === 'select' ? (
                             <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -1375,7 +1375,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                     className={`group flex items-center min-h-[56px] transition-all duration-200 border-l-[3px] ${
                     hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                      ? 'mx-2 my-1 rounded-md border-y border-r'
+                      ? 'mx-2 rounded-md border-y border-r'
                       : 'border-b border-gray-100 dark:border-gray-700/50'
                   } ${
                     index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
@@ -1550,7 +1550,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
               {/* Sticky Totals Footer */}
               {sortedCreatives.length > 0 && (
                 <div className="sticky bottom-0 left-0 z-20 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style={{ minWidth: '100%', width: 'max-content' }}>
-                  <div className="flex items-center min-h-[52px]">
+                  <div className="flex items-center min-h-[56px]">
                     {columns.map((column) => {
                       const customWidth = columnWidths[column.id];
                       const finalWidth = customWidth || column.width;
@@ -1567,8 +1567,8 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       return (
                         <div
                           key={column.id}
-                          className={`flex items-center py-3 text-sm font-bold text-gray-900 dark:text-white ${
-                            column.id === 'select' ? 'pl-9 pr-4' : 'px-4'
+                          className={`flex items-center py-4 text-sm font-bold text-gray-900 dark:text-white ${
+                            column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                           } ${column.sticky ? 'bg-gray-50 dark:bg-gray-900' : ''}`}
                           style={columnStyle}
                         >
