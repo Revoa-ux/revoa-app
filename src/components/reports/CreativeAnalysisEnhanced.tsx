@@ -1356,7 +1356,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
                         hasPendingSuggestion
-                          ? 'border-y border-r border-red-500 dark:border-red-500 rounded-r cursor-pointer hover:translate-x-[2px]'
+                          ? 'my-0.5 mr-[3px] border-y border-r border-red-500 dark:border-red-500 rounded-r cursor-pointer hover:translate-x-[2px]'
                           : ''
                       }`}
                       data-row-index={index}
