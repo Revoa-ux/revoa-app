@@ -60,8 +60,29 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
     setIsProcessing(true);
     try {
       await onExecuteAction(actionType, parameters);
+
+      // Show success toast based on action type
+      const actionLabel = actionType === 'increase_budget' ? 'increased' :
+                         actionType === 'decrease_budget' ? 'decreased' :
+                         actionType === 'pause' ? 'paused' :
+                         actionType === 'duplicate' ? 'duplicated' :
+                         'updated';
+
+      toast.success(`${entityName} was ${actionLabel} successfully`);
     } catch (error) {
       console.error('Error executing action:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCreateRule = async () => {
+    setIsProcessing(true);
+    try {
+      await onCreateRule();
+      toast.success('Rule created, edit or delete it in the Automation page');
+    } catch (error) {
+      console.error('Error creating rule:', error);
     } finally {
       setIsProcessing(false);
     }
@@ -579,7 +600,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                           </div>
                         </div>
                         <button
-                          onClick={onCreateRule}
+                          onClick={handleCreateRule}
                           disabled={isProcessing}
                           className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -618,7 +639,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                       <div className="flex items-center gap-2 mb-4">
                         <Play className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                          AI Recommendations
+                          Suggested Actions
                         </h3>
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           Select to view supporting data
@@ -736,7 +757,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                         <div className="flex items-center gap-2 mb-4">
                           <Cpu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Automation Rule
+                            Suggested Automation
                           </h3>
                           <span className="text-sm text-gray-500 dark:text-gray-400">
                             Set it and forget it
@@ -842,7 +863,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onCreateRule();
+                                  handleCreateRule();
                                 }}
                                 disabled={isProcessing}
                                 className="w-full flex items-center justify-center gap-2 px-5 py-1.5 text-sm font-medium text-white bg-gray-800 dark:bg-gray-600 border border-gray-700 dark:border-gray-500 hover:bg-gray-900 hover:border-gray-800 dark:hover:bg-gray-700 dark:hover:border-gray-600 hover:shadow-md rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -1061,7 +1082,7 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Recommended Actions - Only for Simple View */}
             {viewMode === 'simple' && (
               <div>
-                <SectionHeader title="What you should do" icon={Play} />
+                <SectionHeader title="Suggested Actions" icon={Play} />
                 <div className="space-y-3">
                   {insight.directActions.map((action, idx) => {
                     const Icon = action.type === 'increase_budget' ? TrendingUp :
@@ -1285,9 +1306,9 @@ export const ComprehensiveRexInsightsModal: React.FC<ComprehensiveRexInsightsMod
             {/* Smart Automation Rules - Simple View (matches Expert style) */}
             {viewMode === 'simple' && insight.recommendedRule && (
               <div>
-                <SectionHeader title="Smart Automation" icon={Cpu} />
+                <SectionHeader title="Suggested Automation" icon={Cpu} />
                 <button
-                  onClick={onCreateRule}
+                  onClick={handleCreateRule}
                   disabled={isProcessing}
                   className="group relative w-full flex items-start gap-3 p-4 text-left bg-gradient-to-b from-gray-50 to-white dark:from-gray-800/50 dark:to-gray-900/50 border-2 border-gray-200 dark:border-gray-700 hover:bg-gray-100/50 dark:hover:bg-gray-700/30 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
