@@ -1367,14 +1367,14 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     } ${
                       index % 2 === 1 && !hasPendingSuggestion ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 border-l-4 border-l-red-500' : ''
+                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900 shadow-[inset_4px_0_0_0_rgb(239,68,68)]' : ''
                     } transition-colors duration-200`}
                   >
                     {/* Inner container */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
                       className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
-                        hasPendingSuggestion ? 'cursor-pointer ml-[-4px]' : ''
+                        hasPendingSuggestion ? 'cursor-pointer' : ''
                       }`}
                       data-row-index={index}
                       data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
