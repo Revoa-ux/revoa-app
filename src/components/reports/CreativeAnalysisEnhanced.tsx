@@ -1288,75 +1288,70 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 const handleMetricClick = async (e: React.MouseEvent) => {
                   if (suggestion) {
                     e.stopPropagation();
-                    if (expandedRowId === creative.id) {
-                      setExpandedRowId(null);
-                    } else {
-                      setExpandedRowId(creative.id);
-                      // Open modal with the first insight
-                      const insights = generatedInsights.get(creative.id);
-                      if (insights && insights.length > 0) {
-                        setOpenInsightModal({
-                          creativeId: creative.id,
-                          insight: insights[0],
-                          creative
-                        });
-                      }
-                      if (onViewSuggestion) {
-                        onViewSuggestion(suggestion);
-                      }
 
-                      // Trigger real AI analysis if not already done
-                      if (!generatedInsights.has(creative.id) && user?.id) {
-                        setIsAnalyzing(true);
-                        try {
-                          console.log('[CreativeAnalysis] Starting Rex analysis for:', creative.id);
-                          const orchestration = new RexOrchestrationService(user.id);
-                          const entity = {
-                            id: creative.id,
-                            platformId: creative.platformId || creative.id,
-                            platform: creative.platform || 'facebook',
-                            name: creative.name || creative.title || 'Unnamed',
-                            type: viewLevel === 'campaigns' ? 'campaign' as const :
-                                  viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
-                            status: creative.status || 'active',
-                            dailyBudget: creative.budget,
-                            spend: creative.spend,
-                            revenue: creative.revenue,
-                            conversions: creative.conversions,
-                            roas: creative.roas,
-                            cpa: creative.cpa
-                          };
+                    // Open modal directly without expanding row
+                    const insights = generatedInsights.get(creative.id);
+                    if (insights && insights.length > 0) {
+                      setOpenInsightModal({
+                        creativeId: creative.id,
+                        insight: insights[0],
+                        creative
+                      });
+                    }
+                    if (onViewSuggestion) {
+                      onViewSuggestion(suggestion);
+                    }
 
-                          const insights = await orchestration.analyzeEntity(entity, 30);
-                          console.log('[CreativeAnalysis] Insights generated:', insights.length);
+                    // Trigger real AI analysis if not already done
+                    if (!generatedInsights.has(creative.id) && user?.id) {
+                      setIsAnalyzing(true);
+                      try {
+                        console.log('[CreativeAnalysis] Starting Rex analysis for:', creative.id);
+                        const orchestration = new RexOrchestrationService(user.id);
+                        const entity = {
+                          id: creative.id,
+                          platformId: creative.platformId || creative.id,
+                          platform: creative.platform || 'facebook',
+                          name: creative.name || creative.title || 'Unnamed',
+                          type: viewLevel === 'campaigns' ? 'campaign' as const :
+                                viewLevel === 'adsets' ? 'ad_set' as const : 'ad' as const,
+                          status: creative.status || 'active',
+                          dailyBudget: creative.budget,
+                          spend: creative.spend,
+                          revenue: creative.revenue,
+                          conversions: creative.conversions,
+                          roas: creative.roas,
+                          cpa: creative.cpa
+                        };
 
-                          if (insights.length === 0) {
-                            console.warn('[CreativeAnalysis] No insights generated - using demo insight');
-                            const demoInsight = createDemoInsight();
-                            insights.push(demoInsight);
-                          }
+                        const insights = await orchestration.analyzeEntity(entity, 30);
+                        console.log('[CreativeAnalysis] Insights generated:', insights.length);
 
-                          const newInsights = new Map(generatedInsights);
-                          newInsights.set(creative.id, insights);
-                          setGeneratedInsights(newInsights);
-
-                          console.log('[CreativeAnalysis] Insights saved to state');
-
-                          // Automatically open modal with first insight after generation
-                          if (insights.length > 0) {
-                            setOpenInsightModal({
-                              creativeId: creative.id,
-                              insight: insights[0],
-                              creative
-                            });
-                          }
-                        } catch (error) {
-                          console.error('[CreativeAnalysis] Error analyzing entity:', error);
-                          toast.error('Failed to generate AI insights');
-                          setExpandedRowId(null);
-                        } finally {
-                          setIsAnalyzing(false);
+                        if (insights.length === 0) {
+                          console.warn('[CreativeAnalysis] No insights generated - using demo insight');
+                          const demoInsight = createDemoInsight();
+                          insights.push(demoInsight);
                         }
+
+                        const newInsights = new Map(generatedInsights);
+                        newInsights.set(creative.id, insights);
+                        setGeneratedInsights(newInsights);
+
+                        console.log('[CreativeAnalysis] Insights saved to state');
+
+                        // Automatically open modal with first insight after generation
+                        if (insights.length > 0) {
+                          setOpenInsightModal({
+                            creativeId: creative.id,
+                            insight: insights[0],
+                            creative
+                          });
+                        }
+                      } catch (error) {
+                        console.error('[CreativeAnalysis] Error analyzing entity:', error);
+                        toast.error('Failed to generate AI insights');
+                      } finally {
+                        setIsAnalyzing(false);
                       }
                     }
                   }
@@ -1366,21 +1361,27 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                 <div key={creative.id} className="relative">
                   <div
                     onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`flex items-center min-h-[56px] border-b border-gray-100 dark:border-gray-700/50 transition-all duration-200 ${
-                    index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-800'
+                    className={`flex items-center min-h-[56px] transition-all duration-200 ${
+                    hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
+                      ? 'mx-2 my-1 rounded-lg border shadow-sm'
+                      : 'border-b border-gray-100 dark:border-gray-700/50'
+                  } ${
+                    index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
+                  } ${
+                    index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-800' : ''
                   } ${
                     hasPendingSuggestion
-                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40 animate-pulse-slow'
+                      ? 'cursor-pointer hover:shadow-lg bg-gradient-to-r from-red-50 via-pink-50 to-red-50 dark:from-red-900/40 dark:via-pink-900/30 dark:to-red-900/40 animate-pulse-slow border-red-200 dark:border-red-800'
                       : 'hover:bg-gray-50 dark:hover:bg-gray-800/70'
                   } ${
                     hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-900/25 shadow-sm'
+                      ? 'bg-green-50 dark:bg-green-900/25 border-green-200 dark:border-green-800'
                       : ''
                   }`}
                   style={hasPendingSuggestion ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(239 68 68), 0 0 0 1px rgba(239 68 68 / 0.3)'
+                    boxShadow: 'inset 4px 0 0 0 rgb(239 68 68)'
                   } : hasActiveRule && suggestion?.performance?.is_improving ? {
-                    boxShadow: 'inset 3px 0 0 0 rgb(34 197 94), 0 0 0 1px rgba(34 197 94 / 0.25)'
+                    boxShadow: 'inset 4px 0 0 0 rgb(34 197 94)'
                   } : undefined}
                   title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                 >
