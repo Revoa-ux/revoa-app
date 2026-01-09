@@ -1386,27 +1386,36 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     style={{ zIndex: 40 }}
                   ></div>
 
+                  {/* Outer container for row background */}
                   <div
-                    onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                    className={`group flex items-center min-h-[56px] transition-all duration-200 ${
-                    hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
-                      ? 'border-y border-r'
-                      : 'border-b border-gray-100 dark:border-gray-700/50'
-                  } ${
-                    index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
-                  } ${
-                    index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
-                  } ${
-                    hasPendingSuggestion
-                      ? 'cursor-pointer bg-red-50 dark:bg-red-950 border-red-500 dark:border-red-500 hover:bg-red-50 dark:hover:bg-red-950 hover:translate-x-[2px]'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  } ${
-                    hasActiveRule && suggestion?.performance?.is_improving
-                      ? 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-950'
-                      : ''
-                  }`}
-                  title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
-                >
+                    className={`${
+                      index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
+                    } ${
+                      index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
+                    } ${
+                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950' : ''
+                    } ${
+                      hasActiveRule && suggestion?.performance?.is_improving ? 'bg-green-50 dark:bg-green-950' : ''
+                    }`}
+                  >
+                    {/* Inner container with border and padding */}
+                    <div
+                      onClick={hasPendingSuggestion ? handleMetricClick : undefined}
+                      className={`group flex items-center min-h-[56px] transition-all duration-200 ${
+                        hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
+                          ? 'mx-1 my-0.5 border-y border-r rounded-r'
+                          : 'border-b border-gray-100 dark:border-gray-700/50'
+                      } ${
+                        hasPendingSuggestion
+                          ? 'cursor-pointer border-red-500 dark:border-red-500 hover:translate-x-[2px]'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                      } ${
+                        hasActiveRule && suggestion?.performance?.is_improving
+                          ? 'border-green-200 dark:border-green-700 hover:bg-green-100/50 dark:hover:bg-green-950/50'
+                          : ''
+                      }`}
+                      title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
+                    >
                   {columns.map((column, colIndex) => {
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
@@ -1418,21 +1427,21 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                     };
 
-                    // Get the appropriate background for sticky columns (fully opaque)
+                    // Get the appropriate background for sticky columns (fully opaque with !important to override)
                     const getStickyBackground = () => {
                       if (!column.sticky) return '';
 
                       if (hasPendingSuggestion) {
-                        return 'bg-red-50 dark:bg-red-950';
+                        return '!bg-red-50 dark:!bg-red-950';
                       }
 
                       if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return 'bg-green-50 dark:bg-green-950';
+                        return '!bg-green-50 dark:!bg-green-950';
                       }
 
                       return index % 2 === 0
-                        ? 'bg-white dark:bg-gray-800'
-                        : 'bg-gray-50 dark:bg-gray-900';
+                        ? '!bg-white dark:!bg-gray-800'
+                        : '!bg-gray-50 dark:!bg-gray-900';
                     };
 
                     // No more individual metric glow - entire row glows now
@@ -1443,21 +1452,13 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         {creative.platform || 'facebook'}
                       </span>
                     ) : column.id === 'performance' ? (
-                      <span
-                        onClick={hasPendingSuggestion ? (e) => { e.stopPropagation(); handleMetricClick(); } : undefined}
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
-                          creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
-                          'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                        } ${hasPendingSuggestion ? 'cursor-pointer hover:scale-105 transition-transform border border-transparent' : ''}`}
-                        style={hasPendingSuggestion ? {
-                          borderImage: 'linear-gradient(135deg, #E11D48 40%, #EC4899 80%, #E8795A 100%) 1',
-                          borderWidth: '1px',
-                          borderStyle: 'solid'
-                        } : undefined}
-                      >
-                        {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        creative.performance === 'high' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' :
+                        creative.performance === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400' :
+                        'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                      }`}>
                         {hasPendingSuggestion && <Info className="w-3 h-3" />}
+                        {creative.performance.charAt(0).toUpperCase() + creative.performance.slice(1)}
                       </span>
                     ) : column.id === 'fatigueScore' ? (
                       <div className="flex items-center space-x-2">
@@ -1509,11 +1510,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
                         } ${getStickyBackground()} ${
-                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:bg-gray-100 group-hover:dark:bg-gray-700 transition-colors duration-200' : ''
+                          column.sticky && !hasPendingSuggestion && !hasActiveRule ? 'group-hover:!bg-gray-100 group-hover:dark:!bg-gray-700 transition-colors duration-200' : ''
                         } ${
-                          column.sticky && hasPendingSuggestion ? 'group-hover:bg-red-100 group-hover:dark:bg-red-950 transition-colors duration-200' : ''
+                          column.sticky && hasPendingSuggestion ? 'group-hover:!bg-red-100 group-hover:dark:!bg-red-950 transition-colors duration-200' : ''
                         } ${
-                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:bg-green-100 group-hover:dark:bg-green-950 transition-colors duration-200' : ''
+                          column.sticky && hasActiveRule && suggestion?.performance?.is_improving ? 'group-hover:!bg-green-100 group-hover:dark:!bg-green-950 transition-colors duration-200' : ''
                         }`}
                         style={columnStyle}
                         onClick={(e) => {
@@ -1531,6 +1532,7 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                       </div>
                     );
                   })}
+                    </div>
                   </div>
 
                   {/* Modal is rendered outside the table */}
