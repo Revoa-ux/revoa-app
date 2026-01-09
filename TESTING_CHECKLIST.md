@@ -31,12 +31,12 @@
 **Test:** Verify AI doesn't block table interaction
 
 **Expected Results:**
-- [ ] Blue "AI Analyzing..." badge appears after metrics load
-- [ ] Toast: "Revoa AI is analyzing your ads..."
+- [ ] Badge transforms from red "Infused with Revoa AI" to blue "AI Analyzing..." after metrics load
+- [ ] Spinner icon appears on blue badge
 - [ ] Table remains fully interactive during AI analysis
 - [ ] Can click rows, drill down, search while AI runs
 - [ ] Can change tabs (Campaigns/Ad Sets/Ads) while AI runs
-- [ ] Badge disappears when AI completes
+- [ ] Badge transforms back to red when AI completes
 
 **How to Test:**
 1. Click refresh button
@@ -57,9 +57,8 @@
 **Test:** Verify AI completes successfully and shows suggestions
 
 **Expected Results:**
-- [ ] Blue badge appears and animates
-- [ ] Toast: "Revoa AI is analyzing your ads..."
-- [ ] After 15-60 seconds, badge disappears
+- [ ] Badge transforms to blue "AI Analyzing..." with spinner
+- [ ] After 15-60 seconds, badge transforms back to red
 - [ ] Green gradient rows appear on entities with suggestions
 - [ ] Toast: "Revoa AI found X optimization opportunities!"
 - [ ] Can click green rows to view suggestions
@@ -67,9 +66,9 @@
 **How to Test:**
 1. Click refresh button
 2. Wait for metrics (3-5 seconds)
-3. Watch blue badge appear
+3. Watch badge transform from red to blue
 4. Wait for AI to complete (may take 1-2 minutes)
-5. Verify badge disappears
+5. Verify badge transforms back to red
 6. Look for green gradient rows
 7. Click a green row to view suggestion details
 
@@ -88,7 +87,7 @@
 
 **Expected Results:**
 - [ ] If AI takes over 2 minutes, timeout triggers
-- [ ] Badge disappears
+- [ ] Badge transforms back to red "Infused with Revoa AI"
 - [ ] Toast: "AI analysis is taking longer than expected. Check back in a few minutes."
 - [ ] Metrics remain fully functional
 - [ ] No app crash or error state
@@ -99,7 +98,8 @@
 3. Wait for metrics to load
 4. Wait 2+ minutes while AI runs
 5. Verify timeout message appears
-6. Verify table still works normally
+6. Verify badge is back to red
+7. Verify table still works normally
 
 **Console Output to Check:**
 ```
@@ -209,18 +209,19 @@
 **Expected Results:**
 - [ ] Refresh button shows spinner when syncing
 - [ ] Table shows skeleton loader during data fetch
-- [ ] Blue animated badge appears during AI analysis
-- [ ] Badge has spinning icon and "AI Analyzing..." text
+- [ ] Badge transforms from red to blue during AI analysis
+- [ ] Blue badge has spinning icon and "AI Analyzing..." text
+- [ ] Badge transforms back to red when AI completes
 - [ ] Success toast appears when metrics load
-- [ ] Info toast appears when AI starts
 - [ ] Success/error toast appears when AI completes
 - [ ] Green gradient rows appear for suggestions
 
 **How to Test:**
 1. Watch all animations during refresh
-2. Verify each indicator appears at correct time
-3. Verify indicators disappear when phase completes
-4. Check responsive layout (mobile/tablet/desktop)
+2. Verify badge color transformation (red → blue → red)
+3. Verify each indicator appears at correct time
+4. Verify indicators disappear when phase completes
+5. Check responsive layout (mobile/tablet/desktop)
 
 ---
 

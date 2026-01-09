@@ -8,15 +8,17 @@
 - No more waiting for AI analysis before seeing numbers
 
 ### 2. **AI Works in the Background** 🤖
-- Look for the blue "AI Analyzing..." badge in the header
+- The "Infused with Revoa AI" badge transforms to blue "AI Analyzing..." when working
 - Your metrics are fully interactive while AI works
 - AI suggestions appear dynamically as they're generated
 - Table remains responsive the entire time
+- Badge automatically returns to normal when AI completes
 
 ### 3. **Better Status Indicators** 📊
 - **Spinning refresh button** = Syncing data
 - **Table skeleton loader** = Loading metrics
-- **Blue animated badge** = AI is analyzing
+- **Red "Infused with Revoa AI" badge** = Normal state (AI ready)
+- **Blue "AI Analyzing..." badge** = AI is working in background
 - **Success toast** = Metrics loaded successfully
 - **Green gradient rows** = AI found optimization opportunities
 
@@ -64,13 +66,13 @@ If AI encounters an issue, you'll see specific messages:
    - Table becomes interactive
    - Start analyzing your campaigns/ads/ad sets immediately
 
-3. **AI badge appears** (optional)
-   - Blue badge: "AI Analyzing..."
-   - Toast: "Revoa AI is analyzing your ads..."
+3. **AI badge transforms** (optional)
+   - Badge changes from red "Infused with Revoa AI" to blue "AI Analyzing..."
+   - Spinner icon appears on badge
    - Continue working - no need to wait
 
 4. **AI completes** (15-60 seconds later)
-   - Badge disappears
+   - Badge transforms back to red "Infused with Revoa AI"
    - Row gradients appear on entities with suggestions
    - Toast: "Revoa AI found X optimization opportunities!"
 
@@ -88,7 +90,7 @@ If AI encounters an issue, you'll see specific messages:
 4. If persists, contact support with error message
 
 ### Scenario: "AI suggestions not showing"
-**What you see:** Metrics load, but no AI badge or suggestions
+**What you see:** Metrics load, badge stays red (no transformation to blue)
 
 **Possible reasons:**
 - Cooldown period active (wait 5 minutes)
@@ -103,12 +105,12 @@ If AI encounters an issue, you'll see specific messages:
 - Your metrics are still fully functional
 
 ### Scenario: "AI is stuck analyzing"
-**What you see:** Blue badge for over 2 minutes
+**What you see:** Blue "AI Analyzing..." badge for over 2 minutes
 
 **What happens:**
 - AI has automatic 2-minute timeout
 - You'll see: "AI analysis is taking longer than expected"
-- Badge will disappear
+- Badge transforms back to red "Infused with Revoa AI"
 - Metrics remain fully functional
 - AI will retry on next manual refresh
 
@@ -145,13 +147,21 @@ If AI encounters an issue, you'll see specific messages:
 ### What Each Indicator Means
 
 ```
+Normal State:
 ┌─────────────────────────────────────────┐
 │ Cross-Platform Ad Manager               │
-│ [Infused with Revoa AI] [AI Analyzing...]│ ← Blue badge = AI working
+│ [Infused with Revoa AI] ← Red badge = Ready
+│ • Meta Ads Connected - Updated 2m ago   │
+└─────────────────────────────────────────┘
+
+AI Analyzing:
+┌─────────────────────────────────────────┐
+│ Cross-Platform Ad Manager               │
+│ [🔄 AI Analyzing...] ← Blue badge = Working
 │ • Meta Ads Connected - Updated 2m ago   │
 └─────────────────────────────────────────┘
          ↑
-    Status indicator
+    Badge transforms color and text
 
 [Refresh 🔄] ← Spinning = Syncing data
 

@@ -773,7 +773,6 @@ export default function Audit() {
       const hasData = creativesData.length > 0 || campaignsData.length > 0 || adSetsData.length > 0;
       if (hasData) {
         console.log('[Refresh] Phase 2: Starting background AI analysis...');
-        toast.info('Revoa AI is analyzing your ads...', { duration: 3000 });
 
         // Run AI analysis in background (non-blocking)
         // Use setTimeout to ensure it runs after the current call stack completes
@@ -934,15 +933,16 @@ export default function Audit() {
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-normal text-gray-900 dark:text-white mb-2 flex items-center gap-3">
           <span>Cross-Platform Ad Manager</span>
-          <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
-            <span className="sm:hidden">AI</span>
-            <span className="hidden sm:inline">Infused with Revoa AI</span>
-          </span>
-          {isGeneratingAI && (
+          {isGeneratingAI ? (
             <span className="flex items-center gap-2 px-3 py-1 text-xs font-normal bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded-full backdrop-blur-sm animate-pulse">
               <RefreshCw className="w-3 h-3 animate-spin" />
               <span className="hidden sm:inline">AI Analyzing...</span>
               <span className="sm:hidden">Analyzing...</span>
+            </span>
+          ) : (
+            <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
+              <span className="sm:hidden">AI</span>
+              <span className="hidden sm:inline">Infused with Revoa AI</span>
             </span>
           )}
         </h1>

@@ -127,16 +127,22 @@ const [isGeneratingAI, setIsGeneratingAI] = useState(false); // AI analyzing
 - "Syncing..." status
 
 **AI Analyzing:**
-- Blue animated badge in header: "AI Analyzing..."
-- Persistent toast: "Revoa AI is analyzing your ads..."
+- Badge transforms from "Infused with Revoa AI" to "AI Analyzing..." with spinner
+- Blue animated appearance during analysis
 - No blocking of user interaction
+- No extra toasts (badge is the indicator)
 
 ```tsx
-{isGeneratingAI && (
+{isGeneratingAI ? (
   <span className="flex items-center gap-2 px-3 py-1 text-xs font-normal bg-blue-500/15 text-blue-600 dark:text-blue-400 rounded-full backdrop-blur-sm animate-pulse">
     <RefreshCw className="w-3 h-3 animate-spin" />
     <span className="hidden sm:inline">AI Analyzing...</span>
     <span className="sm:hidden">Analyzing...</span>
+  </span>
+) : (
+  <span className="px-3 py-1 text-xs font-normal bg-red-500/15 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm">
+    <span className="sm:hidden">AI</span>
+    <span className="hidden sm:inline">Infused with Revoa AI</span>
   </span>
 )}
 ```
@@ -277,12 +283,12 @@ setTimeout(async () => {
    → Loading state ends
    → Toast: "Data refreshed successfully"
 
-5. [Background] Blue "AI Analyzing..." badge appears
-   → Toast: "Revoa AI is analyzing your ads..."
+5. [Background] Badge transforms to blue "AI Analyzing..." with spinner
+   → Red "Infused with Revoa AI" → Blue "AI Analyzing..."
 
 6. [15 seconds later] AI completes
    → Row gradients appear for entities with suggestions
-   → Badge disappears
+   → Badge transforms back to red "Infused with Revoa AI"
    → Toast: "Revoa AI found 12 optimization opportunities!"
 ```
 
@@ -290,11 +296,11 @@ setTimeout(async () => {
 ```
 1-4. [Same as Scenario 1] Metrics load normally
 
-5. [Background] AI starts analyzing
-   → Blue badge appears
+5. [Background] Badge transforms to blue "AI Analyzing..."
+   → Red "Infused with Revoa AI" → Blue "AI Analyzing..."
 
 6. [2 minutes later] AI times out
-   → Badge disappears
+   → Badge transforms back to red "Infused with Revoa AI"
    → Toast: "AI analysis is taking longer than expected. Check back in a few minutes."
    → Metrics remain fully functional
 ```
@@ -303,8 +309,11 @@ setTimeout(async () => {
 ```
 1-4. [Same as Scenario 1] Metrics load normally
 
-5. [Background] AI hits rate limit
-   → Badge disappears
+5. [Background] Badge transforms to blue "AI Analyzing..."
+   → Red "Infused with Revoa AI" → Blue "AI Analyzing..."
+
+6. [Immediately] AI hits rate limit
+   → Badge transforms back to red "Infused with Revoa AI"
    → Toast: "AI analysis rate limit reached. Try again in a few minutes."
    → Metrics remain fully functional
 ```
