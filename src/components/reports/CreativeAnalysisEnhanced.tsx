@@ -1374,34 +1374,37 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
 
                 return (
                 <div key={creative.id} className="relative">
-                  {/* Outer container for row background */}
+                  {/* Outer container for row background with hover - group class here for sticky column hover */}
                   <div
-                    className={`${
-                      index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800' : ''
+                    className={`group ${
+                      index % 2 === 0 && !hasPendingSuggestion && !hasActiveRule ? 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900' : ''
+                      index % 2 === 1 && !hasPendingSuggestion && !hasActiveRule ? 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                     } ${
-                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950' : ''
+                      hasPendingSuggestion ? 'bg-red-50 dark:bg-red-950 hover:bg-red-100 dark:hover:bg-red-900' : ''
                     } ${
-                      hasActiveRule && suggestion?.performance?.is_improving ? 'bg-green-50 dark:bg-green-950' : ''
-                    }`}
+                      hasActiveRule && suggestion?.performance?.is_improving ? 'bg-green-50 dark:bg-green-950 hover:bg-green-100 dark:hover:bg-green-900' : ''
+                    } transition-colors duration-200`}
                   >
                     {/* Inner container with border and padding */}
                     <div
                       onClick={hasPendingSuggestion ? handleMetricClick : undefined}
-                      className={`group relative flex items-center min-h-[56px] transition-all duration-200 ${
+                      className={`relative flex items-center min-h-[56px] transition-all duration-200 ${
                         hasPendingSuggestion || (hasActiveRule && suggestion?.performance?.is_improving)
                           ? 'mx-[3px] my-0.5 border-y border-r rounded-r'
-                          : 'border-b border-gray-100 dark:border-gray-700/50'
+                          : ''
                       } ${
                         hasPendingSuggestion
                           ? 'cursor-pointer border-red-500 dark:border-red-500 hover:translate-x-[2px]'
-                          : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                          : ''
                       } ${
                         hasActiveRule && suggestion?.performance?.is_improving
-                          ? 'border-green-200 dark:border-green-700 hover:bg-green-100/50 dark:hover:bg-green-950/50'
+                          ? 'border-green-200 dark:border-green-700'
                           : ''
                       }`}
+                      data-row-index={index}
+                      data-has-suggestion={hasPendingSuggestion ? 'true' : 'false'}
+                      data-has-rule={hasActiveRule && suggestion?.performance?.is_improving ? 'true' : 'false'}
                       title={hasPendingSuggestion ? '🤖 Rex has an AI-powered optimization suggestion - Click to view!' : undefined}
                     >
                       {/* Left border indicator - positioned to extend to the edge and connect with top/bottom borders */}
@@ -1419,41 +1422,29 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     const customWidth = columnWidths[column.id];
                     const finalWidth = customWidth || column.width;
 
-                    // Get inline background color for sticky columns (highest specificity)
-                    const getStickyInlineBackground = () => {
-                      if (!column.sticky) return undefined;
-
-                      // Check theme from document
-                      const isDark = document.documentElement.classList.contains('dark');
-
-                      if (hasPendingSuggestion) {
-                        return isDark ? 'rgb(69, 10, 10)' : 'rgb(254, 242, 242)'; // red-950 / red-50
-                      }
-
-                      if (hasActiveRule && suggestion?.performance?.is_improving) {
-                        return isDark ? 'rgb(5, 46, 22)' : 'rgb(240, 253, 244)'; // green-950 / green-50
-                      }
-
-                      return index % 2 === 0
-                        ? (isDark ? 'rgb(31, 41, 55)' : 'rgb(255, 255, 255)') // gray-800 / white
-                        : (isDark ? 'rgb(17, 24, 39)' : 'rgb(249, 250, 251)'); // gray-900 / gray-50
-                    };
-
                     const columnStyle = {
                       width: finalWidth,
                       minWidth: finalWidth,
                       maxWidth: finalWidth,
                       flex: '0 0 auto',
-                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {}),
-                      ...(column.sticky ? { backgroundColor: getStickyInlineBackground() } : {})
+                      ...(column.sticky ? getStickyStyles(column.id, finalWidth) : {})
                     };
 
-                    // Get the appropriate background for sticky columns (fully opaque with !important to override all parent hover states)
-                    const getStickyBackground = () => {
+                    // Get the appropriate background classes for sticky columns with hover support
+                    const getStickyBackgroundClasses = () => {
                       if (!column.sticky) return '';
 
-                      // Base classes that prevent any parent hover effects and borders
-                      return 'border-0 !border-0';
+                      if (hasPendingSuggestion) {
+                        return 'bg-red-50 dark:bg-red-950 group-hover:bg-red-100 dark:group-hover:bg-red-900';
+                      }
+
+                      if (hasActiveRule && suggestion?.performance?.is_improving) {
+                        return 'bg-green-50 dark:bg-green-950 group-hover:bg-green-100 dark:group-hover:bg-green-900';
+                      }
+
+                      return index % 2 === 0
+                        ? 'bg-white dark:bg-gray-800 group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
+                        : 'bg-gray-50 dark:bg-gray-900 group-hover:bg-gray-100 dark:group-hover:bg-gray-700';
                     };
 
                     // No more individual metric glow - entire row glows now
@@ -1517,11 +1508,11 @@ export const CreativeAnalysisEnhanced: React.FC<CreativeAnalysisEnhancedProps> =
                     return (
                       <div
                         key={column.id}
-                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white ${
+                        className={`flex items-center py-4 text-sm text-gray-900 dark:text-white transition-colors duration-200 ${
                           column.id === 'select' ? 'pl-9 pr-6' : 'px-4'
                         } ${
                           column.id === 'adName' ? 'overflow-hidden' : ''
-                        } ${getStickyBackground()}`}
+                        } ${getStickyBackgroundClasses()}`}
                         style={columnStyle}
                         onClick={(e) => {
                           // Prevent modal from opening when clicking checkbox or status toggle
